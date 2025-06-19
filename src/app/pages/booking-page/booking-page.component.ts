@@ -26,13 +26,13 @@ import { CalendarComponent } from '../../features/calendar/calendar.component';
   templateUrl: './booking-page.component.html',
 })
 export class BookingPageComponent {
-  nouClient = signal({ nom: '', data: '' });
+  nouClient = signal({ nom: '', data: '', hora: '' });
   cites = signal<any[]>([]);
 
   events = computed(() => {
     return this.cites().map(c => ({
       title: c.nom,
-      start: c.data
+      start: c.data + (c.hora ? 'T' + c.hora : '')
     }));
   });
 
@@ -61,9 +61,14 @@ export class BookingPageComponent {
     this.nouClient.update(client => ({ ...client, data: value }));
   }
 
-  onDateSelected(date: string) {
-    console.log('Booking component received date:', date);
-    this.updateData(date);
+  updateHora(value: string) {
+    this.nouClient.update(client => ({ ...client, hora: value }));
+  }
+
+  onDateSelected(selection: {date: string, time: string}) {
+    console.log('Booking component received selection:', selection);
+    this.updateData(selection.date);
+    this.updateHora(selection.time);
   }
 
   afegirCita() {
@@ -72,14 +77,15 @@ export class BookingPageComponent {
       id: uuidv4()
     };
     this.cites.update(cites => [...cites, nova]);
-    this.nouClient.set({ nom: '', data: '' });
+    this.nouClient.set({ nom: '', data: '', hora: '' });
     this.guardarCites();
 
     // Show success toast
+    const timeStr = nova.hora ? ` a les ${nova.hora}` : '';
     this.messageService.add({
       severity: 'success',
       summary: 'Reserva creada',
-      detail: `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)}`,
+      detail: `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)}${timeStr}`,
       life: 3000
     });
   }
@@ -89,10 +95,11 @@ export class BookingPageComponent {
     this.guardarCites();
 
     // Show info toast
+    const timeStr = cita.hora ? ` a les ${cita.hora}` : '';
     this.messageService.add({
       severity: 'info',
       summary: 'Reserva eliminada',
-      detail: `S'ha eliminat la reserva de ${cita.nom} del ${this.formatDate(cita.data)}`,
+      detail: `S'ha eliminat la reserva de ${cita.nom} del ${this.formatDate(cita.data)}${timeStr}`,
       life: 3000
     });
   }
