@@ -1,9 +1,9 @@
-import { Component, input, computed, output, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, input, computed, output, signal, ElementRef, ViewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { CalendarOptions } from '@fullcalendar/core';
+import { CalendarOptions, DateSelectArg, EventClickArg } from '@fullcalendar/core';
 
 @Component({
   selector: 'pelu-calendar-component',
@@ -18,18 +18,33 @@ export class CalendarComponent {
   mini = input<boolean>(false);
   events = input<{ title: string; start: string }[]>([]);
 
-  dateSelected = output<string>();
+  dateSelected = output<{date: string, time: string}>();
 
   private today = new Date();
   private todayStr = this.today.toISOString().split('T')[0];
-  private selectedDate = signal<string>('');
+  private selectedDateTime = signal<{date: string, time: string}>({date: '', time: ''});
+  showTimePopup = signal<boolean>(false);
+  popupDate = signal<string>('');
+
+  constructor() {
+    // Effect to reapply styles when view changes
+    effect(() => {
+      const selected = this.selectedDateTime();
+
+      if (selected.date) {
+        setTimeout(() => {
+          this.applySelectedDateStyle(selected.date);
+        }, 200);
+      }
+    });
+  }
 
   private baseOptions = computed<CalendarOptions>(() => {
     const isMini = this.mini();
     return {
       plugins: [dayGridPlugin, interactionPlugin],
-      initialView: isMini ? 'dayGridWeek' : 'dayGridMonth',
-      height: isMini ? 250 : 'auto',
+      initialView: 'dayGridMonth',
+      height: isMini ? 400 : 'auto',
       headerToolbar: isMini ? {
         left: 'prev,next',
         center: 'title',
@@ -37,7 +52,7 @@ export class CalendarComponent {
       } : {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth'
+        right: ''
       },
       buttonText: {
         prev: '←',
@@ -48,25 +63,13 @@ export class CalendarComponent {
         start: this.todayStr
       },
       selectable: false,
-      dateClick: (info) => {
+      dateClick: (info: any) => {
         console.log('Date clicked:', info.dateStr);
         const clickedDate = info.dateStr;
         if (clickedDate >= this.todayStr) {
-          const currentSelected = this.selectedDate();
-
-          if (currentSelected === clickedDate) {
-            // If same date is clicked, deselect it
-            console.log('Deselecting date:', clickedDate);
-            this.selectedDate.set('');
-            this.clearSelectedDateStyle();
-            this.dateSelected.emit('');
-          } else {
-            // Select new date
-            console.log('Selecting new date:', clickedDate);
-            this.selectedDate.set(clickedDate);
-            this.applySelectedDateStyle(clickedDate);
-            this.dateSelected.emit(clickedDate);
-          }
+          // Show time popup for date selection
+          this.popupDate.set(clickedDate);
+          this.showTimePopup.set(true);
         }
       },
       dayCellDidMount: (info) => {
@@ -76,17 +79,15 @@ export class CalendarComponent {
           info.el.style.pointerEvents = 'none';
         }
 
-        // Add selected date styling
-        if (cellDate === this.selectedDate()) {
+        if (cellDate === this.selectedDateTime().date) {
           this.addSelectedClass(info.el);
         }
       },
       datesSet: () => {
-        // Re-apply selected date styling when view changes
         setTimeout(() => {
-          const selectedDate = this.selectedDate();
-          if (selectedDate) {
-            this.applySelectedDateStyle(selectedDate);
+          const selected = this.selectedDateTime();
+          if (selected.date) {
+            this.applySelectedDateStyle(selected.date);
           }
         }, 100);
       }
@@ -101,6 +102,18 @@ export class CalendarComponent {
       events: events
     };
   });
+
+  selectTime(time: string) {
+    const date = this.popupDate();
+    this.selectedDateTime.set({date, time});
+    this.applySelectedDateStyle(date);
+    this.dateSelected.emit({date, time});
+    this.showTimePopup.set(false);
+  }
+
+  closeTimePopup() {
+    this.showTimePopup.set(false);
+  }
 
   private applySelectedDateStyle(selectedDate: string) {
     const cells = this.calendarContainer?.nativeElement?.querySelectorAll('.fc-daygrid-day');
@@ -144,16 +157,39 @@ export class CalendarComponent {
   }
 
   getSelectedDateMessage() {
-    const selected = this.selectedDate();
-    if (selected) {
-      const date = new Date(selected);
-      return `Dia seleccionat: ${date.toLocaleDateString('ca-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })}`;
+    const selected = this.selectedDateTime();
+    if (selected.date) {
+      const dateStr = this.formatPopupDate(selected.date);
+
+      if (selected.time) {
+        return `Seleccionat: ${dateStr} a les ${selected.time}`;
+      } else {
+        return `Dia seleccionat: ${dateStr}`;
+      }
     }
     return 'Cap dia seleccionat';
+  }
+
+  getTimeSlots() {
+    const slots = [];
+    for (let hour = 8; hour <= 20; hour++) {
+      const time = `${hour.toString().padStart(2, '0')}:00`;
+      slots.push(time);
+    }
+    return slots;
+  }
+
+  formatPopupDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const days = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+    const months = ['gener', 'febrer', 'març', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
+
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${dayName}, ${day} de ${month} de ${year}`;
   }
 }

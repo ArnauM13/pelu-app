@@ -1,6 +1,26 @@
 <div class="calendar-container" #calendarContainer>
   <full-calendar [options]="calendarOptions()"></full-calendar>
 </div>
+
+<!-- Time Selection Popup -->
+@if (showTimePopup()) {
+<div class="time-popup-overlay" (click)="closeTimePopup()">
+  <div class="time-popup" (click)="$event.stopPropagation()">
+    <div class="time-popup-header">
+      <h3>Selecciona una hora per {{ formatPopupDate(popupDate()) }}</h3>
+      <button class="close-btn" (click)="closeTimePopup()">×</button>
+    </div>
+    <div class="time-slots">
+      @for (time of getTimeSlots(); track time) {
+      <button class="time-slot" (click)="selectTime(time)">
+        {{ time }}
+      </button>
+      }
+    </div>
+  </div>
+</div>
+}
+
 <div class="selected-date-message">
   {{ getSelectedDateMessage() }}
 </div>
