@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { Component, input, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -11,32 +11,34 @@ import { CalendarOptions } from '@fullcalendar/core';
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
-export class CalendarComponent implements OnChanges, OnInit {
-  @Input() events: { title: string; start: string }[] = [];
+export class CalendarComponent {
+  events = input<{ title: string; start: string }[]>([]);
 
-  calendarOptions: CalendarOptions = {
+  private baseOptions = signal<CalendarOptions>({
     plugins: [dayGridPlugin],
     initialView: 'dayGridMonth',
-    events: [],
     height: 'auto',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
       right: 'dayGridMonth'
     }
-  };
+  });
 
-  ngOnInit() {
-    console.log('Calendar component initialized');
-  }
+  calendarOptions = computed(() => {
+    const base = this.baseOptions();
+    const events = this.events();
+    return {
+      ...base,
+      events: events
+    };
+  });
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['events']) {
-      console.log('Events changed:', this.events);
-      this.calendarOptions = {
-        ...this.calendarOptions,
-        events: this.events
-      };
-    }
+  constructor() {
+    // Effect to log when events change (optional, for debugging)
+    effect(() => {
+      const events = this.events();
+      console.log('Calendar events updated:', events.length, 'events');
+    });
   }
 }
