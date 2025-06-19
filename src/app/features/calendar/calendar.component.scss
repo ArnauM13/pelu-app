@@ -1,0 +1,20 @@
+.calendar-container {
+  width: 100%;
+  min-height: 400px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .fc {
+  font-family: inherit;
+}
+
+:host ::ng-deep .fc-toolbar {
+  background: #f8f9fa;
+  padding: 1rem;
+}
+
+:host ::ng-deep .fc-daygrid-day {
+  min-height: 80px;
+}
