@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 
@@ -33,7 +34,19 @@ export class BookingPageComponent {
 
   constructor() {
     const dades = JSON.parse(localStorage.getItem('cites') || '[]');
-    this.cites.set(dades);
+    // Migrate existing appointments to have IDs
+    const dadesAmbIds = dades.map((cita: any) => {
+      if (!cita.id) {
+        return { ...cita, id: uuidv4() };
+      }
+      return cita;
+    });
+    this.cites.set(dadesAmbIds);
+
+    // Save migrated data back to localStorage
+    if (dades.length > 0 && dadesAmbIds.length === dades.length) {
+      localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
+    }
   }
 
   updateNom(value: string) {
@@ -44,15 +57,23 @@ export class BookingPageComponent {
     this.nouClient.update(client => ({ ...client, data: value }));
   }
 
+  onDateSelected(date: string) {
+    console.log('Booking component received date:', date);
+    this.updateData(date);
+  }
+
   afegirCita() {
-    const nova = { ...this.nouClient() };
+    const nova = {
+      ...this.nouClient(),
+      id: uuidv4()
+    };
     this.cites.update(cites => [...cites, nova]);
     this.nouClient.set({ nom: '', data: '' });
     this.guardarCites();
   }
 
   esborrarCita(cita: any) {
-    this.cites.update(cites => cites.filter(c => c !== cita));
+    this.cites.update(cites => cites.filter(c => c.id !== cita.id));
     this.guardarCites();
   }
 
