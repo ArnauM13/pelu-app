@@ -6,6 +6,27 @@
   overflow: hidden;
 }
 
+// Basic styles without ::ng-deep
+.selected-date {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-radius: 6px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.selected-date-message {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #495057;
+  text-align: center;
+  font-weight: 500;
+}
+
 :host ::ng-deep .fc {
   font-family: inherit;
 }
@@ -17,4 +38,30 @@
 
 :host ::ng-deep .fc-daygrid-day {
   min-height: 80px;
+}
+
+:host ::ng-deep .selected-date .fc-daygrid-day-number {
+  color: white !important;
+  font-weight: 600;
+}
+
+:host ::ng-deep .selected-date:hover {
+  background-color: var(--primary-600, #2563eb) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .fc-daygrid-day:hover:not(.selected-date) {
+  background-color: var(--surface-hover, #f1f5f9);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .fc-daygrid-day {
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .selected-date {
+  transition: all 0.2s ease;
 }

@@ -1,3 +1,6 @@
-<div class="calendar-container">
+<div class="calendar-container" #calendarContainer>
   <full-calendar [options]="calendarOptions()"></full-calendar>
+</div>
+<div class="selected-date-message">
+  {{ getSelectedDateMessage() }}
 </div>
