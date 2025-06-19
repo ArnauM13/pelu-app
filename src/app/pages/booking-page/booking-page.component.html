@@ -1,4 +1,11 @@
+<p-toast></p-toast>
+
 <div class="booking-grid p-4">
+  <div class="booking-calendar col-12 md:col-7 p-card">
+    <h2>Calendari</h2>
+    <pelu-calendar-component [events]="events()" [mini]="true" (dateSelected)="onDateSelected($event)" />
+  </div>
+
   <div class="booking-form p-card col-12 md:col-5">
     <h2>Nova reserva</h2>
     <form (ngSubmit)="afegirCita()" #form="ngForm" novalidate>
@@ -23,11 +30,6 @@
               [disabled]="form.invalid">
       </button>
     </form>
-  </div>
-
-  <div class="booking-calendar col-12 md:col-7 p-card">
-    <h2>Calendari</h2>
-    <pelu-calendar-component [events]="events()" [mini]="true" (dateSelected)="onDateSelected($event)" />
   </div>
 
   <div class="booking-list p-card col-12 mt-4">
