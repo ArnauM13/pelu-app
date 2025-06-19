@@ -5,16 +5,16 @@
         <div class="flex flex-column gap-3">
           <div class="flex flex-column gap-2">
             <label for="nom">Nom del client</label>
-            <input id="nom" type="text" pInputText [(ngModel)]="nouClient.nom" name="nom" required />
+            <input id="nom" type="text" pInputText [ngModel]="nouClient().nom" (ngModelChange)="updateNom($event)" name="nom" required />
           </div>
 
           <div class="flex flex-column gap-2">
             <label for="data">Data</label>
-            <input id="data" type="date" pInputText [(ngModel)]="nouClient.data" name="data" required />
+            <input id="data" type="date" pInputText [ngModel]="nouClient().data" (ngModelChange)="updateData($event)" name="data" required />
           </div>
 
           <button type="submit" pButton label="Reservar"
-                  [disabled]="!nouClient.nom || !nouClient.data">
+                  [disabled]="!nouClient().nom || !nouClient().data">
           </button>
         </div>
       </form>
@@ -22,18 +22,20 @@
   </div>
 
   <div class="col-12 md:col-8">
-    <pelu-calendar-component [events]="events" />
+    <pelu-calendar-component [events]="events()" />
   </div>
 
   <div class="col-12 mt-4">
     <p-card header="Cites programades">
       <ul class="list-none p-0 m-0">
-        <li *ngFor="let cita of cites" class="flex justify-content-between align-items-center p-3 border-bottom-1 surface-border">
+        @for (cita of cites(); track cita.id) {
+        <li class="flex justify-content-between align-items-center p-3 border-bottom-1 surface-border">
           <span>{{ cita.data }} - {{ cita.nom }}</span>
           <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm"
-                  (click)="esborrarCita(cita)">
+            (click)="esborrarCita(cita)">
           </button>
         </li>
+        }
       </ul>
     </p-card>
   </div>

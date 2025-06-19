@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -21,34 +21,42 @@ import { CalendarComponent } from '../../features/calendar/calendar.component';
   templateUrl: './booking-page.component.html',
 })
 export class BookingPageComponent {
-  nouClient = { nom: '', data: '' };
-  cites: any[] = [];
+  nouClient = signal({ nom: '', data: '' });
+  cites = signal<any[]>([]);
+
+  events = computed(() => {
+    return this.cites().map(c => ({
+      title: c.nom,
+      start: c.data
+    }));
+  });
+
+  constructor() {
+    const dades = JSON.parse(localStorage.getItem('cites') || '[]');
+    this.cites.set(dades);
+  }
+
+  updateNom(value: string) {
+    this.nouClient.update(client => ({ ...client, nom: value }));
+  }
+
+  updateData(value: string) {
+    this.nouClient.update(client => ({ ...client, data: value }));
+  }
 
   afegirCita() {
-    const nova = { ...this.nouClient };
-    this.cites.push(nova);
-    this.nouClient = { nom: '', data: '' };
+    const nova = { ...this.nouClient() };
+    this.cites.update(cites => [...cites, nova]);
+    this.nouClient.set({ nom: '', data: '' });
     this.guardarCites();
   }
 
   esborrarCita(cita: any) {
-    this.cites = this.cites.filter(c => c !== cita);
+    this.cites.update(cites => cites.filter(c => c !== cita));
     this.guardarCites();
   }
 
   guardarCites() {
-    localStorage.setItem('cites', JSON.stringify(this.cites));
-  }
-
-  get events() {
-    return this.cites.map(c => ({
-      title: c.nom,
-      start: c.data
-    }));
-  }
-
-  constructor() {
-    const dades = JSON.parse(localStorage.getItem('cites') || '[]');
-    this.cites = dades;
+    localStorage.setItem('cites', JSON.stringify(this.cites()));
   }
 }
