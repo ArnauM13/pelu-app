@@ -1,0 +1,19 @@
+<div class="min-h-screen flex justify-center items-center bg-[#030b1d]">
+  <div class="bg-[#030b1d] p-8 rounded-3xl w-full max-w-sm text-white shadow-lg">
+    <h2 class="text-2xl font-semibold mb-2 text-center">Inicia sessió</h2>
+    <p class="text-sm text-center mb-6 text-gray-300">Accedeix al teu compte</p>
+
+    <form [formGroup]="form" (ngSubmit)="login()" class="flex flex-col gap-4">
+      <div>
+        <label class="text-sm mb-1 block">Correu electrònic</label>
+        <input pInputText type="email" formControlName="email" placeholder="Correu electrònic" class="w-full" />
+      </div>
+      <div>
+        <label class="text-sm mb-1 block">Contrasenya</label>
+        <input pInputText type="password" formControlName="password" placeholder="Contrasenya" class="w-full" />
+      </div>
+
+      <button pButton type="submit" label="Inicia sessió" class="w-full mt-2" [disabled]="form.invalid"></button>
+    </form>
+  </div>
+</div>
