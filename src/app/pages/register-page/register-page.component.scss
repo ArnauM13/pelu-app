@@ -4,6 +4,9 @@
     border-radius: 0.5rem;
     padding: 0.75rem;
     color: #111827;
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
   }
 
 /* Aïllar el popup de Google dels estils de la pàgina */
@@ -29,11 +32,14 @@
   align-items: center;
   background-color: #f5f5f5;
   position: relative;
+  width: 100%;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
 .register-card {
-  width: 100%;
-  max-width: 400px;
+  width: 400px;
+  min-height: fit-content;
   background-color: white !important;
   border: 1px solid #e5e7eb;
   border-radius: 1rem;
@@ -42,6 +48,9 @@
   position: relative;
   transform: translateZ(0);
   will-change: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .register-title {
@@ -50,6 +59,9 @@
   margin-bottom: 0.5rem;
   text-align: center;
   color: #1f2937;
+  height: 36px;
+  line-height: 36px;
+  flex-shrink: 0;
 }
 
 .register-subtitle {
@@ -57,17 +69,24 @@
   text-align: center;
   margin-bottom: 1.5rem;
   color: #6b7280;
+  height: 20px;
+  line-height: 20px;
+  flex-shrink: 0;
 }
 
 .register-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1;
+  min-height: 0;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
+  height: 80px;
+  flex-shrink: 0;
 }
 
 .form-label {
@@ -75,16 +94,22 @@
   margin-bottom: 0.25rem;
   color: #374151;
   font-weight: 500;
+  height: 20px;
+  line-height: 20px;
+  flex-shrink: 0;
 }
 
 .form-input {
   width: 100%;
+  height: 48px;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   background-color: white;
   color: #1f2937;
   font-size: 0.875rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .form-input:focus {
@@ -99,6 +124,7 @@
 
 .register-button {
   width: 100%;
+  height: 48px;
   margin-top: 0.5rem;
   padding: 0.75rem;
   background-color: #3b82f6;
@@ -109,6 +135,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .register-button:hover:not(:disabled) {
@@ -126,6 +154,8 @@
   margin: 1.5rem 0;
   color: #6b7280;
   font-size: 0.875rem;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .divider::before,
@@ -139,10 +169,13 @@
 .divider span {
   padding: 0 1rem;
   background-color: white;
+  height: 20px;
+  line-height: 20px;
 }
 
 .google-register-button {
   width: 100%;
+  height: 48px;
   padding: 0.75rem;
   background-color: white;
   color: #374151;
@@ -160,6 +193,8 @@
   z-index: 1;
   transform: translateZ(0);
   will-change: auto;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .google-register-button:hover {
@@ -172,17 +207,24 @@
 .google-register-button .p-button-icon {
   color: #ea4335;
   font-size: 1rem;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .login-link {
   margin-top: 1rem;
   text-align: center;
+  height: 40px;
+  flex-shrink: 0;
 }
 
 .login-link p {
   color: #6b7280;
   font-size: 0.875rem;
   margin: 0;
+  height: 20px;
+  line-height: 20px;
 }
 
 .login-link .link {
