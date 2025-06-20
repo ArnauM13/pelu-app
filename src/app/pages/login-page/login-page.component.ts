@@ -6,6 +6,7 @@ import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-login-page',
@@ -23,6 +24,7 @@ import { CardModule } from 'primeng/card';
 })
 export class LoginPageComponent {
   form: any;
+  private authService = new AuthService();
 
   constructor(private fb: FormBuilder, private auth: Auth, private router: Router) {
     this.form = this.fb.group({
@@ -39,6 +41,15 @@ export class LoginPageComponent {
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
       alert('Error al iniciar sessió: ' + (err as any).message);
+    }
+  }
+
+  async loginWithGoogle() {
+    try {
+      await this.authService.loginWithGoogle();
+      this.router.navigate(['/']); // Redirigir a la pàgina principal
+    } catch (err) {
+      alert('Error al iniciar sessió amb Google: ' + (err as any).message);
     }
   }
 }

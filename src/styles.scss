@@ -20,3 +20,35 @@ body {
 :host {
   display: block;
 }
+
+/* Prevenir interferències amb el popup de Google */
+.firebaseui-container {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+.firebaseui-card {
+  position: relative !important;
+  transform: none !important;
+}
+
+.firebaseui-card-content {
+  position: relative !important;
+  transform: none !important;
+}
+
+/* Prevenir que els estils de la pàgina afectin el popup */
+.firebaseui-container * {
+  box-sizing: border-box !important;
+}
+
+/* Assegurar que el popup no es mogui */
+.firebaseui-idp-button {
+  position: relative !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.firebaseui-idp-button:hover {
+  transform: none !important;
+}
