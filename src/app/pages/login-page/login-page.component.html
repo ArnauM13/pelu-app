@@ -17,6 +17,13 @@
       <button pButton type="submit" label="Inicia sessió" class="login-button" [disabled]="form.invalid"></button>
     </form>
 
+    <div class="divider">
+      <span>o</span>
+    </div>
+
+    <button pButton type="button" label="Inicia sessió amb Google" icon="pi pi-google"
+            class="google-login-button" (click)="loginWithGoogle()"></button>
+
     <div class="register-link">
       <p>No tens compte? <a routerLink="/register" class="link">Registra't aquí</a></p>
     </div>

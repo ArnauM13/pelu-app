@@ -6,6 +6,7 @@ import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-register-page',
@@ -23,6 +24,7 @@ import { CardModule } from 'primeng/card';
 })
 export class RegisterPageComponent {
   form: any;
+  private authService = new AuthService();
 
   constructor(private fb: FormBuilder, private auth: Auth, private router: Router) {
     this.form = this.fb.group({
@@ -45,6 +47,15 @@ export class RegisterPageComponent {
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
       alert("Error al registrar: " + (err as any).message);
+    }
+  }
+
+  async registerWithGoogle() {
+    try {
+      await this.authService.loginWithGoogle();
+      this.router.navigate(['/']); // Redirigir a la pàgina principal
+    } catch (err) {
+      alert('Error al registrar amb Google: ' + (err as any).message);
     }
   }
 }

@@ -6,12 +6,29 @@
     color: #111827;
   }
 
+/* Aïllar el popup de Google dels estils de la pàgina */
+:host ::ng-deep .firebaseui-container {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+:host ::ng-deep .firebaseui-card {
+  position: relative !important;
+  transform: none !important;
+}
+
+:host ::ng-deep .firebaseui-card-content {
+  position: relative !important;
+  transform: none !important;
+}
+
 .register-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #f5f5f5;
+  position: relative;
 }
 
 .register-card {
@@ -22,6 +39,9 @@
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 2rem;
+  position: relative;
+  transform: translateZ(0);
+  will-change: auto;
 }
 
 .register-title {
@@ -98,6 +118,60 @@
 .register-button:disabled {
   background-color: #6b7280;
   cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.divider span {
+  padding: 0 1rem;
+  background-color: white;
+}
+
+.google-register-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+.google-register-button:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transform: translateZ(0);
+}
+
+.google-register-button .p-button-icon {
+  color: #ea4335;
+  font-size: 1rem;
 }
 
 .login-link {

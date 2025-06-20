@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
         <h1>Perruqueria XYZ</h1>
         <nav class="nav">
           <a routerLink="/" class="nav-link">Inici</a>
-          <a routerLink="/reserves" class="nav-link">Reserves</a>
+          <a routerLink="/booking" class="nav-link">Reserves</a>
           <button (click)="logout()" class="logout-btn">Tancar Sessió</button>
         </nav>
       </div>
