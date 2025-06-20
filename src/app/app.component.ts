@@ -23,8 +23,8 @@ export class AppComponent implements OnInit {
       this.isAuthenticated = !!user;
       this.isLoading = false;
 
-      // Si no està autenticat i no està a login/register, redirigir a login
-      if (!user && !['/login', '/register'].includes(this.router.url)) {
+      // Només redirigir si no està autenticat i està a una ruta protegida
+      if (!user && this.router.url === '/') {
         this.router.navigate(['/login']);
       }
     });

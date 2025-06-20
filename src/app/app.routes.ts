@@ -16,6 +16,10 @@ export const routes: Routes = [
     component: LoginPageComponent
   },
   {
+    path: 'register',
+    component: RegisterPageComponent
+  },
+  {
     path: 'booking',
     component: BookingPageComponent,
     canActivate: [authGuard]

@@ -4,12 +4,9 @@
 </div>
 } @else {
   @if (isAuthenticated) {
-    <div>
-      <pelu-header *ngIf="isAuthenticated"></pelu-header>
-      <main class="p-4">
-        <router-outlet />
-      </main>
-      <router-outlet></router-outlet>
-    </div>
+    <pelu-header></pelu-header>
   }
+  <main class="p-4">
+    <router-outlet />
+  </main>
 }
