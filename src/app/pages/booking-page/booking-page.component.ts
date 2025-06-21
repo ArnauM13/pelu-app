@@ -9,8 +9,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
-
 import { CalendarComponent } from '../../features/calendar/calendar.component';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -28,10 +28,15 @@ import { CalendarComponent } from '../../features/calendar/calendar.component';
   ],
   providers: [MessageService],
   templateUrl: './booking-page.component.html',
+  styleUrls: ['./booking-page.component.scss']
 })
 export class BookingPageComponent {
   nouClient = signal({ nom: '', data: '', hora: '' });
   cites = signal<any[]>([]);
+
+  // Popup state
+  showBookingPopup = signal<boolean>(false);
+  bookingDetails = signal<{date: string, time: string, clientName: string}>({date: '', time: '', clientName: ''});
 
   events = computed(() => {
     return this.cites().map(c => ({
@@ -40,7 +45,7 @@ export class BookingPageComponent {
     }));
   });
 
-  constructor(private messageService: MessageService) {
+  constructor(private messageService: MessageService, private authService: AuthService) {
     const dades = JSON.parse(localStorage.getItem('cites') || '[]');
     // Migrate existing appointments to have IDs
     const dadesAmbIds = dades.map((cita: any) => {
@@ -55,6 +60,11 @@ export class BookingPageComponent {
     if (dades.length > 0 && dadesAmbIds.length === dades.length) {
       localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
     }
+
+    // Set default client name to current user
+    const user = this.authService.user();
+    const defaultName = user?.displayName || user?.email || '';
+    this.nouClient.update(client => ({ ...client, nom: defaultName }));
   }
 
   updateNom(value: string) {
@@ -70,9 +80,37 @@ export class BookingPageComponent {
   }
 
   onDateSelected(selection: {date: string, time: string}) {
-    console.log('Booking component received selection:', selection);
-    this.updateData(selection.date);
-    this.updateHora(selection.time);
+    // Show popup for confirmation
+    const user = this.authService.user();
+    const defaultName = user?.displayName || user?.email || '';
+    this.bookingDetails.set({date: selection.date, time: selection.time, clientName: defaultName});
+    this.showBookingPopup.set(true);
+  }
+
+  confirmBooking() {
+    const details = this.bookingDetails();
+    if (!details.clientName.trim()) return;
+    const nova = {
+      nom: details.clientName,
+      data: details.date,
+      hora: details.time,
+      id: uuidv4()
+    };
+    this.cites.update(cites => [...cites, nova]);
+    this.guardarCites();
+    this.showBookingPopup.set(false);
+    this.bookingDetails.set({date: '', time: '', clientName: ''});
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Reserva creada',
+      detail: `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)} a les ${nova.hora}`,
+      life: 3000
+    });
+  }
+
+  closeBookingPopup() {
+    this.showBookingPopup.set(false);
+    this.bookingDetails.set({date: '', time: '', clientName: ''});
   }
 
   afegirCita() {
@@ -83,8 +121,6 @@ export class BookingPageComponent {
     this.cites.update(cites => [...cites, nova]);
     this.nouClient.set({ nom: '', data: '', hora: '' });
     this.guardarCites();
-
-    // Show success toast
     const timeStr = nova.hora ? ` a les ${nova.hora}` : '';
     this.messageService.add({
       severity: 'success',
@@ -97,8 +133,6 @@ export class BookingPageComponent {
   esborrarCita(cita: any) {
     this.cites.update(cites => cites.filter(c => c.id !== cita.id));
     this.guardarCites();
-
-    // Show info toast
     const timeStr = cita.hora ? ` a les ${cita.hora}` : '';
     this.messageService.add({
       severity: 'info',
@@ -112,7 +146,7 @@ export class BookingPageComponent {
     localStorage.setItem('cites', JSON.stringify(this.cites()));
   }
 
-  private formatDate(dateString: string): string {
+  formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('ca-ES', {
       weekday: 'long',

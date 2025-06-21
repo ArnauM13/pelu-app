@@ -1,5 +1,6 @@
 import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
 import { startOfWeek, endOfWeek, startOfDay, endOfDay, format, addDays, isSameDay, isSameWeek, eachDayOfInterval } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
@@ -8,7 +9,7 @@ import { ca } from 'date-fns/locale';
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule],
+  imports: [CommonModule, CalendarModule, FormsModule],
   providers: [
     CalendarUtils,
     CalendarA11y,

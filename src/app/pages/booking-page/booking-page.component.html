@@ -1,39 +1,126 @@
 <p-toast></p-toast>
 
-<div class="booking-container page-animation">
-  <div class="booking-card">
-    <!-- Content -->
-    <div class="booking-content">
-      <!-- Main Grid Layout -->
-      <div class="main-grid">
-        <!-- Calendar Section (75%) -->
-        <div class="calendar-section">
-          <h2>Nova reserva</h2>
-          <div class="calendar-container">
-            <pelu-calendar-component [events]="events()" [mini]="true" (dateSelected)="onDateSelected($event)" />
-          </div>
+<div class="container">
+  <div class="grid grid-2" style="margin-bottom: 2rem;">
+    <!-- Calendar Section -->
+    <div class="card">
+      <h2>Calendari de Reserves</h2>
+      <pelu-calendar-component
+        [events]="events()"
+        [mini]="true"
+        (dateSelected)="onDateSelected($event)" />
+    </div>
+
+    <!-- Manual Booking Section -->
+    <div class="card">
+      <h2>Afegir Reserva Manual</h2>
+      <div class="form-group">
+        <label for="nom">Nom del client:</label>
+        <input
+          type="text"
+          id="nom"
+          [value]="nouClient().nom"
+          (input)="updateNom($any($event.target).value)"
+          placeholder="Introdueix el nom del client"
+          class="input">
+      </div>
+
+      <div class="form-group">
+        <label for="data">Data:</label>
+        <input
+          type="date"
+          id="data"
+          [value]="nouClient().data"
+          (input)="updateData($any($event.target).value)"
+          class="input">
+      </div>
+
+      <div class="form-group">
+        <label for="hora">Hora:</label>
+        <input
+          type="time"
+          id="hora"
+          [value]="nouClient().hora"
+          (input)="updateHora($any($event.target).value)"
+          class="input">
+      </div>
+
+      <button
+        class="btn btn-primary"
+        (click)="afegirCita()"
+        [disabled]="!nouClient().nom || !nouClient().data">
+        Afegir Reserva
+      </button>
+    </div>
+  </div>
+
+  <!-- Appointments List -->
+  <div class="card" style="margin-top: 2rem;">
+    <h2>Reserves Actuals</h2>
+    @if (cites().length === 0) {
+    <p>No hi ha reserves actualment.</p>
+    } @else {
+    <div class="appointments-grid">
+      @for (cita of cites(); track trackByCita) {
+      <div class="appointment-card" style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+        <pelu-info-item [data]="getCitaInfoItem(cita)"></pelu-info-item>
+        <button
+          class="btn btn-secondary delete-btn"
+          style="margin-left: 1rem;"
+          (click)="esborrarCita(cita)"
+          pTooltip="Eliminar reserva">
+          🗑️
+        </button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+
+<!-- Booking Confirmation Popup -->
+@if (showBookingPopup()) {
+<div class="booking-popup-overlay" (click)="closeBookingPopup()">
+  <div class="booking-popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <h3>Confirmar Reserva</h3>
+      <button class="close-btn" (click)="closeBookingPopup()">×</button>
+    </div>
+
+    <div class="popup-body">
+      <div class="booking-info">
+        <div class="info-row">
+          <span class="label">Data:</span>
+          <span class="value">{{ formatDate(bookingDetails().date) }}</span>
         </div>
-
-        <!-- Bookings List Section (25%) -->
-        <div class="bookings-section">
-          <h2>Cites programades</h2>
-          <div class="booking-list-container">
-            <div *ngIf="cites().length === 0" class="empty-state">
-              <i class="empty-icon">📝</i>
-              <p>No hi ha cites programades</p>
-              <small>Crea la teva primera reserva!</small>
-            </div>
-
-            <div *ngIf="cites().length > 0" class="info-grid">
-              <pelu-info-item
-                *ngFor="let cita of cites(); trackBy: trackByCita"
-                [data]="getCitaInfoItem(cita)"
-                [showStatus]="false">
-              </pelu-info-item>
-            </div>
-          </div>
+        <div class="info-row">
+          <span class="label">Hora:</span>
+          <span class="value">{{ bookingDetails().time }}</span>
         </div>
       </div>
+
+      <div class="form-group">
+        <label for="clientName">Nom del client:</label>
+        <input
+          type="text"
+          id="clientName"
+          [(ngModel)]="bookingDetails().clientName"
+          placeholder="Introdueix el nom del client"
+          class="form-input"
+          (keyup.enter)="confirmBooking()"
+          autofocus>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn btn-secondary" (click)="closeBookingPopup()">Cancel·lar</button>
+      <button
+        class="btn btn-primary"
+        (click)="confirmBooking()"
+        [disabled]="!bookingDetails().clientName.trim()">
+        Confirmar Reserva
+      </button>
     </div>
   </div>
 </div>
+}

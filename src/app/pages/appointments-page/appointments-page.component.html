@@ -1,0 +1,128 @@
+<p-toast></p-toast>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Gestió de Cites</h1>
+    <p>Visualitza i gestiona totes les teves cites</p>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ totalAppointments() }}</div>
+        <div class="stat-label">Total Cites</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ todayAppointments() }}</div>
+        <div class="stat-label">Cites Avui</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ upcomingAppointments() }}</div>
+        <div class="stat-label">Pròximes Cites</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card">
+    <h3>Filtres</h3>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="filterDate">Filtrar per data:</label>
+        <input
+          type="date"
+          id="filterDate"
+          [value]="filterDate()"
+          (input)="filterDate.set($any($event.target).value)"
+          class="input">
+      </div>
+
+      <div class="filter-group">
+        <label for="filterClient">Filtrar per client:</label>
+        <input
+          type="text"
+          id="filterClient"
+          [value]="filterClient()"
+          (input)="filterClient.set($any($event.target).value)"
+          placeholder="Buscar per nom..."
+          class="input">
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-secondary" (click)="clearFilters()">
+          Netejar Filtres
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointments List -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Cites ({{ filteredCites().length }})</h3>
+    </div>
+
+    @if (filteredCites().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h4>No hi ha cites</h4>
+      <p>No s'han trobat cites amb els filtres actuals.</p>
+    </div>
+    } @else {
+    <div class="appointments-list">
+      @for (cita of filteredCites(); track trackByAppointment) {
+      <div class="appointment-item" [class.today]="isToday(cita.data)" [class.past]="isPast(cita.data)">
+        <div class="appointment-info">
+          <div class="appointment-header">
+            <h4 class="client-name">{{ cita.nom }}</h4>
+            <div class="appointment-status">
+              @if (isToday(cita.data)) {
+              <span class="status-badge today">Avui</span>
+              } @else if (isPast(cita.data)) {
+              <span class="status-badge past">Passada</span>
+              } @else {
+              <span class="status-badge upcoming">Pròxima</span>
+              }
+            </div>
+          </div>
+
+          <div class="appointment-details">
+            <div class="detail-item">
+              <span class="detail-icon">📅</span>
+              <span class="detail-text">{{ formatDate(cita.data) }}</span>
+            </div>
+
+            @if (cita.hora) {
+            <div class="detail-item">
+              <span class="detail-icon">⏰</span>
+              <span class="detail-text">{{ formatTime(cita.hora) }}</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="appointment-actions">
+          <button
+            class="btn btn-danger"
+            (click)="deleteAppointment(cita)"
+            pTooltip="Eliminar cita">
+            🗑️
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>

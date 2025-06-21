@@ -5,6 +5,7 @@ import { RegisterPageComponent } from './pages/register-page/register-page.compo
 import { PerfilPageComponent } from './pages/perfil-page/perfil-page.component';
 import { authGuard } from './auth/auth.guard';
 import { BookingPageComponent } from './pages/booking-page/booking-page.component';
+import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
 
 export const routes: Routes = [
   {
@@ -23,6 +24,11 @@ export const routes: Routes = [
   {
     path: 'booking',
     component: BookingPageComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'appointments',
+    component: AppointmentsPageComponent,
     canActivate: [authGuard]
   },
   {

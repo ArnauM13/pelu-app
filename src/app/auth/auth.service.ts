@@ -1,6 +1,7 @@
-import { inject, signal } from '@angular/core';
+import { inject, signal, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged, User, GoogleAuthProvider } from '@angular/fire/auth';
 
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
   user = signal<User | null>(null);
