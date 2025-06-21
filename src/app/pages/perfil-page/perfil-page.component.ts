@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { signal } from '@angular/core';
+import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 
 @Component({
   selector: 'pelu-perfil-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, InfoItemComponent],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss']
 })
@@ -57,5 +58,42 @@ export class PerfilPageComponent {
       return new Date(user.metadata.lastSignInTime).toLocaleDateString('ca-ES');
     }
     return 'No disponible';
+  }
+
+  getInfoItems(): InfoItemData[] {
+    return [
+      {
+        icon: '👤',
+        label: 'Nom d\'usuari',
+        value: this.getDisplayName()
+      },
+      {
+        icon: '📧',
+        label: 'Correu electrònic',
+        value: this.getEmail()
+      },
+      {
+        icon: '🆔',
+        label: 'ID d\'usuari',
+        value: this.getUid()
+      },
+      {
+        icon: '📅',
+        label: 'Data de creació',
+        value: this.getCreationDate()
+      },
+      {
+        icon: '🕒',
+        label: 'Últim accés',
+        value: this.getLastSignIn()
+      },
+      {
+        icon: '✅',
+        label: 'Estat del compte',
+        value: 'Actiu',
+        status: 'active',
+        statusText: 'Actiu'
+      }
+    ];
   }
 }

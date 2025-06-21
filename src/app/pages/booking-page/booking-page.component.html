@@ -1,58 +1,39 @@
 <p-toast></p-toast>
 
-<div class="booking-grid p-4 page-animation">
-  <div class="booking-calendar col-12 md:col-7 p-card">
-    <h2>Calendari</h2>
-    <pelu-calendar-component [events]="events()" [mini]="true" (dateSelected)="onDateSelected($event)" />
-  </div>
+<div class="booking-container page-animation">
+  <div class="booking-card">
+    <!-- Content -->
+    <div class="booking-content">
+      <!-- Main Grid Layout -->
+      <div class="main-grid">
+        <!-- Calendar Section (75%) -->
+        <div class="calendar-section">
+          <h2>Nova reserva</h2>
+          <div class="calendar-container">
+            <pelu-calendar-component [events]="events()" [mini]="true" (dateSelected)="onDateSelected($event)" />
+          </div>
+        </div>
 
-  <div class="booking-form p-card col-12 md:col-5">
-    <h2>Nova reserva</h2>
-    <form (ngSubmit)="afegirCita()" #form="ngForm" novalidate>
-      <label for="nom" class="block mb-1 font-semibold">Nom del client</label>
-      <input id="nom" type="text" pInputText
-             name="nom" required
-             [ngModel]="nouClient().nom"
-             (ngModelChange)="updateNom($event)"
-             #nomCtrl="ngModel"
-             [class.invalid]="nomCtrl.invalid && nomCtrl.touched" />
+        <!-- Bookings List Section (25%) -->
+        <div class="bookings-section">
+          <h2>Cites programades</h2>
+          <div class="booking-list-container">
+            <div *ngIf="cites().length === 0" class="empty-state">
+              <i class="empty-icon">📝</i>
+              <p>No hi ha cites programades</p>
+              <small>Crea la teva primera reserva!</small>
+            </div>
 
-      <label for="data" class="block mt-3 mb-1 font-semibold">Data</label>
-      <input id="data" type="date" pInputText
-             name="data" required
-             [ngModel]="nouClient().data"
-             (ngModelChange)="updateData($event)"
-             #dataCtrl="ngModel"
-             [class.invalid]="dataCtrl.invalid && dataCtrl.touched" />
-
-      <label for="hora" class="block mt-3 mb-1 font-semibold">Hora (opcional)</label>
-      <input id="hora" type="time" pInputText
-             name="hora"
-             [ngModel]="nouClient().hora"
-             (ngModelChange)="updateHora($event)" />
-
-      <button type="submit" pButton label="Reservar"
-              class="mt-4 w-full"
-              [disabled]="form.invalid">
-      </button>
-    </form>
-  </div>
-
-  <div class="booking-list p-card col-12 mt-4">
-    <h2>Cites programades</h2>
-    <ul class="booking-list-ul">
-      @for (cita of cites(); track cita.id) {
-      <li class="booking-list-item">
-        <span>
-          {{ cita.data | date:'shortDate' }}
-          {{ cita.hora ? 'a les ' + cita.hora : '' }}
-          - {{ cita.nom }}
-        </span>
-        <button pButton icon="pi pi-trash"
-                class="p-button-rounded p-button-danger p-button-sm"
-                (click)="esborrarCita(cita)"></button>
-      </li>
-      }
-    </ul>
+            <div *ngIf="cites().length > 0" class="info-grid">
+              <pelu-info-item
+                *ngFor="let cita of cites(); trackBy: trackByCita"
+                [data]="getCitaInfoItem(cita)"
+                [showStatus]="false">
+              </pelu-info-item>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
