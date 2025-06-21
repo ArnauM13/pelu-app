@@ -53,29 +53,6 @@
       </button>
     </pelu-card>
   </div>
-
-  <!-- Appointments List -->
-  <pelu-card variant="large">
-    <h2>Reserves Actuals</h2>
-    @if (cites().length === 0) {
-    <p>No hi ha reserves actualment.</p>
-    } @else {
-    <div class="appointments-grid">
-      @for (cita of cites(); track cita.id) {
-      <div class="appointment-card" style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
-        <pelu-info-item [data]="getCitaInfoItem(cita)"></pelu-info-item>
-        <button
-          class="btn btn-secondary delete-btn"
-          style="margin-left: 1rem;"
-          (click)="esborrarCita(cita)"
-          pTooltip="Eliminar reserva">
-          🗑️
-        </button>
-      </div>
-      }
-    </div>
-    }
-  </pelu-card>
 </div>
 
 <!-- Booking Confirmation Popup -->
