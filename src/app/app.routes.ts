@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { HomePageComponent } from './pages/home/home-page/home-page.component';
+import { LandingPageComponent } from './pages/landing/landing-page/landing-page.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { authGuard } from './auth/auth.guard';
@@ -8,7 +8,7 @@ import { BookingPageComponent } from './pages/booking-page/booking-page.componen
 export const routes: Routes = [
   {
     path: '',
-    component: HomePageComponent,
+    component: LandingPageComponent,
     canActivate: [authGuard]
   },
   {
