@@ -34,6 +34,23 @@ export class AppointmentsPageComponent {
   filterDate = signal<string>('');
   filterClient = signal<string>('');
 
+  // Getters and setters for ngModel
+  get filterDateValue(): string {
+    return this.filterDate();
+  }
+
+  set filterDateValue(value: string) {
+    this.filterDate.set(value);
+  }
+
+  get filterClientValue(): string {
+    return this.filterClient();
+  }
+
+  set filterClientValue(value: string) {
+    this.filterClient.set(value);
+  }
+
   // Filtered appointments
   filteredCites = computed(() => {
     let filtered = this.cites();

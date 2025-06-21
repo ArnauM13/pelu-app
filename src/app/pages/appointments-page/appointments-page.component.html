@@ -43,8 +43,7 @@
         <input
           type="date"
           id="filterDate"
-          [value]="filterDate()"
-          (input)="filterDate.set($any($event.target).value)"
+          [(ngModel)]="filterDateValue"
           class="input">
       </div>
 
@@ -53,8 +52,7 @@
         <input
           type="text"
           id="filterClient"
-          [value]="filterClient()"
-          (input)="filterClient.set($any($event.target).value)"
+          [(ngModel)]="filterClientValue"
           placeholder="Buscar per nom..."
           class="input">
       </div>
