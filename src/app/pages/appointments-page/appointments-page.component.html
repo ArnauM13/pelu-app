@@ -35,7 +35,7 @@
   </div>
 
   <!-- Filters -->
-  <div class="card">
+  <pelu-card>
     <h3>Filtres</h3>
     <div class="filters-grid">
       <div class="filter-group">
@@ -65,23 +65,28 @@
         </button>
       </div>
     </div>
-  </div>
+  </pelu-card>
 
   <!-- Appointments List -->
-  <div class="card">
+  <pelu-card variant="large">
     <div class="card-header">
       <h3>Cites ({{ filteredCites().length }})</h3>
     </div>
 
     @if (filteredCites().length === 0) {
     <div class="empty-state">
-      <div class="empty-icon">📋</div>
-      <h4>No hi ha cites</h4>
-      <p>No s'han trobat cites amb els filtres actuals.</p>
+      <div class="empty-icon">📅</div>
+      <h3>No hi ha cites</h3>
+      <p>{{ filterDate() || filterClient() ? 'No s\'han trobat cites amb els filtres aplicats.' : 'Encara no tens cites programades.' }}</p>
+      @if (filterDate() || filterClient()) {
+      <button class="btn btn-primary" (click)="clearFilters()">
+        Netejar Filtres
+      </button>
+      }
     </div>
     } @else {
     <div class="appointments-list">
-      @for (cita of filteredCites(); track trackByAppointment) {
+      @for (cita of filteredCites(); track cita.id) {
       <div class="appointment-item" [class.today]="isToday(cita.data)" [class.past]="isPast(cita.data)">
         <div class="appointment-info">
           <div class="appointment-header">
@@ -124,5 +129,5 @@
       }
     </div>
     }
-  </div>
+  </pelu-card>
 </div>

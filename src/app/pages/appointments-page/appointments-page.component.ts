@@ -1,5 +1,6 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -8,16 +9,21 @@ import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
+import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
+import { CardComponent } from '../../shared/components/card/card.component';
 
 @Component({
   selector: 'pelu-appointments-page',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     CardModule,
     ButtonModule,
     ToastModule,
-    TooltipModule
+    TooltipModule,
+    InfoItemComponent,
+    CardComponent
   ],
   providers: [MessageService],
   templateUrl: './appointments-page.component.html',
@@ -132,9 +138,5 @@ export class AppointmentsPageComponent {
   clearFilters() {
     this.filterDate.set('');
     this.filterClient.set('');
-  }
-
-  trackByAppointment(index: number, appointment: any): string {
-    return appointment.id;
   }
 }

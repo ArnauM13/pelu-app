@@ -3,16 +3,16 @@
 <div class="container">
   <div class="grid grid-2" style="margin-bottom: 2rem;">
     <!-- Calendar Section -->
-    <div class="card">
+    <pelu-card>
       <h2>Calendari de Reserves</h2>
       <pelu-calendar-component
         [events]="events()"
         [mini]="true"
         (dateSelected)="onDateSelected($event)" />
-    </div>
+    </pelu-card>
 
     <!-- Manual Booking Section -->
-    <div class="card">
+    <pelu-card>
       <h2>Afegir Reserva Manual</h2>
       <div class="form-group">
         <label for="nom">Nom del client:</label>
@@ -51,17 +51,17 @@
         [disabled]="!nouClient().nom || !nouClient().data">
         Afegir Reserva
       </button>
-    </div>
+    </pelu-card>
   </div>
 
   <!-- Appointments List -->
-  <div class="card" style="margin-top: 2rem;">
+  <pelu-card variant="large">
     <h2>Reserves Actuals</h2>
     @if (cites().length === 0) {
     <p>No hi ha reserves actualment.</p>
     } @else {
     <div class="appointments-grid">
-      @for (cita of cites(); track trackByCita) {
+      @for (cita of cites(); track cita.id) {
       <div class="appointment-card" style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
         <pelu-info-item [data]="getCitaInfoItem(cita)"></pelu-info-item>
         <button
@@ -75,7 +75,7 @@
       }
     </div>
     }
-  </div>
+  </pelu-card>
 </div>
 
 <!-- Booking Confirmation Popup -->
