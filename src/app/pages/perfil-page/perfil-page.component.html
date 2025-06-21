@@ -23,56 +23,11 @@
         <h2>Informació del compte</h2>
 
         <div class="info-grid">
-          <div class="info-item">
-            <div class="info-label">
-              <i class="info-icon">👤</i>
-              Nom d'usuari
-            </div>
-            <div class="info-value">{{ getDisplayName() }}</div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-label">
-              <i class="info-icon">📧</i>
-              Correu electrònic
-            </div>
-            <div class="info-value">{{ getEmail() }}</div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-label">
-              <i class="info-icon">🆔</i>
-              ID d'usuari
-            </div>
-            <div class="info-value">{{ getUid() }}</div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-label">
-              <i class="info-icon">📅</i>
-              Data de creació
-            </div>
-            <div class="info-value">{{ getCreationDate() }}</div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-label">
-              <i class="info-icon">🕒</i>
-              Últim accés
-            </div>
-            <div class="info-value">{{ getLastSignIn() }}</div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-label">
-              <i class="info-icon">✅</i>
-              Estat del compte
-            </div>
-            <div class="info-value status-active">
-              <span class="status-dot"></span>
-              Actiu
-            </div>
-          </div>
+          <pelu-info-item
+            *ngFor="let item of getInfoItems()"
+            [data]="item"
+            [showStatus]="item.status === 'active'">
+          </pelu-info-item>
         </div>
       </div>
 

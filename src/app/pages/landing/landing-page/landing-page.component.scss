@@ -1,10 +1,9 @@
 .landing-container {
-  height: 85vh;
   background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
 }
 
 .hero-section {
-  height: 100%;
+  min-height: calc(100vh - 70px); // Assuming header height is x px
   display: flex;
   align-items: center;
   justify-content: center;

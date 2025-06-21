@@ -5,8 +5,10 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
+import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 
@@ -20,6 +22,8 @@ import { CalendarComponent } from '../../features/calendar/calendar.component';
     InputTextModule,
     ButtonModule,
     ToastModule,
+    TooltipModule,
+    InfoItemComponent,
     CalendarComponent
   ],
   providers: [MessageService],
@@ -116,5 +120,19 @@ export class BookingPageComponent {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  trackByCita(index: number, cita: any): string {
+    return cita.id;
+  }
+
+  getCitaInfoItem(cita: any): InfoItemData {
+    const timeStr = cita.hora ? ` a les ${cita.hora}` : '';
+    const dateStr = new Date(cita.data).toLocaleDateString('ca-ES');
+    return {
+      icon: '📅',
+      label: cita.nom,
+      value: `${dateStr}${timeStr}`
+    };
   }
 }
