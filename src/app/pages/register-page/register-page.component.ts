@@ -1,58 +1,46 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { AuthService } from '../../auth/auth.service';
-import { CardComponent } from '../../shared/components/card/card.component';
+import { AuthPopupComponent, AuthPopupConfig } from '../../shared/components/auth-popup/auth-popup.component';
 
 @Component({
   selector: 'pelu-register-page',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    InputTextModule,
-    ButtonModule,
-    CardModule,
-    CardComponent
+    AuthPopupComponent
   ],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss']
 })
 export class RegisterPageComponent {
-  form: any;
   private authService = new AuthService();
 
-  constructor(private fb: FormBuilder, private auth: Auth, private router: Router) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      repeatPassword: ['', Validators.required]
-    });
-  }
+  registerConfig: AuthPopupConfig = {
+    mode: 'register',
+    title: 'Registra\'t',
+    subtitle: 'Registra\'t per apuntar-te a noves activitats',
+    submitButtonText: 'Registra\'t',
+    googleButtonText: 'Registra\'t amb Google',
+    linkText: 'Ja tens compte?',
+    linkRoute: '/login',
+    linkLabel: 'Inicia sessió aquí'
+  };
 
-  async register() {
-    const { email, password, repeatPassword } = this.form.value;
+  constructor(private auth: Auth, private router: Router) {}
 
-    if (password !== repeatPassword) {
-      alert("Les contrasenyes no coincideixen.");
-      return;
-    }
-
+  async onRegisterSubmit(formData: {email: string, password: string, repeatPassword?: string}) {
     try {
-      await createUserWithEmailAndPassword(this.auth, email!, password!);
+      await createUserWithEmailAndPassword(this.auth, formData.email, formData.password);
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
       alert("Error al registrar: " + (err as any).message);
     }
   }
 
-  async registerWithGoogle() {
+  async onGoogleAuth() {
     try {
       await this.authService.loginWithGoogle();
       this.router.navigate(['/']); // Redirigir a la pàgina principal
