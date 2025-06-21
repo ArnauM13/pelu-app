@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 import { AuthService } from '../../auth/auth.service';
+import { CardComponent } from '../../shared/components/card/card.component';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -24,7 +25,8 @@ import { AuthService } from '../../auth/auth.service';
     ToastModule,
     TooltipModule,
     InfoItemComponent,
-    CalendarComponent
+    CalendarComponent,
+    CardComponent
   ],
   providers: [MessageService],
   templateUrl: './booking-page.component.html',
@@ -154,10 +156,6 @@ export class BookingPageComponent {
       month: 'long',
       day: 'numeric'
     });
-  }
-
-  trackByCita(index: number, cita: any): string {
-    return cita.id;
   }
 
   getCitaInfoItem(cita: any): InfoItemData {
