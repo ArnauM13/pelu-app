@@ -18,7 +18,6 @@
   overflow: hidden;
   max-width: 800px;
   width: 100%;
-  animation: slideInUp 0.6s ease-out;
 }
 
 /* Header Section */
@@ -322,14 +321,24 @@
   }
 }
 
-/* Animations */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* CSS Variables (following booking-page pattern) */
+:host {
+  --primary-color: #E91E63;
+  --primary-color-dark: #C2185B;
+  --primary-color-darkest: #880E4F;
+  --primary-color-lighter: #F8BBD9;
+  --secondary-color: #FFE0B2;
+  --secondary-color-dark: #FFCC80;
+  --secondary-color-darkest: #FFB74D;
+  --surface-color: #FFFFFF;
+  --surface-color-hover: #F5F5F5;
+  --text-color: #212121;
+  --text-color-light: #757575;
+  --text-color-white: #FFFFFF;
+  --border-color: #E0E0E0;
+  --border-color-light: #F5F5F5;
+  --error-color: #F44336;
+  --success-color: #4CAF50;
+  --info-color: #2196F3;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
