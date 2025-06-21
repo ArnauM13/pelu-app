@@ -1,1 +1,111 @@
-<p>perfil-page works!</p>
+<div class="perfil-container">
+  <div class="perfil-card">
+    <!-- Header -->
+    <div class="perfil-header">
+      <div class="avatar-section">
+        <div class="avatar">
+          <span class="avatar-text">{{ getDisplayName().charAt(0).toUpperCase() }}</span>
+        </div>
+        <h1 class="user-name">{{ getDisplayName() }}</h1>
+        <p class="user-email">{{ getEmail() }}</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="loading-section">
+      <div class="loading-spinner"></div>
+      <p>Carregant informació del perfil...</p>
+    </div>
+
+    <!-- User Information -->
+    <div *ngIf="!isLoading() && user()" class="perfil-content">
+      <div class="info-section">
+        <h2>Informació del compte</h2>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">👤</i>
+              Nom d'usuari
+            </div>
+            <div class="info-value">{{ getDisplayName() }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">📧</i>
+              Correu electrònic
+            </div>
+            <div class="info-value">{{ getEmail() }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">🆔</i>
+              ID d'usuari
+            </div>
+            <div class="info-value">{{ getUid() }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">📅</i>
+              Data de creació
+            </div>
+            <div class="info-value">{{ getCreationDate() }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">🕒</i>
+              Últim accés
+            </div>
+            <div class="info-value">{{ getLastSignIn() }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">✅</i>
+              Estat del compte
+            </div>
+            <div class="info-value status-active">
+              <span class="status-dot"></span>
+              Actiu
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Section -->
+      <div class="actions-section">
+        <h2>Accions</h2>
+        <div class="actions-grid">
+          <button class="action-btn primary" routerLink="/booking">
+            <i class="action-icon">📅</i>
+            Nova reserva
+          </button>
+          <button class="action-btn secondary" routerLink="/">
+            <i class="action-icon">🏠</i>
+            Tornar a l'inici
+          </button>
+          <button class="action-btn danger" (click)="logout()">
+            <i class="action-icon">🚪</i>
+            Tancar sessió
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- No User State -->
+    <div *ngIf="!isLoading() && !user()" class="no-user-section">
+      <div class="no-user-content">
+        <i class="no-user-icon">🔒</i>
+        <h2>No has iniciat sessió</h2>
+        <p>Inicia sessió per veure la teva informació de perfil</p>
+        <button class="login-btn" routerLink="/login">
+          Iniciar sessió
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
