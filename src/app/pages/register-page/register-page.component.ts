@@ -16,8 +16,6 @@ import { AuthPopupComponent, AuthPopupConfig } from '../../shared/components/aut
   styleUrls: ['./register-page.component.scss']
 })
 export class RegisterPageComponent {
-  private authService = new AuthService();
-
   registerConfig: AuthPopupConfig = {
     mode: 'register',
     title: 'Registra\'t',
@@ -29,7 +27,11 @@ export class RegisterPageComponent {
     linkLabel: 'Inicia sessió aquí'
   };
 
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(
+    private auth: Auth,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   async onRegisterSubmit(formData: {email: string, password: string, repeatPassword?: string}) {
     try {
