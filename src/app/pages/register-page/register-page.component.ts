@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { AuthService } from '../../auth/auth.service';
+import { CardComponent } from '../../shared/components/card/card.component';
 
 @Component({
   selector: 'pelu-register-page',
@@ -17,7 +18,8 @@ import { AuthService } from '../../auth/auth.service';
     RouterModule,
     InputTextModule,
     ButtonModule,
-    CardModule
+    CardModule,
+    CardComponent
   ],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss']
