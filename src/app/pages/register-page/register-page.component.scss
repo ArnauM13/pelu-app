@@ -1,9 +1,14 @@
+:host ::ng-deep .register-card {
+  width: 100% !important;
+  max-width: 605px !important;
+}
+
 :host ::ng-deep input {
-  background-color: var(--surface-color) !important;
-  border: 2px solid var(--border-color) !important;
+  background-color: #fff !important;
+  border: 2px solid #dbe2fb !important;
   border-radius: 8px !important;
   padding: 0.75rem !important;
-  color: var(--text-color) !important;
+  color: #222 !important;
   width: 100% !important;
   height: 48px !important;
   box-sizing: border-box !important;
@@ -12,8 +17,8 @@
 
 :host ::ng-deep input:focus {
   outline: none !important;
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1) !important;
+  border-color: #306dcd !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
 }
 
 /* Aïllar el popup de Google dels estils de la pàgina */
@@ -41,14 +46,15 @@
   padding: 1rem;
 }
 
-.register-card {
+.pelu-card {
   width: 100%;
-  max-width: 420px;
-  background-color: var(--surface-color) !important;
+  max-width: 605px;
+  background-color: #fff !important;
   border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: var(--box-shadow);
   padding: 2.5rem;
+  color: #222;
 }
 
 .register-header {
@@ -166,7 +172,7 @@
 
 /* Responsive design */
 @media (max-width: 480px) {
-  .register-card {
+  .pelu-card {
     width: 100%;
     max-width: 350px;
     padding: 2rem;
