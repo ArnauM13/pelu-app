@@ -1,13 +1,10 @@
 .landing-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  height: 85vh;
   background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
 }
 
-/* Hero Section */
 .hero-section {
-  flex: 1;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,20 +197,6 @@
   }
 }
 
-/* Footer */
-.landing-footer {
-  background-color: #e3ecfa;
-  border-top: 1px solid #bbdefb;
-  padding: 1.2rem;
-  text-align: center;
-  color: #1976d2;
-  font-size: 0.9rem;
-
-  span {
-    color: #1565c0;
-  }
-}
-
 /* Animations */
 @keyframes fadeInUp {
   from {
@@ -235,10 +218,6 @@
   .features-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-  }
-
-  .landing-footer {
-    padding: 1.5rem;
   }
 }
 
