@@ -1,52 +1,46 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { AuthService } from '../../auth/auth.service';
-import { CardComponent } from '../../shared/components/card/card.component';
+import { AuthPopupComponent, AuthPopupConfig } from '../../shared/components/auth-popup/auth-popup.component';
 
 @Component({
   selector: 'pelu-login-page',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    InputTextModule,
-    ButtonModule,
-    CardModule,
-    CardComponent
+    AuthPopupComponent
   ],
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss']
 })
 export class LoginPageComponent {
-  form: any;
   private authService = new AuthService();
 
-  constructor(private fb: FormBuilder, private auth: Auth, private router: Router) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
-  }
+  loginConfig: AuthPopupConfig = {
+    mode: 'login',
+    title: 'Inicia sessió',
+    subtitle: 'Accedeix al teu compte',
+    submitButtonText: 'Inicia sessió',
+    googleButtonText: 'Inicia sessió amb Google',
+    linkText: 'No tens compte?',
+    linkRoute: '/register',
+    linkLabel: 'Registra\'t aquí'
+  };
 
-  async login() {
-    const { email, password } = this.form.value;
+  constructor(private auth: Auth, private router: Router) {}
 
+  async onLoginSubmit(formData: {email: string, password: string}) {
     try {
-      await signInWithEmailAndPassword(this.auth, email!, password!);
+      await signInWithEmailAndPassword(this.auth, formData.email, formData.password);
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
       alert('Error al iniciar sessió: ' + (err as any).message);
     }
   }
 
-  async loginWithGoogle() {
+  async onGoogleAuth() {
     try {
       await this.authService.loginWithGoogle();
       this.router.navigate(['/']); // Redirigir a la pàgina principal

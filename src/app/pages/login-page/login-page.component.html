@@ -1,31 +1,5 @@
-<div class="login-container">
-  <pelu-card class="login-card">
-    <h2 class="login-title">Inicia sessió</h2>
-    <p class="login-subtitle">Accedeix al teu compte</p>
-
-    <form [formGroup]="form" (ngSubmit)="login()" class="login-form">
-      <div class="form-field">
-        <label class="form-label">Correu electrònic</label>
-        <input pInputText type="email" formControlName="email" placeholder="Correu electrònic" class="form-input" />
-      </div>
-
-      <div class="form-field">
-        <label class="form-label">Contrasenya</label>
-        <input pInputText type="password" formControlName="password" placeholder="Contrasenya" class="form-input" />
-      </div>
-
-      <button pButton type="submit" label="Inicia sessió" class="login-button" [disabled]="form.invalid"></button>
-    </form>
-
-    <div class="divider">
-      <span>o</span>
-    </div>
-
-    <button pButton type="button" label="Inicia sessió amb Google" icon="pi pi-google"
-            class="google-login-button" (click)="loginWithGoogle()"></button>
-
-    <div class="register-link">
-      <p>No tens compte? <a routerLink="/register" class="link">Registra't aquí</a></p>
-    </div>
-  </pelu-card>
-</div>
+<pelu-auth-popup
+  [config]="loginConfig"
+  (submitForm)="onLoginSubmit($event)"
+  (googleAuth)="onGoogleAuth()">
+</pelu-auth-popup>

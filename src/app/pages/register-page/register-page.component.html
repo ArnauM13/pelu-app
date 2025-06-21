@@ -1,36 +1,5 @@
-<div class="register-container">
-  <pelu-card class="register-card">
-    <h2 class="register-title">Registra't</h2>
-    <p class="register-subtitle">Registra't per apuntar-te a noves activitats</p>
-
-    <form [formGroup]="form" (ngSubmit)="register()" class="register-form">
-      <div class="form-field">
-        <label class="form-label">Correu electrònic</label>
-        <input pInputText type="email" formControlName="email" placeholder="Correu electrònic" class="form-input" />
-      </div>
-
-      <div class="form-field">
-        <label class="form-label">Contrasenya</label>
-        <input pInputText type="password" formControlName="password" placeholder="Contrasenya" class="form-input" />
-      </div>
-
-      <div class="form-field">
-        <label class="form-label">Repeteix la contrasenya</label>
-        <input pInputText type="password" formControlName="repeatPassword" placeholder="Contrasenya" class="form-input" />
-      </div>
-
-      <button pButton type="submit" label="Registra't" class="register-button" [disabled]="form.invalid"></button>
-    </form>
-
-    <div class="divider">
-      <span>o</span>
-    </div>
-
-    <button pButton type="button" label="Registra't amb Google" icon="pi pi-google"
-            class="google-register-button" (click)="registerWithGoogle()"></button>
-
-    <div class="login-link">
-      <p>Ja tens compte? <a routerLink="/login" class="link">Inicia sessió aquí</a></p>
-    </div>
-  </pelu-card>
-</div>
+<pelu-auth-popup
+  [config]="registerConfig"
+  (submitForm)="onRegisterSubmit($event)"
+  (googleAuth)="onGoogleAuth()">
+</pelu-auth-popup>
