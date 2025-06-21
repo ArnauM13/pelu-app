@@ -28,7 +28,7 @@
         </div>
 
         <div class="day-events">
-          @for (event of getEventsForDay(day); track event.title) {
+          @for (event of getEventsForDay(day); track event.start) {
           <div class="event-item">
             <span class="event-time">{{ getEventTime(event.start) }}</span>
             <span class="event-title">{{ event.title }}</span>
