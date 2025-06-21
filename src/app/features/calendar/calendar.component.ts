@@ -1,166 +1,130 @@
-import { Component, input, computed, output, signal, ElementRef, ViewChild, effect } from '@angular/core';
+import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FullCalendarModule } from '@fullcalendar/angular';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import { CalendarOptions, DateSelectArg, EventClickArg } from '@fullcalendar/core';
+import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
+import { startOfWeek, endOfWeek, startOfDay, endOfDay, format, addDays, isSameDay, isSameWeek, eachDayOfInterval } from 'date-fns';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { ca } from 'date-fns/locale';
 
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, FullCalendarModule],
+  imports: [CommonModule, CalendarModule],
+  providers: [
+    CalendarUtils,
+    CalendarA11y,
+    {
+      provide: DateAdapter,
+      useFactory: adapterFactory,
+    },
+  ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent {
-  @ViewChild('calendarContainer') calendarContainer!: ElementRef;
-
   mini = input<boolean>(false);
   events = input<{ title: string; start: string }[]>([]);
 
   dateSelected = output<{date: string, time: string}>();
 
-  private today = new Date();
-  private todayStr = this.today.toISOString().split('T')[0];
-  private selectedDateTime = signal<{date: string, time: string}>({date: '', time: ''});
-  showTimePopup = signal<boolean>(false);
-  popupDate = signal<string>('');
+  view: CalendarView = CalendarView.Week;
+  viewDate = signal<Date>(new Date());
+  selectedDateTime = signal<{date: string, time: string}>({date: '', time: ''});
+  selectedDay = signal<Date | null>(null);
 
-  constructor() {
-    // Effect to reapply styles when view changes
-    effect(() => {
-      const selected = this.selectedDateTime();
+  // Business hours (8:00 - 20:00)
+  businessHours = {
+    start: 8,
+    end: 20
+  };
 
-      if (selected.date) {
-        setTimeout(() => {
-          this.applySelectedDateStyle(selected.date);
-        }, 200);
-      }
-    });
-  }
-
-  private baseOptions = computed<CalendarOptions>(() => {
-    const isMini = this.mini();
-    return {
-      plugins: [dayGridPlugin, interactionPlugin],
-      initialView: 'dayGridMonth',
-      height: isMini ? 400 : 'auto',
-      headerToolbar: isMini ? {
-        left: 'prev,next',
-        center: 'title',
-        right: ''
-      } : {
-        left: 'prev,next today',
-        center: 'title',
-        right: ''
-      },
-      buttonText: {
-        prev: '←',
-        next: '→',
-        today: 'Avui'
-      },
-      validRange: {
-        start: this.todayStr
-      },
-      selectable: false,
-      dateClick: (info: any) => {
-        console.log('Date clicked:', info.dateStr);
-        const clickedDate = info.dateStr;
-        if (clickedDate >= this.todayStr) {
-          // Show time popup for date selection
-          this.popupDate.set(clickedDate);
-          this.showTimePopup.set(true);
-        }
-      },
-      dayCellDidMount: (info) => {
-        const cellDate = info.date.toISOString().split('T')[0];
-        if (cellDate < this.todayStr) {
-          info.el.style.opacity = '0.5';
-          info.el.style.pointerEvents = 'none';
-        }
-
-        if (cellDate === this.selectedDateTime().date) {
-          this.addSelectedClass(info.el);
-        }
-      },
-      datesSet: () => {
-        setTimeout(() => {
-          const selected = this.selectedDateTime();
-          if (selected.date) {
-            this.applySelectedDateStyle(selected.date);
-          }
-        }, 100);
-      }
-    };
+  // Get week days
+  weekDays = computed(() => {
+    const start = startOfWeek(this.viewDate(), { weekStartsOn: 1 }); // Monday
+    const end = endOfWeek(this.viewDate(), { weekStartsOn: 1 });
+    return eachDayOfInterval({ start, end });
   });
 
-  calendarOptions = computed(() => {
-    const base = this.baseOptions();
-    const events = this.events();
-    return {
-      ...base,
-      events: events
-    };
+  // Convert input events to CalendarEvent format
+  calendarEvents = computed(() => {
+    return this.events().map(event => ({
+      title: event.title,
+      start: new Date(event.start),
+      end: new Date(event.start),
+      color: {
+        primary: '#3b82f6',
+        secondary: '#dbeafe'
+      }
+    }));
   });
 
-  selectTime(time: string) {
-    const date = this.popupDate();
-    this.selectedDateTime.set({date, time});
-    this.applySelectedDateStyle(date);
-    this.dateSelected.emit({date, time});
-    this.showTimePopup.set(false);
+  // Get time slots for a day
+  getTimeSlots() {
+    const slots = [];
+    for (let hour = this.businessHours.start; hour < this.businessHours.end; hour++) {
+      slots.push(`${hour.toString().padStart(2, '0')}:00`);
+    }
+    return slots;
   }
 
-  closeTimePopup() {
-    this.showTimePopup.set(false);
+  // Get events for a specific day
+  getEventsForDay(date: Date) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return this.events().filter(event => event.start.startsWith(dateStr));
   }
 
-  private applySelectedDateStyle(selectedDate: string) {
-    const cells = this.calendarContainer?.nativeElement?.querySelectorAll('.fc-daygrid-day');
-    if (cells) {
-      cells.forEach((cell: any) => {
-        cell.classList.remove('selected-date');
-        this.removeSelectedClass(cell);
-        const dateAttr = cell.getAttribute('data-date');
-        if (dateAttr === selectedDate) {
-          this.addSelectedClass(cell);
-        }
-      });
+  // Check if a time slot is available
+  isTimeSlotAvailable(date: Date, time: string) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const eventKey = `${dateStr}T${time}`;
+    return !this.events().some(event => event.start === eventKey);
+  }
+
+  // Select a day
+  selectDay(date: Date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (date >= today) {
+      // If clicking the same day, deselect it
+      if (this.selectedDay() && isSameDay(this.selectedDay()!, date)) {
+        this.selectedDay.set(null);
+      } else {
+        this.selectedDay.set(date);
+      }
     }
   }
 
-  private clearSelectedDateStyle() {
-    const cells = this.calendarContainer?.nativeElement?.querySelectorAll('.fc-daygrid-day');
-    if (cells) {
-      cells.forEach((cell: any) => {
-        cell.classList.remove('selected-date');
-        this.removeSelectedClass(cell);
-      });
-    }
+  // Select a time slot
+  selectTimeSlot(date: Date, time: string) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    this.selectedDateTime.set({date: dateStr, time: time});
+    this.dateSelected.emit({date: dateStr, time: time});
   }
 
-  private addSelectedClass(element: any) {
-    element.classList.add('selected-date');
-    element.style.backgroundColor = '#3b82f6';
-    element.style.color = 'white';
-    element.style.borderRadius = '6px';
-    element.style.fontWeight = '600';
-    element.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+  // Check if a day is selected
+  isDaySelected(date: Date): boolean {
+    return this.selectedDay() ? isSameDay(this.selectedDay()!, date) : false;
   }
 
-  private removeSelectedClass(element: any) {
-    element.style.backgroundColor = '';
-    element.style.color = '';
-    element.style.borderRadius = '';
-    element.style.fontWeight = '';
-    element.style.boxShadow = '';
+  previousWeek() {
+    this.viewDate.set(addDays(this.viewDate(), -7));
+    this.selectedDay.set(null); // Clear selection when changing weeks
+  }
+
+  nextWeek() {
+    this.viewDate.set(addDays(this.viewDate(), 7));
+    this.selectedDay.set(null); // Clear selection when changing weeks
+  }
+
+  today() {
+    this.viewDate.set(new Date());
+    this.selectedDay.set(null); // Clear selection when going to today
   }
 
   getSelectedDateMessage() {
     const selected = this.selectedDateTime();
     if (selected.date) {
       const dateStr = this.formatPopupDate(selected.date);
-
       if (selected.time) {
         return `Seleccionat: ${dateStr} a les ${selected.time}`;
       } else {
@@ -168,15 +132,6 @@ export class CalendarComponent {
       }
     }
     return 'Cap dia seleccionat';
-  }
-
-  getTimeSlots() {
-    const slots = [];
-    for (let hour = 8; hour <= 20; hour++) {
-      const time = `${hour.toString().padStart(2, '0')}:00`;
-      slots.push(time);
-    }
-    return slots;
   }
 
   formatPopupDate(dateString: string): string {
@@ -191,5 +146,28 @@ export class CalendarComponent {
     const year = date.getFullYear();
 
     return `${dayName}, ${day} de ${month} de ${year}`;
+  }
+
+  format(date: Date, formatString: string): string {
+    return format(date, formatString);
+  }
+
+  isPastDate(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  }
+
+  getDayName(date: Date): string {
+    const days = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+    return days[date.getDay()];
+  }
+
+  getEventTime(startString: string): string {
+    const parts = startString.split('T');
+    if (parts.length > 1 && parts[1]) {
+      return parts[1].substring(0, 5);
+    }
+    return '';
   }
 }

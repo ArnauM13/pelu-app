@@ -1,26 +1,62 @@
-<div class="calendar-container" #calendarContainer>
-  <full-calendar [options]="calendarOptions()"></full-calendar>
-</div>
-
-<!-- Time Selection Popup -->
-@if (showTimePopup()) {
-<div class="time-popup-overlay" (click)="closeTimePopup()">
-  <div class="time-popup" (click)="$event.stopPropagation()">
-    <div class="time-popup-header">
-      <h3>Selecciona una hora per {{ formatPopupDate(popupDate()) }}</h3>
-      <button class="close-btn" (click)="closeTimePopup()">×</button>
-    </div>
-    <div class="time-slots">
-      @for (time of getTimeSlots(); track time) {
-      <button class="time-slot" (click)="selectTime(time)">
-        {{ time }}
+<div class="calendar-container">
+  <!-- Calendar Header -->
+  <div class="calendar-header">
+    <div class="calendar-navigation">
+      <button class="nav-btn" (click)="previousWeek()">
+        <i class="pi pi-chevron-left"></i>
       </button>
+      <button class="nav-btn today-btn" (click)="today()">
+        Avui
+      </button>
+      <button class="nav-btn" (click)="nextWeek()">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+    <div class="calendar-title">
+      Setmana del {{ formatPopupDate(format(viewDate(), 'yyyy-MM-dd')) }}
+    </div>
+  </div>
+
+  <!-- Weekly List View -->
+  <div class="calendar-body">
+    <div class="week-list">
+      @for (day of weekDays(); track day) {
+      <div class="day-card" [class.past]="isPastDate(day)" [class.selected]="isDaySelected(day)" (click)="selectDay(day)">
+        <div class="day-header">
+          <div class="day-name">{{ getDayName(day) }}</div>
+          <div class="day-date">{{ format(day, 'dd/MM') }}</div>
+        </div>
+
+        <div class="day-events">
+          @for (event of getEventsForDay(day); track event.title) {
+          <div class="event-item">
+            <span class="event-time">{{ getEventTime(event.start) }}</span>
+            <span class="event-title">{{ event.title }}</span>
+          </div>
+          }
+        </div>
+
+        <!-- Show time slots when day is selected -->
+        @if (isDaySelected(day)) {
+        <div class="day-time-slots">
+          <div class="time-slots-header">
+            <h4>Selecciona una hora:</h4>
+          </div>
+          <div class="time-slots-grid">
+            @for (time of getTimeSlots(); track time) {
+            <button class="time-slot-btn"
+                    [class.available]="isTimeSlotAvailable(day, time)"
+                    [class.booked]="!isTimeSlotAvailable(day, time)"
+                    [disabled]="!isTimeSlotAvailable(day, time)"
+                    (click)="selectTimeSlot(day, time)">
+              {{ time }}
+            </button>
+            }
+          </div>
+        </div>
+        }
+      </div>
       }
     </div>
   </div>
-</div>
-}
-
-<div class="selected-date-message">
-  {{ getSelectedDateMessage() }}
 </div>

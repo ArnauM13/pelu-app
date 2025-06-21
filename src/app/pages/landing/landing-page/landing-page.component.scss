@@ -75,7 +75,7 @@
   }
 }
 
-.btn-primary, .btn-secondary, .btn-outline {
+.btn-primary, .btn-secondary, .btn-outline, .btn-profile {
   padding: 0.875rem 1.5rem;
   border-radius: 12px;
   font-size: 0.9rem;
@@ -120,6 +120,19 @@
   &:hover {
     background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
     color: #1976d2;
+  }
+}
+
+.btn-profile {
+  background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+  color: #fff;
+  border: none;
+  box-sizing: border-box;
+  outline: none;
+
+  &:hover {
+    background: linear-gradient(135deg, #C2185B 0%, #880E4F 100%);
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.18);
   }
 }
 
@@ -237,7 +250,7 @@
     gap: 0.75rem;
   }
 
-  .btn-primary, .btn-secondary, .btn-outline {
+  .btn-primary, .btn-secondary, .btn-outline, .btn-profile {
     padding: 0.7rem 1rem;
     font-size: 0.85rem;
     min-width: 120px;
