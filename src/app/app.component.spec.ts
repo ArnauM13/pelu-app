@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { Auth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
-import { mockAuth, mockRouter } from '../testing/firebase-mocks';
+import { provideRouter } from '@angular/router';
+import { mockAuth } from '../testing/firebase-mocks';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -10,7 +10,7 @@ describe('AppComponent', () => {
       imports: [AppComponent],
       providers: [
         { provide: Auth, useValue: mockAuth },
-        { provide: Router, useValue: mockRouter }
+        provideRouter([])
       ]
     }).compileComponents();
   });

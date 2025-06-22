@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { AuthPopupComponent, AuthPopupConfig } from './auth-popup.component';
 
 describe('AuthPopupComponent', () => {
@@ -33,8 +33,10 @@ describe('AuthPopupComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AuthPopupComponent,
-        ReactiveFormsModule,
-        RouterTestingModule
+        ReactiveFormsModule
+      ],
+      providers: [
+        provideRouter([])
       ]
     }).compileComponents();
 

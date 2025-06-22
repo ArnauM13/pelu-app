@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { AppointmentsPageComponent } from './appointments-page.component';
 import { MessageService } from 'primeng/api';
 
@@ -8,7 +9,7 @@ describe('AppointmentsPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppointmentsPageComponent],
+      imports: [AppointmentsPageComponent, FormsModule],
       providers: [MessageService]
     }).compileComponents();
 
