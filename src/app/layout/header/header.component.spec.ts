@@ -1,23 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { LogoutButtonComponent } from './logout-button.component';
+import { HeaderComponent } from './header.component';
 import { Auth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
-import { mockAuth, mockRouter } from '../../../testing/firebase-mocks';
+import { provideRouter } from '@angular/router';
+import { mockAuth } from '../../../testing/firebase-mocks';
 
-describe('LogoutButtonComponent', () => {
-  let component: LogoutButtonComponent;
-  let fixture: ComponentFixture<LogoutButtonComponent>;
+describe('HeaderComponent', () => {
+  let component: HeaderComponent;
+  let fixture: ComponentFixture<HeaderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LogoutButtonComponent],
+      imports: [HeaderComponent],
       providers: [
         { provide: Auth, useValue: mockAuth },
-        { provide: Router, useValue: mockRouter }
+        provideRouter([])
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LogoutButtonComponent);
+    fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
   });
 
