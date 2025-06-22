@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
 import { BookingPageComponent } from './booking-page.component';
 import { AuthService } from '../../auth/auth.service';
 import { mockAuthService } from '../../../testing/firebase-mocks';
@@ -10,7 +11,7 @@ describe('BookingPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BookingPageComponent],
+      imports: [BookingPageComponent, FormsModule],
       providers: [
         MessageService,
         { provide: AuthService, useValue: mockAuthService }

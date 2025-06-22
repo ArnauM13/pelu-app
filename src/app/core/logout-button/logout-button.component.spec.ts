@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogoutButtonComponent } from './logout-button.component';
 import { Auth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
-import { mockAuth, mockRouter } from '../../../testing/firebase-mocks';
+import { provideRouter } from '@angular/router';
+import { mockAuth } from '../../../testing/firebase-mocks';
 
 describe('LogoutButtonComponent', () => {
   let component: LogoutButtonComponent;
@@ -13,7 +13,7 @@ describe('LogoutButtonComponent', () => {
       imports: [LogoutButtonComponent],
       providers: [
         { provide: Auth, useValue: mockAuth },
-        { provide: Router, useValue: mockRouter }
+        provideRouter([])
       ]
     }).compileComponents();
 
