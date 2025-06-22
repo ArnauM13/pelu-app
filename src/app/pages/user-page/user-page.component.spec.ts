@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { UserPageComponent } from './user-page.component';
 
 describe('UserPageComponent', () => {
@@ -9,12 +8,10 @@ describe('UserPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [UserPageComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(UserPageComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
