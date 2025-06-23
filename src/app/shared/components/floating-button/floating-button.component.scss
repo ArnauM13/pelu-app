@@ -1,0 +1,133 @@
+.floating-btn {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: var(--box-shadow);
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  pointer-events: auto;
+  user-select: none;
+  border: none;
+  position: relative;
+}
+
+// Sizes
+.floating-btn.small {
+  width: 36px;
+  height: 36px;
+  font-size: 0.9rem;
+}
+
+.floating-btn.medium {
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+}
+
+.floating-btn.large {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+}
+
+// Default size (medium)
+.floating-btn:not(.small):not(.medium):not(.large) {
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+}
+
+// Variants
+.floating-btn.primary {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--primary-color);
+}
+
+.floating-btn.secondary {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.floating-btn.success {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--success-color);
+}
+
+.floating-btn.danger {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--error-color);
+}
+
+// Active states
+.floating-btn.active,
+.floating-btn:focus-visible {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color-dark);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: scale(1.05);
+}
+
+.floating-btn.success.active,
+.floating-btn.success:focus-visible {
+  background: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.floating-btn.danger.active,
+.floating-btn.danger:focus-visible {
+  background: var(--error-color);
+  color: white;
+  border-color: var(--error-color);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+// Hover states
+.floating-btn:hover {
+  background: var(--primary-color-lighter);
+  color: var(--primary-color-dark);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.floating-btn.success:hover {
+  background: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+}
+
+.floating-btn.danger:hover {
+  background: var(--error-color);
+  color: white;
+  border-color: var(--error-color);
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .floating-btn:not(.small) {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-btn:not(.small) {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+}

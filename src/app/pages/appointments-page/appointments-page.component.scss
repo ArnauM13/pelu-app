@@ -92,7 +92,7 @@ pelu-card:has(.appointments-list) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin: 2rem 0 2rem 0;
 }
 
 .stat-card {
@@ -214,6 +214,7 @@ pelu-card:has(.appointments-list) {
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;
+  gap: 1rem;
 }
 
 .appointment-item:hover {
@@ -233,13 +234,14 @@ pelu-card:has(.appointments-list) {
 
 .appointment-info {
   flex: 1;
+  display: flex;
+  align-items: center;
 }
 
-.appointment-header {
+.client-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .client-name {
@@ -247,34 +249,7 @@ pelu-card:has(.appointments-list) {
   color: var(--text-color);
   font-size: 1.1rem;
   font-weight: 600;
-}
-
-.appointment-status {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-badge.today {
-  background: var(--primary-color);
-  color: white;
-}
-
-.status-badge.upcoming {
-  background: var(--success-color);
-  color: white;
-}
-
-.status-badge.past {
-  background: var(--text-color-light);
-  color: white;
+  line-height: 1.2;
 }
 
 .appointment-details {
@@ -300,9 +275,54 @@ pelu-card:has(.appointments-list) {
   color: var(--text-color-light);
 }
 
+.appointment-actions-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.appointment-status {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-badge.today {
+  background: var(--primary-color);
+  color: white;
+}
+
+.status-badge.upcoming {
+  background: var(--success-color);
+  color: white;
+}
+
+.status-badge.past {
+  background: var(--text-color-light);
+  color: white;
+}
+
 .appointment-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .btn-danger {
@@ -330,11 +350,637 @@ pelu-card:has(.appointments-list) {
 
   .appointment-item {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .appointment-info {
+    justify-content: center;
+  }
+
+  .client-info {
+    align-items: center;
+  }
+
+  .appointment-actions-container {
+    flex-direction: row;
+    justify-content: center;
     gap: 1rem;
   }
 
   .appointment-actions {
-    align-self: flex-end;
+    justify-content: center;
+  }
+}
+
+// View Toggle
+.view-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.view-toggle h3 {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggle-buttons .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.toggle-buttons .btn-primary {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.toggle-buttons .btn-primary:hover {
+  background: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
+}
+
+.toggle-buttons .btn-secondary {
+  background: white;
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.toggle-buttons .btn-secondary:hover {
+  background: var(--secondary-color-light);
+  border-color: var(--primary-color);
+}
+
+// Calendar View
+.calendar-container {
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease-out 0.6s both;
+}
+
+.calendar-container ::ng-deep .p-calendar {
+  width: 100%;
+  max-width: 100%;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker {
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  box-shadow: var(--box-shadow);
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  margin: 0;
+  padding: 0;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker th {
+  background: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  padding: 1.5rem 0.5rem;
+  text-align: center;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 14.28%; /* 100% / 7 days */
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td {
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  background: white;
+  width: 14.28%; /* 100% / 7 days */
+  height: 100px;
+  vertical-align: top;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td > span {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 80px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td > span:hover {
+  background: var(--secondary-color-light);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td.p-datepicker-today > span {
+  background: var(--primary-color);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td.p-datepicker-current-day > span {
+  background: var(--primary-color-dark);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td.p-other-month > span {
+  color: var(--text-color-light);
+  opacity: 0.5;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker td.p-other-month > span:hover {
+  background: var(--secondary-color-light);
+  opacity: 0.8;
+}
+
+.calendar-day {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  position: relative;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.day-number {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+
+.appointment-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  max-width: 100%;
+  margin-top: 0.25rem;
+}
+
+.appointment-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.appointment-dot:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-day.has-appointments {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(224, 231, 255, 0.1) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+}
+
+.calendar-day.has-appointments:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(224, 231, 255, 0.15) 100%);
+  border-color: rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+// Calendar Header Styling
+.calendar-container ::ng-deep .p-calendar .p-datepicker-header {
+  background: var(--primary-color);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker-prev,
+.calendar-container ::ng-deep .p-calendar .p-datepicker-next {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-container ::ng-deep .p-calendar .p-datepicker-prev:hover,
+.calendar-container ::ng-deep .p-calendar .p-datepicker-next:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+// Calendar Subtitle
+.calendar-subtitle {
+  color: var(--text-color-light);
+  font-size: 1rem;
+  margin: 0.5rem 0 0 0;
+  text-align: center;
+}
+
+// Calendar Instructions
+.calendar-instructions {
+  margin-top: 2rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--secondary-color-light) 0%, rgba(224, 231, 255, 0.3) 100%);
+  border-radius: 12px;
+  border: 2px dashed var(--primary-color-lighter);
+}
+
+.instruction-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.instruction-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.instruction-content h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.instruction-content p {
+  margin: 0;
+  color: var(--text-color-light);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+// Selected Date Appointments
+.selected-date-appointments {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border-color);
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--box-shadow);
+  animation: fadeInUp 0.8s ease-out 0.8s both;
+}
+
+.selected-date-appointments h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--primary-color-lighter);
+}
+
+// Responsive Calendar
+@media (max-width: 1200px) {
+  .calendar-container ::ng-deep .p-calendar .p-datepicker td > span {
+    min-height: 70px;
+    font-size: 1rem;
+  }
+
+  .calendar-day {
+    min-height: 70px;
+    padding: 0.4rem;
+  }
+
+  .day-number {
+    font-size: 1rem;
+  }
+
+  .appointment-dot {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+@media (max-width: 768px) {
+  .view-toggle {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toggle-buttons {
+    justify-content: center;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker th {
+    padding: 1rem 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker td {
+    padding: 0.25rem;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker td > span {
+    min-height: 60px;
+    font-size: 0.9rem;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 0.25rem;
+  }
+
+  .day-number {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .appointment-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .appointment-indicators {
+    gap: 0.125rem;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker-header {
+    padding: 1rem;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker-title {
+    font-size: 1.2rem;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker-prev,
+  .calendar-container ::ng-deep .p-calendar .p-datepicker-next {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-container ::ng-deep .p-calendar .p-datepicker td > span {
+    min-height: 50px;
+    font-size: 0.8rem;
+  }
+
+  .calendar-day {
+    min-height: 50px;
+    padding: 0.2rem;
+  }
+
+  .day-number {
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .appointment-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker-header {
+    padding: 0.75rem;
+  }
+
+  .calendar-container ::ng-deep .p-calendar .p-datepicker-title {
+    font-size: 1rem;
+  }
+}
+
+// Tooltip Styles - Ensure tooltips appear above filters and don't get cut off
+::ng-deep .p-tooltip {
+  z-index: 3000 !important; /* Higher than filters */
+}
+
+::ng-deep .p-tooltip .p-tooltip-text {
+  background: var(--text-color) !important;
+  color: white !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 6px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  max-width: 120px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-bottom .p-tooltip-arrow {
+  border-bottom-color: var(--text-color) !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-top .p-tooltip-arrow {
+  border-top-color: var(--text-color) !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-left .p-tooltip-arrow {
+  border-left-color: var(--text-color) !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-right .p-tooltip-arrow {
+  border-right-color: var(--text-color) !important;
+}
+
+// Ensure tooltips don't get cut off by viewport
+::ng-deep .p-tooltip {
+  position: fixed !important;
+  pointer-events: none !important;
+}
+
+// View Mode Toggle FAB (main action - right side, larger)
+.view-toggle-fab {
+  position: fixed;
+  top: 5rem;
+  right: 1.5rem;
+  z-index: 2000;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin: 0;
+  width: fit-content;
+  pointer-events: auto;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+// Filters FAB (secondary actions - left side, smaller)
+.filters-fab {
+  position: fixed;
+  top: 5rem;
+  left: 1.5rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin: 0;
+  width: fit-content;
+  pointer-events: auto;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.quick-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(10px);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(10px);
+}
+
+// Advanced Filters Panel (left side)
+.advanced-filters-panel {
+  position: fixed;
+  top: 5rem;
+  left: 1.5rem;
+  z-index: 1999;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow-hover);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  margin-top: 12rem;
+  min-width: 300px;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.filters-content h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.filters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .view-toggle-fab {
+    top: 4.5rem;
+    right: 1rem;
+    z-index: 2000;
+    gap: 0.5rem;
+  }
+
+  .filters-fab {
+    top: 4.5rem;
+    left: 1rem;
+    z-index: 2000;
+    gap: 0.5rem;
+  }
+
+  .quick-filters,
+  .action-buttons {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+
+  .advanced-filters-panel {
+    top: 4.5rem;
+    left: 1rem;
+    margin-top: 10rem;
+    min-width: 280px;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-toggle-fab {
+    top: 4rem;
+    right: 0.5rem;
+  }
+
+  .filters-fab {
+    top: 4rem;
+    left: 0.5rem;
+  }
+
+  .quick-filters,
+  .action-buttons {
+    padding: 0.3rem;
+    gap: 0.3rem;
+  }
+
+  .advanced-filters-panel {
+    top: 4rem;
+    left: 0.5rem;
+    margin-top: 8rem;
+    min-width: 260px;
+    padding: 0.75rem;
   }
 }

@@ -1,12 +1,6 @@
 <p-toast></p-toast>
 
 <div class="container">
-  <!-- Header -->
-  <div class="page-header">
-    <h1>Gestió de Cites</h1>
-    <p>Visualitza i gestiona totes les teves cites</p>
-  </div>
-
   <!-- Statistics Cards -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -34,38 +28,172 @@
     </div>
   </div>
 
-  <!-- Filters -->
-  <pelu-card>
-    <h3>Filtres</h3>
-    <div class="filters-grid">
-      <div class="filter-group">
-        <label for="filterDate">Filtrar per data:</label>
-        <input
-          type="date"
-          id="filterDate"
-          [(ngModel)]="filterDateValue"
-          class="input">
-      </div>
+  <!-- View Mode Toggle (main action - right side) -->
+  <div class="view-toggle-fab" role="group" aria-label="Canvia la vista de cites">
+    @for (button of viewButtons(); track button.icon; let i = $index) {
+    <pelu-floating-button
+      [config]="button"
+      (clicked)="onViewButtonClick(i)">
+    </pelu-floating-button>
+    }
+  </div>
 
-      <div class="filter-group">
-        <label for="filterClient">Filtrar per client:</label>
-        <input
-          type="text"
-          id="filterClient"
-          [(ngModel)]="filterClientValue"
-          placeholder="Buscar per nom..."
-          class="input">
-      </div>
+  <!-- Filters FAB (left side - secondary actions) -->
+  <div class="filters-fab" role="group" aria-label="Filtres de cites">
+    <!-- Quick Filters -->
+    <div class="quick-filters">
+      @for (button of filterButtons(); track button.icon; let i = $index) {
+      <pelu-floating-button
+        [config]="button"
+        (clicked)="onFilterButtonClick(i)">
+      </pelu-floating-button>
+      }
+    </div>
 
-      <div class="filter-actions">
-        <button class="btn btn-secondary" (click)="clearFilters()">
-          Netejar Filtres
-        </button>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      @for (button of actionButtons(); track button.icon; let i = $index) {
+      <pelu-floating-button
+        [config]="button"
+        (clicked)="onActionButtonClick(i)">
+      </pelu-floating-button>
+      }
+    </div>
+  </div>
+
+  <!-- Advanced Filters Panel -->
+  @if (showAdvancedFilters()) {
+  <div class="advanced-filters-panel">
+    <div class="filters-content">
+      <h4>🔍 Filtres Avançats</h4>
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label for="filterDate">Filtrar per data:</label>
+          <input
+            type="date"
+            id="filterDate"
+            [(ngModel)]="filterDateValue"
+            class="input">
+        </div>
+
+        <div class="filter-group">
+          <label for="filterClient">Filtrar per client:</label>
+          <input
+            type="text"
+            id="filterClient"
+            [(ngModel)]="filterClientValue"
+            placeholder="Buscar per nom..."
+            class="input">
+        </div>
       </div>
     </div>
-  </pelu-card>
+  </div>
+  }
 
-  <!-- Appointments List -->
+  <!-- Calendar View -->
+  @if (viewMode() === 'calendar') {
+  <pelu-card variant="large">
+    <div class="card-header">
+      <h3>📅 Calendari de Cites</h3>
+      <p class="calendar-subtitle">Visualitza totes les teves cites en format calendari</p>
+    </div>
+
+    <div class="calendar-container">
+      <p-calendar
+        [(ngModel)]="selectedDate"
+        (onSelect)="onDateSelect($event)"
+        [inline]="true"
+        [showOtherMonths]="true"
+        [selectOtherMonths]="false"
+        [firstDayOfWeek]="1"
+        dateFormat="dd/mm/yy"
+        [showIcon]="false">
+
+        <ng-template pTemplate="date" let-date>
+          <div class="calendar-day" [class.has-appointments]="getAppointmentsForDate(date).length > 0">
+            <span class="day-number">{{ date.day }}</span>
+            @if (getAppointmentsForDate(date).length > 0) {
+            <div class="appointment-indicators">
+              @for (appointment of getAppointmentsForDate(date); track appointment.id) {
+              <div
+                class="appointment-dot"
+                [style.background-color]="getEventColor(appointment.data)"
+                [pTooltip]="appointment.nom + ' - ' + formatTime(appointment.hora)">
+              </div>
+              }
+            </div>
+            }
+          </div>
+        </ng-template>
+      </p-calendar>
+    </div>
+
+    <!-- Mostra la llista de cites o el missatge d'instrucció a sota del calendari -->
+    @if (selectedDate()) {
+    <div class="selected-date-appointments">
+      <h4>📋 Cites del {{ formatDate(formatDateForDisplay(selectedDate()!)) }}</h4>
+      @if (getAppointmentsForDate(selectedDate()!).length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>No hi ha cites programades</h3>
+        <p>Per aquesta data no tens cites programades. Pots seleccionar una altra data o afegir noves cites.</p>
+      </div>
+      } @else {
+      <div class="appointments-list">
+        @for (cita of getAppointmentsForDate(selectedDate()!); track cita.id) {
+        <div class="appointment-item" [class.today]="isToday(cita.data)">
+          <!-- Informació de la cita (esquerra) -->
+          <div class="appointment-info">
+            <div class="client-info">
+              <h4 class="client-name">{{ cita.nom }}</h4>
+              <div class="appointment-details">
+                @if (cita.hora) {
+                <div class="detail-item">
+                  <span class="detail-icon">⏰</span>
+                  <span class="detail-text">{{ formatTime(cita.hora) }}</span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Status i accions (dreta) -->
+          <div class="appointment-actions-container">
+            <div class="appointment-status">
+              @if (isToday(cita.data)) {
+              <span class="status-badge today">Avui</span>
+              }
+            </div>
+
+            <div class="appointment-actions">
+              <button
+                class="btn btn-danger"
+                (click)="deleteAppointment(cita)"
+                pTooltip="Eliminar cita"
+                pTooltipPosition="left">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="calendar-instructions">
+      <div class="instruction-content">
+        <div class="instruction-icon">👆</div>
+        <h4>Selecciona una data</h4>
+        <p>Clica sobre qualsevol dia del calendari per veure les cites programades per a aquesta data.</p>
+      </div>
+    </div>
+    }
+  </pelu-card>
+  }
+
+  <!-- Appointments List View -->
+  @if (viewMode() === 'list') {
   <pelu-card variant="large">
     <div class="card-header">
       <h3>Cites ({{ filteredCites().length }})</h3>
@@ -86,46 +214,51 @@
     <div class="appointments-list">
       @for (cita of filteredCites(); track cita.id) {
       <div class="appointment-item" [class.today]="isToday(cita.data)" [class.past]="isPast(cita.data)">
+        <!-- Informació de la cita (esquerra) -->
         <div class="appointment-info">
-          <div class="appointment-header">
+          <div class="client-info">
             <h4 class="client-name">{{ cita.nom }}</h4>
-            <div class="appointment-status">
-              @if (isToday(cita.data)) {
-              <span class="status-badge today">Avui</span>
-              } @else if (isPast(cita.data)) {
-              <span class="status-badge past">Passada</span>
-              } @else {
-              <span class="status-badge upcoming">Pròxima</span>
+            <div class="appointment-details">
+              <div class="detail-item">
+                <span class="detail-icon">📅</span>
+                <span class="detail-text">{{ formatDate(cita.data) }}</span>
+              </div>
+
+              @if (cita.hora) {
+              <div class="detail-item">
+                <span class="detail-icon">⏰</span>
+                <span class="detail-text">{{ formatTime(cita.hora) }}</span>
+              </div>
               }
             </div>
           </div>
-
-          <div class="appointment-details">
-            <div class="detail-item">
-              <span class="detail-icon">📅</span>
-              <span class="detail-text">{{ formatDate(cita.data) }}</span>
-            </div>
-
-            @if (cita.hora) {
-            <div class="detail-item">
-              <span class="detail-icon">⏰</span>
-              <span class="detail-text">{{ formatTime(cita.hora) }}</span>
-            </div>
-            }
-          </div>
         </div>
 
-        <div class="appointment-actions">
-          <button
-            class="btn btn-danger"
-            (click)="deleteAppointment(cita)"
-            pTooltip="Eliminar cita">
-            🗑️
-          </button>
+        <!-- Status i accions (dreta) -->
+        <div class="appointment-actions-container">
+          <div class="appointment-status">
+            @if (isToday(cita.data)) {
+            <span class="status-badge today">Avui</span>
+            } @else if (isPast(cita.data)) {
+            <span class="status-badge past">Passada</span>
+            } @else {
+            <span class="status-badge upcoming">Pròxima</span>
+            }
+          </div>
+
+          <div class="appointment-actions">
+            <button
+              class="btn btn-danger"
+              (click)="deleteAppointment(cita)"
+              pTooltip="Eliminar cita">
+              🗑️
+            </button>
+          </div>
         </div>
       </div>
       }
     </div>
     }
   </pelu-card>
+  }
 </div>
