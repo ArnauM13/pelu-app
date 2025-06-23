@@ -1,0 +1,13 @@
+<div class="popup-stack-overlay" *ngIf="popups.length > 0" (click)="onBackdropClick($event)">
+  @for (popup of popups; track popup.id; let i = $index) {
+  <div class="popup-container"
+       [style]="getPopupStyle(i)"
+       [class.closing]="isClosing(popup.id)">
+    <div class="popup-content">
+      <ng-container [ngComponentOutlet]="popup.content"
+                    [ngComponentOutletInputs]="getComponentInputs(popup)">
+      </ng-container>
+    </div>
+  </div>
+  }
+</div>

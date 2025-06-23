@@ -791,7 +791,7 @@ pelu-card:has(.appointments-list) {
 
 // Tooltip Styles - Ensure tooltips appear above filters and don't get cut off
 ::ng-deep .p-tooltip {
-  z-index: 3000 !important; /* Higher than filters */
+  z-index: 6000 !important; /* Higher than popups */
 }
 
 ::ng-deep .p-tooltip .p-tooltip-text {
@@ -1035,4 +1035,67 @@ pelu-card:has(.appointments-list) {
     top: 4rem;
     left: 0.5rem;
   }
+}
+
+.popup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.quick-filters,
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.advanced-filters-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.filters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.actions-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clear-filters-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clear-filters-btn:hover {
+  background: #dc2626;
 }
