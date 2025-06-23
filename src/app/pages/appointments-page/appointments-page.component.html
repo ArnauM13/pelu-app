@@ -2,58 +2,18 @@
 
 <div class="container">
   <!-- Botó de menú lateral (filtres) a dalt a l'esquerra -->
-  <div class="menu-filters-fab" *ngIf="!showFiltersDrawer()">
+  <div class="menu-filters-fab" *ngIf="popupStack().length === 0">
     <pelu-floating-button
-      [config]="{ icon: '☰', tooltip: 'Filtres', ariaLabel: 'Obrir filtres', variant: 'primary', size: 'large', isActive: showFiltersDrawer() }"
-      (clicked)="openFiltersDrawer()">
+      [config]="{ icon: '☰', tooltip: 'Filtres', ariaLabel: 'Obrir filtres', variant: 'primary', size: 'large', isActive: popupStack().length > 0 }"
+      (clicked)="openFiltersPopup()">
     </pelu-floating-button>
   </div>
 
-  <!-- Side Drawer de filtres -->
-  <pelu-side-drawer [open]="showFiltersDrawer()" title="Filtres" (closed)="closeFiltersDrawer()">
-    <div class="drawer-section">
-      <div class="quick-filters">
-        @for (button of filterButtons(); track button.icon; let i = $index) {
-        <pelu-floating-button
-          [config]="button"
-          (clicked)="onFilterButtonClick(i)">
-        </pelu-floating-button>
-        }
-      </div>
-      <div class="action-buttons">
-        @for (button of actionButtons(); track button.icon; let i = $index) {
-        <pelu-floating-button
-          [config]="button"
-          (clicked)="onActionButtonClick(i)">
-        </pelu-floating-button>
-        }
-      </div>
-      <div class="advanced-filters-panel open-in-drawer">
-        <div class="filters-content">
-          <h4>🔍 Filtres Avançats</h4>
-          <div class="filters-grid">
-            <div class="filter-group">
-              <label for="filterDate">Filtrar per data:</label>
-              <input
-                type="date"
-                id="filterDate"
-                [(ngModel)]="filterDateValue"
-                class="input">
-            </div>
-            <div class="filter-group">
-              <label for="filterClient">Filtrar per client:</label>
-              <input
-                type="text"
-                id="filterClient"
-                [(ngModel)]="filterClientValue"
-                placeholder="Buscar per nom..."
-                class="input">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </pelu-side-drawer>
+  <!-- Popup Stack -->
+  <pelu-popup-stack
+    [popups]="popupStack()"
+    (popupClosed)="closePopup($event)">
+  </pelu-popup-stack>
 
   <!-- Statistics Cards -->
   <div class="stats-grid">
@@ -91,35 +51,6 @@
     </pelu-floating-button>
     }
   </div>
-
-  <!-- Advanced Filters Panel -->
-  @if (showAdvancedFilters()) {
-  <div class="advanced-filters-panel">
-    <div class="filters-content">
-      <h4>🔍 Filtres Avançats</h4>
-      <div class="filters-grid">
-        <div class="filter-group">
-          <label for="filterDate">Filtrar per data:</label>
-          <input
-            type="date"
-            id="filterDate"
-            [(ngModel)]="filterDateValue"
-            class="input">
-        </div>
-
-        <div class="filter-group">
-          <label for="filterClient">Filtrar per client:</label>
-          <input
-            type="text"
-            id="filterClient"
-            [(ngModel)]="filterClientValue"
-            placeholder="Buscar per nom..."
-            class="input">
-        </div>
-      </div>
-    </div>
-  </div>
-  }
 
   <!-- Calendar View -->
   @if (viewMode() === 'calendar') {
@@ -272,8 +203,6 @@
             <span class="status-badge today">Avui</span>
             } @else if (isPast(cita.data)) {
             <span class="status-badge past">Passada</span>
-            } @else {
-            <span class="status-badge upcoming">Pròxima</span>
             }
           </div>
 
@@ -281,7 +210,8 @@
             <button
               class="btn btn-danger"
               (click)="deleteAppointment(cita)"
-              pTooltip="Eliminar cita">
+              pTooltip="Eliminar cita"
+              pTooltipPosition="left">
               🗑️
             </button>
           </div>

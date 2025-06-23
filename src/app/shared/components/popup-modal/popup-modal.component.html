@@ -1,0 +1,7 @@
+<div class="modal-overlay" *ngIf="open" [class.closing]="isClosing" (click)="onBackdropClick($event)">
+  <div class="modal-container" [class]="'modal-' + size" [class.secondary]="secondary" [class.closing]="isClosing">
+    <div class="modal-content">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>
