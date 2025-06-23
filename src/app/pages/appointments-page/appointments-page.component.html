@@ -1,6 +1,60 @@
 <p-toast></p-toast>
 
 <div class="container">
+  <!-- Botó de menú lateral (filtres) a dalt a l'esquerra -->
+  <div class="menu-filters-fab" *ngIf="!showFiltersDrawer()">
+    <pelu-floating-button
+      [config]="{ icon: '☰', tooltip: 'Filtres', ariaLabel: 'Obrir filtres', variant: 'primary', size: 'large', isActive: showFiltersDrawer() }"
+      (clicked)="openFiltersDrawer()">
+    </pelu-floating-button>
+  </div>
+
+  <!-- Side Drawer de filtres -->
+  <pelu-side-drawer [open]="showFiltersDrawer()" title="Filtres" (closed)="closeFiltersDrawer()">
+    <div class="drawer-section">
+      <div class="quick-filters">
+        @for (button of filterButtons(); track button.icon; let i = $index) {
+        <pelu-floating-button
+          [config]="button"
+          (clicked)="onFilterButtonClick(i)">
+        </pelu-floating-button>
+        }
+      </div>
+      <div class="action-buttons">
+        @for (button of actionButtons(); track button.icon; let i = $index) {
+        <pelu-floating-button
+          [config]="button"
+          (clicked)="onActionButtonClick(i)">
+        </pelu-floating-button>
+        }
+      </div>
+      <div class="advanced-filters-panel open-in-drawer">
+        <div class="filters-content">
+          <h4>🔍 Filtres Avançats</h4>
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label for="filterDate">Filtrar per data:</label>
+              <input
+                type="date"
+                id="filterDate"
+                [(ngModel)]="filterDateValue"
+                class="input">
+            </div>
+            <div class="filter-group">
+              <label for="filterClient">Filtrar per client:</label>
+              <input
+                type="text"
+                id="filterClient"
+                [(ngModel)]="filterClientValue"
+                placeholder="Buscar per nom..."
+                class="input">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </pelu-side-drawer>
+
   <!-- Statistics Cards -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -36,29 +90,6 @@
       (clicked)="onViewButtonClick(i)">
     </pelu-floating-button>
     }
-  </div>
-
-  <!-- Filters FAB (left side - secondary actions) -->
-  <div class="filters-fab" role="group" aria-label="Filtres de cites">
-    <!-- Quick Filters -->
-    <div class="quick-filters">
-      @for (button of filterButtons(); track button.icon; let i = $index) {
-      <pelu-floating-button
-        [config]="button"
-        (clicked)="onFilterButtonClick(i)">
-      </pelu-floating-button>
-      }
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      @for (button of actionButtons(); track button.icon; let i = $index) {
-      <pelu-floating-button
-        [config]="button"
-        (clicked)="onActionButtonClick(i)">
-      </pelu-floating-button>
-      }
-    </div>
   </div>
 
   <!-- Advanced Filters Panel -->

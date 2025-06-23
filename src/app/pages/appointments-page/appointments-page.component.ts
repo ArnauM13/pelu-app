@@ -13,6 +13,7 @@ import { ca } from 'date-fns/locale';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent, FloatingButtonConfig } from '../../shared/components/floating-button/floating-button.component';
+import { SideDrawerComponent } from '../../shared/components/side-drawer/side-drawer.component';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -27,7 +28,8 @@ import { FloatingButtonComponent, FloatingButtonConfig } from '../../shared/comp
     CalendarModule,
     InfoItemComponent,
     CardComponent,
-    FloatingButtonComponent
+    FloatingButtonComponent,
+    SideDrawerComponent
   ],
   providers: [MessageService],
   templateUrl: './appointments-page.component.html',
@@ -41,6 +43,7 @@ export class AppointmentsPageComponent {
   selectedDate = signal<Date | null>(null);
   quickFilter = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
   showAdvancedFilters = signal<boolean>(false);
+  showFiltersDrawer = signal(false);
 
   // Floating button configurations
   viewButtons = computed(() => [
@@ -63,14 +66,6 @@ export class AppointmentsPageComponent {
   ]);
 
   filterButtons = computed(() => [
-    {
-      icon: '📋',
-      tooltip: 'Totes',
-      ariaLabel: 'Totes les cites',
-      isActive: this.quickFilter() === 'all',
-      variant: 'primary' as const,
-      size: 'small' as const
-    },
     {
       icon: '🎯',
       tooltip: 'Avui',
@@ -354,8 +349,13 @@ export class AppointmentsPageComponent {
   }
 
   onFilterButtonClick(index: number) {
-    const filters: ('all' | 'today' | 'upcoming' | 'past' | 'mine')[] = ['all', 'today', 'upcoming', 'past', 'mine'];
-    this.applyQuickFilter(filters[index]);
+    const filters: ('today' | 'upcoming' | 'past' | 'mine')[] = ['today', 'upcoming', 'past', 'mine'];
+    const selected = filters[index];
+    if (this.quickFilter() === selected) {
+      this.quickFilter.set('all');
+    } else {
+      this.applyQuickFilter(selected);
+    }
   }
 
   onActionButtonClick(index: number) {
@@ -364,5 +364,12 @@ export class AppointmentsPageComponent {
     } else {
       this.clearFilters();
     }
+  }
+
+  openFiltersDrawer() {
+    this.showFiltersDrawer.set(true);
+  }
+  closeFiltersDrawer() {
+    this.showFiltersDrawer.set(false);
   }
 }
