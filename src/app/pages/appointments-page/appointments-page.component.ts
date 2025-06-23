@@ -5,12 +5,14 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CardComponent } from '../../shared/components/card/card.component';
+import { FloatingButtonComponent, FloatingButtonConfig } from '../../shared/components/floating-button/floating-button.component';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -22,8 +24,10 @@ import { CardComponent } from '../../shared/components/card/card.component';
     ButtonModule,
     ToastModule,
     TooltipModule,
+    CalendarModule,
     InfoItemComponent,
-    CardComponent
+    CardComponent,
+    FloatingButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './appointments-page.component.html',
@@ -33,6 +37,92 @@ export class AppointmentsPageComponent {
   cites = signal<any[]>([]);
   filterDate = signal<string>('');
   filterClient = signal<string>('');
+  viewMode = signal<'list' | 'calendar'>('list');
+  selectedDate = signal<Date | null>(null);
+  quickFilter = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
+  showAdvancedFilters = signal<boolean>(false);
+
+  // Floating button configurations
+  viewButtons = computed(() => [
+    {
+      icon: '📋',
+      tooltip: 'Llista',
+      ariaLabel: 'Vista llista',
+      isActive: this.viewMode() === 'list',
+      variant: 'primary' as const,
+      size: 'large' as const
+    },
+    {
+      icon: '📅',
+      tooltip: 'Calendari',
+      ariaLabel: 'Vista calendari',
+      isActive: this.viewMode() === 'calendar',
+      variant: 'primary' as const,
+      size: 'large' as const
+    }
+  ]);
+
+  filterButtons = computed(() => [
+    {
+      icon: '📋',
+      tooltip: 'Totes',
+      ariaLabel: 'Totes les cites',
+      isActive: this.quickFilter() === 'all',
+      variant: 'primary' as const,
+      size: 'small' as const
+    },
+    {
+      icon: '🎯',
+      tooltip: 'Avui',
+      ariaLabel: 'Cites d\'avui',
+      isActive: this.quickFilter() === 'today',
+      variant: 'primary' as const,
+      size: 'small' as const
+    },
+    {
+      icon: '⏰',
+      tooltip: 'Pròximes',
+      ariaLabel: 'Pròximes cites',
+      isActive: this.quickFilter() === 'upcoming',
+      variant: 'primary' as const,
+      size: 'small' as const
+    },
+    {
+      icon: '📅',
+      tooltip: 'Passades',
+      ariaLabel: 'Cites passades',
+      isActive: this.quickFilter() === 'past',
+      variant: 'primary' as const,
+      size: 'small' as const
+    },
+    {
+      icon: '👤',
+      tooltip: 'Meves',
+      ariaLabel: 'Les meves cites',
+      isActive: this.quickFilter() === 'mine',
+      variant: 'primary' as const,
+      size: 'small' as const
+    }
+  ]);
+
+  actionButtons = computed(() => [
+    {
+      icon: '🔍',
+      tooltip: 'Avançats',
+      ariaLabel: 'Filtres avançats',
+      isActive: this.showAdvancedFilters(),
+      variant: 'success' as const,
+      size: 'small' as const
+    },
+    {
+      icon: '🗑️',
+      tooltip: 'Netejar',
+      ariaLabel: 'Netejar filtres',
+      isActive: false,
+      variant: 'danger' as const,
+      size: 'small' as const
+    }
+  ]);
 
   // Getters and setters for ngModel
   get filterDateValue(): string {
@@ -55,6 +145,39 @@ export class AppointmentsPageComponent {
   filteredCites = computed(() => {
     let filtered = this.cites();
 
+    // Apply quick filters
+    switch (this.quickFilter()) {
+      case 'today':
+        const today = format(new Date(), 'yyyy-MM-dd');
+        filtered = filtered.filter(cita => cita.data === today);
+        break;
+      case 'upcoming':
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
+        filtered = filtered.filter(cita => {
+          const appointmentDate = new Date(cita.data);
+          return appointmentDate >= todayDate;
+        });
+        break;
+      case 'past':
+        const todayPast = new Date();
+        todayPast.setHours(0, 0, 0, 0);
+        filtered = filtered.filter(cita => {
+          const appointmentDate = new Date(cita.data);
+          return appointmentDate < todayPast;
+        });
+        break;
+      case 'mine':
+        // Assuming current user is stored somewhere, for now filter by a specific user
+        const currentUser = localStorage.getItem('currentUser') || 'admin';
+        filtered = filtered.filter(cita => cita.userId === currentUser || !cita.userId);
+        break;
+      default:
+        // 'all' - no additional filtering
+        break;
+    }
+
+    // Apply advanced filters
     if (this.filterDate()) {
       filtered = filtered.filter(cita => cita.data === this.filterDate());
     }
@@ -72,6 +195,17 @@ export class AppointmentsPageComponent {
       const dateB = new Date(b.data + 'T' + (b.hora || '00:00'));
       return dateA.getTime() - dateB.getTime();
     });
+  });
+
+  // Calendar events
+  calendarEvents = computed(() => {
+    return this.cites().map(cita => ({
+      id: cita.id,
+      title: cita.nom,
+      date: new Date(cita.data + 'T' + (cita.hora || '00:00')),
+      data: cita,
+      color: this.getEventColor(cita.data)
+    }));
   });
 
   // Statistics
@@ -155,5 +289,80 @@ export class AppointmentsPageComponent {
   clearFilters() {
     this.filterDate.set('');
     this.filterClient.set('');
+    this.quickFilter.set('all');
+  }
+
+  applyQuickFilter(filter: 'all' | 'today' | 'upcoming' | 'past' | 'mine') {
+    this.quickFilter.set(filter);
+    // Clear advanced filters when applying quick filters
+    this.filterDate.set('');
+    this.filterClient.set('');
+  }
+
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.update(show => !show);
+  }
+
+  toggleViewMode() {
+    this.viewMode.update(mode => mode === 'list' ? 'calendar' : 'list');
+  }
+
+  onDateSelect(event: any) {
+    this.selectedDate.set(event);
+    // Filter appointments for selected date
+    const selectedDateStr = format(event, 'yyyy-MM-dd');
+    this.filterDate.set(selectedDateStr);
+  }
+
+  getEventColor(dateString: string): string {
+    if (this.isToday(dateString)) {
+      return '#3b82f6'; // Blue for today
+    } else if (this.isPast(dateString)) {
+      return '#6b7280'; // Gray for past
+    } else {
+      return '#10b981'; // Green for upcoming
+    }
+  }
+
+  getAppointmentsForDate(date: Date): any[] {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return this.cites().filter(cita => cita.data === dateStr);
+  }
+
+  formatDateForDisplay(date: Date): string {
+    return format(date, 'yyyy-MM-dd');
+  }
+
+  getQuickFilterLabel(filter: string): string {
+    switch (filter) {
+      case 'all': return 'Totes';
+      case 'today': return 'Avui';
+      case 'upcoming': return 'Pròximes';
+      case 'past': return 'Passades';
+      case 'mine': return 'Meves';
+      default: return filter;
+    }
+  }
+
+  // Floating button event handlers
+  onViewButtonClick(index: number) {
+    if (index === 0) {
+      this.viewMode.set('list');
+    } else {
+      this.viewMode.set('calendar');
+    }
+  }
+
+  onFilterButtonClick(index: number) {
+    const filters: ('all' | 'today' | 'upcoming' | 'past' | 'mine')[] = ['all', 'today', 'upcoming', 'past', 'mine'];
+    this.applyQuickFilter(filters[index]);
+  }
+
+  onActionButtonClick(index: number) {
+    if (index === 0) {
+      this.toggleAdvancedFilters();
+    } else {
+      this.clearFilters();
+    }
   }
 }
