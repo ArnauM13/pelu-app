@@ -62,14 +62,6 @@ export class AppointmentsPageComponent {
   readonly popupStack = computed(() => this.popupStackSignal());
   readonly showAdvancedFilters = computed(() => this.showAdvancedFiltersSignal());
 
-  // Computed popup data that updates automatically
-  readonly popupData = computed(() => ({
-    filterButtonsInput: this.filterButtons(),
-    filterDateInput: this.filterDate(),
-    filterClientInput: this.filterClient(),
-    showAdvancedFiltersInput: this.showAdvancedFilters()
-  }));
-
   // Computed filter buttons with reactive state
   readonly filterButtons = computed(() => [
     {
@@ -232,9 +224,12 @@ export class AppointmentsPageComponent {
   // Filter management methods
   applyQuickFilter(filter: 'all' | 'today' | 'upcoming' | 'past' | 'mine') {
     if (this.quickFilter() === filter) {
+      // Deselect the filter
       this.quickFilterSignal.set('all');
     } else {
+      // Select the new filter
       this.quickFilterSignal.set(filter);
+
       // Clear advanced filters when applying quick filter
       this.filterDateSignal.set('');
       this.filterClientSignal.set('');
@@ -283,7 +278,12 @@ export class AppointmentsPageComponent {
       id: 'filters',
       size: 'small',
       content: FiltersPopupComponent,
-      data: this.popupData(),
+      data: {
+        filterButtons: this.filterButtons,
+        filterDate: this.filterDate,
+        filterClient: this.filterClient,
+        showAdvancedFilters: this.showAdvancedFilters
+      },
       onFilterClick: (index: number) => this.onFilterClick(index),
       onDateChange: (value: string) => this.onDateChange(value),
       onClientChange: (value: string) => this.onClientChange(value),
@@ -381,6 +381,9 @@ export class AppointmentsPageComponent {
   }
 
   getAppointmentsForDate(date: Date): any[] {
+    if (!date || isNaN(date.getTime())) {
+      return [];
+    }
     const dateStr = format(date, 'yyyy-MM-dd');
     return this.cites().filter(cita => cita.data === dateStr);
   }

@@ -1,5 +1,6 @@
 import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FiltersPopupComponent } from '../filters-popup/filters-popup.component';
 
 export interface PopupItem {
   id: string;
@@ -17,7 +18,7 @@ export interface PopupItem {
 @Component({
   selector: 'pelu-popup-stack',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FiltersPopupComponent],
   templateUrl: './popup-stack.component.html',
   styleUrls: ['./popup-stack.component.scss']
 })
@@ -95,5 +96,9 @@ export class PopupStackComponent {
       'margin-top': `${5 + (index * 8)}rem`,
       'z-index': 4000 + index
     };
+  }
+
+  isFiltersPopup(popup: PopupItem): boolean {
+    return popup.content === FiltersPopupComponent;
   }
 }
