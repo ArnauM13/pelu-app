@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
@@ -11,7 +11,7 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
     <div class="filters-popup">
       <!-- Quick Filters -->
       <div class="quick-filters">
-        @for (button of filterButtons(); track button.icon; let i = $index) {
+        @for (button of filterButtonsValue(); track button.icon; let i = $index) {
         <pelu-floating-button
           [config]="button"
           (clicked)="onFilterClickHandler(i)">
@@ -20,7 +20,7 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
       </div>
 
       <!-- Advanced Filters Section -->
-      @if (showAdvancedFilters()) {
+      @if (showAdvancedFiltersValue()) {
       <div class="advanced-filters-section">
         <div class="filters-grid">
           <div class="filter-group">
@@ -28,7 +28,7 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
             <input
               type="date"
               id="filterDate"
-              [value]="filterDate()"
+              [value]="filterDateValue()"
               (input)="onDateChangeHandler($any($event.target).value)"
               class="input">
           </div>
@@ -37,7 +37,7 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
             <input
               type="text"
               id="filterClient"
-              [value]="filterClient()"
+              [value]="filterClientValue()"
               (input)="onClientChangeHandler($any($event.target).value)"
               placeholder="Buscar per nom..."
               class="input">
@@ -133,11 +133,11 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
   `]
 })
 export class FiltersPopupComponent {
-  // Input signals
-  readonly filterButtons = input.required<any[]>();
-  readonly filterDate = input<string>('');
-  readonly filterClient = input<string>('');
-  readonly showAdvancedFilters = input<boolean>(false);
+  // Input signals that can accept either values or signals
+  readonly filterButtons = input.required<any[] | Signal<any[]>>();
+  readonly filterDate = input<string | Signal<string>>('');
+  readonly filterClient = input<string | Signal<string>>('');
+  readonly showAdvancedFilters = input<boolean | Signal<boolean>>(false);
 
   // Callback inputs
   readonly onFilterClick = input<((index: number) => void) | undefined>();
@@ -146,9 +146,30 @@ export class FiltersPopupComponent {
   readonly onReset = input<(() => void) | undefined>();
   readonly onToggleAdvanced = input<(() => void) | undefined>();
 
+  // Computed values that handle both signals and static values
+  readonly filterButtonsValue = computed(() => {
+    const value = this.filterButtons();
+    return typeof value === 'function' ? value() : value;
+  });
+
+  readonly filterDateValue = computed(() => {
+    const value = this.filterDate();
+    return typeof value === 'function' ? value() : value;
+  });
+
+  readonly filterClientValue = computed(() => {
+    const value = this.filterClient();
+    return typeof value === 'function' ? value() : value;
+  });
+
+  readonly showAdvancedFiltersValue = computed(() => {
+    const value = this.showAdvancedFilters();
+    return typeof value === 'function' ? value() : value;
+  });
+
   onFilterClickHandler(index: number) {
     // Check if it's the advanced filters button (last button)
-    if (index === this.filterButtons().length - 1) {
+    if (index === this.filterButtonsValue().length - 1) {
       this.onToggleAdvanced()?.();
     } else {
       this.onFilterClick()?.(index);

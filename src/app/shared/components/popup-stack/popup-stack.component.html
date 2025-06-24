@@ -5,9 +5,22 @@
        [style]="getPopupStyle(i)"
        [class.closing]="isClosing(popup.id)">
     <div class="popup-content">
-      <ng-container [ngComponentOutlet]="popup.content"
-                    [ngComponentOutletInputs]="getComponentInputs(popup)">
-      </ng-container>
+      @if (isFiltersPopup(popup)) {
+        <pelu-filters-popup
+          [filterButtons]="popup.data.filterButtons"
+          [filterDate]="popup.data.filterDate"
+          [filterClient]="popup.data.filterClient"
+          [showAdvancedFilters]="popup.data.showAdvancedFilters"
+          [onFilterClick]="popup.onFilterClick"
+          [onDateChange]="popup.onDateChange"
+          [onClientChange]="popup.onClientChange"
+          [onReset]="popup.onReset"
+          [onToggleAdvanced]="popup.onToggleAdvanced">
+        </pelu-filters-popup>
+      } @else {
+        <ng-container [ngComponentOutlet]="popup.content" [ngComponentOutletInputs]="getComponentInputs(popup)">
+        </ng-container>
+      }
     </div>
   </div>
   }
