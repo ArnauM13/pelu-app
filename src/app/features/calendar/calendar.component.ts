@@ -22,31 +22,38 @@ import { ca } from 'date-fns/locale';
   styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent {
-  mini = input<boolean>(false);
-  events = input<{ title: string; start: string }[]>([]);
+  // Input signals
+  readonly mini = input<boolean>(false);
+  readonly events = input<{ title: string; start: string }[]>([]);
 
-  dateSelected = output<{date: string, time: string}>();
+  // Output signals
+  readonly dateSelected = output<{date: string, time: string}>();
 
-  view: CalendarView = CalendarView.Week;
-  viewDate = signal<Date>(new Date());
-  selectedDateTime = signal<{date: string, time: string}>({date: '', time: ''});
-  selectedDay = signal<Date | null>(null);
+  // Internal state
+  private readonly viewDateSignal = signal<Date>(new Date());
+  private readonly selectedDateTimeSignal = signal<{date: string, time: string}>({date: '', time: ''});
+  private readonly selectedDaySignal = signal<Date | null>(null);
 
-  // Business hours (8:00 - 20:00)
-  businessHours = {
+  // Public computed signals
+  readonly viewDate = computed(() => this.viewDateSignal());
+  readonly selectedDateTime = computed(() => this.selectedDateTimeSignal());
+  readonly selectedDay = computed(() => this.selectedDaySignal());
+
+  // Constants
+  readonly view: CalendarView = CalendarView.Week;
+  readonly businessHours = {
     start: 8,
     end: 20
   };
 
-  // Get week days
-  weekDays = computed(() => {
+  // Computed properties
+  readonly weekDays = computed(() => {
     const start = startOfWeek(this.viewDate(), { weekStartsOn: 1 }); // Monday
     const end = endOfWeek(this.viewDate(), { weekStartsOn: 1 });
     return eachDayOfInterval({ start, end });
   });
 
-  // Convert input events to CalendarEvent format
-  calendarEvents = computed(() => {
+  readonly calendarEvents = computed(() => {
     return this.events().map(event => ({
       title: event.title,
       start: new Date(event.start),
@@ -58,14 +65,26 @@ export class CalendarComponent {
     }));
   });
 
-  // Get time slots for a day
-  getTimeSlots() {
+  readonly timeSlots = computed(() => {
     const slots = [];
     for (let hour = this.businessHours.start; hour < this.businessHours.end; hour++) {
       slots.push(`${hour.toString().padStart(2, '0')}:00`);
     }
     return slots;
-  }
+  });
+
+  readonly selectedDateMessage = computed(() => {
+    const selected = this.selectedDateTime();
+    if (selected.date) {
+      const dateStr = this.formatPopupDate(selected.date);
+      if (selected.time) {
+        return `Seleccionat: ${dateStr} a les ${selected.time}`;
+      } else {
+        return `Dia seleccionat: ${dateStr}`;
+      }
+    }
+    return 'Cap dia seleccionat';
+  });
 
   // Get events for a specific day
   getEventsForDay(date: Date) {
@@ -88,9 +107,9 @@ export class CalendarComponent {
     if (date >= today) {
       // If clicking the same day, deselect it
       if (this.selectedDay() && isSameDay(this.selectedDay()!, date)) {
-        this.selectedDay.set(null);
+        this.selectedDaySignal.set(null);
       } else {
-        this.selectedDay.set(date);
+        this.selectedDaySignal.set(date);
       }
     }
   }
@@ -98,7 +117,7 @@ export class CalendarComponent {
   // Select a time slot
   selectTimeSlot(date: Date, time: string) {
     const dateStr = format(date, 'yyyy-MM-dd');
-    this.selectedDateTime.set({date: dateStr, time: time});
+    this.selectedDateTimeSignal.set({date: dateStr, time: time});
     this.dateSelected.emit({date: dateStr, time: time});
   }
 
@@ -108,31 +127,18 @@ export class CalendarComponent {
   }
 
   previousWeek() {
-    this.viewDate.set(addDays(this.viewDate(), -7));
-    this.selectedDay.set(null); // Clear selection when changing weeks
+    this.viewDateSignal.set(addDays(this.viewDate(), -7));
+    this.selectedDaySignal.set(null); // Clear selection when changing weeks
   }
 
   nextWeek() {
-    this.viewDate.set(addDays(this.viewDate(), 7));
-    this.selectedDay.set(null); // Clear selection when changing weeks
+    this.viewDateSignal.set(addDays(this.viewDate(), 7));
+    this.selectedDaySignal.set(null); // Clear selection when changing weeks
   }
 
   today() {
-    this.viewDate.set(new Date());
-    this.selectedDay.set(null); // Clear selection when going to today
-  }
-
-  getSelectedDateMessage() {
-    const selected = this.selectedDateTime();
-    if (selected.date) {
-      const dateStr = this.formatPopupDate(selected.date);
-      if (selected.time) {
-        return `Seleccionat: ${dateStr} a les ${selected.time}`;
-      } else {
-        return `Dia seleccionat: ${dateStr}`;
-      }
-    }
-    return 'Cap dia seleccionat';
+    this.viewDateSignal.set(new Date());
+    this.selectedDaySignal.set(null); // Clear selection when going to today
   }
 
   formatPopupDate(dateString: string): string {

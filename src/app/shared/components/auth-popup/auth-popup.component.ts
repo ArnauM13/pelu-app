@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, input, output, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -31,33 +31,65 @@ export interface AuthPopupConfig {
   templateUrl: './auth-popup.component.html',
   styleUrls: ['./auth-popup.component.scss']
 })
-export class AuthPopupComponent implements OnInit {
-  @Input() config!: AuthPopupConfig;
-  @Output() submitForm = new EventEmitter<{email: string, password: string, repeatPassword?: string}>();
-  @Output() googleAuth = new EventEmitter<void>();
+export class AuthPopupComponent {
+  // Input signals
+  readonly config = input.required<AuthPopupConfig>();
 
-  form: FormGroup;
+  // Output signals
+  readonly submitForm = output<{email: string, password: string, repeatPassword?: string}>();
+  readonly googleAuth = output<void>();
+
+  // Internal state
+  private readonly formSignal = signal<FormGroup | null>(null);
+
+  // Computed properties
+  readonly form = computed(() => this.formSignal());
+  readonly isRegisterMode = computed(() => this.config()?.mode === 'register');
+  readonly hasRepeatPassword = computed(() => this.isRegisterMode());
 
   constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+    // Initialize form
+    this.initializeForm();
+
+    // Effect to update form when config changes
+    effect(() => {
+      const config = this.config();
+      if (config) {
+        this.updateFormForMode(config.mode);
+      }
     });
   }
 
-  ngOnInit() {
-    // Add repeatPassword field for register mode
-    if (this.config.mode === 'register') {
-      this.form.addControl('repeatPassword', this.fb.control('', Validators.required));
+  private initializeForm() {
+    const form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+    this.formSignal.set(form);
+  }
+
+  private updateFormForMode(mode: 'login' | 'register') {
+    const currentForm = this.formSignal();
+    if (!currentForm) return;
+
+    if (mode === 'register') {
+      if (!currentForm.contains('repeatPassword')) {
+        currentForm.addControl('repeatPassword', this.fb.control('', Validators.required));
+      }
+    } else {
+      if (currentForm.contains('repeatPassword')) {
+        currentForm.removeControl('repeatPassword');
+      }
     }
   }
 
   onSubmit() {
-    if (this.form.valid) {
-      const formData = this.form.value;
+    const form = this.form();
+    if (form?.valid) {
+      const formData = form.value;
 
       // Validate password match for register mode
-      if (this.config.mode === 'register' && formData.password !== formData.repeatPassword) {
+      if (this.isRegisterMode() && formData.password !== formData.repeatPassword) {
         alert("Les contrasenyes no coincideixen.");
         return;
       }

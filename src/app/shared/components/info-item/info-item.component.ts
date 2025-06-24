@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface InfoItemData {
@@ -17,13 +17,24 @@ export interface InfoItemData {
   styleUrls: ['./info-item.component.scss']
 })
 export class InfoItemComponent {
-  @Input() data!: InfoItemData;
-  @Input() showStatus: boolean = false;
+  // Input signals
+  readonly data = input.required<InfoItemData>();
+  readonly showStatus = input(false);
 
-  getStatusClass(): string {
-    if (this.showStatus && this.data.status) {
-      return `status-${this.data.status}`;
+  // Computed properties
+  readonly statusClass = computed(() => {
+    const data = this.data();
+    const showStatus = this.showStatus();
+
+    if (showStatus && data.status) {
+      return `status-${data.status}`;
     }
     return '';
-  }
+  });
+
+  readonly hasStatus = computed(() => {
+    const data = this.data();
+    const showStatus = this.showStatus();
+    return showStatus && !!data.status;
+  });
 }

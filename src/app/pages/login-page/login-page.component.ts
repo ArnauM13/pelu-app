@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
@@ -16,7 +16,12 @@ import { AuthPopupComponent, AuthPopupConfig } from '../../shared/components/aut
   styleUrls: ['./login-page.component.scss']
 })
 export class LoginPageComponent {
-  loginConfig: AuthPopupConfig = {
+  // Internal state
+  private readonly isLoading = signal(false);
+  readonly errorMessage = signal<string>('');
+
+  // Computed properties
+  readonly loginConfig = computed((): AuthPopupConfig => ({
     mode: 'login',
     title: 'Inicia sessió',
     subtitle: 'Accedeix al teu compte',
@@ -25,7 +30,10 @@ export class LoginPageComponent {
     linkText: 'No tens compte?',
     linkRoute: '/register',
     linkLabel: 'Registra\'t aquí'
-  };
+  }));
+
+  readonly isSubmitting = computed(() => this.isLoading());
+  readonly hasError = computed(() => this.errorMessage() !== '');
 
   constructor(
     private auth: Auth,
@@ -34,20 +42,30 @@ export class LoginPageComponent {
   ) {}
 
   async onLoginSubmit(formData: {email: string, password: string}) {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
     try {
       await signInWithEmailAndPassword(this.auth, formData.email, formData.password);
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
-      alert('Error al iniciar sessió: ' + (err as any).message);
+      this.errorMessage.set('Error al iniciar sessió: ' + (err as any).message);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
   async onGoogleAuth() {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
     try {
       await this.authService.loginWithGoogle();
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
-      alert('Error al iniciar sessió amb Google: ' + (err as any).message);
+      this.errorMessage.set('Error al iniciar sessió amb Google: ' + (err as any).message);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 }

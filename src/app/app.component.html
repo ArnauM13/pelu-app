@@ -1,10 +1,10 @@
-@if (isLoading) {
+@if (isLoading()) {
 <div class="loading-container">
   <div class="loading-spinner">Carregant...</div>
 </div>
 } @else {
-  @if (isAuthenticated) {
-    <pelu-header></pelu-header>
+  @if (shouldShowHeader()) {
+    <pelu-header />
   }
   <main>
     <router-outlet />

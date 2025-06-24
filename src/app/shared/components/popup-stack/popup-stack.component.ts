@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface PopupItem {
@@ -22,27 +22,43 @@ export interface PopupItem {
   styleUrls: ['./popup-stack.component.scss']
 })
 export class PopupStackComponent {
-  @Input() popups: PopupItem[] = [];
-  @Output() popupClosed = new EventEmitter<string>();
+  // Input signals
+  readonly popups = input<PopupItem[]>([]);
 
-  closingPopups = new Set<string>();
+  // Output signals
+  readonly popupClosed = output<string>();
+
+  // Internal state
+  private readonly closingPopups = signal<Set<string>>(new Set());
+
+  // Computed properties
+  readonly hasPopups = computed(() => this.popups().length > 0);
+  readonly topPopup = computed(() => {
+    const popups = this.popups();
+    return popups.length > 0 ? popups[popups.length - 1] : null;
+  });
 
   closePopup(popupId: string) {
-    if (!this.closingPopups.has(popupId)) {
-      this.closingPopups.add(popupId);
+    const currentClosing = this.closingPopups();
+    if (!currentClosing.has(popupId)) {
+      const newClosing = new Set(currentClosing);
+      newClosing.add(popupId);
+      this.closingPopups.set(newClosing);
+
       setTimeout(() => {
         this.popupClosed.emit(popupId);
-        this.closingPopups.delete(popupId);
+        const updatedClosing = new Set(this.closingPopups());
+        updatedClosing.delete(popupId);
+        this.closingPopups.set(updatedClosing);
       }, 300);
     }
   }
 
   onBackdropClick(event: Event) {
     if (event.target === event.currentTarget) {
-      // Tanca el popup més alt (últim de la llista)
-      if (this.popups.length > 0) {
-        const lastPopup = this.popups[this.popups.length - 1];
-        this.closePopup(lastPopup.id);
+      const topPopup = this.topPopup();
+      if (topPopup) {
+        this.closePopup(topPopup.id);
       }
     }
   }
@@ -71,7 +87,7 @@ export class PopupStackComponent {
   }
 
   isClosing(popupId: string): boolean {
-    return this.closingPopups.has(popupId);
+    return this.closingPopups().has(popupId);
   }
 
   getPopupStyle(index: number) {

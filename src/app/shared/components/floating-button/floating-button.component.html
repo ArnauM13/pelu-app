@@ -1,16 +1,9 @@
 <button
-  class="floating-btn"
-  [class.active]="config.isActive"
-  [class.primary]="config.variant === 'primary'"
-  [class.secondary]="config.variant === 'secondary'"
-  [class.success]="config.variant === 'success'"
-  [class.danger]="config.variant === 'danger'"
-  [class.small]="config.size === 'small'"
-  [class.medium]="config.size === 'medium'"
-  [class.large]="config.size === 'large'"
+  [class]="buttonClasses()"
+  [style]="buttonStyle()"
   (click)="onClick()"
-  [attr.aria-label]="config.ariaLabel"
-  [pTooltip]="config.tooltip"
+  [attr.aria-label]="config().ariaLabel"
+  [pTooltip]="config().tooltip"
   pTooltipPosition="bottom">
-  <span aria-hidden="true">{{ config.icon }}</span>
+  <span aria-hidden="true">{{ config().icon }}</span>
 </button>

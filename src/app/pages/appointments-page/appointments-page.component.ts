@@ -39,21 +39,31 @@ import { FiltersPopupComponent } from '../../shared/components/filters-popup/fil
 })
 export class AppointmentsPageComponent {
   // Core data signals
-  cites = signal<any[]>([]);
-  viewMode = signal<'list' | 'calendar'>('list');
-  selectedDate = signal<Date | null>(null);
+  private readonly citesSignal = signal<any[]>([]);
+  private readonly viewModeSignal = signal<'list' | 'calendar'>('list');
+  private readonly selectedDateSignal = signal<Date | null>(null);
 
   // Filter state signals
-  filterDate = signal<string>('');
-  filterClient = signal<string>('');
-  quickFilter = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
+  private readonly filterDateSignal = signal<string>('');
+  private readonly filterClientSignal = signal<string>('');
+  private readonly quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
 
   // UI state signals
-  popupStack = signal<PopupItem[]>([]);
-  showAdvancedFilters = signal<boolean>(false);
+  private readonly popupStackSignal = signal<PopupItem[]>([]);
+  private readonly showAdvancedFiltersSignal = signal<boolean>(false);
+
+  // Public computed signals
+  readonly cites = computed(() => this.citesSignal());
+  readonly viewMode = computed(() => this.viewModeSignal());
+  readonly selectedDate = computed(() => this.selectedDateSignal());
+  readonly filterDate = computed(() => this.filterDateSignal());
+  readonly filterClient = computed(() => this.filterClientSignal());
+  readonly quickFilter = computed(() => this.quickFilterSignal());
+  readonly popupStack = computed(() => this.popupStackSignal());
+  readonly showAdvancedFilters = computed(() => this.showAdvancedFiltersSignal());
 
   // Computed popup data that updates automatically
-  popupData = computed(() => ({
+  readonly popupData = computed(() => ({
     filterButtonsInput: this.filterButtons(),
     filterDateInput: this.filterDate(),
     filterClientInput: this.filterClient(),
@@ -61,7 +71,7 @@ export class AppointmentsPageComponent {
   }));
 
   // Computed filter buttons with reactive state
-  filterButtons = computed(() => [
+  readonly filterButtons = computed(() => [
     {
       icon: '🎯',
       tooltip: 'Avui',
@@ -105,7 +115,7 @@ export class AppointmentsPageComponent {
   ]);
 
   // Computed view buttons
-  viewButtons = computed(() => [
+  readonly viewButtons = computed(() => [
     {
       icon: '📋',
       tooltip: 'Llista',
@@ -125,7 +135,7 @@ export class AppointmentsPageComponent {
   ]);
 
   // Computed filtered appointments
-  filteredCites = computed(() => {
+  readonly filteredCites = computed(() => {
     let filtered = this.cites();
 
     // Apply quick filters
@@ -179,7 +189,7 @@ export class AppointmentsPageComponent {
   });
 
   // Computed calendar events
-  calendarEvents = computed(() => {
+  readonly calendarEvents = computed(() => {
     return this.cites().map(cita => ({
       date: cita.data,
       color: this.getEventColor(cita.data),
@@ -189,12 +199,12 @@ export class AppointmentsPageComponent {
   });
 
   // Computed statistics
-  totalAppointments = computed(() => this.cites().length);
-  todayAppointments = computed(() => {
+  readonly totalAppointments = computed(() => this.cites().length);
+  readonly todayAppointments = computed(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
     return this.cites().filter(cita => cita.data === today).length;
   });
-  upcomingAppointments = computed(() => {
+  readonly upcomingAppointments = computed(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return this.cites().filter(cita => {
@@ -204,7 +214,7 @@ export class AppointmentsPageComponent {
   });
 
   // Computed helper methods
-  hasAdvancedFilters = computed(() =>
+  readonly hasAdvancedFilters = computed(() =>
     this.filterDate() !== '' || this.filterClient() !== ''
   );
 
@@ -214,7 +224,7 @@ export class AppointmentsPageComponent {
     // Effect to automatically show advanced filters when they're active
     effect(() => {
       if (this.hasAdvancedFilters()) {
-        this.showAdvancedFilters.set(true);
+        this.showAdvancedFiltersSignal.set(true);
       }
     });
   }
@@ -222,24 +232,24 @@ export class AppointmentsPageComponent {
   // Filter management methods
   applyQuickFilter(filter: 'all' | 'today' | 'upcoming' | 'past' | 'mine') {
     if (this.quickFilter() === filter) {
-      this.quickFilter.set('all');
+      this.quickFilterSignal.set('all');
     } else {
-      this.quickFilter.set(filter);
+      this.quickFilterSignal.set(filter);
       // Clear advanced filters when applying quick filter
-      this.filterDate.set('');
-      this.filterClient.set('');
+      this.filterDateSignal.set('');
+      this.filterClientSignal.set('');
     }
   }
 
   clearFilters() {
-    this.filterDate.set('');
-    this.filterClient.set('');
-    this.quickFilter.set('all');
-    this.showAdvancedFilters.set(false);
+    this.filterDateSignal.set('');
+    this.filterClientSignal.set('');
+    this.quickFilterSignal.set('all');
+    this.showAdvancedFiltersSignal.set(false);
   }
 
   toggleAdvancedFilters() {
-    this.showAdvancedFilters.update(show => !show);
+    this.showAdvancedFiltersSignal.update(show => !show);
   }
 
   // Event handlers
@@ -256,15 +266,15 @@ export class AppointmentsPageComponent {
   }
 
   onDateChange(value: string) {
-    this.filterDate.set(value);
+    this.filterDateSignal.set(value);
   }
 
   onClientChange(value: string) {
-    this.filterClient.set(value);
+    this.filterClientSignal.set(value);
   }
 
   onViewButtonClick(index: number) {
-    this.viewMode.set(index === 0 ? 'list' : 'calendar');
+    this.viewModeSignal.set(index === 0 ? 'list' : 'calendar');
   }
 
   // Popup management
@@ -281,11 +291,11 @@ export class AppointmentsPageComponent {
       onToggleAdvanced: () => this.toggleAdvancedFilters()
     };
 
-    this.popupStack.set([filtersPopup]);
+    this.popupStackSignal.set([filtersPopup]);
   }
 
   closePopup(popupId: string) {
-    this.popupStack.update(stack => stack.filter(popup => popup.id !== popupId));
+    this.popupStackSignal.update(stack => stack.filter(popup => popup.id !== popupId));
   }
 
   onResetFilters() {
@@ -304,7 +314,7 @@ export class AppointmentsPageComponent {
         }
         return cita;
       });
-      this.cites.set(dadesAmbIds);
+      this.citesSignal.set(dadesAmbIds);
 
       if (parsedData.length > 0 && dadesAmbIds.length === parsedData.length) {
         localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
@@ -313,7 +323,7 @@ export class AppointmentsPageComponent {
   }
 
   deleteAppointment(cita: any) {
-    this.cites.update(cites => cites.filter(c => c.id !== cita.id));
+    this.citesSignal.update(cites => cites.filter(c => c.id !== cita.id));
     this.saveAppointments();
 
     this.messageService.add({
@@ -355,9 +365,9 @@ export class AppointmentsPageComponent {
   }
 
   onDateSelect(event: any) {
-    this.selectedDate.set(event);
+    this.selectedDateSignal.set(event);
     const selectedDateStr = format(event, 'yyyy-MM-dd');
-    this.filterDate.set(selectedDateStr);
+    this.filterDateSignal.set(selectedDateStr);
   }
 
   getEventColor(dateString: string): string {

@@ -4,30 +4,33 @@
     <div class="perfil-header">
       <div class="avatar-section">
         <div class="avatar">
-          <span class="avatar-text">{{ getDisplayName().charAt(0).toUpperCase() }}</span>
+          <span class="avatar-text">{{ displayName().charAt(0).toUpperCase() }}</span>
         </div>
-        <h1 class="user-name">{{ getDisplayName() }}</h1>
-        <p class="user-email">{{ getEmail() }}</p>
+        <h1 class="user-name">{{ displayName() }}</h1>
+        <p class="user-email">{{ email() }}</p>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="isLoading()" class="loading-section">
+    @if (isLoading()) {
+    <div class="loading-section">
       <div class="loading-spinner"></div>
       <p>Carregant informació del perfil...</p>
     </div>
+    }
 
     <!-- User Information -->
-    <div *ngIf="!isLoading() && user()" class="perfil-content">
+    @if (!isLoading() && user()) {
+    <div class="perfil-content">
       <div class="info-section">
         <h2>Informació del compte</h2>
 
         <div class="info-grid">
+          @for (item of infoItems(); track item.label) {
           <pelu-info-item
-            *ngFor="let item of getInfoItems()"
             [data]="item"
-            [showStatus]="item.status === 'active'">
-          </pelu-info-item>
+            [showStatus]="item.status === 'active'" />
+          }
         </div>
       </div>
 
@@ -50,9 +53,11 @@
         </div>
       </div>
     </div>
+    }
 
     <!-- No User State -->
-    <div *ngIf="!isLoading() && !user()" class="no-user-section">
+    @if (!isLoading() && !user()) {
+    <div class="no-user-section">
       <div class="no-user-content">
         <i class="no-user-icon">🔒</i>
         <h2>No has iniciat sessió</h2>
@@ -62,5 +67,6 @@
         </button>
       </div>
     </div>
+    }
   </div>
 </div>

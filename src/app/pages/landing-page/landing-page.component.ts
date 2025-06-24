@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -12,5 +12,5 @@ import { CardModule } from 'primeng/card';
   styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent {
-  year = new Date().getFullYear();
+  readonly year = computed(() => new Date().getFullYear());
 }

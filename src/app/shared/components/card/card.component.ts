@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,5 +9,15 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./card.component.scss']
 })
 export class CardComponent {
-  variant = input<'default' | 'compact' | 'large' | 'no-margin'>('default');
+  // Input signals
+  readonly variant = input<'default' | 'compact' | 'large' | 'no-margin'>('default');
+
+  // Computed CSS classes
+  readonly cardClasses = computed(() => {
+    const variant = this.variant();
+    return {
+      'pelu-card': true,
+      [`pelu-card--${variant}`]: true
+    };
+  });
 }

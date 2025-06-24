@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -19,8 +19,29 @@ export interface FloatingButtonConfig {
   styleUrls: ['./floating-button.component.scss']
 })
 export class FloatingButtonComponent {
-  @Input() config!: FloatingButtonConfig;
-  @Output() clicked = new EventEmitter<void>();
+  // Input signals
+  readonly config = input.required<FloatingButtonConfig>();
+
+  // Output signals
+  readonly clicked = output<void>();
+
+  // Computed properties
+  readonly buttonClasses = computed(() => {
+    const config = this.config();
+    return {
+      'floating-button': true,
+      [`floating-button--${config.variant || 'primary'}`]: true,
+      [`floating-button--${config.size || 'medium'}`]: true,
+      'floating-button--active': config.isActive || false
+    };
+  });
+
+  readonly buttonStyle = computed(() => {
+    const config = this.config();
+    return {
+      '--button-icon': `"${config.icon}"`
+    };
+  });
 
   onClick() {
     this.clicked.emit();

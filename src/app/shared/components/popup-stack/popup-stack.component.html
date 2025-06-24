@@ -1,5 +1,6 @@
-<div class="popup-stack-overlay" *ngIf="popups.length > 0" (click)="onBackdropClick($event)">
-  @for (popup of popups; track popup.id; let i = $index) {
+@if (hasPopups()) {
+<div class="popup-stack-overlay" (click)="onBackdropClick($event)">
+  @for (popup of popups(); track popup.id; let i = $index) {
   <div class="popup-container"
        [style]="getPopupStyle(i)"
        [class.closing]="isClosing(popup.id)">
@@ -11,3 +12,4 @@
   </div>
   }
 </div>
+}
