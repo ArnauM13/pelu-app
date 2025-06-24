@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal, computed, effect } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { HeaderComponent } from './layout/header/header.component';
 
 @Component({
@@ -11,20 +12,32 @@ import { HeaderComponent } from './layout/header/header.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit {
-  title = 'pelu-app';
-  isAuthenticated = false;
-  isLoading = true;
+export class AppComponent {
+  // Core signals
+  readonly title = signal('pelu-app');
+  readonly isLoading = signal(true);
+  private readonly currentUser = signal<any>(null);
 
-  constructor(private auth: Auth, private router: Router) {}
+  // Computed signals
+  readonly isAuthenticated = computed(() => !!this.currentUser());
+  readonly shouldShowHeader = computed(() => this.isAuthenticated() && !this.isLoading());
 
-  ngOnInit() {
-    onAuthStateChanged(this.auth, (user: any) => {
-      this.isAuthenticated = !!user;
-      this.isLoading = false;
+  constructor(private auth: Auth, private router: Router) {
+    // Convert Firebase auth state to signal
+    const authState$ = new Promise<any>((resolve) => {
+      onAuthStateChanged(this.auth, (user) => {
+        this.currentUser.set(user);
+        this.isLoading.set(false);
+        resolve(user);
+      });
+    });
 
-      // Només redirigir si no està autenticat i està a una ruta protegida
-      if (!user && this.router.url === '/') {
+    // Effect to handle navigation based on auth state
+    effect(() => {
+      const user = this.currentUser();
+      const isLoading = this.isLoading();
+
+      if (!isLoading && !user && this.router.url === '/') {
         this.router.navigate(['/login']);
       }
     });

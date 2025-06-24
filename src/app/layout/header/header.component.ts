@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Auth, signOut } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
@@ -20,7 +20,9 @@ import { CommonModule } from '@angular/common';
           <a routerLink="/perfil" class="nav-link" routerLinkActive="active">Perfil</a>
         </nav>
         <div class="header-actions">
-          <button (click)="logout()" class="logout-btn">Tancar Sessió</button>
+          <button (click)="logout()" class="logout-btn" [disabled]="isLoggingOut()">
+            {{ isLoggingOut() ? 'Tancant...' : 'Tancar Sessió' }}
+          </button>
         </div>
       </div>
     </header>
@@ -108,10 +110,15 @@ import { CommonModule } from '@angular/common';
       transition: all 0.2s ease-in-out;
     }
 
-    .logout-btn:hover {
+    .logout-btn:hover:not(:disabled) {
       background-color: var(--error-color);
       color: var(--text-color-white);
       border-color: var(--error-color);
+    }
+
+    .logout-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     /* Responsive design */
@@ -143,14 +150,26 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class HeaderComponent {
+  // Internal state
+  private readonly isLoggingOutSignal = signal(false);
+
+  // Computed properties
+  readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
+
   constructor(private auth: Auth, private router: Router) {}
 
   async logout() {
+    if (this.isLoggingOut()) return;
+
+    this.isLoggingOutSignal.set(true);
+
     try {
       await signOut(this.auth);
       this.router.navigate(['/login']);
     } catch (error) {
       console.error('Error al tancar sessió:', error);
+    } finally {
+      this.isLoggingOutSignal.set(false);
     }
   }
 }

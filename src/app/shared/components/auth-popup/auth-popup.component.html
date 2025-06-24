@@ -1,9 +1,10 @@
 <div class="auth-container">
   <pelu-card class="auth-card">
-    <h2 class="auth-title">{{ config.title }}</h2>
-    <p class="auth-subtitle">{{ config.subtitle }}</p>
+    <h2 class="auth-title">{{ config().title }}</h2>
+    <p class="auth-subtitle">{{ config().subtitle }}</p>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+    @if (form()) {
+    <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-field">
         <label class="form-label">Correu electrònic</label>
         <input pInputText type="email" formControlName="email" placeholder="Correu electrònic" class="form-input" />
@@ -14,23 +15,26 @@
         <input pInputText type="password" formControlName="password" placeholder="Contrasenya" class="form-input" />
       </div>
 
-      <div class="form-field" *ngIf="config.mode === 'register'">
+      @if (hasRepeatPassword()) {
+      <div class="form-field">
         <label class="form-label">Repeteix la contrasenya</label>
         <input pInputText type="password" formControlName="repeatPassword" placeholder="Contrasenya" class="form-input" />
       </div>
+      }
 
-      <button pButton type="submit" [label]="config.submitButtonText" class="auth-button" [disabled]="form.invalid"></button>
+      <button pButton type="submit" [label]="config().submitButtonText" class="auth-button" [disabled]="form()!.invalid"></button>
     </form>
+    }
 
     <div class="divider">
       <span>o</span>
     </div>
 
-    <button pButton type="button" [label]="config.googleButtonText" icon="pi pi-google"
+    <button pButton type="button" [label]="config().googleButtonText" icon="pi pi-google"
             class="google-auth-button" (click)="onGoogleAuth()"></button>
 
     <div class="auth-link">
-      <p>{{ config.linkText }} <a [routerLink]="config.linkRoute" class="link">{{ config.linkLabel }}</a></p>
+      <p>{{ config().linkText }} <a [routerLink]="config().linkRoute" class="link">{{ config().linkLabel }}</a></p>
     </div>
   </pelu-card>
 </div>

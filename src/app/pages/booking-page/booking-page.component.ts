@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -35,21 +35,50 @@ import { PageTransitionComponent } from '../../shared/components/page-transition
   styleUrls: ['./booking-page.component.scss']
 })
 export class BookingPageComponent {
-  nouClient = signal({ nom: '', data: '', hora: '' });
-  cites = signal<any[]>([]);
+  // Internal state signals
+  private readonly nouClientSignal = signal({ nom: '', data: '', hora: '' });
+  private readonly citesSignal = signal<any[]>([]);
+  private readonly showBookingPopupSignal = signal<boolean>(false);
+  private readonly bookingDetailsSignal = signal<{date: string, time: string, clientName: string}>({date: '', time: '', clientName: ''});
 
-  // Popup state
-  showBookingPopup = signal<boolean>(false);
-  bookingDetails = signal<{date: string, time: string, clientName: string}>({date: '', time: '', clientName: ''});
+  // Public computed signals
+  readonly nouClient = computed(() => this.nouClientSignal());
+  readonly cites = computed(() => this.citesSignal());
+  readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
+  readonly bookingDetails = computed(() => this.bookingDetailsSignal());
 
-  events = computed(() => {
+  // Computed properties
+  readonly events = computed(() => {
     return this.cites().map(c => ({
       title: c.nom,
       start: c.data + (c.hora ? 'T' + c.hora : '')
     }));
   });
 
+  readonly canAddAppointment = computed(() => {
+    const client = this.nouClient();
+    return client.nom.trim() !== '' && client.data !== '';
+  });
+
+  readonly canConfirmBooking = computed(() => {
+    const details = this.bookingDetails();
+    return details.clientName.trim() !== '';
+  });
+
   constructor(private messageService: MessageService, private authService: AuthService) {
+    this.loadAppointments();
+    this.setDefaultClientName();
+
+    // Effect to update default client name when user changes
+    effect(() => {
+      const user = this.authService.user();
+      if (user) {
+        this.setDefaultClientName();
+      }
+    });
+  }
+
+  private loadAppointments() {
     const dades = JSON.parse(localStorage.getItem('cites') || '[]');
     // Migrate existing appointments to have IDs
     const dadesAmbIds = dades.map((cita: any) => {
@@ -58,52 +87,54 @@ export class BookingPageComponent {
       }
       return cita;
     });
-    this.cites.set(dadesAmbIds);
+    this.citesSignal.set(dadesAmbIds);
 
     // Save migrated data back to localStorage
     if (dades.length > 0 && dadesAmbIds.length === dades.length) {
       localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
     }
+  }
 
-    // Set default client name to current user
+  private setDefaultClientName() {
     const user = this.authService.user();
     const defaultName = user?.displayName || user?.email || '';
-    this.nouClient.update(client => ({ ...client, nom: defaultName }));
+    this.nouClientSignal.update(client => ({ ...client, nom: defaultName }));
   }
 
   updateNom(value: string) {
-    this.nouClient.update(client => ({ ...client, nom: value }));
+    this.nouClientSignal.update(client => ({ ...client, nom: value }));
   }
 
   updateData(value: string) {
-    this.nouClient.update(client => ({ ...client, data: value }));
+    this.nouClientSignal.update(client => ({ ...client, data: value }));
   }
 
   updateHora(value: string) {
-    this.nouClient.update(client => ({ ...client, hora: value }));
+    this.nouClientSignal.update(client => ({ ...client, hora: value }));
   }
 
   onDateSelected(selection: {date: string, time: string}) {
     // Show popup for confirmation
     const user = this.authService.user();
     const defaultName = user?.displayName || user?.email || '';
-    this.bookingDetails.set({date: selection.date, time: selection.time, clientName: defaultName});
-    this.showBookingPopup.set(true);
+    this.bookingDetailsSignal.set({date: selection.date, time: selection.time, clientName: defaultName});
+    this.showBookingPopupSignal.set(true);
   }
 
   confirmBooking() {
     const details = this.bookingDetails();
-    if (!details.clientName.trim()) return;
+    if (!this.canConfirmBooking()) return;
+
     const nova = {
       nom: details.clientName,
       data: details.date,
       hora: details.time,
       id: uuidv4()
     };
-    this.cites.update(cites => [...cites, nova]);
+    this.citesSignal.update(cites => [...cites, nova]);
     this.guardarCites();
-    this.showBookingPopup.set(false);
-    this.bookingDetails.set({date: '', time: '', clientName: ''});
+    this.showBookingPopupSignal.set(false);
+    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
     this.messageService.add({
       severity: 'success',
       summary: 'Reserva creada',
@@ -113,17 +144,19 @@ export class BookingPageComponent {
   }
 
   closeBookingPopup() {
-    this.showBookingPopup.set(false);
-    this.bookingDetails.set({date: '', time: '', clientName: ''});
+    this.showBookingPopupSignal.set(false);
+    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
   }
 
   afegirCita() {
+    if (!this.canAddAppointment()) return;
+
     const nova = {
       ...this.nouClient(),
       id: uuidv4()
     };
-    this.cites.update(cites => [...cites, nova]);
-    this.nouClient.set({ nom: '', data: '', hora: '' });
+    this.citesSignal.update(cites => [...cites, nova]);
+    this.nouClientSignal.set({ nom: '', data: '', hora: '' });
     this.guardarCites();
     const timeStr = nova.hora ? ` a les ${nova.hora}` : '';
     this.messageService.add({
@@ -135,7 +168,7 @@ export class BookingPageComponent {
   }
 
   esborrarCita(cita: any) {
-    this.cites.update(cites => cites.filter(c => c.id !== cita.id));
+    this.citesSignal.update(cites => cites.filter(c => c.id !== cita.id));
     this.guardarCites();
     const timeStr = cita.hora ? ` a les ${cita.hora}` : '';
     this.messageService.add({

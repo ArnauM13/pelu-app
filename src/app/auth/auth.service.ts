@@ -1,13 +1,25 @@
-import { inject, signal, Injectable } from '@angular/core';
+import { inject, signal, computed, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged, User, GoogleAuthProvider } from '@angular/fire/auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
-  user = signal<User | null>(null);
+
+  // Internal state
+  private readonly userSignal = signal<User | null>(null);
+  private readonly isLoadingSignal = signal<boolean>(true);
+
+  // Public computed signals
+  readonly user = computed(() => this.userSignal());
+  readonly isLoading = computed(() => this.isLoadingSignal());
+  readonly isAuthenticated = computed(() => !!this.userSignal());
+  readonly userDisplayName = computed(() => this.userSignal()?.displayName || this.userSignal()?.email || '');
 
   constructor() {
-    onAuthStateChanged(this.auth, user => this.user.set(user));
+    onAuthStateChanged(this.auth, user => {
+      this.userSignal.set(user);
+      this.isLoadingSignal.set(false);
+    });
   }
 
   registre(email: string, password: string) {

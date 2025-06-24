@@ -1,4 +1,4 @@
-import { Component, Input, signal, computed, effect } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
@@ -133,57 +133,37 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
   `]
 })
 export class FiltersPopupComponent {
-  // Internal signals that will be updated from inputs
-  private filterButtonsSignal = signal<any[]>([]);
-  private filterDateSignal = signal<string>('');
-  private filterClientSignal = signal<string>('');
-  private showAdvancedFiltersSignal = signal<boolean>(false);
-
-  // Computed getters that return the current values
-  filterButtons = computed(() => this.filterButtonsSignal());
-  filterDate = computed(() => this.filterDateSignal());
-  filterClient = computed(() => this.filterClientSignal());
-  showAdvancedFilters = computed(() => this.showAdvancedFiltersSignal());
-
-  // Input setters that update the signals
-  @Input() set filterButtonsInput(value: any[]) {
-    this.filterButtonsSignal.set(value);
-  }
-  @Input() set filterDateInput(value: string) {
-    this.filterDateSignal.set(value);
-  }
-  @Input() set filterClientInput(value: string) {
-    this.filterClientSignal.set(value);
-  }
-  @Input() set showAdvancedFiltersInput(value: boolean) {
-    this.showAdvancedFiltersSignal.set(value);
-  }
+  // Input signals
+  readonly filterButtons = input.required<any[]>();
+  readonly filterDate = input<string>('');
+  readonly filterClient = input<string>('');
+  readonly showAdvancedFilters = input<boolean>(false);
 
   // Callback inputs
-  @Input() onFilterClick?: (index: number) => void;
-  @Input() onDateChange?: (value: string) => void;
-  @Input() onClientChange?: (value: string) => void;
-  @Input() onReset?: () => void;
-  @Input() onToggleAdvanced?: () => void;
+  readonly onFilterClick = input<((index: number) => void) | undefined>();
+  readonly onDateChange = input<((value: string) => void) | undefined>();
+  readonly onClientChange = input<((value: string) => void) | undefined>();
+  readonly onReset = input<(() => void) | undefined>();
+  readonly onToggleAdvanced = input<(() => void) | undefined>();
 
   onFilterClickHandler(index: number) {
     // Check if it's the advanced filters button (last button)
     if (index === this.filterButtons().length - 1) {
-      this.onToggleAdvanced?.();
+      this.onToggleAdvanced()?.();
     } else {
-      this.onFilterClick?.(index);
+      this.onFilterClick()?.(index);
     }
   }
 
   onDateChangeHandler(value: string) {
-    this.onDateChange?.(value);
+    this.onDateChange()?.(value);
   }
 
   onClientChangeHandler(value: string) {
-    this.onClientChange?.(value);
+    this.onClientChange()?.(value);
   }
 
   onResetHandler() {
-    this.onReset?.();
+    this.onReset()?.();
   }
 }

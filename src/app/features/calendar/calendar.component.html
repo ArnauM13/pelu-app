@@ -43,7 +43,7 @@
             <h4>Selecciona una hora:</h4>
           </div>
           <div class="time-slots-grid">
-            @for (time of getTimeSlots(); track time) {
+            @for (time of timeSlots(); track time) {
             <button class="time-slot-btn"
                     [class.available]="isTimeSlotAvailable(day, time)"
                     [class.booked]="!isTimeSlotAvailable(day, time)"

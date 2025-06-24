@@ -1,5 +1,10 @@
 <pelu-auth-popup
-  [config]="registerConfig"
+  [config]="registerConfig()"
   (submitForm)="onRegisterSubmit($event)"
-  (googleAuth)="onGoogleAuth()">
-</pelu-auth-popup>
+  (googleAuth)="onGoogleAuth()" />
+
+@if (hasError()) {
+<div class="error-message">
+  {{ errorMessage() }}
+</div>
+}

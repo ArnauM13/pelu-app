@@ -17,7 +17,10 @@ export const appConfig: ApplicationConfig = {
             preset: Aura,
         }
     }),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZoneChangeDetection({
+      eventCoalescing: true,
+      runCoalescing: true
+    }),
     provideRouter(routes),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
