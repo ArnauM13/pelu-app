@@ -100,7 +100,7 @@ export class AppointmentsPageComponent {
       icon: '🔍',
       tooltip: 'Avançats',
       ariaLabel: 'Filtres avançats',
-      isActive: this.hasAdvancedFilters(),
+      isActive: this.showAdvancedFilters(),
       variant: 'success' as const,
       size: 'small' as const
     }
@@ -212,13 +212,6 @@ export class AppointmentsPageComponent {
 
   constructor(private messageService: MessageService) {
     this.loadAppointments();
-
-    // Effect to automatically show advanced filters when they're active
-    effect(() => {
-      if (this.hasAdvancedFilters()) {
-        this.showAdvancedFiltersSignal.set(true);
-      }
-    });
   }
 
   // Filter management methods
@@ -233,6 +226,7 @@ export class AppointmentsPageComponent {
       // Clear advanced filters when applying quick filter
       this.filterDateSignal.set('');
       this.filterClientSignal.set('');
+      this.showAdvancedFiltersSignal.set(false);
     }
   }
 
@@ -244,7 +238,18 @@ export class AppointmentsPageComponent {
   }
 
   toggleAdvancedFilters() {
-    this.showAdvancedFiltersSignal.update(show => !show);
+    const currentShowAdvanced = this.showAdvancedFilters();
+
+    if (currentShowAdvanced) {
+      // If closing advanced filters, clear them but keep popup open
+      this.filterDateSignal.set('');
+      this.filterClientSignal.set('');
+      this.showAdvancedFiltersSignal.set(false);
+    } else {
+      // If opening advanced filters, clear quick filters and show advanced filters
+      this.quickFilterSignal.set('all');
+      this.showAdvancedFiltersSignal.set(true);
+    }
   }
 
   // Event handlers
@@ -262,10 +267,22 @@ export class AppointmentsPageComponent {
 
   onDateChange(value: string) {
     this.filterDateSignal.set(value);
+
+    // If applying an advanced filter, deselect quick filters and show advanced filters
+    if (value) {
+      this.quickFilterSignal.set('all');
+      this.showAdvancedFiltersSignal.set(true);
+    }
   }
 
   onClientChange(value: string) {
     this.filterClientSignal.set(value);
+
+    // If applying an advanced filter, deselect quick filters and show advanced filters
+    if (value) {
+      this.quickFilterSignal.set('all');
+      this.showAdvancedFiltersSignal.set(true);
+    }
   }
 
   onViewButtonClick(index: number) {
@@ -274,6 +291,11 @@ export class AppointmentsPageComponent {
 
   // Popup management
   openFiltersPopup() {
+    // Check if there are advanced filter values and show them automatically
+    if (this.hasAdvancedFilters()) {
+      this.showAdvancedFiltersSignal.set(true);
+    }
+
     const filtersPopup: PopupItem = {
       id: 'filters',
       size: 'small',
@@ -296,6 +318,11 @@ export class AppointmentsPageComponent {
 
   closePopup(popupId: string) {
     this.popupStackSignal.update(stack => stack.filter(popup => popup.id !== popupId));
+
+    // Only hide advanced filters when closing the popup if there are no values
+    if (popupId === 'filters' && !this.hasAdvancedFilters()) {
+      this.showAdvancedFiltersSignal.set(false);
+    }
   }
 
   onResetFilters() {
@@ -390,6 +417,15 @@ export class AppointmentsPageComponent {
 
   formatDateForDisplay(date: Date): string {
     return format(date, 'yyyy-MM-dd');
+  }
+
+  // Debug method to track filter states (can be removed in production)
+  debugFilterStates() {
+    console.log('Quick filter:', this.quickFilter());
+    console.log('Filter date:', this.filterDate());
+    console.log('Filter client:', this.filterClient());
+    console.log('Show advanced filters:', this.showAdvancedFilters());
+    console.log('Has advanced filters:', this.hasAdvancedFilters());
   }
 }
 
