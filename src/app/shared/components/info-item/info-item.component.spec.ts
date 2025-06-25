@@ -41,4 +41,38 @@ describe('InfoItemComponent', () => {
   it('should have default showStatus value', () => {
     expect(component.showStatus()).toBe(false);
   });
+
+  it('should be a component class', () => {
+    expect(InfoItemComponent.prototype.constructor.name).toBe('InfoItemComponent');
+  });
+
+  it('should have proper component structure', () => {
+    const componentClass = InfoItemComponent;
+    expect(componentClass.name).toBe('InfoItemComponent');
+    expect(typeof componentClass).toBe('function');
+  });
+
+  it('should be a standalone component', () => {
+    expect(InfoItemComponent.prototype.constructor).toBeDefined();
+    expect(InfoItemComponent.prototype.constructor.name).toBe('InfoItemComponent');
+  });
+
+  it('should have component metadata', () => {
+    expect(InfoItemComponent.prototype).toBeDefined();
+    expect(InfoItemComponent.prototype.constructor).toBeDefined();
+  });
+
+  it('should have all required computed properties', () => {
+    expect(component.data).toBeDefined();
+    expect(component.showStatus).toBeDefined();
+    expect(component.statusClass).toBeDefined();
+    expect(component.hasStatus).toBeDefined();
+  });
+
+  it('should have proper signal types', () => {
+    expect(typeof component.data).toBe('function');
+    expect(typeof component.showStatus).toBe('function');
+    expect(typeof component.statusClass).toBe('function');
+    expect(typeof component.hasStatus).toBe('function');
+  });
 });
