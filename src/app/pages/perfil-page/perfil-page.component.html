@@ -15,7 +15,7 @@
     @if (isLoading()) {
     <div class="loading-section">
       <div class="loading-spinner"></div>
-      <p>Carregant informació del perfil...</p>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
     </div>
     }
 
@@ -23,7 +23,7 @@
     @if (!isLoading() && user()) {
     <div class="perfil-content">
       <div class="info-section">
-        <h2>Informació del compte</h2>
+        <h2>{{ 'PROFILE.PERSONAL_INFO' | translate }}</h2>
 
         <div class="info-grid">
           @for (item of infoItems(); track item.label) {
@@ -36,19 +36,19 @@
 
       <!-- Actions Section -->
       <div class="actions-section">
-        <h2>Accions</h2>
+        <h2>{{ 'COMMON.ACTIONS' | translate }}</h2>
         <div class="actions-grid">
           <button class="action-btn primary" routerLink="/booking">
             <i class="action-icon">📅</i>
-            Nova reserva
+            {{ 'BOOKING.SELECT_SERVICE' | translate }}
           </button>
           <button class="action-btn secondary" routerLink="/">
             <i class="action-icon">🏠</i>
-            Tornar a l'inici
+            {{ 'NAVIGATION.HOME' | translate }}
           </button>
           <button class="action-btn danger" (click)="logout()">
             <i class="action-icon">🚪</i>
-            Tancar sessió
+            {{ 'COMMON.LOGOUT' | translate }}
           </button>
         </div>
       </div>
@@ -60,10 +60,10 @@
     <div class="no-user-section">
       <div class="no-user-content">
         <i class="no-user-icon">🔒</i>
-        <h2>No has iniciat sessió</h2>
-        <p>Inicia sessió per veure la teva informació de perfil</p>
+        <h2>{{ 'AUTH.NOT_LOGGED_IN' | translate }}</h2>
+        <p>{{ 'AUTH.LOGIN_TO_VIEW_PROFILE' | translate }}</p>
         <button class="login-btn" routerLink="/login">
-          Iniciar sessió
+          {{ 'COMMON.LOGIN' | translate }}
         </button>
       </div>
     </div>

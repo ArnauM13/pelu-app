@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { Auth, signOut } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-logout-button',
@@ -11,10 +11,10 @@ import { Router } from '@angular/router';
   template: `<button pButton label="Tancar sessió" (click)="logout()"></button>`
 })
 export class LogoutButtonComponent {
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   async logout() {
-    await signOut(this.auth);
+    await this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

@@ -1,12 +1,13 @@
 import { Component, input, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 
 @Component({
   selector: 'pelu-filters-popup',
   standalone: true,
-  imports: [CommonModule, FormsModule, FloatingButtonComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent],
   template: `
     <div class="filters-popup">
       <!-- Quick Filters -->
@@ -24,7 +25,7 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
       <div class="advanced-filters-section">
         <div class="filters-grid">
           <div class="filter-group">
-            <label for="filterDate">Filtrar per data:</label>
+            <label for="filterDate">{{ 'COMMON.FILTER_BY_DATE' | translate }}</label>
             <input
               type="date"
               id="filterDate"
@@ -33,19 +34,19 @@ import { FloatingButtonComponent } from '../floating-button/floating-button.comp
               class="input">
           </div>
           <div class="filter-group">
-            <label for="filterClient">Filtrar per client:</label>
+            <label for="filterClient">{{ 'COMMON.FILTER_BY_CLIENT' | translate }}</label>
             <input
               type="text"
               id="filterClient"
               [value]="filterClientValue()"
               (input)="onClientChangeHandler($any($event.target).value)"
-              placeholder="Buscar per nom..."
+              [placeholder]="'COMMON.SEARCH_BY_NAME' | translate"
               class="input">
           </div>
         </div>
         <div class="reset-section">
           <button class="reset-btn" (click)="onResetHandler()">
-            🗑️ Netejar filtres
+            {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
           </button>
         </div>
       </div>

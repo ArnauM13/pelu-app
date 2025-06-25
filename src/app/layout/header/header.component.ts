@@ -2,11 +2,13 @@ import { Component, signal, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Auth, signOut } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 
 @Component({
   selector: 'pelu-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent],
   template: `
     <header class="header">
       <div class="header-content">
@@ -14,14 +16,23 @@ import { CommonModule } from '@angular/common';
           <img src="/assets/images/cabj.png" alt="Logo Perruqueria" class="logo">
         </div>
         <nav class="nav">
-          <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inici</a>
-          <a routerLink="/booking" class="nav-link" routerLinkActive="active">Reserves</a>
-          <a routerLink="/appointments" class="nav-link" routerLinkActive="active">Cites</a>
-          <a routerLink="/perfil" class="nav-link" routerLinkActive="active">Perfil</a>
+          <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            {{ 'NAVIGATION.HOME' | translate }}
+          </a>
+          <a routerLink="/booking" class="nav-link" routerLinkActive="active">
+            {{ 'NAVIGATION.BOOKING' | translate }}
+          </a>
+          <a routerLink="/appointments" class="nav-link" routerLinkActive="active">
+            {{ 'NAVIGATION.APPOINTMENTS' | translate }}
+          </a>
+          <a routerLink="/perfil" class="nav-link" routerLinkActive="active">
+            {{ 'NAVIGATION.PROFILE' | translate }}
+          </a>
         </nav>
         <div class="header-actions">
+          <pelu-language-selector class="language-selector" />
           <button (click)="logout()" class="logout-btn" [disabled]="isLoggingOut()">
-            {{ isLoggingOut() ? 'Tancant...' : 'Tancar Sessió' }}
+            {{ isLoggingOut() ? ('COMMON.LOADING' | translate) : ('COMMON.LOGOUT' | translate) }}
           </button>
         </div>
       </div>
@@ -97,6 +108,11 @@ import { CommonModule } from '@angular/common';
     .header-actions {
       display: flex;
       align-items: center;
+      gap: 1rem;
+    }
+
+    .language-selector {
+      margin-right: 0.5rem;
     }
 
     .logout-btn {
@@ -136,6 +152,10 @@ import { CommonModule } from '@angular/common';
         display: none;
       }
 
+      .header-actions {
+        gap: 0.5rem;
+      }
+
       .logout-btn {
         padding: 0.5rem 0.8rem;
         font-size: 0.9rem;
@@ -145,6 +165,10 @@ import { CommonModule } from '@angular/common';
     @media (max-width: 480px) {
       .nav-link {
         padding: 0.5rem;
+      }
+
+      .language-selector {
+        display: none;
       }
     }
   `]
