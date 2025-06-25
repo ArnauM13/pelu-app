@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslationService, Language } from '../../../core/translation.service';
+import { AuthService } from '../../../auth/auth.service';
 
 @Component({
   selector: 'pelu-language-selector',
@@ -166,6 +167,7 @@ import { TranslationService, Language } from '../../../core/translation.service'
 })
 export class LanguageSelectorComponent {
   private translationService = inject(TranslationService);
+  private authService = inject(AuthService);
 
   isDropdownOpen = false;
   availableLanguages = this.translationService.availableLanguages;
@@ -184,6 +186,10 @@ export class LanguageSelectorComponent {
 
   selectLanguage(langCode: string): void {
     this.translationService.setLanguage(langCode);
+
+    // Save user's language preference when they change it
+    this.authService.saveCurrentUserLanguage();
+
     this.isDropdownOpen = false;
   }
 

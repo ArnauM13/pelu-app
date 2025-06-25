@@ -43,10 +43,11 @@ export class TranslationService {
       initialLanguage = browserLanguage;
     }
 
-    this.setLanguage(initialLanguage);
+    // Set language without saving to localStorage during initialization
+    this.setLanguage(initialLanguage, false);
   }
 
-  setLanguage(lang: string): void {
+  setLanguage(lang: string, saveToStorage: boolean = true): void {
     if (!this.isLanguageAvailable(lang)) {
       console.warn(`Language ${lang} is not available`);
       return;
@@ -58,8 +59,10 @@ export class TranslationService {
     // Update current language subject
     this.currentLanguageSubject.next(lang);
 
-    // Save to localStorage
-    localStorage.setItem('preferredLanguage', lang);
+    // Save to localStorage only if requested
+    if (saveToStorage) {
+      localStorage.setItem('preferredLanguage', lang);
+    }
 
     // Update document attributes
     this.updateDocumentAttributes(lang);
@@ -113,5 +116,32 @@ export class TranslationService {
   // Method to reload translations (useful for dynamic content)
   reload(): void {
     this.translate.reloadLang(this.getLanguage());
+  }
+
+  // Method to get browser language
+  getBrowserLanguage(): string | undefined {
+    return this.translate.getBrowserLang();
+  }
+
+  // Method to save user's language preference
+  saveUserLanguagePreference(userId: string, language: string): void {
+    if (this.isLanguageAvailable(language)) {
+      const userLanguageKey = `userLanguage_${userId}`;
+      localStorage.setItem(userLanguageKey, language);
+    }
+  }
+
+  // Method to get user's saved language preference
+  getUserLanguagePreference(userId: string): string | null {
+    const userLanguageKey = `userLanguage_${userId}`;
+    return localStorage.getItem(userLanguageKey);
+  }
+
+  // Method to restore user's language preference
+  restoreUserLanguagePreference(userId: string): void {
+    const savedLanguage = this.getUserLanguagePreference(userId);
+    if (savedLanguage && this.isLanguageAvailable(savedLanguage)) {
+      this.setLanguage(savedLanguage);
+    }
   }
 }
