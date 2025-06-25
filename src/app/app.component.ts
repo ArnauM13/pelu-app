@@ -33,7 +33,11 @@ export class AppComponent {
       });
     });
 
-    // Effect to handle navigation based on auth state
+    // Initialize navigation effect
+    this.#initNavigationEffect();
+  }
+
+  #initNavigationEffect() {
     effect(() => {
       const user = this.currentUser();
       const isLoading = this.isLoading();
@@ -41,6 +45,6 @@ export class AppComponent {
       if (!isLoading && !user && this.router.url === '/') {
         this.router.navigate(['/login']);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 }
