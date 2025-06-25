@@ -10,12 +10,19 @@ import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ca } from 'date-fns/locale';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClient } from '@angular/common/http';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent, FloatingButtonConfig } from '../../shared/components/floating-button/floating-button.component';
 import { PopupStackComponent, PopupItem } from '../../shared/components/popup-stack/popup-stack.component';
 import { FiltersPopupComponent } from '../../shared/components/filters-popup/filters-popup.component';
+
+// Factory function for TranslateHttpLoader
+function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -29,11 +36,9 @@ import { FiltersPopupComponent } from '../../shared/components/filters-popup/fil
     TooltipModule,
     CalendarModule,
     TranslateModule,
-    InfoItemComponent,
     CardComponent,
     FloatingButtonComponent,
-    PopupStackComponent,
-    FiltersPopupComponent
+    PopupStackComponent
   ],
   providers: [MessageService],
   templateUrl: './appointments-page.component.html',
@@ -67,7 +72,7 @@ export class AppointmentsPageComponent {
   // Computed filter buttons with reactive state
   readonly filterButtons = computed(() => [
     {
-      icon: '��',
+      icon: '🗓️',
       tooltip: 'COMMON.TODAY_FILTER',
       ariaLabel: 'COMMON.TODAY_APPOINTMENTS_FILTER',
       isActive: this.quickFilter() === 'today',
@@ -419,15 +424,6 @@ export class AppointmentsPageComponent {
 
   formatDateForDisplay(date: Date): string {
     return format(date, 'yyyy-MM-dd');
-  }
-
-  // Debug method to track filter states (can be removed in production)
-  debugFilterStates() {
-    console.log('Quick filter:', this.quickFilter());
-    console.log('Filter date:', this.filterDate());
-    console.log('Filter client:', this.filterClient());
-    console.log('Show advanced filters:', this.showAdvancedFilters());
-    console.log('Has advanced filters:', this.hasAdvancedFilters());
   }
 }
 

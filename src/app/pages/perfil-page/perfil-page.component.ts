@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthService } from '../../auth/auth.service';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 
 @Component({
@@ -15,6 +16,7 @@ import { InfoItemComponent, InfoItemData } from '../../shared/components/info-it
 export class PerfilPageComponent {
   private auth = inject(Auth);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   // Internal state
   private readonly userSignal = signal<any>(null);
@@ -93,7 +95,7 @@ export class PerfilPageComponent {
   }
 
   logout() {
-    this.auth.signOut().then(() => {
+    this.authService.logout().then(() => {
       this.router.navigate(['/']);
     });
   }
