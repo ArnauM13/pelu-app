@@ -24,6 +24,6 @@ describe('LandingPageComponent', () => {
 
   it('should have current year', () => {
     const currentYear = new Date().getFullYear();
-    expect(component.year).toBe(currentYear);
+    expect(component.year()).toBe(currentYear);
   });
 });
