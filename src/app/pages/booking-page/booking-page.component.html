@@ -48,7 +48,7 @@
       <button
         class="btn btn-primary"
         (click)="afegirCita()"
-        [disabled]="!nouClient().nom || !nouClient().data">
+        [disabled]="!canAddAppointment()">
         {{ 'COMMON.ADD_BOOKING' | translate }}
       </button>
     </pelu-card>
@@ -81,7 +81,8 @@
         <input
           type="text"
           id="clientName"
-          [(ngModel)]="bookingDetails().clientName"
+          [value]="bookingDetails().clientName"
+          (input)="updateBookingClientName($any($event.target).value)"
           [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
           class="form-input"
           (keyup.enter)="confirmBooking()"
@@ -94,7 +95,7 @@
       <button
         class="btn btn-primary"
         (click)="confirmBooking()"
-        [disabled]="!bookingDetails().clientName.trim()">
+        [disabled]="!canConfirmBooking()">
         {{ 'COMMON.CONFIRM_BOOKING' | translate }}
       </button>
     </div>

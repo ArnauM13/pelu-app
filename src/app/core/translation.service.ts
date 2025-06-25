@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject } from 'rxjs';
 
 export interface Language {
   code: string;
@@ -12,8 +11,15 @@ export interface Language {
 
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
-  private currentLanguageSubject = new BehaviorSubject<string>('ca');
-  currentLanguage$ = this.currentLanguageSubject.asObservable();
+  // Internal state signals
+  private readonly currentLanguageSignal = signal<string>('ca');
+
+  // Public computed signals
+  readonly currentLanguage = computed(() => this.currentLanguageSignal());
+  readonly currentLanguageInfo = computed(() => {
+    const currentLang = this.currentLanguage();
+    return this.availableLanguages.find(lang => lang.code === currentLang);
+  });
 
   readonly availableLanguages: Language[] = [
     { code: 'ca', name: 'Català', flagImage: '/assets/images/ca.png' },
@@ -56,8 +62,8 @@ export class TranslationService {
     // Update translate service
     this.translate.use(lang);
 
-    // Update current language subject
-    this.currentLanguageSubject.next(lang);
+    // Update current language signal
+    this.currentLanguageSignal.set(lang);
 
     // Save to localStorage only if requested
     if (saveToStorage) {
@@ -69,12 +75,11 @@ export class TranslationService {
   }
 
   getLanguage(): string {
-    return this.currentLanguageSubject.value;
+    return this.currentLanguage();
   }
 
   getCurrentLanguageInfo(): Language | undefined {
-    const currentLang = this.getLanguage();
-    return this.availableLanguages.find(lang => lang.code === currentLang);
+    return this.currentLanguageInfo();
   }
 
   isLanguageAvailable(lang: string): boolean {

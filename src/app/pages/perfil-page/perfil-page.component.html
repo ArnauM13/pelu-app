@@ -26,7 +26,7 @@
         <h2>{{ 'PROFILE.PERSONAL_INFO' | translate }}</h2>
 
         <div class="info-grid">
-          @for (item of infoItems(); track item.label) {
+          @for (item of infoItems(); track item.label; let i = $index) {
           <pelu-info-item
             [data]="item"
             [showStatus]="item.status === 'active'" />

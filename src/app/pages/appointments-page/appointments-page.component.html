@@ -2,13 +2,14 @@
 
 <div class="container">
   <!-- Botó de menú lateral (filtres) a dalt a l'esquerra -->
-  <div class="menu-filters-fab" *ngIf="popupStack().length === 0">
-    <pelu-floating-button
-      [config]="{ icon: '☰', tooltip: 'COMMON.FILTERS' | translate, ariaLabel: 'COMMON.OPEN_FILTERS' | translate, variant: 'primary', size: 'large', isActive: popupStack().length > 0 }"
-      (clicked)="openFiltersPopup()">
-    </pelu-floating-button>
-  </div>
-
+  @if (popupStack().length === 0) {
+    <div class="menu-filters-fab">
+      <pelu-floating-button
+        [config]="{ icon: '☰', tooltip: 'COMMON.FILTERS' | translate, ariaLabel: 'COMMON.OPEN_FILTERS' | translate, variant: 'primary', size: 'large', isActive: popupStack().length > 0 }"
+        (clicked)="openFiltersPopup()">
+      </pelu-floating-button>
+    </div>
+  }
   <!-- Popup Stack -->
   <pelu-popup-stack
     [popups]="popupStack()"

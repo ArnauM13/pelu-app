@@ -1,1 +1,6 @@
-<p>logout-button works!</p>
+<button
+  pButton
+  [label]="buttonText()"
+  [disabled]="isLoggingOut()"
+  (click)="logout()">
+</button>
