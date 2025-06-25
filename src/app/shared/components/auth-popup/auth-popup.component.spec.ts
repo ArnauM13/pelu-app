@@ -2,6 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideRouter } from '@angular/router';
 import { AuthPopupComponent, AuthPopupConfig } from './auth-popup.component';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { of } from 'rxjs';
+
+// Mock translate loader
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation() {
+    return of({});
+  }
+}
 
 describe('AuthPopupComponent', () => {
   let component: AuthPopupComponent;
@@ -22,7 +32,11 @@ describe('AuthPopupComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AuthPopupComponent,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
+        })
       ],
       providers: [
         provideRouter([])

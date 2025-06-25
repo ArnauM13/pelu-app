@@ -4,6 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { BookingPageComponent } from './booking-page.component';
 import { AuthService } from '../../auth/auth.service';
 import { mockAuthService } from '../../../testing/firebase-mocks';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { of } from 'rxjs';
+
+// Mock translate loader
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation() {
+    return of({});
+  }
+}
 
 describe('BookingPageComponent', () => {
   let component: BookingPageComponent;
@@ -11,7 +21,14 @@ describe('BookingPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BookingPageComponent, FormsModule],
+      imports: [
+        BookingPageComponent,
+        FormsModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
+        })
+      ],
       providers: [
         MessageService,
         { provide: AuthService, useValue: mockAuthService }
@@ -20,6 +37,7 @@ describe('BookingPageComponent', () => {
 
     fixture = TestBed.createComponent(BookingPageComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
