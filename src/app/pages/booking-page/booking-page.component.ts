@@ -12,7 +12,6 @@ import { InfoItemComponent, InfoItemData } from '../../shared/components/info-it
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 import { AuthService } from '../../auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
-import { PageTransitionComponent } from '../../shared/components/page-transition/page-transition.component';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -27,8 +26,7 @@ import { PageTransitionComponent } from '../../shared/components/page-transition
     TooltipModule,
     InfoItemComponent,
     CalendarComponent,
-    CardComponent,
-    PageTransitionComponent
+    CardComponent
   ],
   providers: [MessageService],
   templateUrl: './booking-page.component.html',
