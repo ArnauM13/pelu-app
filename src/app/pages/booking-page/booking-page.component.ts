@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect, CreateEffectOptions } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -73,7 +73,7 @@ export class BookingPageComponent {
       if (user) {
         this.setDefaultClientName();
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   private loadAppointments() {
