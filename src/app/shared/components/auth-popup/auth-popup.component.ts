@@ -53,13 +53,17 @@ export class AuthPopupComponent {
     // Initialize form
     this.initializeForm();
 
-    // Effect to update form when config changes
+    // Initialize config effect
+    this.#initConfigEffect();
+  }
+
+  #initConfigEffect() {
     effect(() => {
       const config = this.config();
       if (config) {
         this.updateFormForMode(config.mode);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   private initializeForm() {

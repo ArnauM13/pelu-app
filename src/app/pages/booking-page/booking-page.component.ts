@@ -64,14 +64,16 @@ export class BookingPageComponent {
     return details.clientName.trim() !== '';
   });
 
-  private _userEffect;
-
   constructor(private messageService: MessageService, private authService: AuthService) {
     this.loadAppointments();
     this.setDefaultClientName();
 
-    // Privat effect amb allowSignalWrites
-    this._userEffect = effect(() => {
+    // Initialize user effect
+    this.#initUserEffect();
+  }
+
+  #initUserEffect() {
+    effect(() => {
       const user = this.authService.user();
       if (user) {
         this.setDefaultClientName();
