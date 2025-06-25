@@ -8,6 +8,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
+import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 import { AuthService } from '../../auth/auth.service';
@@ -24,6 +25,7 @@ import { CardComponent } from '../../shared/components/card/card.component';
     ButtonModule,
     ToastModule,
     TooltipModule,
+    TranslateModule,
     InfoItemComponent,
     CalendarComponent,
     CardComponent
@@ -95,7 +97,7 @@ export class BookingPageComponent {
 
   private setDefaultClientName() {
     const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || '';
+    const defaultName = user?.displayName || user?.email || 'COMMON.USER';
     this.nouClientSignal.update(client => ({ ...client, nom: defaultName }));
   }
 
@@ -114,7 +116,7 @@ export class BookingPageComponent {
   onDateSelected(selection: {date: string, time: string}) {
     // Show popup for confirmation
     const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || '';
+    const defaultName = user?.displayName || user?.email || 'COMMON.USER';
     this.bookingDetailsSignal.set({date: selection.date, time: selection.time, clientName: defaultName});
     this.showBookingPopupSignal.set(true);
   }

@@ -6,19 +6,19 @@
     @if (form()) {
     <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-field">
-        <label class="form-label">Correu electrònic</label>
-        <input pInputText type="email" formControlName="email" placeholder="Correu electrònic" class="form-input" />
+        <label class="form-label">{{ 'AUTH.EMAIL' | translate }}</label>
+        <input pInputText type="email" formControlName="email" [placeholder]="'AUTH.EMAIL' | translate" class="form-input" />
       </div>
 
       <div class="form-field">
-        <label class="form-label">Contrasenya</label>
-        <input pInputText type="password" formControlName="password" placeholder="Contrasenya" class="form-input" />
+        <label class="form-label">{{ 'AUTH.PASSWORD' | translate }}</label>
+        <input pInputText type="password" formControlName="password" [placeholder]="'AUTH.PASSWORD' | translate" class="form-input" />
       </div>
 
       @if (hasRepeatPassword()) {
       <div class="form-field">
-        <label class="form-label">Repeteix la contrasenya</label>
-        <input pInputText type="password" formControlName="repeatPassword" placeholder="Contrasenya" class="form-input" />
+        <label class="form-label">{{ 'AUTH.REPEAT_PASSWORD' | translate }}</label>
+        <input pInputText type="password" formControlName="repeatPassword" [placeholder]="'AUTH.PASSWORD' | translate" class="form-input" />
       </div>
       }
 
@@ -27,7 +27,7 @@
     }
 
     <div class="divider">
-      <span>o</span>
+      <span>{{ 'COMMON.OR' | translate }}</span>
     </div>
 
     <button pButton type="button" [label]="config().googleButtonText" icon="pi pi-google"

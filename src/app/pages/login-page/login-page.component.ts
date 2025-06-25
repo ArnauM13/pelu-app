@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { AuthService } from '../../auth/auth.service';
 import { AuthPopupComponent, AuthPopupConfig } from '../../shared/components/auth-popup/auth-popup.component';
+import { TranslationService } from '../../core/translation.service';
 
 @Component({
   selector: 'pelu-login-page',
@@ -23,13 +24,13 @@ export class LoginPageComponent {
   // Computed properties
   readonly loginConfig = computed((): AuthPopupConfig => ({
     mode: 'login',
-    title: 'Inicia sessió',
-    subtitle: 'Accedeix al teu compte',
-    submitButtonText: 'Inicia sessió',
-    googleButtonText: 'Inicia sessió amb Google',
-    linkText: 'No tens compte?',
+    title: this.translation.get('AUTH.SIGN_IN'),
+    subtitle: this.translation.get('AUTH.ACCESS_YOUR_ACCOUNT'),
+    submitButtonText: this.translation.get('AUTH.SIGN_IN'),
+    googleButtonText: this.translation.get('AUTH.SIGN_IN_WITH_GOOGLE'),
+    linkText: this.translation.get('AUTH.DONT_HAVE_ACCOUNT'),
     linkRoute: '/register',
-    linkLabel: 'Registra\'t aquí'
+    linkLabel: this.translation.get('AUTH.REGISTER_HERE')
   }));
 
   readonly isSubmitting = computed(() => this.isLoading());
@@ -38,7 +39,8 @@ export class LoginPageComponent {
   constructor(
     private auth: Auth,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private translation: TranslationService
   ) {}
 
   async onLoginSubmit(formData: {email: string, password: string}) {
@@ -49,7 +51,7 @@ export class LoginPageComponent {
       await signInWithEmailAndPassword(this.auth, formData.email, formData.password);
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
-      this.errorMessage.set('Error al iniciar sessió: ' + (err as any).message);
+      this.errorMessage.set(this.translation.get('AUTH.LOGIN_ERROR') + ': ' + (err as any).message);
     } finally {
       this.isLoading.set(false);
     }
@@ -63,7 +65,7 @@ export class LoginPageComponent {
       await this.authService.loginWithGoogle();
       this.router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
-      this.errorMessage.set('Error al iniciar sessió amb Google: ' + (err as any).message);
+      this.errorMessage.set(this.translation.get('AUTH.GOOGLE_LOGIN_ERROR') + ': ' + (err as any).message);
     } finally {
       this.isLoading.set(false);
     }
