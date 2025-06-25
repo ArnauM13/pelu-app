@@ -1,0 +1,99 @@
+{
+  "COMMON": {
+    "TITLE": "تطبيق صالون الحلاقة",
+    "WELCOME": "مرحباً",
+    "LOGIN": "تسجيل الدخول",
+    "REGISTER": "التسجيل",
+    "LOGOUT": "تسجيل الخروج",
+    "CANCEL": "إلغاء",
+    "SAVE": "حفظ",
+    "EDIT": "تعديل",
+    "DELETE": "حذف",
+    "CONFIRM": "تأكيد",
+    "CLOSE": "إغلاق",
+    "BACK": "رجوع",
+    "NEXT": "التالي",
+    "PREVIOUS": "السابق",
+    "SEARCH": "بحث",
+    "FILTER": "تصفية",
+    "RESET": "إعادة تعيين",
+    "LOADING": "جاري التحميل...",
+    "ERROR": "خطأ",
+    "SUCCESS": "نجح",
+    "WARNING": "تحذير",
+    "INFO": "معلومات"
+  },
+  "AUTH": {
+    "EMAIL": "البريد الإلكتروني",
+    "PASSWORD": "كلمة المرور",
+    "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+    "FORGOT_PASSWORD": "نسيت كلمة المرور؟",
+    "REMEMBER_ME": "تذكرني",
+    "SIGN_IN": "تسجيل الدخول",
+    "SIGN_UP": "إنشاء حساب",
+    "ALREADY_HAVE_ACCOUNT": "لديك حساب بالفعل؟",
+    "DONT_HAVE_ACCOUNT": "ليس لديك حساب؟",
+    "INVALID_CREDENTIALS": "بيانات اعتماد غير صالحة",
+    "PASSWORD_MISMATCH": "كلمات المرور غير متطابقة"
+  },
+  "NAVIGATION": {
+    "HOME": "الرئيسية",
+    "APPOINTMENTS": "المواعيد",
+    "BOOKING": "الحجز",
+    "PROFILE": "الملف الشخصي",
+    "CALENDAR": "التقويم",
+    "SETTINGS": "الإعدادات"
+  },
+  "APPOINTMENTS": {
+    "NEW_APPOINTMENT": "موعد جديد",
+    "APPOINTMENT_DETAILS": "تفاصيل الموعد",
+    "DATE": "التاريخ",
+    "TIME": "الوقت",
+    "SERVICE": "الخدمة",
+    "CLIENT": "العميل",
+    "STATUS": "الحالة",
+    "NOTES": "ملاحظات",
+    "DURATION": "المدة",
+    "PRICE": "السعر",
+    "STATUS_PENDING": "في الانتظار",
+    "STATUS_CONFIRMED": "مؤكد",
+    "STATUS_CANCELLED": "ملغي",
+    "STATUS_COMPLETED": "مكتمل"
+  },
+  "BOOKING": {
+    "SELECT_SERVICE": "اختر الخدمة",
+    "SELECT_DATE": "اختر التاريخ",
+    "SELECT_TIME": "اختر الوقت",
+    "BOOK_NOW": "احجز الآن",
+    "AVAILABLE_TIMES": "الأوقات المتاحة",
+    "NO_AVAILABLE_TIMES": "لا توجد أوقات متاحة",
+    "BOOKING_CONFIRMATION": "تأكيد الحجز"
+  },
+  "PROFILE": {
+    "PERSONAL_INFO": "المعلومات الشخصية",
+    "NAME": "الاسم",
+    "SURNAME": "اسم العائلة",
+    "PHONE": "الهاتف",
+    "ADDRESS": "العنوان",
+    "UPDATE_PROFILE": "تحديث الملف الشخصي",
+    "CHANGE_PASSWORD": "تغيير كلمة المرور"
+  },
+  "CALENDAR": {
+    "TODAY": "اليوم",
+    "TOMORROW": "غداً",
+    "THIS_WEEK": "هذا الأسبوع",
+    "NEXT_WEEK": "الأسبوع القادم",
+    "THIS_MONTH": "هذا الشهر",
+    "NEXT_MONTH": "الشهر القادم",
+    "VIEW_DAY": "عرض اليوم",
+    "VIEW_WEEK": "عرض الأسبوع",
+    "VIEW_MONTH": "عرض الشهر"
+  },
+  "LANGUAGES": {
+    "CA": "Català",
+    "ES": "Español",
+    "EN": "English",
+    "AR": "العربية",
+    "SELECT_LANGUAGE": "اختر اللغة"
+  }
+}
