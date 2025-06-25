@@ -10,11 +10,19 @@ import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ca } from 'date-fns/locale';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClient } from '@angular/common/http';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent, FloatingButtonConfig } from '../../shared/components/floating-button/floating-button.component';
 import { PopupStackComponent, PopupItem } from '../../shared/components/popup-stack/popup-stack.component';
 import { FiltersPopupComponent } from '../../shared/components/filters-popup/filters-popup.component';
+
+// Factory function for TranslateHttpLoader
+function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -27,11 +35,10 @@ import { FiltersPopupComponent } from '../../shared/components/filters-popup/fil
     ToastModule,
     TooltipModule,
     CalendarModule,
-    InfoItemComponent,
+    TranslateModule,
     CardComponent,
     FloatingButtonComponent,
-    PopupStackComponent,
-    FiltersPopupComponent
+    PopupStackComponent
   ],
   providers: [MessageService],
   templateUrl: './appointments-page.component.html',
@@ -65,41 +72,41 @@ export class AppointmentsPageComponent {
   // Computed filter buttons with reactive state
   readonly filterButtons = computed(() => [
     {
-      icon: '🎯',
-      tooltip: 'Avui',
-      ariaLabel: 'Cites d\'avui',
+      icon: '🗓️',
+      tooltip: 'COMMON.TODAY_FILTER',
+      ariaLabel: 'COMMON.TODAY_APPOINTMENTS_FILTER',
       isActive: this.quickFilter() === 'today',
       variant: 'primary' as const,
       size: 'small' as const
     },
     {
       icon: '⏰',
-      tooltip: 'Pròximes',
-      ariaLabel: 'Pròximes cites',
+      tooltip: 'COMMON.UPCOMING_FILTER',
+      ariaLabel: 'COMMON.UPCOMING_APPOINTMENTS_FILTER',
       isActive: this.quickFilter() === 'upcoming',
       variant: 'primary' as const,
       size: 'small' as const
     },
     {
       icon: '📅',
-      tooltip: 'Passades',
-      ariaLabel: 'Cites passades',
+      tooltip: 'COMMON.PAST_FILTER',
+      ariaLabel: 'COMMON.PAST_APPOINTMENTS_FILTER',
       isActive: this.quickFilter() === 'past',
       variant: 'primary' as const,
       size: 'small' as const
     },
     {
       icon: '👤',
-      tooltip: 'Meves',
-      ariaLabel: 'Les meves cites',
+      tooltip: 'COMMON.MINE_FILTER',
+      ariaLabel: 'COMMON.MY_APPOINTMENTS_FILTER',
       isActive: this.quickFilter() === 'mine',
       variant: 'primary' as const,
       size: 'small' as const
     },
     {
       icon: '🔍',
-      tooltip: 'Avançats',
-      ariaLabel: 'Filtres avançats',
+      tooltip: 'COMMON.ADVANCED_FILTERS',
+      ariaLabel: 'COMMON.ADVANCED_FILTERS_LABEL',
       isActive: this.showAdvancedFilters(),
       variant: 'success' as const,
       size: 'small' as const
@@ -110,16 +117,16 @@ export class AppointmentsPageComponent {
   readonly viewButtons = computed(() => [
     {
       icon: '📋',
-      tooltip: 'Llista',
-      ariaLabel: 'Vista llista',
+      tooltip: 'COMMON.LIST_VIEW',
+      ariaLabel: 'COMMON.LIST_VIEW_LABEL',
       isActive: this.viewMode() === 'list',
       variant: 'primary' as const,
       size: 'large' as const
     },
     {
       icon: '📅',
-      tooltip: 'Calendari',
-      ariaLabel: 'Vista calendari',
+      tooltip: 'COMMON.CALENDAR_VIEW',
+      ariaLabel: 'COMMON.CALENDAR_VIEW_LABEL',
       isActive: this.viewMode() === 'calendar',
       variant: 'primary' as const,
       size: 'large' as const
@@ -153,7 +160,7 @@ export class AppointmentsPageComponent {
         });
         break;
       case 'mine':
-        const currentUser = localStorage.getItem('currentUser') || 'admin';
+        const currentUser = localStorage.getItem('currentUser') || 'COMMON.ADMIN';
         filtered = filtered.filter(cita => cita.userId === currentUser || !cita.userId);
         break;
       default:
@@ -417,15 +424,6 @@ export class AppointmentsPageComponent {
 
   formatDateForDisplay(date: Date): string {
     return format(date, 'yyyy-MM-dd');
-  }
-
-  // Debug method to track filter states (can be removed in production)
-  debugFilterStates() {
-    console.log('Quick filter:', this.quickFilter());
-    console.log('Filter date:', this.filterDate());
-    console.log('Filter client:', this.filterClient());
-    console.log('Show advanced filters:', this.showAdvancedFilters());
-    console.log('Has advanced filters:', this.hasAdvancedFilters());
   }
 }
 

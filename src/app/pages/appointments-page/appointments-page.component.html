@@ -4,7 +4,7 @@
   <!-- Botó de menú lateral (filtres) a dalt a l'esquerra -->
   <div class="menu-filters-fab" *ngIf="popupStack().length === 0">
     <pelu-floating-button
-      [config]="{ icon: '☰', tooltip: 'Filtres', ariaLabel: 'Obrir filtres', variant: 'primary', size: 'large', isActive: popupStack().length > 0 }"
+      [config]="{ icon: '☰', tooltip: 'COMMON.FILTERS' | translate, ariaLabel: 'COMMON.OPEN_FILTERS' | translate, variant: 'primary', size: 'large', isActive: popupStack().length > 0 }"
       (clicked)="openFiltersPopup()">
     </pelu-floating-button>
   </div>
@@ -21,7 +21,7 @@
       <div class="stat-icon">📅</div>
       <div class="stat-content">
         <div class="stat-number">{{ totalAppointments() }}</div>
-        <div class="stat-label">Total Cites</div>
+        <div class="stat-label">{{ 'COMMON.TOTAL_APPOINTMENTS' | translate }}</div>
       </div>
     </div>
 
@@ -29,7 +29,7 @@
       <div class="stat-icon">🎯</div>
       <div class="stat-content">
         <div class="stat-number">{{ todayAppointments() }}</div>
-        <div class="stat-label">Cites Avui</div>
+        <div class="stat-label">{{ 'COMMON.TODAY_APPOINTMENTS' | translate }}</div>
       </div>
     </div>
 
@@ -37,13 +37,13 @@
       <div class="stat-icon">⏰</div>
       <div class="stat-content">
         <div class="stat-number">{{ upcomingAppointments() }}</div>
-        <div class="stat-label">Pròximes Cites</div>
+        <div class="stat-label">{{ 'COMMON.UPCOMING_APPOINTMENTS' | translate }}</div>
       </div>
     </div>
   </div>
 
   <!-- View Mode Toggle (main action - right side) -->
-  <div class="view-toggle-fab" role="group" aria-label="Canvia la vista de cites">
+  <div class="view-toggle-fab" role="group" [attr.aria-label]="'COMMON.CHANGE_VIEW' | translate">
     @for (button of viewButtons(); track button.icon; let i = $index) {
     <pelu-floating-button
       [config]="button"
@@ -56,8 +56,8 @@
   @if (viewMode() === 'calendar') {
   <pelu-card variant="large">
     <div class="card-header">
-      <h3>📅 Calendari de Cites</h3>
-      <p class="calendar-subtitle">Visualitza totes les teves cites en format calendari</p>
+      <h3>📅 {{ 'COMMON.APPOINTMENTS_CALENDAR' | translate }}</h3>
+      <p class="calendar-subtitle">{{ 'COMMON.VIEW_APPOINTMENTS' | translate }}</p>
     </div>
 
     <div class="calendar-container">
@@ -93,12 +93,12 @@
     <!-- Mostra la llista de cites o el missatge d'instrucció a sota del calendari -->
     @if (selectedDate()) {
     <div class="selected-date-appointments">
-      <h4>📋 Cites del {{ formatDate(formatDateForDisplay(selectedDate()!)) }}</h4>
+      <h4>📋 {{ 'COMMON.APPOINTMENTS_FOR_DATE' | translate }} {{ formatDate(formatDateForDisplay(selectedDate()!)) }}</h4>
       @if (getAppointmentsForDate(selectedDate()!).length === 0) {
       <div class="empty-state">
         <div class="empty-icon">📅</div>
-        <h3>No hi ha cites programades</h3>
-        <p>Per aquesta data no tens cites programades. Pots seleccionar una altra data o afegir noves cites.</p>
+        <h3>{{ 'COMMON.NO_SCHEDULED_APPOINTMENTS' | translate }}</h3>
+        <p>{{ 'COMMON.NO_APPOINTMENTS_MESSAGE' | translate }}</p>
       </div>
       } @else {
       <div class="appointments-list">
@@ -123,7 +123,7 @@
           <div class="appointment-actions-container">
             <div class="appointment-status">
               @if (isToday(cita.data)) {
-              <span class="status-badge today">Avui</span>
+              <span class="status-badge today">{{ 'COMMON.TODAY' | translate }}</span>
               }
             </div>
 
@@ -131,7 +131,7 @@
               <button
                 class="btn btn-danger"
                 (click)="deleteAppointment(cita)"
-                pTooltip="Eliminar cita"
+                [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
                 pTooltipPosition="left">
                 🗑️
               </button>
@@ -146,8 +146,8 @@
     <div class="calendar-instructions">
       <div class="instruction-content">
         <div class="instruction-icon">👆</div>
-        <h4>Selecciona una data</h4>
-        <p>Clica sobre qualsevol dia del calendari per veure les cites programades per a aquesta data.</p>
+        <h4>{{ 'COMMON.SELECT_DATE' | translate }}</h4>
+        <p>{{ 'COMMON.SELECT_DATE_INSTRUCTIONS' | translate }}</p>
       </div>
     </div>
     }
@@ -158,17 +158,17 @@
   @if (viewMode() === 'list') {
   <pelu-card variant="large">
     <div class="card-header">
-      <h3>Cites ({{ filteredCites().length }})</h3>
+      <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} ({{ filteredCites().length }})</h3>
     </div>
 
     @if (filteredCites().length === 0) {
     <div class="empty-state">
       <div class="empty-icon">📅</div>
-      <h3>No hi ha cites</h3>
-      <p>{{ filterDate() || filterClient() ? 'No s\'han trobat cites amb els filtres aplicats.' : 'Encara no tens cites programades.' }}</p>
+      <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
+      <p>{{ filterDate() || filterClient() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
       @if (filterDate() || filterClient()) {
       <button class="btn btn-primary" (click)="clearFilters()">
-        Netejar Filtres
+        {{ 'COMMON.CLEAR_FILTERS' | translate }}
       </button>
       }
     </div>
@@ -200,9 +200,9 @@
         <div class="appointment-actions-container">
           <div class="appointment-status">
             @if (isToday(cita.data)) {
-            <span class="status-badge today">Avui</span>
+            <span class="status-badge today">{{ 'COMMON.TODAY' | translate }}</span>
             } @else if (isPast(cita.data)) {
-            <span class="status-badge past">Passada</span>
+            <span class="status-badge past">{{ 'COMMON.PAST' | translate }}</span>
             }
           </div>
 
@@ -210,7 +210,7 @@
             <button
               class="btn btn-danger"
               (click)="deleteAppointment(cita)"
-              pTooltip="Eliminar cita"
+              [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
               pTooltipPosition="left">
               🗑️
             </button>

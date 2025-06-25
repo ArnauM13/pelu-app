@@ -2,13 +2,13 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title">Shordanismo</h1>
-      <p class="hero-subtitle">Reserva el teu moment. Ràpid, fàcil i sense trucades.</p>
+      <h1 class="hero-title">{{ 'LANDING.HERO_TITLE' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'LANDING.HERO_SUBTITLE' | translate }}</p>
 
       <div class="hero-buttons">
-        <button pButton label="Reservar" routerLink="/booking" class="btn-primary"></button>
-        <button pButton label="Cites" routerLink="/appointments" class="btn-outline"></button>
-        <button pButton label="Perfil" routerLink="/perfil" class="btn-profile"></button>
+        <button pButton [label]="'LANDING.BOOK_NOW' | translate" routerLink="/booking" class="btn-primary"></button>
+        <button pButton [label]="'LANDING.APPOINTMENTS' | translate" routerLink="/appointments" class="btn-outline"></button>
+        <button pButton [label]="'LANDING.PROFILE' | translate" routerLink="/perfil" class="btn-profile"></button>
       </div>
     </div>
   </section>

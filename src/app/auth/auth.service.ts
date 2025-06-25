@@ -1,9 +1,11 @@
 import { inject, signal, computed, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged, User, GoogleAuthProvider } from '@angular/fire/auth';
+import { TranslationService } from '../core/translation.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
+  private translationService = inject(TranslationService);
 
   // Internal state
   private readonly userSignal = signal<User | null>(null);
@@ -19,6 +21,11 @@ export class AuthService {
     onAuthStateChanged(this.auth, user => {
       this.userSignal.set(user);
       this.isLoadingSignal.set(false);
+
+      // Restore user's language preference when user logs in
+      if (user?.uid) {
+        this.translationService.restoreUserLanguagePreference(user.uid);
+      }
     });
   }
 
@@ -40,5 +47,14 @@ export class AuthService {
 
   logout() {
     return signOut(this.auth);
+  }
+
+  // Method to save user's current language preference
+  saveCurrentUserLanguage(): void {
+    const currentUser = this.user();
+    if (currentUser?.uid) {
+      const currentLanguage = this.translationService.getLanguage();
+      this.translationService.saveUserLanguagePreference(currentUser.uid, currentLanguage);
+    }
   }
 }

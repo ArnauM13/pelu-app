@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { RouterModule } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../card/card.component';
 
 export interface AuthPopupConfig {
@@ -26,6 +27,7 @@ export interface AuthPopupConfig {
     RouterModule,
     InputTextModule,
     ButtonModule,
+    TranslateModule,
     CardComponent
   ],
   templateUrl: './auth-popup.component.html',
