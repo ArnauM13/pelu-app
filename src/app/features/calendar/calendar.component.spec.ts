@@ -20,8 +20,9 @@ describe('CalendarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have getTimeSlots method', () => {
-    expect(typeof component.getTimeSlots).toBe('function');
+  it('should have timeSlots computed property', () => {
+    expect(component.timeSlots).toBeDefined();
+    expect(typeof component.timeSlots).toBe('function');
   });
 
   it('should have getEventsForDay method', () => {
@@ -56,8 +57,9 @@ describe('CalendarComponent', () => {
     expect(typeof component.today).toBe('function');
   });
 
-  it('should have getSelectedDateMessage method', () => {
-    expect(typeof component.getSelectedDateMessage).toBe('function');
+  it('should have selectedDateMessage computed property', () => {
+    expect(component.selectedDateMessage).toBeDefined();
+    expect(typeof component.selectedDateMessage).toBe('function');
   });
 
   it('should have formatPopupDate method', () => {
@@ -78,5 +80,15 @@ describe('CalendarComponent', () => {
 
   it('should have getEventTime method', () => {
     expect(typeof component.getEventTime).toBe('function');
+  });
+
+  it('should have weekDays computed property', () => {
+    expect(component.weekDays).toBeDefined();
+    expect(typeof component.weekDays).toBe('function');
+  });
+
+  it('should have calendarEvents computed property', () => {
+    expect(component.calendarEvents).toBeDefined();
+    expect(typeof component.calendarEvents).toBe('function');
   });
 });

@@ -52,14 +52,4 @@ describe('AppointmentsPageComponent', () => {
   it('should have clearFilters method', () => {
     expect(typeof component.clearFilters).toBe('function');
   });
-
-  it('should have filterDateValue getter and setter', () => {
-    expect(typeof Object.getOwnPropertyDescriptor(AppointmentsPageComponent.prototype, 'filterDateValue')?.get).toBe('function');
-    expect(typeof Object.getOwnPropertyDescriptor(AppointmentsPageComponent.prototype, 'filterDateValue')?.set).toBe('function');
-  });
-
-  it('should have filterClientValue getter and setter', () => {
-    expect(typeof Object.getOwnPropertyDescriptor(AppointmentsPageComponent.prototype, 'filterClientValue')?.get).toBe('function');
-    expect(typeof Object.getOwnPropertyDescriptor(AppointmentsPageComponent.prototype, 'filterClientValue')?.set).toBe('function');
-  });
 });

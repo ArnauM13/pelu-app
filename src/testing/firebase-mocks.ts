@@ -23,7 +23,7 @@ export const mockUser: any = {
   tenantId: null
 };
 
-// Mock Auth service
+// Mock Auth service with ALL Firebase methods including onAuthStateChanged
 export const mockAuth: jasmine.SpyObj<Auth> = jasmine.createSpyObj('Auth', [
   'signInWithEmailAndPassword',
   'createUserWithEmailAndPassword',
@@ -32,12 +32,47 @@ export const mockAuth: jasmine.SpyObj<Auth> = jasmine.createSpyObj('Auth', [
   'onAuthStateChanged'
 ], {
   currentUser: mockUser,
+  signOut: jasmine.createSpy('signOut').and.returnValue(Promise.resolve()),
   onAuthStateChanged: jasmine.createSpy('onAuthStateChanged').and.callFake((callback: (user: User | null) => void) => {
-    // Simulate authenticated user
+    // Simulate authenticated user immediately
     callback(mockUser);
     return () => {}; // Return unsubscribe function
   })
 });
+
+// Mock Firebase Auth functions
+export const mockSignInWithEmailAndPassword = jasmine.createSpy('signInWithEmailAndPassword').and.returnValue(Promise.resolve({ user: mockUser }));
+export const mockCreateUserWithEmailAndPassword = jasmine.createSpy('createUserWithEmailAndPassword').and.returnValue(Promise.resolve({ user: mockUser }));
+export const mockSignOut = jasmine.createSpy('signOut').and.returnValue(Promise.resolve());
+export const mockSignInWithPopup = jasmine.createSpy('signInWithPopup').and.returnValue(Promise.resolve({ user: mockUser }));
+export const mockOnAuthStateChanged = jasmine.createSpy('onAuthStateChanged').and.callFake((auth: any, callback: (user: User | null) => void) => {
+  // Simulate authenticated user immediately
+  callback(mockUser);
+  return () => {}; // Return unsubscribe function
+});
+
+// Mock GoogleAuthProvider
+export const mockGoogleAuthProvider = {
+  setCustomParameters: jasmine.createSpy('setCustomParameters').and.returnValue({})
+};
+
+// Mock Firebase app configuration for tests
+export const mockFirebaseConfig = {
+  apiKey: 'test-api-key',
+  authDomain: 'test.firebaseapp.com',
+  projectId: 'test-project',
+  storageBucket: 'test.appspot.com',
+  messagingSenderId: '123456789',
+  appId: 'test-app-id'
+};
+
+// Mock Firebase providers for tests
+export const provideMockFirebase = () => [
+  {
+    provide: Auth,
+    useValue: mockAuth
+  }
+];
 
 // Mock Router
 export const mockRouter: jasmine.SpyObj<Router> = jasmine.createSpyObj('Router', ['navigate']);
