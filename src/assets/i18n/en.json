@@ -1,0 +1,99 @@
+{
+  "COMMON": {
+    "TITLE": "Hair Salon App",
+    "WELCOME": "Welcome",
+    "LOGIN": "Log in",
+    "REGISTER": "Register",
+    "LOGOUT": "Log out",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "CONFIRM": "Confirm",
+    "CLOSE": "Close",
+    "BACK": "Back",
+    "NEXT": "Next",
+    "PREVIOUS": "Previous",
+    "SEARCH": "Search",
+    "FILTER": "Filter",
+    "RESET": "Reset",
+    "LOADING": "Loading...",
+    "ERROR": "Error",
+    "SUCCESS": "Success",
+    "WARNING": "Warning",
+    "INFO": "Information"
+  },
+  "AUTH": {
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "FORGOT_PASSWORD": "Forgot password?",
+    "REMEMBER_ME": "Remember me",
+    "SIGN_IN": "Sign in",
+    "SIGN_UP": "Sign up",
+    "ALREADY_HAVE_ACCOUNT": "Already have an account?",
+    "DONT_HAVE_ACCOUNT": "Don't have an account?",
+    "INVALID_CREDENTIALS": "Invalid credentials",
+    "PASSWORD_MISMATCH": "Passwords don't match"
+  },
+  "NAVIGATION": {
+    "HOME": "Home",
+    "APPOINTMENTS": "Appointments",
+    "BOOKING": "Booking",
+    "PROFILE": "Profile",
+    "CALENDAR": "Calendar",
+    "SETTINGS": "Settings"
+  },
+  "APPOINTMENTS": {
+    "NEW_APPOINTMENT": "New appointment",
+    "APPOINTMENT_DETAILS": "Appointment details",
+    "DATE": "Date",
+    "TIME": "Time",
+    "SERVICE": "Service",
+    "CLIENT": "Client",
+    "STATUS": "Status",
+    "NOTES": "Notes",
+    "DURATION": "Duration",
+    "PRICE": "Price",
+    "STATUS_PENDING": "Pending",
+    "STATUS_CONFIRMED": "Confirmed",
+    "STATUS_CANCELLED": "Cancelled",
+    "STATUS_COMPLETED": "Completed"
+  },
+  "BOOKING": {
+    "SELECT_SERVICE": "Select service",
+    "SELECT_DATE": "Select date",
+    "SELECT_TIME": "Select time",
+    "BOOK_NOW": "Book now",
+    "AVAILABLE_TIMES": "Available times",
+    "NO_AVAILABLE_TIMES": "No available times",
+    "BOOKING_CONFIRMATION": "Booking confirmation"
+  },
+  "PROFILE": {
+    "PERSONAL_INFO": "Personal information",
+    "NAME": "Name",
+    "SURNAME": "Surname",
+    "PHONE": "Phone",
+    "ADDRESS": "Address",
+    "UPDATE_PROFILE": "Update profile",
+    "CHANGE_PASSWORD": "Change password"
+  },
+  "CALENDAR": {
+    "TODAY": "Today",
+    "TOMORROW": "Tomorrow",
+    "THIS_WEEK": "This week",
+    "NEXT_WEEK": "Next week",
+    "THIS_MONTH": "This month",
+    "NEXT_MONTH": "Next month",
+    "VIEW_DAY": "View day",
+    "VIEW_WEEK": "View week",
+    "VIEW_MONTH": "View month"
+  },
+  "LANGUAGES": {
+    "CA": "Català",
+    "ES": "Español",
+    "EN": "English",
+    "AR": "العربية",
+    "SELECT_LANGUAGE": "Select language"
+  }
+}

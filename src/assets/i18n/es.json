@@ -1,0 +1,99 @@
+{
+  "COMMON": {
+    "TITLE": "Peluquería App",
+    "WELCOME": "Bienvenido",
+    "LOGIN": "Iniciar sesión",
+    "REGISTER": "Registrarse",
+    "LOGOUT": "Cerrar sesión",
+    "CANCEL": "Cancelar",
+    "SAVE": "Guardar",
+    "EDIT": "Editar",
+    "DELETE": "Eliminar",
+    "CONFIRM": "Confirmar",
+    "CLOSE": "Cerrar",
+    "BACK": "Atrás",
+    "NEXT": "Siguiente",
+    "PREVIOUS": "Anterior",
+    "SEARCH": "Buscar",
+    "FILTER": "Filtrar",
+    "RESET": "Reiniciar",
+    "LOADING": "Cargando...",
+    "ERROR": "Error",
+    "SUCCESS": "Éxito",
+    "WARNING": "Advertencia",
+    "INFO": "Información"
+  },
+  "AUTH": {
+    "EMAIL": "Correo electrónico",
+    "PASSWORD": "Contraseña",
+    "CONFIRM_PASSWORD": "Confirmar contraseña",
+    "FORGOT_PASSWORD": "¿Has olvidado la contraseña?",
+    "REMEMBER_ME": "Recordarme",
+    "SIGN_IN": "Iniciar sesión",
+    "SIGN_UP": "Crear cuenta",
+    "ALREADY_HAVE_ACCOUNT": "¿Ya tienes una cuenta?",
+    "DONT_HAVE_ACCOUNT": "¿No tienes una cuenta?",
+    "INVALID_CREDENTIALS": "Credenciales inválidas",
+    "PASSWORD_MISMATCH": "Las contraseñas no coinciden"
+  },
+  "NAVIGATION": {
+    "HOME": "Inicio",
+    "APPOINTMENTS": "Citas",
+    "BOOKING": "Reservas",
+    "PROFILE": "Perfil",
+    "CALENDAR": "Calendario",
+    "SETTINGS": "Configuración"
+  },
+  "APPOINTMENTS": {
+    "NEW_APPOINTMENT": "Nueva cita",
+    "APPOINTMENT_DETAILS": "Detalles de la cita",
+    "DATE": "Fecha",
+    "TIME": "Hora",
+    "SERVICE": "Servicio",
+    "CLIENT": "Cliente",
+    "STATUS": "Estado",
+    "NOTES": "Notas",
+    "DURATION": "Duración",
+    "PRICE": "Precio",
+    "STATUS_PENDING": "Pendiente",
+    "STATUS_CONFIRMED": "Confirmada",
+    "STATUS_CANCELLED": "Cancelada",
+    "STATUS_COMPLETED": "Completada"
+  },
+  "BOOKING": {
+    "SELECT_SERVICE": "Seleccionar servicio",
+    "SELECT_DATE": "Seleccionar fecha",
+    "SELECT_TIME": "Seleccionar hora",
+    "BOOK_NOW": "Reservar ahora",
+    "AVAILABLE_TIMES": "Horarios disponibles",
+    "NO_AVAILABLE_TIMES": "No hay horarios disponibles",
+    "BOOKING_CONFIRMATION": "Confirmación de reserva"
+  },
+  "PROFILE": {
+    "PERSONAL_INFO": "Información personal",
+    "NAME": "Nombre",
+    "SURNAME": "Apellido",
+    "PHONE": "Teléfono",
+    "ADDRESS": "Dirección",
+    "UPDATE_PROFILE": "Actualizar perfil",
+    "CHANGE_PASSWORD": "Cambiar contraseña"
+  },
+  "CALENDAR": {
+    "TODAY": "Hoy",
+    "TOMORROW": "Mañana",
+    "THIS_WEEK": "Esta semana",
+    "NEXT_WEEK": "Próxima semana",
+    "THIS_MONTH": "Este mes",
+    "NEXT_MONTH": "Próximo mes",
+    "VIEW_DAY": "Ver día",
+    "VIEW_WEEK": "Ver semana",
+    "VIEW_MONTH": "Ver mes"
+  },
+  "LANGUAGES": {
+    "CA": "Català",
+    "ES": "Español",
+    "EN": "English",
+    "AR": "العربية",
+    "SELECT_LANGUAGE": "Seleccionar idioma"
+  }
+}

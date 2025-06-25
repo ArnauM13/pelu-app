@@ -1,0 +1,99 @@
+{
+  "COMMON": {
+    "TITLE": "Peluquería App",
+    "WELCOME": "Benvingut",
+    "LOGIN": "Inicia sessió",
+    "REGISTER": "Registra't",
+    "LOGOUT": "Tanca sessió",
+    "CANCEL": "Cancel·lar",
+    "SAVE": "Desar",
+    "EDIT": "Editar",
+    "DELETE": "Eliminar",
+    "CONFIRM": "Confirmar",
+    "CLOSE": "Tancar",
+    "BACK": "Enrere",
+    "NEXT": "Següent",
+    "PREVIOUS": "Anterior",
+    "SEARCH": "Cercar",
+    "FILTER": "Filtrar",
+    "RESET": "Reiniciar",
+    "LOADING": "Carregant...",
+    "ERROR": "Error",
+    "SUCCESS": "Èxit",
+    "WARNING": "Advertència",
+    "INFO": "Informació"
+  },
+  "AUTH": {
+    "EMAIL": "Correu electrònic",
+    "PASSWORD": "Contrasenya",
+    "CONFIRM_PASSWORD": "Confirmar contrasenya",
+    "FORGOT_PASSWORD": "Has oblidat la contrasenya?",
+    "REMEMBER_ME": "Recorda'm",
+    "SIGN_IN": "Iniciar sessió",
+    "SIGN_UP": "Crear compte",
+    "ALREADY_HAVE_ACCOUNT": "Ja tens un compte?",
+    "DONT_HAVE_ACCOUNT": "No tens un compte?",
+    "INVALID_CREDENTIALS": "Credencials invàlides",
+    "PASSWORD_MISMATCH": "Les contrasenyes no coincideixen"
+  },
+  "NAVIGATION": {
+    "HOME": "Inici",
+    "APPOINTMENTS": "Cites",
+    "BOOKING": "Reserves",
+    "PROFILE": "Perfil",
+    "CALENDAR": "Calendari",
+    "SETTINGS": "Configuració"
+  },
+  "APPOINTMENTS": {
+    "NEW_APPOINTMENT": "Nova cita",
+    "APPOINTMENT_DETAILS": "Detalls de la cita",
+    "DATE": "Data",
+    "TIME": "Hora",
+    "SERVICE": "Servei",
+    "CLIENT": "Client",
+    "STATUS": "Estat",
+    "NOTES": "Notes",
+    "DURATION": "Durada",
+    "PRICE": "Preu",
+    "STATUS_PENDING": "Pendent",
+    "STATUS_CONFIRMED": "Confirmada",
+    "STATUS_CANCELLED": "Cancel·lada",
+    "STATUS_COMPLETED": "Completada"
+  },
+  "BOOKING": {
+    "SELECT_SERVICE": "Seleccionar servei",
+    "SELECT_DATE": "Seleccionar data",
+    "SELECT_TIME": "Seleccionar hora",
+    "BOOK_NOW": "Reservar ara",
+    "AVAILABLE_TIMES": "Horaris disponibles",
+    "NO_AVAILABLE_TIMES": "No hi ha horaris disponibles",
+    "BOOKING_CONFIRMATION": "Confirmació de reserva"
+  },
+  "PROFILE": {
+    "PERSONAL_INFO": "Informació personal",
+    "NAME": "Nom",
+    "SURNAME": "Cognom",
+    "PHONE": "Telèfon",
+    "ADDRESS": "Adreça",
+    "UPDATE_PROFILE": "Actualitzar perfil",
+    "CHANGE_PASSWORD": "Canviar contrasenya"
+  },
+  "CALENDAR": {
+    "TODAY": "Avui",
+    "TOMORROW": "Demà",
+    "THIS_WEEK": "Aquesta setmana",
+    "NEXT_WEEK": "Pròxima setmana",
+    "THIS_MONTH": "Aquest mes",
+    "NEXT_MONTH": "Pròxim mes",
+    "VIEW_DAY": "Veure dia",
+    "VIEW_WEEK": "Veure setmana",
+    "VIEW_MONTH": "Veure mes"
+  },
+  "LANGUAGES": {
+    "CA": "Català",
+    "ES": "Español",
+    "EN": "English",
+    "AR": "العربية",
+    "SELECT_LANGUAGE": "Seleccionar idioma"
+  }
+}

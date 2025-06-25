@@ -198,8 +198,84 @@ h3 { font-size: 1.25rem; }
   align-items: center;
 }
 
-.flex-column {
-  flex-direction: column;
+/* RTL Support Styles */
+[dir="rtl"] {
+  /* Text alignment */
+  text-align: right;
+
+  /* Margins and paddings */
+  .btn, .card, .input {
+    text-align: right;
+  }
+
+  /* Flexbox direction */
+  .flex {
+    flex-direction: row-reverse;
+  }
+
+  /* Grid direction */
+  .grid {
+    direction: rtl;
+  }
+
+  /* Icons and arrows */
+  .arrow, .icon {
+    transform: scaleX(-1);
+  }
+
+  /* Dropdowns and menus */
+  .dropdown, .menu {
+    right: auto;
+    left: 0;
+  }
+
+  /* Form elements */
+  input, textarea, select {
+    text-align: right;
+  }
+
+  /* Lists */
+  ul, ol {
+    padding-right: 1.5rem;
+    padding-left: 0;
+  }
+
+  /* Navigation */
+  nav ul {
+    flex-direction: row-reverse;
+  }
+
+  /* Buttons with icons */
+  .btn .icon {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
+  /* Cards and containers */
+  .card, .container {
+    direction: rtl;
+  }
+}
+
+/* RTL specific overrides for PrimeNG components */
+[dir="rtl"] {
+  .p-dropdown, .p-multiselect, .p-calendar {
+    text-align: right;
+  }
+
+  .p-dropdown-panel, .p-multiselect-panel {
+    right: auto;
+    left: 0;
+  }
+
+  .p-menu {
+    direction: rtl;
+  }
+
+  .p-menuitem-icon {
+    margin-left: 0.5rem;
+    margin-right: 0;
+  }
 }
 
 /* Animació global per a pàgines */
