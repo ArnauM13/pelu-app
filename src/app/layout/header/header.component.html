@@ -1,1 +1,27 @@
-<p-menubar [model]="items" class="pelu-menubar"></p-menubar>
+<header class="header">
+  <div class="header-content">
+    <div class="logo-section" routerLink="/">
+      <img src="/assets/images/cabj.png" alt="Logo Perruqueria" class="logo">
+    </div>
+    <nav class="nav">
+      <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        {{ 'NAVIGATION.HOME' | translate }}
+      </a>
+      <a routerLink="/booking" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.BOOKING' | translate }}
+      </a>
+      <a routerLink="/appointments" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.APPOINTMENTS' | translate }}
+      </a>
+      <a routerLink="/perfil" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.PROFILE' | translate }}
+      </a>
+    </nav>
+    <div class="header-actions">
+      <pelu-language-selector class="language-selector" />
+      <button (click)="logout()" class="logout-btn" [disabled]="isLoggingOut()">
+        {{ isLoggingOut() ? ('COMMON.LOADING' | translate) : ('COMMON.LOGOUT' | translate) }}
+      </button>
+    </div>
+  </div>
+</header>

@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -8,21 +8,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
-import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
-import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CardComponent } from '../../shared/components/card/card.component';
-import { FloatingButtonComponent, FloatingButtonConfig } from '../../shared/components/floating-button/floating-button.component';
+import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
 import { PopupStackComponent, PopupItem } from '../../shared/components/popup-stack/popup-stack.component';
 import { FiltersPopupComponent } from '../../shared/components/filters-popup/filters-popup.component';
-
-// Factory function for TranslateHttpLoader
-function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -45,29 +39,32 @@ function HttpLoaderFactory(http: HttpClient) {
   styleUrls: ['./appointments-page.component.scss']
 })
 export class AppointmentsPageComponent {
+  // Inject services
+  #messageService = inject(MessageService);
+
   // Core data signals
-  private readonly citesSignal = signal<any[]>([]);
-  private readonly viewModeSignal = signal<'list' | 'calendar'>('list');
-  private readonly selectedDateSignal = signal<Date | null>(null);
+  #citesSignal = signal<any[]>([]);
+  #viewModeSignal = signal<'list' | 'calendar'>('list');
+  #selectedDateSignal = signal<Date | null>(null);
 
   // Filter state signals
-  private readonly filterDateSignal = signal<string>('');
-  private readonly filterClientSignal = signal<string>('');
-  private readonly quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
+  #filterDateSignal = signal<string>('');
+  #filterClientSignal = signal<string>('');
+  #quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
 
   // UI state signals
-  private readonly popupStackSignal = signal<PopupItem[]>([]);
-  private readonly showAdvancedFiltersSignal = signal<boolean>(false);
+  #popupStackSignal = signal<PopupItem[]>([]);
+  #showAdvancedFiltersSignal = signal<boolean>(false);
 
   // Public computed signals
-  readonly cites = computed(() => this.citesSignal());
-  readonly viewMode = computed(() => this.viewModeSignal());
-  readonly selectedDate = computed(() => this.selectedDateSignal());
-  readonly filterDate = computed(() => this.filterDateSignal());
-  readonly filterClient = computed(() => this.filterClientSignal());
-  readonly quickFilter = computed(() => this.quickFilterSignal());
-  readonly popupStack = computed(() => this.popupStackSignal());
-  readonly showAdvancedFilters = computed(() => this.showAdvancedFiltersSignal());
+  readonly cites = computed(() => this.#citesSignal());
+  readonly viewMode = computed(() => this.#viewModeSignal());
+  readonly selectedDate = computed(() => this.#selectedDateSignal());
+  readonly filterDate = computed(() => this.#filterDateSignal());
+  readonly filterClient = computed(() => this.#filterClientSignal());
+  readonly quickFilter = computed(() => this.#quickFilterSignal());
+  readonly popupStack = computed(() => this.#popupStackSignal());
+  readonly showAdvancedFilters = computed(() => this.#showAdvancedFiltersSignal());
 
   // Computed filter buttons with reactive state
   readonly filterButtons = computed(() => [
@@ -217,31 +214,31 @@ export class AppointmentsPageComponent {
     this.filterDate() !== '' || this.filterClient() !== ''
   );
 
-  constructor(private messageService: MessageService) {
-    this.loadAppointments();
+  constructor() {
+    this.#loadAppointments();
   }
 
   // Filter management methods
   applyQuickFilter(filter: 'all' | 'today' | 'upcoming' | 'past' | 'mine') {
     if (this.quickFilter() === filter) {
       // Deselect the filter
-      this.quickFilterSignal.set('all');
+      this.#quickFilterSignal.set('all');
     } else {
       // Select the new filter
-      this.quickFilterSignal.set(filter);
+      this.#quickFilterSignal.set(filter);
 
       // Clear advanced filters when applying quick filter
-      this.filterDateSignal.set('');
-      this.filterClientSignal.set('');
-      this.showAdvancedFiltersSignal.set(false);
+      this.#filterDateSignal.set('');
+      this.#filterClientSignal.set('');
+      this.#showAdvancedFiltersSignal.set(false);
     }
   }
 
   clearFilters() {
-    this.filterDateSignal.set('');
-    this.filterClientSignal.set('');
-    this.quickFilterSignal.set('all');
-    this.showAdvancedFiltersSignal.set(false);
+    this.#filterDateSignal.set('');
+    this.#filterClientSignal.set('');
+    this.#quickFilterSignal.set('all');
+    this.#showAdvancedFiltersSignal.set(false);
   }
 
   toggleAdvancedFilters() {
@@ -249,13 +246,13 @@ export class AppointmentsPageComponent {
 
     if (currentShowAdvanced) {
       // If closing advanced filters, clear them but keep popup open
-      this.filterDateSignal.set('');
-      this.filterClientSignal.set('');
-      this.showAdvancedFiltersSignal.set(false);
+      this.#filterDateSignal.set('');
+      this.#filterClientSignal.set('');
+      this.#showAdvancedFiltersSignal.set(false);
     } else {
       // If opening advanced filters, clear quick filters and show advanced filters
-      this.quickFilterSignal.set('all');
-      this.showAdvancedFiltersSignal.set(true);
+      this.#quickFilterSignal.set('all');
+      this.#showAdvancedFiltersSignal.set(true);
     }
   }
 
@@ -273,34 +270,34 @@ export class AppointmentsPageComponent {
   }
 
   onDateChange(value: string) {
-    this.filterDateSignal.set(value);
+    this.#filterDateSignal.set(value);
 
     // If applying an advanced filter, deselect quick filters and show advanced filters
     if (value) {
-      this.quickFilterSignal.set('all');
-      this.showAdvancedFiltersSignal.set(true);
+      this.#quickFilterSignal.set('all');
+      this.#showAdvancedFiltersSignal.set(true);
     }
   }
 
   onClientChange(value: string) {
-    this.filterClientSignal.set(value);
+    this.#filterClientSignal.set(value);
 
     // If applying an advanced filter, deselect quick filters and show advanced filters
     if (value) {
-      this.quickFilterSignal.set('all');
-      this.showAdvancedFiltersSignal.set(true);
+      this.#quickFilterSignal.set('all');
+      this.#showAdvancedFiltersSignal.set(true);
     }
   }
 
   onViewButtonClick(index: number) {
-    this.viewModeSignal.set(index === 0 ? 'list' : 'calendar');
+    this.#viewModeSignal.set(index === 0 ? 'list' : 'calendar');
   }
 
   // Popup management
   openFiltersPopup() {
     // Check if there are advanced filter values and show them automatically
     if (this.hasAdvancedFilters()) {
-      this.showAdvancedFiltersSignal.set(true);
+      this.#showAdvancedFiltersSignal.set(true);
     }
 
     const filtersPopup: PopupItem = {
@@ -320,15 +317,15 @@ export class AppointmentsPageComponent {
       onToggleAdvanced: () => this.toggleAdvancedFilters()
     };
 
-    this.popupStackSignal.set([filtersPopup]);
+    this.#popupStackSignal.set([filtersPopup]);
   }
 
   closePopup(popupId: string) {
-    this.popupStackSignal.update(stack => stack.filter(popup => popup.id !== popupId));
+    this.#popupStackSignal.update(stack => stack.filter(popup => popup.id !== popupId));
 
     // Only hide advanced filters when closing the popup if there are no values
     if (popupId === 'filters' && !this.hasAdvancedFilters()) {
-      this.showAdvancedFiltersSignal.set(false);
+      this.#showAdvancedFiltersSignal.set(false);
     }
   }
 
@@ -338,7 +335,7 @@ export class AppointmentsPageComponent {
   }
 
   // Utility methods
-  loadAppointments() {
+  #loadAppointments() {
     const dades = localStorage.getItem('cites');
     if (dades) {
       const parsedData = JSON.parse(dades);
@@ -348,7 +345,7 @@ export class AppointmentsPageComponent {
         }
         return cita;
       });
-      this.citesSignal.set(dadesAmbIds);
+      this.#citesSignal.set(dadesAmbIds);
 
       if (parsedData.length > 0 && dadesAmbIds.length === parsedData.length) {
         localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
@@ -357,10 +354,10 @@ export class AppointmentsPageComponent {
   }
 
   deleteAppointment(cita: any) {
-    this.citesSignal.update(cites => cites.filter(c => c.id !== cita.id));
-    this.saveAppointments();
+    this.#citesSignal.update(cites => cites.filter(c => c.id !== cita.id));
+    this.#saveAppointments();
 
-    this.messageService.add({
+    this.#messageService.add({
       severity: 'success',
       summary: 'Cita eliminada',
       detail: `S'ha eliminat la cita de ${cita.nom}`,
@@ -368,7 +365,7 @@ export class AppointmentsPageComponent {
     });
   }
 
-  saveAppointments() {
+  #saveAppointments() {
     localStorage.setItem('cites', JSON.stringify(this.cites()));
   }
 
@@ -399,9 +396,9 @@ export class AppointmentsPageComponent {
   }
 
   onDateSelect(event: any) {
-    this.selectedDateSignal.set(event);
+    this.#selectedDateSignal.set(event);
     const selectedDateStr = format(event, 'yyyy-MM-dd');
-    this.filterDateSignal.set(selectedDateStr);
+    this.#filterDateSignal.set(selectedDateStr);
   }
 
   getEventColor(dateString: string): string {

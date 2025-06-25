@@ -21,6 +21,7 @@ export class PerfilPageComponent {
   // Internal state
   private readonly userSignal = signal<any>(null);
   private readonly isLoadingSignal = signal(true);
+  private _authEffect;
 
   // Public computed signals
   readonly user = computed(() => this.userSignal());
@@ -88,6 +89,9 @@ export class PerfilPageComponent {
   ]);
 
   constructor() {
+    this._authEffect = effect(() => {
+      // No cal escriure signals aquí, però si s'afegeix, utilitza allowSignalWrites: true
+    }, { allowSignalWrites: true });
     onAuthStateChanged(this.auth, (u: any) => {
       this.userSignal.set(u);
       this.isLoadingSignal.set(false);

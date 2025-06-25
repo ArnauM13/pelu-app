@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
@@ -8,13 +8,33 @@ import { AuthService } from '../../auth/auth.service';
   selector: 'pelu-logout-button',
   standalone: true,
   imports: [CommonModule, ButtonModule],
-  template: `<button pButton label="Tancar sessió" (click)="logout()"></button>`
+  templateUrl: './logout-button.component.html'
 })
 export class LogoutButtonComponent {
-  constructor(private authService: AuthService, private router: Router) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  // Internal state signals
+  private readonly isLoggingOutSignal = signal<boolean>(false);
+
+  // Public computed signals
+  readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
+  readonly buttonText = computed(() =>
+    this.isLoggingOut() ? 'COMMON.LOADING' : 'COMMON.LOGOUT'
+  );
 
   async logout() {
-    await this.authService.logout();
-    this.router.navigate(['/login']);
+    if (this.isLoggingOut()) return;
+
+    this.isLoggingOutSignal.set(true);
+
+    try {
+      await this.authService.logout();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Error al tancar sessió:', error);
+    } finally {
+      this.isLoggingOutSignal.set(false);
+    }
   }
 }

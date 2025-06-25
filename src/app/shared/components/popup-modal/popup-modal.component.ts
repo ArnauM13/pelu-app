@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,20 +9,37 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./popup-modal.component.scss']
 })
 export class PopupModalComponent {
-  @Input() open = false;
-  @Input() title = '';
-  @Input() size: 'small' | 'medium' | 'large' = 'medium';
-  @Input() secondary = false;
-  @Output() closed = new EventEmitter<void>();
+  // Input signals
+  readonly open = input<boolean>(false);
+  readonly title = input<string>('');
+  readonly size = input<'small' | 'medium' | 'large'>('medium');
+  readonly secondary = input<boolean>(false);
 
-  isClosing = false;
+  // Output signals
+  readonly closed = output<void>();
+
+  // Internal state
+  private readonly isClosingSignal = signal<boolean>(false);
+
+  // Computed properties
+  readonly isClosing = computed(() => this.isClosingSignal());
+  readonly modalClasses = computed(() => {
+    const size = this.size();
+    const secondary = this.secondary();
+    return {
+      'popup-modal': true,
+      [`popup-modal--${size}`]: true,
+      'popup-modal--secondary': secondary,
+      'popup-modal--closing': this.isClosing()
+    };
+  });
 
   onClose() {
-    if (!this.isClosing) {
-      this.isClosing = true;
+    if (!this.isClosing()) {
+      this.isClosingSignal.set(true);
       setTimeout(() => {
         this.closed.emit();
-        this.isClosing = false;
+        this.isClosingSignal.set(false);
       }, 300);
     }
   }

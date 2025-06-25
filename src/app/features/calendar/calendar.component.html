@@ -20,7 +20,7 @@
   <!-- Weekly List View -->
   <div class="calendar-body">
     <div class="week-list">
-      @for (day of weekDays(); track day) {
+      @for (day of weekDays(); track day; let i = $index) {
       <div class="day-card" [class.past]="isPastDate(day)" [class.selected]="isDaySelected(day)" (click)="selectDay(day)">
         <div class="day-header">
           <div class="day-name">{{ getDayName(day) }}</div>
@@ -28,7 +28,7 @@
         </div>
 
         <div class="day-events">
-          @for (event of getEventsForDay(day); track $index + '-' + event.start) {
+          @for (event of getEventsForDay(day); track $index + '-' + event.start; let j = $index) {
           <div class="event-item">
             <span class="event-time">{{ getEventTime(event.start) }}</span>
             <span class="event-title">{{ event.title }}</span>
@@ -43,7 +43,7 @@
             <h4>Selecciona una hora:</h4>
           </div>
           <div class="time-slots-grid">
-            @for (time of timeSlots(); track time) {
+            @for (time of timeSlots(); track time; let k = $index) {
             <button class="time-slot-btn"
                     [class.available]="isTimeSlotAvailable(day, time)"
                     [class.booked]="!isTimeSlotAvailable(day, time)"

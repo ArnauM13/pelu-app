@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect, CreateEffectOptions } from '@angular/core';
+import { Component, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -9,7 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
-import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
+import { InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 import { AuthService } from '../../auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
@@ -26,7 +26,6 @@ import { CardComponent } from '../../shared/components/card/card.component';
     ToastModule,
     TooltipModule,
     TranslateModule,
-    InfoItemComponent,
     CalendarComponent,
     CardComponent
   ],
@@ -65,12 +64,14 @@ export class BookingPageComponent {
     return details.clientName.trim() !== '';
   });
 
+  private _userEffect;
+
   constructor(private messageService: MessageService, private authService: AuthService) {
     this.loadAppointments();
     this.setDefaultClientName();
 
-    // Effect to update default client name when user changes
-    effect(() => {
+    // Privat effect amb allowSignalWrites
+    this._userEffect = effect(() => {
       const user = this.authService.user();
       if (user) {
         this.setDefaultClientName();
@@ -111,6 +112,10 @@ export class BookingPageComponent {
 
   updateHora(value: string) {
     this.nouClientSignal.update(client => ({ ...client, hora: value }));
+  }
+
+  updateBookingClientName(value: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, clientName: value }));
   }
 
   onDateSelected(selection: {date: string, time: string}) {
