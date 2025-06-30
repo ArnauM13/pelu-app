@@ -79,9 +79,10 @@
             <div class="appointment-indicators">
               @for (appointment of getAppointmentsForDate(date); track appointment.id) {
               <div
-                class="appointment-dot"
+                class="appointment-dot clickable"
                 [style.background-color]="getEventColor(appointment.data)"
-                [pTooltip]="appointment.nom + ' - ' + formatTime(appointment.hora)">
+                [pTooltip]="appointment.nom + ' - ' + formatTime(appointment.hora)"
+                (click)="viewAppointmentDetail(appointment)">
               </div>
               }
             </div>
@@ -104,7 +105,7 @@
       } @else {
       <div class="appointments-list">
         @for (cita of getAppointmentsForDate(selectedDate()!); track cita.id) {
-        <div class="appointment-item" [class.today]="isToday(cita.data)">
+        <div class="appointment-item clickable" [class.today]="isToday(cita.data)" (click)="viewAppointmentDetail(cita)">
           <!-- Informació de la cita (esquerra) -->
           <div class="appointment-info">
             <div class="client-info">
@@ -128,7 +129,14 @@
               }
             </div>
 
-            <div class="appointment-actions">
+            <div class="appointment-actions" (click)="$event.stopPropagation()">
+              <button
+                class="btn btn-primary"
+                (click)="viewAppointmentDetail(cita)"
+                [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
+                pTooltipPosition="left">
+                👁️
+              </button>
               <button
                 class="btn btn-danger"
                 (click)="deleteAppointment(cita)"
@@ -176,7 +184,7 @@
     } @else {
     <div class="appointments-list">
       @for (cita of filteredCites(); track cita.id) {
-      <div class="appointment-item" [class.today]="isToday(cita.data)" [class.past]="isPast(cita.data)">
+      <div class="appointment-item clickable" [class.today]="isToday(cita.data)" [class.past]="isPast(cita.data)" (click)="viewAppointmentDetail(cita)">
         <!-- Informació de la cita (esquerra) -->
         <div class="appointment-info">
           <div class="client-info">
@@ -207,7 +215,14 @@
             }
           </div>
 
-          <div class="appointment-actions">
+          <div class="appointment-actions" (click)="$event.stopPropagation()">
+            <button
+              class="btn btn-primary"
+              (click)="viewAppointmentDetail(cita)"
+              [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
+              pTooltipPosition="left">
+              👁️
+            </button>
             <button
               class="btn btn-danger"
               (click)="deleteAppointment(cita)"

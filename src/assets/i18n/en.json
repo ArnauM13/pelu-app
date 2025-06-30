@@ -29,6 +29,7 @@
     "AT_TIME": "at",
     "TODAY": "Today",
     "PAST": "Past",
+    "UPCOMING": "Upcoming",
     "CLEAR_FILTERS": "Clear Filters",
     "NO_RESULTS": "No results found",
     "NO_DATA": "No data",

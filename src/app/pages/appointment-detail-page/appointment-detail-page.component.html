@@ -1,0 +1,73 @@
+<p-toast></p-toast>
+
+<div class="container" style="margin-top: 2rem;">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner">⏳</div>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  }
+
+  <!-- Not Found State -->
+  @if (notFound()) {
+    <div class="not-found-container">
+      <div class="not-found-icon">❌</div>
+      <h2>{{ 'COMMON.ERROR' | translate }}</h2>
+      <p>{{ 'COMMON.NO_DATA' | translate }}</p>
+      <button class="btn btn-primary" (click)="goBack()">
+        {{ 'COMMON.BACK' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Appointment Detail Content -->
+  @if (appointment() && !loading() && !notFound()) {
+    <div class="appointment-detail">
+      <!-- Header with back button -->
+      <div class="detail-header">
+        <button class="btn btn-secondary" (click)="goBack()">
+          ← {{ 'COMMON.BACK' | translate }}
+        </button>
+        <h1>{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h1>
+      </div>
+
+      <!-- Main content card -->
+      <pelu-card variant="large">
+        <div class="appointment-content">
+          <!-- Client name and status -->
+          <div class="appointment-header">
+            <h2 class="client-name">{{ appointment().nom }}</h2>
+            <span class="status-badge" [class]="statusBadge().class">
+              {{ statusBadge().text | translate }}
+            </span>
+          </div>
+
+          <!-- Appointment information -->
+          <div class="appointment-info">
+            @for (item of appointmentInfoItems(); track item.label) {
+              <pelu-info-item [data]="item"></pelu-info-item>
+            }
+          </div>
+
+          <!-- Actions -->
+          <div class="appointment-actions">
+            <button
+              class="btn btn-primary"
+              (click)="editAppointment()"
+              [pTooltip]="'COMMON.EDIT' | translate">
+              ✏️ {{ 'COMMON.EDIT' | translate }}
+            </button>
+
+            <button
+              class="btn btn-danger"
+              (click)="deleteAppointment()"
+              [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate">
+              🗑️ {{ 'COMMON.DELETE' | translate }}
+            </button>
+          </div>
+        </div>
+      </pelu-card>
+    </div>
+  }
+</div>
