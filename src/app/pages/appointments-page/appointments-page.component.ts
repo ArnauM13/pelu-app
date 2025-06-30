@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -41,6 +42,7 @@ import { FiltersPopupComponent } from '../../shared/components/filters-popup/fil
 export class AppointmentsPageComponent {
   // Inject services
   #messageService = inject(MessageService);
+  #router = inject(Router);
 
   // Core data signals
   #citesSignal = signal<any[]>([]);
@@ -363,6 +365,10 @@ export class AppointmentsPageComponent {
       detail: `S'ha eliminat la cita de ${cita.nom}`,
       life: 3000
     });
+  }
+
+  viewAppointmentDetail(cita: any) {
+    this.#router.navigate(['/appointments', cita.id]);
   }
 
   #saveAppointments() {

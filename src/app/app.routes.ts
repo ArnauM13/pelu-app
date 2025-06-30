@@ -6,6 +6,7 @@ import { PerfilPageComponent } from './pages/perfil-page/perfil-page.component';
 import { authGuard } from './auth/auth.guard';
 import { BookingPageComponent } from './pages/booking-page/booking-page.component';
 import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
+import { AppointmentDetailPageComponent } from './pages/appointment-detail-page/appointment-detail-page.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +30,11 @@ export const routes: Routes = [
   {
     path: 'appointments',
     component: AppointmentsPageComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'appointments/:id',
+    component: AppointmentDetailPageComponent,
     canActivate: [authGuard]
   },
   {
