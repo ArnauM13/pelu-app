@@ -111,6 +111,18 @@ pelu-card:has(.appointments-list) {
   box-shadow: var(--box-shadow-hover);
 }
 
+.stat-card.clickable {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+  border-color: var(--primary-color-lighter);
+}
+
 .stat-icon {
   font-size: 2rem;
   width: 60px;
@@ -1130,4 +1142,14 @@ pelu-card:has(.appointments-list) {
 
 .clear-filters-btn:hover {
   background: #dc2626;
+}
+
+.filters-content {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
+  min-width: 300px;
+  animation: fadeInUp 0.3s ease-out;
 }

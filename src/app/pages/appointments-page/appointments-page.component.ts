@@ -269,6 +269,10 @@ export class AppointmentsPageComponent {
     }
   }
 
+  onStatCardClick(filter: 'all' | 'today' | 'upcoming') {
+    this.applyQuickFilter(filter);
+  }
+
   onDateChange(value: string) {
     this.#filterDateSignal.set(value);
 
