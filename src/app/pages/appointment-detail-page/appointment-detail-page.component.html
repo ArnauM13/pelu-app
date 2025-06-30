@@ -1,73 +1,201 @@
-<p-toast></p-toast>
-
-<div class="container" style="margin-top: 2rem;">
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="loading-container">
-      <div class="loading-spinner">⏳</div>
+<div class="perfil-container page-animation">
+  <div class="perfil-card">
+    <!-- Loading State -->
+    @if (loading()) {
+    <div class="loading-section">
+      <div class="loading-spinner"></div>
       <p>{{ 'COMMON.LOADING' | translate }}</p>
     </div>
-  }
+    }
 
-  <!-- Not Found State -->
-  @if (notFound()) {
-    <div class="not-found-container">
-      <div class="not-found-icon">❌</div>
-      <h2>{{ 'COMMON.ERROR' | translate }}</h2>
-      <p>{{ 'COMMON.NO_DATA' | translate }}</p>
-      <button class="btn btn-primary" (click)="goBack()">
-        {{ 'COMMON.BACK' | translate }}
-      </button>
-    </div>
-  }
-
-  <!-- Appointment Detail Content -->
-  @if (appointment() && !loading() && !notFound()) {
-    <div class="appointment-detail">
-      <!-- Header with back button -->
-      <div class="detail-header">
-        <button class="btn btn-secondary" (click)="goBack()">
-          ← {{ 'COMMON.BACK' | translate }}
+    <!-- Not Found State -->
+    @if (notFound()) {
+    <div class="no-user-section">
+      <div class="no-user-content">
+        <i class="no-user-icon">❌</i>
+        <h2>{{ 'COMMON.ERROR' | translate }}</h2>
+        <p>{{ 'COMMON.NO_DATA' | translate }}</p>
+        <button class="login-btn" (click)="goBack()">
+          {{ 'COMMON.BACK' | translate }}
         </button>
-        <h1>{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h1>
+      </div>
+    </div>
+    }
+
+    <!-- Appointment Information -->
+    @if (!loading() && !notFound() && appointment()) {
+    <!-- Descriptive Title -->
+    <div class="appointment-title-section">
+      <h1 class="appointment-title">
+        {{ appointment()?.nom }} - {{ formatDate(appointment()?.data) }}
+        @if (appointment()?.hora) {
+          {{ 'COMMON.AT_TIME' | translate }} {{ formatTime(appointment()?.hora) }}
+        }
+      </h1>
+      <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
+    </div>
+
+    <div class="perfil-content">
+      <!-- Status Badge -->
+      <div class="info-section">
+        <h2>{{ 'COMMON.STATUS' | translate }}</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">
+              <i class="info-icon">🏷️</i>
+              {{ 'COMMON.STATUS' | translate }}
+            </div>
+            <div class="info-value">
+              <span class="status-active">
+                <span class="status-dot"></span>
+                {{ statusBadge().text | translate }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Main content card -->
-      <pelu-card variant="large">
-        <div class="appointment-content">
-          <!-- Client name and status -->
-          <div class="appointment-header">
-            <h2 class="client-name">{{ appointment().nom }}</h2>
-            <span class="status-badge" [class]="statusBadge().class">
-              {{ statusBadge().text | translate }}
-            </span>
+      <!-- Appointment Information -->
+      <div class="info-section">
+        <h2>{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+
+        <div class="info-grid">
+          @for (item of appointmentInfoItems(); track item.label; let i = $index) {
+          <pelu-info-item
+            [data]="item"
+            [showStatus]="false" />
+          }
+        </div>
+      </div>
+
+      <!-- Edit Form (when editing) -->
+      @if (isEditing()) {
+      <div class="info-section">
+        <h2>{{ 'COMMON.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+
+        <div class="edit-form">
+          <div class="form-grid">
+            <!-- Client Name -->
+            <div class="form-group">
+              <label for="nom">{{ 'COMMON.CLIENT_NAME' | translate }} *</label>
+              <input
+                type="text"
+                id="nom"
+                pInputText
+                [value]="editForm().nom"
+                (input)="updateForm('nom', $any($event.target).value)"
+                [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
+                class="form-input">
+            </div>
+
+            <!-- Date -->
+            <div class="form-group">
+              <label for="data">{{ 'COMMON.DATE' | translate }} *</label>
+              <input
+                type="date"
+                id="data"
+                [value]="editForm().data"
+                (input)="updateForm('data', $any($event.target).value)"
+                class="form-input">
+            </div>
+
+            <!-- Time -->
+            <div class="form-group">
+              <label for="hora">{{ 'COMMON.TIME' | translate }}</label>
+              <input
+                type="time"
+                id="hora"
+                [value]="editForm().hora"
+                (input)="updateForm('hora', $any($event.target).value)"
+                class="form-input">
+            </div>
+
+            <!-- Service -->
+            <div class="form-group">
+              <label for="servei">{{ 'APPOINTMENTS.SERVICE' | translate }}</label>
+              <input
+                type="text"
+                id="servei"
+                pInputText
+                [value]="editForm().servei"
+                (input)="updateForm('servei', $any($event.target).value)"
+                [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                class="form-input">
+            </div>
+
+            <!-- Price -->
+            <div class="form-group">
+              <label for="preu">{{ 'APPOINTMENTS.PRICE' | translate }} (€)</label>
+              <input
+                type="number"
+                id="preu"
+                [value]="editForm().preu"
+                (input)="updateForm('preu', +$any($event.target).value)"
+                [placeholder]="'0'"
+                min="0"
+                step="0.01"
+                class="form-input">
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group full-width">
+              <label for="notes">{{ 'APPOINTMENTS.NOTES' | translate }}</label>
+              <textarea
+                id="notes"
+                [value]="editForm().notes"
+                (input)="updateForm('notes', $any($event.target).value)"
+                [placeholder]="'APPOINTMENTS.NOTES' | translate"
+                rows="3"
+                class="form-textarea"></textarea>
+            </div>
           </div>
 
-          <!-- Appointment information -->
-          <div class="appointment-info">
-            @for (item of appointmentInfoItems(); track item.label) {
-              <pelu-info-item [data]="item"></pelu-info-item>
-            }
-          </div>
-
-          <!-- Actions -->
-          <div class="appointment-actions">
+          <!-- Form Actions -->
+          <div class="form-actions">
             <button
-              class="btn btn-primary"
-              (click)="editAppointment()"
-              [pTooltip]="'COMMON.EDIT' | translate">
-              ✏️ {{ 'COMMON.EDIT' | translate }}
+              class="action-btn secondary"
+              (click)="cancelEditing()"
+              [disabled]="!hasChanges()">
+              <i class="action-icon">❌</i>
+              {{ 'COMMON.CANCEL' | translate }}
             </button>
-
             <button
-              class="btn btn-danger"
-              (click)="deleteAppointment()"
-              [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate">
-              🗑️ {{ 'COMMON.DELETE' | translate }}
+              class="action-btn primary"
+              (click)="saveAppointment()"
+              [disabled]="!canSave() || !hasChanges()">
+              <i class="action-icon">💾</i>
+              {{ 'COMMON.SAVE' | translate }}
             </button>
           </div>
         </div>
-      </pelu-card>
+      </div>
+      }
+
+      <!-- Actions Section -->
+      <div class="actions-section">
+        <h2>{{ 'COMMON.ACTIONS' | translate }}</h2>
+        <div class="actions-grid">
+          <button class="action-btn secondary" (click)="goBack()">
+            <i class="action-icon">←</i>
+            {{ 'COMMON.BACK' | translate }}
+          </button>
+
+          @if (!isEditing()) {
+          <button class="action-btn primary" (click)="startEditing()">
+            <i class="action-icon">✏️</i>
+            {{ 'COMMON.EDIT' | translate }}
+          </button>
+          }
+
+          <button class="action-btn danger" (click)="deleteAppointment()">
+            <i class="action-icon">🗑️</i>
+            {{ 'COMMON.DELETE' | translate }}
+          </button>
+        </div>
+      </div>
     </div>
-  }
+    }
+  </div>
 </div>
+
+<p-toast></p-toast>

@@ -12,8 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { HttpClient } from '@angular/common/http';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
 import { PopupStackComponent, PopupItem } from '../../shared/components/popup-stack/popup-stack.component';

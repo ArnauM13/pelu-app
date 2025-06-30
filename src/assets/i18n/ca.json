@@ -86,7 +86,10 @@
     "LIST_VIEW_LABEL": "Vista llista",
     "CALENDAR_VIEW_LABEL": "Vista calendari",
     "FILTER_BY_DATE": "Filtrar per data:",
-    "FILTER_BY_CLIENT": "Filtrar per client:"
+    "FILTER_BY_CLIENT": "Filtrar per client:",
+    "STATUS": "Estat",
+    "APP_NAME": "PeluApp",
+    "ALL_RIGHTS_RESERVED": "Tots els drets reservats."
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",
@@ -112,7 +115,8 @@
     "GOOGLE_LOGIN_ERROR": "Error al iniciar sessió amb Google",
     "GOOGLE_REGISTER_ERROR": "Error al registrar amb Google",
     "NOT_LOGGED_IN": "No has iniciat sessió",
-    "LOGIN_TO_VIEW_PROFILE": "Inicia sessió per veure la teva informació de perfil"
+    "LOGIN_TO_VIEW_PROFILE": "Inicia sessió per veure la teva informació de perfil",
+    "PLEASE_LOGIN": "Si us plau, inicia sessió per veure el teu perfil"
   },
   "NAVIGATION": {
     "HOME": "Inici",
@@ -169,6 +173,15 @@
     "LAST_ACCESS": "Últim accés",
     "ACCOUNT_STATUS": "Estat del compte",
     "ACTIVE": "Actiu"
+  },
+  "USER": {
+    "TITLE": "Perfil d'Usuari",
+    "PROFILE_INFO": "Informació del Perfil",
+    "DISPLAY_NAME": "Nom de Pantalla",
+    "USER_ID": "ID d'Usuari",
+    "CREATION_DATE": "Data de Creació",
+    "LAST_ACCESS": "Últim Accés",
+    "NO_DATA_AVAILABLE": "No hi ha dades disponibles"
   },
   "CALENDAR": {
     "TODAY": "Avui",
