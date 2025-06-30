@@ -86,7 +86,10 @@
     "LIST_VIEW_LABEL": "عرض القائمة",
     "CALENDAR_VIEW_LABEL": "عرض التقويم",
     "FILTER_BY_DATE": "تصفية حسب التاريخ:",
-    "FILTER_BY_CLIENT": "تصفية حسب العميل:"
+    "FILTER_BY_CLIENT": "تصفية حسب العميل:",
+    "STATUS": "الحالة",
+    "APP_NAME": "PeluApp",
+    "ALL_RIGHTS_RESERVED": "جميع الحقوق محفوظة."
   },
   "AUTH": {
     "EMAIL": "البريد الإلكتروني",
@@ -112,7 +115,8 @@
     "GOOGLE_LOGIN_ERROR": "خطأ في تسجيل الدخول بـ Google",
     "GOOGLE_REGISTER_ERROR": "خطأ في التسجيل بـ Google",
     "NOT_LOGGED_IN": "لم تقم بتسجيل الدخول",
-    "LOGIN_TO_VIEW_PROFILE": "سجل دخولك لعرض معلومات ملفك الشخصي"
+    "LOGIN_TO_VIEW_PROFILE": "سجل دخولك لعرض معلومات ملفك الشخصي",
+    "PLEASE_LOGIN": "يرجى تسجيل الدخول لعرض ملفك الشخصي"
   },
   "NAVIGATION": {
     "HOME": "الرئيسية",
@@ -216,5 +220,14 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "اختر اللغة"
+  },
+  "USER": {
+    "TITLE": "ملف المستخدم",
+    "PROFILE_INFO": "معلومات الملف الشخصي",
+    "DISPLAY_NAME": "اسم العرض",
+    "USER_ID": "معرف المستخدم",
+    "CREATION_DATE": "تاريخ الإنشاء",
+    "LAST_ACCESS": "آخر وصول",
+    "NO_DATA_AVAILABLE": "لا توجد بيانات متاحة"
   }
 }

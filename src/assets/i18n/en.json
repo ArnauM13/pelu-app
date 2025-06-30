@@ -86,7 +86,10 @@
     "LIST_VIEW_LABEL": "List view",
     "CALENDAR_VIEW_LABEL": "Calendar view",
     "FILTER_BY_DATE": "Filter by date:",
-    "FILTER_BY_CLIENT": "Filter by client:"
+    "FILTER_BY_CLIENT": "Filter by client:",
+    "STATUS": "Status",
+    "APP_NAME": "PeluApp",
+    "ALL_RIGHTS_RESERVED": "All rights reserved."
   },
   "AUTH": {
     "EMAIL": "Email",
@@ -112,7 +115,8 @@
     "GOOGLE_LOGIN_ERROR": "Google login error",
     "GOOGLE_REGISTER_ERROR": "Google registration error",
     "NOT_LOGGED_IN": "You are not logged in",
-    "LOGIN_TO_VIEW_PROFILE": "Log in to view your profile information"
+    "LOGIN_TO_VIEW_PROFILE": "Log in to view your profile information",
+    "PLEASE_LOGIN": "Please log in to view your profile"
   },
   "NAVIGATION": {
     "HOME": "Home",
@@ -169,6 +173,15 @@
     "LAST_ACCESS": "Last access",
     "ACCOUNT_STATUS": "Account status",
     "ACTIVE": "Active"
+  },
+  "USER": {
+    "TITLE": "User Profile",
+    "PROFILE_INFO": "Profile Information",
+    "DISPLAY_NAME": "Display Name",
+    "USER_ID": "User ID",
+    "CREATION_DATE": "Creation Date",
+    "LAST_ACCESS": "Last Access",
+    "NO_DATA_AVAILABLE": "No data available"
   },
   "CALENDAR": {
     "TODAY": "Today",
