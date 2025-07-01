@@ -15,7 +15,6 @@
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  animation: slideIn 0.3s ease-out;
   overflow: hidden;
   width: fit-content;
   min-width: 200px;
@@ -23,34 +22,14 @@
 }
 
 .popup-container.closing {
-  animation: slideOut 0.3s ease-out;
+  /* View transitions handled by withViewTransitions() */
 }
 
 .popup-content {
   padding: 1rem;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateX(0);
-  }
-}
-
-@keyframes slideOut {
-  from {
-    opacity: 1;
-    transform: scale(1) translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.9) translateX(-20px);
-  }
-}
+/* View transitions handled by withViewTransitions() */
 
 @media (max-width: 768px) {
   .popup-container {

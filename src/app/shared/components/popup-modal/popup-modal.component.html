@@ -1,6 +1,6 @@
 @if (open()) {
-<div class="modal-overlay" [class.closing]="isClosing()" (click)="onBackdropClick($event)">
-  <div class="modal-container" [class]="'modal-' + size()" [class.secondary]="secondary()" [class.closing]="isClosing()">
+<div class="modal-overlay" [class.closing]="isClosing()" (click)="onBackdropClick($event)" style="view-transition-name: modal-overlay">
+  <div class="modal-container" [class]="'modal-' + size()" [class.secondary]="secondary()" [class.closing]="isClosing()" style="view-transition-name: modal-container">
     <div class="modal-content">
       <ng-content></ng-content>
     </div>

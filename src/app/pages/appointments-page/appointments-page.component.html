@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 
-<div class="container">
+<div class="container" style="view-transition-name: appointments-container">
   <!-- Botó de menú lateral (filtres) a dalt a l'esquerra -->
   @if (popupStack().length === 0) {
     <div class="menu-filters-fab">
@@ -17,7 +17,7 @@
   </pelu-popup-stack>
 
   <!-- Statistics Cards -->
-  <div class="stats-grid">
+  <div class="stats-grid" style="view-transition-name: stats-grid">
     <div class="stat-card clickable" (click)="onStatCardClick('all')">
       <div class="stat-icon">📅</div>
       <div class="stat-content">
@@ -55,7 +55,7 @@
 
   <!-- Calendar View -->
   @if (viewMode() === 'calendar') {
-  <pelu-card variant="large">
+  <pelu-card variant="large" style="view-transition-name: calendar-view">
     <div class="card-header">
       <h3>📅 {{ 'COMMON.APPOINTMENTS_CALENDAR' | translate }}</h3>
       <p class="calendar-subtitle">{{ 'COMMON.VIEW_APPOINTMENTS' | translate }}</p>
@@ -165,7 +165,7 @@
 
   <!-- Appointments List View -->
   @if (viewMode() === 'list') {
-  <pelu-card variant="large">
+  <pelu-card variant="large" style="view-transition-name: list-view">
     <div class="card-header">
       <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} ({{ filteredCites().length }})</h3>
     </div>

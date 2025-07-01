@@ -1,5 +1,5 @@
-<div class="perfil-container page-animation">
-  <div class="perfil-card">
+<div class="perfil-container page-animation" style="view-transition-name: appointment-detail-container">
+  <div class="perfil-card" style="view-transition-name: appointment-detail-card">
     <!-- Loading State -->
     @if (loading()) {
     <div class="loading-section">
@@ -25,7 +25,7 @@
     <!-- Appointment Information -->
     @if (!loading() && !notFound() && appointment()) {
     <!-- Descriptive Title -->
-    <div class="appointment-title-section">
+    <div class="appointment-title-section" style="view-transition-name: appointment-title-section">
       <h1 class="appointment-title">
         {{ appointment()?.nom }} - {{ formatDate(appointment()?.data) }}
         @if (appointment()?.hora) {
@@ -35,7 +35,7 @@
       <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
     </div>
 
-    <div class="perfil-content">
+    <div class="perfil-content" style="view-transition-name: appointment-content">
       <!-- Status Badge -->
       <div class="info-section">
         <h2>{{ 'COMMON.STATUS' | translate }}</h2>
