@@ -1,7 +1,7 @@
-<div class="perfil-container page-animation">
-  <div class="perfil-card">
+<div class="perfil-container page-animation" style="view-transition-name: perfil-container">
+  <div class="perfil-card" style="view-transition-name: perfil-card">
     <!-- Header -->
-    <div class="perfil-header">
+    <div class="perfil-header" style="view-transition-name: perfil-header">
       <div class="avatar-section">
         <div class="avatar">
           <span class="avatar-text">{{ displayName().charAt(0).toUpperCase() }}</span>
@@ -21,7 +21,7 @@
 
     <!-- User Information -->
     @if (!isLoading() && user()) {
-    <div class="perfil-content">
+    <div class="perfil-content" style="view-transition-name: perfil-content">
       <div class="info-section">
         <h2>{{ 'PROFILE.PERSONAL_INFO' | translate }}</h2>
 

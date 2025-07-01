@@ -12,35 +12,42 @@ export const routes: Routes = [
   {
     path: '',
     component: LandingPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'landing' }
   },
   {
     path: 'login',
-    component: LoginPageComponent
+    component: LoginPageComponent,
+    data: { viewTransitionName: 'login' }
   },
   {
     path: 'register',
-    component: RegisterPageComponent
+    component: RegisterPageComponent,
+    data: { viewTransitionName: 'register' }
   },
   {
     path: 'booking',
     component: BookingPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'booking' }
   },
   {
     path: 'appointments',
     component: AppointmentsPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'appointments' }
   },
   {
     path: 'appointments/:id',
     component: AppointmentDetailPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'appointment-detail' }
   },
   {
     path: 'perfil',
     component: PerfilPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'perfil' }
   },
   {
     path: '**',

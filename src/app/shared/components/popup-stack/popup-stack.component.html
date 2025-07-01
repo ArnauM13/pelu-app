@@ -1,9 +1,10 @@
 @if (hasPopups()) {
-<div class="popup-stack-overlay" (click)="onBackdropClick($event)">
+<div class="popup-stack-overlay" (click)="onBackdropClick($event)" style="view-transition-name: popup-stack-overlay">
   @for (popup of popups(); track popup.id; let i = $index) {
   <div class="popup-container"
        [style]="getPopupStyle(i)"
-       [class.closing]="isClosing(popup.id)">
+       [class.closing]="isClosing(popup.id)"
+       style="view-transition-name: popup-stack-container">
     <div class="popup-content">
       @if (isFiltersPopup(popup)) {
         <pelu-filters-popup
