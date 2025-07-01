@@ -126,6 +126,20 @@ export class CalendarComponent {
     return this.selectedDay() ? isSameDay(this.selectedDay()!, date) : false;
   }
 
+  // Check if a time slot is selected
+  isTimeSlotSelected(date: Date, time: string): boolean {
+    const selected = this.selectedDateTime();
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return selected.date === dateStr && selected.time === time;
+  }
+
+  // Get event for a specific time slot
+  getEventForTimeSlot(date: Date, time: string) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const eventKey = `${dateStr}T${time}`;
+    return this.events().find(event => event.start === eventKey);
+  }
+
   previousWeek() {
     this.viewDateSignal.set(addDays(this.viewDate(), -7));
     this.selectedDaySignal.set(null); // Clear selection when changing weeks

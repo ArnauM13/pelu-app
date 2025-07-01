@@ -1,9 +1,9 @@
 <p-toast></p-toast>
 
 <div class="container" style="margin-top: 2rem; view-transition-name: booking-container">
-  <div class="grid grid-2" style="margin-bottom: 2rem; view-transition-name: booking-grid">
-    <!-- Calendar Section -->
-    <pelu-card style="view-transition-name: calendar-card">
+  <div class="booking-layout" style="margin-bottom: 2rem; view-transition-name: booking-grid">
+    <!-- Calendar Section - Horizontal Layout -->
+    <pelu-card class="calendar-section" style="view-transition-name: calendar-card">
       <h2 style="margin-top: 0;">{{ 'COMMON.CALENDAR_BOOKING' | translate }}</h2>
       <pelu-calendar-component
         [events]="events()"
@@ -11,8 +11,8 @@
         (dateSelected)="onDateSelected($event)" />
     </pelu-card>
 
-    <!-- Manual Booking Section -->
-    <pelu-card style="view-transition-name: manual-booking-card">
+    <!-- Manual Booking Section - Smaller Size -->
+    <pelu-card class="manual-booking-section" style="view-transition-name: manual-booking-card">
       <h2 style="margin-top: 0;">{{ 'COMMON.MANUAL_BOOKING' | translate }}</h2>
       <div class="form-group">
         <label for="nom">{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
