@@ -28,7 +28,6 @@
   background: white;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -144,7 +143,6 @@
 .day-time-slot {
   height: 50px;
   border-bottom: 1px solid #f1f3f4;
-  transition: all 0.2s ease;
   position: relative;
   display: flex;
   align-items: center;
@@ -169,7 +167,6 @@
 
 .day-time-slot.available:hover {
   background: #c3e6cb;
-  transform: scale(1.02);
 }
 
 .day-time-slot.booked {
@@ -231,12 +228,10 @@
   border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
   position: relative;
 }
 
 .day-card:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-color: #3b82f6;
 }
@@ -305,7 +300,6 @@
   border-radius: 6px;
   background: white;
   cursor: pointer;
-  transition: all 0.2s ease;
   font-size: 0.8rem;
   font-weight: 500;
   text-align: center;
@@ -315,7 +309,6 @@
   background: #e3f2fd;
   border-color: #3b82f6;
   color: #3b82f6;
-  transform: translateY(-1px);
 }
 
 .time-slot-btn.available {
@@ -327,7 +320,6 @@
 .time-slot-btn.available:hover {
   background: #c3e6cb;
   border-color: #b1dfbb;
-  transform: translateY(-1px);
 }
 
 .time-slot-btn.booked {
@@ -407,7 +399,6 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
 }
 
 .close-btn:hover {
@@ -465,7 +456,6 @@
   border: 1px solid #dee2e6;
   border-radius: 6px;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input:focus {
@@ -487,7 +477,6 @@
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
   border: 1px solid transparent;
   font-size: 0.9rem;
 }
@@ -506,7 +495,6 @@
 .btn-primary:hover:not(:disabled) {
   background: #2563eb;
   border-color: #2563eb;
-  transform: translateY(-1px);
 }
 
 .btn-secondary {

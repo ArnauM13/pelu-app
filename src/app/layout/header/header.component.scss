@@ -35,11 +35,10 @@
   width: 45px;
   height: 45px;
   object-fit: contain;
-  transition: transform 0.3s ease;
 }
 
 .logo:hover {
-  transform: scale(1.05);
+  /* Removed transform effect */
 }
 
 .nav {
@@ -56,7 +55,6 @@
   padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 500;
-  transition: all 0.2s ease-in-out;
   position: relative;
 }
 
@@ -89,7 +87,6 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s ease-in-out;
 }
 
 .logout-btn:hover:not(:disabled) {

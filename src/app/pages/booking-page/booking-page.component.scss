@@ -161,7 +161,6 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background-color: var(--surface-color);
 }
 
@@ -177,7 +176,6 @@
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
   border: 1px solid transparent;
   font-size: 0.9rem;
 }
@@ -196,7 +194,6 @@
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-color-dark);
   border-color: var(--primary-color-dark);
-  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -232,18 +229,6 @@
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  animation: popupSlideIn 0.3s ease-out;
-}
-
-@keyframes popupSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 .popup-header {
@@ -271,7 +256,6 @@
   color: #6c757d;
   padding: 0.25rem;
   border-radius: 4px;
-  transition: all 0.2s ease;
   width: 32px;
   height: 32px;
   display: flex;
@@ -323,7 +307,6 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background-color: white;
 }
 
@@ -385,12 +368,10 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   padding: 1rem;
-  transition: all 0.2s ease;
 }
 
 .appointment-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
 }
 
 .delete-btn {
