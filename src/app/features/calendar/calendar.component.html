@@ -2,14 +2,14 @@
   <!-- Calendar Header -->
   <div class="calendar-header">
     <div class="calendar-navigation">
-      <button class="nav-btn" (click)="previousWeek()">
-        <i class="pi pi-chevron-left"></i>
+      <button class="nav-btn" (click)="previousWeek()" title="Setmana anterior">
+        <i class="pi pi-arrow-left"></i>
       </button>
-      <button class="nav-btn today-btn" (click)="today()">
+      <button class="nav-btn today-btn" (click)="today()" title="Anar a avui">
         Avui
       </button>
-      <button class="nav-btn" (click)="nextWeek()">
-        <i class="pi pi-chevron-right"></i>
+      <button class="nav-btn" (click)="nextWeek()" title="Setmana següent">
+        <i class="pi pi-arrow-right"></i>
       </button>
     </div>
     <div class="calendar-title">

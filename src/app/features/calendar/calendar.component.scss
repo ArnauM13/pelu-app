@@ -12,8 +12,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .calendar-navigation {
@@ -23,37 +23,56 @@
 }
 
 .nav-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #dee2e6;
-  background: white;
-  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  min-width: 36px;
+  height: 36px;
 }
 
 .nav-btn:hover {
-  background: #e9ecef;
-  border-color: #adb5bd;
+  background: var(--surface-color-hover);
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.nav-btn:active {
+  transform: translateY(1px);
+}
+
+.nav-btn i {
+  font-size: 1rem;
+  color: var(--primary-color);
 }
 
 .today-btn {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
+  background: var(--primary-color);
+  color: var(--text-color-white);
+  border-color: var(--primary-color);
+  font-weight: 600;
+  min-width: 60px;
+  font-size: 0.85rem;
 }
 
 .today-btn:hover {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
 }
 
 .calendar-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #495057;
+  color: var(--text-color);
 }
 
 .calendar-body {
@@ -192,6 +211,33 @@
 
 // Responsive adjustments
 @media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .calendar-navigation {
+    gap: 0.5rem;
+  }
+
+  .nav-btn {
+    padding: 0.4rem 0.6rem;
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .today-btn {
+    min-width: 50px;
+    font-size: 0.8rem;
+  }
+
+  .calendar-title {
+    font-size: 1.1rem;
+    padding: 0.4rem 0.8rem;
+  }
+
   .horizontal-week-view {
     min-width: 600px;
   }
