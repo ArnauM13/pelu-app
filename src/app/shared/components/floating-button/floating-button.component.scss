@@ -9,7 +9,6 @@
   font-weight: 600;
   box-shadow: var(--box-shadow);
   cursor: pointer;
-  transition: all 0.2s;
   outline: none;
   pointer-events: auto;
   user-select: none;
@@ -75,7 +74,6 @@
   color: white;
   border-color: var(--primary-color-dark);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-  transform: scale(1.05);
 }
 
 .floating-button--success.floating-button--active,
@@ -99,7 +97,6 @@
   background: var(--primary-color-lighter);
   color: var(--primary-color-dark);
   border-color: var(--primary-color);
-  transform: translateY(-2px);
   box-shadow: var(--box-shadow-hover);
 }
 
