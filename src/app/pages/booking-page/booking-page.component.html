@@ -56,49 +56,10 @@
 </div>
 
 <!-- Booking Confirmation Popup -->
-@if (showBookingPopup()) {
-<div class="booking-popup-overlay" (click)="closeBookingPopup()">
-  <div class="booking-popup" (click)="$event.stopPropagation()">
-    <div class="popup-header">
-      <h3>{{ 'COMMON.BOOKING_CONFIRMATION' | translate }}</h3>
-      <button class="close-btn" (click)="closeBookingPopup()">×</button>
-    </div>
-
-    <div class="popup-body">
-      <div class="booking-info">
-        <div class="info-row">
-          <span class="label">{{ 'COMMON.DATE' | translate }}:</span>
-          <span class="value">{{ formatDate(bookingDetails().date) }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">{{ 'COMMON.TIME' | translate }}:</span>
-          <span class="value">{{ bookingDetails().time }}</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="clientName">{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
-        <input
-          type="text"
-          id="clientName"
-          [value]="bookingDetails().clientName"
-          (input)="updateBookingClientName($any($event.target).value)"
-          [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
-          class="form-input"
-          (keyup.enter)="confirmBooking()"
-          autofocus>
-      </div>
-    </div>
-
-    <div class="popup-footer">
-      <button class="btn btn-secondary" (click)="closeBookingPopup()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button
-        class="btn btn-primary"
-        (click)="confirmBooking()"
-        [disabled]="!canConfirmBooking()">
-        {{ 'COMMON.CONFIRM_BOOKING' | translate }}
-      </button>
-    </div>
-  </div>
-</div>
-}
+<pelu-booking-popup
+  [open]="showBookingPopup()"
+  [bookingDetails]="bookingDetails()"
+  (confirmed)="onBookingConfirmed($event)"
+  (cancelled)="onBookingCancelled()"
+  (clientNameChanged)="onBookingClientNameChanged($event)">
+</pelu-booking-popup>
