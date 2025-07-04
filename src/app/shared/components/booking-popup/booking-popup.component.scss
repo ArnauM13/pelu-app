@@ -130,13 +130,13 @@
   color: #495057 !important;
 }
 
-/* Service Select Styles - Enhanced for better appearance */
+/* Service Dropdown Styles - Enhanced for better appearance */
 .service-select {
   width: 100%;
 }
 
-/* Enhanced select button styling */
-.service-select ::ng-deep .p-select {
+/* Enhanced dropdown button styling */
+.service-select ::ng-deep .p-dropdown {
   background-color: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -150,18 +150,18 @@
   box-shadow: none;
 }
 
-.service-select ::ng-deep .p-select:hover {
+.service-select ::ng-deep .p-dropdown:hover {
   border-color: #3b82f6 !important;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
-.service-select ::ng-deep .p-select:focus-within {
+.service-select ::ng-deep .p-dropdown:focus-within {
   border-color: #3b82f6 !important;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
   outline: none !important;
 }
 
-.service-select ::ng-deep .p-select-trigger {
+.service-select ::ng-deep .p-dropdown-trigger {
   background-color: white !important;
   border: none !important;
   padding: 0 !important;
@@ -169,7 +169,7 @@
   backdrop-filter: none !important;
 }
 
-.service-select ::ng-deep .p-select-label {
+.service-select ::ng-deep .p-dropdown-label {
   background-color: white !important;
   color: #495057 !important;
   font-size: 1rem !important;
@@ -177,12 +177,12 @@
   backdrop-filter: none !important;
 }
 
-.service-select ::ng-deep .p-select-label.p-placeholder {
+.service-select ::ng-deep .p-dropdown-label.p-placeholder {
   color: #6c757d !important;
 }
 
 /* Enhanced dropdown panel styling */
-.service-select ::ng-deep .p-select-panel {
+.service-select ::ng-deep .p-dropdown-panel {
   background-color: white !important;
   border: 1px solid #dee2e6 !important;
   border-radius: 8px !important;
@@ -193,13 +193,13 @@
   z-index: 1000 !important;
 }
 
-.service-select ::ng-deep .p-select-items-wrapper {
+.service-select ::ng-deep .p-dropdown-items-wrapper {
   background-color: white !important;
   padding: 0 !important;
   backdrop-filter: none !important;
 }
 
-.service-select ::ng-deep .p-select-item {
+.service-select ::ng-deep .p-dropdown-item {
   background-color: white !important;
   color: #495057 !important;
   padding: 0 !important;
@@ -210,21 +210,57 @@
   margin: 0 !important;
 }
 
-.service-select ::ng-deep .p-select-item:hover {
+.service-select ::ng-deep .p-dropdown-item:hover {
   background-color: transparent !important;
 }
 
-.service-select ::ng-deep .p-select-item.p-highlight {
+.service-select ::ng-deep .p-dropdown-item.p-highlight {
   background-color: transparent !important;
   color: #495057 !important;
 }
+
+
+
+
+
+/* Clear button styling */
+.service-select ::ng-deep .p-dropdown-clear-icon {
+  color: #6c757d !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0.25rem !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  position: absolute !important;
+  right: 0.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.service-select ::ng-deep .p-dropdown-clear-icon:hover {
+  color: #dc3545 !important;
+  background-color: #f8f9fa !important;
+  transform: scale(1.1) !important;
+}
+
+.service-select ::ng-deep .p-dropdown-clear-icon:active {
+  transform: scale(0.95) !important;
+}
+
+
 
 /* Service option styles for the template */
 .service-option {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   width: 100%;
   gap: 0.75rem;
   background-color: white !important;
@@ -241,7 +277,7 @@
 }
 
 .service-option.selected {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem;
   background-color: white !important;
   border-bottom: 1px solid #f0f0f0 !important;
 }
@@ -257,46 +293,47 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 0.25rem;
+  gap: 0.15rem;
 }
 
 .service-name {
   font-weight: 600;
   color: #495057;
   font-size: 0.9rem;
+  line-height: 1.2;
 }
 
 .service-description {
   color: #6c757d;
-  font-size: 0.8rem;
-  line-height: 1.3;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .service-meta {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: center;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 
 .service-duration {
   color: #6c757d;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .service-popular {
   background-color: #fff3cd;
   color: #856404;
-  font-size: 0.7rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 12px;
+  font-size: 0.65rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 10px;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .service-details {
@@ -305,12 +342,14 @@
   align-items: flex-end;
   text-align: right;
   min-width: 60px;
+  gap: 0.1rem;
 }
 
 .service-price {
   font-weight: 600;
   color: #3b82f6;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
 }
 
 /* Service Summary Styles */

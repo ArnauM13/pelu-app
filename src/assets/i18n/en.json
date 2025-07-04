@@ -48,6 +48,7 @@
     "CLIENT": "Client",
     "SERVICE": "Service",
     "SELECT_SERVICE": "Select a service",
+    "SEARCH_SERVICES": "Search services...",
     "DURATION": "Duration",
     "PRICE": "Price",
     "QUICK_BOOKING": "Quick Booking",

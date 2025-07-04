@@ -4,7 +4,7 @@
 @import "primeicons/primeicons.css";
 
 /* PrimeNG Overrides to fix transparency issues */
-.p-select {
+.p-dropdown {
   background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
@@ -16,37 +16,37 @@
   transition: all 0.2s ease !important;
 }
 
-.p-select:hover {
+.p-dropdown:hover {
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
 }
 
-.p-select:focus-within {
+.p-dropdown:focus-within {
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
   outline: none !important;
 }
 
-.p-select .p-select-trigger {
+.p-dropdown .p-dropdown-trigger {
   background-color: white !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
 }
 
-.p-select .p-select-label {
+.p-dropdown .p-dropdown-label {
   background-color: white !important;
   color: var(--text-color) !important;
   font-size: 1rem !important;
   line-height: 1.5 !important;
 }
 
-.p-select .p-select-label.p-placeholder {
+.p-dropdown .p-dropdown-label.p-placeholder {
   color: var(--text-color-light) !important;
 }
 
 /* Dropdown panel styles */
-.p-select-panel {
+.p-dropdown-panel {
   background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
@@ -57,12 +57,12 @@
   z-index: 1000 !important;
 }
 
-.p-select-items-wrapper {
+.p-dropdown-items-wrapper {
   background-color: white !important;
   padding: 0.5rem 0 !important;
 }
 
-.p-select-item {
+.p-dropdown-item {
   background-color: white !important;
   color: var(--text-color) !important;
   padding: 0.75rem 1rem !important;
@@ -71,13 +71,101 @@
   transition: background-color 0.2s ease !important;
 }
 
-.p-select-item:hover {
+.p-dropdown-item:hover {
   background-color: var(--surface-color-hover) !important;
 }
 
-.p-select-item.p-highlight {
+.p-dropdown-item.p-highlight {
   background-color: var(--primary-color-lighter) !important;
   color: var(--text-color) !important;
+}
+
+/* Filter input styles */
+.p-dropdown-filter {
+  width: 100% !important;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  background-color: white !important;
+  color: var(--text-color) !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+.p-dropdown-filter:focus {
+  outline: none !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
+}
+
+.p-dropdown-filter:hover {
+  border-color: var(--primary-color) !important;
+}
+
+.p-dropdown-filter::placeholder {
+  color: var(--text-color-light) !important;
+  opacity: 1 !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+}
+
+/* Search icon styles - positioned on the left */
+.p-dropdown-filter-icon {
+  position: absolute !important;
+  left: 0.75rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: var(--text-color-light) !important;
+  font-size: 1rem !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+/* Clear button styles */
+.p-dropdown-clear-icon {
+  color: var(--text-color-light) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0.25rem !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  position: absolute !important;
+  right: 0.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.p-dropdown-clear-icon:hover {
+  color: var(--error-color) !important;
+  background-color: var(--surface-color-hover) !important;
+  transform: scale(1.1) !important;
+}
+
+.p-dropdown-clear-icon:active {
+  transform: scale(0.95) !important;
+}
+
+/* Filter container styles */
+.p-dropdown-filter-container {
+  background-color: white !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 0.75rem !important;
+  position: relative !important;
+}
+
+/* Remove the pseudo-elements for search icon and label */
+.p-dropdown-filter-container::before,
+.p-dropdown-filter-container::after {
+  display: none !important;
 }
 
 /* Additional styles for p-select dropdown items */
@@ -121,6 +209,7 @@
   color: var(--text-color) !important;
   border-bottom: 1px solid var(--border-color-light) !important;
   transition: background-color 0.2s ease !important;
+  padding: 0.5rem 1rem !important;
 }
 
 .service-option:hover {
@@ -129,6 +218,10 @@
 
 .service-option:last-child {
   border-bottom: none !important;
+}
+
+.service-option.selected {
+  padding: 0.4rem 1rem !important;
 }
 
 .service-option .service-info {

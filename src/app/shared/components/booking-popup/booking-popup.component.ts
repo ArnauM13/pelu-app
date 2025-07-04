@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
+import { DropdownModule } from 'primeng/dropdown';
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface Service {
@@ -13,7 +13,14 @@ export interface Service {
   price: number;
   duration: number; // in minutes
   category: 'haircut' | 'beard' | 'treatment' | 'styling';
+  icon: string;
   popular?: boolean;
+}
+
+export interface ServiceCategory {
+  id: 'haircut' | 'beard' | 'treatment' | 'styling';
+  name: string;
+  icon: string;
 }
 
 export interface BookingDetails {
@@ -31,7 +38,7 @@ export interface BookingDetails {
     FormsModule,
     ButtonModule,
     InputTextModule,
-    SelectModule,
+    DropdownModule,
     TranslateModule
   ],
   templateUrl: './booking-popup.component.html',
@@ -52,6 +59,20 @@ export class BookingPopupComponent {
   // Local state for service selection
   readonly selectedService = signal<Service | undefined>(undefined);
 
+  // Service categories configuration
+  readonly serviceCategories: ServiceCategory[] = [
+    { id: 'haircut', name: 'Cortes', icon: '✂️' },
+    { id: 'beard', name: 'Barba', icon: '🧔' },
+    { id: 'treatment', name: 'Tractaments', icon: '💆' },
+    { id: 'styling', name: 'Peinats', icon: '💇' }
+  ];
+
+  // Helper method to get category icon
+  getCategoryIcon(categoryId: string): string {
+    const category = this.serviceCategories.find(cat => cat.id === categoryId);
+    return category?.icon || '✂️';
+  }
+
   // Default services if none provided
   readonly defaultServices: Service[] = [
     {
@@ -61,6 +82,7 @@ export class BookingPopupComponent {
       price: 25,
       duration: 30,
       category: 'haircut',
+      icon: '✂️',
       popular: true
     },
     {
@@ -69,7 +91,8 @@ export class BookingPopupComponent {
       description: 'Corte complet amb afaitat de barba inclòs',
       price: 35,
       duration: 45,
-      category: 'haircut'
+      category: 'haircut',
+      icon: '✂️'
     },
     {
       id: '3',
@@ -77,7 +100,8 @@ export class BookingPopupComponent {
       description: 'Afaitat tradicional amb navalla o màquina',
       price: 15,
       duration: 20,
-      category: 'beard'
+      category: 'beard',
+      icon: '🧔'
     },
     {
       id: '4',
@@ -85,7 +109,8 @@ export class BookingPopupComponent {
       description: 'Perfilat i arreglada de barba',
       price: 12,
       duration: 15,
-      category: 'beard'
+      category: 'beard',
+      icon: '🧔'
     },
     {
       id: '5',
@@ -93,7 +118,8 @@ export class BookingPopupComponent {
       description: 'Lavada professional amb productes de qualitat',
       price: 18,
       duration: 25,
-      category: 'treatment'
+      category: 'treatment',
+      icon: '💆'
     },
     {
       id: '6',
@@ -101,7 +127,8 @@ export class BookingPopupComponent {
       description: 'Coloració completa o retocs',
       price: 45,
       duration: 60,
-      category: 'treatment'
+      category: 'treatment',
+      icon: '💆'
     },
     {
       id: '7',
@@ -109,7 +136,8 @@ export class BookingPopupComponent {
       description: 'Peinat per a esdeveniments especials',
       price: 30,
       duration: 40,
-      category: 'styling'
+      category: 'styling',
+      icon: '💇'
     },
     {
       id: '8',
@@ -117,7 +145,8 @@ export class BookingPopupComponent {
       description: 'Corte especialitzat per a nens',
       price: 18,
       duration: 25,
-      category: 'haircut'
+      category: 'haircut',
+      icon: '✂️'
     }
   ];
 
