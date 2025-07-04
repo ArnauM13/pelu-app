@@ -1,0 +1,46 @@
+@if (open()) {
+<div class="booking-popup-overlay" (click)="onBackdropClick($event)">
+  <div class="booking-popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <h3>{{ 'COMMON.BOOKING_CONFIRMATION' | translate }}</h3>
+      <button class="close-btn" (click)="onClose()">×</button>
+    </div>
+
+    <div class="popup-body">
+      <div class="booking-info">
+        <div class="info-row">
+          <span class="label">{{ 'COMMON.DATE' | translate }}:</span>
+          <span class="value">{{ formatDate(bookingDetails().date) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'COMMON.TIME' | translate }}:</span>
+          <span class="value">{{ bookingDetails().time }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="clientName">{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
+        <input
+          type="text"
+          id="clientName"
+          [value]="bookingDetails().clientName"
+          (input)="onClientNameChange($any($event.target).value)"
+          [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
+          class="form-input"
+          (keyup.enter)="onConfirm()"
+          autofocus>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <button class="btn btn-secondary" (click)="onClose()">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button
+        class="btn btn-primary"
+        (click)="onConfirm()"
+        [disabled]="!canConfirm()">
+        {{ 'COMMON.CONFIRM_BOOKING' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+}

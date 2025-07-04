@@ -14,8 +14,8 @@ import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
-import { PopupStackComponent, PopupItem } from '../../shared/components/popup-stack/popup-stack.component';
-import { FiltersPopupComponent } from '../../shared/components/filters-popup/filters-popup.component';
+
+import { FiltersInlineComponent } from '../../shared/components/filters-inline/filters-inline.component';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -31,7 +31,7 @@ import { FiltersPopupComponent } from '../../shared/components/filters-popup/fil
     TranslateModule,
     CardComponent,
     FloatingButtonComponent,
-    PopupStackComponent
+    FiltersInlineComponent
   ],
   providers: [MessageService],
   templateUrl: './appointments-page.component.html',
@@ -53,7 +53,6 @@ export class AppointmentsPageComponent {
   #quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'past' | 'mine'>('all');
 
   // UI state signals
-  #popupStackSignal = signal<PopupItem[]>([]);
   #showAdvancedFiltersSignal = signal<boolean>(false);
 
   // Public computed signals
@@ -63,7 +62,6 @@ export class AppointmentsPageComponent {
   readonly filterDate = computed(() => this.#filterDateSignal());
   readonly filterClient = computed(() => this.#filterClientSignal());
   readonly quickFilter = computed(() => this.#quickFilterSignal());
-  readonly popupStack = computed(() => this.#popupStackSignal());
   readonly showAdvancedFilters = computed(() => this.#showAdvancedFiltersSignal());
 
   // Computed filter buttons with reactive state
@@ -209,6 +207,13 @@ export class AppointmentsPageComponent {
     }).length;
   });
 
+  readonly myAppointments = computed(() => {
+    const currentUser = localStorage.getItem('currentUser') || 'COMMON.ADMIN';
+    return this.cites().filter(cita => cita.userId === currentUser || !cita.userId).length;
+  });
+
+  readonly isMyAppointmentsActive = computed(() => this.quickFilter() === 'mine');
+
   // Computed helper methods
   readonly hasAdvancedFilters = computed(() =>
     this.filterDate() !== '' || this.filterClient() !== ''
@@ -269,7 +274,7 @@ export class AppointmentsPageComponent {
     }
   }
 
-  onStatCardClick(filter: 'all' | 'today' | 'upcoming') {
+  onStatCardClick(filter: 'all' | 'today' | 'upcoming' | 'mine') {
     this.applyQuickFilter(filter);
   }
 
@@ -297,45 +302,8 @@ export class AppointmentsPageComponent {
     this.#viewModeSignal.set(index === 0 ? 'list' : 'calendar');
   }
 
-  // Popup management
-  openFiltersPopup() {
-    // Check if there are advanced filter values and show them automatically
-    if (this.hasAdvancedFilters()) {
-      this.#showAdvancedFiltersSignal.set(true);
-    }
-
-    const filtersPopup: PopupItem = {
-      id: 'filters',
-      size: 'small',
-      content: FiltersPopupComponent,
-      data: {
-        filterButtons: this.filterButtons,
-        filterDate: this.filterDate,
-        filterClient: this.filterClient,
-        showAdvancedFilters: this.showAdvancedFilters
-      },
-      onFilterClick: (index: number) => this.onFilterClick(index),
-      onDateChange: (value: string) => this.onDateChange(value),
-      onClientChange: (value: string) => this.onClientChange(value),
-      onReset: () => this.onResetFilters(),
-      onToggleAdvanced: () => this.toggleAdvancedFilters()
-    };
-
-    this.#popupStackSignal.set([filtersPopup]);
-  }
-
-  closePopup(popupId: string) {
-    this.#popupStackSignal.update(stack => stack.filter(popup => popup.id !== popupId));
-
-    // Only hide advanced filters when closing the popup if there are no values
-    if (popupId === 'filters' && !this.hasAdvancedFilters()) {
-      this.#showAdvancedFiltersSignal.set(false);
-    }
-  }
-
   onResetFilters() {
     this.clearFilters();
-    this.closePopup('filters');
   }
 
   // Utility methods

@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* PrimeNG Icons */
+@import "primeicons/primeicons.css";
+
 /* PrimeNG CSS Variables for consistent theming */
 :root {
   /* Nova gama cromàtica - Tons de blau */
@@ -59,7 +62,6 @@ body {
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
   text-decoration: none;
   display: inline-block;
   text-align: center;
@@ -75,8 +77,6 @@ body {
 .btn-primary:hover {
   background-color: var(--primary-color-dark);
   border-color: var(--primary-color-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--box-shadow-hover);
 }
 
 .btn-secondary {
@@ -109,11 +109,9 @@ body {
   box-shadow: var(--box-shadow);
   padding: 1.5rem;
   margin-bottom: 1rem;
-  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 .card:hover {
-  transform: translateY(-2px);
   box-shadow: var(--box-shadow-hover);
 }
 
@@ -124,7 +122,6 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background-color: #fff;
   color: #222;
 }
@@ -139,7 +136,6 @@ body {
 a {
   color: var(--primary-color);
   text-decoration: none;
-  transition: color 0.2s ease;
 }
 
 a:hover {
@@ -159,7 +155,6 @@ h3 { font-size: 1.25rem; }
 
 /* Estils per containers */
 .container {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -278,8 +273,6 @@ h3 { font-size: 1.25rem; }
   }
 }
 
-/* View Transitions - handled by withViewTransitions() */
-
 /* Estils per espaiat */
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
@@ -321,7 +314,6 @@ h3 { font-size: 1.25rem; }
 .firebaseui-idp-button {
   position: relative !important;
   transform: none !important;
-  transition: none !important;
 }
 
 .firebaseui-idp-button:hover {

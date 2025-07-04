@@ -1,20 +1,7 @@
 <p-toast></p-toast>
 
 <div class="container" style="view-transition-name: appointments-container">
-  <!-- Botó de menú lateral (filtres) a dalt a l'esquerra -->
-  @if (popupStack().length === 0) {
-    <div class="menu-filters-fab">
-      <pelu-floating-button
-        [config]="{ icon: '☰', tooltip: 'COMMON.FILTERS' | translate, ariaLabel: 'COMMON.OPEN_FILTERS' | translate, variant: 'primary', size: 'large', isActive: popupStack().length > 0 }"
-        (clicked)="openFiltersPopup()">
-      </pelu-floating-button>
-    </div>
-  }
-  <!-- Popup Stack -->
-  <pelu-popup-stack
-    [popups]="popupStack()"
-    (popupClosed)="closePopup($event)">
-  </pelu-popup-stack>
+
 
   <!-- Statistics Cards -->
   <div class="stats-grid" style="view-transition-name: stats-grid">
@@ -41,7 +28,28 @@
         <div class="stat-label">{{ 'COMMON.UPCOMING_APPOINTMENTS' | translate }}</div>
       </div>
     </div>
+
+    <div class="stat-card clickable" (click)="onStatCardClick('mine')">
+      <div class="stat-icon">👨</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ myAppointments() }}</div>
+        <div class="stat-label">{{ 'COMMON.MY_APPOINTMENTS' | translate }}</div>
+      </div>
+    </div>
   </div>
+
+  <!-- Inline Filters -->
+  <pelu-filters-inline
+    [filterButtons]="filterButtons"
+    [filterDate]="filterDate"
+    [filterClient]="filterClient"
+    [showAdvancedFilters]="showAdvancedFilters"
+    [onFilterClick]="onFilterClick"
+    [onDateChange]="onDateChange"
+    [onClientChange]="onClientChange"
+    [onReset]="onResetFilters"
+    [onToggleAdvanced]="toggleAdvancedFilters">
+  </pelu-filters-inline>
 
   <!-- View Mode Toggle (main action - right side) -->
   <div class="view-toggle-fab" role="group" [attr.aria-label]="'COMMON.CHANGE_VIEW' | translate">
