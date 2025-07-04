@@ -14,7 +14,6 @@ import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
-
 import { FiltersInlineComponent } from '../../shared/components/filters-inline/filters-inline.component';
 
 @Component({
@@ -206,21 +205,18 @@ export class AppointmentsPageComponent {
       return appointmentDate >= today;
     }).length;
   });
-
   readonly myAppointments = computed(() => {
     const currentUser = localStorage.getItem('currentUser') || 'COMMON.ADMIN';
     return this.cites().filter(cita => cita.userId === currentUser || !cita.userId).length;
   });
-
   readonly isMyAppointmentsActive = computed(() => this.quickFilter() === 'mine');
 
-  // Computed helper methods
   readonly hasAdvancedFilters = computed(() =>
     this.filterDate() !== '' || this.filterClient() !== ''
   );
 
   constructor() {
-    this.#loadAppointments();
+    this.loadAppointments();
   }
 
   // Filter management methods
@@ -307,7 +303,7 @@ export class AppointmentsPageComponent {
   }
 
   // Utility methods
-  #loadAppointments() {
+  loadAppointments() {
     const dades = localStorage.getItem('cites');
     if (dades) {
       const parsedData = JSON.parse(dades);
@@ -327,7 +323,7 @@ export class AppointmentsPageComponent {
 
   deleteAppointment(cita: any) {
     this.#citesSignal.update(cites => cites.filter(c => c.id !== cita.id));
-    this.#saveAppointments();
+    this.saveAppointments();
 
     this.#messageService.add({
       severity: 'success',
@@ -341,7 +337,7 @@ export class AppointmentsPageComponent {
     this.#router.navigate(['/appointments', cita.id]);
   }
 
-  #saveAppointments() {
+  saveAppointments() {
     localStorage.setItem('cites', JSON.stringify(this.cites()));
   }
 

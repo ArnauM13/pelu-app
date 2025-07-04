@@ -3,6 +3,7 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
@@ -41,6 +42,7 @@ export const appConfig: ApplicationConfig = {
         defaultLanguage: 'ca',
         useDefaultLang: true
       })
-    )
+    ),
+    importProvidersFrom(BrowserAnimationsModule)
   ]
 };

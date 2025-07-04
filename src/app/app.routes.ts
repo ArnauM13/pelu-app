@@ -7,6 +7,7 @@ import { authGuard } from './auth/auth.guard';
 import { BookingPageComponent } from './pages/booking-page/booking-page.component';
 import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
 import { AppointmentDetailPageComponent } from './pages/appointment-detail-page/appointment-detail-page.component';
+import { ServicesPageComponent } from './pages/services-page/services-page.component';
 
 export const routes: Routes = [
   {
@@ -48,6 +49,11 @@ export const routes: Routes = [
     component: PerfilPageComponent,
     canActivate: [authGuard],
     data: { viewTransitionName: 'perfil' }
+  },
+  {
+    path: 'services',
+    component: ServicesPageComponent,
+    data: { viewTransitionName: 'services' }
   },
   {
     path: '**',

@@ -1,0 +1,174 @@
+<div class="services-page">
+  <div class="services-header">
+    <h1>Els Nostres Serveis</h1>
+    <p>Descobreix la nostra àmplia gamma de serveis professionals per a la teva imatge</p>
+  </div>
+
+  <div class="services-container">
+    <!-- Cortes Section -->
+    <section class="service-category">
+      <div class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('haircut') }}</span>
+        <h2>{{ getCategoryName('haircut') }}</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card" *ngFor="let service of getServicesByCategory('haircut')">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="service-card-header">
+                <h3>{{ service.name }}</h3>
+                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <p class="service-description">{{ service.description }}</p>
+              <div class="service-details">
+                <div class="service-info">
+                  <span class="duration">⏱️ {{ service.duration }} min</span>
+                </div>
+                <div class="service-price">
+                  <span class="price">{{ service.price }}€</span>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p-button
+                label="Reservar"
+                icon="pi pi-calendar-plus"
+                severity="primary"
+                (onClick)="onBookService(service)">
+              </p-button>
+            </ng-template>
+          </p-card>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barba Section -->
+    <section class="service-category">
+      <div class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('beard') }}</span>
+        <h2>{{ getCategoryName('beard') }}</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card" *ngFor="let service of getServicesByCategory('beard')">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="service-card-header">
+                <h3>{{ service.name }}</h3>
+                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <p class="service-description">{{ service.description }}</p>
+              <div class="service-details">
+                <div class="service-info">
+                  <span class="duration">⏱️ {{ service.duration }} min</span>
+                </div>
+                <div class="service-price">
+                  <span class="price">{{ service.price }}€</span>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p-button
+                label="Reservar"
+                icon="pi pi-calendar-plus"
+                severity="primary"
+                (onClick)="onBookService(service)">
+              </p-button>
+            </ng-template>
+          </p-card>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tractaments Section -->
+    <section class="service-category">
+      <div class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('treatment') }}</span>
+        <h2>{{ getCategoryName('treatment') }}</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card" *ngFor="let service of getServicesByCategory('treatment')">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="service-card-header">
+                <h3>{{ service.name }}</h3>
+                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <p class="service-description">{{ service.description }}</p>
+              <div class="service-details">
+                <div class="service-info">
+                  <span class="duration">⏱️ {{ service.duration }} min</span>
+                </div>
+                <div class="service-price">
+                  <span class="price">{{ service.price }}€</span>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p-button
+                label="Reservar"
+                icon="pi pi-calendar-plus"
+                severity="primary"
+                (onClick)="onBookService(service)">
+              </p-button>
+            </ng-template>
+          </p-card>
+        </div>
+      </div>
+    </section>
+
+    <!-- Peinats Section -->
+    <section class="service-category">
+      <div class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('styling') }}</span>
+        <h2>{{ getCategoryName('styling') }}</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card" *ngFor="let service of getServicesByCategory('styling')">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="service-card-header">
+                <h3>{{ service.name }}</h3>
+                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <p class="service-description">{{ service.description }}</p>
+              <div class="service-details">
+                <div class="service-info">
+                  <span class="duration">⏱️ {{ service.duration }} min</span>
+                </div>
+                <div class="service-price">
+                  <span class="price">{{ service.price }}€</span>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p-button
+                label="Reservar"
+                icon="pi pi-calendar-plus"
+                severity="primary"
+                (onClick)="onBookService(service)">
+              </p-button>
+            </ng-template>
+          </p-card>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="services-footer">
+    <p>Preus orientatius. Els preus poden variar segons la complexitat del servei.</p>
+    <p-button
+      label="Tornar a l'inici"
+      icon="pi pi-home"
+      severity="secondary"
+      routerLink="/">
+    </p-button>
+  </div>
+</div>

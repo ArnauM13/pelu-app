@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 
-<div class="container" style="view-transition-name: appointments-container">
+<div class="container pelu-appointments-page" style="view-transition-name: appointments-container">
 
 
   <!-- Statistics Cards -->
@@ -125,6 +125,12 @@
                   <span class="detail-text">{{ formatTime(cita.hora) }}</span>
                 </div>
                 }
+                @if (cita.servei) {
+                <div class="detail-item">
+                  <span class="detail-icon">✂️</span>
+                  <span class="detail-text">{{ cita.servei }}</span>
+                </div>
+                }
               </div>
             </div>
           </div>
@@ -207,6 +213,20 @@
               <div class="detail-item">
                 <span class="detail-icon">⏰</span>
                 <span class="detail-text">{{ formatTime(cita.hora) }}</span>
+              </div>
+              }
+
+              @if (cita.servei) {
+              <div class="detail-item">
+                <span class="detail-icon">✂️</span>
+                <span class="detail-text">{{ cita.servei }}</span>
+              </div>
+              }
+
+              @if (cita.preu && cita.preu > 0) {
+              <div class="detail-item">
+                <span class="detail-icon">💰</span>
+                <span class="detail-text">{{ cita.preu }}€</span>
               </div>
               }
             </div>
