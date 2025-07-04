@@ -21,45 +21,34 @@
       <!-- Service Selection -->
       <div class="form-group">
         <label for="serviceSelect">{{ 'COMMON.SERVICE' | translate }}:</label>
-        <p-select
+        <p-dropdown
           id="serviceSelect"
           [options]="services()"
           [(ngModel)]="selectedService"
           (onChange)="onServiceChange($event.value)"
           optionLabel="name"
           [placeholder]="'COMMON.SELECT_SERVICE' | translate"
+          [showClear]="true"
           class="service-select">
 
           <!-- Template for selected item -->
-          <ng-template pTemplate="selectedItem" let-service>
+          <ng-template pTemplate="selectedItem" let-selectedOption>
             <div class="service-option selected">
-              <div class="service-info">
-                <span class="service-name">{{ service.name }}</span>
-                <span class="service-price">{{ formatPrice(service.price) }}</span>
-              </div>
               <div class="service-icon">
-                @switch (service.category) {
-                  @case ('haircut') { ✂️ }
-                  @case ('beard') { 🧔 }
-                  @case ('treatment') { 💆 }
-                  @case ('styling') { 💇 }
-                  @default { ✂️ }
-                }
+                {{ selectedOption.icon }}
+              </div>
+              <div class="service-info">
+                <span class="service-name">{{ selectedOption.name }}</span>
+                <span class="service-price">{{ formatPrice(selectedOption.price) }}</span>
               </div>
             </div>
           </ng-template>
 
           <!-- Template for dropdown items -->
-          <ng-template pTemplate="item" let-service>
+          <ng-template let-service pTemplate="item">
             <div class="service-option">
               <div class="service-icon">
-                @switch (service.category) {
-                  @case ('haircut') { ✂️ }
-                  @case ('beard') { 🧔 }
-                  @case ('treatment') { 💆 }
-                  @case ('styling') { 💇 }
-                  @default { ✂️ }
-                }
+                {{ service.icon }}
               </div>
               <div class="service-info">
                 <span class="service-name">{{ service.name }}</span>
@@ -76,7 +65,7 @@
               </div>
             </div>
           </ng-template>
-        </p-select>
+        </p-dropdown>
       </div>
 
       <!-- Service Details (when selected) -->
