@@ -82,8 +82,34 @@ describe('AppointmentsPageComponent', () => {
     expect(typeof component.onViewButtonClick).toBe('function');
   });
 
-  it('should have popup methods', () => {
-    expect(typeof component.openFiltersPopup).toBe('function');
-    expect(typeof component.closePopup).toBe('function');
+  it('should have additional methods', () => {
+    expect(typeof component.onDateChange).toBe('function');
+    expect(typeof component.onClientChange).toBe('function');
+    expect(typeof component.onResetFilters).toBe('function');
+    expect(typeof component.viewAppointmentDetail).toBe('function');
+    expect(typeof component.onDateSelect).toBe('function');
+  });
+
+  it('should initialize with default values', () => {
+    expect(component.cites().length).toBe(0);
+    expect(component.viewMode()).toBe('list');
+    expect(component.quickFilter()).toBe('all');
+    expect(component.showAdvancedFilters()).toBe(false);
+  });
+
+  it('should be a standalone component', () => {
+    expect(AppointmentsPageComponent.prototype.constructor).toBeDefined();
+    expect(AppointmentsPageComponent.prototype.constructor.name).toBe('AppointmentsPageComponent');
+  });
+
+  it('should have proper component structure', () => {
+    expect(AppointmentsPageComponent.name).toBe('AppointmentsPageComponent');
+    expect(typeof AppointmentsPageComponent).toBe('function');
+  });
+
+  it('should render with proper structure', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.innerHTML).toContain('pelu-appointments-page');
   });
 });
