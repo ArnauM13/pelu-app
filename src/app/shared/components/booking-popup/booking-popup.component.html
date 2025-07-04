@@ -18,6 +18,56 @@
         </div>
       </div>
 
+      <!-- Service Selection -->
+      <div class="form-group">
+        <label for="serviceSelect">{{ 'COMMON.SERVICE' | translate }}:</label>
+        <p-select
+          id="serviceSelect"
+          [options]="services()"
+          [(ngModel)]="selectedService"
+          (onChange)="onServiceChange($event.value)"
+          optionLabel="name"
+          [placeholder]="'COMMON.SELECT_SERVICE' | translate"
+          class="service-select">
+          <ng-template pTemplate="selectedItem" let-service>
+            <div class="service-option">
+              <span class="service-name">{{ service.name }}</span>
+              <span class="service-price">{{ formatPrice(service.price) }}</span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-service>
+            <div class="service-option">
+              <div class="service-info">
+                <span class="service-name">{{ service.name }}</span>
+                <span class="service-description">{{ service.description }}</span>
+              </div>
+              <div class="service-details">
+                <span class="service-price">{{ formatPrice(service.price) }}</span>
+                <span class="service-duration">{{ formatDuration(service.duration) }}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Service Details (when selected) -->
+      @if (selectedService()) {
+      <div class="service-summary">
+        <div class="summary-row">
+          <span class="label">{{ 'COMMON.SERVICE' | translate }}:</span>
+          <span class="value">{{ selectedService()?.name }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">{{ 'COMMON.DURATION' | translate }}:</span>
+          <span class="value">{{ formatDuration(totalDuration()) }}</span>
+        </div>
+        <div class="summary-row total">
+          <span class="label">{{ 'COMMON.PRICE' | translate }}:</span>
+          <span class="value">{{ formatPrice(totalPrice()) }}</span>
+        </div>
+      </div>
+      }
+
       <div class="form-group">
         <label for="clientName">{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
         <input
