@@ -13,6 +13,7 @@ import { InfoItemData } from '../../shared/components/info-item/info-item.compon
 import { CalendarComponent } from '../../features/calendar/calendar.component';
 import { AuthService } from '../../auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
+import { BookingPopupComponent, BookingDetails } from '../../shared/components/booking-popup/booking-popup.component';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -27,7 +28,8 @@ import { CardComponent } from '../../shared/components/card/card.component';
     TooltipModule,
     TranslateModule,
     CalendarComponent,
-    CardComponent
+    CardComponent,
+    BookingPopupComponent
   ],
   providers: [MessageService],
   templateUrl: './booking-page.component.html',
@@ -38,7 +40,7 @@ export class BookingPageComponent {
   private readonly nouClientSignal = signal({ nom: '', data: '', hora: '' });
   private readonly citesSignal = signal<any[]>([]);
   private readonly showBookingPopupSignal = signal<boolean>(false);
-  private readonly bookingDetailsSignal = signal<{date: string, time: string, clientName: string}>({date: '', time: '', clientName: ''});
+  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: ''});
 
   // Public computed signals
   readonly nouClient = computed(() => this.nouClientSignal());
@@ -59,10 +61,7 @@ export class BookingPageComponent {
     return client.nom.trim() !== '' && client.data !== '';
   });
 
-  readonly canConfirmBooking = computed(() => {
-    const details = this.bookingDetails();
-    return details.clientName.trim() !== '';
-  });
+
 
   constructor(private messageService: MessageService, private authService: AuthService) {
     this.loadAppointments();
@@ -100,7 +99,7 @@ export class BookingPageComponent {
 
   private setDefaultClientName() {
     const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || 'COMMON.USER';
+    const defaultName = user?.displayName || user?.email || '';
     this.nouClientSignal.update(client => ({ ...client, nom: defaultName }));
   }
 
@@ -116,22 +115,15 @@ export class BookingPageComponent {
     this.nouClientSignal.update(client => ({ ...client, hora: value }));
   }
 
-  updateBookingClientName(value: string) {
-    this.bookingDetailsSignal.update(details => ({ ...details, clientName: value }));
-  }
-
   onDateSelected(selection: {date: string, time: string}) {
     // Show popup for confirmation
     const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || 'COMMON.USER';
+    const defaultName = user?.displayName || user?.email || '';
     this.bookingDetailsSignal.set({date: selection.date, time: selection.time, clientName: defaultName});
     this.showBookingPopupSignal.set(true);
   }
 
-  confirmBooking() {
-    const details = this.bookingDetails();
-    if (!this.canConfirmBooking()) return;
-
+  onBookingConfirmed(details: BookingDetails) {
     const nova = {
       nom: details.clientName,
       data: details.date,
@@ -150,9 +142,13 @@ export class BookingPageComponent {
     });
   }
 
-  closeBookingPopup() {
+  onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
+  }
+
+  onBookingClientNameChanged(value: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, clientName: value }));
   }
 
   afegirCita() {

@@ -2,14 +2,14 @@
   <!-- Calendar Header -->
   <div class="calendar-header">
     <div class="calendar-navigation">
-      <button class="nav-btn" (click)="previousWeek()">
-        <i class="pi pi-chevron-left"></i>
+      <button class="nav-btn" (click)="previousWeek()" title="Setmana anterior">
+        <i class="pi pi-arrow-left"></i>
       </button>
-      <button class="nav-btn today-btn" (click)="today()">
+      <button class="nav-btn today-btn" (click)="today()" title="Anar a avui">
         Avui
       </button>
-      <button class="nav-btn" (click)="nextWeek()">
-        <i class="pi pi-chevron-right"></i>
+      <button class="nav-btn" (click)="nextWeek()" title="Setmana següent">
+        <i class="pi pi-arrow-right"></i>
       </button>
     </div>
     <div class="calendar-title">
@@ -17,42 +17,38 @@
     </div>
   </div>
 
-  <!-- Weekly List View -->
+  <!-- Horizontal Weekly View -->
   <div class="calendar-body">
-    <div class="week-list">
+    <div class="horizontal-week-view">
+      <!-- Time column -->
+      <div class="time-column">
+        <div class="time-header">Hora</div>
+        @for (time of timeSlots(); track time; let k = $index) {
+        <div class="time-slot-label">{{ time }}</div>
+        }
+      </div>
+
+      <!-- Days columns -->
       @for (day of weekDays(); track day; let i = $index) {
-      <div class="day-card" [class.past]="isPastDate(day)" [class.selected]="isDaySelected(day)" (click)="selectDay(day)">
+      <div class="day-column" [class.past]="isPastDate(day)">
         <div class="day-header">
           <div class="day-name">{{ getDayName(day) }}</div>
           <div class="day-date">{{ format(day, 'dd/MM') }}</div>
         </div>
 
-        <div class="day-events">
-          @for (event of getEventsForDay(day); track $index + '-' + event.start; let j = $index) {
-          <div class="event-item">
-            <span class="event-time">{{ getEventTime(event.start) }}</span>
-            <span class="event-title">{{ event.title }}</span>
+        <!-- Time slots for this day -->
+        @for (time of timeSlots(); track time; let k = $index) {
+        <div class="day-time-slot"
+             [class.available]="isTimeSlotAvailable(day, time)"
+             [class.booked]="!isTimeSlotAvailable(day, time)"
+             [class.selected]="isDaySelected(day) && isTimeSlotSelected(day, time)"
+             [class.clickable]="isTimeSlotAvailable(day, time)"
+             (click)="isTimeSlotAvailable(day, time) ? selectTimeSlot(day, time) : null">
+          @if (!isTimeSlotAvailable(day, time)) {
+          <div class="booked-event">
+            Ocupat
           </div>
           }
-        </div>
-
-        <!-- Show time slots when day is selected -->
-        @if (isDaySelected(day)) {
-        <div class="day-time-slots">
-          <div class="time-slots-header">
-            <h4>Selecciona una hora:</h4>
-          </div>
-          <div class="time-slots-grid">
-            @for (time of timeSlots(); track time; let k = $index) {
-            <button class="time-slot-btn"
-                    [class.available]="isTimeSlotAvailable(day, time)"
-                    [class.booked]="!isTimeSlotAvailable(day, time)"
-                    [disabled]="!isTimeSlotAvailable(day, time)"
-                    (click)="selectTimeSlot(day, time)">
-              {{ time }}
-            </button>
-            }
-          </div>
         </div>
         }
       </div>
