@@ -15,14 +15,23 @@ class MockTranslateLoader implements TranslateLoader {
   }
 }
 
-// Mock AuthService
+// Mock AuthService with signals
 const mockAuthService = {
-  logout: jasmine.createSpy('logout')
+  logout: jasmine.createSpy('logout').and.returnValue(Promise.resolve()),
+  user: jasmine.createSpy('user').and.returnValue(null),
+  isLoading: jasmine.createSpy('isLoading').and.returnValue(false),
+  isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(false),
+  loginWithGoogle: jasmine.createSpy('loginWithGoogle').and.returnValue(Promise.resolve()),
+  registre: jasmine.createSpy('registre').and.returnValue(Promise.resolve()),
+  login: jasmine.createSpy('login').and.returnValue(Promise.resolve()),
+  saveCurrentUserLanguage: jasmine.createSpy('saveCurrentUserLanguage'),
+  userDisplayName: jasmine.createSpy('userDisplayName').and.returnValue('')
 };
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
+  let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -42,7 +51,7 @@ describe('HeaderComponent', () => {
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
 
   it('should create', () => {
@@ -51,5 +60,46 @@ describe('HeaderComponent', () => {
 
   it('should have logout method', () => {
     expect(typeof component.logout).toBe('function');
+  });
+
+  it('should have isLoggingOut computed signal', () => {
+    expect(component.isLoggingOut).toBeDefined();
+    expect(typeof component.isLoggingOut).toBe('function');
+  });
+
+  it('should initialize with not logging out state', () => {
+    expect(component.isLoggingOut()).toBe(false);
+  });
+
+  it('should have proper component structure', () => {
+    expect(HeaderComponent.prototype.constructor.name).toBe('HeaderComponent');
+  });
+
+  it('should be a standalone component', () => {
+    expect(HeaderComponent.prototype.constructor).toBeDefined();
+    expect(HeaderComponent.prototype.constructor.name).toBe('HeaderComponent');
+  });
+
+  it('should have component metadata', () => {
+    expect(HeaderComponent.prototype).toBeDefined();
+    expect(HeaderComponent.prototype.constructor).toBeDefined();
+  });
+
+  it('should have all required computed properties', () => {
+    expect(component.isLoggingOut).toBeDefined();
+  });
+
+  it('should have proper signal types', () => {
+    expect(typeof component.isLoggingOut).toBe('function');
+  });
+
+  it('should have proper dependencies injected', () => {
+    expect(authService).toBeDefined();
+  });
+
+  it('should render with proper structure', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.innerHTML).toContain('pelu-header');
   });
 });

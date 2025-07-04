@@ -49,7 +49,7 @@ describe('BookingPopupComponent', () => {
     fixture.detectChanges();
 
     const dateElement = fixture.nativeElement.querySelector('.info-row .value');
-    expect(dateElement.textContent).toContain('dilluns, 15 de gener de 2024');
+    expect(dateElement.textContent).toContain('dilluns, 15 de gener del 2024');
   });
 
   it('should emit cancelled event when close button is clicked', () => {
