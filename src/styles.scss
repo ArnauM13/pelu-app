@@ -3,6 +3,184 @@
 /* PrimeNG Icons */
 @import "primeicons/primeicons.css";
 
+/* PrimeNG Overrides to fix transparency issues */
+.p-select {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.p-select:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
+}
+
+.p-select:focus-within {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
+  outline: none !important;
+}
+
+.p-select .p-select-trigger {
+  background-color: white !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.p-select .p-select-label {
+  background-color: white !important;
+  color: var(--text-color) !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.p-select .p-select-label.p-placeholder {
+  color: var(--text-color-light) !important;
+}
+
+/* Dropdown panel styles */
+.p-select-panel {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+  margin-top: 4px !important;
+  overflow: hidden !important;
+  z-index: 1000 !important;
+}
+
+.p-select-items-wrapper {
+  background-color: white !important;
+  padding: 0.5rem 0 !important;
+}
+
+.p-select-item {
+  background-color: white !important;
+  color: var(--text-color) !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.p-select-item:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.p-select-item.p-highlight {
+  background-color: var(--primary-color-lighter) !important;
+  color: var(--text-color) !important;
+}
+
+/* Additional styles for p-select dropdown items */
+.p-select-panel .p-select-item {
+  background-color: white !important;
+  color: var(--text-color) !important;
+}
+
+.p-select-panel .p-select-item:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.p-select-panel .p-select-item.p-highlight {
+  background-color: var(--primary-color-lighter) !important;
+  color: var(--text-color) !important;
+}
+
+/* Ensure dropdown panel has solid background */
+.p-select-panel {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--box-shadow) !important;
+}
+
+/* Fix for any nested elements inside select items */
+.p-select-item * {
+  background-color: transparent !important;
+}
+
+.p-select-item:hover * {
+  background-color: transparent !important;
+}
+
+.p-select-item.p-highlight * {
+  background-color: transparent !important;
+}
+
+/* Specific styles for service option elements in booking popup */
+.service-option {
+  background-color: white !important;
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--border-color-light) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.service-option:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.service-option:last-child {
+  border-bottom: none !important;
+}
+
+.service-option .service-info {
+  background-color: transparent !important;
+}
+
+.service-option .service-icon {
+  background-color: transparent !important;
+}
+
+.service-option .service-name {
+  background-color: transparent !important;
+  color: var(--text-color) !important;
+}
+
+.service-option .service-description {
+  background-color: transparent !important;
+  color: var(--text-color-light) !important;
+}
+
+.service-option .service-price {
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
+}
+
+.service-option .service-meta {
+  background-color: transparent !important;
+}
+
+.service-option .service-duration {
+  background-color: transparent !important;
+  color: var(--text-color-light) !important;
+}
+
+.service-option .service-popular {
+  background-color: #fff3cd !important;
+  color: var(--success-color) !important;
+}
+
+.service-option .service-details {
+  background-color: transparent !important;
+}
+
+/* Ensure selected item has proper styling */
+.service-option.selected {
+  background-color: white !important;
+}
+
+.service-option.selected * {
+  background-color: transparent !important;
+}
+
 /* PrimeNG CSS Variables for consistent theming */
 :root {
   /* Nova gama cromàtica - Tons de blau */

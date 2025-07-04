@@ -1,11 +1,14 @@
 <header class="header">
   <div class="header-content">
     <div class="logo-section" routerLink="/">
-      <img src="/assets/images/cabj.png" alt="Logo Perruqueria" class="logo">
+      <img src="/assets/images/soca.png" alt="Logo Perruqueria" class="logo">
     </div>
     <nav class="nav">
       <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         {{ 'NAVIGATION.HOME' | translate }}
+      </a>
+      <a routerLink="/services" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.SERVICES' | translate }}
       </a>
       <a routerLink="/booking" class="nav-link" routerLinkActive="active">
         {{ 'NAVIGATION.BOOKING' | translate }}

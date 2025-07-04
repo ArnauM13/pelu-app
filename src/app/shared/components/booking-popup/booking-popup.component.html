@@ -29,21 +29,50 @@
           optionLabel="name"
           [placeholder]="'COMMON.SELECT_SERVICE' | translate"
           class="service-select">
+
+          <!-- Template for selected item -->
           <ng-template pTemplate="selectedItem" let-service>
-            <div class="service-option">
-              <span class="service-name">{{ service.name }}</span>
-              <span class="service-price">{{ formatPrice(service.price) }}</span>
+            <div class="service-option selected">
+              <div class="service-info">
+                <span class="service-name">{{ service.name }}</span>
+                <span class="service-price">{{ formatPrice(service.price) }}</span>
+              </div>
+              <div class="service-icon">
+                @switch (service.category) {
+                  @case ('haircut') { ✂️ }
+                  @case ('beard') { 🧔 }
+                  @case ('treatment') { 💆 }
+                  @case ('styling') { 💇 }
+                  @default { ✂️ }
+                }
+              </div>
             </div>
           </ng-template>
+
+          <!-- Template for dropdown items -->
           <ng-template pTemplate="item" let-service>
             <div class="service-option">
+              <div class="service-icon">
+                @switch (service.category) {
+                  @case ('haircut') { ✂️ }
+                  @case ('beard') { 🧔 }
+                  @case ('treatment') { 💆 }
+                  @case ('styling') { 💇 }
+                  @default { ✂️ }
+                }
+              </div>
               <div class="service-info">
                 <span class="service-name">{{ service.name }}</span>
                 <span class="service-description">{{ service.description }}</span>
+                <div class="service-meta">
+                  <span class="service-duration">⏱️ {{ formatDuration(service.duration) }}</span>
+                  @if (service.popular) {
+                    <span class="service-popular">🔥 Popular</span>
+                  }
+                </div>
               </div>
               <div class="service-details">
                 <span class="service-price">{{ formatPrice(service.price) }}</span>
-                <span class="service-duration">{{ formatDuration(service.duration) }}</span>
               </div>
             </div>
           </ng-template>
