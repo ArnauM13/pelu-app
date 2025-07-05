@@ -11,7 +11,7 @@ import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../shared/components/info-item/info-item.component';
-import { CalendarComponent } from '../../features/calendar/calendar.component';
+import { CalendarComponent, AppointmentEvent } from '../../features/calendar/calendar.component';
 import { AuthService } from '../../auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../shared/components/booking-popup/booking-popup.component';
@@ -50,10 +50,13 @@ export class BookingPageComponent {
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
 
   // Computed properties
-  readonly events = computed(() => {
+  readonly events = computed((): AppointmentEvent[] => {
     return this.cites().map(c => ({
       title: c.nom,
-      start: c.data + (c.hora ? 'T' + c.hora : '')
+      start: c.data + (c.hora ? 'T' + c.hora : ''),
+      duration: c.duration || 60, // Default to 60 minutes if not specified
+      serviceName: c.serviceName,
+      clientName: c.nom
     }));
   });
 
@@ -140,13 +143,18 @@ export class BookingPageComponent {
       data: details.date,
       hora: details.time,
       id: uuidv4(),
-      userId: user.uid
+      userId: user.uid,
+      duration: details.service?.duration || 60,
+      serviceName: details.service?.name,
+      serviceId: details.service?.id
     };
     this.citesSignal.update(cites => [...cites, nova]);
     this.guardarCites();
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
-    this.showToast('success', '✅ Reserva creada', `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)} a les ${nova.hora}`, nova.id, true);
+
+    const serviceInfo = details.service ? ` (${details.service.name} - ${details.service.duration} min)` : '';
+    this.showToast('success', '✅ Reserva creada', `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)} a les ${nova.hora}${serviceInfo}`, nova.id, true);
   }
 
   onBookingCancelled() {

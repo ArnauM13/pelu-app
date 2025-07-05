@@ -2,9 +2,18 @@ import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
-import { startOfWeek, endOfWeek, startOfDay, endOfDay, format, addDays, isSameDay, isSameWeek, eachDayOfInterval } from 'date-fns';
+import { startOfWeek, endOfWeek, startOfDay, endOfDay, format, addDays, isSameDay, isSameWeek, eachDayOfInterval, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
+
+// Interface for appointment with duration
+export interface AppointmentEvent {
+  title: string;
+  start: string;
+  duration?: number; // in minutes, default 60 if not specified
+  serviceName?: string;
+  clientName?: string;
+}
 
 @Component({
   selector: 'pelu-calendar-component',
@@ -24,7 +33,7 @@ import { ca } from 'date-fns/locale';
 export class CalendarComponent {
   // Input signals
   readonly mini = input<boolean>(false);
-  readonly events = input<{ title: string; start: string }[]>([]);
+  readonly events = input<AppointmentEvent[]>([]);
 
   // Output signals
   readonly dateSelected = output<{date: string, time: string}>();
@@ -65,15 +74,26 @@ export class CalendarComponent {
   });
 
   readonly calendarEvents = computed(() => {
-    return this.events().map(event => ({
-      title: event.title,
-      start: new Date(event.start),
-      end: new Date(event.start),
-      color: {
-        primary: '#3b82f6',
-        secondary: '#dbeafe'
-      }
-    }));
+    return this.events().map(event => {
+      const startDate = new Date(event.start);
+      const duration = event.duration || 60; // Default to 60 minutes if not specified
+      const endDate = addMinutes(startDate, duration);
+
+      return {
+        title: event.title,
+        start: startDate,
+        end: endDate,
+        color: {
+          primary: '#3b82f6',
+          secondary: '#dbeafe'
+        },
+        meta: {
+          duration: duration,
+          serviceName: event.serviceName,
+          clientName: event.clientName
+        }
+      };
+    });
   });
 
   readonly timeSlots = computed(() => {
@@ -109,16 +129,95 @@ export class CalendarComponent {
     return hour >= this.lunchBreak.start && hour < this.lunchBreak.end;
   }
 
-  // Check if a time slot is available
+  // Check if a time slot is available (considering appointment duration)
   isTimeSlotAvailable(date: Date, time: string) {
     // If it's lunch break, it's not available
     if (this.isLunchBreak(time)) {
       return false;
     }
 
+    // If it's a past date, it's not available
+    if (this.isPastDate(date)) {
+      return false;
+    }
+
+    // If it's today but the time has passed, it's not available
+    if (this.isPastTimeSlot(date, time)) {
+      return false;
+    }
+
     const dateStr = format(date, 'yyyy-MM-dd');
-    const eventKey = `${dateStr}T${time}`;
-    return !this.events().some(event => event.start === eventKey);
+    const timeSlotStart = new Date(`${dateStr}T${time}`);
+
+    // Check if any appointment overlaps with this time slot
+    return !this.events().some(event => {
+      const appointmentStart = new Date(event.start);
+      const appointmentDuration = event.duration || 60;
+      const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+
+      // Check if the time slot overlaps with the appointment
+      return appointmentStart < timeSlotStart && appointmentEnd > timeSlotStart;
+    });
+  }
+
+  // Get appointment that covers a specific time slot
+  getAppointmentForTimeSlot(date: Date, time: string) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const timeSlotStart = new Date(`${dateStr}T${time}`);
+
+    return this.events().find(event => {
+      const appointmentStart = new Date(event.start);
+      const appointmentDuration = event.duration || 60;
+      const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+
+      // Check if the time slot is within the appointment
+      return appointmentStart <= timeSlotStart && appointmentEnd > timeSlotStart;
+    });
+  }
+
+  // Get appointment display info for a time slot
+  getAppointmentDisplayInfo(date: Date, time: string) {
+    const appointment = this.getAppointmentForTimeSlot(date, time);
+    if (!appointment) return null;
+
+    const appointmentStart = new Date(appointment.start);
+    const appointmentDuration = appointment.duration || 60;
+    const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+
+    // Only show info if this is the start of the appointment
+    if (appointmentStart.getTime() === timeSlotStart.getTime()) {
+      return {
+        title: appointment.title,
+        duration: appointmentDuration,
+        serviceName: appointment.serviceName,
+        clientName: appointment.clientName
+      };
+    }
+
+    return null;
+  }
+
+  // Check if a time slot is the start of an appointment
+  isAppointmentStart(date: Date, time: string): boolean {
+    const appointment = this.getAppointmentForTimeSlot(date, time);
+    if (!appointment) return false;
+
+    const appointmentStart = new Date(appointment.start);
+    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+
+    return appointmentStart.getTime() === timeSlotStart.getTime();
+  }
+
+  // Check if a time slot is within an appointment (but not the start)
+  isWithinAppointment(date: Date, time: string): boolean {
+    const appointment = this.getAppointmentForTimeSlot(date, time);
+    if (!appointment) return false;
+
+    const appointmentStart = new Date(appointment.start);
+    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+
+    return appointmentStart.getTime() !== timeSlotStart.getTime();
   }
 
   // Select a day
@@ -138,6 +237,11 @@ export class CalendarComponent {
 
   // Select a time slot
   selectTimeSlot(date: Date, time: string) {
+    // Only allow selection if the time slot is available
+    if (!this.isTimeSlotAvailable(date, time)) {
+      return;
+    }
+
     const dateStr = format(date, 'yyyy-MM-dd');
     this.selectedDateTimeSignal.set({date: dateStr, time: time});
     this.dateSelected.emit({date: dateStr, time: time});
@@ -162,7 +266,7 @@ export class CalendarComponent {
     return selected.date === dateStr && selected.time === time;
   }
 
-  // Get event for a specific time slot
+  // Get event for a specific time slot (legacy method for compatibility)
   getEventForTimeSlot(date: Date, time: string) {
     const dateStr = format(date, 'yyyy-MM-dd');
     const eventKey = `${dateStr}T${time}`;
@@ -210,6 +314,23 @@ export class CalendarComponent {
     return date < today;
   }
 
+  // Check if a time slot is in the past (for today's date)
+  isPastTimeSlot(date: Date, time: string): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // If it's not today, it's not a past time slot
+    if (date < today || date > today) {
+      return false;
+    }
+
+    // If it's today, check if the time has passed
+    const currentTime = new Date();
+    const timeSlotDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+
+    return timeSlotDateTime < currentTime;
+  }
+
   getDayName(date: Date): string {
     const days = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
     return days[date.getDay()];
@@ -221,5 +342,45 @@ export class CalendarComponent {
       return parts[1].substring(0, 5);
     }
     return '';
+  }
+
+  // Format duration for display
+  formatDuration(minutes: number): string {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      if (remainingMinutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${remainingMinutes}min`;
+      }
+    }
+  }
+
+  // Get tooltip text for a time slot
+  getTimeSlotTooltip(date: Date, time: string): string {
+    if (this.isLunchBreak(time)) {
+      return 'Pausa per dinar - No disponible';
+    }
+
+    if (this.isPastDate(date)) {
+      return 'Data passada - No disponible';
+    }
+
+    if (this.isPastTimeSlot(date, time)) {
+      return 'Hora passada - No disponible';
+    }
+
+    if (!this.isTimeSlotAvailable(date, time)) {
+      const appointment = this.getAppointmentForTimeSlot(date, time);
+      if (appointment) {
+        return `Ocupat per: ${appointment.title} (${this.formatDuration(appointment.duration || 60)})`;
+      }
+      return 'Ocupat - No disponible';
+    }
+
+    return `Disponible - Clic per seleccionar`;
   }
 }

@@ -123,6 +123,33 @@
                 class="form-input">
             </div>
 
+            <!-- Service Name -->
+            <div class="form-group">
+              <label for="serviceName">{{ 'APPOINTMENTS.SERVICE' | translate }} (Nom complet)</label>
+              <input
+                type="text"
+                id="serviceName"
+                pInputText
+                [value]="editForm().serviceName"
+                (input)="updateForm('serviceName', $any($event.target).value)"
+                [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                class="form-input">
+            </div>
+
+            <!-- Duration -->
+            <div class="form-group">
+              <label for="duration">{{ 'APPOINTMENTS.DURATION' | translate }} (minuts)</label>
+              <input
+                type="number"
+                id="duration"
+                [value]="editForm().duration"
+                (input)="updateForm('duration', +$any($event.target).value)"
+                [placeholder]="'60'"
+                min="15"
+                step="15"
+                class="form-input">
+            </div>
+
             <!-- Price -->
             <div class="form-group">
               <label for="preu">{{ 'APPOINTMENTS.PRICE' | translate }} (€)</label>

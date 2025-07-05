@@ -24,6 +24,9 @@ interface AppointmentForm {
   notes?: string;
   servei?: string;
   preu?: number;
+  duration?: number;
+  serviceName?: string;
+  serviceId?: string;
 }
 
 @Component({
@@ -111,6 +114,22 @@ export class AppointmentDetailPageComponent implements OnInit {
       });
     }
 
+    if (cita.serviceName) {
+      items.push({
+        icon: '✂️',
+        label: 'APPOINTMENTS.SERVICE',
+        value: cita.serviceName
+      });
+    }
+
+    if (cita.duration) {
+      items.push({
+        icon: '⏱️',
+        label: 'APPOINTMENTS.DURATION',
+        value: `${cita.duration} min`
+      });
+    }
+
     if (cita.preu) {
       items.push({
         icon: '💰',
@@ -171,7 +190,10 @@ export class AppointmentDetailPageComponent implements OnInit {
            cita.hora !== form.hora ||
            cita.notes !== form.notes ||
            cita.servei !== form.servei ||
-           cita.preu !== form.preu;
+           cita.preu !== form.preu ||
+           cita.duration !== form.duration ||
+           cita.serviceName !== form.serviceName ||
+           cita.serviceId !== form.serviceId;
   });
 
   constructor() {}
@@ -251,7 +273,10 @@ export class AppointmentDetailPageComponent implements OnInit {
       hora: cita.hora || '',
       notes: cita.notes || '',
       servei: cita.servei || '',
-      preu: cita.preu || 0
+      preu: cita.preu || 0,
+      duration: cita.duration || 60,
+      serviceName: cita.serviceName || '',
+      serviceId: cita.serviceId || ''
     });
     this.#isEditingSignal.set(true);
   }
@@ -264,7 +289,10 @@ export class AppointmentDetailPageComponent implements OnInit {
       hora: '',
       notes: '',
       servei: '',
-      preu: 0
+      preu: 0,
+      duration: 60,
+      serviceName: '',
+      serviceId: ''
     });
   }
 
@@ -288,6 +316,9 @@ export class AppointmentDetailPageComponent implements OnInit {
       notes: form.notes?.trim() || '',
       servei: form.servei?.trim() || '',
       preu: form.preu || 0,
+      duration: form.duration || 60,
+      serviceName: form.serviceName?.trim() || '',
+      serviceId: form.serviceId || '',
       userId: user.uid
     };
 
