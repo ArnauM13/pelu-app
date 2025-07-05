@@ -45,12 +45,23 @@ export class CalendarComponent {
     start: 8,
     end: 20
   };
+  readonly lunchBreak = {
+    start: 13,
+    end: 15
+  };
 
   // Computed properties
   readonly weekDays = computed(() => {
     const start = startOfWeek(this.viewDate(), { weekStartsOn: 1 }); // Monday
     const end = endOfWeek(this.viewDate(), { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end });
+    const allDays = eachDayOfInterval({ start, end });
+
+    // Filter to show only Tuesday (1) to Saturday (5)
+    // 0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
+    return allDays.filter(day => {
+      const dayOfWeek = day.getDay();
+      return dayOfWeek >= 2 && dayOfWeek <= 6; // Tuesday to Saturday
+    });
   });
 
   readonly calendarEvents = computed(() => {
@@ -92,8 +103,19 @@ export class CalendarComponent {
     return this.events().filter(event => event.start.startsWith(dateStr));
   }
 
+  // Check if a time slot is during lunch break
+  isLunchBreak(time: string): boolean {
+    const hour = parseInt(time.split(':')[0]);
+    return hour >= this.lunchBreak.start && hour < this.lunchBreak.end;
+  }
+
   // Check if a time slot is available
   isTimeSlotAvailable(date: Date, time: string) {
+    // If it's lunch break, it's not available
+    if (this.isLunchBreak(time)) {
+      return false;
+    }
+
     const dateStr = format(date, 'yyyy-MM-dd');
     const eventKey = `${dateStr}T${time}`;
     return !this.events().some(event => event.start === eventKey);

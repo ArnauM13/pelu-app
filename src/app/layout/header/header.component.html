@@ -1,7 +1,7 @@
 <header class="header">
   <div class="header-content">
     <div class="logo-section" routerLink="/">
-      <pelu-avatar [data]="avatarData()" size="medium" class="logo-avatar"></pelu-avatar>
+      <pelu-avatar [data]="avatarData()" size="medium" class="logo-avatar" (click)="navigateToProfile($event)"></pelu-avatar>
     </div>
     <nav class="nav">
       <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">

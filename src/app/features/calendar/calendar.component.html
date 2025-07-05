@@ -41,10 +41,15 @@
         <div class="day-time-slot"
              [class.available]="isTimeSlotAvailable(day, time)"
              [class.booked]="!isTimeSlotAvailable(day, time)"
+             [class.lunch-break]="isLunchBreak(time)"
              [class.selected]="isDaySelected(day) && isTimeSlotSelected(day, time)"
              [class.clickable]="isTimeSlotAvailable(day, time)"
              (click)="isTimeSlotAvailable(day, time) ? selectTimeSlot(day, time) : null">
-          @if (!isTimeSlotAvailable(day, time)) {
+          @if (isLunchBreak(time)) {
+          <div class="lunch-break-text">
+            Pausa
+          </div>
+          } @else if (!isTimeSlotAvailable(day, time)) {
           <div class="booked-event">
             Ocupat
           </div>

@@ -3,9 +3,7 @@
     <!-- Header -->
     <div class="perfil-header" style="view-transition-name: perfil-header">
       <div class="avatar-section">
-        <div class="avatar">
-          <span class="avatar-text">{{ displayName().charAt(0).toUpperCase() }}</span>
-        </div>
+        <pelu-avatar [data]="avatarData()" size="xlarge" class="profile-avatar"></pelu-avatar>
         <h1 class="user-name">{{ displayName() }}</h1>
         <p class="user-email">{{ email() }}</p>
       </div>
