@@ -10,7 +10,6 @@ import { providePrimeNG } from 'primeng/config';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
-import Aura from '@primeng/themes/aura';
 
 // Factory function for TranslateHttpLoader
 export function HttpLoaderFactory(http: HttpClient) {
@@ -21,9 +20,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     providePrimeNG({
-        theme: {
-            preset: Aura,
-        }
+      ripple: true,
+      inputStyle: 'outlined'
     }),
     provideZoneChangeDetection({
       eventCoalescing: true,
