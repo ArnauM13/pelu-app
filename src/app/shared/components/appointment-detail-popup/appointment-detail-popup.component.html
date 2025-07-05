@@ -1,0 +1,47 @@
+@if (open()) {
+<div class="appointment-detail-popup-overlay" (click)="onBackdropClick($event)">
+  <div class="appointment-detail-popup">
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="header-content">
+        <h3>Detall de la cita</h3>
+        <div class="status-badge" [class]="statusBadge().class">
+          {{ statusBadge().text }}
+        </div>
+      </div>
+      <button class="close-btn" (click)="onClose()" title="Tancar">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="popup-body">
+      @if (appointment(); as cita) {
+                <!-- Appointment Info -->
+        <div class="appointment-info">
+          @for (item of appointmentInfoItems(); track item.label) {
+            <pelu-info-item
+              [data]="item">
+            </pelu-info-item>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="popup-actions">
+          <button
+            class="btn btn-primary"
+            (click)="onViewFullDetail()"
+            title="Veure detall complet">
+            <i class="pi pi-external-link"></i>
+            Veure detall complet
+          </button>
+        </div>
+      } @else {
+        <div class="no-appointment">
+          <p>No s'ha trobat la cita</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+}

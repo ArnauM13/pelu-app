@@ -1,10 +1,13 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
 import { startOfWeek, endOfWeek, startOfDay, endOfDay, format, addDays, isSameDay, isSameWeek, eachDayOfInterval, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
+import { v4 as uuidv4 } from 'uuid';
+import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { AuthService } from '../../auth/auth.service';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -18,7 +21,7 @@ export interface AppointmentEvent {
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule],
+  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -31,6 +34,9 @@ export interface AppointmentEvent {
   styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent {
+  // Inject services
+  private readonly authService = inject(AuthService);
+
   // Input signals
   readonly mini = input<boolean>(false);
   readonly events = input<AppointmentEvent[]>([]);
@@ -42,11 +48,35 @@ export class CalendarComponent {
   private readonly viewDateSignal = signal<Date>(new Date());
   private readonly selectedDateTimeSignal = signal<{date: string, time: string}>({date: '', time: ''});
   private readonly selectedDaySignal = signal<Date | null>(null);
+  private readonly showDetailPopupSignal = signal<boolean>(false);
+  private readonly selectedAppointmentSignal = signal<any>(null);
+  private readonly appointmentsSignal = signal<any[]>([]);
 
   // Public computed signals
   readonly viewDate = computed(() => this.viewDateSignal());
   readonly selectedDateTime = computed(() => this.selectedDateTimeSignal());
   readonly selectedDay = computed(() => this.selectedDaySignal());
+  readonly showDetailPopup = computed(() => this.showDetailPopupSignal());
+  readonly selectedAppointment = computed(() => this.selectedAppointmentSignal());
+  readonly appointments = computed(() => this.appointmentsSignal());
+
+  // Computed events that combines input events with localStorage appointments
+  readonly allEvents = computed((): AppointmentEvent[] => {
+    // Use provided events or load from localStorage
+    const providedEvents = this.events();
+    if (providedEvents.length > 0) {
+      return providedEvents;
+    }
+
+    // Load from localStorage
+    return this.appointments().map(c => ({
+      title: c.nom,
+      start: c.data + (c.hora ? 'T' + c.hora : ''),
+      duration: c.duration || 60, // Default to 60 minutes if not specified
+      serviceName: c.serviceName,
+      clientName: c.nom
+    }));
+  });
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
@@ -58,6 +88,39 @@ export class CalendarComponent {
     start: 13,
     end: 15
   };
+
+  constructor() {
+    this.loadAppointments();
+
+    // Reload appointments when user changes
+    effect(() => {
+      const user = this.authService.user();
+      if (user) {
+        this.loadAppointments();
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  private loadAppointments() {
+    const dades = JSON.parse(localStorage.getItem('cites') || '[]');
+
+    // Only add IDs to appointments that don't have them (no migration of userId)
+    const dadesAmbIds = dades.map((cita: any) => {
+      if (!cita.id) {
+        return { ...cita, id: uuidv4() };
+      }
+      return cita;
+    });
+
+    this.appointmentsSignal.set(dadesAmbIds);
+
+    // Save migrated data back to localStorage if there were changes
+    if (dadesAmbIds.some((cita: any, index: number) =>
+      cita.id !== dades[index]?.id
+    )) {
+      localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
+    }
+  }
 
   // Computed properties
   readonly weekDays = computed(() => {
@@ -74,7 +137,7 @@ export class CalendarComponent {
   });
 
   readonly calendarEvents = computed(() => {
-    return this.events().map(event => {
+    return this.allEvents().map(event => {
       const startDate = new Date(event.start);
       const duration = event.duration || 60; // Default to 60 minutes if not specified
       const endDate = addMinutes(startDate, duration);
@@ -96,14 +159,24 @@ export class CalendarComponent {
     });
   });
 
-  readonly timeSlots = computed(() => {
-    const slots = [];
+    readonly timeSlots = computed(() => {
+    const slots: string[] = [];
     for (let hour = this.businessHours.start; hour < this.businessHours.end; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         slots.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
       }
     }
-    return slots;
+
+    // Add lunch break slots (13:30 and 14:30) if they're not already included
+    const lunchSlots = ['13:30', '14:30'];
+    lunchSlots.forEach(slot => {
+      if (!slots.includes(slot)) {
+        slots.push(slot);
+      }
+    });
+
+    // Sort slots to maintain chronological order
+    return slots.sort();
   });
 
   readonly selectedDateMessage = computed(() => {
@@ -122,7 +195,7 @@ export class CalendarComponent {
   // Get events for a specific day
   getEventsForDay(date: Date) {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return this.events().filter(event => event.start.startsWith(dateStr));
+    return this.allEvents().filter(event => event.start.startsWith(dateStr));
   }
 
   // Check if a time slot is during lunch break
@@ -156,7 +229,7 @@ export class CalendarComponent {
     const timeSlotStart = new Date(`${dateStr}T${time}`);
 
     // Check if any appointment overlaps with this time slot
-    return !this.events().some(event => {
+    return !this.allEvents().some(event => {
       const appointmentStart = new Date(event.start);
       const appointmentDuration = event.duration || 60;
       const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
@@ -171,7 +244,7 @@ export class CalendarComponent {
     const dateStr = format(date, 'yyyy-MM-dd');
     const timeSlotStart = new Date(`${dateStr}T${time}`);
 
-    return this.events().find(event => {
+    return this.allEvents().find(event => {
       const appointmentStart = new Date(event.start);
       const appointmentDuration = event.duration || 60;
       const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
@@ -181,21 +254,32 @@ export class CalendarComponent {
     });
   }
 
+  // Find the original appointment with ID based on an AppointmentEvent
+  findOriginalAppointment(appointmentEvent: AppointmentEvent) {
+    const appointmentStart = new Date(appointmentEvent.start);
+    const appointmentDate = format(appointmentStart, 'yyyy-MM-dd');
+    const appointmentTime = format(appointmentStart, 'HH:mm');
+
+    return this.appointments().find(appointment => {
+      // Match by date and time
+      const matchesDate = appointment.data === appointmentDate;
+      const matchesTime = appointment.hora === appointmentTime;
+      const matchesTitle = appointment.nom === appointmentEvent.title;
+
+      return matchesDate && matchesTime && matchesTitle;
+    });
+  }
+
   // Get appointment display info for a time slot
   getAppointmentDisplayInfo(date: Date, time: string) {
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (!appointment) return null;
 
-    const appointmentStart = new Date(appointment.start);
-    const appointmentDuration = appointment.duration || 60;
-    const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
-    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
-
-    // Only show info if this is the start of the appointment
-    if (appointmentStart.getTime() === timeSlotStart.getTime()) {
+    // Only show info if this slot should display it
+    if (this.shouldShowAppointmentInfo(date, time)) {
       return {
         title: appointment.title,
-        duration: appointmentDuration,
+        duration: appointment.duration || 60,
         serviceName: appointment.serviceName,
         clientName: appointment.clientName
       };
@@ -204,16 +288,37 @@ export class CalendarComponent {
     return null;
   }
 
-  // Calculate how many time slots an appointment spans
-  getAppointmentSpan(date: Date, time: string): number {
+  // Calculate how much of a time slot an appointment occupies (0-1)
+  getAppointmentSlotCoverage(date: Date, time: string): number {
     const appointment = this.getAppointmentForTimeSlot(date, time);
-    if (!appointment) return 1;
+    if (!appointment) return 0;
 
     const appointmentStart = new Date(appointment.start);
     const appointmentDuration = appointment.duration || 60;
+    const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+    const timeSlotEnd = addMinutes(timeSlotStart, 30); // 30-minute slots
 
-    // Calculate how many 30-minute slots this appointment spans
-    return Math.ceil(appointmentDuration / 30);
+    // Calculate overlap
+    const overlapStart = new Date(Math.max(appointmentStart.getTime(), timeSlotStart.getTime()));
+    const overlapEnd = new Date(Math.min(appointmentEnd.getTime(), timeSlotEnd.getTime()));
+
+    if (overlapEnd <= overlapStart) return 0;
+
+    const overlapMinutes = (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60);
+    return overlapMinutes / 30; // Return as fraction of 30-minute slot
+  }
+
+  // Check if this slot should show appointment info
+  shouldShowAppointmentInfo(date: Date, time: string): boolean {
+    const appointment = this.getAppointmentForTimeSlot(date, time);
+    if (!appointment) return false;
+
+    const appointmentStart = new Date(appointment.start);
+    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+
+    // Show info if this is the start of the appointment or if it's a significant part
+    return appointmentStart.getTime() === timeSlotStart.getTime() || this.getAppointmentSlotCoverage(date, time) > 0.5;
   }
 
   // Check if this time slot is the start of a multi-slot appointment
@@ -257,6 +362,19 @@ export class CalendarComponent {
 
   // Select a time slot
   selectTimeSlot(date: Date, time: string) {
+    // Check if there's an appointment in this slot
+    const appointmentEvent = this.getAppointmentForTimeSlot(date, time);
+    if (appointmentEvent) {
+      // Find the original appointment with ID from the appointments array
+      const originalAppointment = this.findOriginalAppointment(appointmentEvent);
+      if (originalAppointment) {
+        // Show appointment detail popup with the original appointment
+        this.selectedAppointmentSignal.set(originalAppointment);
+        this.showDetailPopupSignal.set(true);
+        return;
+      }
+    }
+
     // Only allow selection if the time slot is available
     if (!this.isTimeSlotAvailable(date, time)) {
       return;
@@ -396,11 +514,17 @@ export class CalendarComponent {
     if (!this.isTimeSlotAvailable(date, time)) {
       const appointment = this.getAppointmentForTimeSlot(date, time);
       if (appointment) {
-        return `Ocupat per: ${appointment.title} (${this.formatDuration(appointment.duration || 60)})`;
+        return `Clic per veure detall: ${appointment.title} (${this.formatDuration(appointment.duration || 60)})`;
       }
       return 'Ocupat - No disponible';
     }
 
     return `Disponible - Clic per seleccionar`;
+  }
+
+  // Close appointment detail popup
+  onAppointmentDetailPopupClosed() {
+    this.showDetailPopupSignal.set(false);
+    this.selectedAppointmentSignal.set(null);
   }
 }

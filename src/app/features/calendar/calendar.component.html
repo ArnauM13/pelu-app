@@ -50,9 +50,8 @@
              [class.past-time]="isPastTimeSlot(day, time)"
              [class.selected]="isDaySelected(day) && isTimeSlotSelected(day, time)"
              [class.clickable]="isTimeSlotAvailable(day, time)"
-             [class.appointment-start]="isAppointmentStart(day, time)"
-             [class.appointment-continuing]="isWithinAppointment(day, time)"
-             [style.grid-row]="isAppointmentStart(day, time) ? 'span ' + getAppointmentSpan(day, time) : ''"
+             [class.appointment-slot]="getAppointmentSlotCoverage(day, time) > 0"
+             [style.height]="getAppointmentSlotCoverage(day, time) > 0 ? (getAppointmentSlotCoverage(day, time) * 100) + '%' : '100%'"
              [title]="getTimeSlotTooltip(day, time)"
              (click)="selectTimeSlot(day, time)">
 
@@ -60,7 +59,7 @@
           <div class="lunch-break-text">
             Pausa
           </div>
-          } @else if (isAppointmentStart(day, time)) {
+          } @else if (getAppointmentSlotCoverage(day, time) > 0) {
           @if (getAppointmentDisplayInfo(day, time); as appointmentInfo) {
           <div class="appointment-info">
             <div class="appointment-title">{{ appointmentInfo.title }}</div>
@@ -70,10 +69,6 @@
             <div class="appointment-duration">{{ formatDuration(appointmentInfo.duration) }}</div>
           </div>
           }
-          } @else if (isWithinAppointment(day, time)) {
-          <div class="appointment-continuing-indicator">
-            <!-- Visual indicator that appointment continues -->
-          </div>
           } @else if (isPastDate(day)) {
           <!-- No text for past dates - just visual styling -->
           } @else if (isPastTimeSlot(day, time)) {
@@ -89,4 +84,11 @@
       }
     </div>
   </div>
+
+  <!-- Appointment Detail Popup -->
+  <pelu-appointment-detail-popup
+    [open]="showDetailPopup()"
+    [appointment]="selectedAppointment()"
+    (closed)="onAppointmentDetailPopupClosed()">
+  </pelu-appointment-detail-popup>
 </div>
