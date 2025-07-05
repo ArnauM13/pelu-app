@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
 import { FiltersInlineComponent } from '../../shared/components/filters-inline/filters-inline.component';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -40,6 +41,7 @@ export class AppointmentsPageComponent {
   // Inject services
   #messageService = inject(MessageService);
   #router = inject(Router);
+  #authService = inject(AuthService);
 
   // Core data signals
   #citesSignal = signal<any[]>([]);
@@ -154,8 +156,8 @@ export class AppointmentsPageComponent {
         });
         break;
       case 'mine':
-        const currentUser = localStorage.getItem('currentUser') || 'COMMON.ADMIN';
-        filtered = filtered.filter(cita => cita.userId === currentUser || !cita.userId);
+        const currentUserId = this.getCurrentUserId();
+        filtered = filtered.filter(cita => cita.userId === currentUserId);
         break;
       default:
         break;
@@ -206,17 +208,25 @@ export class AppointmentsPageComponent {
     }).length;
   });
   readonly myAppointments = computed(() => {
-    const currentUser = localStorage.getItem('currentUser') || 'COMMON.ADMIN';
-    return this.cites().filter(cita => cita.userId === currentUser || !cita.userId).length;
+    const currentUserId = this.getCurrentUserId();
+    return this.cites().filter(cita => cita.userId === currentUserId).length;
   });
   readonly isMyAppointmentsActive = computed(() => this.quickFilter() === 'mine');
 
-  readonly hasAdvancedFilters = computed(() =>
-    this.filterDate() !== '' || this.filterClient() !== ''
+  readonly hasActiveFilters = computed(() =>
+    this.filterDate() !== '' || this.filterClient() !== '' || this.quickFilter() !== 'all'
   );
 
   constructor() {
     this.loadAppointments();
+
+    // Reload appointments when user changes
+    effect(() => {
+      const user = this.#authService.user();
+      if (user) {
+        this.loadAppointments();
+      }
+    }, { allowSignalWrites: true });
   }
 
   // Filter management methods
@@ -239,22 +249,22 @@ export class AppointmentsPageComponent {
     this.#filterDateSignal.set('');
     this.#filterClientSignal.set('');
     this.#quickFilterSignal.set('all');
-    this.#showAdvancedFiltersSignal.set(false);
+  }
+
+  clearDateFilter() {
+    this.#filterDateSignal.set('');
+  }
+
+  clearClientFilter() {
+    this.#filterClientSignal.set('');
+  }
+
+  clearAllFilters() {
+    this.clearFilters();
   }
 
   toggleAdvancedFilters() {
-    const currentShowAdvanced = this.showAdvancedFilters();
-
-    if (currentShowAdvanced) {
-      // If closing advanced filters, clear them but keep popup open
-      this.#filterDateSignal.set('');
-      this.#filterClientSignal.set('');
-      this.#showAdvancedFiltersSignal.set(false);
-    } else {
-      // If opening advanced filters, clear quick filters and show advanced filters
-      this.#quickFilterSignal.set('all');
-      this.#showAdvancedFiltersSignal.set(true);
-    }
+    this.#showAdvancedFiltersSignal.set(!this.showAdvancedFilters());
   }
 
   // Event handlers
@@ -307,15 +317,21 @@ export class AppointmentsPageComponent {
     const dades = localStorage.getItem('cites');
     if (dades) {
       const parsedData = JSON.parse(dades);
+
+      // Only add IDs to appointments that don't have them (no migration of userId)
       const dadesAmbIds = parsedData.map((cita: any) => {
         if (!cita.id) {
           return { ...cita, id: uuidv4() };
         }
         return cita;
       });
+
       this.#citesSignal.set(dadesAmbIds);
 
-      if (parsedData.length > 0 && dadesAmbIds.length === parsedData.length) {
+      // Save migrated data back to localStorage if there were changes
+      if (dadesAmbIds.some((cita: any, index: number) =>
+        cita.id !== parsedData[index]?.id
+      )) {
         localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
       }
     }
@@ -393,6 +409,15 @@ export class AppointmentsPageComponent {
 
   formatDateForDisplay(date: Date): string {
     return format(date, 'yyyy-MM-dd');
+  }
+
+  getCurrentUserId(): string {
+    // Get the current user from Firebase Auth
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) {
+      throw new Error('No hi ha usuari autenticat');
+    }
+    return currentUser.uid;
   }
 }
 
