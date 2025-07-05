@@ -198,7 +198,7 @@ export class BookingPopupComponent {
       if (!this.open()) {
         this.selectedService.set(undefined);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   onBackdropClick(event: Event) {

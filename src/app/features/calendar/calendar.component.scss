@@ -141,7 +141,7 @@
   border-right: 1px solid #e9ecef;
   background: white;
   display: grid;
-  grid-template-rows: 40px repeat(24, 25px); /* 40px for header + 24 time slots of 25px each (30 min slots) */
+  grid-template-rows: 40px repeat(26, 25px); /* 40px for header + 26 time slots of 25px each (30 min slots + lunch break slots) */
 }
 
 .day-column:last-child {
@@ -180,6 +180,7 @@
 // Day Time Slots
 .day-time-slot {
   height: 25px;
+  min-height: 25px;
   border-bottom: 1px solid #f1f3f4;
   position: relative;
   display: flex;
@@ -188,6 +189,7 @@
   padding: 0.1rem;
   transition: all 0.2s ease;
   grid-row: auto;
+  overflow: hidden;
 }
 
 .day-time-slot.clickable {
@@ -298,14 +300,8 @@
   opacity: 0.9;
 }
 
-// Hover effects for appointment continuing slots
-.day-time-slot.appointment-continuing:hover {
-  background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
-  opacity: 0.9;
-}
-
-// Hover effects for appointment start slots
-.day-time-slot.appointment-start:hover {
+// Hover effects for appointment slots
+.day-time-slot.appointment-slot:hover {
   background: linear-gradient(135deg, #2563eb, #1e40af);
   transform: scale(1.02);
 }
@@ -339,16 +335,18 @@
 /* Past date and time slots now use visual styling only, no text */
 
 // Appointment styles for duration-based display
-.day-time-slot.appointment-start {
+.day-time-slot.appointment-slot {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   z-index: 2;
+  border-radius: 4px;
+  margin: 1px 0;
 }
 
-.day-time-slot.appointment-start::before {
+.day-time-slot.appointment-slot::before {
   content: '';
   position: absolute;
   top: 0;
@@ -357,30 +355,6 @@
   bottom: 0;
   background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
   animation: shimmer 2s infinite;
-}
-
-.day-time-slot.appointment-continuing {
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  color: #1e40af;
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
-}
-
-.day-time-slot.appointment-continuing::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 2px,
-    rgba(59, 130, 246, 0.1) 2px,
-    rgba(59, 130, 246, 0.1) 4px
-  );
 }
 
 .appointment-info {
@@ -426,20 +400,7 @@
   margin-top: 0.1rem;
 }
 
-.appointment-continuing-indicator {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.appointment-continuing-indicator::before {
-  content: '→';
-  font-size: 0.8rem;
-  color: #1e40af;
-  font-weight: bold;
-}
 
 @keyframes shimmer {
   0% {
@@ -489,7 +450,7 @@
 
   .day-column {
     min-width: 100px;
-    grid-template-rows: 35px repeat(24, 20px); /* Smaller header and time slots for mobile */
+    grid-template-rows: 35px repeat(26, 20px); /* Smaller header and time slots for mobile */
   }
 
   .time-slot-label,
@@ -534,9 +495,7 @@
     margin-top: 0.02rem;
   }
 
-  .appointment-continuing-indicator::before {
-    font-size: 0.6rem;
-  }
+
 
   /* Past slots styling is handled by the main styles */
 }

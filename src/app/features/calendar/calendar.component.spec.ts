@@ -27,8 +27,8 @@ describe('CalendarComponent', () => {
       const timeSlots = component.timeSlots();
       expect(Array.isArray(timeSlots)).toBe(true);
       expect(timeSlots.length).toBeGreaterThan(0);
-      // Should have 30-minute intervals (2 slots per hour * 12 hours = 24 slots)
-      expect(timeSlots.length).toBe(24);
+      // Should have 30-minute intervals (2 slots per hour * 12 hours = 24 slots) + 2 lunch break slots = 26 slots
+      expect(timeSlots.length).toBe(26);
     });
 
     it('should have weekDays computed property', () => {
@@ -143,56 +143,34 @@ describe('CalendarComponent', () => {
     });
   });
 
-  describe('Appointment Span Functionality', () => {
-    it('should have getAppointmentSpan method', () => {
-      expect(typeof component.getAppointmentSpan).toBe('function');
+  describe('Appointment Coverage Functionality', () => {
+    it('should have getAppointmentSlotCoverage method', () => {
+      expect(typeof component.getAppointmentSlotCoverage).toBe('function');
     });
 
-    it('should have isAppointmentStart method', () => {
-      expect(typeof component.isAppointmentStart).toBe('function');
+    it('should have shouldShowAppointmentInfo method', () => {
+      expect(typeof component.shouldShowAppointmentInfo).toBe('function');
     });
 
-    it('should have isWithinAppointment method', () => {
-      expect(typeof component.isWithinAppointment).toBe('function');
-    });
-
-        it('should calculate appointment span correctly for no appointment', () => {
+    it('should calculate appointment coverage correctly for no appointment', () => {
       const testDate = new Date('2024-01-15');
       const testTime = '10:00';
 
-      const span = component.getAppointmentSpan(testDate, testTime);
-      expect(span).toBe(1);
+      const coverage = component.getAppointmentSlotCoverage(testDate, testTime);
+      expect(coverage).toBe(0);
     });
 
-    it('should calculate appointment span correctly for different durations', () => {
+    it('should calculate appointment coverage correctly for different durations', () => {
       const testDate = new Date('2024-01-15');
       const testTime = '10:00';
 
-      // 30 minutes = 1 slot
-      expect(component.getAppointmentSpan(testDate, testTime)).toBe(1);
-
-      // 60 minutes = 2 slots
-      // 90 minutes = 3 slots
-      // 120 minutes = 4 slots
-      // 180 minutes = 6 slots
-      // 240 minutes = 8 slots
+      // Coverage should be between 0 and 1
+      const coverage = component.getAppointmentSlotCoverage(testDate, testTime);
+      expect(coverage).toBeGreaterThanOrEqual(0);
+      expect(coverage).toBeLessThanOrEqual(1);
     });
 
-    it('should identify appointment start correctly', () => {
-      const testDate = new Date('2024-01-15');
-      const testTime = '10:00';
 
-      const isStart = component.isAppointmentStart(testDate, testTime);
-      expect(typeof isStart).toBe('boolean');
-    });
-
-    it('should identify appointment continuation correctly', () => {
-      const testDate = new Date('2024-01-15');
-      const testTime = '10:00';
-
-      const isWithin = component.isWithinAppointment(testDate, testTime);
-      expect(typeof isWithin).toBe('boolean');
-    });
   });
 
   describe('Format Duration', () => {
