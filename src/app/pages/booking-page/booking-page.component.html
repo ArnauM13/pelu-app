@@ -1,4 +1,28 @@
-<p-toast></p-toast>
+<p-toast key="booking-toast" position="top-right" [baseZIndex]="9999" (onClick)="onToastClick($event)">
+  <ng-template let-message pTemplate="message">
+    <div class="p-toast-message-content">
+      <div class="p-toast-message-icon">
+        <i [class]="message.severity === 'success' ? 'pi pi-check' : message.severity === 'error' ? 'pi pi-times' : message.severity === 'warn' ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"></i>
+      </div>
+      <div class="p-toast-message-text">
+        <span class="p-toast-summary">{{ message.summary }}</span>
+        <div class="p-toast-detail">{{ message.detail }}</div>
+        @if (message.data?.showViewButton && message.data?.appointmentId) {
+        <div class="p-toast-message-actions">
+          <button
+            class="p-toast-message-btn p-toast-message-btn-primary"
+            (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
+            👁️ Veure detall
+          </button>
+        </div>
+        }
+      </div>
+      <button class="p-toast-icon-close" (click)="messageService.clear('booking-toast'); $event.stopPropagation()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </ng-template>
+</p-toast>
 
 <div class="container" style="margin-top: 2rem; view-transition-name: booking-container">
   <div class="booking-layout" style="margin-bottom: 2rem; view-transition-name: booking-grid">

@@ -3,7 +3,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { PerfilPageComponent } from './pages/perfil-page/perfil-page.component';
-import { authGuard } from './auth/auth.guard';
+import { authGuard, publicGuard } from './auth/auth.guard';
 import { BookingPageComponent } from './pages/booking-page/booking-page.component';
 import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
 import { AppointmentDetailPageComponent } from './pages/appointment-detail-page/appointment-detail-page.component';
@@ -19,11 +19,13 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginPageComponent,
+    canActivate: [publicGuard],
     data: { viewTransitionName: 'login' }
   },
   {
     path: 'register',
     component: RegisterPageComponent,
+    canActivate: [publicGuard],
     data: { viewTransitionName: 'register' }
   },
   {
@@ -53,6 +55,7 @@ export const routes: Routes = [
   {
     path: 'services',
     component: ServicesPageComponent,
+    canActivate: [authGuard],
     data: { viewTransitionName: 'services' }
   },
   {

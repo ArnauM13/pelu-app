@@ -1,6 +1,7 @@
 import { Component, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -63,7 +64,7 @@ export class BookingPageComponent {
 
 
 
-  constructor(private messageService: MessageService, private authService: AuthService) {
+  constructor(public messageService: MessageService, private authService: AuthService, private router: Router) {
     this.loadAppointments();
     this.setDefaultClientName();
 
@@ -130,12 +131,7 @@ export class BookingPageComponent {
   onBookingConfirmed(details: BookingDetails) {
     const user = this.authService.user();
     if (!user) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.',
-        life: 3000
-      });
+      this.showToast('error', 'Error', 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.');
       return;
     }
 
@@ -150,12 +146,7 @@ export class BookingPageComponent {
     this.guardarCites();
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Reserva creada',
-      detail: `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)} a les ${nova.hora}`,
-      life: 3000
-    });
+    this.showToast('success', '✅ Reserva creada', `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)} a les ${nova.hora}`, nova.id, true);
   }
 
   onBookingCancelled() {
@@ -172,12 +163,7 @@ export class BookingPageComponent {
 
     const user = this.authService.user();
     if (!user) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.',
-        life: 3000
-      });
+      this.showToast('error', '❌ Error', 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.');
       return;
     }
 
@@ -190,24 +176,14 @@ export class BookingPageComponent {
     this.nouClientSignal.set({ nom: '', data: '', hora: '' });
     this.guardarCites();
     const timeStr = nova.hora ? ` a les ${nova.hora}` : '';
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Reserva creada',
-      detail: `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)}${timeStr}`,
-      life: 3000
-    });
+    this.showToast('success', '✅ Reserva creada', `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)}${timeStr}`, nova.id, true);
   }
 
   esborrarCita(cita: any) {
     this.citesSignal.update(cites => cites.filter(c => c.id !== cita.id));
     this.guardarCites();
     const timeStr = cita.hora ? ` a les ${cita.hora}` : '';
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Reserva eliminada',
-      detail: `S'ha eliminat la reserva de ${cita.nom} del ${this.formatDate(cita.data)}${timeStr}`,
-      life: 3000
-    });
+    this.showToast('info', '🗑️ Reserva eliminada', `S'ha eliminat la reserva de ${cita.nom} del ${this.formatDate(cita.data)}${timeStr}`, cita.id);
   }
 
   guardarCites() {
@@ -232,5 +208,50 @@ export class BookingPageComponent {
       label: cita.nom,
       value: `${dateStr}${timeStr}`
     };
+  }
+
+  private showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
+    this.messageService.add({
+      severity,
+      summary,
+      detail,
+      life: 4000,
+      closable: false,
+      key: 'booking-toast',
+      data: { appointmentId, showViewButton }
+    });
+  }
+
+  onToastClick(event: any) {
+    const appointmentId = event.message?.data?.appointmentId;
+    if (appointmentId) {
+      const user = this.authService.user();
+      if (!user?.uid) {
+        console.error('No hi ha usuari autenticat');
+        return;
+      }
+
+      // Generem un ID únic combinant clientId i appointmentId
+      const clientId = user.uid;
+      const uniqueId = `${clientId}-${appointmentId}`;
+
+      console.log('🔗 Toast navigating to appointment detail:', uniqueId);
+      this.router.navigate(['/appointments', uniqueId]);
+    }
+  }
+
+  viewAppointmentDetail(appointmentId: string) {
+    const user = this.authService.user();
+    if (!user?.uid) {
+      console.error('No hi ha usuari autenticat');
+      return;
+    }
+
+    // Generem un ID únic combinant clientId i appointmentId
+    const clientId = user.uid;
+    const uniqueId = `${clientId}-${appointmentId}`;
+
+    console.log('🔗 Navigating to appointment detail:', uniqueId);
+    this.router.navigate(['/appointments', uniqueId]);
   }
 }

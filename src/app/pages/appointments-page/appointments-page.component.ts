@@ -42,7 +42,7 @@ import { FloatingButtonComponent } from '../../shared/components/floating-button
 })
 export class AppointmentsPageComponent {
   // Inject services
-  private readonly messageService = inject(MessageService);
+  public readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
@@ -223,16 +223,7 @@ export class AppointmentsPageComponent {
     );
     this.saveAppointments();
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Cita eliminada',
-      detail: `S'ha eliminat la cita de ${appointment.nom}`,
-      life: 3000
-    });
-  }
-
-  viewAppointmentDetail(appointment: any): void {
-    this.router.navigate(['/appointments', appointment.id]);
+    this.showToast('success', '🗑️ Cita eliminada', `S'ha eliminat la cita de ${appointment.nom}`, appointment.id);
   }
 
   private saveAppointments(): void {
@@ -299,6 +290,66 @@ export class AppointmentsPageComponent {
       throw new Error('No hi ha usuari autenticat');
     }
     return currentUser.uid;
+  }
+
+  private showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
+    this.messageService.add({
+      severity,
+      summary,
+      detail,
+      life: 4000,
+      closable: false,
+      key: 'appointments-toast',
+      data: { appointmentId, showViewButton }
+    });
+  }
+
+  onToastClick(event: any) {
+    const appointmentId = event.message?.data?.appointmentId;
+    if (appointmentId) {
+      const user = this.authService.user();
+      if (!user?.uid) {
+        console.error('No hi ha usuari autenticat');
+        return;
+      }
+
+      // Generem un ID únic combinant clientId i appointmentId
+      const clientId = user.uid;
+      const uniqueId = `${clientId}-${appointmentId}`;
+
+      console.log('🔗 Toast navigating to appointment detail:', uniqueId);
+      this.router.navigate(['/appointments', uniqueId]);
+    }
+  }
+
+  viewAppointmentDetail(appointmentOrId: string | any) {
+    let appointment: any;
+
+    if (typeof appointmentOrId === 'string') {
+      // Si és un string, busquem l'appointment per l'ID
+      appointment = this.appointments().find(app => app.id === appointmentOrId);
+      if (!appointment) {
+        console.error('Appointment not found with ID:', appointmentOrId);
+        return;
+      }
+    } else {
+      // Si és un objecte appointment, l'utilitzem directament
+      appointment = appointmentOrId;
+    }
+
+    const user = this.authService.user();
+    if (!user?.uid) {
+      console.error('No hi ha usuari autenticat');
+      return;
+    }
+
+    // Generem un ID únic combinant clientId i appointmentId
+    const clientId = user.uid;
+    const appointmentId = appointment.id;
+    const uniqueId = `${clientId}-${appointmentId}`;
+
+    console.log('🔗 Navigating to appointment detail:', uniqueId);
+    this.router.navigate(['/appointments', uniqueId]);
   }
 }
 
