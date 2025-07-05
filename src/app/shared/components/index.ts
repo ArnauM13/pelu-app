@@ -10,3 +10,5 @@ export { FiltersPopupComponent } from './filters-popup/filters-popup.component';
 export { FiltersInlineComponent } from './filters-inline/filters-inline.component';
 export { BookingPopupComponent } from './booking-popup/booking-popup.component';
 export type { BookingDetails } from './booking-popup/booking-popup.component';
+export { AvatarComponent } from './avatar/avatar.component';
+export type { AvatarData } from './avatar/avatar.component';

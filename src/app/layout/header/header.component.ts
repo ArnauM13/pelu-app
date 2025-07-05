@@ -1,14 +1,15 @@
 import { Component, signal, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Auth, signOut } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { AvatarComponent, AvatarData } from '../../shared/components/avatar/avatar.component';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent, AvatarComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -16,10 +17,24 @@ export class HeaderComponent {
   // Internal state
   private readonly isLoggingOutSignal = signal(false);
 
+  constructor(private authService: AuthService, private router: Router) {}
+
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
+  readonly isLoading = computed(() => this.authService.isLoading());
 
-  constructor(private auth: Auth, private router: Router) {}
+  readonly avatarData = computed((): AvatarData => {
+    const user = this.authService.user();
+
+    const avatarData = {
+      imageUrl: user?.photoURL || undefined,
+      name: user?.displayName?.split(' ')[0] || undefined,
+      surname: user?.displayName?.split(' ').slice(1).join(' ') || undefined,
+      email: user?.email || undefined
+    };
+
+    return avatarData;
+  });
 
   async logout() {
     if (this.isLoggingOut()) return;
@@ -27,8 +42,7 @@ export class HeaderComponent {
     this.isLoggingOutSignal.set(true);
 
     try {
-      await signOut(this.auth);
-      this.router.navigate(['/login']);
+      await this.authService.logout();
     } catch (error) {
       console.error('Error al tancar sessió:', error);
     } finally {

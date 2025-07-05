@@ -31,14 +31,13 @@
   cursor: pointer;
 }
 
-.logo {
-  width: 45px;
-  height: 45px;
-  object-fit: contain;
+.logo-avatar {
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.logo:hover {
-  /* Removed transform effect */
+.logo-avatar:hover {
+  transform: scale(1.1);
 }
 
 .nav {
