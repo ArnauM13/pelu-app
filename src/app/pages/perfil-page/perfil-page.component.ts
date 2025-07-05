@@ -5,11 +5,12 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../auth/auth.service';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
+import { AvatarComponent, AvatarData } from '../../shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'pelu-perfil-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, InfoItemComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, InfoItemComponent, AvatarComponent],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss']
 })
@@ -25,6 +26,20 @@ export class PerfilPageComponent {
   // Public computed signals
   readonly user = computed(() => this.userSignal());
   readonly isLoading = computed(() => this.isLoadingSignal());
+
+  // Avatar data
+  readonly avatarData = computed((): AvatarData => {
+    const user = this.user();
+
+    if (!user) return {};
+
+    return {
+      imageUrl: user.photoURL || undefined,
+      name: user.displayName?.split(' ')[0] || undefined,
+      surname: user.displayName?.split(' ').slice(1).join(' ') || undefined,
+      email: user.email || undefined
+    };
+  });
 
   // Computed properties
   readonly displayName = computed(() => {

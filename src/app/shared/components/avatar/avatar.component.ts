@@ -16,6 +16,10 @@ export interface AvatarData {
     <div
       class="avatar"
       [class.has-image]="hasImage()"
+      [class.small]="size === 'small'"
+      [class.medium]="size === 'medium'"
+      [class.large]="size === 'large'"
+      [class.xlarge]="size === 'xlarge'"
       [style.background-image]="backgroundImageStyle()"
       [title]="tooltipText()"
     >
@@ -64,6 +68,12 @@ export interface AvatarData {
       font-size: 12px;
     }
 
+    .avatar.medium {
+      width: 40px;
+      height: 40px;
+      font-size: 14px;
+    }
+
     .avatar.large {
       width: 56px;
       height: 56px;
@@ -92,41 +102,29 @@ export class AvatarComponent {
 
   readonly backgroundImageStyle = computed(() => {
     if (this.hasImage()) {
-      const style = `url(${this.data.imageUrl})`;
-      console.log('Avatar - Background style:', style);
-      return style;
+      return `url(${this.data.imageUrl})`;
     }
-    console.log('Avatar - No background image');
     return '';
   });
 
-      readonly initials = computed(() => {
-    console.log('Avatar - Received data:', this.data);
-
+  readonly initials = computed(() => {
     const name = this.data.name || '';
     const surname = this.data.surname || '';
 
-    console.log('Avatar - Name:', name, 'Surname:', surname);
-
     if (name && surname) {
-      const result = `${name.charAt(0)}${surname.charAt(0)}`;
-      console.log('Avatar - Showing initials:', result);
-      return result;
+      return `${name.charAt(0)}${surname.charAt(0)}`;
     } else if (name) {
-      const result = name.charAt(0);
-      console.log('Avatar - Showing first letter of name:', result);
-      return result;
+      return name.charAt(0);
     } else if (this.data.email) {
-      const result = this.data.email.charAt(0).toUpperCase();
-      console.log('Avatar - Showing first letter of email:', result);
-      return result;
+      return this.data.email.charAt(0).toUpperCase();
     }
 
-    console.log('Avatar - Showing fallback emoji');
     return '👤';
   });
 
   readonly tooltipText = computed(() => {
-    return `${this.data.name} ${this.data.surname}`;
+    const name = this.data.name || '';
+    const surname = this.data.surname || '';
+    return `${name} ${surname}`.trim() || this.data.email || 'User';
   });
 }

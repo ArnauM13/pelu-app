@@ -19,6 +19,11 @@ export class HeaderComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+  // Getter per accedir des del template
+  get authServicePublic() {
+    return this.authService;
+  }
+
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
   readonly isLoading = computed(() => this.authService.isLoading());
@@ -26,15 +31,18 @@ export class HeaderComponent {
   readonly avatarData = computed((): AvatarData => {
     const user = this.authService.user();
 
-    const avatarData = {
+    return {
       imageUrl: user?.photoURL || undefined,
       name: user?.displayName?.split(' ')[0] || undefined,
       surname: user?.displayName?.split(' ').slice(1).join(' ') || undefined,
       email: user?.email || undefined
     };
-
-    return avatarData;
   });
+
+  navigateToProfile(event: Event) {
+    event.stopPropagation(); // Evita que es propagui al logo-section
+    this.router.navigate(['/perfil']);
+  }
 
   async logout() {
     if (this.isLoggingOut()) return;
