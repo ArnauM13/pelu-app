@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -190,6 +190,15 @@ export class BookingPopupComponent {
   onServiceChange(service: Service) {
     this.selectedService.set(service);
     this.serviceChanged.emit(service);
+  }
+
+  constructor() {
+    // Reset selected service when popup closes
+    effect(() => {
+      if (!this.open()) {
+        this.selectedService.set(undefined);
+      }
+    });
   }
 
   onBackdropClick(event: Event) {

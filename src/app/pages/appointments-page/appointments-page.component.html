@@ -89,34 +89,10 @@
     </div>
 
     <div class="calendar-container">
-      <p-calendar
-        [(ngModel)]="selectedDate"
-        (onSelect)="onDateSelect($event)"
-        [inline]="true"
-        [showOtherMonths]="true"
-        [selectOtherMonths]="false"
-        [firstDayOfWeek]="1"
-        dateFormat="dd/mm/yy"
-        [showIcon]="false">
-
-        <ng-template pTemplate="date" let-date>
-          <div class="calendar-day" [class.has-appointments]="getAppointmentsForDate(date).length > 0">
-            <span class="day-number">{{ date.day }}</span>
-            @if (getAppointmentsForDate(date).length > 0) {
-            <div class="appointment-indicators">
-              @for (appointment of getAppointmentsForDate(date); track appointment.id) {
-              <div
-                class="appointment-dot clickable"
-                [style.background-color]="getEventColor(appointment.data)"
-                [pTooltip]="appointment.nom + ' - ' + formatTime(appointment.hora)"
-                (click)="viewAppointmentDetail(appointment)">
-              </div>
-              }
-            </div>
-            }
-          </div>
-        </ng-template>
-      </p-calendar>
+      <pelu-calendar-component
+        [events]="calendarEvents()"
+        [mini]="false">
+      </pelu-calendar-component>
     </div>
 
     <!-- Mostra la llista de cites o el missatge d'instrucció a sota del calendari -->
@@ -148,6 +124,18 @@
                 <div class="detail-item">
                   <span class="detail-icon">✂️</span>
                   <span class="detail-text">{{ appointment.servei }}</span>
+                </div>
+                }
+                @if (appointment.serviceName) {
+                <div class="detail-item">
+                  <span class="detail-icon">✂️</span>
+                  <span class="detail-text">{{ appointment.serviceName }}</span>
+                </div>
+                }
+                @if (appointment.duration) {
+                <div class="detail-item">
+                  <span class="detail-icon">⏱️</span>
+                  <span class="detail-text">{{ appointment.duration }} min</span>
                 </div>
                 }
               </div>
@@ -237,6 +225,18 @@
               <div class="detail-item">
                 <span class="detail-icon">✂️</span>
                 <span class="detail-text">{{ appointment.servei }}</span>
+              </div>
+              }
+              @if (appointment.serviceName) {
+              <div class="detail-item">
+                <span class="detail-icon">✂️</span>
+                <span class="detail-text">{{ appointment.serviceName }}</span>
+              </div>
+              }
+              @if (appointment.duration) {
+              <div class="detail-item">
+                <span class="detail-icon">⏱️</span>
+                <span class="detail-text">{{ appointment.duration }} min</span>
               </div>
               }
             </div>

@@ -183,15 +183,19 @@
   align-items: center;
   justify-content: center;
   padding: 0.25rem;
+  transition: all 0.2s ease;
 }
 
 .day-time-slot.clickable {
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .day-time-slot.clickable:hover {
   background: #e3f2fd;
   border-color: #3b82f6;
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 .day-time-slot.available {
@@ -207,14 +211,99 @@
 .day-time-slot.booked {
   background: #f8d7da;
   color: #721c24;
-  cursor: not-allowed;
+  cursor: pointer;
+  position: relative;
+}
+
+.day-time-slot.booked::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(220, 53, 69, 0.1) 2px,
+    rgba(220, 53, 69, 0.1) 4px
+  );
 }
 
 .day-time-slot.lunch-break {
   background: #e9ecef;
   color: #6c757d;
-  cursor: not-allowed;
+  cursor: pointer;
   opacity: 0.7;
+}
+
+.day-time-slot.past-date {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: default;
+  opacity: 0.7;
+  position: relative;
+}
+
+.day-time-slot.past-date::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(173, 181, 189, 0.05) 50%,
+    transparent 70%
+  );
+}
+
+.day-time-slot.past-time {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: default;
+  opacity: 0.8;
+  position: relative;
+}
+
+.day-time-slot.past-time::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(173, 181, 189, 0.08) 50%,
+    transparent 60%
+  );
+}
+
+/* Past slots have no hover effects - they remain static */
+
+/* Lunch break slots have no hover effects - they remain static */
+
+// Hover effects for booked slots
+.day-time-slot.booked:hover {
+  background: #f5c2c7;
+  opacity: 0.9;
+}
+
+// Hover effects for appointment continuing slots
+.day-time-slot.appointment-continuing:hover {
+  background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+  opacity: 0.9;
+}
+
+// Hover effects for appointment start slots
+.day-time-slot.appointment-start:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: scale(1.02);
 }
 
 .day-time-slot.selected {
@@ -241,6 +330,117 @@
   width: 100%;
   color: #6c757d;
   font-weight: 500;
+}
+
+/* Past date and time slots now use visual styling only, no text */
+
+// Appointment styles for duration-based display
+.day-time-slot.appointment-start {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.day-time-slot.appointment-start::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  animation: shimmer 2s infinite;
+}
+
+.day-time-slot.appointment-continuing {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+  cursor: pointer;
+  position: relative;
+}
+
+.day-time-slot.appointment-continuing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(59, 130, 246, 0.1) 2px,
+    rgba(59, 130, 246, 0.1) 4px
+  );
+}
+
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.25rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.appointment-title {
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.appointment-service {
+  font-size: 0.65rem;
+  opacity: 0.9;
+  margin-bottom: 0.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.appointment-duration {
+  font-size: 0.6rem;
+  opacity: 0.8;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  margin-top: 0.1rem;
+}
+
+.appointment-continuing-indicator {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appointment-continuing-indicator::before {
+  content: '→';
+  font-size: 1.2rem;
+  color: #1e40af;
+  font-weight: bold;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 // Responsive adjustments
@@ -299,6 +499,34 @@
     min-height: 35px;
     padding: 0.4rem 0.2rem;
   }
+
+  // Mobile appointment styles
+  .appointment-info {
+    font-size: 0.6rem;
+    padding: 0.15rem;
+  }
+
+  .appointment-title {
+    font-size: 0.65rem;
+    margin-bottom: 0.05rem;
+  }
+
+  .appointment-service {
+    font-size: 0.55rem;
+    margin-bottom: 0.05rem;
+  }
+
+  .appointment-duration {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.2rem;
+    margin-top: 0.05rem;
+  }
+
+  .appointment-continuing-indicator::before {
+    font-size: 1rem;
+  }
+
+  /* Past slots styling is handled by the main styles */
 }
 
 // Weekly List View Styles

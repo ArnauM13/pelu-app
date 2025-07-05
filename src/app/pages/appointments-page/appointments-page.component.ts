@@ -15,7 +15,7 @@ import { AuthService } from '../../auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { CalendarComponent } from '../../features/calendar/calendar.component';
+import { CalendarComponent, AppointmentEvent } from '../../features/calendar/calendar.component';
 import { FiltersInlineComponent } from '../../shared/components/filters-inline/filters-inline.component';
 import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
 
@@ -132,12 +132,13 @@ export class AppointmentsPageComponent {
   });
 
   // Computed calendar events
-  readonly calendarEvents = computed(() => {
+  readonly calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({
-      date: appointment.data,
-      color: this.getEventColor(appointment.data),
       title: appointment.nom,
-      time: appointment.hora
+      start: appointment.data + (appointment.hora ? 'T' + appointment.hora : 'T00:00'),
+      duration: appointment.duration || 60,
+      serviceName: appointment.serviceName,
+      clientName: appointment.nom
     }));
   });
 
