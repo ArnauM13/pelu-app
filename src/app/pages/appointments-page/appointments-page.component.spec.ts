@@ -59,31 +59,31 @@ describe('AppointmentsPageComponent', () => {
     expect(typeof component.isPast).toBe('function');
   });
 
-  it('should have clearFilters method', () => {
-    expect(typeof component.clearFilters).toBe('function');
+  it('should have clearAllFilters method', () => {
+    expect(typeof component.clearAllFilters).toBe('function');
   });
 
   it('should have computed properties', () => {
-    expect(component.cites).toBeDefined();
+    expect(component.appointments).toBeDefined();
     expect(component.viewMode).toBeDefined();
-    expect(component.filteredCites).toBeDefined();
+    expect(component.filteredAppointments).toBeDefined();
     expect(component.totalAppointments).toBeDefined();
     expect(component.todayAppointments).toBeDefined();
     expect(component.upcomingAppointments).toBeDefined();
   });
 
   it('should have filter methods', () => {
-    expect(typeof component.applyQuickFilter).toBe('function');
-    expect(typeof component.toggleAdvancedFilters).toBe('function');
-    expect(typeof component.onFilterClick).toBe('function');
+    expect(typeof component.setFilterDate).toBe('function');
+    expect(typeof component.setFilterClient).toBe('function');
+    expect(typeof component.setQuickFilter).toBe('function');
   });
 
   it('should have view methods', () => {
-    expect(typeof component.onViewButtonClick).toBe('function');
+    expect(typeof component.setViewMode).toBe('function');
   });
 
-  it('should have popup methods', () => {
-    expect(typeof component.openFiltersPopup).toBe('function');
-    expect(typeof component.closePopup).toBe('function');
+  it('should have utility methods', () => {
+    expect(typeof component.deleteAppointment).toBe('function');
+    expect(typeof component.viewAppointmentDetail).toBe('function');
   });
 });

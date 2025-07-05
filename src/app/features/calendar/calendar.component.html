@@ -52,6 +52,7 @@
              [class.clickable]="isTimeSlotAvailable(day, time)"
              [class.appointment-start]="isAppointmentStart(day, time)"
              [class.appointment-continuing]="isWithinAppointment(day, time)"
+             [style.grid-row]="isAppointmentStart(day, time) ? 'span ' + getAppointmentSpan(day, time) : ''"
              [title]="getTimeSlotTooltip(day, time)"
              (click)="selectTimeSlot(day, time)">
 

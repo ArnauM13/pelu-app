@@ -5,7 +5,7 @@ import { BookingPageComponent } from './booking-page.component';
 import { AuthService } from '../../auth/auth.service';
 import { mockAuthService } from '../../../testing/firebase-mocks';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';
 
 // Mock translate loader
@@ -60,12 +60,12 @@ describe('BookingPageComponent', () => {
     expect(typeof component.onDateSelected).toBe('function');
   });
 
-  it('should have confirmBooking method', () => {
-    expect(typeof component.confirmBooking).toBe('function');
+  it('should have onBookingConfirmed method', () => {
+    expect(typeof component.onBookingConfirmed).toBe('function');
   });
 
-  it('should have closeBookingPopup method', () => {
-    expect(typeof component.closeBookingPopup).toBe('function');
+  it('should have onBookingCancelled method', () => {
+    expect(typeof component.onBookingCancelled).toBe('function');
   });
 
   it('should have afegirCita method', () => {
