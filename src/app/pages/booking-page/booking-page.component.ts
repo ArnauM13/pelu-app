@@ -82,17 +82,21 @@ export class BookingPageComponent {
 
   private loadAppointments() {
     const dades = JSON.parse(localStorage.getItem('cites') || '[]');
-    // Migrate existing appointments to have IDs
+
+    // Only add IDs to appointments that don't have them (no migration of userId)
     const dadesAmbIds = dades.map((cita: any) => {
       if (!cita.id) {
         return { ...cita, id: uuidv4() };
       }
       return cita;
     });
+
     this.citesSignal.set(dadesAmbIds);
 
-    // Save migrated data back to localStorage
-    if (dades.length > 0 && dadesAmbIds.length === dades.length) {
+    // Save migrated data back to localStorage if there were changes
+    if (dadesAmbIds.some((cita: any, index: number) =>
+      cita.id !== dades[index]?.id
+    )) {
       localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
     }
   }
@@ -124,11 +128,23 @@ export class BookingPageComponent {
   }
 
   onBookingConfirmed(details: BookingDetails) {
+    const user = this.authService.user();
+    if (!user) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.',
+        life: 3000
+      });
+      return;
+    }
+
     const nova = {
       nom: details.clientName,
       data: details.date,
       hora: details.time,
-      id: uuidv4()
+      id: uuidv4(),
+      userId: user.uid
     };
     this.citesSignal.update(cites => [...cites, nova]);
     this.guardarCites();
@@ -154,9 +170,21 @@ export class BookingPageComponent {
   afegirCita() {
     if (!this.canAddAppointment()) return;
 
+    const user = this.authService.user();
+    if (!user) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.',
+        life: 3000
+      });
+      return;
+    }
+
     const nova = {
       ...this.nouClient(),
-      id: uuidv4()
+      id: uuidv4(),
+      userId: user.uid
     };
     this.citesSignal.update(cites => [...cites, nova]);
     this.nouClientSignal.set({ nom: '', data: '', hora: '' });
