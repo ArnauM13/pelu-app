@@ -48,6 +48,7 @@
     "CLIENT": "Client",
     "SERVICE": "Servei",
     "SELECT_SERVICE": "Selecciona un servei",
+    "SEARCH_SERVICES": "Cercar serveis...",
     "DURATION": "Durada",
     "PRICE": "Preu",
     "QUICK_BOOKING": "Reserva Ràpida",
