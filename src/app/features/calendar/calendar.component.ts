@@ -99,7 +99,9 @@ export class CalendarComponent {
   readonly timeSlots = computed(() => {
     const slots = [];
     for (let hour = this.businessHours.start; hour < this.businessHours.end; hour++) {
-      slots.push(`${hour.toString().padStart(2, '0')}:00`);
+      for (let minute = 0; minute < 60; minute += 30) {
+        slots.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+      }
     }
     return slots;
   });
@@ -125,8 +127,12 @@ export class CalendarComponent {
 
   // Check if a time slot is during lunch break
   isLunchBreak(time: string): boolean {
-    const hour = parseInt(time.split(':')[0]);
-    return hour >= this.lunchBreak.start && hour < this.lunchBreak.end;
+    const [hour, minute] = time.split(':').map(Number);
+    const timeInMinutes = hour * 60 + minute;
+    const lunchStartMinutes = this.lunchBreak.start * 60;
+    const lunchEndMinutes = this.lunchBreak.end * 60;
+
+    return timeInMinutes >= lunchStartMinutes && timeInMinutes < lunchEndMinutes;
   }
 
   // Check if a time slot is available (considering appointment duration)
@@ -156,7 +162,7 @@ export class CalendarComponent {
       const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
 
       // Check if the time slot overlaps with the appointment
-      return appointmentStart < timeSlotStart && appointmentEnd > timeSlotStart;
+      return appointmentStart <= timeSlotStart && appointmentEnd > timeSlotStart;
     });
   }
 
@@ -198,7 +204,19 @@ export class CalendarComponent {
     return null;
   }
 
-  // Check if a time slot is the start of an appointment
+  // Calculate how many time slots an appointment spans
+  getAppointmentSpan(date: Date, time: string): number {
+    const appointment = this.getAppointmentForTimeSlot(date, time);
+    if (!appointment) return 1;
+
+    const appointmentStart = new Date(appointment.start);
+    const appointmentDuration = appointment.duration || 60;
+
+    // Calculate how many 30-minute slots this appointment spans
+    return Math.ceil(appointmentDuration / 30);
+  }
+
+  // Check if this time slot is the start of a multi-slot appointment
   isAppointmentStart(date: Date, time: string): boolean {
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (!appointment) return false;
@@ -209,7 +227,7 @@ export class CalendarComponent {
     return appointmentStart.getTime() === timeSlotStart.getTime();
   }
 
-  // Check if a time slot is within an appointment (but not the start)
+  // Check if this time slot is within an appointment (but not the start)
   isWithinAppointment(date: Date, time: string): boolean {
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (!appointment) return false;
@@ -219,6 +237,8 @@ export class CalendarComponent {
 
     return appointmentStart.getTime() !== timeSlotStart.getTime();
   }
+
+
 
   // Select a day
   selectDay(date: Date) {

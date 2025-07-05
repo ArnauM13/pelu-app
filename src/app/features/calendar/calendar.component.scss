@@ -122,13 +122,13 @@
 }
 
 .time-slot-label {
-  padding: 0.75rem 0.5rem;
+  padding: 0.25rem 0.25rem;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: #495057;
   border-bottom: 1px solid #f1f3f4;
-  height: 50px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,6 +140,8 @@
   min-width: 120px;
   border-right: 1px solid #e9ecef;
   background: white;
+  display: grid;
+  grid-template-rows: 40px repeat(24, 25px); /* 40px for header + 24 time slots of 25px each (30 min slots) */
 }
 
 .day-column:last-child {
@@ -161,6 +163,7 @@
   justify-content: center;
   align-items: baseline;
   gap: 0.5rem;
+  grid-row: 1;
 }
 
 .day-name {
@@ -176,14 +179,15 @@
 
 // Day Time Slots
 .day-time-slot {
-  height: 50px;
+  height: 25px;
   border-bottom: 1px solid #f1f3f4;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
+  padding: 0.1rem;
   transition: all 0.2s ease;
+  grid-row: auto;
 }
 
 .day-time-slot.clickable {
@@ -313,7 +317,7 @@
 }
 
 .booked-event {
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -322,7 +326,7 @@
 }
 
 .lunch-break-text {
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -341,6 +345,7 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  z-index: 2;
 }
 
 .day-time-slot.appointment-start::before {
@@ -359,6 +364,7 @@
   color: #1e40af;
   cursor: pointer;
   position: relative;
+  z-index: 1;
 }
 
 .day-time-slot.appointment-continuing::after {
@@ -385,9 +391,10 @@
   text-align: center;
   width: 100%;
   height: 100%;
-  padding: 0.25rem;
-  font-size: 0.7rem;
-  line-height: 1.2;
+  padding: 0.1rem;
+  font-size: 0.6rem;
+  line-height: 1.1;
+  min-height: 25px;
 }
 
 .appointment-title {
@@ -429,7 +436,7 @@
 
 .appointment-continuing-indicator::before {
   content: '→';
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   color: #1e40af;
   font-weight: bold;
 }
@@ -482,12 +489,17 @@
 
   .day-column {
     min-width: 100px;
+    grid-template-rows: 35px repeat(24, 20px); /* Smaller header and time slots for mobile */
   }
 
   .time-slot-label,
   .day-time-slot {
-    height: 40px;
-    font-size: 0.8rem;
+    height: 20px;
+    font-size: 0.6rem;
+  }
+
+  .appointment-info {
+    min-height: 20px;
   }
 
   .day-header {
@@ -502,28 +514,28 @@
 
   // Mobile appointment styles
   .appointment-info {
-    font-size: 0.6rem;
-    padding: 0.15rem;
+    font-size: 0.5rem;
+    padding: 0.05rem;
   }
 
   .appointment-title {
-    font-size: 0.65rem;
-    margin-bottom: 0.05rem;
+    font-size: 0.55rem;
+    margin-bottom: 0.02rem;
   }
 
   .appointment-service {
-    font-size: 0.55rem;
-    margin-bottom: 0.05rem;
+    font-size: 0.45rem;
+    margin-bottom: 0.02rem;
   }
 
   .appointment-duration {
-    font-size: 0.5rem;
-    padding: 0.05rem 0.2rem;
-    margin-top: 0.05rem;
+    font-size: 0.4rem;
+    padding: 0.02rem 0.1rem;
+    margin-top: 0.02rem;
   }
 
   .appointment-continuing-indicator::before {
-    font-size: 1rem;
+    font-size: 0.6rem;
   }
 
   /* Past slots styling is handled by the main styles */
