@@ -140,19 +140,17 @@ export class AppointmentsPageComponent {
         filtered = filtered.filter(cita => cita.data === today);
         break;
       case 'upcoming':
-        const todayDate = new Date();
-        todayDate.setHours(0, 0, 0, 0);
+        const now = new Date();
         filtered = filtered.filter(cita => {
-          const appointmentDate = new Date(cita.data);
-          return appointmentDate >= todayDate;
+          const appointmentDateTime = new Date(cita.data + 'T' + (cita.hora || '23:59'));
+          return appointmentDateTime > now;
         });
         break;
       case 'past':
-        const todayPast = new Date();
-        todayPast.setHours(0, 0, 0, 0);
+        const nowPast = new Date();
         filtered = filtered.filter(cita => {
-          const appointmentDate = new Date(cita.data);
-          return appointmentDate < todayPast;
+          const appointmentDateTime = new Date(cita.data + 'T' + (cita.hora || '00:00'));
+          return appointmentDateTime < nowPast;
         });
         break;
       case 'mine':
@@ -200,11 +198,10 @@ export class AppointmentsPageComponent {
     return this.cites().filter(cita => cita.data === today).length;
   });
   readonly upcomingAppointments = computed(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
     return this.cites().filter(cita => {
-      const appointmentDate = new Date(cita.data);
-      return appointmentDate >= today;
+      const appointmentDateTime = new Date(cita.data + 'T' + (cita.hora || '23:59'));
+      return appointmentDateTime > now;
     }).length;
   });
   readonly myAppointments = computed(() => {
