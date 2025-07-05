@@ -148,6 +148,13 @@ export class CalendarComponent {
     return this.selectedDay() ? isSameDay(this.selectedDay()!, date) : false;
   }
 
+  // Check if we can navigate to previous week
+  canNavigateToPreviousWeek(): boolean {
+    const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const viewWeekStart = startOfWeek(this.viewDate(), { weekStartsOn: 1 });
+    return viewWeekStart > currentWeekStart;
+  }
+
   // Check if a time slot is selected
   isTimeSlotSelected(date: Date, time: string): boolean {
     const selected = this.selectedDateTime();
@@ -163,8 +170,10 @@ export class CalendarComponent {
   }
 
   previousWeek() {
-    this.viewDateSignal.set(addDays(this.viewDate(), -7));
-    this.selectedDaySignal.set(null); // Clear selection when changing weeks
+    if (this.canNavigateToPreviousWeek()) {
+      this.viewDateSignal.set(addDays(this.viewDate(), -7));
+      this.selectedDaySignal.set(null); // Clear selection when changing weeks
+    }
   }
 
   nextWeek() {
