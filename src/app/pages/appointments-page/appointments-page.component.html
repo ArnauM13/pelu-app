@@ -1,11 +1,10 @@
 <p-toast></p-toast>
 
-<div class="container" style="view-transition-name: appointments-container">
-
+<div class="container pelu-appointments-page" style="view-transition-name: appointments-container">
 
   <!-- Statistics Cards -->
   <div class="stats-grid" style="view-transition-name: stats-grid">
-    <div class="stat-card clickable" (click)="onStatCardClick('all')">
+    <div class="stat-card clickable" (click)="setQuickFilter('all')">
       <div class="stat-icon">📅</div>
       <div class="stat-content">
         <div class="stat-number">{{ totalAppointments() }}</div>
@@ -13,7 +12,7 @@
       </div>
     </div>
 
-    <div class="stat-card clickable" (click)="onStatCardClick('today')">
+    <div class="stat-card clickable" (click)="setQuickFilter('today')">
       <div class="stat-icon">🎯</div>
       <div class="stat-content">
         <div class="stat-number">{{ todayAppointments() }}</div>
@@ -21,7 +20,7 @@
       </div>
     </div>
 
-    <div class="stat-card clickable" (click)="onStatCardClick('upcoming')">
+    <div class="stat-card clickable" (click)="setQuickFilter('upcoming')">
       <div class="stat-icon">⏰</div>
       <div class="stat-content">
         <div class="stat-number">{{ upcomingAppointments() }}</div>
@@ -29,7 +28,7 @@
       </div>
     </div>
 
-    <div class="stat-card clickable" (click)="onStatCardClick('mine')">
+    <div class="stat-card clickable" (click)="setQuickFilter('mine')">
       <div class="stat-icon">👨</div>
       <div class="stat-content">
         <div class="stat-number">{{ myAppointments() }}</div>
@@ -40,15 +39,11 @@
 
   <!-- Inline Filters -->
   <pelu-filters-inline
-    [filterButtons]="filterButtons"
     [filterDate]="filterDate"
     [filterClient]="filterClient"
-    [showAdvancedFilters]="showAdvancedFilters"
-    [onFilterClick]="onFilterClick"
-    [onDateChange]="onDateChange"
-    [onClientChange]="onClientChange"
-    [onReset]="onResetFilters"
-    [onToggleAdvanced]="toggleAdvancedFilters">
+    [onDateChange]="setFilterDate"
+    [onClientChange]="setFilterClient"
+    [onReset]="clearAllFilters">
   </pelu-filters-inline>
 
   <!-- View Mode Toggle (main action - right side) -->
@@ -56,7 +51,7 @@
     @for (button of viewButtons(); track button.icon; let i = $index) {
     <pelu-floating-button
       [config]="button"
-      (clicked)="onViewButtonClick(i)">
+      (clicked)="setViewMode(i === 0 ? 'list' : 'calendar')">
     </pelu-floating-button>
     }
   </div>
@@ -112,17 +107,23 @@
       </div>
       } @else {
       <div class="appointments-list">
-        @for (cita of getAppointmentsForDate(selectedDate()!); track cita.id) {
-        <div class="appointment-item clickable" [class.today]="isToday(cita.data)" (click)="viewAppointmentDetail(cita)">
+        @for (appointment of getAppointmentsForDate(selectedDate()!); track appointment.id) {
+        <div class="appointment-item clickable" [class.today]="isToday(appointment.data)" (click)="viewAppointmentDetail(appointment)">
           <!-- Informació de la cita (esquerra) -->
           <div class="appointment-info">
             <div class="client-info">
-              <h4 class="client-name">{{ cita.nom }}</h4>
+              <h4 class="client-name">{{ appointment.nom }}</h4>
               <div class="appointment-details">
-                @if (cita.hora) {
+                @if (appointment.hora) {
                 <div class="detail-item">
                   <span class="detail-icon">⏰</span>
-                  <span class="detail-text">{{ formatTime(cita.hora) }}</span>
+                  <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
+                </div>
+                }
+                @if (appointment.servei) {
+                <div class="detail-item">
+                  <span class="detail-icon">✂️</span>
+                  <span class="detail-text">{{ appointment.servei }}</span>
                 </div>
                 }
               </div>
@@ -132,7 +133,7 @@
           <!-- Status i accions (dreta) -->
           <div class="appointment-actions-container">
             <div class="appointment-status">
-              @if (isToday(cita.data)) {
+              @if (isToday(appointment.data)) {
               <span class="status-badge today">{{ 'COMMON.TODAY' | translate }}</span>
               }
             </div>
@@ -140,14 +141,14 @@
             <div class="appointment-actions" (click)="$event.stopPropagation()">
               <button
                 class="btn btn-primary"
-                (click)="viewAppointmentDetail(cita)"
+                (click)="viewAppointmentDetail(appointment)"
                 [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
                 pTooltipPosition="left">
                 👁️
               </button>
               <button
                 class="btn btn-danger"
-                (click)="deleteAppointment(cita)"
+                (click)="deleteAppointment(appointment)"
                 [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
                 pTooltipPosition="left">
                 🗑️
@@ -175,38 +176,43 @@
   @if (viewMode() === 'list') {
   <pelu-card variant="large" style="view-transition-name: list-view">
     <div class="card-header">
-      <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} ({{ filteredCites().length }})</h3>
+      <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} ({{ filteredAppointments().length }})</h3>
     </div>
 
-    @if (filteredCites().length === 0) {
+    @if (filteredAppointments().length === 0) {
     <div class="empty-state">
       <div class="empty-icon">📅</div>
       <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
       <p>{{ filterDate() || filterClient() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
       @if (filterDate() || filterClient()) {
-      <button class="btn btn-primary" (click)="clearFilters()">
+      <button class="btn btn-primary" (click)="clearAllFilters()">
         {{ 'COMMON.CLEAR_FILTERS' | translate }}
       </button>
       }
     </div>
     } @else {
     <div class="appointments-list">
-      @for (cita of filteredCites(); track cita.id) {
-      <div class="appointment-item clickable" [class.today]="isToday(cita.data)" [class.past]="isPast(cita.data)" (click)="viewAppointmentDetail(cita)">
+      @for (appointment of filteredAppointments(); track appointment.id) {
+      <div class="appointment-item clickable" [class.today]="isToday(appointment.data)" (click)="viewAppointmentDetail(appointment)">
         <!-- Informació de la cita (esquerra) -->
         <div class="appointment-info">
           <div class="client-info">
-            <h4 class="client-name">{{ cita.nom }}</h4>
+            <h4 class="client-name">{{ appointment.nom }}</h4>
             <div class="appointment-details">
               <div class="detail-item">
                 <span class="detail-icon">📅</span>
-                <span class="detail-text">{{ formatDate(cita.data) }}</span>
+                <span class="detail-text">{{ formatDate(appointment.data) }}</span>
               </div>
-
-              @if (cita.hora) {
+              @if (appointment.hora) {
               <div class="detail-item">
                 <span class="detail-icon">⏰</span>
-                <span class="detail-text">{{ formatTime(cita.hora) }}</span>
+                <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
+              </div>
+              }
+              @if (appointment.servei) {
+              <div class="detail-item">
+                <span class="detail-icon">✂️</span>
+                <span class="detail-text">{{ appointment.servei }}</span>
               </div>
               }
             </div>
@@ -216,24 +222,26 @@
         <!-- Status i accions (dreta) -->
         <div class="appointment-actions-container">
           <div class="appointment-status">
-            @if (isToday(cita.data)) {
+            @if (isToday(appointment.data)) {
             <span class="status-badge today">{{ 'COMMON.TODAY' | translate }}</span>
-            } @else if (isPast(cita.data)) {
+            } @else if (isPast(appointment.data)) {
             <span class="status-badge past">{{ 'COMMON.PAST' | translate }}</span>
+            } @else {
+            <span class="status-badge upcoming">{{ 'COMMON.UPCOMING' | translate }}</span>
             }
           </div>
 
           <div class="appointment-actions" (click)="$event.stopPropagation()">
             <button
               class="btn btn-primary"
-              (click)="viewAppointmentDetail(cita)"
+              (click)="viewAppointmentDetail(appointment)"
               [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
               pTooltipPosition="left">
               👁️
             </button>
             <button
               class="btn btn-danger"
-              (click)="deleteAppointment(cita)"
+              (click)="deleteAppointment(appointment)"
               [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
               pTooltipPosition="left">
               🗑️
@@ -246,4 +254,5 @@
     }
   </pelu-card>
   }
+
 </div>

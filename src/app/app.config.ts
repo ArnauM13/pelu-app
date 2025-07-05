@@ -3,13 +3,13 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
-import Aura from '@primeng/themes/aura';
 
 // Factory function for TranslateHttpLoader
 export function HttpLoaderFactory(http: HttpClient) {
@@ -20,9 +20,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     providePrimeNG({
-        theme: {
-            preset: Aura,
-        }
+      ripple: true,
+      inputStyle: 'outlined'
     }),
     provideZoneChangeDetection({
       eventCoalescing: true,
@@ -41,6 +40,7 @@ export const appConfig: ApplicationConfig = {
         defaultLanguage: 'ca',
         useDefaultLang: true
       })
-    )
+    ),
+    importProvidersFrom(BrowserAnimationsModule)
   ]
 };

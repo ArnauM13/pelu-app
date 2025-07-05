@@ -15,6 +15,7 @@ import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
+import { AuthService } from '../../auth/auth.service';
 
 interface AppointmentForm {
   nom: string;
@@ -50,6 +51,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   #messageService = inject(MessageService);
   #route = inject(ActivatedRoute);
   #router = inject(Router);
+  #authService = inject(AuthService);
 
   // Core data signals
   #appointmentSignal = signal<any>(null);
@@ -232,6 +234,17 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     if (!cita || !this.canSave()) return;
 
+    const user = this.#authService.user();
+    if (!user) {
+      this.#messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No s\'ha pogut guardar la cita. Si us plau, inicia sessió.',
+        life: 3000
+      });
+      return;
+    }
+
     const updatedAppointment = {
       ...cita,
       nom: form.nom.trim(),
@@ -239,7 +252,8 @@ export class AppointmentDetailPageComponent implements OnInit {
       hora: form.hora,
       notes: form.notes?.trim() || '',
       servei: form.servei?.trim() || '',
-      preu: form.preu || 0
+      preu: form.preu || 0,
+      userId: user.uid
     };
 
     const appointments = JSON.parse(localStorage.getItem('cites') || '[]');

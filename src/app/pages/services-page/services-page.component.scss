@@ -1,0 +1,242 @@
+.services-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
+  padding: 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  .services-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--text-color);
+    position: relative;
+    z-index: 1;
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--primary-color-darkest);
+      text-shadow: 0 2px 4px rgba(15, 44, 89, 0.08);
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: var(--text-color-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  .services-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .service-category {
+    margin-bottom: 3rem;
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-color);
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-color);
+
+      .category-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--primary-color-darkest);
+        margin: 0;
+      }
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .service-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+      ::ng-deep .p-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+
+        &:hover {
+          box-shadow: var(--box-shadow-hover);
+          border-color: var(--primary-color-light);
+        }
+
+        .p-card-header {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+          color: var(--text-color-white);
+          padding: 1.5rem;
+
+          .service-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            h3 {
+              margin: 0;
+              font-size: 1.3rem;
+              font-weight: 600;
+            }
+          }
+        }
+
+        .p-card-content {
+          padding: 1.5rem;
+
+          .service-description {
+            color: var(--text-color-light);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+          }
+
+          .service-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+
+            .service-info {
+              .duration {
+                color: var(--text-color-light);
+                font-size: 0.9rem;
+              }
+            }
+
+            .service-price {
+              .price {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--primary-color);
+              }
+            }
+          }
+        }
+
+        .p-card-footer {
+          padding: 1rem 1.5rem;
+          background: var(--secondary-color-light);
+          border-top: 1px solid var(--border-color);
+
+          ::ng-deep .p-button {
+            width: 100%;
+            border-radius: 8px;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+
+  .services-footer {
+    text-align: center;
+    margin-top: 3rem;
+    color: var(--text-color);
+    position: relative;
+    z-index: 1;
+
+    p {
+      margin-bottom: 1.5rem;
+      color: var(--text-color-light);
+      font-size: 1rem;
+    }
+
+    ::ng-deep .p-button {
+      border-radius: 8px;
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .services-page {
+    padding: 1rem 0.5rem;
+
+    .services-header {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+
+    .service-category {
+      padding: 1.5rem;
+
+      .category-header {
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .services-page {
+    .services-header {
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    .service-category {
+      padding: 1rem;
+
+      .category-header {
+        .category-icon {
+          font-size: 1.5rem;
+        }
+
+        h2 {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+}
