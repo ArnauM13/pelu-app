@@ -2,7 +2,11 @@
   <!-- Calendar Header -->
   <div class="calendar-header">
     <div class="calendar-navigation">
-      <button class="nav-btn" (click)="previousWeek()" title="Setmana anterior">
+      <button class="nav-btn"
+              [class.disabled]="!canNavigateToPreviousWeek()"
+              [disabled]="!canNavigateToPreviousWeek()"
+              (click)="previousWeek()"
+              title="Setmana anterior">
         <i class="pi pi-arrow-left"></i>
       </button>
       <button class="nav-btn today-btn" (click)="today()" title="Anar a avui">

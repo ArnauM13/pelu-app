@@ -50,6 +50,18 @@
   transform: translateY(1px);
 }
 
+.nav-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.nav-btn.disabled:hover {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
 .nav-btn i {
   font-size: 1rem;
   color: var(--primary-color);
