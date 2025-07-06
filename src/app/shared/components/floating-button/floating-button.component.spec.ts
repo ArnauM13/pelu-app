@@ -1,9 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component, signal } from '@angular/core';
 import { FloatingButtonComponent, FloatingButtonConfig } from './floating-button.component';
 
+// Test wrapper component to provide input signals
+@Component({
+  template: `
+    <pelu-floating-button
+      [config]="testConfig()"
+      (clicked)="onClicked()">
+    </pelu-floating-button>
+  `,
+  imports: [FloatingButtonComponent],
+  standalone: true
+})
+class TestWrapperComponent {
+  testConfig = signal<FloatingButtonConfig>({
+    icon: '➕',
+    tooltip: 'Add new item',
+    ariaLabel: 'Add button',
+    isActive: false,
+    variant: 'primary',
+    size: 'medium'
+  });
+
+  onClicked() {
+    // Test method
+  }
+}
+
 describe('FloatingButtonComponent', () => {
-  let component: FloatingButtonComponent;
-  let fixture: ComponentFixture<FloatingButtonComponent>;
+  let component: TestWrapperComponent;
+  let fixture: ComponentFixture<TestWrapperComponent>;
+  let floatingButtonComponent: FloatingButtonComponent;
 
   const mockConfig: FloatingButtonConfig = {
     icon: '➕',
@@ -16,43 +44,49 @@ describe('FloatingButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FloatingButtonComponent]
+      imports: [TestWrapperComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FloatingButtonComponent);
+    fixture = TestBed.createComponent(TestWrapperComponent);
     component = fixture.componentInstance;
+    component.testConfig.set(mockConfig);
+    fixture.detectChanges();
+
+    floatingButtonComponent = fixture.debugElement.query(
+      (de) => de.componentInstance instanceof FloatingButtonComponent
+    ).componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(floatingButtonComponent).toBeTruthy();
   });
 
   it('should have config input signal', () => {
-    expect(component.config).toBeDefined();
-    expect(typeof component.config).toBe('function');
+    expect(floatingButtonComponent.config).toBeDefined();
+    expect(typeof floatingButtonComponent.config).toBe('function');
   });
 
   it('should have clicked output signal', () => {
-    expect(component.clicked).toBeDefined();
-    expect(typeof component.clicked.emit).toBe('function');
+    expect(floatingButtonComponent.clicked).toBeDefined();
+    expect(typeof floatingButtonComponent.clicked.emit).toBe('function');
   });
 
   it('should have buttonClasses computed property', () => {
-    expect(component.buttonClasses).toBeDefined();
-    expect(typeof component.buttonClasses).toBe('function');
+    expect(floatingButtonComponent.buttonClasses).toBeDefined();
+    expect(typeof floatingButtonComponent.buttonClasses).toBe('function');
   });
 
   it('should have buttonStyle computed property', () => {
-    expect(component.buttonStyle).toBeDefined();
-    expect(typeof component.buttonStyle).toBe('function');
+    expect(floatingButtonComponent.buttonStyle).toBeDefined();
+    expect(typeof floatingButtonComponent.buttonStyle).toBe('function');
   });
 
   it('should emit clicked event when onClick is called', () => {
-    spyOn(component.clicked, 'emit');
+    spyOn(floatingButtonComponent.clicked, 'emit');
 
-    component.onClick();
+    floatingButtonComponent.onClick();
 
-    expect(component.clicked.emit).toHaveBeenCalled();
+    expect(floatingButtonComponent.clicked.emit).toHaveBeenCalled();
   });
 
   it('should generate correct button classes for primary variant', () => {
@@ -65,10 +99,10 @@ describe('FloatingButtonComponent', () => {
       isActive: false
     };
 
-    // Mock the config signal
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button']).toBe(true);
     expect(classes['floating-button--primary']).toBe(true);
@@ -86,9 +120,10 @@ describe('FloatingButtonComponent', () => {
       isActive: true
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button']).toBe(true);
     expect(classes['floating-button--secondary']).toBe(true);
@@ -106,9 +141,10 @@ describe('FloatingButtonComponent', () => {
       isActive: false
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button']).toBe(true);
     expect(classes['floating-button--success']).toBe(true);
@@ -126,9 +162,10 @@ describe('FloatingButtonComponent', () => {
       isActive: true
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button']).toBe(true);
     expect(classes['floating-button--danger']).toBe(true);
@@ -143,9 +180,10 @@ describe('FloatingButtonComponent', () => {
       ariaLabel: 'Test'
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button--primary']).toBe(true);
   });
@@ -157,9 +195,10 @@ describe('FloatingButtonComponent', () => {
       ariaLabel: 'Test'
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button--medium']).toBe(true);
   });
@@ -171,9 +210,10 @@ describe('FloatingButtonComponent', () => {
       ariaLabel: 'Test'
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const classes = component.buttonClasses();
+    const classes = floatingButtonComponent.buttonClasses();
 
     expect(classes['floating-button--active']).toBe(false);
   });
@@ -185,9 +225,10 @@ describe('FloatingButtonComponent', () => {
       ariaLabel: 'Test'
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const style = component.buttonStyle();
+    const style = floatingButtonComponent.buttonStyle();
 
     expect(style['--button-icon']).toBe('"🎯"');
   });
@@ -199,63 +240,97 @@ describe('FloatingButtonComponent', () => {
       ariaLabel: 'Test'
     };
 
-    spyOn(component, 'config').and.returnValue(config);
+    component.testConfig.set(config);
+    fixture.detectChanges();
 
-    const style = component.buttonStyle();
+    const style = floatingButtonComponent.buttonStyle();
 
     expect(style['--button-icon']).toBe('"⭐"');
   });
 
   it('should render button element', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const buttonElement = compiled.querySelector('button');
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
     expect(buttonElement).toBeTruthy();
   });
 
   it('should render with floating-button class', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const buttonElement = compiled.querySelector('.floating-button');
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
     expect(buttonElement).toBeTruthy();
   });
 
-  it('should have onClick method', () => {
-    expect(typeof component.onClick).toBe('function');
+  it('should have correct aria-label', () => {
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.getAttribute('aria-label')).toBe('Add button');
   });
 
-  it('should be a standalone component', () => {
-    expect(FloatingButtonComponent.prototype.constructor.name).toBe('FloatingButtonComponent');
+  it('should have correct tooltip', () => {
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.getAttribute('pTooltip')).toBe('Add new item');
   });
 
-  it('should have proper component structure', () => {
-    const componentClass = FloatingButtonComponent;
-    expect(componentClass.name).toBe('FloatingButtonComponent');
-    expect(typeof componentClass).toBe('function');
+  it('should have correct icon', () => {
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.style.getPropertyValue('--button-icon')).toBe('"➕"');
   });
 
-  it('should have component metadata', () => {
-    expect(FloatingButtonComponent.prototype).toBeDefined();
-    expect(FloatingButtonComponent.prototype.constructor).toBeDefined();
+  it('should apply primary variant styles', () => {
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.classList.contains('floating-button--primary')).toBe(true);
   });
 
-    it('should validate FloatingButtonConfig interface properties', () => {
+  it('should apply medium size styles', () => {
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.classList.contains('floating-button--medium')).toBe(true);
+  });
+
+  it('should not be active by default', () => {
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.classList.contains('floating-button--active')).toBe(false);
+  });
+
+  it('should be active when isActive is true', () => {
     const config: FloatingButtonConfig = {
       icon: '➕',
-      tooltip: 'Test tooltip',
-      ariaLabel: 'Test aria label',
-      isActive: true,
-      variant: 'primary',
-      size: 'medium'
+      tooltip: 'Test',
+      ariaLabel: 'Test',
+      isActive: true
     };
 
-    expect(config.icon).toBe('➕');
-    expect(config.tooltip).toBe('Test tooltip');
-    expect(config.ariaLabel).toBe('Test aria label');
-    expect(config.isActive).toBe(true);
-    expect(config.variant).toBe('primary');
-    expect(config.size).toBe('medium');
+    component.testConfig.set(config);
+    fixture.detectChanges();
+
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.classList.contains('floating-button--active')).toBe(true);
+  });
+
+  it('should handle click events', () => {
+    spyOn(floatingButtonComponent.clicked, 'emit');
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+
+    buttonElement.click();
+
+    expect(floatingButtonComponent.clicked.emit).toHaveBeenCalled();
+  });
+
+  it('should update styles when config changes', () => {
+    const newConfig: FloatingButtonConfig = {
+      icon: '🎯',
+      tooltip: 'New tooltip',
+      ariaLabel: 'New label',
+      variant: 'danger',
+      size: 'large',
+      isActive: true
+    };
+
+    component.testConfig.set(newConfig);
+    fixture.detectChanges();
+
+    const buttonElement = fixture.nativeElement.querySelector('.floating-button');
+    expect(buttonElement.getAttribute('aria-label')).toBe('New label');
+    expect(buttonElement.getAttribute('pTooltip')).toBe('New tooltip');
+    expect(buttonElement.style.getPropertyValue('--button-icon')).toBe('"🎯"');
+    expect(buttonElement.classList.contains('floating-button--danger')).toBe(true);
+    expect(buttonElement.classList.contains('floating-button--large')).toBe(true);
+    expect(buttonElement.classList.contains('floating-button--active')).toBe(true);
   });
 });

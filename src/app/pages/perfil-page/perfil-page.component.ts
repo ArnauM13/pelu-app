@@ -6,11 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../auth/auth.service';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { AvatarComponent, AvatarData } from '../../shared/components/avatar/avatar.component';
+import { DetailPageComponent, DetailPageConfig, DetailAction, InfoSection } from '../../shared/components/detail-page/detail-page.component';
 
 @Component({
   selector: 'pelu-perfil-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, InfoItemComponent, AvatarComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, DetailPageComponent],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss']
 })
@@ -102,11 +103,81 @@ export class PerfilPageComponent {
     }
   ]);
 
+  // Detail page configuration
+  readonly detailConfig = computed((): DetailPageConfig => ({
+    type: 'profile',
+    loading: this.isLoading(),
+    notFound: !this.isLoading() && !this.user(),
+    user: this.user(),
+    infoSections: [
+      {
+        title: 'PROFILE.PERSONAL_INFO',
+        items: this.infoItems()
+      }
+    ],
+    actions: this.getActions()
+  }));
+
+  private getActions(): DetailAction[] {
+    return [
+      {
+        label: 'BOOKING.SELECT_SERVICE',
+        icon: '📅',
+        type: 'primary',
+        onClick: () => this.router.navigate(['/booking']),
+        routerLink: '/booking'
+      },
+      {
+        label: 'NAVIGATION.HOME',
+        icon: '🏠',
+        type: 'secondary',
+        onClick: () => this.router.navigate(['/']),
+        routerLink: '/'
+      },
+      {
+        label: 'COMMON.LOGOUT',
+        icon: '🚪',
+        type: 'danger',
+        onClick: () => this.logout()
+      }
+    ];
+  }
+
   constructor() {
     onAuthStateChanged(this.auth, (u: any) => {
       this.userSignal.set(u);
       this.isLoadingSignal.set(false);
     });
+  }
+
+  // Event handlers for detail page
+  goBack() {
+    this.router.navigate(['/']);
+  }
+
+  onEdit() {
+    // Profile editing not implemented yet
+    console.log('Edit profile');
+  }
+
+  onSave(data: any) {
+    // Profile saving not implemented yet
+    console.log('Save profile', data);
+  }
+
+  onCancelEdit() {
+    // Profile editing not implemented yet
+    console.log('Cancel edit profile');
+  }
+
+  onDelete() {
+    // Profile deletion not implemented yet
+    console.log('Delete profile');
+  }
+
+  onUpdateForm(data: { field: string; value: any }) {
+    // Profile form update not implemented yet
+    console.log('Update form', data);
   }
 
   logout() {

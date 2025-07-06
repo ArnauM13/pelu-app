@@ -2,23 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
 import { Auth } from '@angular/fire/auth';
 import { provideRouter } from '@angular/router';
-import { mockAuth } from '../../../testing/firebase-mocks';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { of } from 'rxjs';
+import { TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslationService } from '../../core/translation.service';
 import { AuthService } from '../../auth/auth.service';
-
-// Mock translate loader
-class MockTranslateLoader implements TranslateLoader {
-  getTranslation() {
-    return of({});
-  }
-}
-
-// Mock AuthService
-const mockAuthService = {
-  logout: jasmine.createSpy('logout')
-};
+import {
+  mockAuth,
+  mockTranslateService,
+  mockTranslateStore,
+  mockTranslationService,
+  mockAuthService
+} from '../../../testing/firebase-mocks';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -26,15 +19,12 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HeaderComponent,
-        HttpClientModule,
-        TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ],
+      imports: [HeaderComponent],
       providers: [
         { provide: Auth, useValue: mockAuth },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: TranslateStore, useValue: mockTranslateStore },
+        { provide: TranslationService, useValue: mockTranslationService },
         { provide: AuthService, useValue: mockAuthService },
         provideRouter([])
       ]

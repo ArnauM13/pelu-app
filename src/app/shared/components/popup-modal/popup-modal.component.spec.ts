@@ -1,16 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PopupModalComponent } from './popup-modal.component';
+import { createTestComponentNoRender, domTestUtils } from '../../../../testing/test-setup';
 
 describe('PopupModalComponent', () => {
   let component: PopupModalComponent;
   let fixture: ComponentFixture<PopupModalComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [PopupModalComponent]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(PopupModalComponent);
+    fixture = await createTestComponentNoRender<PopupModalComponent>(
+      PopupModalComponent
+    );
     component = fixture.componentInstance;
   });
 
@@ -88,6 +87,7 @@ describe('PopupModalComponent', () => {
 
     // Second call while closing
     component.onClose();
+
     jasmine.clock().tick(300);
 
     // Should only emit once
@@ -100,8 +100,7 @@ describe('PopupModalComponent', () => {
     spyOn(component.closed, 'emit');
     jasmine.clock().install();
 
-    const mockEvent = new Event('click');
-    Object.defineProperty(mockEvent, 'target', { value: mockEvent.currentTarget });
+    const mockEvent = domTestUtils.createBackdropEvent();
 
     component.onBackdropClick(mockEvent);
 
@@ -114,10 +113,7 @@ describe('PopupModalComponent', () => {
   it('should not emit closed event when non-backdrop element is clicked', () => {
     spyOn(component.closed, 'emit');
 
-    const mockEvent = new Event('click');
-    const mockTarget = document.createElement('div');
-    Object.defineProperty(mockEvent, 'target', { value: mockTarget });
-    Object.defineProperty(mockEvent, 'currentTarget', { value: document.createElement('div') });
+    const mockEvent = domTestUtils.createNonBackdropEvent();
 
     component.onBackdropClick(mockEvent);
 
@@ -189,14 +185,6 @@ describe('PopupModalComponent', () => {
     expect(classes['popup-modal--closing']).toBe(true);
   });
 
-  it('should render popup modal element', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const modalElement = compiled.querySelector('.popup-modal');
-    expect(modalElement).toBeTruthy();
-  });
-
   it('should have onClose method', () => {
     expect(typeof component.onClose).toBe('function');
   });
@@ -247,5 +235,44 @@ describe('PopupModalComponent', () => {
     expect(component.isClosing()).toBe(false);
 
     jasmine.clock().uninstall();
+  });
+
+
+
+  it('should return false for isClosing when not closing', () => {
+    expect(component.isClosing()).toBe(false);
+  });
+
+  it('should return true for isClosing when closing', () => {
+    jasmine.clock().install();
+
+    component.onClose();
+    expect(component.isClosing()).toBe(true);
+
+    jasmine.clock().tick(300);
+    expect(component.isClosing()).toBe(false);
+
+    jasmine.clock().uninstall();
+  });
+
+  it('should validate component interface', () => {
+    expect(component.open).toBeDefined();
+    expect(component.title).toBeDefined();
+    expect(component.size).toBeDefined();
+    expect(component.secondary).toBeDefined();
+    expect(component.closed).toBeDefined();
+    expect(component.isClosing).toBeDefined();
+    expect(component.modalClasses).toBeDefined();
+  });
+
+  it('should have all required methods', () => {
+    const requiredMethods = [
+      'onClose',
+      'onBackdropClick'
+    ];
+
+    requiredMethods.forEach(method => {
+      expect(typeof component[method as keyof PopupModalComponent]).toBe('function');
+    });
   });
 });

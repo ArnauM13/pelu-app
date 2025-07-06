@@ -14,3 +14,5 @@ export { AvatarComponent } from './avatar/avatar.component';
 export type { AvatarData } from './avatar/avatar.component';
 export { AppointmentItemComponent } from './appointment-item/appointment-item.component';
 export type { AppointmentItemData } from './appointment-item/appointment-item.component';
+export { DetailPageComponent } from './detail-page/detail-page.component';
+export type { DetailPageConfig, DetailAction, InfoSection } from './detail-page/detail-page.component';

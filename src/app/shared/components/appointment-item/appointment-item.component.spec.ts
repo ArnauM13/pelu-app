@@ -1,10 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component, signal } from '@angular/core';
 import { AppointmentItemComponent, AppointmentItemData } from './appointment-item.component';
 import { AppointmentEvent } from '../../../features/calendar/calendar.component';
 
+// Test wrapper component to provide input signals
+@Component({
+  template: `
+    <pelu-appointment-item
+      [data]="testData()"
+      (clicked)="onClicked()">
+    </pelu-appointment-item>
+  `,
+  imports: [AppointmentItemComponent],
+  standalone: true
+})
+class TestWrapperComponent {
+  testData = signal<AppointmentItemData | null>(null);
+
+  onClicked() {
+    // Test method
+  }
+}
+
 describe('AppointmentItemComponent', () => {
-  let component: AppointmentItemComponent;
-  let fixture: ComponentFixture<AppointmentItemComponent>;
+  let component: TestWrapperComponent;
+  let fixture: ComponentFixture<TestWrapperComponent>;
+  let appointmentItemComponent: AppointmentItemComponent;
 
   const mockAppointment: AppointmentEvent = {
     id: 'test-id',
@@ -23,70 +44,73 @@ describe('AppointmentItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppointmentItemComponent]
+      imports: [TestWrapperComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AppointmentItemComponent);
+    fixture = TestBed.createComponent(TestWrapperComponent);
     component = fixture.componentInstance;
+    component.testData.set(mockAppointmentItemData);
+    fixture.detectChanges();
+
+    appointmentItemComponent = fixture.debugElement.query(
+      (de) => de.componentInstance instanceof AppointmentItemComponent
+    ).componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(appointmentItemComponent).toBeTruthy();
   });
 
   it('should have required input data', () => {
-    expect(component.data).toBeDefined();
-    expect(typeof component.data).toBe('function');
+    expect(appointmentItemComponent.data).toBeDefined();
+    expect(typeof appointmentItemComponent.data).toBe('function');
   });
 
   it('should have clicked output', () => {
-    expect(component.clicked).toBeDefined();
-    expect(typeof component.clicked.emit).toBe('function');
+    expect(appointmentItemComponent.clicked).toBeDefined();
+    expect(typeof appointmentItemComponent.clicked.emit).toBe('function');
   });
 
   it('should emit appointment when clicked', () => {
-    spyOn(component.clicked, 'emit');
+    spyOn(appointmentItemComponent.clicked, 'emit');
 
     const mockEvent = new Event('click');
     spyOn(mockEvent, 'stopPropagation');
 
-    component.onAppointmentClick(mockEvent);
+    appointmentItemComponent.onAppointmentClick(mockEvent);
 
     expect(mockEvent.stopPropagation).toHaveBeenCalled();
-    expect(component.clicked.emit).toHaveBeenCalled();
+    expect(appointmentItemComponent.clicked.emit).toHaveBeenCalled();
   });
 
   it('should format duration correctly for minutes less than 60', () => {
-    expect(component.formatDuration(30)).toBe('30 min');
-    expect(component.formatDuration(45)).toBe('45 min');
+    expect(appointmentItemComponent.formatDuration(30)).toBe('30 min');
+    expect(appointmentItemComponent.formatDuration(45)).toBe('45 min');
   });
 
   it('should format duration correctly for hours without remaining minutes', () => {
-    expect(component.formatDuration(60)).toBe('1h');
-    expect(component.formatDuration(120)).toBe('2h');
-    expect(component.formatDuration(180)).toBe('3h');
+    expect(appointmentItemComponent.formatDuration(60)).toBe('1h');
+    expect(appointmentItemComponent.formatDuration(120)).toBe('2h');
+    expect(appointmentItemComponent.formatDuration(180)).toBe('3h');
   });
 
   it('should format duration correctly for hours with remaining minutes', () => {
-    expect(component.formatDuration(90)).toBe('1h 30min');
-    expect(component.formatDuration(150)).toBe('2h 30min');
-    expect(component.formatDuration(135)).toBe('2h 15min');
+    expect(appointmentItemComponent.formatDuration(90)).toBe('1h 30min');
+    expect(appointmentItemComponent.formatDuration(150)).toBe('2h 30min');
+    expect(appointmentItemComponent.formatDuration(135)).toBe('2h 15min');
   });
 
   it('should render appointment item element', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const appointmentElement = compiled.querySelector('.appointment-item');
+    const appointmentElement = fixture.nativeElement.querySelector('.appointment-item');
     expect(appointmentElement).toBeTruthy();
   });
 
   it('should have onAppointmentClick method', () => {
-    expect(typeof component.onAppointmentClick).toBe('function');
+    expect(typeof appointmentItemComponent.onAppointmentClick).toBe('function');
   });
 
   it('should have formatDuration method', () => {
-    expect(typeof component.formatDuration).toBe('function');
+    expect(typeof appointmentItemComponent.formatDuration).toBe('function');
   });
 
   it('should be a standalone component', () => {

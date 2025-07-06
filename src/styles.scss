@@ -596,7 +596,7 @@ h3 { font-size: 1.25rem; }
 
 .p-toast .p-toast-message {
   margin: 0.5rem 0 !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   box-shadow: var(--box-shadow-hover) !important;
   border: 1px solid var(--border-color) !important;
   background: var(--surface-color) !important;
@@ -604,8 +604,8 @@ h3 { font-size: 1.25rem; }
   animation: toastSlideIn 0.3s ease-out !important;
   cursor: default !important;
   transition: all 0.2s ease !important;
-  min-width: 350px !important;
-  max-width: 450px !important;
+  min-width: 300px !important;
+  max-width: 400px !important;
   position: relative !important;
 }
 
@@ -637,32 +637,32 @@ h3 { font-size: 1.25rem; }
 
 .p-toast .p-toast-message.p-toast-message-success {
   border-left-color: var(--success-color) !important;
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, var(--surface-color) 100%) !important;
+  background: var(--surface-color) !important;
 }
 
 .p-toast .p-toast-message.p-toast-message-error {
   border-left-color: var(--error-color) !important;
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, var(--surface-color) 100%) !important;
+  background: var(--surface-color) !important;
 }
 
 .p-toast .p-toast-message.p-toast-message-warn {
   border-left-color: var(--warning-color) !important;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, var(--surface-color) 100%) !important;
+  background: var(--surface-color) !important;
 }
 
 .p-toast .p-toast-message.p-toast-message-info {
   border-left-color: var(--info-color) !important;
-  background: linear-gradient(135deg, rgba(23, 162, 184, 0.08) 0%, var(--surface-color) 100%) !important;
+  background: var(--surface-color) !important;
 }
 
 .p-toast .p-toast-message-icon {
-  font-size: 1.25rem !important;
-  margin-right: 0.75rem !important;
+  font-size: 1rem !important;
+  margin-right: 0.5rem !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 24px !important;
-  height: 24px !important;
+  width: 20px !important;
+  height: 20px !important;
   border-radius: 50% !important;
   flex-shrink: 0 !important;
 }
@@ -688,25 +688,24 @@ h3 { font-size: 1.25rem; }
 }
 
 .p-toast .p-toast-message-content {
-  padding: 1.25rem 1.5rem !important;
+  padding: 0.75rem 1rem !important;
   display: flex !important;
-  align-items: flex-start !important;
-  gap: 0.75rem !important;
-  padding-bottom: 1rem !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
 }
 
 .p-toast .p-toast-message-actions {
   display: flex !important;
   gap: 0.5rem !important;
-  margin-top: 0.75rem !important;
+  margin-left: 0.5rem !important;
   justify-content: flex-end !important;
 }
 
 .p-toast .p-toast-message-btn {
-  padding: 0.5rem 1rem !important;
-  border-radius: 6px !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 4px !important;
   font-weight: 500 !important;
-  font-size: 0.875rem !important;
+  font-size: 0.75rem !important;
   cursor: pointer !important;
   border: 1px solid transparent !important;
   transition: all 0.2s ease !important;
@@ -744,23 +743,26 @@ h3 { font-size: 1.25rem; }
   flex: 1 !important;
   color: var(--text-color) !important;
   font-weight: 500 !important;
-  line-height: 1.5 !important;
+  line-height: 1.3 !important;
   margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
 }
 
 .p-toast .p-toast-summary {
   font-weight: 700 !important;
-  font-size: 1rem !important;
+  font-size: 0.9rem !important;
   color: var(--text-color) !important;
-  margin-bottom: 0.5rem !important;
-  display: block !important;
+  margin: 0 !important;
+  display: inline !important;
   letter-spacing: -0.01em !important;
 }
 
 .p-toast .p-toast-detail {
-  font-size: 0.95rem !important;
+  font-size: 0.85rem !important;
   color: var(--text-color) !important;
-  line-height: 1.5 !important;
+  line-height: 1.3 !important;
   margin: 0 !important;
   font-weight: 400 !important;
 }
@@ -770,16 +772,16 @@ h3 { font-size: 1.25rem; }
   background: transparent !important;
   border: none !important;
   border-radius: 50% !important;
-  width: 24px !important;
-  height: 24px !important;
+  width: 20px !important;
+  height: 20px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
   flex-shrink: 0 !important;
-  margin-left: 0.5rem !important;
-  font-size: 0.875rem !important;
+  margin-left: 0.25rem !important;
+  font-size: 0.75rem !important;
   opacity: 0.6 !important;
 }
 
@@ -854,23 +856,23 @@ h3 { font-size: 1.25rem; }
 @media (max-width: 768px) {
   .p-toast {
     width: calc(100% - 2rem) !important;
-    max-width: 400px !important;
+    max-width: 350px !important;
   }
 
   .p-toast .p-toast-message-content {
-    padding: 0.875rem 1rem !important;
+    padding: 0.5rem 0.75rem !important;
   }
 
   .p-toast .p-toast-message-text {
-    font-size: 0.875rem !important;
+    font-size: 0.8rem !important;
   }
 
   .p-toast .p-toast-summary {
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
   }
 
   .p-toast .p-toast-detail {
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
   }
 }
 
