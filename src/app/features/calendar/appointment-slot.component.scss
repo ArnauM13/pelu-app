@@ -1,0 +1,88 @@
+// Appointments with absolute positioning
+.appointment {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  z-index: 10;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 20px;
+}
+
+.appointment:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+  z-index: 15;
+}
+
+.appointment-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  padding: 2px;
+}
+
+.appointment-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  max-width: 100%;
+}
+
+.appointment-service {
+  font-size: 9px;
+  opacity: 0.9;
+  margin-bottom: 1px;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.appointment-duration {
+  font-size: 8px;
+  opacity: 0.8;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 3px;
+  border-radius: 2px;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .appointment {
+    font-size: 9px;
+    padding: 2px;
+  }
+
+  .appointment-title {
+    font-size: 9px;
+    margin-bottom: 1px;
+  }
+
+  .appointment-service {
+    font-size: 8px;
+    margin-bottom: 1px;
+  }
+
+  .appointment-duration {
+    font-size: 7px;
+  }
+}
