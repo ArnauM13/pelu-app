@@ -1,14 +1,17 @@
-import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
+import { Component, input, output, signal, computed, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
-import { startOfWeek, endOfWeek, startOfDay, endOfDay, format, addDays, isSameDay, isSameWeek, eachDayOfInterval, addMinutes } from 'date-fns';
+import { startOfWeek, endOfWeek, startOfDay, endOfDay, format as dateFnsFormat, addDays, isSameDay, isSameWeek, eachDayOfInterval, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
 import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
-import { AppointmentItemComponent, AppointmentItemData } from '../../shared/components/appointment-item/appointment-item.component';
+import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
 import { AuthService } from '../../auth/auth.service';
+import { CalendarPositionService } from './calendar-position.service';
+import { CalendarBusinessService } from './calendar-business.service';
+import { CalendarStateService } from './calendar-state.service';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -24,7 +27,7 @@ export interface AppointmentEvent {
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentItemComponent],
+  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentSlotComponent],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -33,12 +36,16 @@ export interface AppointmentEvent {
       useFactory: adapterFactory,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent {
   // Inject services
   private readonly authService = inject(AuthService);
+  private readonly positionService = inject(CalendarPositionService);
+  private readonly businessService = inject(CalendarBusinessService);
+  private readonly stateService = inject(CalendarStateService);
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -47,44 +54,32 @@ export class CalendarComponent {
   // Output signals
   readonly dateSelected = output<{date: string, time: string}>();
 
-  // Internal state
-  private readonly viewDateSignal = signal<Date>(new Date());
-  private readonly selectedDaySignal = signal<Date | null>(null);
-  private readonly showDetailPopupSignal = signal<boolean>(false);
-  private readonly selectedAppointmentSignal = signal<any>(null);
-  private readonly appointmentsSignal = signal<any[]>([]);
-
-  // Public computed signals
-  readonly viewDate = computed(() => this.viewDateSignal());
-  readonly selectedDay = computed(() => this.selectedDaySignal());
-  readonly showDetailPopup = computed(() => this.showDetailPopupSignal());
-  readonly selectedAppointment = computed(() => this.selectedAppointmentSignal());
-  readonly appointments = computed(() => this.appointmentsSignal());
+  // Public computed signals from state service
+  readonly viewDate = this.stateService.viewDate;
+  readonly selectedDay = this.stateService.selectedDay;
+  readonly showDetailPopup = this.stateService.showDetailPopup;
+  readonly selectedAppointment = this.stateService.selectedAppointment;
+  readonly appointments = this.stateService.appointments;
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
-  readonly businessHours = {
-    start: 8,
-    end: 20
-  };
-  readonly lunchBreak = {
-    start: 13,
-    end: 15
-  };
-  readonly businessDays = {
-    start: 2, // Tuesday (0 = Sunday, 1 = Monday, 2 = Tuesday, etc.)
-    end: 6    // Saturday
-  };
-  readonly SLOT_DURATION_MINUTES = 30; // 30-minute slots
-  readonly PIXELS_PER_MINUTE = 1; // 1 pixel per minute
-  readonly SLOT_HEIGHT_PX = this.SLOT_DURATION_MINUTES * this.PIXELS_PER_MINUTE; // 30px per slot
+  readonly businessHours = this.businessService.getBusinessConfig().hours;
+  readonly lunchBreak = this.businessService.getBusinessConfig().lunchBreak;
+  readonly businessDays = this.businessService.getBusinessConfig().days;
+  readonly SLOT_DURATION_MINUTES = this.positionService.getSlotDurationMinutes();
+  readonly PIXELS_PER_MINUTE = this.positionService.getPixelsPerMinute();
+  readonly SLOT_HEIGHT_PX = this.positionService.getSlotHeightPx();
 
   // Computed events that combines input events with localStorage appointments
   readonly allEvents = computed((): AppointmentEvent[] => {
     // Use provided events or load from appointments signal
     const providedEvents = this.events();
     if (providedEvents.length > 0) {
-      return providedEvents;
+      // Ensure all provided events have unique IDs
+      return providedEvents.map(event => ({
+        ...event,
+        id: event.id || uuidv4() // Generate unique ID if not exists
+      }));
     }
 
     // Use appointments from signal - ensure it's always an array
@@ -104,7 +99,7 @@ export class CalendarComponent {
       const endString = endDate.toISOString().slice(0, 16).replace('T', 'T');
 
       return {
-        id: c.id,
+        id: c.id || uuidv4(), // Generate unique ID if not exists
         title: c.nom,
         start: startString,
         end: endString,
@@ -117,74 +112,14 @@ export class CalendarComponent {
     return events;
   });
 
-    constructor() {
-    // Initialize with empty array to avoid undefined values
-    this.appointmentsSignal.set([]);
-    this.initializeViewDate();
-  }
-
-
-
-      // Get the appropriate view date considering business days
-  private getAppropriateViewDate(): Date {
-    const today = new Date();
-    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
-
-    // If today is outside business days, jump to next business week
-    if (currentDayOfWeek < this.businessDays.start || currentDayOfWeek > this.businessDays.end) {
-      // Calculate days to add to get to next business day
-      let daysToAdd: number;
-
-      if (currentDayOfWeek < this.businessDays.start) {
-        // Before business days (Sunday, Monday) - jump to next Tuesday
-        daysToAdd = this.businessDays.start - currentDayOfWeek;
-      } else {
-        // After business days (Sunday) - jump to next Tuesday
-        daysToAdd = 7 - currentDayOfWeek + this.businessDays.start;
-      }
-
-      const nextBusinessDay = new Date(today);
-      nextBusinessDay.setDate(today.getDate() + daysToAdd);
-
-      return nextBusinessDay;
-    } else {
-      // If today is a business day, show current week
-      return today;
-    }
-  }
-
-  // Initialize view date to show the next business week if today is weekend
-  private initializeViewDate() {
-    this.viewDateSignal.set(this.getAppropriateViewDate());
-  }
-
   // ✅ Generate 30-minute time slots from 08:00 to 20:00
   readonly timeSlots = computed(() => {
-    const slots: string[] = [];
-    const startHour = this.businessHours.start;
-    const endHour = this.businessHours.end;
-
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (let minutes of [0, 30]) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        slots.push(timeString);
-      }
-    }
-
-    return slots;
+    return this.businessService.generateTimeSlots();
   });
 
   // Computed properties
   readonly weekDays = computed(() => {
-    const start = startOfWeek(this.viewDate(), { weekStartsOn: 1 }); // Monday
-    const end = endOfWeek(this.viewDate(), { weekStartsOn: 1 });
-    const allDays = eachDayOfInterval({ start, end });
-
-    // Filter to show only business days
-    return allDays.filter(day => {
-      const dayOfWeek = day.getDay();
-      return this.isBusinessDay(dayOfWeek);
-    });
+    return this.businessService.getBusinessDaysForWeek(this.viewDate());
   });
 
   readonly calendarEvents = computed(() => {
@@ -200,529 +135,281 @@ export class CalendarComponent {
           primary: '#3b82f6',
           secondary: '#dbeafe'
         },
-        meta: {
-          duration: event.duration || 60,
-          serviceName: event.serviceName,
-          clientName: event.clientName
-        }
+        meta: event
       };
     });
   });
 
-
-
-  // Computed properties for appointment positioning
+  // Computed appointment positions - this is now stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly appointmentPositions = computed(() => {
     const appointments = this.allEvents();
-    const positions = new Map<string, { top: number, height: number }>();
-
-    appointments.forEach(appointment => {
-      if (!appointment || !appointment.start) {
-        const key = appointment?.id || appointment?.title || 'default';
-        positions.set(key, { top: 0, height: 60 });
-        return;
-      }
-
-      const startTime = new Date(appointment.start);
-      if (isNaN(startTime.getTime())) {
-        const key = appointment.id || appointment.title || 'default';
-        positions.set(key, { top: 0, height: 60 });
-        return;
-      }
-
-      // Calculate top position
-      const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
-      const businessStartMinutes = this.businessHours.start * 60;
-      const relativeMinutes = startMinutes - businessStartMinutes;
-      const top = Math.max(0, relativeMinutes * this.PIXELS_PER_MINUTE);
-
-      // Calculate height
-      let duration: number;
-      if (appointment.end) {
-        const endTime = new Date(appointment.end);
-        if (isNaN(endTime.getTime())) {
-          duration = appointment.duration || 60;
-        } else {
-          duration = Math.max(30, (endTime.getTime() - startTime.getTime()) / (1000 * 60));
-        }
-      } else {
-        duration = appointment.duration || 60;
-      }
-      const height = Math.max(30, duration * this.PIXELS_PER_MINUTE);
-
-      const key = appointment.id || appointment.title || 'default';
-      positions.set(key, { top, height });
-    });
-
-    return positions;
+    return this.positionService.getAppointmentPositions(appointments);
   });
 
-  // Helper methods that use the computed positions
-  getAppointmentTopPx(appointment: AppointmentEvent): number {
-    if (!appointment || !appointment.start) {
-      return 0;
-    }
-
-    const startTime = new Date(appointment.start);
-    if (isNaN(startTime.getTime())) {
-      return 0;
-    }
-
-    // Calculate top position based on start time
-    const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
-    const businessStartMinutes = this.businessHours.start * 60;
-    const relativeMinutes = startMinutes - businessStartMinutes;
-
-    return Math.max(0, relativeMinutes * this.PIXELS_PER_MINUTE);
+  constructor() {
+    // Initialize appointments from localStorage
+    this.loadAppointmentsFromLocalStorage();
   }
 
-  getAppointmentHeightPx(appointment: AppointmentEvent): number {
-    if (!appointment) {
-      return 60 * this.PIXELS_PER_MINUTE; // Default height
-    }
-
-    let duration: number;
-
-    if (appointment.end) {
-      // Calculate duration from start and end times
-      const startTime = new Date(appointment.start);
-      const endTime = new Date(appointment.end);
-
-      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
-        duration = appointment.duration || 60;
-      } else {
-        duration = Math.max(30, (endTime.getTime() - startTime.getTime()) / (1000 * 60));
+  // Load appointments from localStorage
+  private loadAppointmentsFromLocalStorage() {
+    try {
+      const stored = localStorage.getItem('appointments');
+      if (stored) {
+        const appointments = JSON.parse(stored);
+        this.stateService.setAppointments(appointments);
       }
-    } else {
-      // Use duration property or default to 60 minutes
-      duration = appointment.duration || 60;
+    } catch (error) {
+      console.error('Error loading appointments from localStorage:', error);
+      this.stateService.setAppointments([]);
     }
-
-    // Ensure minimum height and convert to pixels
-    return Math.max(30, duration * this.PIXELS_PER_MINUTE);
   }
 
-  // ✅ Check if a time slot is available (considering partial overlaps)
+  // Save appointments to localStorage
+  private saveAppointmentsToLocalStorage() {
+    try {
+      const appointments = this.appointments();
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+    } catch (error) {
+      console.error('Error saving appointments to localStorage:', error);
+    }
+  }
+
+  // Methods that delegate to services
   isTimeSlotAvailable(date: Date, time: string, requestedDuration: number = this.SLOT_DURATION_MINUTES): boolean {
-    // If it's lunch break, it's not available
-    if (this.isLunchBreak(time)) {
-      return false;
-    }
-
-    // If it's a past date, it's not available
-    if (this.isPastDate(date)) {
-      return false;
-    }
-
-    // If it's today but the time has passed, it's not available
-    if (this.isPastTimeSlot(date, time)) {
-      return false;
-    }
-
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const slotStart = new Date(`${dateStr}T${time}`);
-    const slotEnd = addMinutes(slotStart, requestedDuration);
-
-    // Check if any appointment overlaps with this time slot
-    return !this.allEvents().some(event => {
-      const appointmentStart = new Date(event.start);
-      const appointmentEnd = event.end ? new Date(event.end) : addMinutes(appointmentStart, event.duration || 60);
-
-      // Check for overlap: if the maximum of start times is less than the minimum of end times
-      return Math.max(slotStart.getTime(), appointmentStart.getTime()) <
-             Math.min(slotEnd.getTime(), appointmentEnd.getTime());
-    });
+    return this.positionService.isTimeSlotAvailable(date, time, this.allEvents(), requestedDuration);
   }
 
-  // Get events for a specific day
   getEventsForDay(date: Date) {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return this.allEvents().filter(event => event.start.startsWith(dateStr));
+    return this.calendarEvents().filter(event => isSameDay(event.start, date));
   }
 
-    // Get appointments for a specific day (with ID for tracking)
   getAppointmentsForDay(date: Date) {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const dayAppointments = this.allEvents().filter(event => event.start.startsWith(dateStr));
-
-    return dayAppointments.map(event => {
-      // Find the original appointment with ID
-      const originalAppointment = this.findOriginalAppointment(event);
-      return {
-        ...event,
-        id: originalAppointment?.id || event.id || uuidv4() // Use original ID, event ID, or generate new one
-      };
-    });
+    return this.businessService.getAppointmentsForDay(date, this.allEvents());
   }
 
-  // Open appointment popup
   openAppointmentPopup(appointmentEvent: AppointmentEvent) {
-    if (!appointmentEvent) return;
-
-    // Find the original appointment with the correct structure
-    const originalAppointment = this.findOriginalAppointment(appointmentEvent);
-
-    if (originalAppointment) {
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-      setTimeout(() => {
-        this.selectedAppointmentSignal.set(originalAppointment);
-        this.showDetailPopupSignal.set(true);
-      }, 0);
-    } else {
-      console.error('Could not find original appointment for:', appointmentEvent);
-    }
+    this.stateService.openAppointmentDetail(appointmentEvent);
   }
 
-  // Check if a time slot is during lunch break
   isLunchBreak(time: string): boolean {
-    const [hour, minute] = time.split(':').map(Number);
-    const timeInMinutes = hour * 60 + minute;
-    const lunchStartMinutes = this.lunchBreak.start * 60;
-    const lunchEndMinutes = this.lunchBreak.end * 60;
-
-    return timeInMinutes >= lunchStartMinutes && timeInMinutes < lunchEndMinutes;
+    return this.businessService.isLunchBreak(time);
   }
 
-  // Get appointment that covers a specific time slot
   getAppointmentForTimeSlot(date: Date, time: string) {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const timeSlotStart = new Date(`${dateStr}T${time}`);
+    const appointments = this.getAppointmentsForDay(date);
+    const [hour, minute] = time.split(':').map(Number);
+    const slotTime = new Date(date);
+    slotTime.setHours(hour, minute, 0, 0);
 
-    return this.allEvents().find(event => {
-      const appointmentStart = new Date(event.start);
-      const appointmentEnd = event.end ? new Date(event.end) : addMinutes(appointmentStart, event.duration || 60);
-
-      // Check if the time slot is within the appointment
-      return appointmentStart <= timeSlotStart && appointmentEnd > timeSlotStart;
+    return appointments.find(appointment => {
+      if (!appointment.start) return false;
+      const appointmentStart = new Date(appointment.start);
+      const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
+      return appointmentStart <= slotTime && slotTime < appointmentEnd;
     });
   }
 
-  // Find the original appointment with ID based on an AppointmentEvent
   findOriginalAppointment(appointmentEvent: AppointmentEvent) {
-    if (!appointmentEvent) return null;
-
-    // First try to find by ID if available
-    if (appointmentEvent.id) {
-      const foundById = this.appointments().find(appointment => appointment.id === appointmentEvent.id);
-      if (foundById) {
-        return foundById;
-      }
-    }
-
-    // If no ID match, try to find by date, time and title
-    const appointmentStart = new Date(appointmentEvent.start);
-    if (isNaN(appointmentStart.getTime())) return null;
-
-    const appointmentDate = format(appointmentStart, 'yyyy-MM-dd');
-    const appointmentTime = format(appointmentStart, 'HH:mm');
-
-    return this.appointments().find(appointment => {
-      // Match by date and time
-      const matchesDate = appointment.data === appointmentDate;
-      const matchesTime = appointment.hora === appointmentTime;
-      const matchesTitle = appointment.nom === appointmentEvent.title;
-
-      return matchesDate && matchesTime && matchesTitle;
-    }) || null;
+    const appointments = this.appointments();
+    return appointments.find(app => {
+      if (!app.data || !appointmentEvent.start) return false;
+      const appDate = app.data;
+      const eventDate = appointmentEvent.start.split('T')[0];
+      return appDate === eventDate && app.hora === appointmentEvent.start.split('T')[1].substring(0, 5);
+    });
   }
 
-  // Get appointment display info for a time slot
   getAppointmentDisplayInfo(date: Date, time: string) {
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (!appointment) return null;
 
-    // Only show info if this slot should display it
-    if (this.shouldShowAppointmentInfo(date, time)) {
-      return {
-        title: appointment.title,
-        duration: appointment.duration || 60,
-        serviceName: appointment.serviceName,
-        clientName: appointment.clientName
-      };
-    }
-
-    return null;
+    return {
+      title: appointment.title,
+      serviceName: appointment.serviceName,
+      duration: appointment.duration || 60
+    };
   }
 
-  // Calculate how much of a time slot an appointment occupies (0-1)
   getAppointmentSlotCoverage(date: Date, time: string): number {
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (!appointment) return 0;
 
+    const [hour, minute] = time.split(':').map(Number);
+    const slotStart = new Date(date);
+    slotStart.setHours(hour, minute, 0, 0);
+
     const appointmentStart = new Date(appointment.start);
     const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
-    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
-    const timeSlotEnd = addMinutes(timeSlotStart, this.SLOT_DURATION_MINUTES);
 
-    // Calculate overlap
-    const overlapStart = new Date(Math.max(appointmentStart.getTime(), timeSlotStart.getTime()));
-    const overlapEnd = new Date(Math.min(appointmentEnd.getTime(), timeSlotEnd.getTime()));
+    const slotEnd = addMinutes(slotStart, this.SLOT_DURATION_MINUTES);
 
-    if (overlapEnd <= overlapStart) return 0;
+    const overlapStart = appointmentStart > slotStart ? appointmentStart : slotStart;
+    const overlapEnd = appointmentEnd < slotEnd ? appointmentEnd : slotEnd;
+
+    if (overlapStart >= overlapEnd) return 0;
 
     const overlapMinutes = (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60);
-    return overlapMinutes / this.SLOT_DURATION_MINUTES; // Return as fraction of slot
+    return (overlapMinutes / this.SLOT_DURATION_MINUTES) * 100;
   }
 
-  // Check if this slot should show appointment info
   shouldShowAppointmentInfo(date: Date, time: string): boolean {
-    const appointment = this.getAppointmentForTimeSlot(date, time);
-    if (!appointment) return false;
-
-    const appointmentStart = new Date(appointment.start);
-    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
-
-    // Show info if this is the start of the appointment or if it's a significant part
-    return appointmentStart.getTime() === timeSlotStart.getTime() || this.getAppointmentSlotCoverage(date, time) > 0.5;
+    const coverage = this.getAppointmentSlotCoverage(date, time);
+    return coverage > 50; // Show info if more than 50% of slot is covered
   }
 
-  // Check if this time slot is the start of a multi-slot appointment
   isAppointmentStart(date: Date, time: string): boolean {
     const appointment = this.getAppointmentForTimeSlot(date, time);
-    if (!appointment) return false;
+    if (!appointment || !appointment.start) return false;
 
     const appointmentStart = new Date(appointment.start);
-    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+    const [hour, minute] = time.split(':').map(Number);
+    const slotTime = new Date(date);
+    slotTime.setHours(hour, minute, 0, 0);
 
-    return appointmentStart.getTime() === timeSlotStart.getTime();
+    return Math.abs(appointmentStart.getTime() - slotTime.getTime()) < 60000; // Within 1 minute
   }
 
-  // Check if this time slot is within an appointment (but not the start)
   isWithinAppointment(date: Date, time: string): boolean {
-    const appointment = this.getAppointmentForTimeSlot(date, time);
-    if (!appointment) return false;
-
-    const appointmentStart = new Date(appointment.start);
-    const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
-
-    return appointmentStart.getTime() !== timeSlotStart.getTime();
+    return this.getAppointmentForTimeSlot(date, time) !== undefined;
   }
 
-  // Select a day
   selectDay(date: Date) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (date >= today) {
-      // If clicking the same day, deselect it
-      if (this.selectedDay() && isSameDay(this.selectedDay()!, date)) {
-        this.selectedDaySignal.set(null);
-      } else {
-        this.selectedDaySignal.set(date);
-      }
-    }
+    this.stateService.setSelectedDay(date);
   }
 
-  // Select a time slot
   selectTimeSlot(date: Date, time: string) {
-    // Check if there's an appointment in this slot
-    const appointmentEvent = this.getAppointmentForTimeSlot(date, time);
-    if (appointmentEvent) {
-      // Find the original appointment with ID from the appointments array
-      const originalAppointment = this.findOriginalAppointment(appointmentEvent);
-      if (originalAppointment) {
-        // Show appointment detail popup with the original appointment
-        setTimeout(() => {
-          this.selectedAppointmentSignal.set(originalAppointment);
-          this.showDetailPopupSignal.set(true);
-        }, 0);
-        return;
-      }
-    }
-
-    // Only allow selection if the time slot is available
     if (!this.isTimeSlotAvailable(date, time)) {
       return;
     }
 
-    // Emit the date/time selection for booking
-    const dateStr = format(date, 'yyyy-MM-dd');
-    this.dateSelected.emit({date: dateStr, time: time});
+    const dateString = dateFnsFormat(date, 'yyyy-MM-dd');
+    this.dateSelected.emit({ date: dateString, time: time });
   }
 
-  // Check if a day is selected
   isDaySelected(date: Date): boolean {
-    return this.selectedDay() ? isSameDay(this.selectedDay()!, date) : false;
+    const selectedDay = this.selectedDay();
+    return selectedDay ? isSameDay(date, selectedDay) : false;
   }
 
-    // Check if we can navigate to previous week
   canNavigateToPreviousWeek(): boolean {
-    const today = new Date();
-    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
-    const viewWeekStart = startOfWeek(this.viewDate(), { weekStartsOn: 1 });
-
-    // Only prevent navigation to weeks that have already passed
-    return viewWeekStart > currentWeekStart;
+    return this.businessService.canNavigateToPreviousWeek();
   }
 
-    // Get information about the current view date
   getViewDateInfo(): string {
-    const today = new Date();
-    const currentDayOfWeek = today.getDay();
-    const dayNames = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-
-    // Check if today is outside business days
-    if (currentDayOfWeek < this.businessDays.start || currentDayOfWeek > this.businessDays.end) {
-      return `Avui és ${dayNames[currentDayOfWeek]} (no lectiu) - Mostrant següent setmana`;
-    } else {
-      return `Avui és ${dayNames[currentDayOfWeek]} - Setmana actual`;
-    }
+    const viewDate = this.viewDate();
+    const start = startOfWeek(viewDate, { weekStartsOn: 1 });
+    const end = endOfWeek(viewDate, { weekStartsOn: 1 });
+    return `${dateFnsFormat(start, 'dd/MM')} - ${dateFnsFormat(end, 'dd/MM')}`;
   }
 
-  // Check if a day is a business day
   isBusinessDay(dayOfWeek: number): boolean {
-    return dayOfWeek >= this.businessDays.start && dayOfWeek <= this.businessDays.end;
+    return this.businessService.isBusinessDay(dayOfWeek);
   }
 
-  // Get business days configuration info
   getBusinessDaysInfo(): string {
-    const dayNames = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-    const startDay = dayNames[this.businessDays.start];
-    const endDay = dayNames[this.businessDays.end];
-    return `Dies laborables: ${startDay} a ${endDay}`;
+    return this.businessService.getBusinessDaysInfo();
   }
 
-
-
-  // Get event for a specific time slot (legacy method for compatibility)
   getEventForTimeSlot(date: Date, time: string) {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const eventKey = `${dateStr}T${time}`;
-    return this.events().find(event => event.start === eventKey);
+    return this.getAppointmentForTimeSlot(date, time);
   }
 
   previousWeek() {
-    if (this.canNavigateToPreviousWeek()) {
-      this.viewDateSignal.set(addDays(this.viewDate(), -7));
-      this.selectedDaySignal.set(null); // Clear selection when changing weeks
-    }
+    this.stateService.previousWeek();
   }
 
   nextWeek() {
-    this.viewDateSignal.set(addDays(this.viewDate(), 7));
-    this.selectedDaySignal.set(null); // Clear selection when changing weeks
+    this.stateService.nextWeek();
   }
 
   today() {
-    this.viewDateSignal.set(this.getAppropriateViewDate());
-    this.selectedDaySignal.set(null); // Clear selection when going to today
+    this.stateService.today();
   }
 
   formatPopupDate(dateString: string): string {
-    if (!dateString) return '';
     const date = new Date(dateString);
-    const days = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-    const months = ['gener', 'febrer', 'març', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
 
-    const dayName = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${dayName}, ${day} de ${month} de ${year}`;
+    if (isSameDay(date, today)) {
+      return 'Avui';
+    } else if (isSameDay(date, tomorrow)) {
+      return 'Demà';
+    } else {
+      return dateFnsFormat(date, 'EEEE, d MMMM', { locale: ca });
+    }
   }
 
   format(date: Date, formatString: string): string {
-    return format(date, formatString);
+    return dateFnsFormat(date, formatString, { locale: ca });
   }
 
   isPastDate(date: Date): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date < today;
+    return this.businessService.isPastDate(date);
   }
 
-  // Check if a time slot is in the past (for today's date)
   isPastTimeSlot(date: Date, time: string): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // If it's not today, it's not a past time slot
-    if (date < today || date > today) {
-      return false;
-    }
-
-    // If it's today, check if the time has passed
-    const currentTime = new Date();
-    const timeSlotDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
-
-    return timeSlotDateTime < currentTime;
+    return this.businessService.isPastTimeSlot(date, time);
   }
 
   getDayName(date: Date): string {
-    const days = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-    return days[date.getDay()];
+    return dateFnsFormat(date, 'EEEE', { locale: ca });
   }
 
   getEventTime(startString: string): string {
-    const parts = startString.split('T');
-    if (parts.length > 1 && parts[1]) {
-      return parts[1].substring(0, 5);
-    }
-    return '';
+    const date = new Date(startString);
+    return dateFnsFormat(date, 'HH:mm');
   }
 
-
-
-  // Get tooltip text for a time slot
   getTimeSlotTooltip(date: Date, time: string): string {
-    if (this.isLunchBreak(time)) {
-      return 'Pausa per dinar - No disponible';
-    }
-
     if (this.isPastDate(date)) {
-      return 'Data passada - No disponible';
+      return 'Data passada';
     }
 
     if (this.isPastTimeSlot(date, time)) {
-      return 'Hora passada - No disponible';
+      return 'Hora passada';
     }
 
-    // Check if there's an appointment in this time slot
+    if (this.isLunchBreak(time)) {
+      return 'Pausa per dinar';
+    }
+
+    if (this.isTimeSlotAvailable(date, time)) {
+      return 'Disponible';
+    }
+
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (appointment) {
-      const duration = appointment.duration || 60;
-      const durationText = duration < 60 ? `${duration} min` : `${Math.floor(duration / 60)}h${duration % 60 > 0 ? ` ${duration % 60}min` : ''}`;
-      return `Clic per veure detall: ${appointment.title} (${durationText})`;
+      return `${appointment.title} - ${appointment.serviceName || ''}`;
     }
 
-    if (!this.isTimeSlotAvailable(date, time)) {
-      return 'Ocupat - No disponible';
-    }
-
-    return `Disponible - Clic per reservar`;
+    return 'No disponible';
   }
 
-  // Close appointment detail popup
   onAppointmentDetailPopupClosed() {
-    this.showDetailPopupSignal.set(false);
-    this.selectedAppointmentSignal.set(null);
+    this.stateService.closeAppointmentDetail();
   }
 
-  // Detecta si aquest slot és l'inici de la pausa de dinar
   isLunchBreakStart(time: string): boolean {
-    // Per defecte, la pausa comença a les 13:00
-    return time === '13:00';
+    return this.businessService.isLunchBreakStart(time);
   }
 
-  // Force reload appointments (can be called from parent components)
   reloadAppointments() {
-    // This method is now a no-op since we don't load appointments directly
-    // Parent components should handle appointment loading
+    this.loadAppointmentsFromLocalStorage();
   }
 
-  // Test function to clear all appointments
   clearAllAppointments() {
-    // Clear localStorage
-    localStorage.removeItem('cites');
+    this.stateService.clearAllAppointments();
+    this.saveAppointmentsToLocalStorage();
+  }
 
-    // Clear internal state
-    this.appointmentsSignal.set([]);
-
-    // Clear selected appointment if any
-    this.selectedAppointmentSignal.set(null);
-    this.showDetailPopupSignal.set(false);
-
-    console.log('Totes les cites han estat eliminades');
+  // Create appointment slot data for the new component
+  createAppointmentSlotData(appointment: AppointmentEvent, date: Date): AppointmentSlotData {
+    return {
+      appointment,
+      date
+    };
   }
 }

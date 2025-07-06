@@ -70,17 +70,13 @@
               </div>
             }
 
-            <!-- Render Appointments with absolute positioning -->
-            @for (appt of getAppointmentsForDay(day); track appt.id) {
+            <!-- Render Appointments with the new optimized component -->
+            @for (appt of getAppointmentsForDay(day); track appt.id + '-' + appt.start) {
               @if (appt && appt.start) {
-                <pelu-appointment-item
-                  [data]="{
-                    appointment: appt,
-                    top: getAppointmentTopPx(appt),
-                    height: getAppointmentHeightPx(appt)
-                  }"
+                <pelu-appointment-slot
+                  [data]="createAppointmentSlotData(appt, day)"
                   (clicked)="openAppointmentPopup($event)">
-                </pelu-appointment-item>
+                </pelu-appointment-slot>
               }
             }
           </div>
