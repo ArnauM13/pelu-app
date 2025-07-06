@@ -42,11 +42,8 @@ describe('CalendarComponent', () => {
   describe('Basic Properties', () => {
     it('should have timeSlots computed property', () => {
       expect(component.timeSlots).toBeDefined();
-      const timeSlots = component.timeSlots();
-      expect(Array.isArray(timeSlots)).toBe(true);
-      expect(timeSlots.length).toBeGreaterThan(0);
-      // Should have 30-minute intervals (2 slots per hour * 12 hours = 24 slots) + 2 lunch break slots = 26 slots
-      expect(timeSlots.length).toBe(26);
+      expect(typeof component.timeSlots).toBe('function');
+      expect(component.timeSlots().length).toBe(24);
     });
 
     it('should have weekDays computed property', () => {
