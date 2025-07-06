@@ -20,6 +20,8 @@ interface Appointment {
   serviceName?: string;
   serviceId?: string;
   userId?: string;
+  // Add any other properties that might exist in the actual data
+  [key: string]: any;
 }
 
 @Component({
@@ -57,7 +59,7 @@ export class AppointmentDetailPopupComponent {
       {
         icon: '👤',
         label: 'Client',
-        value: cita.nom
+        value: cita.nom || 'No especificat'
       },
       {
         icon: '📅',

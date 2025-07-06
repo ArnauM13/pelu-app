@@ -16,22 +16,16 @@
 
 /* Booking Layout */
 .booking-layout {
-  display: grid;
-  grid-template-columns: 70% 28%;
-  gap: 1rem;
+  display: block;
   width: 100%;
   max-width: none;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
 }
 
 /* Calendar Section */
 .calendar-section {
   min-height: 600px;
-  max-height: 100vh;
+  height: 100vh;
+  width: 100%;
   overflow-y: auto;
 }
 
@@ -211,31 +205,16 @@
 
 /* Responsive adjustments for the new layout */
 @media (max-width: 1024px) {
-  .booking-layout {
-    grid-template-columns: 1fr;
-  }
-
   .calendar-section {
     min-height: 500px;
-  }
-
-  .manual-booking-section {
-    min-height: 350px;
-    max-height: none;
+    height: 80vh;
   }
 }
 
 @media (max-width: 768px) {
-  .booking-layout {
-    gap: 1rem;
-  }
-
   .calendar-section {
     min-height: 400px;
-  }
-
-  .manual-booking-section {
-    min-height: 300px;
+    height: 70vh;
   }
 }
 
