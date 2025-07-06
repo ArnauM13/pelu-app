@@ -819,3 +819,13 @@
 :host {
   display: block;
 }
+
+.day-column.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.time-slot.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

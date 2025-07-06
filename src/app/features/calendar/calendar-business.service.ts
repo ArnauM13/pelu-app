@@ -180,20 +180,14 @@ export class CalendarBusinessService {
   /**
    * Check if can navigate to previous week
    */
-  canNavigateToPreviousWeek(): boolean {
+  canNavigateToPreviousWeek(currentViewDate: Date = new Date()): boolean {
     const today = new Date();
-    const currentDayOfWeek = today.getDay();
-
-    // If today is a business day, allow navigation
-    if (this.isBusinessDay(currentDayOfWeek)) {
-      return true;
-    }
-
-    // If today is before business days, allow navigation
-    if (currentDayOfWeek < this.businessConfig.days.start) {
-      return true;
-    }
-
-    return false;
+    today.setHours(0, 0, 0, 0);
+    // Calcular la data d'inici de la setmana anterior
+    const prevWeekStart = new Date(currentViewDate);
+    prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+    // Si algun dia de la setmana anterior és igual o posterior a avui, permet navegar-hi
+    const weekDays = this.getBusinessDaysForWeek(prevWeekStart);
+    return weekDays.some(day => day >= today);
   }
 }

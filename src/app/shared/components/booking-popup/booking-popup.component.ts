@@ -1,11 +1,12 @@
-import { Component, input, output, signal, computed, effect } from '@angular/core';
+import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { TranslateModule } from '@ngx-translate/core';
+import { CalendarModule } from 'primeng/calendar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastModule } from 'primeng/toast';
 
 export interface Service {
   id: string;
@@ -45,8 +46,9 @@ export interface TimeSlot {
     ButtonModule,
     InputTextModule,
     SelectModule,
-    DatePickerModule,
-    TranslateModule
+    CalendarModule,
+    TranslateModule,
+    ToastModule
   ],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss']
@@ -192,9 +194,13 @@ export class BookingPopupComponent {
   });
 
   // Computed properties
+  readonly errorMessage = signal('');
   readonly canConfirm = computed(() => {
     const details = this.bookingDetails();
-    return details.clientName.trim() !== '' && this.selectedService() !== undefined;
+    return (
+      details.clientName.trim() !== '' &&
+      this.selectedService() !== undefined
+    );
   });
 
   readonly totalPrice = computed(() => {
@@ -209,18 +215,32 @@ export class BookingPopupComponent {
 
   // Getter for minimum date (today)
   get minDate(): Date {
-    return new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
   }
+
+  private readonly translate = inject(TranslateService);
+
+  readonly showErrorToast = signal(false);
 
   onClose() {
     this.cancelled.emit();
   }
 
   onConfirm() {
-    if (this.canConfirm()) {
-      const details = { ...this.bookingDetails(), service: this.selectedService() };
-      this.confirmed.emit(details);
+    const details = this.bookingDetails();
+    const missing: string[] = [];
+    if (!details.clientName.trim()) missing.push(this.translate.instant('COMMON.CLIENT_NAME'));
+    if (!this.selectedService()) missing.push(this.translate.instant('COMMON.SERVICE'));
+    if (missing.length > 0) {
+      this.errorMessage.set(this.translate.instant('COMMON.MISSING_FIELDS') + ': ' + missing.join(', '));
+      this.showErrorToast.set(true);
+      setTimeout(() => this.showErrorToast.set(false), 3000);
+      return;
     }
+    const confirmedDetails = { ...details, service: this.selectedService() };
+    this.confirmed.emit(confirmedDetails);
   }
 
   onClientNameChange(value: string) {
@@ -230,17 +250,6 @@ export class BookingPopupComponent {
   onServiceChange(service: Service) {
     this.selectedService.set(service);
     this.serviceChanged.emit(service);
-  }
-
-  onDateChange(date: Date) {
-    this.selectedDate.set(date);
-    const dateString = date.toISOString().split('T')[0];
-    this.dateChanged.emit(dateString);
-  }
-
-  onTimeChange(timeSlot: TimeSlot) {
-    this.selectedTime.set(timeSlot.value);
-    this.timeChanged.emit(timeSlot.value);
   }
 
   constructor() {
@@ -285,5 +294,26 @@ export class BookingPopupComponent {
 
   formatDuration(duration: number): string {
     return `${duration} min`;
+  }
+
+  // Helper per format input date (yyyy-MM-dd)
+  formatDateInput(date: Date | undefined): string {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  get todayString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  get selectedTimeValue(): string {
+    return this.selectedTime();
   }
 }

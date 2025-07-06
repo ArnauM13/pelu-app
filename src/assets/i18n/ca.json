@@ -97,7 +97,8 @@
     "FILTER_BY_CLIENT": "Filtrar per client:",
     "STATUS": "Estat",
     "APP_NAME": "PeluApp",
-    "ALL_RIGHTS_RESERVED": "Tots els drets reservats."
+    "ALL_RIGHTS_RESERVED": "Tots els drets reservats.",
+    "MISSING_FIELDS": "Falten camps obligatoris"
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",

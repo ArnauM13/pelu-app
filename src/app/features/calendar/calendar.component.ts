@@ -341,7 +341,7 @@ export class CalendarComponent {
   }
 
   canNavigateToPreviousWeek(): boolean {
-    return this.businessService.canNavigateToPreviousWeek();
+    return this.businessService.canNavigateToPreviousWeek(this.viewDate());
   }
 
   getViewDateInfo(): string {

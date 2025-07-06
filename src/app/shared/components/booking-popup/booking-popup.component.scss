@@ -367,10 +367,6 @@
   color: #222 !important;
 }
 
-
-
-
-
 /* Clear button styling */
 .service-select ::ng-deep .p-dropdown-clear-icon {
   color: #6c757d !important;
@@ -400,8 +396,6 @@
 .service-select ::ng-deep .p-dropdown-clear-icon:active {
   transform: scale(0.95) !important;
 }
-
-
 
 /* Service option styles for the template */
 .service-option {
@@ -610,4 +604,21 @@
     align-items: flex-start;
     text-align: left;
   }
+}
+
+/* Estil igual que .input de filters-inline */
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  color: #1f2937;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
