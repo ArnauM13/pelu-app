@@ -66,6 +66,36 @@
   border-color: var(--primary-color-dark);
 }
 
+.date-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  min-width: 140px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.date-input:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 .calendar-title {
   display: flex;
   flex-direction: column;

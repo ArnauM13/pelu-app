@@ -14,6 +14,17 @@
       <i class="pi pi-arrow-right"></i>
     </button>
   </div>
+
+  <!-- Date Input -->
+  <div class="date-input-container">
+    <input
+      type="date"
+      [value]="currentDateString"
+      (input)="onDateChange($event)"
+      class="date-input"
+      title="Seleccionar data">
+  </div>
+
   <div class="calendar-title">
     <div class="title-main">{{ mainTitle }}</div>
     <div class="title-info">{{ viewDateInfo }}</div>

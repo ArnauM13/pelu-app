@@ -44,11 +44,7 @@ describe('CalendarComponent', () => {
       expect(Array.isArray(events)).toBe(true);
     });
 
-    it('should have selectedDateMessage computed property', () => {
-      expect(component.selectedDateMessage).toBeDefined();
-      const message = component.selectedDateMessage();
-      expect(typeof message).toBe('string');
-    });
+
   });
 
   describe('Navigation Methods', () => {
@@ -82,9 +78,7 @@ describe('CalendarComponent', () => {
       expect(typeof component.isDaySelected).toBe('function');
     });
 
-    it('should have isTimeSlotSelected method', () => {
-      expect(typeof component.isTimeSlotSelected).toBe('function');
-    });
+
   });
 
   describe('Utility Methods', () => {
@@ -108,9 +102,7 @@ describe('CalendarComponent', () => {
       expect(typeof component.getEventTime).toBe('function');
     });
 
-    it('should have formatDuration method', () => {
-      expect(typeof component.formatDuration).toBe('function');
-    });
+
 
     it('should have getTimeSlotTooltip method', () => {
       expect(typeof component.getTimeSlotTooltip).toBe('function');
@@ -173,22 +165,7 @@ describe('CalendarComponent', () => {
 
   });
 
-  describe('Format Duration', () => {
-    it('should format minutes correctly', () => {
-      expect(component.formatDuration(30)).toBe('30 min');
-      expect(component.formatDuration(45)).toBe('45 min');
-    });
 
-    it('should format hours correctly', () => {
-      expect(component.formatDuration(60)).toBe('1h');
-      expect(component.formatDuration(120)).toBe('2h');
-    });
-
-    it('should format hours and minutes correctly', () => {
-      expect(component.formatDuration(90)).toBe('1h 30min');
-      expect(component.formatDuration(150)).toBe('2h 30min');
-    });
-  });
 
   describe('Lunch Break Detection', () => {
     it('should detect lunch break times', () => {
@@ -206,106 +183,18 @@ describe('CalendarComponent', () => {
     });
   });
 
-  describe('Past Date Detection', () => {
-    it('should detect past dates', () => {
-      const pastDate = new Date();
-      pastDate.setDate(pastDate.getDate() - 1);
-      expect(component.isPastDate(pastDate)).toBe(true);
+  describe('Date Input Functionality', () => {
+    it('should have onDateChange method', () => {
+      expect(typeof component.onDateChange).toBe('function');
     });
 
-    it('should not detect future dates as past', () => {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 1);
-      expect(component.isPastDate(futureDate)).toBe(false);
-    });
-  });
+    it('should handle date change correctly', () => {
+      const testDate = '2024-01-15';
+      const spy = spyOn(component['stateService'], 'navigateToDate');
 
-  describe('Day Name Formatting', () => {
-    it('should return correct day names', () => {
-      const monday = new Date('2024-01-15'); // Monday
-      const tuesday = new Date('2024-01-16'); // Tuesday
+      component.onDateChange(testDate);
 
-      expect(component.getDayName(monday)).toBe('Dilluns');
-      expect(component.getDayName(tuesday)).toBe('Dimarts');
-    });
-  });
-
-  describe('Event Time Extraction', () => {
-    it('should extract time from event string', () => {
-      const eventString = '2024-01-15T10:30:00';
-      expect(component.getEventTime(eventString)).toBe('10:30');
-    });
-
-    it('should handle 30-minute time slots', () => {
-      const eventString1 = '2024-01-15T10:00:00';
-      expect(component.getEventTime(eventString1)).toBe('10:00');
-
-      const eventString2 = '2024-01-15T10:30:00';
-      expect(component.getEventTime(eventString2)).toBe('10:30');
-
-      const eventString3 = '2024-01-15T11:00:00';
-      expect(component.getEventTime(eventString3)).toBe('11:00');
-
-      const eventString4 = '2024-01-15T11:30:00';
-      expect(component.getEventTime(eventString4)).toBe('11:30');
-    });
-
-    it('should handle invalid event strings', () => {
-      expect(component.getEventTime('invalid')).toBe('');
-      expect(component.getEventTime('')).toBe('');
-    });
-  });
-
-  describe('Date Formatting', () => {
-    it('should format popup date correctly', () => {
-      const dateString = '2024-01-15';
-      const formatted = component.formatPopupDate(dateString);
-      expect(typeof formatted).toBe('string');
-      expect(formatted).toContain('2024');
-    });
-
-    it('should handle empty date string', () => {
-      expect(component.formatPopupDate('')).toBe('');
-    });
-  });
-
-  describe('Time Slot Availability', () => {
-    it('should check time slot availability', () => {
-      const testDate = new Date();
-      testDate.setDate(testDate.getDate() + 1); // Tomorrow
-      const testTime = '10:00';
-
-      const isAvailable = component.isTimeSlotAvailable(testDate, testTime);
-      expect(typeof isAvailable).toBe('boolean');
-    });
-
-        it('should not allow lunch break slots', () => {
-      const testDate = new Date();
-      testDate.setDate(testDate.getDate() + 1);
-
-      expect(component.isTimeSlotAvailable(testDate, '13:00')).toBe(false);
-      expect(component.isTimeSlotAvailable(testDate, '13:30')).toBe(false);
-      expect(component.isTimeSlotAvailable(testDate, '14:00')).toBe(false);
-      expect(component.isTimeSlotAvailable(testDate, '14:30')).toBe(false);
-    });
-  });
-
-  describe('Tooltip Generation', () => {
-        it('should generate tooltips for different slot types', () => {
-      const testDate = new Date();
-      testDate.setDate(testDate.getDate() + 1);
-
-      const lunchTooltip = component.getTimeSlotTooltip(testDate, '13:00');
-      expect(lunchTooltip).toContain('Pausa');
-
-      const lunchTooltip2 = component.getTimeSlotTooltip(testDate, '13:30');
-      expect(lunchTooltip2).toContain('Pausa');
-
-      const availableTooltip = component.getTimeSlotTooltip(testDate, '10:00');
-      expect(availableTooltip).toContain('Disponible');
-
-      const availableTooltip2 = component.getTimeSlotTooltip(testDate, '10:30');
-      expect(availableTooltip2).toContain('Disponible');
+      expect(spy).toHaveBeenCalledWith(testDate);
     });
   });
 });

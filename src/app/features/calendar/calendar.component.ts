@@ -448,6 +448,10 @@ export class CalendarComponent {
     this.loadAppointmentsFromLocalStorage();
   }
 
+  onDateChange(dateString: string) {
+    this.stateService.navigateToDate(dateString);
+  }
+
 
 
   // Create appointment slot data for the new component
