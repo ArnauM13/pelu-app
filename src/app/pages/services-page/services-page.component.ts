@@ -131,10 +131,5 @@ export class ServicesPageComponent {
     return categoryObj?.icon || '✂️';
   }
 
-  onBookService(service: Service): void {
-    // Navigate to booking page with service pre-selected
-    // This would be implemented with router navigation
-    console.log('Booking service:', service);
-    // TODO: Implement navigation to booking page with service pre-selected
-  }
+  // Booking functionality removed - services page is now informational only
 }
