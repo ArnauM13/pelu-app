@@ -98,7 +98,9 @@
     "STATUS": "Estat",
     "APP_NAME": "PeluApp",
     "ALL_RIGHTS_RESERVED": "Tots els drets reservats.",
-    "MISSING_FIELDS": "Falten camps obligatoris"
+    "MISSING_FIELDS": "Falten camps obligatoris",
+    "SEARCH_BY_NAME": "Buscar per nom...",
+    "CLEAR_FILTERS_BUTTON": "🗑️ Netejar filtres"
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",
@@ -141,7 +143,8 @@
     "HERO_SUBTITLE": "Reserva el teu moment. Ràpid, fàcil i sense trucades.",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Cites",
-    "PROFILE": "Perfil"
+    "PROFILE": "Perfil",
+    "SERVICES": "Serveis"
   },
   "APPOINTMENTS": {
     "NEW_APPOINTMENT": "Nova cita",

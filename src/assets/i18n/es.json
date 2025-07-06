@@ -98,7 +98,9 @@
     "STATUS": "Estado",
     "APP_NAME": "PeluApp",
     "ALL_RIGHTS_RESERVED": "Todos los derechos reservados.",
-    "MISSING_FIELDS": "Faltan campos obligatorios"
+    "MISSING_FIELDS": "Faltan campos obligatorios",
+    "SEARCH_BY_NAME": "Buscar por nombre...",
+    "CLEAR_FILTERS_BUTTON": "🗑️ Limpiar filtros"
   },
   "AUTH": {
     "EMAIL": "Correo electrónico",
@@ -141,7 +143,8 @@
     "HERO_SUBTITLE": "Reserva tu momento. Rápido, fácil y sin llamadas.",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Citas",
-    "PROFILE": "Perfil"
+    "PROFILE": "Perfil",
+    "SERVICES": "Servicios"
   },
   "APPOINTMENTS": {
     "NEW_APPOINTMENT": "Nueva cita",

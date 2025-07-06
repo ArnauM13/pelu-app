@@ -1,5 +1,6 @@
 import { initializeApp } from '@angular/fire/app';
 import { getAuth, GoogleAuthProvider } from '@angular/fire/auth';
+import { getFirestore } from '@angular/fire/firestore';
 import { environment } from '../../environments/environment';
 
 // Initialize Firebase
@@ -13,3 +14,6 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
+
+// Initialize Firebase Firestore
+export const firestore = getFirestore(app);

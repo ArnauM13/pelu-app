@@ -1,0 +1,124 @@
+<div class="stylist-profile-page">
+  <div class="profile-header">
+    <button class="back-button" (click)="goBack()">
+      ← Volver al Dashboard
+    </button>
+    <h1>Perfil del Negocio</h1>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-card">
+      <div class="card-header">
+        <h2>Información Personal</h2>
+        <button
+          class="edit-button"
+          (click)="toggleEdit()"
+          [class.editing]="isEditing">
+          {{ isEditing ? 'Cancelar' : 'Editar' }}
+        </button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-group">
+          <label for="displayName">Nombre Completo</label>
+          <input
+            type="text"
+            id="displayName"
+            [(ngModel)]="profileData.displayName"
+            [disabled]="!isEditing"
+            placeholder="Tu nombre completo">
+        </div>
+
+        <div class="form-group">
+          <label for="businessName">Nombre del Negocio</label>
+          <input
+            type="text"
+            id="businessName"
+            [(ngModel)]="profileData.businessName"
+            [disabled]="!isEditing"
+            placeholder="Nombre de tu peluquería">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Teléfono</label>
+          <input
+            type="tel"
+            id="phone"
+            [(ngModel)]="profileData.phone"
+            [disabled]="!isEditing"
+            placeholder="+34 600 000 000">
+        </div>
+
+        <div class="form-group">
+          <label for="address">Dirección</label>
+          <textarea
+            id="address"
+            [(ngModel)]="profileData.address"
+            [disabled]="!isEditing"
+            placeholder="Dirección completa del negocio"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Especialidades</label>
+          <div class="specialties-section">
+            <div class="specialties-list" *ngIf="profileData.specialties.length > 0">
+              <span
+                class="specialty-tag"
+                *ngFor="let specialty of profileData.specialties; let i = index">
+                {{ specialty }}
+                <button
+                  *ngIf="isEditing"
+                  class="remove-specialty"
+                  (click)="removeSpecialty(i)">
+                  ×
+                </button>
+              </span>
+            </div>
+
+            <div class="add-specialty" *ngIf="isEditing">
+              <input
+                type="text"
+                [(ngModel)]="profileData.newSpecialty"
+                placeholder="Nueva especialidad"
+                (keyup.enter)="addSpecialty()">
+              <button
+                class="add-button"
+                (click)="addSpecialty()"
+                [disabled]="!profileData.newSpecialty.trim()">
+                Añadir
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions" *ngIf="isEditing">
+          <button
+            class="save-button"
+            (click)="saveProfile()"
+            [disabled]="isLoading">
+            {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>Información de la Cuenta</h3>
+      <div class="info-item">
+        <label>Email:</label>
+        <span>{{ userRole()?.email }}</span>
+      </div>
+      <div class="info-item">
+        <label>Rol:</label>
+        <span class="role-badge" [class.admin]="userRole()?.role === 'admin'" [class.stylist]="userRole()?.role === 'stylist'">
+          {{ userRole()?.role === 'admin' ? 'Administrador' : (userRole()?.role === 'stylist' ? 'Peluquero' : 'Usuario') }}
+        </span>
+      </div>
+      <div class="info-item">
+        <label>Miembro desde:</label>
+        <span>{{ userRole()?.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
