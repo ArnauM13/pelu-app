@@ -11,8 +11,10 @@ import { AuthService } from '../../auth/auth.service';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
+  id?: string;
   title: string;
   start: string;
+  end?: string; // New: explicit end time
   duration?: number; // in minutes, default 60 if not specified
   serviceName?: string;
   clientName?: string;
@@ -60,24 +62,6 @@ export class CalendarComponent {
   readonly selectedAppointment = computed(() => this.selectedAppointmentSignal());
   readonly appointments = computed(() => this.appointmentsSignal());
 
-  // Computed events that combines input events with localStorage appointments
-  readonly allEvents = computed((): AppointmentEvent[] => {
-    // Use provided events or load from localStorage
-    const providedEvents = this.events();
-    if (providedEvents.length > 0) {
-      return providedEvents;
-    }
-
-    // Load from localStorage
-    return this.appointments().map(c => ({
-      title: c.nom,
-      start: c.data + (c.hora ? 'T' + c.hora : ''),
-      duration: c.duration || 60, // Default to 60 minutes if not specified
-      serviceName: c.serviceName,
-      clientName: c.nom
-    }));
-  });
-
   // Constants
   readonly view: CalendarView = CalendarView.Week;
   readonly businessHours = {
@@ -88,9 +72,54 @@ export class CalendarComponent {
     start: 13,
     end: 15
   };
+  readonly businessDays = {
+    start: 2, // Tuesday (0 = Sunday, 1 = Monday, 2 = Tuesday, etc.)
+    end: 6    // Saturday
+  };
+  readonly SLOT_DURATION_MINUTES = 30; // 30-minute slots
+  readonly PIXELS_PER_MINUTE = 1; // 1 pixel per minute
+  readonly SLOT_HEIGHT_PX = this.SLOT_DURATION_MINUTES * this.PIXELS_PER_MINUTE; // 30px per slot
+
+  // Computed events that combines input events with localStorage appointments
+  readonly allEvents = computed((): AppointmentEvent[] => {
+    // Use provided events or load from localStorage
+    const providedEvents = this.events();
+    if (providedEvents.length > 0) {
+      return providedEvents;
+    }
+
+    // Load from localStorage
+    const events = this.appointments().map(c => {
+      // Ensure proper date and time formatting
+      const date = c.data || '';
+      const time = c.hora || '00:00';
+      const duration = c.duration || 60;
+
+      // Create proper ISO string for start
+      const startString = `${date}T${time}:00`;
+
+      // Calculate end time based on duration
+      const startDate = new Date(startString);
+      const endDate = addMinutes(startDate, duration);
+      const endString = endDate.toISOString().slice(0, 16).replace('T', 'T');
+
+      return {
+        id: c.id,
+        title: c.nom,
+        start: startString,
+        end: endString,
+        duration: duration,
+        serviceName: c.serviceName,
+        clientName: c.nom
+      };
+    });
+
+    return events;
+  });
 
   constructor() {
     this.loadAppointments();
+    this.initializeViewDate();
 
     // Reload appointments when user changes
     effect(() => {
@@ -99,6 +128,11 @@ export class CalendarComponent {
         this.loadAppointments();
       }
     }, { allowSignalWrites: true });
+
+    // Set up periodic reload to catch new appointments
+    setInterval(() => {
+      this.loadAppointments();
+    }, 2000); // Check every 2 seconds
   }
 
   private loadAppointments() {
@@ -122,25 +156,72 @@ export class CalendarComponent {
     }
   }
 
+      // Get the appropriate view date considering business days
+  private getAppropriateViewDate(): Date {
+    const today = new Date();
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
+
+    // If today is outside business days, jump to next business week
+    if (currentDayOfWeek < this.businessDays.start || currentDayOfWeek > this.businessDays.end) {
+      // Calculate days to add to get to next business day
+      let daysToAdd: number;
+
+      if (currentDayOfWeek < this.businessDays.start) {
+        // Before business days (Sunday, Monday) - jump to next Tuesday
+        daysToAdd = this.businessDays.start - currentDayOfWeek;
+      } else {
+        // After business days (Sunday) - jump to next Tuesday
+        daysToAdd = 7 - currentDayOfWeek + this.businessDays.start;
+      }
+
+      const nextBusinessDay = new Date(today);
+      nextBusinessDay.setDate(today.getDate() + daysToAdd);
+
+      return nextBusinessDay;
+    } else {
+      // If today is a business day, show current week
+      return today;
+    }
+  }
+
+  // Initialize view date to show the next business week if today is weekend
+  private initializeViewDate() {
+    this.viewDateSignal.set(this.getAppropriateViewDate());
+  }
+
+  // ✅ Generate 30-minute time slots from 08:00 to 20:00
+  readonly timeSlots = computed(() => {
+    const slots: string[] = [];
+    const startHour = this.businessHours.start;
+    const endHour = this.businessHours.end;
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minutes of [0, 30]) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        slots.push(timeString);
+      }
+    }
+
+    return slots;
+  });
+
   // Computed properties
   readonly weekDays = computed(() => {
     const start = startOfWeek(this.viewDate(), { weekStartsOn: 1 }); // Monday
     const end = endOfWeek(this.viewDate(), { weekStartsOn: 1 });
     const allDays = eachDayOfInterval({ start, end });
 
-    // Filter to show only Tuesday (1) to Saturday (5)
-    // 0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
+    // Filter to show only business days
     return allDays.filter(day => {
       const dayOfWeek = day.getDay();
-      return dayOfWeek >= 2 && dayOfWeek <= 6; // Tuesday to Saturday
+      return this.isBusinessDay(dayOfWeek);
     });
   });
 
   readonly calendarEvents = computed(() => {
     return this.allEvents().map(event => {
       const startDate = new Date(event.start);
-      const duration = event.duration || 60; // Default to 60 minutes if not specified
-      const endDate = addMinutes(startDate, duration);
+      const endDate = event.end ? new Date(event.end) : addMinutes(startDate, event.duration || 60);
 
       return {
         title: event.title,
@@ -151,32 +232,12 @@ export class CalendarComponent {
           secondary: '#dbeafe'
         },
         meta: {
-          duration: duration,
+          duration: event.duration || 60,
           serviceName: event.serviceName,
           clientName: event.clientName
         }
       };
     });
-  });
-
-    readonly timeSlots = computed(() => {
-    const slots: string[] = [];
-    for (let hour = this.businessHours.start; hour < this.businessHours.end; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        slots.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
-      }
-    }
-
-    // Add lunch break slots (13:30 and 14:30) if they're not already included
-    const lunchSlots = ['13:30', '14:30'];
-    lunchSlots.forEach(slot => {
-      if (!slots.includes(slot)) {
-        slots.push(slot);
-      }
-    });
-
-    // Sort slots to maintain chronological order
-    return slots.sort();
   });
 
   readonly selectedDateMessage = computed(() => {
@@ -192,24 +253,35 @@ export class CalendarComponent {
     return 'Cap dia seleccionat';
   });
 
-  // Get events for a specific day
-  getEventsForDay(date: Date) {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return this.allEvents().filter(event => event.start.startsWith(dateStr));
+  // ✅ Calculate top position in pixels for an appointment (relative to 08:00)
+  getAppointmentTopPx(appointment: AppointmentEvent): number {
+    const startTime = new Date(appointment.start);
+    const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
+    const businessStartMinutes = this.businessHours.start * 60;
+    const relativeMinutes = startMinutes - businessStartMinutes;
+
+    return relativeMinutes * this.PIXELS_PER_MINUTE;
   }
 
-  // Check if a time slot is during lunch break
-  isLunchBreak(time: string): boolean {
-    const [hour, minute] = time.split(':').map(Number);
-    const timeInMinutes = hour * 60 + minute;
-    const lunchStartMinutes = this.lunchBreak.start * 60;
-    const lunchEndMinutes = this.lunchBreak.end * 60;
+  // ✅ Calculate height in pixels for an appointment based on duration
+  getAppointmentHeightPx(appointment: AppointmentEvent): number {
+    let duration: number;
 
-    return timeInMinutes >= lunchStartMinutes && timeInMinutes < lunchEndMinutes;
+    if (appointment.end) {
+      // Calculate duration from start and end times
+      const startTime = new Date(appointment.start);
+      const endTime = new Date(appointment.end);
+      duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+    } else {
+      // Use duration property or default to 60 minutes
+      duration = appointment.duration || 60;
+    }
+
+    return duration * this.PIXELS_PER_MINUTE;
   }
 
-  // Check if a time slot is available (considering appointment duration)
-  isTimeSlotAvailable(date: Date, time: string) {
+  // ✅ Check if a time slot is available (considering partial overlaps)
+  isTimeSlotAvailable(date: Date, time: string, requestedDuration: number = this.SLOT_DURATION_MINUTES): boolean {
     // If it's lunch break, it's not available
     if (this.isLunchBreak(time)) {
       return false;
@@ -226,17 +298,53 @@ export class CalendarComponent {
     }
 
     const dateStr = format(date, 'yyyy-MM-dd');
-    const timeSlotStart = new Date(`${dateStr}T${time}`);
+    const slotStart = new Date(`${dateStr}T${time}`);
+    const slotEnd = addMinutes(slotStart, requestedDuration);
 
     // Check if any appointment overlaps with this time slot
     return !this.allEvents().some(event => {
       const appointmentStart = new Date(event.start);
-      const appointmentDuration = event.duration || 60;
-      const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+      const appointmentEnd = event.end ? new Date(event.end) : addMinutes(appointmentStart, event.duration || 60);
 
-      // Check if the time slot overlaps with the appointment
-      return appointmentStart <= timeSlotStart && appointmentEnd > timeSlotStart;
+      // Check for overlap: if the maximum of start times is less than the minimum of end times
+      return Math.max(slotStart.getTime(), appointmentStart.getTime()) <
+             Math.min(slotEnd.getTime(), appointmentEnd.getTime());
     });
+  }
+
+  // Get events for a specific day
+  getEventsForDay(date: Date) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return this.allEvents().filter(event => event.start.startsWith(dateStr));
+  }
+
+  // Get appointments for a specific day (with ID for tracking)
+  getAppointmentsForDay(date: Date) {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return this.allEvents().filter(event => event.start.startsWith(dateStr)).map(event => {
+      // Find the original appointment with ID
+      const originalAppointment = this.findOriginalAppointment(event);
+      return {
+        ...event,
+        id: originalAppointment?.id || uuidv4() // Use original ID or generate new one
+      };
+    });
+  }
+
+  // Open appointment popup
+  openAppointmentPopup(appointment: any) {
+    this.selectedAppointmentSignal.set(appointment);
+    this.showDetailPopupSignal.set(true);
+  }
+
+  // Check if a time slot is during lunch break
+  isLunchBreak(time: string): boolean {
+    const [hour, minute] = time.split(':').map(Number);
+    const timeInMinutes = hour * 60 + minute;
+    const lunchStartMinutes = this.lunchBreak.start * 60;
+    const lunchEndMinutes = this.lunchBreak.end * 60;
+
+    return timeInMinutes >= lunchStartMinutes && timeInMinutes < lunchEndMinutes;
   }
 
   // Get appointment that covers a specific time slot
@@ -246,8 +354,7 @@ export class CalendarComponent {
 
     return this.allEvents().find(event => {
       const appointmentStart = new Date(event.start);
-      const appointmentDuration = event.duration || 60;
-      const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+      const appointmentEnd = event.end ? new Date(event.end) : addMinutes(appointmentStart, event.duration || 60);
 
       // Check if the time slot is within the appointment
       return appointmentStart <= timeSlotStart && appointmentEnd > timeSlotStart;
@@ -294,10 +401,9 @@ export class CalendarComponent {
     if (!appointment) return 0;
 
     const appointmentStart = new Date(appointment.start);
-    const appointmentDuration = appointment.duration || 60;
-    const appointmentEnd = addMinutes(appointmentStart, appointmentDuration);
+    const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
     const timeSlotStart = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
-    const timeSlotEnd = addMinutes(timeSlotStart, 30); // 30-minute slots
+    const timeSlotEnd = addMinutes(timeSlotStart, this.SLOT_DURATION_MINUTES);
 
     // Calculate overlap
     const overlapStart = new Date(Math.max(appointmentStart.getTime(), timeSlotStart.getTime()));
@@ -306,7 +412,7 @@ export class CalendarComponent {
     if (overlapEnd <= overlapStart) return 0;
 
     const overlapMinutes = (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60);
-    return overlapMinutes / 30; // Return as fraction of 30-minute slot
+    return overlapMinutes / this.SLOT_DURATION_MINUTES; // Return as fraction of slot
   }
 
   // Check if this slot should show appointment info
@@ -342,8 +448,6 @@ export class CalendarComponent {
 
     return appointmentStart.getTime() !== timeSlotStart.getTime();
   }
-
-
 
   // Select a day
   selectDay(date: Date) {
@@ -390,11 +494,41 @@ export class CalendarComponent {
     return this.selectedDay() ? isSameDay(this.selectedDay()!, date) : false;
   }
 
-  // Check if we can navigate to previous week
+    // Check if we can navigate to previous week
   canNavigateToPreviousWeek(): boolean {
-    const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const today = new Date();
+    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
     const viewWeekStart = startOfWeek(this.viewDate(), { weekStartsOn: 1 });
+
+    // Only prevent navigation to weeks that have already passed
     return viewWeekStart > currentWeekStart;
+  }
+
+    // Get information about the current view date
+  getViewDateInfo(): string {
+    const today = new Date();
+    const currentDayOfWeek = today.getDay();
+    const dayNames = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+
+    // Check if today is outside business days
+    if (currentDayOfWeek < this.businessDays.start || currentDayOfWeek > this.businessDays.end) {
+      return `Avui és ${dayNames[currentDayOfWeek]} (no lectiu) - Mostrant següent setmana`;
+    } else {
+      return `Avui és ${dayNames[currentDayOfWeek]} - Setmana actual`;
+    }
+  }
+
+  // Check if a day is a business day
+  isBusinessDay(dayOfWeek: number): boolean {
+    return dayOfWeek >= this.businessDays.start && dayOfWeek <= this.businessDays.end;
+  }
+
+  // Get business days configuration info
+  getBusinessDaysInfo(): string {
+    const dayNames = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+    const startDay = dayNames[this.businessDays.start];
+    const endDay = dayNames[this.businessDays.end];
+    return `Dies laborables: ${startDay} a ${endDay}`;
   }
 
   // Check if a time slot is selected
@@ -423,8 +557,8 @@ export class CalendarComponent {
     this.selectedDaySignal.set(null); // Clear selection when changing weeks
   }
 
-  today() {
-    this.viewDateSignal.set(new Date());
+    today() {
+    this.viewDateSignal.set(this.getAppropriateViewDate());
     this.selectedDaySignal.set(null); // Clear selection when going to today
   }
 
@@ -514,7 +648,8 @@ export class CalendarComponent {
     if (!this.isTimeSlotAvailable(date, time)) {
       const appointment = this.getAppointmentForTimeSlot(date, time);
       if (appointment) {
-        return `Clic per veure detall: ${appointment.title} (${this.formatDuration(appointment.duration || 60)})`;
+        const duration = appointment.duration || 60;
+        return `Clic per veure detall: ${appointment.title} (${this.formatDuration(duration)})`;
       }
       return 'Ocupat - No disponible';
     }
@@ -526,5 +661,31 @@ export class CalendarComponent {
   onAppointmentDetailPopupClosed() {
     this.showDetailPopupSignal.set(false);
     this.selectedAppointmentSignal.set(null);
+  }
+
+  // Detecta si aquest slot és l'inici de la pausa de dinar
+  isLunchBreakStart(time: string): boolean {
+    // Per defecte, la pausa comença a les 13:00
+    return time === '13:00';
+  }
+
+  // Force reload appointments (can be called from parent components)
+  reloadAppointments() {
+    this.loadAppointments();
+  }
+
+  // Test function to clear all appointments
+  clearAllAppointments() {
+    // Clear localStorage
+    localStorage.removeItem('cites');
+
+    // Clear internal state
+    this.appointmentsSignal.set([]);
+
+    // Clear selected appointment if any
+    this.selectedAppointmentSignal.set(null);
+    this.showDetailPopupSignal.set(false);
+
+    console.log('Totes les cites han estat eliminades');
   }
 }
