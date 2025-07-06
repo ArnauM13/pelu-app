@@ -17,70 +17,85 @@
       </button>
     </div>
     <div class="calendar-title">
-      Setmana del {{ formatPopupDate(format(viewDate(), 'yyyy-MM-dd')) }}
+      <div class="title-main">Setmana del {{ formatPopupDate(format(viewDate(), 'yyyy-MM-dd')) }}</div>
+      <div class="title-info">{{ getViewDateInfo() }}</div>
+      <div class="title-config">{{ getBusinessDaysInfo() }}</div>
+    </div>
+    <div class="calendar-actions">
+      <button class="test-btn"
+              (click)="clearAllAppointments()"
+              title="Eliminar totes les cites (Test)">
+        🗑️ Netejar Cites
+      </button>
     </div>
   </div>
 
-  <!-- Horizontal Weekly View -->
+  <!-- Calendar Body -->
   <div class="calendar-body">
     <div class="horizontal-week-view">
-      <!-- Time column -->
+      <!-- Time Column -->
       <div class="time-column">
         <div class="time-header">Hora</div>
         @for (time of timeSlots(); track time; let k = $index) {
-        <div class="time-slot-label">{{ time }}</div>
+          <div class="time-slot-label"
+               [class.lunch-break]="isLunchBreak(time)"
+               [class.lunch-break-start]="isLunchBreakStart(time)">
+            {{ time }}
+          </div>
         }
       </div>
 
-      <!-- Days columns -->
+      <!-- Day Columns -->
       @for (day of weekDays(); track day; let i = $index) {
-      <div class="day-column" [class.past]="isPastDate(day)">
-        <div class="day-header">
-          <div class="day-name">{{ getDayName(day) }}</div>
-          <div class="day-date">{{ format(day, 'dd/MM') }}</div>
-        </div>
-
-        <!-- Time slots for this day -->
-        @for (time of timeSlots(); track time; let k = $index) {
-        <div class="day-time-slot"
-             [class.available]="isTimeSlotAvailable(day, time)"
-             [class.booked]="!isTimeSlotAvailable(day, time) && !isLunchBreak(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
-             [class.lunch-break]="isLunchBreak(time)"
-             [class.past-date]="isPastDate(day)"
-             [class.past-time]="isPastTimeSlot(day, time)"
-             [class.selected]="isDaySelected(day) && isTimeSlotSelected(day, time)"
-             [class.clickable]="isTimeSlotAvailable(day, time)"
-             [class.appointment-slot]="getAppointmentSlotCoverage(day, time) > 0"
-             [style.height]="getAppointmentSlotCoverage(day, time) > 0 ? (getAppointmentSlotCoverage(day, time) * 100) + '%' : '100%'"
-             [title]="getTimeSlotTooltip(day, time)"
-             (click)="selectTimeSlot(day, time)">
-
-          @if (isLunchBreak(time)) {
-          <div class="lunch-break-text">
-            Pausa
+        <div class="day-column"
+             [class.past]="isPastDate(day)">
+          <div class="day-header">
+            <div class="day-name">{{ getDayName(day) }}</div>
+            <div class="day-date">{{ format(day, 'dd/MM') }}</div>
           </div>
-          } @else if (getAppointmentSlotCoverage(day, time) > 0) {
-          @if (getAppointmentDisplayInfo(day, time); as appointmentInfo) {
-          <div class="appointment-info">
-            <div class="appointment-title">{{ appointmentInfo.title }}</div>
-            @if (appointmentInfo.serviceName) {
-            <div class="appointment-service">{{ appointmentInfo.serviceName }}</div>
+
+          <!-- Time Slots Container with relative positioning -->
+          <div class="time-slots-container">
+            <!-- Clickable Time Slots -->
+            @for (time of timeSlots(); track time; let k = $index) {
+              <div class="time-slot"
+                   [class.available]="isTimeSlotAvailable(day, time)"
+                   [class.booked]="!isTimeSlotAvailable(day, time) && !isLunchBreak(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
+                   [class.lunch-break]="isLunchBreak(time)"
+                   [class.past-date]="isPastDate(day)"
+                   [class.past-time]="isPastTimeSlot(day, time)"
+                   [class.selected]="isTimeSlotSelected(day, time)"
+                   [class.clickable]="isTimeSlotAvailable(day, time)"
+                   [title]="getTimeSlotTooltip(day, time)"
+                   (click)="selectTimeSlot(day, time)">
+
+                              @if (!isTimeSlotAvailable(day, time) && !isLunchBreak(time) && !isPastDate(day) && !isPastTimeSlot(day, time)) {
+                <div class="booked-event">
+                  Ocupat
+                </div>
+              }
+              </div>
             }
-            <div class="appointment-duration">{{ formatDuration(appointmentInfo.duration) }}</div>
+
+            <!-- Render Appointments with absolute positioning -->
+            @for (appt of getAppointmentsForDay(day); track appt.id) {
+              <div class="appointment"
+                   [style.top.px]="getAppointmentTopPx(appt)"
+                   [style.height.px]="getAppointmentHeightPx(appt)"
+                   [style.left.px]="0"
+                   [style.right.px]="0"
+                   (click)="openAppointmentPopup(appt); $event.stopPropagation()">
+                <div class="appointment-content">
+                  <div class="appointment-title">{{ appt.title }}</div>
+                  @if (appt.serviceName) {
+                    <div class="appointment-service">{{ appt.serviceName }}</div>
+                  }
+                  <div class="appointment-duration">{{ formatDuration(appt.duration || 60) }}</div>
+                </div>
+              </div>
+            }
           </div>
-          }
-          } @else if (isPastDate(day)) {
-          <!-- No text for past dates - just visual styling -->
-          } @else if (isPastTimeSlot(day, time)) {
-          <!-- No text for past time slots - just visual styling -->
-          } @else if (!isTimeSlotAvailable(day, time)) {
-          <div class="booked-event">
-            Ocupat
-          </div>
-          }
         </div>
-        }
-      </div>
       }
     </div>
   </div>
