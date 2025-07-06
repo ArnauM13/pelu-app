@@ -175,7 +175,7 @@ export const testPatterns = {
   shouldEmitEvent: <T>(componentInstance: T, eventName: keyof T, triggerFn: () => void, expectedValue?: any) => {
     it(`should emit ${String(eventName)} event`, () => {
       const eventSpy = jasmine.createSpy('eventSpy');
-      if (componentInstance[eventName] && typeof componentInstance[eventName] === 'object' && 'emit' in componentInstance[eventName]) {
+      if (componentInstance[eventName] && typeof componentInstance[eventName] === 'object' && 'emit' in (componentInstance[eventName] as any)) {
         (componentInstance[eventName] as any).emit.subscribe(eventSpy);
       }
 

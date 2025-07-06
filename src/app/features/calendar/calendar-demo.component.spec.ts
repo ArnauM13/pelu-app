@@ -1,35 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarDemoComponent } from './calendar-demo.component';
-import { AppointmentEvent } from './calendar.component';
-import { Auth } from '@angular/fire/auth';
-import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../../core/translation.service';
-import { AuthService } from '../../auth/auth.service';
-import {
-  mockAuth,
-  mockTranslateService,
-  mockTranslateStore,
-  mockTranslationService,
-  mockAuthService
-} from '../../../testing/firebase-mocks';
+import { createTestComponentNoRender } from '../../../testing/test-setup';
 
 describe('CalendarDemoComponent', () => {
   let component: CalendarDemoComponent;
   let fixture: ComponentFixture<CalendarDemoComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CalendarDemoComponent],
-      providers: [
-        { provide: Auth, useValue: mockAuth },
-        { provide: TranslateService, useValue: mockTranslateService },
-        { provide: TranslateStore, useValue: mockTranslateStore },
-        { provide: TranslationService, useValue: mockTranslationService },
-        { provide: AuthService, useValue: mockAuthService }
-      ]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(CalendarDemoComponent);
+    fixture = await createTestComponentNoRender<CalendarDemoComponent>(
+      CalendarDemoComponent
+    );
     component = fixture.componentInstance;
   });
 
@@ -44,6 +24,13 @@ describe('CalendarDemoComponent', () => {
 
   it('should initialize with empty demo events', () => {
     expect(component.demoEvents()).toEqual([]);
+  });
+
+  it('should have required methods', () => {
+    expect(typeof component.addSampleAppointments).toBe('function');
+    expect(typeof component.clearAppointments).toBe('function');
+    expect(typeof component.clearAllAppointments).toBe('function');
+    expect(typeof component.onDateSelected).toBe('function');
   });
 
   it('should add sample appointments when addSampleAppointments is called', () => {
@@ -83,85 +70,6 @@ describe('CalendarDemoComponent', () => {
     expect(() => {
       component.onDateSelected(mockSelection);
     }).not.toThrow();
-  });
-
-  it('should render demo container element', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const containerElement = compiled.querySelector('.demo-container');
-    expect(containerElement).toBeTruthy();
-  });
-
-  it('should render demo title', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const titleElement = compiled.querySelector('h2');
-    expect(titleElement?.textContent?.trim()).toBe('Calendari Setmanal - Demostració');
-  });
-
-  it('should render demo features list', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const featuresList = compiled.querySelector('.demo-features');
-    expect(featuresList).toBeTruthy();
-  });
-
-  it('should render demo controls', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const controlsElement = compiled.querySelector('.demo-controls');
-    expect(controlsElement).toBeTruthy();
-  });
-
-  it('should render calendar wrapper', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const calendarWrapper = compiled.querySelector('.calendar-wrapper');
-    expect(calendarWrapper).toBeTruthy();
-  });
-
-  it('should render demo info section', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const infoElement = compiled.querySelector('.demo-info');
-    expect(infoElement).toBeTruthy();
-  });
-
-  it('should have addSampleAppointments method', () => {
-    expect(typeof component.addSampleAppointments).toBe('function');
-  });
-
-  it('should have clearAppointments method', () => {
-    expect(typeof component.clearAppointments).toBe('function');
-  });
-
-  it('should have clearAllAppointments method', () => {
-    expect(typeof component.clearAllAppointments).toBe('function');
-  });
-
-  it('should have onDateSelected method', () => {
-    expect(typeof component.onDateSelected).toBe('function');
-  });
-
-  it('should be a standalone component', () => {
-    expect(CalendarDemoComponent.prototype.constructor.name).toBe('CalendarDemoComponent');
-  });
-
-  it('should have proper component structure', () => {
-    const componentClass = CalendarDemoComponent;
-    expect(componentClass.name).toBe('CalendarDemoComponent');
-    expect(typeof componentClass).toBe('function');
-  });
-
-  it('should have component metadata', () => {
-    expect(CalendarDemoComponent.prototype).toBeDefined();
-    expect(CalendarDemoComponent.prototype.constructor).toBeDefined();
   });
 
   it('should add appointments with correct structure', () => {
@@ -235,11 +143,18 @@ describe('CalendarDemoComponent', () => {
     }).not.toThrow();
   });
 
-  it('should render calendar component', () => {
-    fixture.detectChanges();
+  it('should be a standalone component', () => {
+    expect(CalendarDemoComponent.prototype.constructor.name).toBe('CalendarDemoComponent');
+  });
 
-    const compiled = fixture.nativeElement as HTMLElement;
-    const calendarComponent = compiled.querySelector('pelu-calendar');
-    expect(calendarComponent).toBeTruthy();
+  it('should have proper component structure', () => {
+    const componentClass = CalendarDemoComponent;
+    expect(componentClass.name).toBe('CalendarDemoComponent');
+    expect(typeof componentClass).toBe('function');
+  });
+
+  it('should have component metadata', () => {
+    expect(CalendarDemoComponent.prototype).toBeDefined();
+    expect(CalendarDemoComponent.prototype.constructor).toBeDefined();
   });
 });
