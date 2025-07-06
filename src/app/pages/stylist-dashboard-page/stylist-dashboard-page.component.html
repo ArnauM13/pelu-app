@@ -1,0 +1,107 @@
+<div class="stylist-dashboard">
+  <div class="dashboard-header">
+    <h1>Dashboard de Peluquero</h1>
+    <div class="user-info">
+      <p>Bienvenido, {{ userDisplayName() }}</p>
+      <span class="role-badge" [class.admin]="userRole()?.role === 'admin'" [class.stylist]="userRole()?.role === 'stylist'">
+        {{ userRole()?.role === 'admin' ? 'Administrador' : (userRole()?.role === 'stylist' ? 'Peluquero' : 'Usuario') }}
+      </span>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="business-info-card">
+      <h2>Información del Negocio</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Nombre del Negocio:</label>
+          <span>{{ businessName }}</span>
+        </div>
+        <div class="info-item">
+          <label>Teléfono:</label>
+          <span>{{ phone }}</span>
+        </div>
+        <div class="info-item">
+          <label>Dirección:</label>
+          <span>{{ address }}</span>
+        </div>
+        <div class="info-item" *ngIf="specialties.length > 0">
+          <label>Especialidades:</label>
+          <div class="specialties">
+            <span class="specialty-tag" *ngFor="let specialty of specialties">
+              {{ specialty }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <h2>Acciones Rápidas</h2>
+      <div class="actions-grid">
+        <a routerLink="/stylist/appointments" class="action-card">
+          <div class="action-icon">📅</div>
+          <h3>Gestionar Citas</h3>
+          <p>Ver y gestionar todas las citas</p>
+        </a>
+        <a routerLink="/stylist/schedule" class="action-card">
+          <div class="action-icon">⏰</div>
+          <h3>Horarios</h3>
+          <p>Configurar horarios disponibles</p>
+        </a>
+        <a routerLink="/stylist/services" class="action-card">
+          <div class="action-icon">✂️</div>
+          <h3>Servicios</h3>
+          <p>Gestionar servicios ofrecidos</p>
+        </a>
+        <a routerLink="/stylist/clients" class="action-card">
+          <div class="action-icon">👥</div>
+          <h3>Clientes</h3>
+          <p>Ver historial de clientes</p>
+        </a>
+        <a routerLink="/stylist/profile" class="action-card">
+          <div class="action-icon">⚙️</div>
+          <h3>Perfil</h3>
+          <p>Editar información del negocio</p>
+        </a>
+        <a routerLink="/stylist/analytics" class="action-card">
+          <div class="action-icon">📊</div>
+          <h3>Analíticas</h3>
+          <p>Ver estadísticas del negocio</p>
+        </a>
+        <a routerLink="/admin/users" class="action-card">
+          <div class="action-icon">👥</div>
+          <h3>Gestión de Usuarios</h3>
+          <p>Administrar roles y permisos</p>
+        </a>
+      </div>
+    </div>
+
+    <div class="recent-activity">
+      <h2>Actividad Reciente</h2>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon">📅</div>
+          <div class="activity-content">
+            <p>Nueva cita programada para mañana</p>
+            <span class="activity-time">Hace 2 horas</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">✅</div>
+          <div class="activity-content">
+            <p>Cita completada con María García</p>
+            <span class="activity-time">Hace 4 horas</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">💰</div>
+          <div class="activity-content">
+            <p>Pago recibido por servicio de corte</p>
+            <span class="activity-time">Hace 6 horas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

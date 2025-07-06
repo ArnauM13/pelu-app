@@ -8,14 +8,12 @@ import { BookingPageComponent } from './pages/booking-page/booking-page.componen
 import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
 import { AppointmentDetailPageComponent } from './pages/appointment-detail-page/appointment-detail-page.component';
 import { ServicesPageComponent } from './pages/services-page/services-page.component';
+import { StylistDashboardPageComponent } from './pages/stylist-dashboard-page/stylist-dashboard-page.component';
+import { StylistProfilePageComponent } from './pages/stylist-profile-page/stylist-profile-page.component';
+import { AdminUsersPageComponent } from './pages/admin-users-page/admin-users-page.component';
 
 export const routes: Routes = [
-  {
-    path: '',
-    component: LandingPageComponent,
-    canActivate: [authGuard],
-    data: { viewTransitionName: 'landing' }
-  },
+  // Public routes
   {
     path: 'login',
     component: LoginPageComponent,
@@ -27,6 +25,14 @@ export const routes: Routes = [
     component: RegisterPageComponent,
     canActivate: [publicGuard],
     data: { viewTransitionName: 'register' }
+  },
+
+  // All authenticated routes - accessible to all roles
+  {
+    path: '',
+    component: LandingPageComponent,
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'landing' }
   },
   {
     path: 'booking',
@@ -58,6 +64,52 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { viewTransitionName: 'services' }
   },
+
+  // Stylist pages - accessible to all authenticated users
+  {
+    path: 'stylist',
+    children: [
+      {
+        path: 'dashboard',
+        component: StylistDashboardPageComponent,
+        canActivate: [authGuard],
+        data: { viewTransitionName: 'stylist-dashboard' }
+      },
+      {
+        path: 'profile',
+        component: StylistProfilePageComponent,
+        canActivate: [authGuard],
+        data: { viewTransitionName: 'stylist-profile' }
+      },
+      {
+        path: 'appointments',
+        component: AppointmentsPageComponent,
+        canActivate: [authGuard],
+        data: { viewTransitionName: 'stylist-appointments' }
+      },
+      {
+        path: 'services',
+        component: ServicesPageComponent,
+        canActivate: [authGuard],
+        data: { viewTransitionName: 'stylist-services' }
+      }
+    ]
+  },
+
+  // Admin pages - accessible to all authenticated users
+  {
+    path: 'admin',
+    children: [
+      {
+        path: 'users',
+        component: AdminUsersPageComponent,
+        canActivate: [authGuard],
+        data: { viewTransitionName: 'admin-users' }
+      }
+    ]
+  },
+
+  // Default redirect
   {
     path: '**',
     redirectTo: ''

@@ -9,6 +9,7 @@ import { routes } from './app.routes';
 import { primengConfig } from './primeng.config';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 
 // Factory function for TranslateHttpLoader
@@ -27,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withViewTransitions()),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {
