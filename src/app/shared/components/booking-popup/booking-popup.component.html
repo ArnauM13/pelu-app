@@ -21,7 +21,7 @@
       <!-- Service Selection -->
       <div class="form-group">
         <label for="serviceSelect">{{ 'COMMON.SERVICE' | translate }}:</label>
-        <p-dropdown
+        <p-select
           id="serviceSelect"
           [options]="services()"
           [(ngModel)]="selectedService"
@@ -65,7 +65,7 @@
               </div>
             </div>
           </ng-template>
-        </p-dropdown>
+        </p-select>
       </div>
 
       <!-- Service Details (when selected) -->

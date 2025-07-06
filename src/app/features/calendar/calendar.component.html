@@ -60,11 +60,10 @@
             @for (time of timeSlots(); track time; let k = $index) {
               <div class="time-slot"
                    [class.available]="isTimeSlotAvailable(day, time)"
-                   [class.booked]="false"
+                   [class.booked]="!isTimeSlotAvailable(day, time) && !isLunchBreak(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
                    [class.lunch-break]="isLunchBreak(time)"
                    [class.past-date]="isPastDate(day)"
                    [class.past-time]="isPastTimeSlot(day, time)"
-                   [class.selected]="isTimeSlotSelected(day, time)"
                    [class.clickable]="isTimeSlotAvailable(day, time)"
                    [title]="getTimeSlotTooltip(day, time)"
                    (click)="selectTimeSlot(day, time)">
@@ -74,20 +73,14 @@
             <!-- Render Appointments with absolute positioning -->
             @for (appt of getAppointmentsForDay(day); track appt.id) {
               @if (appt && appt.start) {
-                <div class="appointment"
-                     [style.top.px]="getAppointmentTopPx(appt)"
-                     [style.height.px]="getAppointmentHeightPx(appt)"
-                     [style.left.px]="0"
-                     [style.right.px]="0"
-                     (click)="openAppointmentPopup(appt); $event.stopPropagation()">
-                <div class="appointment-content">
-                  <div class="appointment-title">{{ appt.title }}</div>
-                  @if (appt.serviceName) {
-                    <div class="appointment-service">{{ appt.serviceName }}</div>
-                  }
-                  <div class="appointment-duration">{{ formatDuration(appt.duration || 60) }}</div>
-                </div>
-              </div>
+                <pelu-appointment-item
+                  [data]="{
+                    appointment: appt,
+                    top: getAppointmentTopPx(appt),
+                    height: getAppointmentHeightPx(appt)
+                  }"
+                  (clicked)="openAppointmentPopup($event)">
+                </pelu-appointment-item>
               }
             }
           </div>
