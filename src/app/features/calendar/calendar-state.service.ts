@@ -122,6 +122,16 @@ export class CalendarStateService {
   }
 
   /**
+   * Navigate to specific date
+   */
+  navigateToDate(dateString: string): void {
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      this.viewDateSignal.set(date);
+    }
+  }
+
+  /**
    * Open appointment detail popup
    */
   openAppointmentDetail(appointment: any): void {

@@ -5,9 +5,11 @@
     [viewDateInfo]="getViewDateInfo()"
     [businessDaysInfo]="getBusinessDaysInfo()"
     [canNavigateToPreviousWeek]="canNavigateToPreviousWeek()"
+    [currentViewDate]="viewDate()"
     (today)="today()"
     (previousWeek)="previousWeek()"
     (nextWeek)="nextWeek()"
+    (dateChange)="onDateChange($event)"
   />
 
   <!-- Calendar Body -->
