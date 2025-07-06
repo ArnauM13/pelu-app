@@ -251,7 +251,9 @@
 .time-slots-container {
   position: relative;
   grid-row: 2 / -1;
-  display: contents;
+  display: grid;
+  grid-template-rows: repeat(24, 30px); /* 24 slots of 30px each (30-minute slots) */
+  min-height: 720px; /* 24 * 30px */
 }
 
 // Clickable time slots
@@ -265,9 +267,9 @@
   justify-content: center;
   padding: 0.1rem;
   transition: all 0.2s ease;
-  grid-row: auto;
   overflow: hidden;
   cursor: default;
+  grid-row: auto;
 }
 
 .time-slot.clickable {
@@ -374,8 +376,6 @@
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
-
-
 .booked-event {
   font-size: 0.5rem;
   text-align: center;
@@ -385,8 +385,6 @@
   width: 100%;
   color: #6c757d;
 }
-
-
 
 // Day column clickable area for time selection
 .day-column {
@@ -472,12 +470,14 @@
   overflow: hidden;
   transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 20px;
 }
 
 .appointment:hover {
   background: linear-gradient(135deg, #2563eb, #1e40af);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
+  z-index: 15;
 }
 
 .appointment-content {
@@ -485,6 +485,7 @@
   flex-direction: column;
   height: 100%;
   justify-content: center;
+  padding: 2px;
 }
 
 .appointment-title {
@@ -495,6 +496,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 10px;
+  max-width: 100%;
 }
 
 .appointment-service {
@@ -505,6 +507,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .appointment-duration {
@@ -515,6 +518,7 @@
   padding: 1px 3px;
   border-radius: 2px;
   align-self: flex-start;
+  white-space: nowrap;
 }
 
 @keyframes shimmer {

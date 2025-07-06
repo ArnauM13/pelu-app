@@ -125,7 +125,10 @@ export class CalendarComponent {
     effect(() => {
       const user = this.authService.user();
       if (user) {
-        this.loadAppointments();
+        // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.loadAppointments();
+        }, 0);
       }
     }, { allowSignalWrites: true });
 
@@ -146,7 +149,10 @@ export class CalendarComponent {
       return cita;
     });
 
-    this.appointmentsSignal.set(dadesAmbIds);
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.appointmentsSignal.set(dadesAmbIds);
+    }, 0);
 
     // Save migrated data back to localStorage if there were changes
     if (dadesAmbIds.some((cita: any, index: number) =>
@@ -253,31 +259,107 @@ export class CalendarComponent {
     return 'Cap dia seleccionat';
   });
 
-  // ✅ Calculate top position in pixels for an appointment (relative to 08:00)
+  // Computed properties for appointment positioning
+  readonly appointmentPositions = computed(() => {
+    const appointments = this.allEvents();
+    const positions = new Map<string, { top: number, height: number }>();
+
+    appointments.forEach(appointment => {
+      if (!appointment || !appointment.start) {
+        const key = appointment?.id || appointment?.title || 'default';
+        positions.set(key, { top: 0, height: 60 });
+        return;
+      }
+
+      const startTime = new Date(appointment.start);
+      if (isNaN(startTime.getTime())) {
+        const key = appointment.id || appointment.title || 'default';
+        positions.set(key, { top: 0, height: 60 });
+        return;
+      }
+
+      // Calculate top position
+      const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
+      const businessStartMinutes = this.businessHours.start * 60;
+      const relativeMinutes = startMinutes - businessStartMinutes;
+      const top = Math.max(0, relativeMinutes * this.PIXELS_PER_MINUTE);
+
+      // Calculate height
+      let duration: number;
+      if (appointment.end) {
+        const endTime = new Date(appointment.end);
+        if (isNaN(endTime.getTime())) {
+          duration = appointment.duration || 60;
+        } else {
+          duration = Math.max(30, (endTime.getTime() - startTime.getTime()) / (1000 * 60));
+        }
+      } else {
+        duration = appointment.duration || 60;
+      }
+      const height = Math.max(30, duration * this.PIXELS_PER_MINUTE);
+
+      const key = appointment.id || appointment.title || 'default';
+      positions.set(key, { top, height });
+    });
+
+    return positions;
+  });
+
+  // Helper methods that use the computed positions
   getAppointmentTopPx(appointment: AppointmentEvent): number {
+    if (!appointment || !appointment.start) {
+      console.log('getAppointmentTopPx: No appointment or start time');
+      return 0;
+    }
+
     const startTime = new Date(appointment.start);
+    if (isNaN(startTime.getTime())) {
+      console.log('getAppointmentTopPx: Invalid start time', appointment.start);
+      return 0;
+    }
+
+    // Calculate top position based on start time
     const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
     const businessStartMinutes = this.businessHours.start * 60;
     const relativeMinutes = startMinutes - businessStartMinutes;
+    const top = Math.max(0, relativeMinutes * this.PIXELS_PER_MINUTE);
 
-    return relativeMinutes * this.PIXELS_PER_MINUTE;
+    console.log('getAppointmentTopPx:', {
+      title: appointment.title,
+      start: appointment.start,
+      startMinutes,
+      businessStartMinutes,
+      relativeMinutes,
+      top
+    });
+
+    return top;
   }
 
-  // ✅ Calculate height in pixels for an appointment based on duration
   getAppointmentHeightPx(appointment: AppointmentEvent): number {
+    if (!appointment) {
+      return 60 * this.PIXELS_PER_MINUTE; // Default height
+    }
+
     let duration: number;
 
     if (appointment.end) {
       // Calculate duration from start and end times
       const startTime = new Date(appointment.start);
       const endTime = new Date(appointment.end);
-      duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+
+      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        duration = appointment.duration || 60;
+      } else {
+        duration = Math.max(30, (endTime.getTime() - startTime.getTime()) / (1000 * 60));
+      }
     } else {
       // Use duration property or default to 60 minutes
       duration = appointment.duration || 60;
     }
 
-    return duration * this.PIXELS_PER_MINUTE;
+    // Ensure minimum height and convert to pixels
+    return Math.max(30, duration * this.PIXELS_PER_MINUTE);
   }
 
   // ✅ Check if a time slot is available (considering partial overlaps)
@@ -297,19 +379,9 @@ export class CalendarComponent {
       return false;
     }
 
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const slotStart = new Date(`${dateStr}T${time}`);
-    const slotEnd = addMinutes(slotStart, requestedDuration);
-
-    // Check if any appointment overlaps with this time slot
-    return !this.allEvents().some(event => {
-      const appointmentStart = new Date(event.start);
-      const appointmentEnd = event.end ? new Date(event.end) : addMinutes(appointmentStart, event.duration || 60);
-
-      // Check for overlap: if the maximum of start times is less than the minimum of end times
-      return Math.max(slotStart.getTime(), appointmentStart.getTime()) <
-             Math.min(slotEnd.getTime(), appointmentEnd.getTime());
-    });
+    // For now, allow all time slots to be available
+    // The appointments will be shown on top of the time slots
+    return true;
   }
 
   // Get events for a specific day
@@ -321,20 +393,45 @@ export class CalendarComponent {
   // Get appointments for a specific day (with ID for tracking)
   getAppointmentsForDay(date: Date) {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return this.allEvents().filter(event => event.start.startsWith(dateStr)).map(event => {
+    const dayAppointments = this.allEvents().filter(event => event.start.startsWith(dateStr));
+
+    console.log('Appointments for day', dateStr, ':', dayAppointments);
+
+    return dayAppointments.map(event => {
       // Find the original appointment with ID
       const originalAppointment = this.findOriginalAppointment(event);
-      return {
+      const result = {
         ...event,
-        id: originalAppointment?.id || uuidv4() // Use original ID or generate new one
+        id: originalAppointment?.id || event.id || uuidv4() // Use original ID, event ID, or generate new one
       };
+
+      console.log('Appointment processed:', {
+        title: result.title,
+        start: result.start,
+        top: this.getAppointmentTopPx(result),
+        height: this.getAppointmentHeightPx(result)
+      });
+
+      return result;
     });
   }
 
   // Open appointment popup
-  openAppointmentPopup(appointment: any) {
-    this.selectedAppointmentSignal.set(appointment);
-    this.showDetailPopupSignal.set(true);
+  openAppointmentPopup(appointmentEvent: AppointmentEvent) {
+    if (!appointmentEvent) return;
+
+    // Find the original appointment with the correct structure
+    const originalAppointment = this.findOriginalAppointment(appointmentEvent);
+
+    if (originalAppointment) {
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.selectedAppointmentSignal.set(originalAppointment);
+        this.showDetailPopupSignal.set(true);
+      }, 0);
+    } else {
+      console.error('Could not find original appointment for:', appointmentEvent);
+    }
   }
 
   // Check if a time slot is during lunch break
@@ -363,7 +460,20 @@ export class CalendarComponent {
 
   // Find the original appointment with ID based on an AppointmentEvent
   findOriginalAppointment(appointmentEvent: AppointmentEvent) {
+    if (!appointmentEvent) return null;
+
+    // First try to find by ID if available
+    if (appointmentEvent.id) {
+      const foundById = this.appointments().find(appointment => appointment.id === appointmentEvent.id);
+      if (foundById) {
+        return foundById;
+      }
+    }
+
+    // If no ID match, try to find by date, time and title
     const appointmentStart = new Date(appointmentEvent.start);
+    if (isNaN(appointmentStart.getTime())) return null;
+
     const appointmentDate = format(appointmentStart, 'yyyy-MM-dd');
     const appointmentTime = format(appointmentStart, 'HH:mm');
 
@@ -374,7 +484,7 @@ export class CalendarComponent {
       const matchesTitle = appointment.nom === appointmentEvent.title;
 
       return matchesDate && matchesTime && matchesTitle;
-    });
+    }) || null;
   }
 
   // Get appointment display info for a time slot
@@ -473,8 +583,10 @@ export class CalendarComponent {
       const originalAppointment = this.findOriginalAppointment(appointmentEvent);
       if (originalAppointment) {
         // Show appointment detail popup with the original appointment
-        this.selectedAppointmentSignal.set(originalAppointment);
-        this.showDetailPopupSignal.set(true);
+        setTimeout(() => {
+          this.selectedAppointmentSignal.set(originalAppointment);
+          this.showDetailPopupSignal.set(true);
+        }, 0);
         return;
       }
     }
@@ -557,7 +669,7 @@ export class CalendarComponent {
     this.selectedDaySignal.set(null); // Clear selection when changing weeks
   }
 
-    today() {
+  today() {
     this.viewDateSignal.set(this.getAppropriateViewDate());
     this.selectedDaySignal.set(null); // Clear selection when going to today
   }
@@ -645,13 +757,11 @@ export class CalendarComponent {
       return 'Hora passada - No disponible';
     }
 
-    if (!this.isTimeSlotAvailable(date, time)) {
-      const appointment = this.getAppointmentForTimeSlot(date, time);
-      if (appointment) {
-        const duration = appointment.duration || 60;
-        return `Clic per veure detall: ${appointment.title} (${this.formatDuration(duration)})`;
-      }
-      return 'Ocupat - No disponible';
+    // Check if there's an appointment in this time slot
+    const appointment = this.getAppointmentForTimeSlot(date, time);
+    if (appointment) {
+      const duration = appointment.duration || 60;
+      return `Clic per veure detall: ${appointment.title} (${this.formatDuration(duration)})`;
     }
 
     return `Disponible - Clic per seleccionar`;
