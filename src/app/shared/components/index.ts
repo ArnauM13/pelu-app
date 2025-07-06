@@ -12,3 +12,5 @@ export { BookingPopupComponent } from './booking-popup/booking-popup.component';
 export type { BookingDetails } from './booking-popup/booking-popup.component';
 export { AvatarComponent } from './avatar/avatar.component';
 export type { AvatarData } from './avatar/avatar.component';
+export { AppointmentItemComponent } from './appointment-item/appointment-item.component';
+export type { AppointmentItemData } from './appointment-item/appointment-item.component';

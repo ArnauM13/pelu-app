@@ -7,6 +7,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
 import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { AppointmentItemComponent, AppointmentItemData } from '../../shared/components/appointment-item/appointment-item.component';
 import { AuthService } from '../../auth/auth.service';
 
 // Interface for appointment with duration
@@ -23,7 +24,7 @@ export interface AppointmentEvent {
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent],
+  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentItemComponent],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -48,7 +49,6 @@ export class CalendarComponent {
 
   // Internal state
   private readonly viewDateSignal = signal<Date>(new Date());
-  private readonly selectedDateTimeSignal = signal<{date: string, time: string}>({date: '', time: ''});
   private readonly selectedDaySignal = signal<Date | null>(null);
   private readonly showDetailPopupSignal = signal<boolean>(false);
   private readonly selectedAppointmentSignal = signal<any>(null);
@@ -56,7 +56,6 @@ export class CalendarComponent {
 
   // Public computed signals
   readonly viewDate = computed(() => this.viewDateSignal());
-  readonly selectedDateTime = computed(() => this.selectedDateTimeSignal());
   readonly selectedDay = computed(() => this.selectedDaySignal());
   readonly showDetailPopup = computed(() => this.showDetailPopupSignal());
   readonly selectedAppointment = computed(() => this.selectedAppointmentSignal());
@@ -82,14 +81,15 @@ export class CalendarComponent {
 
   // Computed events that combines input events with localStorage appointments
   readonly allEvents = computed((): AppointmentEvent[] => {
-    // Use provided events or load from localStorage
+    // Use provided events or load from appointments signal
     const providedEvents = this.events();
     if (providedEvents.length > 0) {
       return providedEvents;
     }
 
-    // Load from localStorage
-    const events = this.appointments().map(c => {
+    // Use appointments from signal - ensure it's always an array
+    const appointments = this.appointments() || [];
+    const events = appointments.map(c => {
       // Ensure proper date and time formatting
       const date = c.data || '';
       const time = c.hora || '00:00';
@@ -117,50 +117,13 @@ export class CalendarComponent {
     return events;
   });
 
-  constructor() {
-    this.loadAppointments();
+    constructor() {
+    // Initialize with empty array to avoid undefined values
+    this.appointmentsSignal.set([]);
     this.initializeViewDate();
-
-    // Reload appointments when user changes
-    effect(() => {
-      const user = this.authService.user();
-      if (user) {
-        // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-        setTimeout(() => {
-          this.loadAppointments();
-        }, 0);
-      }
-    }, { allowSignalWrites: true });
-
-    // Set up periodic reload to catch new appointments
-    setInterval(() => {
-      this.loadAppointments();
-    }, 2000); // Check every 2 seconds
   }
 
-  private loadAppointments() {
-    const dades = JSON.parse(localStorage.getItem('cites') || '[]');
 
-    // Only add IDs to appointments that don't have them (no migration of userId)
-    const dadesAmbIds = dades.map((cita: any) => {
-      if (!cita.id) {
-        return { ...cita, id: uuidv4() };
-      }
-      return cita;
-    });
-
-    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-    setTimeout(() => {
-      this.appointmentsSignal.set(dadesAmbIds);
-    }, 0);
-
-    // Save migrated data back to localStorage if there were changes
-    if (dadesAmbIds.some((cita: any, index: number) =>
-      cita.id !== dades[index]?.id
-    )) {
-      localStorage.setItem('cites', JSON.stringify(dadesAmbIds));
-    }
-  }
 
       // Get the appropriate view date considering business days
   private getAppropriateViewDate(): Date {
@@ -246,18 +209,7 @@ export class CalendarComponent {
     });
   });
 
-  readonly selectedDateMessage = computed(() => {
-    const selected = this.selectedDateTime();
-    if (selected.date) {
-      const dateStr = this.formatPopupDate(selected.date);
-      if (selected.time) {
-        return `Seleccionat: ${dateStr} a les ${selected.time}`;
-      } else {
-        return `Dia seleccionat: ${dateStr}`;
-      }
-    }
-    return 'Cap dia seleccionat';
-  });
+
 
   // Computed properties for appointment positioning
   readonly appointmentPositions = computed(() => {
@@ -308,13 +260,11 @@ export class CalendarComponent {
   // Helper methods that use the computed positions
   getAppointmentTopPx(appointment: AppointmentEvent): number {
     if (!appointment || !appointment.start) {
-      console.log('getAppointmentTopPx: No appointment or start time');
       return 0;
     }
 
     const startTime = new Date(appointment.start);
     if (isNaN(startTime.getTime())) {
-      console.log('getAppointmentTopPx: Invalid start time', appointment.start);
       return 0;
     }
 
@@ -322,18 +272,8 @@ export class CalendarComponent {
     const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
     const businessStartMinutes = this.businessHours.start * 60;
     const relativeMinutes = startMinutes - businessStartMinutes;
-    const top = Math.max(0, relativeMinutes * this.PIXELS_PER_MINUTE);
 
-    console.log('getAppointmentTopPx:', {
-      title: appointment.title,
-      start: appointment.start,
-      startMinutes,
-      businessStartMinutes,
-      relativeMinutes,
-      top
-    });
-
-    return top;
+    return Math.max(0, relativeMinutes * this.PIXELS_PER_MINUTE);
   }
 
   getAppointmentHeightPx(appointment: AppointmentEvent): number {
@@ -379,9 +319,19 @@ export class CalendarComponent {
       return false;
     }
 
-    // For now, allow all time slots to be available
-    // The appointments will be shown on top of the time slots
-    return true;
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const slotStart = new Date(`${dateStr}T${time}`);
+    const slotEnd = addMinutes(slotStart, requestedDuration);
+
+    // Check if any appointment overlaps with this time slot
+    return !this.allEvents().some(event => {
+      const appointmentStart = new Date(event.start);
+      const appointmentEnd = event.end ? new Date(event.end) : addMinutes(appointmentStart, event.duration || 60);
+
+      // Check for overlap: if the maximum of start times is less than the minimum of end times
+      return Math.max(slotStart.getTime(), appointmentStart.getTime()) <
+             Math.min(slotEnd.getTime(), appointmentEnd.getTime());
+    });
   }
 
   // Get events for a specific day
@@ -390,29 +340,18 @@ export class CalendarComponent {
     return this.allEvents().filter(event => event.start.startsWith(dateStr));
   }
 
-  // Get appointments for a specific day (with ID for tracking)
+    // Get appointments for a specific day (with ID for tracking)
   getAppointmentsForDay(date: Date) {
     const dateStr = format(date, 'yyyy-MM-dd');
     const dayAppointments = this.allEvents().filter(event => event.start.startsWith(dateStr));
 
-    console.log('Appointments for day', dateStr, ':', dayAppointments);
-
     return dayAppointments.map(event => {
       // Find the original appointment with ID
       const originalAppointment = this.findOriginalAppointment(event);
-      const result = {
+      return {
         ...event,
         id: originalAppointment?.id || event.id || uuidv4() // Use original ID, event ID, or generate new one
       };
-
-      console.log('Appointment processed:', {
-        title: result.title,
-        start: result.start,
-        top: this.getAppointmentTopPx(result),
-        height: this.getAppointmentHeightPx(result)
-      });
-
-      return result;
     });
   }
 
@@ -596,8 +535,8 @@ export class CalendarComponent {
       return;
     }
 
+    // Emit the date/time selection for booking
     const dateStr = format(date, 'yyyy-MM-dd');
-    this.selectedDateTimeSignal.set({date: dateStr, time: time});
     this.dateSelected.emit({date: dateStr, time: time});
   }
 
@@ -643,12 +582,7 @@ export class CalendarComponent {
     return `Dies laborables: ${startDay} a ${endDay}`;
   }
 
-  // Check if a time slot is selected
-  isTimeSlotSelected(date: Date, time: string): boolean {
-    const selected = this.selectedDateTime();
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return selected.date === dateStr && selected.time === time;
-  }
+
 
   // Get event for a specific time slot (legacy method for compatibility)
   getEventForTimeSlot(date: Date, time: string) {
@@ -728,20 +662,7 @@ export class CalendarComponent {
     return '';
   }
 
-  // Format duration for display
-  formatDuration(minutes: number): string {
-    if (minutes < 60) {
-      return `${minutes} min`;
-    } else {
-      const hours = Math.floor(minutes / 60);
-      const remainingMinutes = minutes % 60;
-      if (remainingMinutes === 0) {
-        return `${hours}h`;
-      } else {
-        return `${hours}h ${remainingMinutes}min`;
-      }
-    }
-  }
+
 
   // Get tooltip text for a time slot
   getTimeSlotTooltip(date: Date, time: string): string {
@@ -761,10 +682,15 @@ export class CalendarComponent {
     const appointment = this.getAppointmentForTimeSlot(date, time);
     if (appointment) {
       const duration = appointment.duration || 60;
-      return `Clic per veure detall: ${appointment.title} (${this.formatDuration(duration)})`;
+      const durationText = duration < 60 ? `${duration} min` : `${Math.floor(duration / 60)}h${duration % 60 > 0 ? ` ${duration % 60}min` : ''}`;
+      return `Clic per veure detall: ${appointment.title} (${durationText})`;
     }
 
-    return `Disponible - Clic per seleccionar`;
+    if (!this.isTimeSlotAvailable(date, time)) {
+      return 'Ocupat - No disponible';
+    }
+
+    return `Disponible - Clic per reservar`;
   }
 
   // Close appointment detail popup
@@ -781,7 +707,8 @@ export class CalendarComponent {
 
   // Force reload appointments (can be called from parent components)
   reloadAppointments() {
-    this.loadAppointments();
+    // This method is now a no-op since we don't load appointments directly
+    // Parent components should handle appointment loading
   }
 
   // Test function to clear all appointments
