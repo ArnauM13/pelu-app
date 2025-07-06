@@ -7,14 +7,34 @@
     </div>
 
     <div class="popup-body">
-      <div class="booking-info">
-        <div class="info-row">
-          <span class="label">{{ 'COMMON.DATE' | translate }}:</span>
-          <span class="value">{{ formatDate(bookingDetails().date) }}</span>
+      <!-- Date and Time Selection -->
+      <div class="datetime-selection">
+        <div class="form-group">
+          <label for="dateSelect">{{ 'COMMON.DATE' | translate }}:</label>
+          <p-datepicker
+            id="dateSelect"
+            [(ngModel)]="selectedDate"
+            (onSelect)="onDateChange($event)"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            [minDate]="minDate"
+            [placeholder]="'COMMON.SELECT_DATE' | translate"
+            class="date-select">
+          </p-datepicker>
         </div>
-        <div class="info-row">
-          <span class="label">{{ 'COMMON.TIME' | translate }}:</span>
-          <span class="value">{{ bookingDetails().time }}</span>
+
+        <div class="form-group">
+          <label for="timeSelect">{{ 'COMMON.TIME' | translate }}:</label>
+          <p-select
+            id="timeSelect"
+            [options]="timeSlots"
+            [(ngModel)]="selectedTime"
+            (onChange)="onTimeChange($event.value)"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="'COMMON.SELECT_TIME' | translate"
+            class="time-select">
+          </p-select>
         </div>
       </div>
 

@@ -21,10 +21,12 @@ export interface AppointmentSlotData {
          [style.right.px]="0"
          (click)="onAppointmentClick($event)">
       <div class="appointment-content">
-        <div class="appointment-title">{{ data().appointment.title }}</div>
-        @if (data().appointment.serviceName) {
-          <div class="appointment-service">{{ data().appointment.serviceName }}</div>
-        }
+        <div class="appointment-info">
+          <div class="appointment-title">{{ data().appointment.title }}</div>
+          @if (data().appointment.serviceName) {
+            <div class="appointment-service">{{ data().appointment.serviceName }}</div>
+          }
+        </div>
         <div class="appointment-duration">{{ formatDuration(data().appointment.duration || 60) }}</div>
       </div>
     </div>

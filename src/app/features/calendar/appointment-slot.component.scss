@@ -26,32 +26,39 @@
 
 .appointment-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   height: 100%;
-  justify-content: center;
-  padding: 2px;
+  padding: 2px 4px;
+  gap: 4px;
+}
+
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0; /* Permet que el flex item es redueixi */
 }
 
 .appointment-title {
   font-weight: 600;
-  margin-bottom: 2px;
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 10px;
-  max-width: 100%;
+  margin-bottom: 1px;
 }
 
 .appointment-service {
   font-size: 9px;
   opacity: 0.9;
-  margin-bottom: 1px;
   line-height: 1.1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  display: none; /* Per defecte ocult, es mostra si hi ha espai */
 }
 
 .appointment-duration {
@@ -61,8 +68,23 @@
   background: rgba(255, 255, 255, 0.2);
   padding: 1px 3px;
   border-radius: 2px;
-  align-self: flex-start;
   white-space: nowrap;
+  flex-shrink: 0; /* No es redueix */
+}
+
+/* Mostrar el servei si hi ha espai suficient */
+.appointment:hover .appointment-service {
+  display: block;
+}
+
+/* Mostrar el servei per appointments més llargs */
+.appointment[style*="height: 45px"] .appointment-service,
+.appointment[style*="height: 60px"] .appointment-service,
+.appointment[style*="height: 75px"] .appointment-service,
+.appointment[style*="height: 90px"] .appointment-service,
+.appointment[style*="height: 105px"] .appointment-service,
+.appointment[style*="height: 120px"] .appointment-service {
+  display: block;
 }
 
 // Responsive adjustments
@@ -72,6 +94,11 @@
     padding: 2px;
   }
 
+  .appointment-content {
+    padding: 1px 2px;
+    gap: 2px;
+  }
+
   .appointment-title {
     font-size: 9px;
     margin-bottom: 1px;
@@ -79,10 +106,10 @@
 
   .appointment-service {
     font-size: 8px;
-    margin-bottom: 1px;
   }
 
   .appointment-duration {
     font-size: 7px;
+    padding: 1px 2px;
   }
 }

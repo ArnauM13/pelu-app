@@ -10,9 +10,11 @@ import { AuthService } from '../../../auth/auth.service';
 
 interface Appointment {
   id: string;
-  nom: string;
-  data: string;
-  hora: string;
+  nom?: string;
+  title?: string;
+  data?: string;
+  hora?: string;
+  start?: string;
   notes?: string;
   servei?: string;
   preu?: number;
@@ -20,6 +22,7 @@ interface Appointment {
   serviceName?: string;
   serviceId?: string;
   userId?: string;
+  clientName?: string;
   // Add any other properties that might exist in the actual data
   [key: string]: any;
 }
@@ -59,12 +62,12 @@ export class AppointmentDetailPopupComponent {
       {
         icon: '👤',
         label: 'Client',
-        value: cita.nom || 'No especificat'
+        value: cita.nom || cita.title || cita.clientName || 'No especificat'
       },
       {
         icon: '📅',
         label: 'Data',
-        value: this.formatDate(cita.data)
+        value: this.formatDate(cita.data || cita.start || '')
       }
     ];
 
@@ -74,6 +77,16 @@ export class AppointmentDetailPopupComponent {
         label: 'Hora',
         value: this.formatTime(cita.hora)
       });
+    } else if (cita.start) {
+      // Extract time from start string
+      const time = cita.start.split('T')[1]?.substring(0, 5);
+      if (time) {
+        items.push({
+          icon: '⏰',
+          label: 'Hora',
+          value: this.formatTime(time)
+        });
+      }
     }
 
     if (cita.serviceName) {
@@ -120,13 +133,15 @@ export class AppointmentDetailPopupComponent {
   readonly isToday = computed(() => {
     const cita = this.appointment();
     if (!cita) return false;
-    return this.isTodayDate(cita.data);
+    const date = cita.data || cita.start?.split('T')[0] || '';
+    return this.isTodayDate(date);
   });
 
   readonly isPast = computed(() => {
     const cita = this.appointment();
     if (!cita) return false;
-    return this.isPastDate(cita.data);
+    const date = cita.data || cita.start?.split('T')[0] || '';
+    return this.isPastDate(date);
   });
 
   readonly statusBadge = computed(() => {
@@ -142,7 +157,10 @@ export class AppointmentDetailPopupComponent {
 
   onViewFullDetail() {
     const cita = this.appointment();
-    if (!cita) return;
+    if (!cita) {
+      console.error('No appointment data available');
+      return;
+    }
 
     const user = this.authService.user();
     if (!user?.uid) {
@@ -150,11 +168,23 @@ export class AppointmentDetailPopupComponent {
       return;
     }
 
+    // Ensure we have a valid appointment ID
+    if (!cita.id) {
+      console.error('Appointment ID is missing');
+      return;
+    }
+
     // Generem un ID únic combinant clientId i appointmentId
     const clientId = user.uid;
     const uniqueId = `${clientId}-${cita.id}`;
 
-    console.log('🔗 Navigating to appointment detail:', uniqueId);
+    console.log('🔗 Navigating to appointment detail:', {
+      uniqueId,
+      appointmentId: cita.id,
+      clientId,
+      appointment: cita
+    });
+
     this.router.navigate(['/appointments', uniqueId]);
     this.onClose();
   }
@@ -167,6 +197,7 @@ export class AppointmentDetailPopupComponent {
 
   // Utility methods
   formatDate(dateString: string): string {
+    if (!dateString) return 'Data no disponible';
     try {
       const date = parseISO(dateString);
       return format(date, 'EEEE, d \'de\' MMMM \'de\' yyyy', { locale: ca });
@@ -181,11 +212,13 @@ export class AppointmentDetailPopupComponent {
   }
 
   isTodayDate(dateString: string): boolean {
+    if (!dateString) return false;
     const today = format(new Date(), 'yyyy-MM-dd');
     return dateString === today;
   }
 
   isPastDate(dateString: string): boolean {
+    if (!dateString) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const appointmentDate = new Date(dateString);

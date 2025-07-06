@@ -1,34 +1,14 @@
 <div class="calendar-container">
   <!-- Calendar Header -->
-  <div class="calendar-header">
-    <div class="calendar-navigation">
-      <button class="nav-btn"
-              [class.disabled]="!canNavigateToPreviousWeek()"
-              [disabled]="!canNavigateToPreviousWeek()"
-              (click)="previousWeek()"
-              title="Setmana anterior">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-      <button class="nav-btn today-btn" (click)="today()" title="Anar a avui">
-        Avui
-      </button>
-      <button class="nav-btn" (click)="nextWeek()" title="Setmana següent">
-        <i class="pi pi-arrow-right"></i>
-      </button>
-    </div>
-    <div class="calendar-title">
-      <div class="title-main">Setmana del {{ formatPopupDate(format(viewDate(), 'yyyy-MM-dd')) }}</div>
-      <div class="title-info">{{ getViewDateInfo() }}</div>
-      <div class="title-config">{{ getBusinessDaysInfo() }}</div>
-    </div>
-    <div class="calendar-actions">
-      <button class="test-btn"
-              (click)="clearAllAppointments()"
-              title="Eliminar totes les cites (Test)">
-        🗑️ Netejar Cites
-      </button>
-    </div>
-  </div>
+  <pelu-calendar-header
+    [mainTitle]="'Setmana del ' + formatPopupDate(format(viewDate(), 'yyyy-MM-dd'))"
+    [viewDateInfo]="getViewDateInfo()"
+    [businessDaysInfo]="getBusinessDaysInfo()"
+    [canNavigateToPreviousWeek]="canNavigateToPreviousWeek()"
+    (today)="today()"
+    (previousWeek)="previousWeek()"
+    (nextWeek)="nextWeek()"
+  />
 
   <!-- Calendar Body -->
   <div class="calendar-body">
