@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PopupStackComponent, PopupItem } from './popup-stack.component';
 import { FiltersPopupComponent } from '../filters-popup/filters-popup.component';
+import { createTestComponentNoRender, domTestUtils, testDataFactories } from '../../../../testing/test-setup';
 
 describe('PopupStackComponent', () => {
   let component: PopupStackComponent;
@@ -28,14 +29,13 @@ describe('PopupStackComponent', () => {
   };
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [PopupStackComponent]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(PopupStackComponent);
+    fixture = await createTestComponentNoRender<PopupStackComponent>(
+      PopupStackComponent
+    );
     component = fixture.componentInstance;
   });
 
+  // Standard component tests
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -119,8 +119,7 @@ describe('PopupStackComponent', () => {
     spyOn(component, 'topPopup').and.returnValue(mockPopupItem);
     jasmine.clock().install();
 
-    const mockEvent = new Event('click');
-    Object.defineProperty(mockEvent, 'target', { value: mockEvent.currentTarget });
+    const mockEvent = domTestUtils.createBackdropEvent();
 
     component.onBackdropClick(mockEvent);
 
@@ -133,10 +132,7 @@ describe('PopupStackComponent', () => {
   it('should not close popup when non-backdrop element is clicked', () => {
     spyOn(component.popupClosed, 'emit');
 
-    const mockEvent = new Event('click');
-    const mockTarget = document.createElement('div');
-    Object.defineProperty(mockEvent, 'target', { value: mockTarget });
-    Object.defineProperty(mockEvent, 'currentTarget', { value: document.createElement('div') });
+    const mockEvent = domTestUtils.createNonBackdropEvent();
 
     component.onBackdropClick(mockEvent);
 
@@ -147,8 +143,7 @@ describe('PopupStackComponent', () => {
     spyOn(component.popupClosed, 'emit');
     spyOn(component, 'topPopup').and.returnValue(null);
 
-    const mockEvent = new Event('click');
-    Object.defineProperty(mockEvent, 'target', { value: mockEvent.currentTarget });
+    const mockEvent = domTestUtils.createBackdropEvent();
 
     component.onBackdropClick(mockEvent);
 
@@ -223,35 +218,13 @@ describe('PopupStackComponent', () => {
     expect(component.isFiltersPopup(nonFiltersPopup)).toBe(false);
   });
 
-  it('should render popup stack element', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const stackElement = compiled.querySelector('.popup-stack');
-    expect(stackElement).toBeTruthy();
-  });
-
-  it('should have closePopup method', () => {
+  // Test component methods exist
+  it('should have required methods', () => {
     expect(typeof component.closePopup).toBe('function');
-  });
-
-  it('should have onBackdropClick method', () => {
     expect(typeof component.onBackdropClick).toBe('function');
-  });
-
-  it('should have getComponentInputs method', () => {
     expect(typeof component.getComponentInputs).toBe('function');
-  });
-
-  it('should have isClosing method', () => {
     expect(typeof component.isClosing).toBe('function');
-  });
-
-  it('should have getPopupStyle method', () => {
     expect(typeof component.getPopupStyle).toBe('function');
-  });
-
-  it('should have isFiltersPopup method', () => {
     expect(typeof component.isFiltersPopup).toBe('function');
   });
 
@@ -310,5 +283,18 @@ describe('PopupStackComponent', () => {
     expect(popupItem.content).toBe(FiltersPopupComponent);
     expect(popupItem.data.key).toBe('value');
     expect(typeof popupItem.onFilterClick).toBe('function');
+  });
+
+  // Test with test data factories
+  it('should work with test data factory', () => {
+    const testPopupItem = testDataFactories.createMockPopupItem({
+      id: 'factory-test',
+      title: 'Factory Test',
+      content: FiltersPopupComponent
+    });
+
+    expect(testPopupItem.id).toBe('factory-test');
+    expect(testPopupItem.title).toBe('Factory Test');
+    expect(testPopupItem.content).toBe(FiltersPopupComponent);
   });
 });

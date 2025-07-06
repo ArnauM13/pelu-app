@@ -1,10 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
 import { MessageService } from 'primeng/api';
-import { TranslateModule } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-
+import { configureTestBed } from '../../../testing/test-setup';
 import { AppointmentDetailPageComponent } from './appointment-detail-page.component';
 
 describe('AppointmentDetailPageComponent', () => {
@@ -25,19 +22,13 @@ describe('AppointmentDetailPageComponent', () => {
     });
     mockMessageService = jasmine.createSpyObj('MessageService', ['add']);
 
-    await TestBed.configureTestingModule({
-      imports: [
-        AppointmentDetailPageComponent,
-        TranslateModule.forRoot(),
-        HttpClientModule
-      ],
-      providers: [
-        { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        { provide: MessageService, useValue: mockMessageService },
-        HttpClient
-      ]
-    }).compileComponents();
+    await configureTestBed([
+      AppointmentDetailPageComponent
+    ], [
+      { provide: Router, useValue: mockRouter },
+      { provide: ActivatedRoute, useValue: mockActivatedRoute },
+      { provide: MessageService, useValue: mockMessageService }
+    ]).compileComponents();
 
     fixture = TestBed.createComponent(AppointmentDetailPageComponent);
     component = fixture.componentInstance;

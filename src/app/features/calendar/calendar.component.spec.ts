@@ -1,6 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarComponent, AppointmentEvent } from './calendar.component';
 import { signal } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
+import { TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslationService } from '../../core/translation.service';
+import { AuthService } from '../../auth/auth.service';
+import {
+  mockAuth,
+  mockTranslateService,
+  mockTranslateStore,
+  mockTranslationService,
+  mockAuthService
+} from '../../../testing/firebase-mocks';
 
 describe('CalendarComponent', () => {
   let component: CalendarComponent;
@@ -8,7 +19,14 @@ describe('CalendarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarComponent]
+      imports: [CalendarComponent],
+      providers: [
+        { provide: Auth, useValue: mockAuth },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: TranslateStore, useValue: mockTranslateStore },
+        { provide: TranslationService, useValue: mockTranslationService },
+        { provide: AuthService, useValue: mockAuthService }
+      ]
     })
     .compileComponents();
 

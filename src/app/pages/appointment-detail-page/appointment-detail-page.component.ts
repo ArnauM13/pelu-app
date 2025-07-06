@@ -16,6 +16,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { AuthService } from '../../auth/auth.service';
+import { DetailPageComponent, DetailPageConfig, DetailAction, InfoSection } from '../../shared/components/detail-page/detail-page.component';
 
 interface AppointmentForm {
   nom: string;
@@ -42,8 +43,7 @@ interface AppointmentForm {
     InputTextModule,
     CalendarModule,
     TranslateModule,
-    CardComponent,
-    InfoItemComponent
+    DetailPageComponent
   ],
   providers: [MessageService],
   templateUrl: './appointment-detail-page.component.html',
@@ -195,6 +195,49 @@ export class AppointmentDetailPageComponent implements OnInit {
            cita.serviceName !== form.serviceName ||
            cita.serviceId !== form.serviceId;
   });
+
+  // Detail page configuration
+  readonly detailConfig = computed((): DetailPageConfig => ({
+    type: 'appointment',
+    loading: this.loading(),
+    notFound: this.notFound(),
+    appointment: this.appointment(),
+    infoSections: [
+      {
+        title: 'APPOINTMENTS.APPOINTMENT_DETAILS',
+        items: this.appointmentInfoItems()
+      }
+    ],
+    actions: this.getActions(),
+    editForm: this.editForm(),
+    isEditing: this.isEditing(),
+    hasChanges: this.hasChanges(),
+    canSave: this.canSave()
+  }));
+
+  private getActions(): DetailAction[] {
+    return [
+      {
+        label: 'COMMON.BACK',
+        icon: '←',
+        type: 'secondary',
+        onClick: () => this.goBack()
+      },
+      {
+        label: 'COMMON.EDIT',
+        icon: '✏️',
+        type: 'primary',
+        onClick: () => this.startEditing(),
+        disabled: this.isEditing()
+      },
+      {
+        label: 'COMMON.DELETE',
+        icon: '🗑️',
+        type: 'danger',
+        onClick: () => this.deleteAppointment()
+      }
+    ];
+  }
 
   constructor() {}
 
@@ -352,7 +395,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   // Form update methods
-  updateForm(field: keyof AppointmentForm, value: any) {
+  updateForm(field: string, value: any) {
     this.#editFormSignal.update(form => ({
       ...form,
       [field]: value
