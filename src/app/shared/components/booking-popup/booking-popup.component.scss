@@ -63,6 +63,25 @@
   padding: 1.5rem;
 }
 
+/* Date and Time Selection Styles */
+.datetime-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+  .datetime-selection {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
 .booking-info {
   background: #f8f9fa;
   border-radius: 8px;
@@ -130,6 +149,135 @@
   color: #495057 !important;
 }
 
+/* Calendar and Time Dropdown Styles */
+.date-select,
+.time-select {
+  width: 100%;
+}
+
+/* DatePicker styles */
+.date-select ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
+.date-select ::ng-deep .p-datepicker .p-inputtext {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #dbe2fb;
+  border-radius: 8px;
+  background-color: white;
+  color: #222;
+  font-size: 1rem;
+  height: 48px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.date-select ::ng-deep .p-datepicker .p-inputtext:focus {
+  outline: none;
+  border-color: #306dcd;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1);
+}
+
+.date-select ::ng-deep .p-datepicker .p-inputtext:hover {
+  border-color: #306dcd;
+}
+
+.date-select ::ng-deep .p-datepicker .p-button {
+  background-color: white;
+  border: 2px solid #dbe2fb;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  color: #306dcd;
+  height: 48px;
+  width: 48px;
+  transition: all 0.2s ease;
+}
+
+.date-select ::ng-deep .p-datepicker .p-button:hover {
+  background-color: #f8f9fa;
+  border-color: #306dcd;
+  color: #306dcd;
+}
+
+/* Time dropdown styles */
+.time-select ::ng-deep .p-dropdown {
+  width: 100%;
+  background-color: white;
+  border: 2px solid #dbe2fb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.time-select ::ng-deep .p-dropdown:hover {
+  border-color: #306dcd;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1);
+}
+
+.time-select ::ng-deep .p-dropdown:focus-within {
+  border-color: #306dcd;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15);
+  outline: none;
+}
+
+.time-select ::ng-deep .p-dropdown-trigger {
+  background-color: white;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #306dcd;
+}
+
+.time-select ::ng-deep .p-dropdown-label {
+  background-color: white;
+  color: #222;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.time-select ::ng-deep .p-dropdown-label.p-placeholder {
+  color: #6c757d;
+}
+
+.time-select ::ng-deep .p-dropdown-panel {
+  background-color: white;
+  border: 1px solid #dbe2fb;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.time-select ::ng-deep .p-dropdown-items-wrapper {
+  background-color: white;
+  padding: 0.5rem 0;
+}
+
+.time-select ::ng-deep .p-dropdown-item {
+  background-color: white;
+  color: #222;
+  padding: 0.75rem 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.time-select ::ng-deep .p-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.time-select ::ng-deep .p-dropdown-item.p-highlight {
+  background-color: #e3f2fd;
+  color: #222;
+}
+
 /* Service Dropdown Styles - Enhanced for better appearance */
 .service-select {
   width: 100%;
@@ -138,7 +286,7 @@
 /* Enhanced dropdown button styling */
 .service-select ::ng-deep .p-dropdown {
   background-color: white;
-  border: 1px solid #dee2e6;
+  border: 2px solid #dbe2fb;
   border-radius: 8px;
   padding: 0.75rem;
   min-height: 48px;
@@ -151,13 +299,13 @@
 }
 
 .service-select ::ng-deep .p-dropdown:hover {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  border-color: #306dcd !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
 }
 
 .service-select ::ng-deep .p-dropdown:focus-within {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+  border-color: #306dcd !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
   outline: none !important;
 }
 
@@ -171,7 +319,7 @@
 
 .service-select ::ng-deep .p-dropdown-label {
   background-color: white !important;
-  color: #495057 !important;
+  color: #222 !important;
   font-size: 1rem !important;
   line-height: 1.5 !important;
   backdrop-filter: none !important;
@@ -184,7 +332,7 @@
 /* Enhanced dropdown panel styling */
 .service-select ::ng-deep .p-dropdown-panel {
   background-color: white !important;
-  border: 1px solid #dee2e6 !important;
+  border: 1px solid #dbe2fb !important;
   border-radius: 8px !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   backdrop-filter: none !important;
@@ -201,7 +349,7 @@
 
 .service-select ::ng-deep .p-dropdown-item {
   background-color: white !important;
-  color: #495057 !important;
+  color: #222 !important;
   padding: 0 !important;
   border: none !important;
   cursor: pointer !important;
@@ -216,7 +364,7 @@
 
 .service-select ::ng-deep .p-dropdown-item.p-highlight {
   background-color: transparent !important;
-  color: #495057 !important;
+  color: #222 !important;
 }
 
 
@@ -347,7 +495,7 @@
 
 .service-price {
   font-weight: 600;
-  color: #3b82f6;
+  color: #306dcd;
   font-size: 0.85rem;
   line-height: 1.2;
 }
@@ -358,7 +506,7 @@
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #306dcd;
 }
 
 .summary-row {
@@ -380,7 +528,7 @@
 }
 
 .summary-row.total .value {
-  color: #3b82f6;
+  color: #306dcd;
   font-size: 1rem;
 }
 
@@ -410,19 +558,19 @@
 }
 
 .btn-primary {
-  background: #3b82f6;
+  background: #306dcd;
   color: white;
-  border-color: #3b82f6;
+  border-color: #306dcd;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #1f4b91;
+  border-color: #1f4b91;
 }
 
 .btn-secondary {
   background: #e3f2fd;
-  color: #1976d2;
+  color: #306dcd;
   border-color: #e3f2fd;
 }
 

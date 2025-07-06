@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface Service {
@@ -30,6 +31,11 @@ export interface BookingDetails {
   service?: Service;
 }
 
+export interface TimeSlot {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'pelu-booking-popup',
   standalone: true,
@@ -39,6 +45,7 @@ export interface BookingDetails {
     ButtonModule,
     InputTextModule,
     SelectModule,
+    DatePickerModule,
     TranslateModule
   ],
   templateUrl: './booking-popup.component.html',
@@ -55,9 +62,37 @@ export class BookingPopupComponent {
   readonly cancelled = output<void>();
   readonly clientNameChanged = output<string>();
   readonly serviceChanged = output<Service>();
+  readonly dateChanged = output<string>();
+  readonly timeChanged = output<string>();
 
   // Local state for service selection
   readonly selectedService = signal<Service | undefined>(undefined);
+  readonly selectedDate = signal<Date | undefined>(undefined);
+  readonly selectedTime = signal<string>('');
+
+  // Available time slots
+  readonly timeSlots: TimeSlot[] = [
+    { label: '08:00', value: '08:00' },
+    { label: '08:30', value: '08:30' },
+    { label: '09:00', value: '09:00' },
+    { label: '09:30', value: '09:30' },
+    { label: '10:00', value: '10:00' },
+    { label: '10:30', value: '10:30' },
+    { label: '11:00', value: '11:00' },
+    { label: '11:30', value: '11:30' },
+    { label: '12:00', value: '12:00' },
+    { label: '12:30', value: '12:30' },
+    { label: '15:00', value: '15:00' },
+    { label: '15:30', value: '15:30' },
+    { label: '16:00', value: '16:00' },
+    { label: '16:30', value: '16:30' },
+    { label: '17:00', value: '17:00' },
+    { label: '17:30', value: '17:30' },
+    { label: '18:00', value: '18:00' },
+    { label: '18:30', value: '18:30' },
+    { label: '19:00', value: '19:00' },
+    { label: '19:30', value: '19:30' }
+  ];
 
   // Service categories configuration
   readonly serviceCategories: ServiceCategory[] = [
@@ -172,6 +207,11 @@ export class BookingPopupComponent {
     return service ? service.duration : 0;
   });
 
+  // Getter for minimum date (today)
+  get minDate(): Date {
+    return new Date();
+  }
+
   onClose() {
     this.cancelled.emit();
   }
@@ -192,11 +232,33 @@ export class BookingPopupComponent {
     this.serviceChanged.emit(service);
   }
 
+  onDateChange(date: Date) {
+    this.selectedDate.set(date);
+    const dateString = date.toISOString().split('T')[0];
+    this.dateChanged.emit(dateString);
+  }
+
+  onTimeChange(timeSlot: TimeSlot) {
+    this.selectedTime.set(timeSlot.value);
+    this.timeChanged.emit(timeSlot.value);
+  }
+
   constructor() {
     // Reset selected service when popup closes
     effect(() => {
       if (!this.open()) {
         this.selectedService.set(undefined);
+        this.selectedDate.set(undefined);
+        this.selectedTime.set('');
+      } else {
+        // Initialize with booking details when popup opens
+        const details = this.bookingDetails();
+        if (details.date) {
+          this.selectedDate.set(new Date(details.date));
+        }
+        if (details.time) {
+          this.selectedTime.set(details.time);
+        }
       }
     }, { allowSignalWrites: true });
   }

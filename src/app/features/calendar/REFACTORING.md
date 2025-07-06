@@ -180,4 +180,24 @@ La refactorització ha solucionat completament els errors de detecció de canvis
 1. **ExpressionChangedAfterItHasBeenCheckedError**: Solucionat amb serveis especialitzats i computed signals estables
 2. **NG0955: Duplicated keys**: Solucionat amb generació d'IDs únics i tracking robúst
 3. **Rendiment**: Optimitzat amb `ChangeDetectionStrategy.OnPush`
-4. **Mantenibilitat**: Millorada amb separació de responsabilitats 
+4. **Mantenibilitat**: Millorada amb separació de responsabilitats
+
+## Millores del Popup de Reserva
+
+### Noves Funcionalitats
+- **Selecció de Data i Hora**: El popup ara permet canviar fàcilment la data i l'hora seleccionades
+- **Calendari Integrat**: Selector de data amb calendari visual i validació de dates mínimes
+- **Dropdown d'Hores**: Selector d'hores amb opcions predefinides (excloent la pausa per dinar)
+- **Estils Consistents**: Tots els inputs del popup tenen estils consistents amb la resta de l'aplicació
+
+### Millores d'Experiència d'Usuari
+- **Interfície Intuïtiva**: Selecció de data i hora més fàcil i visual
+- **Validació en Temps Real**: Les dates no poden ser anteriors a avui
+- **Responsive Design**: Layout adaptatiu per dispositius mòbils
+- **Consistència Visual**: Colors i estils unificats amb el sistema de disseny
+
+### Estils Aplicats
+- **Colors Consistents**: Ús de les variables CSS globals (`--primary-color`, `--border-color`, etc.)
+- **Borders i Focus**: Estils de focus i hover consistents amb altres inputs
+- **Espaiat i Mides**: Mides estàndard (48px d'altura) per tots els inputs
+- **Transicions**: Animacions suaus per millor feedback visual 

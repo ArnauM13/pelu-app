@@ -12,6 +12,7 @@ import { AuthService } from '../../auth/auth.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
+import { CalendarHeaderComponent } from './header/calendar-header.component';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -27,7 +28,7 @@ export interface AppointmentEvent {
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentSlotComponent],
+  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentSlotComponent, CalendarHeaderComponent],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -154,7 +155,8 @@ export class CalendarComponent {
   // Load appointments from localStorage
   private loadAppointmentsFromLocalStorage() {
     try {
-      const stored = localStorage.getItem('appointments');
+      // Try both keys for backward compatibility
+      const stored = localStorage.getItem('cites') || localStorage.getItem('appointments');
       if (stored) {
         const appointments = JSON.parse(stored);
         this.stateService.setAppointments(appointments);
@@ -169,7 +171,8 @@ export class CalendarComponent {
   private saveAppointmentsToLocalStorage() {
     try {
       const appointments = this.appointments();
-      localStorage.setItem('appointments', JSON.stringify(appointments));
+      // Use 'cites' key to maintain consistency with other components
+      localStorage.setItem('cites', JSON.stringify(appointments));
     } catch (error) {
       console.error('Error saving appointments to localStorage:', error);
     }
@@ -188,8 +191,33 @@ export class CalendarComponent {
     return this.businessService.getAppointmentsForDay(date, this.allEvents());
   }
 
-  openAppointmentPopup(appointmentEvent: AppointmentEvent) {
-    this.stateService.openAppointmentDetail(appointmentEvent);
+    openAppointmentPopup(appointmentEvent: AppointmentEvent) {
+    // Convert AppointmentEvent to the format expected by the popup
+    const originalAppointment = this.findOriginalAppointment(appointmentEvent);
+
+    if (originalAppointment) {
+      // Use the original appointment data which has the correct format
+      console.log('📋 Using original appointment:', originalAppointment);
+      this.stateService.openAppointmentDetail(originalAppointment);
+    } else {
+      // Fallback: convert AppointmentEvent to the expected format
+      const convertedAppointment = {
+        id: appointmentEvent.id || '',
+        nom: appointmentEvent.title || appointmentEvent.clientName || '',
+        data: appointmentEvent.start ? appointmentEvent.start.split('T')[0] : '',
+        hora: appointmentEvent.start ? appointmentEvent.start.split('T')[1]?.substring(0, 5) : '',
+        duration: appointmentEvent.duration || 60,
+        serviceName: appointmentEvent.serviceName || '',
+        servei: appointmentEvent.serviceName || '',
+        notes: '',
+        preu: 0,
+        userId: '',
+        serviceId: ''
+      };
+
+      console.log('📋 Using converted appointment:', convertedAppointment);
+      this.stateService.openAppointmentDetail(convertedAppointment);
+    }
   }
 
   isLunchBreak(time: string): boolean {
@@ -212,11 +240,31 @@ export class CalendarComponent {
 
   findOriginalAppointment(appointmentEvent: AppointmentEvent) {
     const appointments = this.appointments();
+
+    // First try to find by ID if available
+    if (appointmentEvent.id) {
+      const foundById = appointments.find(app => app.id === appointmentEvent.id);
+      if (foundById) {
+        return foundById;
+      }
+    }
+
+    // Then try to find by date, time and title
     return appointments.find(app => {
       if (!app.data || !appointmentEvent.start) return false;
+
       const appDate = app.data;
       const eventDate = appointmentEvent.start.split('T')[0];
-      return appDate === eventDate && app.hora === appointmentEvent.start.split('T')[1].substring(0, 5);
+      const eventTime = appointmentEvent.start.split('T')[1]?.substring(0, 5);
+
+      // Match by date and time
+      const dateMatches = appDate === eventDate;
+      const timeMatches = app.hora === eventTime;
+
+      // Also try to match by title/nom
+      const titleMatches = app.nom === appointmentEvent.title || app.nom === appointmentEvent.clientName;
+
+      return dateMatches && timeMatches && titleMatches;
     });
   }
 
@@ -400,10 +448,7 @@ export class CalendarComponent {
     this.loadAppointmentsFromLocalStorage();
   }
 
-  clearAllAppointments() {
-    this.stateService.clearAllAppointments();
-    this.saveAppointmentsToLocalStorage();
-  }
+
 
   // Create appointment slot data for the new component
   createAppointmentSlotData(appointment: AppointmentEvent, date: Date): AppointmentSlotData {

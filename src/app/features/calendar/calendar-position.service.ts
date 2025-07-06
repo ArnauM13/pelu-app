@@ -84,6 +84,11 @@ export class CalendarPositionService {
 
     const slotEnd = addMinutes(slotStart, requestedDuration);
 
+    // Check if the time slot is during lunch break
+    if (this.isLunchBreak(time)) {
+      return false;
+    }
+
     // Check if any appointment overlaps with this time slot
     return !appointments.some(appointment => {
       if (!appointment.start) return false;
@@ -94,6 +99,14 @@ export class CalendarPositionService {
       // Check for overlap
       return appointmentStart < slotEnd && appointmentEnd > slotStart;
     });
+  }
+
+  /**
+   * Check if a time is during lunch break
+   */
+  private isLunchBreak(time: string): boolean {
+    const [hour] = time.split(':').map(Number);
+    return hour >= 13 && hour < 15; // Lunch break from 13:00 to 15:00
   }
 
   /**
