@@ -30,7 +30,8 @@
       <!-- Day Columns -->
       @for (day of weekDays(); track day; let i = $index) {
         <div class="day-column"
-             [class.past]="isPastDate(day)">
+             [class.past]="isPastDate(day)"
+             [class.disabled]="isPastDate(day)">
           <div class="day-header">
             <div class="day-name">{{ getDayName(day) }}</div>
             <div class="day-date">{{ format(day, 'dd/MM') }}</div>
@@ -47,8 +48,9 @@
                    [class.past-date]="isPastDate(day)"
                    [class.past-time]="isPastTimeSlot(day, time)"
                    [class.clickable]="isTimeSlotAvailable(day, time)"
+                   [class.disabled]="isPastDate(day)"
                    [title]="getTimeSlotTooltip(day, time)"
-                   (click)="selectTimeSlot(day, time)">
+                   (click)="!isPastDate(day) && selectTimeSlot(day, time)">
               </div>
             }
 

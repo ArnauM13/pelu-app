@@ -6,7 +6,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
-import { providePrimeNG } from 'primeng/config';
+import { primengConfig } from './primeng.config';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
@@ -19,10 +19,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
-    providePrimeNG({
-      ripple: true,
-      inputStyle: 'outlined'
-    }),
+    primengConfig,
     provideZoneChangeDetection({
       eventCoalescing: true,
       runCoalescing: true

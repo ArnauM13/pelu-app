@@ -22,7 +22,8 @@
       [value]="currentDateString"
       (input)="onDateChange($event)"
       class="date-input"
-      title="Seleccionar data">
+      title="Seleccionar data"
+      [min]="todayString">
   </div>
 
   <div class="calendar-title">

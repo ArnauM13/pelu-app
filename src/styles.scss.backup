@@ -1,9 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
-/* PrimeNG CSS imports are now handled in primeng.config.ts */
-
-/* Angular Calendar */
-@import '../node_modules/angular-calendar/css/angular-calendar.css';
+/* PrimeNG Icons */
+/* PrimeNG CSS imports are now handled in angular.json */
 
 /* PrimeNG Overrides to fix transparency issues */
 .p-dropdown {
@@ -198,6 +196,10 @@
 }
 
 .p-select-item:hover * {
+  background-color: transparent !important;
+}
+
+.p-select-item.p-highlight * {
   background-color: transparent !important;
 }
 
@@ -588,6 +590,9 @@ h3 { font-size: 1.25rem; }
 .firebaseui-idp-button:hover {
   transform: none !important;
 }
+
+/* Angular Calendar Styles */
+@import '../node_modules/angular-calendar/css/angular-calendar.css';
 
 /* PrimeNG Toast Custom Styles */
 .p-toast {

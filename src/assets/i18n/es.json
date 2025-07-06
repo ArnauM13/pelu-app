@@ -97,7 +97,8 @@
     "FILTER_BY_CLIENT": "Filtrar por cliente:",
     "STATUS": "Estado",
     "APP_NAME": "PeluApp",
-    "ALL_RIGHTS_RESERVED": "Todos los derechos reservados."
+    "ALL_RIGHTS_RESERVED": "Todos los derechos reservados.",
+    "MISSING_FIELDS": "Faltan campos obligatorios"
   },
   "AUTH": {
     "EMAIL": "Correo electrónico",
