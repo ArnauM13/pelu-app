@@ -165,25 +165,6 @@
       }
     }
   }
-
-  .services-footer {
-    text-align: center;
-    margin-top: 3rem;
-    color: var(--text-color);
-    position: relative;
-    z-index: 1;
-
-    p {
-      margin-bottom: 1.5rem;
-      color: var(--text-color-light);
-      font-size: 1rem;
-    }
-
-    ::ng-deep .p-button {
-      border-radius: 8px;
-      font-weight: 600;
-    }
-  }
 }
 
 // Responsive design

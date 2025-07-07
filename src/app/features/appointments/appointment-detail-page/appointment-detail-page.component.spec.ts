@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { configureTestBed } from '../../../testing/test-setup';
+import { configureTestBed } from '../../../../testing/test-setup';
 import { AppointmentDetailPageComponent } from './appointment-detail-page.component';
 
 describe('AppointmentDetailPageComponent', () => {

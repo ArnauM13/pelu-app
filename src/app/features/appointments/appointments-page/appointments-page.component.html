@@ -24,42 +24,13 @@
   </ng-template>
 </p-toast>
 
-<div class="container pelu-appointments-page" style="view-transition-name: appointments-container">
+<div class="container pelu-appointments-page" style="margin-top: 2rem; view-transition-name: appointments-container">
 
   <!-- Statistics Cards -->
-  <div class="stats-grid" style="view-transition-name: stats-grid">
-    <div class="stat-card clickable" (click)="setQuickFilter('all')">
-      <div class="stat-icon">📅</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ totalAppointments() }}</div>
-        <div class="stat-label">{{ 'COMMON.TOTAL_APPOINTMENTS' | translate }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card clickable" (click)="setQuickFilter('today')">
-      <div class="stat-icon">🎯</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ todayAppointments() }}</div>
-        <div class="stat-label">{{ 'COMMON.TODAY_APPOINTMENTS' | translate }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card clickable" (click)="setQuickFilter('upcoming')">
-      <div class="stat-icon">⏰</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ upcomingAppointments() }}</div>
-        <div class="stat-label">{{ 'COMMON.UPCOMING_APPOINTMENTS' | translate }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card clickable" (click)="setQuickFilter('mine')">
-      <div class="stat-icon">👨</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ myAppointments() }}</div>
-        <div class="stat-label">{{ 'COMMON.MY_APPOINTMENTS' | translate }}</div>
-      </div>
-    </div>
-  </div>
+  <pelu-appointments-stats
+    [stats]="appointmentStats()"
+    (onQuickFilterChange)="setQuickFilter($event)">
+  </pelu-appointments-stats>
 
   <!-- Inline Filters -->
   <pelu-filters-inline
@@ -71,14 +42,10 @@
   </pelu-filters-inline>
 
   <!-- View Mode Toggle (main action - right side) -->
-  <div class="view-toggle-fab" role="group" [attr.aria-label]="'COMMON.CHANGE_VIEW' | translate">
-    @for (button of viewButtons(); track button.icon; let i = $index) {
-    <pelu-floating-button
-      [config]="button"
-      (clicked)="setViewMode(i === 0 ? 'list' : 'calendar')">
-    </pelu-floating-button>
-    }
-  </div>
+  <pelu-appointments-view-controls
+    [viewButtons]="viewButtons()"
+    (onViewModeChange)="setViewMode($event)">
+  </pelu-appointments-view-controls>
 
   <!-- Calendar View -->
   @if (viewMode() === 'calendar') {
@@ -186,94 +153,13 @@
 
   <!-- Appointments List View -->
   @if (viewMode() === 'list') {
-  <pelu-card variant="large" style="view-transition-name: list-view">
-    <div class="card-header">
-      <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} ({{ filteredAppointments().length }})</h3>
-    </div>
-
-    @if (filteredAppointments().length === 0) {
-    <div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
-      <p>{{ filterDate() || filterClient() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
-      @if (filterDate() || filterClient()) {
-      <button class="btn btn-primary" (click)="clearAllFilters()">
-        {{ 'COMMON.CLEAR_FILTERS' | translate }}
-      </button>
-      }
-    </div>
-    } @else {
-    <div class="appointments-list">
-      @for (appointment of filteredAppointments(); track appointment.id) {
-      <div class="appointment-item clickable" [class.today]="isToday(appointment.data)" (click)="viewAppointmentDetail(appointment)">
-        <!-- Informació de la cita (esquerra) -->
-        <div class="appointment-info">
-          <div class="client-info">
-            <h4 class="client-name">{{ appointment.nom }}</h4>
-            <div class="appointment-details">
-              <div class="detail-item">
-                <span class="detail-icon">📅</span>
-                <span class="detail-text">{{ formatDate(appointment.data) }}</span>
-              </div>
-              @if (appointment.hora) {
-              <div class="detail-item">
-                <span class="detail-icon">⏰</span>
-                <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
-              </div>
-              }
-              @if (appointment.servei) {
-              <div class="detail-item">
-                <span class="detail-icon">✂️</span>
-                <span class="detail-text">{{ appointment.servei }}</span>
-              </div>
-              }
-              @if (appointment.serviceName) {
-              <div class="detail-item">
-                <span class="detail-icon">✂️</span>
-                <span class="detail-text">{{ appointment.serviceName }}</span>
-              </div>
-              }
-              @if (appointment.duration) {
-              <div class="detail-item">
-                <span class="detail-icon">⏱️</span>
-                <span class="detail-text">{{ appointment.duration }} min</span>
-              </div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Status i accions (dreta) -->
-        <div class="appointment-actions-container">
-          <div class="appointment-status">
-            <pelu-appointment-status-badge
-              [appointmentData]="{ date: appointment.data, time: appointment.hora }"
-              [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
-            </pelu-appointment-status-badge>
-          </div>
-
-          <div class="appointment-actions" (click)="$event.stopPropagation()">
-            <button
-              class="btn btn-primary"
-              (click)="viewAppointmentDetail(appointment)"
-              [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
-              pTooltipPosition="left">
-              👁️
-            </button>
-            <button
-              class="btn btn-danger"
-              (click)="deleteAppointment(appointment)"
-              [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-              pTooltipPosition="left">
-              🗑️
-            </button>
-          </div>
-        </div>
-      </div>
-      }
-    </div>
-    }
-  </pelu-card>
+  <pelu-appointments-list
+    [appointments]="filteredAppointments()"
+    [hasActiveFilters]="hasActiveFilters()"
+    (onViewAppointment)="viewAppointmentDetail($event)"
+    (onDeleteAppointment)="deleteAppointment($event)"
+    (onClearFilters)="clearAllFilters()">
+  </pelu-appointments-list>
   }
 
 </div>

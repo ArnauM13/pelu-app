@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogoutButtonComponent } from './logout-button.component';
 import { Auth } from '@angular/fire/auth';
 import { provideRouter } from '@angular/router';
-import { mockAuth } from '../../../testing/firebase-mocks';
+import { mockAuth } from '../../../../testing/firebase-mocks';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';

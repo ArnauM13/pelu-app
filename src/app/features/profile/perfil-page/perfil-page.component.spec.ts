@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PerfilPageComponent } from './perfil-page.component';
 import { Auth } from '@angular/fire/auth';
 import { provideRouter } from '@angular/router';
-import { mockAuth } from '../../../testing/firebase-mocks';
+import { mockAuth } from '../../../../testing/firebase-mocks';
 
 describe('PerfilPageComponent', () => {
   beforeEach(async () => {

@@ -19,6 +19,9 @@ import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
 import { FloatingButtonComponent } from '../../../shared/components/floating-button/floating-button.component';
 import { AppointmentStatusBadgeComponent } from '../../../shared/components/appointment-status-badge';
+import { AppointmentsStatsComponent, AppointmentStats } from '../components/appointments-stats/appointments-stats.component';
+import { AppointmentsListComponent, Appointment } from '../components/appointments-list/appointments-list.component';
+import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -35,8 +38,10 @@ import { AppointmentStatusBadgeComponent } from '../../../shared/components/appo
     CalendarComponent,
     CardComponent,
     FiltersInlineComponent,
-    FloatingButtonComponent,
-    AppointmentStatusBadgeComponent
+    AppointmentStatusBadgeComponent,
+    AppointmentsStatsComponent,
+    AppointmentsListComponent,
+    AppointmentsViewControlsComponent
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss']
@@ -164,6 +169,14 @@ export class AppointmentsPageComponent {
   readonly hasActiveFilters = computed(() =>
     this.filterDate() !== '' || this.filterClient() !== '' || this.quickFilter() !== 'all'
   );
+
+  // Computed appointment stats for the stats component
+  readonly appointmentStats = computed((): AppointmentStats => ({
+    total: this.totalAppointments(),
+    today: this.todayAppointments(),
+    upcoming: this.upcomingAppointments(),
+    mine: this.myAppointments()
+  }));
 
   constructor() {
     this.loadAppointments();

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LanguageSelectorComponent } from './language-selector.component';
-import { TranslationService, Language } from '../../../../core/services/translation.service';
+import { TranslationService, Language } from '../../../core/services/translation.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { configureTestBed } from '../../../../testing/test-setup';
 

@@ -1,4 +1,4 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface AvatarData {
@@ -15,14 +15,30 @@ export interface AvatarData {
   template: `
     <div
       class="avatar"
-      [class.has-image]="hasImage()"
+      [class.has-image]="hasImage() && !imageLoadError()"
       [class.small]="size === 'small'"
       [class.medium]="size === 'medium'"
       [class.large]="size === 'large'"
       [class.xlarge]="size === 'xlarge'"
-      [style.background-image]="backgroundImageStyle()"
       [title]="tooltipText()"
     >
+      <!-- Hidden image for error detection -->
+      <img
+        *ngIf="hasImage()"
+        [src]="data.imageUrl"
+        (load)="onImageLoad()"
+        (error)="onImageError()"
+        style="display: none;"
+        alt=""
+      />
+
+      <!-- Background image or initials -->
+      <div
+        *ngIf="hasImage() && !imageLoadError()"
+        class="avatar-image"
+        [style.background-image]="backgroundImageStyle()"
+      ></div>
+
       <div *ngIf="!hasImage() || imageLoadError()" class="initials">
         {{ initials() }}
       </div>
@@ -40,11 +56,10 @@ export interface AvatarData {
       color: white;
       font-weight: 600;
       font-size: 14px;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       border: 2px solid #e5e7eb;
       transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .avatar:hover {
@@ -56,9 +71,23 @@ export interface AvatarData {
       background-color: transparent;
     }
 
+    .avatar-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 50%;
+    }
+
     .initials {
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      z-index: 1;
+      position: relative;
     }
 
     /* Size variants */
@@ -87,13 +116,16 @@ export interface AvatarData {
     }
   `]
 })
-export class AvatarComponent {
+export class AvatarComponent implements OnInit, OnDestroy, OnChanges {
   @Input() data: AvatarData = {};
   @Input() size: 'small' | 'medium' | 'large' | 'xlarge' = 'medium';
 
   private readonly imageLoadErrorSignal = signal(false);
+  private readonly imageLoadedSignal = signal(false);
+  private previousImageUrl: string | undefined;
 
   readonly imageLoadError = computed(() => this.imageLoadErrorSignal());
+  readonly imageLoaded = computed(() => this.imageLoadedSignal());
 
   readonly hasImage = computed(() => {
     const hasImage = !!this.data.imageUrl && this.data.imageUrl.trim() !== '';
@@ -101,7 +133,7 @@ export class AvatarComponent {
   });
 
   readonly backgroundImageStyle = computed(() => {
-    if (this.hasImage()) {
+    if (this.hasImage() && !this.imageLoadError()) {
       return `url(${this.data.imageUrl})`;
     }
     return '';
@@ -127,4 +159,35 @@ export class AvatarComponent {
     const surname = this.data.surname || '';
     return `${name} ${surname}`.trim() || this.data.email || 'User';
   });
+
+  ngOnInit() {
+    this.resetImageState();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Reset error state when imageUrl changes
+    if (changes['data'] && this.data.imageUrl !== this.previousImageUrl) {
+      this.previousImageUrl = this.data.imageUrl;
+      this.resetImageState();
+    }
+  }
+
+  ngOnDestroy() {
+    // Cleanup if needed
+  }
+
+  onImageLoad() {
+    this.imageLoadedSignal.set(true);
+    this.imageLoadErrorSignal.set(false);
+  }
+
+  onImageError() {
+    this.imageLoadErrorSignal.set(true);
+    this.imageLoadedSignal.set(false);
+  }
+
+  private resetImageState() {
+    this.imageLoadErrorSignal.set(false);
+    this.imageLoadedSignal.set(false);
+  }
 }

@@ -1,7 +1,7 @@
 // Detail View Component - Full width and height layout
 .detail-view-container {
   width: 100%;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   display: flex;
   flex-direction: column;
@@ -97,7 +97,7 @@
 // Profile Header
 .profile-header {
   background: var(--gradient-header-lila);
-  color: var(--text-color);
+  color: var(--primary-color-darkest);
   padding: 2rem;
   position: relative;
   overflow: hidden;
@@ -182,7 +182,7 @@
       margin: 0 0 0.5rem 0;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       letter-spacing: -0.025em;
-      color: var(--text-color);
+      color: var(--primary-color-darkest);
     }
 
     .appointment-subtitle {

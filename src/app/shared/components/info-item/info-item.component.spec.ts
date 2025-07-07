@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
 import { InfoItemComponent, InfoItemData } from './info-item.component';
 
 describe('InfoItemComponent', () => {
@@ -7,11 +8,32 @@ describe('InfoItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InfoItemComponent]
+      imports: [
+        InfoItemComponent,
+        TranslateModule.forRoot()
+      ],
+      providers: [
+        {
+          provide: TranslateService,
+          useValue: {
+            instant: (key: string) => key,
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
+          }
+        },
+        {
+          provide: TranslateStore,
+          useValue: {
+            get: (key: string) => key,
+            set: (key: string, value: any) => {},
+            has: (key: string) => true
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(InfoItemComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {

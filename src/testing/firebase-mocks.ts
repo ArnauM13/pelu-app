@@ -1,11 +1,12 @@
 // Mocks comuns per a tests Angular amb Firebase
 import { Auth, User } from '@angular/fire/auth';
-import { AuthService } from '../app/auth/auth.service';
+import { Firestore } from '@angular/fire/firestore';
+import { AuthService } from '../app/core/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { signal, computed } from '@angular/core';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../app/core/translation.service';
+import { TranslationService } from '../app/core/services/translation.service';
 import {
   mockTranslateService,
   mockTranslateStore,
@@ -120,6 +121,25 @@ export const mockUser: any = {
   refreshToken: 'mock-refresh-token',
   tenantId: null
 };
+
+// Mock Firestore service
+export const mockFirestore: jasmine.SpyObj<Firestore> = jasmine.createSpyObj('Firestore', [
+  'collection',
+  'doc',
+  'collectionGroup',
+  'runTransaction',
+  'batch',
+  'writeBatch',
+  'settings',
+  'enableNetwork',
+  'disableNetwork',
+  'clearPersistence',
+  'waitForPendingWrites',
+  'terminate',
+  'app'
+], {
+  app: { name: 'test-app' }
+});
 
 // Mock Auth service with ALL Firebase methods including onAuthStateChanged
 export const mockAuth: jasmine.SpyObj<Auth> = jasmine.createSpyObj('Auth', [

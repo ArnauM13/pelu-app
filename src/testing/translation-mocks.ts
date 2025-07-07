@@ -1,5 +1,5 @@
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../app/core/translation.service';
+import { TranslationService } from '../app/core/services/translation.service';
 import { of } from 'rxjs';
 import { computed } from '@angular/core';
 

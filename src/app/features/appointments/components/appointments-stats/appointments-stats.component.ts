@@ -1,7 +1,6 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { CardComponent } from '../../../../shared/components/card/card.component';
 
 export interface AppointmentStats {
   total: number;
@@ -13,62 +12,64 @@ export interface AppointmentStats {
 @Component({
   selector: 'pelu-appointments-stats',
   standalone: true,
-  imports: [CommonModule, TranslateModule, CardComponent],
+  imports: [CommonModule, TranslateModule],
   template: `
-    <div class="appointments-stats">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-icon">📊</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats().total }}</div>
-            <div class="stat-label">{{ 'APPOINTMENTS.TOTAL' | translate }}</div>
-          </div>
+    <div class="stats-grid" style="view-transition-name: stats-grid">
+      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('all')">
+        <div class="stat-icon">📅</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats().total }}</div>
+          <div class="stat-label">{{ 'COMMON.TOTAL_APPOINTMENTS' | translate }}</div>
         </div>
+      </div>
 
-        <div class="stat-item">
-          <div class="stat-icon">📅</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats().today }}</div>
-            <div class="stat-label">{{ 'APPOINTMENTS.TODAY' | translate }}</div>
-          </div>
+      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('today')">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats().today }}</div>
+          <div class="stat-label">{{ 'COMMON.TODAY_APPOINTMENTS' | translate }}</div>
         </div>
+      </div>
 
-        <div class="stat-item">
-          <div class="stat-icon">⏰</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats().upcoming }}</div>
-            <div class="stat-label">{{ 'APPOINTMENTS.UPCOMING' | translate }}</div>
-          </div>
+      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('upcoming')">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats().upcoming }}</div>
+          <div class="stat-label">{{ 'COMMON.UPCOMING_APPOINTMENTS' | translate }}</div>
         </div>
+      </div>
 
-        <div class="stat-item">
-          <div class="stat-icon">👤</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats().mine }}</div>
-            <div class="stat-label">{{ 'APPOINTMENTS.MINE' | translate }}</div>
-          </div>
+      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('mine')">
+        <div class="stat-icon">👨</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats().mine }}</div>
+          <div class="stat-label">{{ 'COMMON.MY_APPOINTMENTS' | translate }}</div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .appointments-stats {
-      margin-bottom: 1rem;
-    }
-
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
+      margin-bottom: 1rem;
     }
 
-    .stat-item {
+    .stat-card {
       display: flex;
       align-items: center;
       padding: 1rem;
       background: var(--surface-card);
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     .stat-icon {
@@ -80,7 +81,7 @@ export interface AppointmentStats {
       flex: 1;
     }
 
-    .stat-value {
+    .stat-number {
       font-size: 1.5rem;
       font-weight: bold;
       color: var(--primary-color);
@@ -94,5 +95,7 @@ export interface AppointmentStats {
   `]
 })
 export class AppointmentsStatsComponent {
-  readonly stats = input.required<AppointmentStats>();
+  stats = input.required<AppointmentStats>();
+
+  onQuickFilterChange = output<'all' | 'today' | 'upcoming' | 'mine'>();
 }

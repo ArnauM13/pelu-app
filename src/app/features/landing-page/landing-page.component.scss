@@ -1,5 +1,5 @@
 .landing-container {
-  background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
 }
 
 // Animation keyframes for slide-in effect
@@ -306,26 +306,4 @@
     font-size: 0.85rem;
     min-width: 120px;
   }
-}
-
-/* CSS Variables (following booking-page pattern) */
-:host {
-  --primary-color: #E91E63;
-  --primary-color-dark: #C2185B;
-  --primary-color-darkest: #880E4F;
-  --primary-color-lighter: #F8BBD9;
-  --secondary-color: #FFE0B2;
-  --secondary-color-dark: #FFCC80;
-  --secondary-color-darkest: #FFB74D;
-  --surface-color: #FFFFFF;
-  --surface-color-hover: #F5F5F5;
-  --text-color: #212121;
-  --text-color-light: #757575;
-  --text-color-white: #FFFFFF;
-  --border-color: #E0E0E0;
-  --border-color-light: #F5F5F5;
-  --error-color: #F44336;
-  --success-color: #4CAF50;
-  --info-color: #2196F3;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
