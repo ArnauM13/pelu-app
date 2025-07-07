@@ -8,7 +8,7 @@ import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
 import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';

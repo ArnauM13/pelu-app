@@ -10,7 +10,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 export interface DetailAction {
   label: string;

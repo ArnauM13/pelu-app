@@ -1,15 +1,15 @@
 import { Routes } from '@angular/router';
-import { LandingPageComponent } from './pages/landing-page/landing-page.component';
-import { LoginPageComponent } from './pages/login-page/login-page.component';
-import { RegisterPageComponent } from './pages/register-page/register-page.component';
-import { PerfilPageComponent } from './pages/perfil-page/perfil-page.component';
-import { authGuard, publicGuard, stylistGuard } from './auth/auth.guard';
-import { BookingPageComponent } from './pages/booking-page/booking-page.component';
-import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
-import { AppointmentDetailPageComponent } from './pages/appointment-detail-page/appointment-detail-page.component';
-import { ServicesPageComponent } from './pages/services-page/services-page.component';
-import { StylistDashboardPageComponent } from './pages/stylist-dashboard-page/stylist-dashboard-page.component';
-import { StylistProfilePageComponent } from './pages/stylist-profile-page/stylist-profile-page.component';
+import { LandingPageComponent } from './features/landing-page/landing-page.component';
+import { LoginPageComponent } from './features/auth/login-page/login-page.component';
+import { RegisterPageComponent } from './features/auth/register-page/register-page.component';
+import { PerfilPageComponent } from './features/profile/perfil-page/perfil-page.component';
+import { authGuard, publicGuard, stylistGuard } from './core/guards/auth.guard';
+import { BookingPageComponent } from './features/bookings/booking-page/booking-page.component';
+import { AppointmentsPageComponent } from './features/appointments/appointments-page/appointments-page.component';
+import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
+import { ServicesPageComponent } from './features/services/services-page/services-page.component';
+import { StylistDashboardPageComponent } from './features/stylist/stylist-dashboard-page/stylist-dashboard-page.component';
+import { StylistProfilePageComponent } from './features/stylist/stylist-profile-page/stylist-profile-page.component';
 
 export const routes: Routes = [
   // Public routes

@@ -3,8 +3,8 @@ import { CalendarComponent, AppointmentEvent } from './calendar.component';
 import { signal } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../../core/translation.service';
-import { AuthService } from '../../auth/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import {
   mockAuth,
   mockTranslateService,

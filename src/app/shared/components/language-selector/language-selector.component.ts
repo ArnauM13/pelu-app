@@ -1,8 +1,8 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { TranslationService, Language } from '../../../core/translation.service';
-import { AuthService } from '../../../auth/auth.service';
+import { TranslationService, Language } from '../../../core/services/translation.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'pelu-language-selector',
