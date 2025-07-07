@@ -1,13 +1,19 @@
-.perfil-container {
-  min-height: 100vh;
+/* Perfil page specific styles - using detail-page component */
+.perfil-page-container {
+  height: 100vh;
   background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
-  padding: 2rem;
+  padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0;
   }
 }
 
@@ -26,7 +32,7 @@
   }
 }
 
-.perfil-card {
+.perfil-page-card {
   background: white;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -35,13 +41,14 @@
   width: 100%;
 }
 
-/* Header Section */
-.perfil-header {
-  background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+/* Header Section - now handled by detail-page component */
+.perfil-page-header {
+  background: var(--gradient-header-lila);
   padding: 3rem 2rem;
   text-align: center;
-  color: white;
+  color: var(--text-color);
   position: relative;
+  border-bottom: 1px solid var(--border-color-light);
 
   &::before {
     content: '';
@@ -50,8 +57,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23E8F0FE" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
   }
 
   @media (max-width: 768px) {
@@ -89,7 +96,8 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: var(--text-color);
 
   @media (max-width: 768px) {
     font-size: 1.5rem;
@@ -98,8 +106,9 @@
 
 .user-email {
   font-size: 1.1rem;
-  opacity: 0.9;
+  opacity: 0.8;
   margin: 0;
+  color: var(--text-color-light);
 }
 
 /* Loading Section */
@@ -124,8 +133,8 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Content Section */
-.perfil-content {
+/* Content Section - now handled by detail-page component */
+.perfil-page-content {
   padding: 2rem;
 
   @media (max-width: 768px) {
@@ -245,27 +254,30 @@
   }
 
   &.primary {
-    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    background: var(--gradient-primary);
+    color: var(--text-color-white);
 
     &:hover {
-      background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
     }
   }
 
   &.secondary {
-    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
-    color: #1976d2;
+    background: var(--gradient-secondary);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 
     &:hover {
-      background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
+      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
     }
   }
 
   &.danger {
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    background: var(--gradient-error);
+    color: var(--text-color-white);
 
     &:hover {
-      background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+      background: linear-gradient(135deg, #dc2626 0%, var(--error-color) 100%);
     }
   }
 }
@@ -308,8 +320,8 @@
 }
 
 .login-btn {
-  background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--text-color-white);
   border: none;
   padding: 1rem 2rem;
   border-radius: 12px;
@@ -320,8 +332,8 @@
   display: inline-block;
 
   &:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+    box-shadow: 0 4px 15px rgba(46, 90, 158, 0.2);
+    background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
   }
 }
 

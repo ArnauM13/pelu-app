@@ -16,7 +16,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
 import { AuthService } from '../../auth/auth.service';
-import { DetailPageComponent, DetailPageConfig, DetailAction, InfoSection } from '../../shared/components/detail-page/detail-page.component';
+import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../shared/components/detail-view/detail-view.component';
 
 interface AppointmentForm {
   nom: string;
@@ -43,7 +43,7 @@ interface AppointmentForm {
     InputTextModule,
     CalendarModule,
     TranslateModule,
-    DetailPageComponent
+    DetailViewComponent
   ],
   providers: [MessageService],
   templateUrl: './appointment-detail-page.component.html',
@@ -197,7 +197,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   });
 
   // Detail page configuration
-  readonly detailConfig = computed((): DetailPageConfig => ({
+  readonly detailConfig = computed((): DetailViewConfig => ({
     type: 'appointment',
     loading: this.loading(),
     notFound: this.notFound(),
@@ -247,24 +247,19 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   private loadAppointment() {
     const uniqueId = this.#route.snapshot.paramMap.get('id');
-    console.log('🔍 Loading appointment with unique ID:', uniqueId);
 
     if (!uniqueId) {
-      console.log('❌ No unique ID provided');
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
     }
 
     const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
-    console.log('📋 Total appointments in storage:', appointments.length);
 
     // Parsegem l'ID únic: format "clientId-appointmentId"
     const parts = uniqueId.split('-');
-    console.log('🔧 Parsing unique ID parts:', parts);
 
     if (parts.length < 2) {
-      console.log('❌ Invalid unique ID format - expected "clientId-appointmentId"');
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
@@ -272,12 +267,10 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     const clientId = parts[0];
     const appointmentId = parts.slice(1).join('-'); // En cas que l'appointmentId tingui guions
-    console.log('🔑 Unique ID parsed - Client ID:', clientId, 'Appointment ID:', appointmentId);
 
     // Verifiquem que l'usuari actual coincideix amb el clientId
     const currentUser = this.#authService.user();
     if (!currentUser || currentUser.uid !== clientId) {
-      console.log('❌ Access denied - client ID mismatch');
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
@@ -287,7 +280,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     const appointment = appointments.find((cita: any) => cita.id === appointmentId);
 
     if (!appointment) {
-      console.log('❌ Appointment not found');
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
@@ -295,13 +287,11 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     // Verifiquem que la cita pertany a l'usuari actual
     if (appointment.userId !== currentUser.uid) {
-      console.log('❌ Access denied - appointment does not belong to current user');
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
     }
 
-    console.log('✅ Appointment found and access granted:', appointment);
     this.#appointmentSignal.set(appointment);
     this.#loadingSignal.set(false);
   }
@@ -449,7 +439,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     if (appointmentId) {
       const user = this.#authService.user();
       if (!user?.uid) {
-        console.error('No hi ha usuari autenticat');
         return;
       }
 
@@ -457,7 +446,6 @@ export class AppointmentDetailPageComponent implements OnInit {
       const clientId = user.uid;
       const uniqueId = `${clientId}-${appointmentId}`;
 
-      console.log('🔗 Toast navigating to appointment detail:', uniqueId);
       this.#router.navigate(['/appointments', uniqueId]);
     }
   }
@@ -465,7 +453,6 @@ export class AppointmentDetailPageComponent implements OnInit {
   viewAppointmentDetail(appointmentId: string) {
     const user = this.#authService.user();
     if (!user?.uid) {
-      console.error('No hi ha usuari autenticat');
       return;
     }
 
@@ -473,7 +460,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     const clientId = user.uid;
     const uniqueId = `${clientId}-${appointmentId}`;
 
-    console.log('🔗 Navigating to appointment detail:', uniqueId);
     this.#router.navigate(['/appointments', uniqueId]);
   }
 }

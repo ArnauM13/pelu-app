@@ -152,9 +152,10 @@
           <!-- Status i accions (dreta) -->
           <div class="appointment-actions-container">
             <div class="appointment-status">
-              @if (isToday(appointment.data)) {
-              <span class="status-badge today">{{ 'COMMON.TODAY' | translate }}</span>
-              }
+              <pelu-appointment-status-badge
+                [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+                [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
+              </pelu-appointment-status-badge>
             </div>
 
             <div class="appointment-actions" (click)="$event.stopPropagation()">
@@ -245,13 +246,10 @@
         <!-- Status i accions (dreta) -->
         <div class="appointment-actions-container">
           <div class="appointment-status">
-            @if (isToday(appointment.data)) {
-            <span class="status-badge today">{{ 'COMMON.TODAY' | translate }}</span>
-            } @else if (isPast(appointment.data)) {
-            <span class="status-badge past">{{ 'COMMON.PAST' | translate }}</span>
-            } @else {
-            <span class="status-badge upcoming">{{ 'COMMON.UPCOMING' | translate }}</span>
-            }
+            <pelu-appointment-status-badge
+              [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+              [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
+            </pelu-appointment-status-badge>
           </div>
 
           <div class="appointment-actions" (click)="$event.stopPropagation()">

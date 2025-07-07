@@ -1,18 +1,18 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../auth/auth.service';
-import { InfoItemComponent, InfoItemData } from '../../shared/components/info-item/info-item.component';
-import { AvatarComponent, AvatarData } from '../../shared/components/avatar/avatar.component';
-import { DetailPageComponent, DetailPageConfig, DetailAction, InfoSection } from '../../shared/components/detail-page/detail-page.component';
+import { InfoItemData } from '../../shared/components/info-item/info-item.component';
+import { AvatarData } from '../../shared/components/avatar/avatar.component';
+import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../shared/components/detail-view/detail-view.component';
 
 
 @Component({
   selector: 'pelu-perfil-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, DetailPageComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss']
 })
@@ -24,6 +24,7 @@ export class PerfilPageComponent {
   // Internal state
   private readonly userSignal = signal<any>(null);
   private readonly isLoadingSignal = signal(true);
+  private readonly isEditingSignal = signal(false);
 
   // Public computed signals
   readonly user = computed(() => this.userSignal());
@@ -46,19 +47,19 @@ export class PerfilPageComponent {
   // Computed properties
   readonly displayName = computed(() => {
     const user = this.user();
-    return user?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
+    return user?.displayName || user?.email?.split('@')[0] || '';
   });
 
-  readonly email = computed(() => this.user()?.email || 'COMMON.NOT_AVAILABLE');
+  readonly email = computed(() => this.user()?.email || '');
 
-  readonly uid = computed(() => this.user()?.uid || 'COMMON.NOT_AVAILABLE');
+  readonly uid = computed(() => this.user()?.uid || '');
 
   readonly creationDate = computed(() => {
     const user = this.user();
     if (user?.metadata?.creationTime) {
       return new Date(user.metadata.creationTime).toLocaleDateString('ca-ES');
     }
-    return 'COMMON.NOT_AVAILABLE';
+    return '';
   });
 
   readonly lastSignIn = computed(() => {
@@ -66,7 +67,7 @@ export class PerfilPageComponent {
     if (user?.metadata?.lastSignInTime) {
       return new Date(user.metadata.lastSignInTime).toLocaleDateString('ca-ES');
     }
-    return 'COMMON.NOT_AVAILABLE';
+    return '';
   });
 
 
@@ -107,7 +108,7 @@ export class PerfilPageComponent {
   ]);
 
   // Detail page configuration
-  readonly detailConfig = computed((): DetailPageConfig => ({
+  readonly detailConfig = computed((): DetailViewConfig => ({
     type: 'profile',
     loading: this.isLoading(),
     notFound: !this.isLoading() && !this.user(),
@@ -158,29 +159,25 @@ export class PerfilPageComponent {
     this.router.navigate(['/']);
   }
 
-  onEdit() {
-    // Profile editing not implemented yet
-    console.log('Edit profile');
+  onEditProfile() {
+    this.isEditingSignal.set(true);
   }
 
-  onSave(data: any) {
-    // Profile saving not implemented yet
-    console.log('Save profile', data);
+  onSaveProfile(data: any) {
+    this.isEditingSignal.set(false);
+    // Handle save logic here
   }
 
   onCancelEdit() {
-    // Profile editing not implemented yet
-    console.log('Cancel edit profile');
+    this.isEditingSignal.set(false);
   }
 
-  onDelete() {
-    // Profile deletion not implemented yet
-    console.log('Delete profile');
+  onDeleteProfile() {
+    // Handle delete logic here
   }
 
-  onUpdateForm(data: { field: string; value: any }) {
-    // Profile form update not implemented yet
-    console.log('Update form', data);
+  onUpdateForm(data: any) {
+    // Handle form update logic here
   }
 
   logout() {

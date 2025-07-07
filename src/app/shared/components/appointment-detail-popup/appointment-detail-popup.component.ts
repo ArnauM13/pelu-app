@@ -2,10 +2,11 @@ import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { InfoItemComponent, InfoItemData } from '../info-item/info-item.component';
+import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { AuthService } from '../../../auth/auth.service';
 
 interface Appointment {
@@ -34,7 +35,8 @@ interface Appointment {
     CommonModule,
     ButtonModule,
     TranslateModule,
-    InfoItemComponent
+    InfoItemComponent,
+    AppointmentStatusBadgeComponent
   ],
   templateUrl: './appointment-detail-popup.component.html',
   styleUrls: ['./appointment-detail-popup.component.scss']
@@ -50,7 +52,8 @@ export class AppointmentDetailPopupComponent {
   // Inject services
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private translateService: TranslateService
   ) {}
 
   // Computed properties
@@ -61,12 +64,12 @@ export class AppointmentDetailPopupComponent {
     const items: InfoItemData[] = [
       {
         icon: '👤',
-        label: 'Client',
-        value: cita.nom || cita.title || cita.clientName || 'No especificat'
+        label: this.translateService.instant('APPOINTMENTS.CLIENT'),
+        value: cita.nom || cita.title || cita.clientName || this.translateService.instant('APPOINTMENTS.NO_SPECIFIED')
       },
       {
         icon: '📅',
-        label: 'Data',
+        label: this.translateService.instant('APPOINTMENTS.DATE'),
         value: this.formatDate(cita.data || cita.start || '')
       }
     ];
@@ -74,7 +77,7 @@ export class AppointmentDetailPopupComponent {
     if (cita.hora) {
       items.push({
         icon: '⏰',
-        label: 'Hora',
+        label: this.translateService.instant('APPOINTMENTS.TIME'),
         value: this.formatTime(cita.hora)
       });
     } else if (cita.start) {
@@ -83,7 +86,7 @@ export class AppointmentDetailPopupComponent {
       if (time) {
         items.push({
           icon: '⏰',
-          label: 'Hora',
+          label: this.translateService.instant('APPOINTMENTS.TIME'),
           value: this.formatTime(time)
         });
       }
@@ -92,13 +95,13 @@ export class AppointmentDetailPopupComponent {
     if (cita.serviceName) {
       items.push({
         icon: '✂️',
-        label: 'Servei',
+        label: this.translateService.instant('APPOINTMENTS.SERVICE'),
         value: cita.serviceName
       });
     } else if (cita.servei) {
       items.push({
         icon: '✂️',
-        label: 'Servei',
+        label: this.translateService.instant('APPOINTMENTS.SERVICE'),
         value: cita.servei
       });
     }
@@ -106,23 +109,23 @@ export class AppointmentDetailPopupComponent {
     if (cita.duration) {
       items.push({
         icon: '⏱️',
-        label: 'Durada',
-        value: `${cita.duration} min`
+        label: this.translateService.instant('APPOINTMENTS.DURATION'),
+        value: `${cita.duration} ${this.translateService.instant('APPOINTMENTS.MINUTES')}`
       });
     }
 
     if (cita.preu) {
       items.push({
         icon: '💰',
-        label: 'Preu',
-        value: `${cita.preu}€`
+        label: this.translateService.instant('APPOINTMENTS.PRICE'),
+        value: `${cita.preu}${this.translateService.instant('APPOINTMENTS.EURO')}`
       });
     }
 
     if (cita.notes) {
       items.push({
         icon: '📝',
-        label: 'Notes',
+        label: this.translateService.instant('APPOINTMENTS.NOTES'),
         value: cita.notes
       });
     }
@@ -150,40 +153,40 @@ export class AppointmentDetailPopupComponent {
     return { text: 'Propera', class: 'upcoming' };
   });
 
+  readonly appointmentDate = computed(() => {
+    const cita = this.appointment();
+    if (!cita) return '';
+
+    if (cita.data) return cita.data;
+    if (cita.start) return cita.start.split('T')[0];
+    return '';
+  });
+
   // Methods
   onClose() {
     this.closed.emit();
   }
 
   onViewFullDetail() {
-    const cita = this.appointment();
-    if (!cita) {
-      console.error('No appointment data available');
+    const appointment = this.appointment();
+    const currentUser = this.authService.user();
+
+    if (!appointment) {
       return;
     }
 
-    const user = this.authService.user();
-    if (!user?.uid) {
-      console.error('No hi ha usuari autenticat');
+    if (!currentUser?.uid) {
       return;
     }
 
-    // Ensure we have a valid appointment ID
-    if (!cita.id) {
-      console.error('Appointment ID is missing');
+    const appointmentId = appointment.id;
+    if (!appointmentId) {
       return;
     }
 
     // Generem un ID únic combinant clientId i appointmentId
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${cita.id}`;
-
-    console.log('🔗 Navigating to appointment detail:', {
-      uniqueId,
-      appointmentId: cita.id,
-      clientId,
-      appointment: cita
-    });
+    const clientId = currentUser.uid;
+    const uniqueId = `${clientId}-${appointmentId}`;
 
     this.router.navigate(['/appointments', uniqueId]);
     this.onClose();
@@ -197,7 +200,7 @@ export class AppointmentDetailPopupComponent {
 
   // Utility methods
   formatDate(dateString: string): string {
-    if (!dateString) return 'Data no disponible';
+    if (!dateString) return this.translateService.instant('APPOINTMENTS.DATA_NOT_AVAILABLE');
     try {
       const date = parseISO(dateString);
       return format(date, 'EEEE, d \'de\' MMMM \'de\' yyyy', { locale: ca });

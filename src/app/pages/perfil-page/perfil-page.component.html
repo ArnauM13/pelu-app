@@ -1,11 +1,9 @@
-
-
-<pelu-detail-page
+<pelu-detail-view
   [config]="detailConfig()"
   (back)="goBack()"
-  (edit)="onEdit()"
-  (save)="onSave($event)"
+  (edit)="onEditProfile()"
+  (save)="onSaveProfile($event)"
   (cancelEdit)="onCancelEdit()"
-  (delete)="onDelete()"
+  (delete)="onDeleteProfile()"
   (updateForm)="onUpdateForm($event)">
-</pelu-detail-page>
+</pelu-detail-view>

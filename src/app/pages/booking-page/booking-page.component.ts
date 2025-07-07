@@ -241,7 +241,6 @@ export class BookingPageComponent {
     if (appointmentId) {
       const user = this.authService.user();
       if (!user?.uid) {
-        console.error('No hi ha usuari autenticat');
         return;
       }
 
@@ -249,7 +248,6 @@ export class BookingPageComponent {
       const clientId = user.uid;
       const uniqueId = `${clientId}-${appointmentId}`;
 
-      console.log('🔗 Toast navigating to appointment detail:', uniqueId);
       this.router.navigate(['/appointments', uniqueId]);
     }
   }
@@ -257,7 +255,6 @@ export class BookingPageComponent {
   viewAppointmentDetail(appointmentId: string) {
     const user = this.authService.user();
     if (!user?.uid) {
-      console.error('No hi ha usuari autenticat');
       return;
     }
 
@@ -265,7 +262,6 @@ export class BookingPageComponent {
     const clientId = user.uid;
     const uniqueId = `${clientId}-${appointmentId}`;
 
-    console.log('🔗 Navigating to appointment detail:', uniqueId);
     this.router.navigate(['/appointments', uniqueId]);
   }
 }

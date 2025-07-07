@@ -1,0 +1,279 @@
+<div class="detail-view-container" [style.view-transition-name]="viewTransitionName">
+  <!-- Loading State -->
+  @if (loading) {
+  <div class="loading-section">
+    <div class="loading-spinner"></div>
+    <p>{{ 'COMMON.LOADING' | translate }}</p>
+  </div>
+  }
+
+  <!-- Not Found State -->
+  @if (notFound) {
+  <div class="not-found-section">
+    <div class="not-found-content">
+      <i class="not-found-icon">{{ notFoundIcon }}</i>
+      <h2>{{ notFoundTitle | translate }}</h2>
+      <p>{{ notFoundMessage | translate }}</p>
+      <button class="back-btn" (click)="onBack()">
+        {{ 'COMMON.BACK' | translate }}
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Main Content -->
+  @if (!loading && !notFound && (user || appointment)) {
+  <div class="detail-view-content" [style.view-transition-name]="contentTransitionName">
+
+    <!-- Header Section -->
+    <div class="header-section">
+      <!-- Profile Header -->
+      @if (type === 'profile' && user) {
+      <div class="profile-header">
+        <div class="avatar-section">
+          <pelu-avatar [data]="avatarData || {}" size="xlarge" class="profile-avatar"></pelu-avatar>
+          <div class="user-info">
+            <h1 class="user-name">{{ displayName }}</h1>
+            <p class="user-email">{{ email }}</p>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Appointment Header -->
+      @if (type === 'appointment' && appointment) {
+      <div class="appointment-header">
+        <div class="appointment-info">
+          <h1 class="appointment-title">
+            {{ appointment?.nom }} - {{ formatDate(appointment?.data) }}
+            @if (appointment?.hora) {
+              {{ 'COMMON.AT_TIME' | translate }} {{ formatTime(appointment?.hora) }}
+            }
+          </h1>
+          <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
+        </div>
+        <div class="status-section">
+          <pelu-appointment-status-badge
+            [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
+            [config]="{ size: 'large', variant: 'default', showIcon: true, showDot: true }">
+          </pelu-appointment-status-badge>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column - Information Sections -->
+      <div class="info-column">
+        <!-- Status Badge (for appointments) -->
+        @if (type === 'appointment' && appointment) {
+        <div class="info-section status-section-mobile">
+          <h2>{{ 'COMMON.STATUS' | translate }}</h2>
+          <pelu-appointment-status-badge
+            [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
+            [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }">
+          </pelu-appointment-status-badge>
+        </div>
+        }
+
+        <!-- Information Sections -->
+        @for (section of infoSections; track section.title; let i = $index) {
+        <div class="info-section">
+          <h2>{{ section.title | translate }}</h2>
+          <div class="info-grid">
+            @for (item of section.items; track item.label; let j = $index) {
+            <pelu-info-item
+              [data]="item"
+              [showStatus]="item.status === 'active'" />
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Edit Form (when editing appointments) -->
+        @if (type === 'appointment' && isEditing && appointment) {
+        <div class="info-section edit-section">
+          <h2>{{ 'COMMON.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+
+          <div class="edit-form">
+            <div class="form-grid">
+              <!-- Client Name -->
+              <div class="form-group">
+                <label for="nom">{{ 'COMMON.CLIENT_NAME' | translate }} *</label>
+                <input
+                  type="text"
+                  id="nom"
+                  pInputText
+                  [value]="editForm.nom"
+                  (input)="onUpdateForm('nom', $any($event.target).value)"
+                  [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
+                  class="form-input">
+              </div>
+
+              <!-- Date -->
+              <div class="form-group">
+                <label for="data">{{ 'COMMON.DATE' | translate }} *</label>
+                <input
+                  type="date"
+                  id="data"
+                  [value]="editForm.data"
+                  (input)="onUpdateForm('data', $any($event.target).value)"
+                  class="form-input">
+              </div>
+
+              <!-- Time -->
+              <div class="form-group">
+                <label for="hora">{{ 'COMMON.TIME' | translate }}</label>
+                <input
+                  type="time"
+                  id="hora"
+                  [value]="editForm.hora"
+                  (input)="onUpdateForm('hora', $any($event.target).value)"
+                  class="form-input">
+              </div>
+
+              <!-- Service -->
+              <div class="form-group">
+                <label for="servei">{{ 'APPOINTMENTS.SERVICE' | translate }}</label>
+                <input
+                  type="text"
+                  id="servei"
+                  pInputText
+                  [value]="editForm.servei"
+                  (input)="onUpdateForm('servei', $any($event.target).value)"
+                  [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                  class="form-input">
+              </div>
+
+              <!-- Service Name -->
+              <div class="form-group">
+                <label for="serviceName">{{ 'APPOINTMENTS.SERVICE_FULL_NAME' | translate }}</label>
+                <input
+                  type="text"
+                  id="serviceName"
+                  pInputText
+                  [value]="editForm.serviceName"
+                  (input)="onUpdateForm('serviceName', $any($event.target).value)"
+                  [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                  class="form-input">
+              </div>
+
+              <!-- Duration -->
+              <div class="form-group">
+                <label for="duration">{{ 'APPOINTMENTS.DURATION_MINUTES' | translate }}</label>
+                <input
+                  type="number"
+                  id="duration"
+                  [value]="editForm.duration"
+                  (input)="onUpdateForm('duration', +$any($event.target).value)"
+                  [placeholder]="'60'"
+                  min="15"
+                  step="15"
+                  class="form-input">
+              </div>
+
+              <!-- Price -->
+              <div class="form-group">
+                <label for="preu">{{ 'APPOINTMENTS.PRICE_EURO' | translate }}</label>
+                <input
+                  type="number"
+                  id="preu"
+                  [value]="editForm.preu"
+                  (input)="onUpdateForm('preu', +$any($event.target).value)"
+                  [placeholder]="'0'"
+                  min="0"
+                  step="0.01"
+                  class="form-input">
+              </div>
+
+              <!-- Notes -->
+              <div class="form-group full-width">
+                <label for="notes">{{ 'APPOINTMENTS.NOTES' | translate }}</label>
+                <textarea
+                  id="notes"
+                  [value]="editForm.notes"
+                  (input)="onUpdateForm('notes', $any($event.target).value)"
+                  [placeholder]="'APPOINTMENTS.NOTES' | translate"
+                  rows="3"
+                  class="form-textarea"></textarea>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button
+                class="action-btn secondary"
+                (click)="onCancelEdit()"
+                [disabled]="!hasChanges">
+                <i class="action-icon">❌</i>
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                class="action-btn primary"
+                (click)="onSave()"
+                [disabled]="!canSave || !hasChanges">
+                <i class="action-icon">💾</i>
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Right Column - Actions -->
+      <div class="actions-column">
+        <div class="actions-section">
+          <h2>{{ 'COMMON.ACTIONS' | translate }}</h2>
+          <div class="actions-grid">
+            @for (action of actions; track action.label; let k = $index) {
+            <button
+              class="action-btn"
+              [class]="action.type || 'secondary'"
+              (click)="action.onClick()"
+              [disabled]="action.disabled"
+              *ngIf="!action.routerLink"
+            >
+              <i class="action-icon">{{ action.icon }}</i>
+              {{ action.label | translate }}
+            </button>
+            <a *ngIf="action.routerLink" [routerLink]="action.routerLink" class="action-btn" [class]="action.type || 'secondary'">
+              <i class="action-icon">{{ action.icon }}</i>
+              {{ action.label | translate }}
+            </a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<!-- Toast for notifications -->
+<p-toast [key]="toastKey" position="top-right" [baseZIndex]="9999" (onClick)="onToastClick($event)">
+  <ng-template let-message pTemplate="message">
+    <div class="p-toast-message-content">
+      <div class="p-toast-message-icon">
+        <i [class]="message.severity === 'success' ? 'pi pi-check' : message.severity === 'error' ? 'pi pi-times' : message.severity === 'warn' ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"></i>
+      </div>
+      <div class="p-toast-message-text">
+        <span class="p-toast-summary">{{ message.summary }}</span>
+        <div class="p-toast-detail">{{ message.detail }}</div>
+        @if (message.data?.showViewButton && message.data?.appointmentId) {
+        <div class="p-toast-message-actions">
+          <button
+            class="p-toast-message-btn p-toast-message-btn-primary"
+            (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
+            👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
+          </button>
+        </div>
+        }
+      </div>
+      <button class="p-toast-icon-close" (click)="messageService.clear(toastKey); $event.stopPropagation()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </ng-template>
+</p-toast>

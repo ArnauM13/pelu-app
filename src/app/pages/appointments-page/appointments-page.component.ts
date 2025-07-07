@@ -18,6 +18,7 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarComponent, AppointmentEvent } from '../../features/calendar/calendar.component';
 import { FiltersInlineComponent } from '../../shared/components/filters-inline/filters-inline.component';
 import { FloatingButtonComponent } from '../../shared/components/floating-button/floating-button.component';
+import { AppointmentStatusBadgeComponent } from '../../shared/components/appointment-status-badge';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -34,7 +35,8 @@ import { FloatingButtonComponent } from '../../shared/components/floating-button
     CalendarComponent,
     CardComponent,
     FiltersInlineComponent,
-    FloatingButtonComponent
+    FloatingButtonComponent,
+    AppointmentStatusBadgeComponent
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss']
@@ -309,7 +311,6 @@ export class AppointmentsPageComponent {
     if (appointmentId) {
       const user = this.authService.user();
       if (!user?.uid) {
-        console.error('No hi ha usuari autenticat');
         return;
       }
 
@@ -317,38 +318,30 @@ export class AppointmentsPageComponent {
       const clientId = user.uid;
       const uniqueId = `${clientId}-${appointmentId}`;
 
-      console.log('🔗 Toast navigating to appointment detail:', uniqueId);
       this.router.navigate(['/appointments', uniqueId]);
     }
   }
 
   viewAppointmentDetail(appointmentOrId: string | any) {
-    let appointment: any;
+    let appointmentId: string;
 
     if (typeof appointmentOrId === 'string') {
-      // Si és un string, busquem l'appointment per l'ID
-      appointment = this.appointments().find(app => app.id === appointmentOrId);
-      if (!appointment) {
-        console.error('Appointment not found with ID:', appointmentOrId);
-        return;
-      }
+      appointmentId = appointmentOrId;
+    } else if (appointmentOrId && appointmentOrId.id) {
+      appointmentId = appointmentOrId.id;
     } else {
-      // Si és un objecte appointment, l'utilitzem directament
-      appointment = appointmentOrId;
+      return;
     }
 
     const user = this.authService.user();
     if (!user?.uid) {
-      console.error('No hi ha usuari autenticat');
       return;
     }
 
     // Generem un ID únic combinant clientId i appointmentId
     const clientId = user.uid;
-    const appointmentId = appointment.id;
     const uniqueId = `${clientId}-${appointmentId}`;
 
-    console.log('🔗 Navigating to appointment detail:', uniqueId);
     this.router.navigate(['/appointments', uniqueId]);
   }
 }

@@ -13,6 +13,7 @@ export class AuthService {
   private readonly userSignal = signal<User | null>(null);
   private readonly isLoadingSignal = signal<boolean>(true);
   private readonly isInitializedSignal = signal<boolean>(false);
+  private readonly errorSignal = signal<string | null>(null);
 
   // Public computed signals
   readonly user = computed(() => this.userSignal());
@@ -20,22 +21,37 @@ export class AuthService {
   readonly isInitialized = computed(() => this.isInitializedSignal());
   readonly isAuthenticated = computed(() => !!this.userSignal());
   readonly userDisplayName = computed(() => this.userSignal()?.displayName || this.userSignal()?.email || '');
+  readonly error = computed(() => this.errorSignal());
 
   constructor() {
     this.initializeAuth();
   }
 
   private initializeAuth() {
-    onAuthStateChanged(this.auth, user => {
-      this.userSignal.set(user);
+    try {
+      onAuthStateChanged(this.auth,
+        (user) => {
+          this.userSignal.set(user);
+          this.isLoadingSignal.set(false);
+          this.isInitializedSignal.set(true);
+          this.errorSignal.set(null);
+
+          // Restore user's language preference when user logs in
+          if (user?.uid) {
+            this.translationService.restoreUserLanguagePreference(user.uid);
+          }
+        },
+        (error) => {
+          this.errorSignal.set(error.message);
+          this.isLoadingSignal.set(false);
+          this.isInitializedSignal.set(true);
+        }
+      );
+    } catch (error) {
+      this.errorSignal.set('Error initializing authentication');
       this.isLoadingSignal.set(false);
       this.isInitializedSignal.set(true);
-
-      // Restore user's language preference when user logs in
-      if (user?.uid) {
-        this.translationService.restoreUserLanguagePreference(user.uid);
-      }
-    });
+    }
   }
 
   // Authentication methods
@@ -60,47 +76,16 @@ export class AuthService {
       // Save current language preference before logout
       this.saveCurrentUserLanguage();
       await signOut(this.auth);
+      // Redirect to login after logout
       this.router.navigate(['/login']);
     } catch (error) {
-      console.error('Error al tancar sessió:', error);
       throw error;
     }
-  }
-
-  // Navigation methods
-  redirectToLogin() {
-    this.router.navigate(['/login']);
-  }
-
-  redirectToHome() {
-    this.router.navigate(['/']);
   }
 
   // Guard methods
   canActivate(): boolean {
     return this.isAuthenticated();
-  }
-
-  canActivateAsync(): Promise<boolean> {
-    return new Promise((resolve) => {
-      if (this.isInitialized()) {
-        const isAuth = this.isAuthenticated();
-        if (!isAuth) {
-          this.redirectToLogin();
-        }
-        resolve(isAuth);
-      } else {
-        // Wait for initialization
-        const unsubscribe = this.auth.onAuthStateChanged((user) => {
-          unsubscribe();
-          const isAuth = !!user;
-          if (!isAuth) {
-            this.redirectToLogin();
-          }
-          resolve(isAuth);
-        });
-      }
-    });
   }
 
   // Method to save user's current language preference
@@ -110,5 +95,10 @@ export class AuthService {
       const currentLanguage = this.translationService.getLanguage();
       this.translationService.saveUserLanguagePreference(currentUser.uid, currentLanguage);
     }
+  }
+
+  // Method to clear error
+  clearError(): void {
+    this.errorSignal.set(null);
   }
 }

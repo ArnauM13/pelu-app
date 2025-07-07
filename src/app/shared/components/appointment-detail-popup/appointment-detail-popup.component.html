@@ -4,12 +4,13 @@
     <!-- Header -->
     <div class="popup-header">
       <div class="header-content">
-        <h3>Detall de la cita</h3>
-        <div class="status-badge" [class]="statusBadge().class">
-          {{ statusBadge().text }}
-        </div>
+        <h3>{{ 'APPOINTMENTS.APPOINTMENT_DETAIL' | translate }}</h3>
+        <pelu-appointment-status-badge
+          [appointmentData]="{ date: appointmentDate(), time: appointment()?.hora }"
+          [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
+        </pelu-appointment-status-badge>
       </div>
-      <button class="close-btn" (click)="onClose()" title="Tancar">
+      <button class="close-btn" (click)="onClose()" [title]="'COMMON.CLOSE' | translate">
         <i class="pi pi-times"></i>
       </button>
     </div>
@@ -31,14 +32,14 @@
           <button
             class="btn btn-primary"
             (click)="onViewFullDetail()"
-            title="Veure detall complet">
+            [title]="'APPOINTMENTS.VIEW_FULL_DETAIL' | translate">
             <i class="pi pi-external-link"></i>
-            Veure detall complet
+            {{ 'APPOINTMENTS.VIEW_FULL_DETAIL' | translate }}
           </button>
         </div>
       } @else {
         <div class="no-appointment">
-          <p>No s'ha trobat la cita</p>
+          <p>{{ 'APPOINTMENTS.NOT_FOUND' | translate }}</p>
         </div>
       }
     </div>

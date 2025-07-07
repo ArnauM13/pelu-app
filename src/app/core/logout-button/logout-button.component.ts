@@ -33,7 +33,7 @@ export class LogoutButtonComponent {
       await this.authService.logout();
       this.router.navigate(['/login']);
     } catch (error) {
-      console.error('Error al tancar sessió:', error);
+      // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);
     }

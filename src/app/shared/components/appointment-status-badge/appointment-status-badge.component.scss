@@ -1,0 +1,184 @@
+.appointment-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: default;
+  white-space: nowrap;
+
+  .status-icon {
+    font-size: 1em;
+    line-height: 1;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .status-text {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+
+  // Size variants
+  &.status-badge-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+
+    .status-icon {
+      font-size: 0.8em;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+    }
+
+    .status-text {
+      font-size: 0.7em;
+    }
+  }
+
+  &.status-badge-medium {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+
+    .status-icon {
+      font-size: 1em;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+    }
+
+    .status-text {
+      font-size: 0.8em;
+    }
+  }
+
+  &.status-badge-large {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+
+    .status-icon {
+      font-size: 1.2em;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+    }
+
+    .status-text {
+      font-size: 0.9em;
+    }
+  }
+
+  // Style variants
+  &.status-badge-default {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &.status-badge-outlined {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  &.status-badge-minimal {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+  }
+
+  // Status type colors
+  &.status-badge-today {
+    background: var(--primary-color-lightest);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    &.status-badge-outlined {
+      background: transparent;
+      color: var(--primary-color);
+    }
+
+    &.status-badge-minimal {
+      color: var(--primary-color);
+    }
+  }
+
+  &.status-badge-past {
+    background: var(--error-color-light);
+    color: var(--error-color);
+    border-color: var(--error-color);
+
+    &.status-badge-outlined {
+      background: transparent;
+      color: var(--error-color);
+    }
+
+    &.status-badge-minimal {
+      color: var(--error-color);
+    }
+  }
+
+  &.status-badge-upcoming {
+    background: var(--success-color-light);
+    color: var(--success-color);
+    border-color: var(--success-color);
+
+    &.status-badge-outlined {
+      background: transparent;
+      color: var(--success-color);
+    }
+
+    &.status-badge-minimal {
+      color: var(--success-color);
+    }
+  }
+
+  // Hover effects
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &.status-badge-outlined:hover,
+  &.status-badge-minimal:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .appointment-status-badge {
+    &.status-badge-large {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+
+      .status-icon {
+        font-size: 1em;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+      }
+
+      .status-text {
+        font-size: 0.8em;
+      }
+    }
+  }
+}

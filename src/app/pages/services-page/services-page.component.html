@@ -1,8 +1,8 @@
 <div class="services-page">
   <div class="services-header">
-    <h1>Els Nostres Serveis</h1>
-    <p>Descobreix la nostra àmplia gamma de serveis professionals per a la teva imatge</p>
-    <p class="info-note">Pàgina informativa - Per fer reserves, visita el calendari</p>
+    <h1>{{ 'SERVICES.TITLE' | translate }}</h1>
+    <p>{{ 'SERVICES.SUBTITLE' | translate }}</p>
+    <p class="info-note">{{ 'SERVICES.INFO_NOTE' | translate }}</p>
   </div>
 
   <div class="services-container">
@@ -20,7 +20,7 @@
                 <div class="service-card-header">
                   <h3>{{ service.name }}</h3>
                   @if (service.popular) {
-                    <p-tag value="Popular" severity="success"></p-tag>
+                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
                   }
                 </div>
               </ng-template>
@@ -28,10 +28,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}€</span>
+                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -55,7 +55,7 @@
                 <div class="service-card-header">
                   <h3>{{ service.name }}</h3>
                   @if (service.popular) {
-                    <p-tag value="Popular" severity="success"></p-tag>
+                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
                   }
                 </div>
               </ng-template>
@@ -63,10 +63,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}€</span>
+                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -90,7 +90,7 @@
                 <div class="service-card-header">
                   <h3>{{ service.name }}</h3>
                   @if (service.popular) {
-                    <p-tag value="Popular" severity="success"></p-tag>
+                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
                   }
                 </div>
               </ng-template>
@@ -98,10 +98,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}€</span>
+                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -125,7 +125,7 @@
                 <div class="service-card-header">
                   <h3>{{ service.name }}</h3>
                   @if (service.popular) {
-                    <p-tag value="Popular" severity="success"></p-tag>
+                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
                   }
                 </div>
               </ng-template>
@@ -133,10 +133,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}€</span>
+                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -148,9 +148,9 @@
   </div>
 
   <div class="services-footer">
-    <p>Preus orientatius. Els preus poden variar segons la complexitat del servei.</p>
+    <p>{{ 'SERVICES.PRICES_NOTE' | translate }}</p>
     <p-button
-      label="Tornar a l'inici"
+      [label]="'SERVICES.BACK_TO_HOME' | translate"
       icon="pi pi-home"
       severity="secondary"
       routerLink="/">

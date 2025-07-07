@@ -1,4 +1,4 @@
-<pelu-detail-page
+<pelu-detail-view
   [config]="detailConfig()"
   (back)="goBack()"
   (edit)="startEditing()"
@@ -6,4 +6,4 @@
   (cancelEdit)="cancelEditing()"
   (delete)="deleteAppointment()"
   (updateForm)="updateForm($event.field, $event.value)">
-</pelu-detail-page>
+</pelu-detail-view>
