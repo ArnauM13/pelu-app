@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { AppointmentDetailPopupComponent } from './appointment-detail-popup.component';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { mockAuthService, mockRouter, mockUser } from '../../../../testing/firebase-mocks';
 import { createTestComponentNoRender } from '../../../../testing/test-setup';
 

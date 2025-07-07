@@ -2,8 +2,8 @@ import { Component, signal, computed } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { HeaderComponent } from './layout/header/header.component';
-import { AuthService } from './auth/auth.service';
+import { HeaderComponent } from './ui/layout/header/header.component';
+import { AuthService } from './core/auth/auth.service';
 
 @Component({
   selector: 'app-root',

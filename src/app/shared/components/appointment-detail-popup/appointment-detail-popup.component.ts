@@ -7,7 +7,7 @@ import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { InfoItemComponent, InfoItemData } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 interface Appointment {
   id: string;
