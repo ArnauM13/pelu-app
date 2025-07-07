@@ -1,6 +1,7 @@
 {
   "COMMON": {
-    "TITLE": "Peluquería App",
+    "TITLE": "Barberia Soca",
+    "APP_TITLE": "Peluquería App",
     "WELCOME": "Benvingut",
     "LOGIN": "Inicia sessió",
     "REGISTER": "Registra't",
@@ -139,7 +140,7 @@
     "SETTINGS": "Configuració"
   },
   "LANDING": {
-    "HERO_TITLE": "Shordanismo",
+    "HERO_TITLE": "Barberia Soca",
     "HERO_SUBTITLE": "Reserva el teu moment. Ràpid, fàcil i sense trucades.",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Cites",

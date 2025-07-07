@@ -51,7 +51,6 @@ export interface DetailPageConfig {
     InfoItemComponent,
     RouterModule
   ],
-  providers: [MessageService],
   templateUrl: './detail-page.component.html',
   styleUrls: ['./detail-page.component.scss']
 })

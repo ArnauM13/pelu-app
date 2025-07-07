@@ -36,7 +36,6 @@ import { FloatingButtonComponent } from '../../shared/components/floating-button
     FiltersInlineComponent,
     FloatingButtonComponent
   ],
-  providers: [MessageService],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss']
 })
@@ -293,7 +292,7 @@ export class AppointmentsPageComponent {
     return currentUser.uid;
   }
 
-  private showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
+  showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
     this.messageService.add({
       severity,
       summary,

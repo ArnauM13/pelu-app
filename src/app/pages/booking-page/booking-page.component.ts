@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ import { AuthService } from '../../auth/auth.service';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../shared/components/booking-popup/booking-popup.component';
 
+
 @Component({
   selector: 'pelu-booking-page',
   standalone: true,
@@ -30,13 +31,18 @@ import { BookingPopupComponent, BookingDetails } from '../../shared/components/b
     TranslateModule,
     CalendarComponent,
     CardComponent,
-    BookingPopupComponent
+    BookingPopupComponent,
+
   ],
-  providers: [MessageService],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss']
 })
 export class BookingPageComponent {
+  // Inject services
+  public readonly messageService = inject(MessageService);
+  public readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   // Internal state signals
   private readonly nouClientSignal = signal({ nom: '', data: '', hora: '' });
   private readonly citesSignal = signal<any[]>([]);
@@ -67,7 +73,7 @@ export class BookingPageComponent {
 
 
 
-  constructor(public messageService: MessageService, private authService: AuthService, private router: Router) {
+  constructor() {
     this.loadAppointments();
     this.setDefaultClientName();
 
@@ -218,7 +224,7 @@ export class BookingPageComponent {
     };
   }
 
-  private showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
+  showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
     this.messageService.add({
       severity,
       summary,

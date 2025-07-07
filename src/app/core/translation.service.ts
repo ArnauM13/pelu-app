@@ -22,7 +22,7 @@ export class TranslationService {
   });
 
   readonly availableLanguages: Language[] = [
-    { code: 'ca', name: 'Català', flagImage: '/assets/images/ca.png' },
+    { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
     { code: 'es', name: 'Español', flag: '🇪🇸' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true }

@@ -89,10 +89,17 @@
     </div>
 
     <div class="calendar-container">
-      <pelu-calendar-component
-        [events]="calendarEvents()"
-        [mini]="false">
-      </pelu-calendar-component>
+      @defer {
+        <pelu-calendar-component
+          [events]="calendarEvents()"
+          [mini]="false">
+        </pelu-calendar-component>
+      } @placeholder {
+        <div class="calendar-placeholder">
+          <div class="loading-spinner"></div>
+          <p>{{ 'COMMON.LOADING' | translate }}</p>
+        </div>
+      }
     </div>
 
     <!-- Mostra la llista de cites o el missatge d'instrucció a sota del calendari -->

@@ -13,27 +13,31 @@
         <h2>{{ getCategoryName('haircut') }}</h2>
       </div>
       <div class="services-grid">
-        <div class="service-card" *ngFor="let service of getServicesByCategory('haircut')">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="service-card-header">
-                <h3>{{ service.name }}</h3>
-                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="content">
-              <p class="service-description">{{ service.description }}</p>
-              <div class="service-details">
-                <div class="service-info">
-                  <span class="duration">⏱️ {{ service.duration }} min</span>
+        @for (service of getServicesByCategory('haircut'); track service.id) {
+          <div class="service-card">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="service-card-header">
+                  <h3>{{ service.name }}</h3>
+                  @if (service.popular) {
+                    <p-tag value="Popular" severity="success"></p-tag>
+                  }
                 </div>
-                <div class="service-price">
-                  <span class="price">{{ service.price }}€</span>
+              </ng-template>
+              <ng-template pTemplate="content">
+                <p class="service-description">{{ service.description }}</p>
+                <div class="service-details">
+                  <div class="service-info">
+                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                  </div>
+                  <div class="service-price">
+                    <span class="price">{{ service.price }}€</span>
+                  </div>
                 </div>
-              </div>
-            </ng-template>
-          </p-card>
-        </div>
+              </ng-template>
+            </p-card>
+          </div>
+        }
       </div>
     </section>
 
@@ -44,27 +48,31 @@
         <h2>{{ getCategoryName('beard') }}</h2>
       </div>
       <div class="services-grid">
-        <div class="service-card" *ngFor="let service of getServicesByCategory('beard')">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="service-card-header">
-                <h3>{{ service.name }}</h3>
-                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="content">
-              <p class="service-description">{{ service.description }}</p>
-              <div class="service-details">
-                <div class="service-info">
-                  <span class="duration">⏱️ {{ service.duration }} min</span>
+        @for (service of getServicesByCategory('beard'); track service.id) {
+          <div class="service-card">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="service-card-header">
+                  <h3>{{ service.name }}</h3>
+                  @if (service.popular) {
+                    <p-tag value="Popular" severity="success"></p-tag>
+                  }
                 </div>
-                <div class="service-price">
-                  <span class="price">{{ service.price }}€</span>
+              </ng-template>
+              <ng-template pTemplate="content">
+                <p class="service-description">{{ service.description }}</p>
+                <div class="service-details">
+                  <div class="service-info">
+                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                  </div>
+                  <div class="service-price">
+                    <span class="price">{{ service.price }}€</span>
+                  </div>
                 </div>
-              </div>
-            </ng-template>
-          </p-card>
-        </div>
+              </ng-template>
+            </p-card>
+          </div>
+        }
       </div>
     </section>
 
@@ -75,27 +83,31 @@
         <h2>{{ getCategoryName('treatment') }}</h2>
       </div>
       <div class="services-grid">
-        <div class="service-card" *ngFor="let service of getServicesByCategory('treatment')">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="service-card-header">
-                <h3>{{ service.name }}</h3>
-                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="content">
-              <p class="service-description">{{ service.description }}</p>
-              <div class="service-details">
-                <div class="service-info">
-                  <span class="duration">⏱️ {{ service.duration }} min</span>
+        @for (service of getServicesByCategory('treatment'); track service.id) {
+          <div class="service-card">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="service-card-header">
+                  <h3>{{ service.name }}</h3>
+                  @if (service.popular) {
+                    <p-tag value="Popular" severity="success"></p-tag>
+                  }
                 </div>
-                <div class="service-price">
-                  <span class="price">{{ service.price }}€</span>
+              </ng-template>
+              <ng-template pTemplate="content">
+                <p class="service-description">{{ service.description }}</p>
+                <div class="service-details">
+                  <div class="service-info">
+                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                  </div>
+                  <div class="service-price">
+                    <span class="price">{{ service.price }}€</span>
+                  </div>
                 </div>
-              </div>
-            </ng-template>
-          </p-card>
-        </div>
+              </ng-template>
+            </p-card>
+          </div>
+        }
       </div>
     </section>
 
@@ -106,27 +118,31 @@
         <h2>{{ getCategoryName('styling') }}</h2>
       </div>
       <div class="services-grid">
-        <div class="service-card" *ngFor="let service of getServicesByCategory('styling')">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="service-card-header">
-                <h3>{{ service.name }}</h3>
-                <p-tag *ngIf="service.popular" value="Popular" severity="success"></p-tag>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="content">
-              <p class="service-description">{{ service.description }}</p>
-              <div class="service-details">
-                <div class="service-info">
-                  <span class="duration">⏱️ {{ service.duration }} min</span>
+        @for (service of getServicesByCategory('styling'); track service.id) {
+          <div class="service-card">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="service-card-header">
+                  <h3>{{ service.name }}</h3>
+                  @if (service.popular) {
+                    <p-tag value="Popular" severity="success"></p-tag>
+                  }
                 </div>
-                <div class="service-price">
-                  <span class="price">{{ service.price }}€</span>
+              </ng-template>
+              <ng-template pTemplate="content">
+                <p class="service-description">{{ service.description }}</p>
+                <div class="service-details">
+                  <div class="service-info">
+                    <span class="duration">⏱️ {{ service.duration }} min</span>
+                  </div>
+                  <div class="service-price">
+                    <span class="price">{{ service.price }}€</span>
+                  </div>
                 </div>
-              </div>
-            </ng-template>
-          </p-card>
-        </div>
+              </ng-template>
+            </p-card>
+          </div>
+        }
       </div>
     </section>
   </div>

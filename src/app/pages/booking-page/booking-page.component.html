@@ -24,13 +24,22 @@
   </ng-template>
 </p-toast>
 
+
+
 <div class="container" style="margin-top: 2rem; view-transition-name: booking-container">
   <div class="booking-layout" style="margin-bottom: 2rem; view-transition-name: booking-grid">
     <!-- Calendar Section - Full Width -->
-    <pelu-calendar-component
-      [events]="events()"
-      [mini]="false"
-      (dateSelected)="onDateSelected($event)" />
+    @defer {
+      <pelu-calendar-component
+        [events]="events()"
+        [mini]="false"
+        (dateSelected)="onDateSelected($event)" />
+    } @placeholder {
+      <div class="calendar-placeholder">
+        <div class="loading-spinner"></div>
+        <p>{{ 'COMMON.LOADING' | translate }}</p>
+      </div>
+    }
 
     <!-- Manual Booking Section - Commented Out -->
     <!--

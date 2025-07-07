@@ -1,14 +1,15 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
+import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'pelu-logout-button',
   standalone: true,
-  imports: [CommonModule, ButtonModule],
-  templateUrl: './logout-button.component.html'
+  imports: [CommonModule, TranslateModule],
+  templateUrl: './logout-button.component.html',
+  styleUrls: ['./logout-button.component.scss']
 })
 export class LogoutButtonComponent {
   private authService = inject(AuthService);

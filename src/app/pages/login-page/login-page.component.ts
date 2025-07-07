@@ -1,5 +1,6 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { AuthService } from '../../auth/auth.service';
@@ -11,6 +12,7 @@ import { TranslationService } from '../../core/translation.service';
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     AuthPopupComponent
   ],
   templateUrl: './login-page.component.html',

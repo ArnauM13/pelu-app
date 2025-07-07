@@ -4,6 +4,7 @@ import { provideHttpClient, HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
 import { primengConfig } from './primeng.config';
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     primengConfig,
+    MessageService,
     provideZoneChangeDetection({
       eventCoalescing: true,
       runCoalescing: true
