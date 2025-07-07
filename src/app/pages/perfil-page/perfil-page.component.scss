@@ -11,6 +11,21 @@
   }
 }
 
+// Example usage styles for DetallCardComponent
+.perfil-example {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1000;
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+}
+
 .perfil-card {
   background: white;
   border-radius: 20px;

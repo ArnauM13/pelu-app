@@ -1,6 +1,7 @@
 {
   "COMMON": {
-    "TITLE": "Hair Salon App",
+    "TITLE": "Barberia Soca",
+    "APP_TITLE": "Hair Salon App",
     "WELCOME": "Welcome",
     "LOGIN": "Log in",
     "REGISTER": "Register",
@@ -139,7 +140,7 @@
     "SETTINGS": "Settings"
   },
   "LANDING": {
-    "HERO_TITLE": "Shordanismo",
+    "HERO_TITLE": "Barberia Soca",
     "HERO_SUBTITLE": "Book your moment. Fast, easy and no calls.",
     "BOOK_NOW": "Book now",
     "APPOINTMENTS": "Appointments",

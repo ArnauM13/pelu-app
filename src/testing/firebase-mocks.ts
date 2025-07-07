@@ -87,6 +87,20 @@ import { TieredMenuModule } from 'primeng/tieredmenu';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DockModule } from 'primeng/dock';
 import { MenubarModule } from 'primeng/menubar';
+import { Component, Input, EventEmitter, Output } from '@angular/core';
+
+// Mock Toast component to prevent initialization issues in tests
+@Component({
+  selector: 'p-toast',
+  template: '<div class="mock-toast"></div>',
+  standalone: true
+})
+export class MockToastComponent {
+  @Input() key: string = '';
+  @Input() position: string = 'top-right';
+  @Input() baseZIndex: number = 9999;
+  @Output() onClick = new EventEmitter<any>();
+}
 
 // Mock user object with only essential properties
 export const mockUser: any = {
@@ -190,15 +204,64 @@ export const mockMessageService: jasmine.SpyObj<MessageService> = jasmine.create
   'remove',
   'replace',
   'update'
-]);
+], {
+  messages: of([]),
+  onMessage: of(),
+  // Add missing properties that Toast component expects
+  messageObserver: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  messageObserver$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onClear: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onClear$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onAdd: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onAdd$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onRemove: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onRemove$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onReplace: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onReplace$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onUpdate: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onUpdate$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  // Ensure all observable properties have subscribe method
+  messages$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  },
+  onMessage$: {
+    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
+  }
+});
 
 export const mockConfirmationService: jasmine.SpyObj<ConfirmationService> = jasmine.createSpyObj('ConfirmationService', [
   'confirm',
   'close',
-  'require',
-  'accept',
-  'reject'
-]);
+  'require'
+], {
+  onAccept: of(),
+  onReject: of(),
+  onClose: of()
+});
 
 // Mock Router
 export const mockRouter: jasmine.SpyObj<Router> = jasmine.createSpyObj('Router', ['navigate']);
@@ -370,7 +433,6 @@ export const provideMockFirebase = () => [
 // Common PrimeNG modules for testing
 export const commonPrimeNGModules = [
   TooltipModule,
-  ToastModule,
   ConfirmDialogModule,
   ButtonModule,
   CardModule,

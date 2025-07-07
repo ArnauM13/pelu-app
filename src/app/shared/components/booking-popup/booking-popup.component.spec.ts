@@ -3,18 +3,25 @@ import { FormsModule } from '@angular/forms';
 import { BookingPopupComponent } from './booking-popup.component';
 import { MessageService } from 'primeng/api';
 import { createTestComponentNoRender } from '../../../../testing/test-setup';
+import { mockMessageService } from '../../../../testing/firebase-mocks';
 
 describe('BookingPopupComponent', () => {
   let component: BookingPopupComponent;
   let fixture: ComponentFixture<BookingPopupComponent>;
+  let messageService: MessageService;
 
   beforeEach(async () => {
+    // Reset mocks before each test
+    mockMessageService.add.calls.reset();
+    mockMessageService.clear.calls.reset();
+
     fixture = await createTestComponentNoRender<BookingPopupComponent>(
       BookingPopupComponent,
       [FormsModule],
-      [MessageService]
+      [{ provide: MessageService, useValue: mockMessageService }]
     );
     component = fixture.componentInstance;
+    messageService = TestBed.inject(MessageService);
   });
 
   it('should create', () => {

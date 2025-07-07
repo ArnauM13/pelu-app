@@ -8,6 +8,7 @@ import { InfoItemComponent, InfoItemData } from '../../shared/components/info-it
 import { AvatarComponent, AvatarData } from '../../shared/components/avatar/avatar.component';
 import { DetailPageComponent, DetailPageConfig, DetailAction, InfoSection } from '../../shared/components/detail-page/detail-page.component';
 
+
 @Component({
   selector: 'pelu-perfil-page',
   standalone: true,
@@ -67,6 +68,8 @@ export class PerfilPageComponent {
     }
     return 'COMMON.NOT_AVAILABLE';
   });
+
+
 
   readonly infoItems = computed((): InfoItemData[] => [
     {

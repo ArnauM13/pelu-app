@@ -1,6 +1,7 @@
 {
   "COMMON": {
-    "TITLE": "تطبيق صالون الحلاقة",
+    "TITLE": "Barberia Soca",
+    "APP_TITLE": "تطبيق صالون الحلاقة",
     "WELCOME": "مرحباً",
     "LOGIN": "تسجيل الدخول",
     "REGISTER": "التسجيل",
@@ -136,7 +137,7 @@
     "SETTINGS": "الإعدادات"
   },
   "LANDING": {
-    "HERO_TITLE": "Shordanismo",
+    "HERO_TITLE": "Barberia Soca",
     "HERO_SUBTITLE": "احجز لحظتك. سريع وسهل وبدون مكالمات.",
     "BOOK_NOW": "احجز الآن",
     "APPOINTMENTS": "المواعيد",

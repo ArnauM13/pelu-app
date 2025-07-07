@@ -1,5 +1,20 @@
 /* View Transitions - handled by withViewTransitions() */
 
+/* Example usage styles for DetallCardComponent */
+.booking-example {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  z-index: 1000;
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+}
+
 /* Booking Container */
 .booking-container {
   min-height: 100vh;
@@ -245,6 +260,39 @@
 .delete-btn:hover {
   background: #dc3545;
   border-color: #dc3545;
+}
+
+.calendar-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 400px;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border: 2px dashed #cbd5e1;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.calendar-placeholder p {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin: 0;
 }
 
 
