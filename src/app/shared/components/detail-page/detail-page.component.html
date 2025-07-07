@@ -61,10 +61,10 @@
               {{ 'COMMON.STATUS' | translate }}
             </div>
             <div class="info-value">
-              <span class="status-active">
-                <span class="status-dot"></span>
-                {{ statusBadge.text | translate }}
-              </span>
+              <pelu-appointment-status-badge
+                [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
+                [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }">
+              </pelu-appointment-status-badge>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@
 
             <!-- Service Name -->
             <div class="form-group">
-              <label for="serviceName">{{ 'APPOINTMENTS.SERVICE' | translate }} (Nom complet)</label>
+              <label for="serviceName">{{ 'APPOINTMENTS.SERVICE_FULL_NAME' | translate }}</label>
               <input
                 type="text"
                 id="serviceName"
@@ -155,7 +155,7 @@
 
             <!-- Duration -->
             <div class="form-group">
-              <label for="duration">{{ 'APPOINTMENTS.DURATION' | translate }} (minuts)</label>
+              <label for="duration">{{ 'APPOINTMENTS.DURATION_MINUTES' | translate }}</label>
               <input
                 type="number"
                 id="duration"
@@ -169,7 +169,7 @@
 
             <!-- Price -->
             <div class="form-group">
-              <label for="preu">{{ 'APPOINTMENTS.PRICE' | translate }} (€)</label>
+              <label for="preu">{{ 'APPOINTMENTS.PRICE_EURO' | translate }}</label>
               <input
                 type="number"
                 id="preu"
@@ -257,7 +257,7 @@
           <button
             class="p-toast-message-btn p-toast-message-btn-primary"
             (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
-            👁️ Veure detall
+            👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
           </button>
         </div>
         }

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CalendarComponent, AppointmentEvent } from './calendar.component';
+import { CalendarStateService } from './calendar-state.service';
 
 @Component({
   selector: 'pelu-calendar-demo',
@@ -190,6 +191,8 @@ import { CalendarComponent, AppointmentEvent } from './calendar.component';
 export class CalendarDemoComponent {
   readonly demoEvents = signal<AppointmentEvent[]>([]);
 
+  constructor(private calendarStateService: CalendarStateService) {}
+
   addSampleAppointments() {
     const today = new Date();
     const tomorrow = new Date(today);
@@ -328,14 +331,8 @@ export class CalendarDemoComponent {
   }
 
   clearAllAppointments() {
-    // Clear demo events
-    this.demoEvents.set([]);
-
-    // Clear localStorage
-    localStorage.removeItem('cites');
-
-    console.log('Totes les cites han estat eliminades (Demo + localStorage)');
-    alert('Totes les cites han estat eliminades!');
+    this.calendarStateService.clearAllAppointments();
+    localStorage.removeItem('appointments');
   }
 
   onDateSelected(selection: {date: string, time: string}) {

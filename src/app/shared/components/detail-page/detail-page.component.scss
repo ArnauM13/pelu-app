@@ -1,31 +1,48 @@
 // Modern detail page styles - unified design approach
 .perfil-container {
-  min-height: 100vh;
-  padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  height: 100vh;
+  padding: var(--spacing-sm);
+  background: var(--background-color);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
 }
 
 .perfil-card {
   max-width: 900px;
+  max-height: 95vh;
   margin: 0 auto;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  background: var(--surface-color);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--box-shadow-elevated);
   overflow: hidden;
   animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color-light);
   backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
 }
 
 // Profile header styling
 .perfil-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 3rem 2rem;
+  background: var(--gradient-header-lila);
+  color: var(--text-color);
+  padding: var(--spacing-xl) var(--spacing-lg);
   text-align: center;
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid var(--border-color-light);
+  flex-shrink: 0;
 
   &::before {
     content: '';
@@ -34,8 +51,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23E8F0FE" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
   }
 
   .avatar-section {
@@ -50,27 +67,31 @@
       font-size: 2.5rem;
       font-weight: 700;
       margin: 0.5rem 0;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       letter-spacing: -0.025em;
+      color: var(--text-color);
     }
 
     .user-email {
       font-size: 1.2rem;
-      opacity: 0.9;
+      opacity: 0.8;
       margin: 0;
       font-weight: 400;
+      color: var(--text-color-light);
     }
   }
 }
 
 // Appointment title section
 .appointment-title-section {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  padding: 3rem 2rem;
+  background: var(--gradient-header-detail);
+  color: var(--text-color);
+  padding: var(--spacing-xl) var(--spacing-lg);
   text-align: center;
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid var(--border-color-light);
+  flex-shrink: 0;
 
   &::before {
     content: '';
@@ -79,46 +100,53 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23E8F0FE" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
   }
 
   .appointment-title {
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     position: relative;
     z-index: 1;
     letter-spacing: -0.025em;
+    color: var(--text-color);
   }
 
   .appointment-subtitle {
     font-size: 1.2rem;
-    opacity: 0.9;
+    opacity: 0.8;
     margin: 0;
     position: relative;
     z-index: 1;
     font-weight: 400;
+    color: var(--text-color-light);
   }
 }
 
 // Content styling
 .perfil-content {
-  padding: 3rem 2rem;
+  padding: var(--spacing-lg) var(--spacing-lg);
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 // Information sections
 .info-section {
-  margin-bottom: 3rem;
+  margin-bottom: var(--spacing-lg);
+  flex-shrink: 0;
 
   h2 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: #1a202c;
-    margin-bottom: 1.5rem;
-    border-bottom: 3px solid #e2e8f0;
-    padding-bottom: 0.75rem;
+    color: var(--text-color);
+    margin-bottom: var(--spacing);
+    border-bottom: 3px solid var(--border-color-light);
+    padding-bottom: var(--spacing-sm);
     position: relative;
 
     &::after {
@@ -128,7 +156,7 @@
       left: 0;
       width: 60px;
       height: 3px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--gradient-primary);
       border-radius: 2px;
     }
   }
@@ -136,21 +164,21 @@
 
 .info-grid {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 // Actions section
 .actions-section {
-  margin-top: 3rem;
-  padding-top: 3rem;
-  border-top: 3px solid #e2e8f0;
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-2xl);
+  border-top: 3px solid var(--border-color-light);
 
   h2 {
     font-size: 1.75rem;
     font-weight: 600;
-    color: #1a202c;
-    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-lg);
     position: relative;
 
     &::after {
@@ -160,7 +188,7 @@
       left: 0;
       width: 60px;
       height: 3px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--gradient-primary);
       border-radius: 2px;
     }
   }
@@ -168,7 +196,7 @@
 
 .actions-grid {
   display: grid;
-  gap: 1rem;
+  gap: var(--spacing);
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
@@ -177,16 +205,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 1.25rem 2rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg) var(--spacing-xl);
   border: none;
-  border-radius: 16px;
+  border-radius: var(--border-radius-xl);
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
-  color: white;
+  color: var(--text-color-white);
   position: relative;
   overflow: hidden;
 
@@ -206,32 +234,33 @@
   }
 
   &.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    background: var(--gradient-primary);
+    box-shadow: var(--box-shadow-hover);
 
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+      box-shadow: var(--box-shadow-elevated);
     }
   }
 
   &.secondary {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-    box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
+    background: var(--gradient-secondary);
+    color: var(--text-color);
+    box-shadow: var(--box-shadow);
 
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 20px 40px rgba(108, 117, 125, 0.4);
+      box-shadow: var(--box-shadow-hover);
     }
   }
 
   &.danger {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+    background: var(--gradient-error);
+    box-shadow: var(--box-shadow-hover);
 
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 20px 40px rgba(220, 53, 69, 0.4);
+      box-shadow: var(--box-shadow-elevated);
     }
   }
 
@@ -254,7 +283,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem;
+  padding: calc(var(--spacing-2xl) * 2) var(--spacing-xl);
   text-align: center;
   min-height: 400px;
 }
@@ -262,49 +291,50 @@
 .loading-spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #e2e8f0;
-  border-top: 4px solid #667eea;
+  border: 4px solid var(--border-color-light);
+  border-top: 4px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .no-user-icon {
   font-size: 4rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
   opacity: 0.7;
+  color: var(--text-color-light);
 }
 
 .login-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--text-color-white);
   border: none;
-  padding: 1.25rem 2.5rem;
-  border-radius: 16px;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  border-radius: var(--border-radius-xl);
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-top: 1.5rem;
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  margin-top: var(--spacing-lg);
+  box-shadow: var(--box-shadow-hover);
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--box-shadow-elevated);
   }
 }
 
 // Edit form styling
 .edit-form {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border-radius: 20px;
-  padding: 2.5rem;
-  margin-top: 1.5rem;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-color-secondary);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-2xl);
+  margin-top: var(--spacing-lg);
+  border: 1px solid var(--border-color-light);
 
   .form-grid {
     display: grid;
-    gap: 1.5rem;
+    gap: var(--spacing-lg);
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 
     .form-group {
@@ -318,31 +348,31 @@
     label {
       display: block;
       font-weight: 600;
-      margin-bottom: 0.75rem;
-      color: #1a202c;
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-color);
       font-size: 1rem;
     }
 
     .form-input,
     .form-textarea {
       width: 100%;
-      padding: 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
+      padding: var(--spacing);
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
       font-size: 1rem;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: white;
-      color: #1a202c;
+      background: var(--surface-color);
+      color: var(--text-color);
 
       &:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(46, 90, 158, 0.1);
         transform: translateY(-1px);
       }
 
       &::placeholder {
-        color: #a0aec0;
+        color: var(--text-color-lighter);
       }
     }
 
@@ -354,63 +384,16 @@
 
   .form-actions {
     display: flex;
-    gap: 1rem;
+    gap: var(--spacing);
     justify-content: flex-end;
-    margin-top: 2.5rem;
-    padding-top: 2rem;
-    border-top: 2px solid #e2e8f0;
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-xl);
+    border-top: 2px solid var(--border-color-light);
   }
 }
 
 // Status badges
-.status-active {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  font-weight: 600;
-  font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #28a745;
-    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
-  }
-
-  &.today {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    color: #856404;
-
-    .status-dot {
-      background: #ffc107;
-      box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
-    }
-  }
-
-  &.past {
-    background: linear-gradient(135deg, #f8d7da 0%, #fab1a0 100%);
-    color: #721c24;
-
-    .status-dot {
-      background: #dc3545;
-      box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
-    }
-  }
-
-  &.upcoming {
-    background: linear-gradient(135deg, #d1ecf1 0%, #74b9ff 100%);
-    color: #0c5460;
-
-    .status-dot {
-      background: #17a2b8;
-      box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.2);
-    }
-  }
-}
+/* Status badge styles now handled by AppointmentStatusBadgeComponent */
 
 // Animations
 @keyframes slideInUp {
@@ -432,36 +415,39 @@
 // Responsive design
 @media (max-width: 768px) {
   .perfil-container {
-    padding: 0.5rem;
+    padding: var(--spacing-xs);
+    height: 100vh;
   }
 
   .perfil-card {
-    border-radius: 20px;
-    margin: 0.5rem;
+    border-radius: var(--border-radius-xl);
+    margin: 0;
+    max-height: 100vh;
+    max-width: 100%;
   }
 
   .perfil-header,
   .appointment-title-section {
-    padding: 2rem 1rem;
+    padding: var(--spacing) var(--spacing-sm);
 
     .user-name,
     .appointment-title {
-      font-size: 2rem;
+      font-size: 1.75rem;
     }
 
     .user-email,
     .appointment-subtitle {
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
   }
 
   .perfil-content {
-    padding: 2rem 1rem;
+    padding: var(--spacing) var(--spacing-sm);
   }
 
   .info-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: var(--spacing-sm);
   }
 
   .actions-grid {
@@ -469,7 +455,7 @@
   }
 
   .edit-form {
-    padding: 1.5rem;
+    padding: var(--spacing);
 
     .form-grid {
       grid-template-columns: 1fr;
@@ -481,28 +467,37 @@
   }
 
   .action-btn {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
+    padding: var(--spacing-sm) var(--spacing);
+    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 480px) {
+  .perfil-container {
+    padding: 0;
+  }
+
+  .perfil-card {
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
   .perfil-header,
   .appointment-title-section {
-    padding: 1.5rem 1rem;
+    padding: var(--spacing-sm);
 
     .user-name,
     .appointment-title {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
     }
   }
 
   .perfil-content {
-    padding: 1.5rem 1rem;
+    padding: var(--spacing-sm);
   }
 
   .info-section h2,
   .actions-section h2 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 }

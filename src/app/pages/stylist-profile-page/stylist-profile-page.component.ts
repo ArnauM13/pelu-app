@@ -2,13 +2,15 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { RoleService, UserRole } from '../../auth/role.service';
 import { AuthService } from '../../auth/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-stylist-profile-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './stylist-profile-page.component.html',
   styleUrls: ['./stylist-profile-page.component.scss']
 })
@@ -16,6 +18,7 @@ export class StylistProfilePageComponent {
   private roleService = inject(RoleService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private messageService = inject(MessageService);
 
   // Public signals
   readonly userRole = this.roleService.userRole;
@@ -87,10 +90,17 @@ export class StylistProfilePageComponent {
 
       await this.roleService.updateUserRole(this.userRole()!.uid, updates);
       this.isEditing = false;
-      alert('Perfil actualizado correctamente');
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Perfil actualitzat',
+        detail: 'El teu perfil s\'ha actualitzat correctament'
+      });
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Error al actualizar el perfil');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No s\'ha pogut actualitzar el perfil'
+      });
     } finally {
       this.isLoading = false;
     }

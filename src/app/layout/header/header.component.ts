@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 import { AvatarComponent, AvatarData } from '../../shared/components/avatar/avatar.component';
 import { AuthService } from '../../auth/auth.service';
+import { RoleService } from '../../auth/role.service';
 
 @Component({
   selector: 'pelu-header',
@@ -17,7 +18,11 @@ export class HeaderComponent {
   // Internal state
   private readonly isLoggingOutSignal = signal(false);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private roleService: RoleService,
+    private router: Router
+  ) {}
 
   // Getter per accedir des del template
   get authServicePublic() {
@@ -27,6 +32,7 @@ export class HeaderComponent {
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
   readonly isLoading = computed(() => this.authService.isLoading());
+  readonly hasStylistAccess = computed(() => this.roleService.hasStylistAccess());
 
   readonly avatarData = computed((): AvatarData => {
     const user = this.authService.user();
@@ -44,17 +50,19 @@ export class HeaderComponent {
     this.router.navigate(['/perfil']);
   }
 
-  async logout() {
-    if (this.isLoggingOut()) return;
+  navigateToHome(event: Event) {
+    event.stopPropagation();
+    // Only navigate if we're not already on the home page
+    if (this.router.url !== '/') {
+      this.router.navigate(['/']);
+    }
+  }
 
-    this.isLoggingOutSignal.set(true);
-
+  async onLogout() {
     try {
       await this.authService.logout();
     } catch (error) {
-      console.error('Error al tancar sessió:', error);
-    } finally {
-      this.isLoggingOutSignal.set(false);
+      // Handle logout error silently
     }
   }
 }

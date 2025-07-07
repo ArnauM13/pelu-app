@@ -134,7 +134,8 @@
     "BOOKING": "الحجز",
     "PROFILE": "الملف الشخصي",
     "CALENDAR": "التقويم",
-    "SETTINGS": "الإعدادات"
+    "SETTINGS": "الإعدادات",
+    "STYLIST_DASHBOARD": "لوحة المصمم"
   },
   "LANDING": {
     "HERO_TITLE": "Barberia Soca",
@@ -146,6 +147,7 @@
   "APPOINTMENTS": {
     "NEW_APPOINTMENT": "موعد جديد",
     "APPOINTMENT_DETAILS": "تفاصيل الموعد",
+    "APPOINTMENT_DETAIL": "تفصيل الموعد",
     "DATE": "التاريخ",
     "TIME": "الوقت",
     "SERVICE": "الخدمة",
@@ -157,7 +159,17 @@
     "STATUS_PENDING": "في الانتظار",
     "STATUS_CONFIRMED": "مؤكد",
     "STATUS_CANCELLED": "ملغي",
-    "STATUS_COMPLETED": "مكتمل"
+    "STATUS_COMPLETED": "مكتمل",
+    "VIEW_FULL_DETAIL": "عرض التفصيل الكامل",
+    "NOT_FOUND": "لم يتم العثور على الموعد",
+    "NO_SPECIFIED": "غير محدد",
+    "MINUTES": "دقيقة",
+    "EURO": "€",
+    "DATA_NOT_AVAILABLE": "التاريخ غير متاح",
+    "SERVICE_FULL_NAME": "الخدمة (الاسم الكامل)",
+    "DURATION_MINUTES": "المدة (دقائق)",
+    "PRICE_EURO": "السعر (€)",
+    "VIEW_DETAIL": "عرض التفصيل"
   },
   "BOOKING": {
     "SELECT_SERVICE": "حجز جديد",
@@ -200,6 +212,82 @@
     "BUSINESS_HOURS": "ساعات العمل",
     "TIME_SLOT_AVAILABLE": "الوقت متاح",
     "TIME_SLOT_BUSY": "الوقت مشغول"
+  },
+  "SERVICES": {
+    "TITLE": "خدماتنا",
+    "SUBTITLE": "اكتشف مجموعة واسعة من الخدمات المهنية لصورتك",
+    "INFO_NOTE": "صفحة إعلامية - للحجز، قم بزيارة التقويم",
+    "POPULAR": "شائع",
+    "MINUTES": "دقيقة",
+    "EURO": "€",
+    "PRICES_NOTE": "أسعار إرشادية. قد تختلف الأسعار حسب تعقيد الخدمة.",
+    "BACK_TO_HOME": "العودة إلى الرئيسية",
+    "CATEGORIES": {
+      "HAIRCUT": "قص الشعر",
+      "BEARD": "اللحية",
+      "TREATMENT": "العلاجات",
+      "STYLING": "التصفيف"
+    }
+  },
+  "STYLIST": {
+    "PROFILE": {
+      "TITLE": "ملف الأعمال",
+      "BACK_TO_DASHBOARD": "← العودة إلى لوحة التحكم",
+      "PERSONAL_INFO": "المعلومات الشخصية",
+      "EDIT": "تعديل",
+      "CANCEL": "إلغاء",
+      "FULL_NAME": "الاسم الكامل",
+      "FULL_NAME_PLACEHOLDER": "اسمك الكامل",
+      "BUSINESS_NAME": "اسم الأعمال",
+      "BUSINESS_NAME_PLACEHOLDER": "اسم صالون الحلاقة الخاص بك",
+      "PHONE": "الهاتف",
+      "PHONE_PLACEHOLDER": "+34 600 000 000",
+      "ADDRESS": "العنوان",
+      "ADDRESS_PLACEHOLDER": "عنوان الأعمال الكامل",
+      "SPECIALTIES": "التخصصات",
+      "NEW_SPECIALTY": "تخصص جديد",
+      "NEW_SPECIALTY_PLACEHOLDER": "تخصص جديد",
+      "ADD": "إضافة",
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "SAVING": "جاري الحفظ...",
+      "ACCOUNT_INFO": "معلومات الحساب",
+      "EMAIL": "البريد الإلكتروني",
+      "ROLE": "الدور",
+      "MEMBER_SINCE": "عضو منذ",
+      "ROLES": {
+        "ADMIN": "المدير",
+        "STYLIST": "مصفف الشعر",
+        "USER": "المستخدم"
+      }
+    }
+  },
+  "ADMIN": {
+    "USERS": {
+      "TITLE": "إدارة المستخدمين",
+      "SUBTITLE": "إدارة أدوار وأذونات المستخدمين",
+      "SEARCH_PLACEHOLDER": "البحث بالاسم أو البريد الإلكتروني...",
+      "ALL_ROLES": "جميع الأدوار",
+      "USERS": "المستخدمون",
+      "STYLISTS": "مصففو الشعر",
+      "ADMINS": "المدراء",
+      "LOADING": "جاري تحميل المستخدمين...",
+      "NO_USERS": "لم يتم العثور على مستخدمين",
+      "NO_NAME": "بدون اسم",
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "MEMBER_SINCE": "عضو منذ",
+      "BUSINESS": "الأعمال",
+      "PHONE": "الهاتف",
+      "PROMOTE_TO_STYLIST": "ترقية إلى مصفف شعر",
+      "PROMOTE_TO_ADMIN": "ترقية إلى مدير",
+      "DEMOTE_TO_USER": "تخفيض إلى مستخدم",
+      "THIS_IS_YOU": "هذا أنت",
+      "STATS": {
+        "TOTAL_USERS": "إجمالي المستخدمين",
+        "STYLISTS": "مصففو الشعر",
+        "ADMINS": "المدراء"
+      }
+    }
   },
   "DAYS": {
     "SUNDAY": "الأحد",

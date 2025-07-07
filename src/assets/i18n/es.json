@@ -137,7 +137,8 @@
     "BOOKING": "Reservas",
     "PROFILE": "Perfil",
     "CALENDAR": "Calendario",
-    "SETTINGS": "Configuración"
+    "SETTINGS": "Configuración",
+    "STYLIST_DASHBOARD": "Panel de estilista"
   },
   "LANDING": {
     "HERO_TITLE": "Barberia Soca",
@@ -150,6 +151,7 @@
   "APPOINTMENTS": {
     "NEW_APPOINTMENT": "Nueva cita",
     "APPOINTMENT_DETAILS": "Detalles de la cita",
+    "APPOINTMENT_DETAIL": "Detalle de la cita",
     "DATE": "Fecha",
     "TIME": "Hora",
     "SERVICE": "Servicio",
@@ -161,7 +163,17 @@
     "STATUS_PENDING": "Pendiente",
     "STATUS_CONFIRMED": "Confirmada",
     "STATUS_CANCELLED": "Cancelada",
-    "STATUS_COMPLETED": "Completada"
+    "STATUS_COMPLETED": "Completada",
+    "VIEW_FULL_DETAIL": "Ver detalle completo",
+    "NOT_FOUND": "No se encontró la cita",
+    "NO_SPECIFIED": "No especificado",
+    "MINUTES": "min",
+    "EURO": "€",
+    "DATA_NOT_AVAILABLE": "Fecha no disponible",
+    "SERVICE_FULL_NAME": "Servicio (Nombre completo)",
+    "DURATION_MINUTES": "Duración (minutos)",
+    "PRICE_EURO": "Precio (€)",
+    "VIEW_DETAIL": "Ver detalle"
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nueva reserva",
@@ -213,6 +225,82 @@
     "BUSINESS_HOURS": "Horario comercial",
     "TIME_SLOT_AVAILABLE": "Horario disponible",
     "TIME_SLOT_BUSY": "Horario ocupado"
+  },
+  "SERVICES": {
+    "TITLE": "Nuestros Servicios",
+    "SUBTITLE": "Descubre nuestra amplia gama de servicios profesionales para tu imagen",
+    "INFO_NOTE": "Página informativa - Para hacer reservas, visita el calendario",
+    "POPULAR": "Popular",
+    "MINUTES": "min",
+    "EURO": "€",
+    "PRICES_NOTE": "Precios orientativos. Los precios pueden variar según la complejidad del servicio.",
+    "BACK_TO_HOME": "Volver al inicio",
+    "CATEGORIES": {
+      "HAIRCUT": "Cortes",
+      "BEARD": "Barba",
+      "TREATMENT": "Tratamientos",
+      "STYLING": "Peinados"
+    }
+  },
+  "STYLIST": {
+    "PROFILE": {
+      "TITLE": "Perfil del Negocio",
+      "BACK_TO_DASHBOARD": "← Volver al Dashboard",
+      "PERSONAL_INFO": "Información Personal",
+      "EDIT": "Editar",
+      "CANCEL": "Cancelar",
+      "FULL_NAME": "Nombre Completo",
+      "FULL_NAME_PLACEHOLDER": "Tu nombre completo",
+      "BUSINESS_NAME": "Nombre del Negocio",
+      "BUSINESS_NAME_PLACEHOLDER": "Nombre de tu peluquería",
+      "PHONE": "Teléfono",
+      "PHONE_PLACEHOLDER": "+34 600 000 000",
+      "ADDRESS": "Dirección",
+      "ADDRESS_PLACEHOLDER": "Dirección completa del negocio",
+      "SPECIALTIES": "Especialidades",
+      "NEW_SPECIALTY": "Nueva especialidad",
+      "NEW_SPECIALTY_PLACEHOLDER": "Nueva especialidad",
+      "ADD": "Añadir",
+      "SAVE_CHANGES": "Guardar Cambios",
+      "SAVING": "Guardando...",
+      "ACCOUNT_INFO": "Información de la Cuenta",
+      "EMAIL": "Correo electrónico",
+      "ROLE": "Rol",
+      "MEMBER_SINCE": "Miembro desde",
+      "ROLES": {
+        "ADMIN": "Administrador",
+        "STYLIST": "Peluquero",
+        "USER": "Usuario"
+      }
+    }
+  },
+  "ADMIN": {
+    "USERS": {
+      "TITLE": "Gestión de Usuarios",
+      "SUBTITLE": "Administra roles y permisos de usuarios",
+      "SEARCH_PLACEHOLDER": "Buscar por nombre o correo...",
+      "ALL_ROLES": "Todos los roles",
+      "USERS": "Usuarios",
+      "STYLISTS": "Peluqueros",
+      "ADMINS": "Administradores",
+      "LOADING": "Cargando usuarios...",
+      "NO_USERS": "No se encontraron usuarios",
+      "NO_NAME": "Sin nombre",
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo",
+      "MEMBER_SINCE": "Miembro desde",
+      "BUSINESS": "Negocio",
+      "PHONE": "Teléfono",
+      "PROMOTE_TO_STYLIST": "Promover a Peluquero",
+      "PROMOTE_TO_ADMIN": "Promover a Admin",
+      "DEMOTE_TO_USER": "Degradar a Usuario",
+      "THIS_IS_YOU": "Este eres tú",
+      "STATS": {
+        "TOTAL_USERS": "Total Usuarios",
+        "STYLISTS": "Peluqueros",
+        "ADMINS": "Administradores"
+      }
+    }
   },
   "DAYS": {
     "SUNDAY": "Domingo",

@@ -55,7 +55,6 @@ export class TranslationService {
 
   setLanguage(lang: string, saveToStorage: boolean = true): void {
     if (!this.isLanguageAvailable(lang)) {
-      console.warn(`Language ${lang} is not available`);
       return;
     }
 

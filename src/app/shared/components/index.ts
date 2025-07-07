@@ -16,4 +16,8 @@ export { AppointmentItemComponent } from './appointment-item/appointment-item.co
 export type { AppointmentItemData } from './appointment-item/appointment-item.component';
 export { DetailPageComponent } from './detail-page/detail-page.component';
 export type { DetailPageConfig, DetailAction, InfoSection } from './detail-page/detail-page.component';
+export { DetailViewComponent } from './detail-view/detail-view.component';
+export type { DetailViewConfig, DetailAction as DetailViewAction, InfoSection as DetailViewInfoSection } from './detail-view/detail-view.component';
+export { AppointmentStatusBadgeComponent } from './appointment-status-badge/appointment-status-badge.component';
+export type { AppointmentStatusData, AppointmentStatusType, AppointmentStatusConfig } from './appointment-status-badge/appointment-status-badge.component';
 

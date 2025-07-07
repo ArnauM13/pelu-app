@@ -73,14 +73,12 @@ export class RoleService {
         }
         this.isLoadingRoleSignal.set(false);
       }, (error) => {
-        console.error('Error loading user role:', error);
         this.isLoadingRoleSignal.set(false);
       });
 
       // Store unsubscribe function for cleanup
       (this as any).unsubscribeRole = unsubscribe;
     } catch (error) {
-      console.error('Error loading user role:', error);
       this.isLoadingRoleSignal.set(false);
     }
   }
@@ -107,7 +105,6 @@ export class RoleService {
         updatedAt: new Date()
       });
     } catch (error) {
-      console.error('Error setting user role:', error);
       throw error;
     }
   }
@@ -120,7 +117,6 @@ export class RoleService {
         updatedAt: new Date()
       });
     } catch (error) {
-      console.error('Error updating user role:', error);
       throw error;
     }
   }

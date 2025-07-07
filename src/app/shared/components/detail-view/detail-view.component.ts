@@ -26,7 +26,7 @@ export interface InfoSection {
   items: any[];
 }
 
-export interface DetailPageConfig {
+export interface DetailViewConfig {
   type: 'profile' | 'appointment';
   loading: boolean;
   notFound: boolean;
@@ -41,7 +41,7 @@ export interface DetailPageConfig {
 }
 
 @Component({
-  selector: 'pelu-detail-page',
+  selector: 'pelu-detail-view',
   standalone: true,
   imports: [
     CommonModule,
@@ -53,11 +53,11 @@ export interface DetailPageConfig {
     AppointmentStatusBadgeComponent,
     RouterModule
   ],
-  templateUrl: './detail-page.component.html',
-  styleUrls: ['./detail-page.component.scss']
+  templateUrl: './detail-view.component.html',
+  styleUrls: ['./detail-view.component.scss']
 })
-export class DetailPageComponent implements OnChanges {
-  @Input() config!: DetailPageConfig;
+export class DetailViewComponent implements OnChanges {
+  @Input() config!: DetailViewConfig;
   @Output() back = new EventEmitter<void>();
   @Output() edit = new EventEmitter<void>();
   @Output() save = new EventEmitter<any>();
@@ -86,19 +86,28 @@ export class DetailPageComponent implements OnChanges {
   get avatarData() {
     const user = this.user;
     if (!user) return null;
+
+    // Parse displayName to separate name and surname
+    const displayName = user.displayName || '';
+    const nameParts = displayName.split(' ');
+    const name = nameParts[0] || '';
+    const surname = nameParts.slice(1).join(' ') || '';
+
     return {
-      name: user.displayName || user.email,
+      name: name,
+      surname: surname,
       email: user.email,
-      photoURL: user.photoURL
+      imageUrl: user.photoURL
     };
   }
+
   get displayName() {
     const user = this.user;
-    return user?.displayName || user?.email || '';
+    return user?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
   }
+
   get email() {
-    const user = this.user;
-    return user?.email || '';
+    return this.user?.email || 'COMMON.NOT_AVAILABLE';
   }
 
   // Appointment specific
@@ -118,11 +127,13 @@ export class DetailPageComponent implements OnChanges {
 
   // Not found states
   get notFoundIcon() {
-    return this.type === 'profile' ? '🔒' : '❌';
+    return this.type === 'profile' ? '👤' : '📅';
   }
+
   get notFoundTitle() {
-    return this.type === 'profile' ? 'AUTH.NOT_LOGGED_IN' : 'COMMON.ERROR';
+    return this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND';
   }
+
   get notFoundMessage() {
     return this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA';
   }
@@ -141,32 +152,30 @@ export class DetailPageComponent implements OnChanges {
   onDelete() { this.delete.emit(); }
   onUpdateForm(field: string, value: any) { this.updateForm.emit({ field, value }); }
 
-  // Appointment specific methods
-  formatDate(date: string | Date): string {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toLocaleDateString('ca-ES', {
+  // Utility methods
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ca-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   }
-  formatTime(time: string): string {
-    if (!time) return '';
-    return time;
+
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    return timeString;
   }
+
   // Toast methods
   onToastClick(event: any) {
     if (event.data?.showViewButton && event.data?.appointmentId) {
       this.viewAppointmentDetail(event.data.appointmentId);
     }
   }
+
   viewAppointmentDetail(appointmentId: string) {
     this.router.navigate(['/appointments', appointmentId]);
-  }
-  // Profile specific methods
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 }

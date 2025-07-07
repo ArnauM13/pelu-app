@@ -149,32 +149,29 @@ export class CalendarComponent {
 
   constructor() {
     // Initialize appointments from localStorage
-    this.loadAppointmentsFromLocalStorage();
+    this.loadAppointmentsFromStorage();
   }
 
   // Load appointments from localStorage
-  private loadAppointmentsFromLocalStorage() {
+  private loadAppointmentsFromStorage(): void {
     try {
-      // Try both keys for backward compatibility
-      const stored = localStorage.getItem('cites') || localStorage.getItem('appointments');
+      const stored = localStorage.getItem('appointments');
       if (stored) {
         const appointments = JSON.parse(stored);
         this.stateService.setAppointments(appointments);
       }
     } catch (error) {
-      console.error('Error loading appointments from localStorage:', error);
-      this.stateService.setAppointments([]);
+      // Handle storage error silently
     }
   }
 
   // Save appointments to localStorage
-  private saveAppointmentsToLocalStorage() {
+  private saveAppointmentsToStorage(): void {
     try {
       const appointments = this.appointments();
-      // Use 'cites' key to maintain consistency with other components
-      localStorage.setItem('cites', JSON.stringify(appointments));
+      localStorage.setItem('appointments', JSON.stringify(appointments));
     } catch (error) {
-      console.error('Error saving appointments to localStorage:', error);
+      // Handle storage error silently
     }
   }
 
@@ -197,7 +194,6 @@ export class CalendarComponent {
 
     if (originalAppointment) {
       // Use the original appointment data which has the correct format
-      console.log('📋 Using original appointment:', originalAppointment);
       this.stateService.openAppointmentDetail(originalAppointment);
     } else {
       // Fallback: convert AppointmentEvent to the expected format
@@ -215,7 +211,6 @@ export class CalendarComponent {
         serviceId: ''
       };
 
-      console.log('📋 Using converted appointment:', convertedAppointment);
       this.stateService.openAppointmentDetail(convertedAppointment);
     }
   }
@@ -377,17 +372,8 @@ export class CalendarComponent {
 
   formatPopupDate(dateString: string): string {
     const date = new Date(dateString);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    if (isSameDay(date, today)) {
-      return 'Avui';
-    } else if (isSameDay(date, tomorrow)) {
-      return 'Demà';
-    } else {
-      return dateFnsFormat(date, 'EEEE, d MMMM', { locale: ca });
-    }
+    // Always show day of week and date, never "Demà" or "Avui"
+    return dateFnsFormat(date, 'EEEE dd/MM', { locale: ca });
   }
 
   format(date: Date, formatString: string): string {
@@ -445,7 +431,7 @@ export class CalendarComponent {
   }
 
   reloadAppointments() {
-    this.loadAppointmentsFromLocalStorage();
+    this.loadAppointmentsFromStorage();
   }
 
   onDateChange(dateString: string) {
@@ -460,5 +446,13 @@ export class CalendarComponent {
       appointment,
       date
     };
+  }
+
+  private convertToCalendarEvent(appointment: any): AppointmentEvent {
+    if (appointment.originalAppointment) {
+      return appointment.originalAppointment;
+    } else {
+      return appointment;
+    }
   }
 }
