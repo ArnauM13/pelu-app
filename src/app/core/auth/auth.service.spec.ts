@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { Auth } from '@angular/fire/auth';
-import { mockAuth } from '../../testing/firebase-mocks';
+import { mockAuth } from '../../../testing/firebase-mocks';
 
 describe('AuthService', () => {
   beforeEach(() => {

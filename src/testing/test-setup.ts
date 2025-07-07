@@ -1,8 +1,8 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Auth } from '@angular/fire/auth';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../app/core/translation.service';
-import { AuthService } from '../app/auth/auth.service';
+import { TranslationService } from '../app/core/services/translation.service';
+import { AuthService } from '../app/core/auth/auth.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { provideRouter } from '@angular/router';

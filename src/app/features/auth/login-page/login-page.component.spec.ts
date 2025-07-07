@@ -3,7 +3,7 @@ import { LoginPageComponent } from './login-page.component';
 import { Auth } from '@angular/fire/auth';
 import { provideRouter } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
-import { mockAuth } from '../../../testing/firebase-mocks';
+import { mockAuth } from '../../../../testing/firebase-mocks';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';

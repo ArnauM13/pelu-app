@@ -198,7 +198,8 @@
     "CREATION_DATE": "Data de creació",
     "LAST_ACCESS": "Últim accés",
     "ACCOUNT_STATUS": "Estat del compte",
-    "ACTIVE": "Actiu"
+    "ACTIVE": "Actiu",
+    "NOT_FOUND": "No s'ha trobat el perfil"
   },
   "USER": {
     "TITLE": "Perfil d'Usuari",
@@ -252,7 +253,7 @@
       "FULL_NAME": "Nom Complet",
       "FULL_NAME_PLACEHOLDER": "El teu nom complet",
       "BUSINESS_NAME": "Nom del Negoci",
-      "BUSINESS_NAME_PLACEHOLDER": "Nom de la teva perruqueria",
+      "BUSINESS_NAME_PLACEHOLDER": "Nom de la teva homelyer",
       "PHONE": "Telèfon",
       "PHONE_PLACEHOLDER": "+34 600 000 000",
       "ADDRESS": "Adreça",

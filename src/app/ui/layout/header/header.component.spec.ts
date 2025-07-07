@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
 import { Auth } from '@angular/fire/auth';
+import { Firestore } from '@angular/fire/firestore';
 import { provideRouter } from '@angular/router';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
 import { TranslationService } from '../../../core/services/translation.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import {
   mockAuth,
+  mockFirestore,
   mockTranslateService,
   mockTranslateStore,
   mockTranslationService,
   mockAuthService
-} from '../../../testing/firebase-mocks';
+} from '../../../../testing/firebase-mocks';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -22,6 +24,7 @@ describe('HeaderComponent', () => {
       imports: [HeaderComponent],
       providers: [
         { provide: Auth, useValue: mockAuth },
+        { provide: Firestore, useValue: mockFirestore },
         { provide: TranslateService, useValue: mockTranslateService },
         { provide: TranslateStore, useValue: mockTranslateStore },
         { provide: TranslationService, useValue: mockTranslationService },
@@ -40,6 +43,6 @@ describe('HeaderComponent', () => {
   });
 
   it('should have logout method', () => {
-    expect(typeof component.logout).toBe('function');
+    expect(typeof component.onLogout).toBe('function');
   });
 });

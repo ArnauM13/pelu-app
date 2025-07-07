@@ -818,6 +818,7 @@
 
 :host {
   display: block;
+  /* CSS Variables - Now using global variables from styles.scss */
 }
 
 .day-column.disabled {

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { HeaderComponent } from './ui/layout/header/header.component';
 import { AuthService } from './core/auth/auth.service';
+import { ScrollService } from './core/services/scroll.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,10 @@ export class AppComponent {
   // Core signals
   readonly title = signal('pelu-app');
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private scrollService: ScrollService
+  ) {}
 
   // Computed signals - utilitzem AuthService
   readonly isLoading = computed(() => this.authService.isLoading());
