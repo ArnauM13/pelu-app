@@ -193,21 +193,21 @@ export interface Appointment {
     }
 
     .btn-primary {
-      background: var(--primary-color);
+      background: var(--gradient-primary);
       color: white;
     }
 
     .btn-primary:hover {
-      background: var(--primary-600);
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
     }
 
     .btn-danger {
-      background: var(--red-500);
+      background: var(--gradient-error);
       color: white;
     }
 
     .btn-danger:hover {
-      background: var(--red-600);
+      background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
     }
 
     .empty-state {

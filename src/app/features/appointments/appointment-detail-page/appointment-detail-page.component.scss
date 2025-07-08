@@ -298,11 +298,12 @@
         justify-content: center;
 
         &.btn-primary {
-          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+          background: var(--gradient-primary);
           color: white;
 
           &:hover {
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+            box-shadow: 0 6px 20px rgba(58, 90, 138, 0.3);
           }
         }
 
@@ -319,11 +320,12 @@
         }
 
         &.btn-danger {
-          background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-color-dark) 100%);
+          background: var(--gradient-error);
           color: white;
 
           &:hover {
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+            background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
           }
         }
       }

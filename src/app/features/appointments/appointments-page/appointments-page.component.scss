@@ -425,25 +425,25 @@ pelu-appointments-list {
 }
 
 .btn-primary {
-  background: var(--primary-color);
+  background: var(--gradient-primary);
   color: white;
   border-color: var(--primary-color);
 }
 
 .btn-primary:hover {
-  background: var(--primary-color-dark);
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
   border-color: var(--primary-color-dark);
 }
 
 .btn-danger {
-  background: var(--error-color);
+  background: var(--gradient-error);
   color: white;
   border-color: var(--error-color);
 }
 
 .btn-danger:hover {
-  background: #c82333;
-  border-color: #bd2130;
+  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+  border-color: #B91C1C;
 }
 
 // Responsive
@@ -510,13 +510,13 @@ pelu-appointments-list {
 }
 
 .toggle-buttons .btn-primary {
-  background: var(--primary-color);
+  background: var(--gradient-primary);
   color: white;
   border-color: var(--primary-color);
 }
 
 .toggle-buttons .btn-primary:hover {
-  background: var(--primary-color-dark);
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
   border-color: var(--primary-color-dark);
 }
 
@@ -1188,7 +1188,7 @@ pelu-appointments-list {
 }
 
 .clear-filters-btn {
-  background: #ef4444;
+          background: var(--error-color);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
