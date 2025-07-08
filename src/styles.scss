@@ -365,8 +365,8 @@ body {
 
   /* ===== COLORS SECUNDARIS ===== */
   --secondary-color: #E8F0FE;          /* Blau gris molt clar */
-  --secondary-color-light: #F5F8FF;    /* Blau gairebé blanc */
-  --secondary-color-dark: #D1E0F7;     /* Blau gris clar */
+  --secondary-color-light: #f8faff;    /* Blau més clar - evita coincidència amb serveis */
+  --secondary-color-dark: #d1e0f7;     /* Blau gris clar */
 
   /* ===== COLORS DE TEXT ===== */
   --text-color: #1A2C4A;               /* Text principal - blau fosc */
@@ -375,7 +375,7 @@ body {
   --text-color-white: #FFFFFF;         /* Text blanc */
 
   /* ===== COLORS DE FONS ===== */
-  --background-color: #FAFCFF;         /* Fons principal - blanc blavós */
+  --background-color: #f5f8ff;         /* Fons principal - més clar, evita coincidència amb serveis */
   --surface-color: #FFFFFF;            /* Superfícies - blanc pur */
   --surface-color-hover: #F0F5FF;      /* Hover - blau molt clar */
   --surface-color-secondary: #F8FAFF;  /* Fons secundari */
