@@ -1,6 +1,6 @@
 .services-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
   padding: 2rem 1rem;
   position: relative;
   overflow: hidden;

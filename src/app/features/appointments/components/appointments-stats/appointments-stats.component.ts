@@ -54,22 +54,24 @@ export interface AppointmentStats {
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin-bottom: 1rem;
+      padding: 0.5rem;
     }
 
     .stat-card {
       display: flex;
       align-items: center;
       padding: 1rem;
-      background: var(--surface-card);
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       transition: all 0.2s ease;
       cursor: pointer;
+      border: 1px solid #e5e7eb;
     }
 
     .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
 
     .stat-icon {
