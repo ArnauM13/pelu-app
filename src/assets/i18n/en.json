@@ -122,13 +122,18 @@
     "REGISTER_FOR_ACTIVITIES": "Register to join new activities",
     "INVALID_CREDENTIALS": "Invalid credentials",
     "PASSWORD_MISMATCH": "Passwords don't match",
+    "PASSWORDS_MATCH": "Passwords match",
+    "EMAIL_REQUIRED": "Email is required",
+    "EMAIL_INVALID": "Invalid email format",
+    "PASSWORD_REQUIRED": "Password is required",
+    "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters",
     "LOGIN_ERROR": "Login error",
-    "REGISTER_ERROR": "Registration error",
+    "REGISTER_ERROR": "Register error",
     "GOOGLE_LOGIN_ERROR": "Google login error",
-    "GOOGLE_REGISTER_ERROR": "Google registration error",
-    "NOT_LOGGED_IN": "You are not logged in",
-    "LOGIN_TO_VIEW_PROFILE": "Log in to view your profile information",
-    "PLEASE_LOGIN": "Please log in to view your profile"
+    "GOOGLE_REGISTER_ERROR": "Google register error",
+    "NOT_LOGGED_IN": "Not logged in",
+    "LOGIN_TO_VIEW_PROFILE": "Sign in to view your profile information",
+    "PLEASE_LOGIN": "Please sign in to view your profile"
   },
   "NAVIGATION": {
     "HOME": "Home",

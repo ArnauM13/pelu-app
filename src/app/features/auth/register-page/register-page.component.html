@@ -2,7 +2,8 @@
   <pelu-auth-popup
     [config]="registerConfig()"
     (submitForm)="onRegisterSubmit($event)"
-    (googleAuth)="onGoogleAuth()" />
+    (googleAuth)="onGoogleAuth()"
+    (passwordMismatch)="onPasswordMismatch($event)" />
 
   @if (hasError()) {
     <div class="error-message">
