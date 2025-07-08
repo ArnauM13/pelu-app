@@ -1,12 +1,9 @@
 // Detail View Component - Full width and height layout
 .detail-view-container {
   width: 100%;
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  height: calc(100vh - 70px);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
 }
 
 // Loading and Not Found States
@@ -79,7 +76,7 @@
 // Main Content Layout
 .detail-view-content {
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -150,7 +147,6 @@
 
 // Appointment Header
 .appointment-header {
-  background: var(--gradient-header-detail);
   color: var(--text-color);
   padding: 2rem;
   display: flex;
@@ -458,10 +454,6 @@
 }
 
 @media (max-width: 768px) {
-  .detail-view-container {
-    height: 100vh;
-  }
-
   .content-grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
@@ -647,6 +639,102 @@
   .action-btn {
     width: 100%;
     min-width: auto;
+  }
+}
+
+// Notes Editing Styles
+.edit-notes-form {
+  .notes-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    .note-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background-color: white;
+      color: var(--text-color);
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      &::placeholder {
+        color: var(--text-color-light);
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color-light);
+  }
+}
+
+// Section Header Styles
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--primary-color-light);
+  padding-bottom: 0.5rem;
+
+  h2 {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .edit-section-btn {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .edit-icon {
+      font-size: 1rem;
+    }
   }
 }
 

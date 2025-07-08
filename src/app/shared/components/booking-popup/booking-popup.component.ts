@@ -7,23 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { CalendarModule } from 'primeng/calendar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastModule } from 'primeng/toast';
-
-export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number; // in minutes
-  category: 'haircut' | 'beard' | 'treatment' | 'styling';
-  icon: string;
-  popular?: boolean;
-}
-
-export interface ServiceCategory {
-  id: 'haircut' | 'beard' | 'treatment' | 'styling';
-  name: string;
-  icon: string;
-}
+import { ServicesService, Service, ServiceCategory } from '../../../core/services/services.service';
 
 export interface BookingDetails {
   date: string;
@@ -96,101 +80,10 @@ export class BookingPopupComponent {
     { label: '19:30', value: '19:30' }
   ];
 
-  // Service categories configuration
-  readonly serviceCategories: ServiceCategory[] = [
-    { id: 'haircut', name: 'Cortes', icon: '✂️' },
-    { id: 'beard', name: 'Barba', icon: '🧔' },
-    { id: 'treatment', name: 'Tractaments', icon: '💆' },
-    { id: 'styling', name: 'Peinats', icon: '💇' }
-  ];
-
-  // Helper method to get category icon
-  getCategoryIcon(categoryId: string): string {
-    const category = this.serviceCategories.find(cat => cat.id === categoryId);
-    return category?.icon || '✂️';
-  }
-
-  // Default services if none provided
-  readonly defaultServices: Service[] = [
-    {
-      id: '1',
-      name: 'Corte de cabell masculí',
-      description: 'Corte clàssic o modern segons les teves preferències',
-      price: 25,
-      duration: 30,
-      category: 'haircut',
-      icon: '✂️',
-      popular: true
-    },
-    {
-      id: '2',
-      name: 'Corte + Afaitat',
-      description: 'Corte complet amb afaitat de barba inclòs',
-      price: 35,
-      duration: 45,
-      category: 'haircut',
-      icon: '✂️'
-    },
-    {
-      id: '3',
-      name: 'Afaitat de barba',
-      description: 'Afaitat tradicional amb navalla o màquina',
-      price: 15,
-      duration: 20,
-      category: 'beard',
-      icon: '🧔'
-    },
-    {
-      id: '4',
-      name: 'Arreglada de barba',
-      description: 'Perfilat i arreglada de barba',
-      price: 12,
-      duration: 15,
-      category: 'beard',
-      icon: '🧔'
-    },
-    {
-      id: '5',
-      name: 'Lavada i tractament',
-      description: 'Lavada professional amb productes de qualitat',
-      price: 18,
-      duration: 25,
-      category: 'treatment',
-      icon: '💆'
-    },
-    {
-      id: '6',
-      name: 'Coloració',
-      description: 'Coloració completa o retocs',
-      price: 45,
-      duration: 60,
-      category: 'treatment',
-      icon: '💆'
-    },
-    {
-      id: '7',
-      name: 'Peinat especial',
-      description: 'Peinat per a esdeveniments especials',
-      price: 30,
-      duration: 40,
-      category: 'styling',
-      icon: '💇'
-    },
-    {
-      id: '8',
-      name: 'Corte infantil',
-      description: 'Corte especialitzat per a nens',
-      price: 18,
-      duration: 25,
-      category: 'haircut',
-      icon: '✂️'
-    }
-  ];
-
   // Available services for dropdown (use provided services or defaults)
   readonly services = computed(() => {
     const providedServices = this.availableServices();
-    return providedServices.length > 0 ? providedServices : this.defaultServices;
+    return providedServices.length > 0 ? providedServices : this.servicesService.getAllServices();
   });
 
   // Computed properties
@@ -252,7 +145,7 @@ export class BookingPopupComponent {
     this.serviceChanged.emit(service);
   }
 
-  constructor() {
+  constructor(private servicesService: ServicesService) {
     // Reset selected service when popup closes
     effect(() => {
       if (!this.open()) {

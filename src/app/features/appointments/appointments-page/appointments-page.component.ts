@@ -22,6 +22,8 @@ import { AppointmentStatusBadgeComponent } from '../../../shared/components/appo
 import { AppointmentsStatsComponent, AppointmentStats } from '../components/appointments-stats/appointments-stats.component';
 import { AppointmentsListComponent, Appointment } from '../components/appointments-list/appointments-list.component';
 import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
+import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -41,7 +43,8 @@ import { AppointmentsViewControlsComponent, ViewButton } from '../components/app
     AppointmentStatusBadgeComponent,
     AppointmentsStatsComponent,
     AppointmentsListComponent,
-    AppointmentsViewControlsComponent
+    AppointmentsViewControlsComponent,
+    NextAppointmentComponent
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss']
@@ -60,6 +63,7 @@ export class AppointmentsPageComponent {
   // Filter state signals
   private readonly filterDateSignal = signal<string>('');
   private readonly filterClientSignal = signal<string>('');
+  private readonly filterServiceSignal = signal<string>('');
   private readonly quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'mine'>('all');
 
   // Public computed signals
@@ -68,6 +72,7 @@ export class AppointmentsPageComponent {
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly filterDate = computed(() => this.filterDateSignal());
   readonly filterClient = computed(() => this.filterClientSignal());
+  readonly filterService = computed(() => this.filterServiceSignal());
   readonly quickFilter = computed(() => this.quickFilterSignal());
 
   // Computed view buttons
@@ -129,6 +134,16 @@ export class AppointmentsPageComponent {
       );
     }
 
+    // Apply service filter
+    if (this.filterService()) {
+      const serviceFilter = this.filterService();
+      filtered = filtered.filter(appointment => {
+        const serviceName = appointment.serviceName || appointment.servei || '';
+        const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+        return serviceColor.id === serviceFilter;
+      });
+    }
+
     // Sort by date and time
     return filtered.sort((a, b) => {
       const dateA = new Date(a.data + 'T' + (a.hora || '00:00'));
@@ -167,7 +182,7 @@ export class AppointmentsPageComponent {
   });
 
   readonly hasActiveFilters = computed(() =>
-    this.filterDate() !== '' || this.filterClient() !== '' || this.quickFilter() !== 'all'
+    this.filterDate() !== '' || this.filterClient() !== '' || this.filterService() !== '' || this.quickFilter() !== 'all'
   );
 
   // Computed appointment stats for the stats component
@@ -178,7 +193,7 @@ export class AppointmentsPageComponent {
     mine: this.myAppointments()
   }));
 
-  constructor() {
+  constructor(private serviceColorsService: ServiceColorsService) {
     this.loadAppointments();
 
     // Reload appointments when user changes
@@ -193,6 +208,7 @@ export class AppointmentsPageComponent {
   // Public methods for template binding
   readonly setFilterDate = (value: string) => this.filterDateSignal.set(value);
   readonly setFilterClient = (value: string) => this.filterClientSignal.set(value);
+  readonly setFilterService = (value: string) => this.filterServiceSignal.set(value);
   readonly setQuickFilter = (filter: 'all' | 'today' | 'upcoming' | 'mine') => {
     if (this.quickFilter() === filter) {
       this.quickFilterSignal.set('all');
@@ -204,6 +220,7 @@ export class AppointmentsPageComponent {
   readonly clearAllFilters = () => {
     this.filterDateSignal.set('');
     this.filterClientSignal.set('');
+    this.filterServiceSignal.set('');
     this.quickFilterSignal.set('all');
   };
 

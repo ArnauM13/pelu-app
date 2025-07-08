@@ -61,6 +61,7 @@
     "APPOINTMENTS_CALENDAR": "Calendario de Citas",
     "APPOINTMENTS_LIST": "Citas",
     "VIEW_APPOINTMENTS": "Visualiza todas tus citas en formato calendario",
+    "VIEW_APPOINTMENTS_LIST": "Visualiza todas tus citas en formato lista",
     "APPOINTMENTS_FOR_DATE": "Citas del",
     "NO_SCHEDULED_APPOINTMENTS": "No hay citas programadas",
     "NO_APPOINTMENTS_MESSAGE": "Para esta fecha no tienes citas programadas. Puedes seleccionar otra fecha o añadir nuevas citas.",
@@ -96,6 +97,9 @@
     "CALENDAR_VIEW_LABEL": "Vista calendario",
     "FILTER_BY_DATE": "Filtrar por fecha:",
     "FILTER_BY_CLIENT": "Filtrar por cliente:",
+    "FILTER_BY_SERVICE": "Filtrar por servicio:",
+    "SELECT_SERVICE": "Selecciona un servicio",
+    "ALL_SERVICES": "Todos los servicios",
     "STATUS": "Estado",
     "APP_NAME": "PeluApp",
     "ALL_RIGHTS_RESERVED": "Todos los derechos reservados.",
@@ -122,6 +126,11 @@
     "REGISTER_FOR_ACTIVITIES": "Regístrate para apuntarte a nuevas actividades",
     "INVALID_CREDENTIALS": "Credenciales inválidas",
     "PASSWORD_MISMATCH": "Las contraseñas no coinciden",
+    "PASSWORDS_MATCH": "Las contraseñas coinciden",
+    "EMAIL_REQUIRED": "El correo electrónico es obligatorio",
+    "EMAIL_INVALID": "Formato de correo electrónico inválido",
+    "PASSWORD_REQUIRED": "La contraseña es obligatoria",
+    "PASSWORD_MIN_LENGTH": "La contraseña debe tener al menos 6 caracteres",
     "LOGIN_ERROR": "Error al iniciar sesión",
     "REGISTER_ERROR": "Error al registrar",
     "GOOGLE_LOGIN_ERROR": "Error al iniciar sesión con Google",
@@ -173,7 +182,11 @@
     "SERVICE_FULL_NAME": "Servicio (Nombre completo)",
     "DURATION_MINUTES": "Duración (minutos)",
     "PRICE_EURO": "Precio (€)",
-    "VIEW_DETAIL": "Ver detalle"
+    "VIEW_DETAIL": "Ver detalle",
+    "NEXT_APPOINTMENT": "Próxima cita",
+    "NEXT_APPOINTMENT_SUBTITLE": "Tu próxima cita programada",
+    "NO_NEXT_APPOINTMENT": "No tienes próximas citas",
+    "NO_NEXT_APPOINTMENT_MESSAGE": "No tienes citas programadas para el futuro. Puedes reservar una nueva cita cuando quieras."
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nueva reserva",
@@ -186,6 +199,7 @@
   },
   "PROFILE": {
     "PERSONAL_INFO": "Información de la cuenta",
+    "CLIENT_NOTES": "Notas del cliente",
     "NAME": "Nombre",
     "SURNAME": "Apellido",
     "PHONE": "Teléfono",
@@ -198,7 +212,13 @@
     "CREATION_DATE": "Fecha de creación",
     "LAST_ACCESS": "Último acceso",
     "ACCOUNT_STATUS": "Estado de la cuenta",
-    "ACTIVE": "Activo"
+    "ACTIVE": "Activo",
+    "PREFERRED_STYLE": "Estilo preferido",
+    "HAIR_TYPE": "Tipo de cabello",
+    "COLOR_PREFERENCES": "Preferencias de color",
+    "ALLERGIES": "Alergias",
+    "SPECIAL_REQUESTS": "Peticiones especiales",
+    "NOT_FOUND": "No se encontró el perfil"
   },
   "USER": {
     "TITLE": "Perfil de Usuario",
@@ -240,6 +260,28 @@
       "BEARD": "Barba",
       "TREATMENT": "Tratamientos",
       "STYLING": "Peinados"
+    },
+    "COLORS": {
+      "HAIRCUT": "Corte",
+      "STYLING": "Peinado",
+      "TREATMENT": "Tratamiento",
+      "COLORING": "Coloración",
+      "SPECIAL": "Especial",
+      "KIDS": "Infantil",
+      "DEFAULT": "General"
+    },
+    "NAMES": {
+      "MALE_HAIRCUT": "Corte de cabello masculino",
+      "HAIRCUT_BEARD": "Corte + Afeitado",
+      "BEARD_SHAVE": "Afeitado de barba",
+      "BEARD_TRIM": "Arreglada de barba",
+      "WASH_TREATMENT": "Lavada y tratamiento",
+      "COLORING": "Coloración",
+      "SPECIAL_STYLING": "Peinado especial",
+      "KIDS_HAIRCUT": "Corte infantil",
+      "GENERAL_SERVICE": "Servicio general",
+      "COMPLETE_HAIRDRESSING": "Peluquería completa",
+      "TEST_SERVICE": "Servicio de prueba"
     }
   },
   "STYLIST": {

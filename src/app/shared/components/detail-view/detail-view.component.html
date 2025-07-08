@@ -1,4 +1,4 @@
-<div class="detail-view-container" [style.view-transition-name]="viewTransitionName">
+<div class="detail-view-container" [style.view-transition-name]="viewTransitionName" [style.background]="serviceGradient">
   <!-- Loading State -->
   @if (loading) {
   <div class="loading-section">
@@ -42,7 +42,7 @@
 
       <!-- Appointment Header -->
       @if (type === 'appointment' && appointment) {
-      <div class="appointment-header">
+      <div class="appointment-header" [style.background]="getAppointmentHeaderGradient()">
         <div class="appointment-info">
           <h1 class="appointment-title">
             {{ appointment?.nom }} - {{ formatDate(appointment?.data) }}
@@ -80,14 +80,57 @@
         <!-- Information Sections -->
         @for (section of infoSections; track section.title; let i = $index) {
         <div class="info-section">
-          <h2>{{ section.title | translate }}</h2>
-          <div class="info-grid">
-            @for (item of section.items; track item.label; let j = $index) {
-            <pelu-info-item
-              [data]="item"
-              [showStatus]="item.status === 'active'" />
+          <div class="section-header">
+            <h2>{{ section.title | translate }}</h2>
+            @if (section.onEdit && !section.isEditing) {
+              <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.EDIT' | translate">
+                <i class="edit-icon">✏️</i>
+              </button>
             }
           </div>
+
+          @if (section.isEditing) {
+            <div class="edit-notes-form">
+              <div class="notes-form-grid">
+                @for (item of section.items; track item.label; let j = $index) {
+                  <div class="form-group">
+                    <label [for]="'note-' + j">{{ item.label | translate }}</label>
+                    <textarea
+                      [id]="'note-' + j"
+                      [value]="item.value"
+                      (input)="onUpdateNote(j, $any($event.target).value)"
+                      [placeholder]="item.label | translate"
+                      rows="2"
+                      class="form-textarea note-textarea">
+                    </textarea>
+                  </div>
+                }
+              </div>
+
+              <div class="form-actions">
+                <button
+                  class="action-btn secondary"
+                  (click)="section.onCancel?.()">
+                  <i class="action-icon">❌</i>
+                  {{ 'COMMON.CANCEL' | translate }}
+                </button>
+                <button
+                  class="action-btn primary"
+                  (click)="onSaveNotes(section)">
+                  <i class="action-icon">💾</i>
+                  {{ 'COMMON.SAVE' | translate }}
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="info-grid">
+              @for (item of section.items; track item.label; let j = $index) {
+              <pelu-info-item
+                [data]="item"
+                [showStatus]="item.status === 'active'" />
+              }
+            </div>
+          }
         </div>
         }
 

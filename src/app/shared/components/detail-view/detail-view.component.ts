@@ -10,7 +10,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../../core/auth/auth.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
 
 export interface DetailAction {
   label: string;
@@ -24,6 +24,10 @@ export interface DetailAction {
 export interface InfoSection {
   title: string;
   items: any[];
+  isEditing?: boolean;
+  onEdit?: () => void;
+  onSave?: (data: any) => void;
+  onCancel?: () => void;
 }
 
 export interface DetailViewConfig {
@@ -65,7 +69,11 @@ export class DetailViewComponent implements OnChanges {
   @Output() delete = new EventEmitter<void>();
   @Output() updateForm = new EventEmitter<{ field: string; value: any }>();
 
-  constructor(private router: Router, private authService: AuthService, public messageService: MessageService) {}
+    constructor(
+    private router: Router,
+    public messageService: MessageService,
+    private serviceColorsService: ServiceColorsService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges) {}
 
@@ -144,6 +152,32 @@ export class DetailViewComponent implements OnChanges {
   get contentTransitionName() { return `${this.type}-content`; }
   get toastKey() { return `${this.type}-detail-toast`; }
 
+    // Service color gradient for appointment detail page
+  get serviceGradient(): string {
+    if (this.type !== 'appointment' || !this.appointment) {
+      return 'linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%)';
+    }
+
+    const serviceName = this.appointment.serviceName || this.appointment.servei || '';
+    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+
+    // Create gradient from white to service color
+    return `linear-gradient(135deg, #ffffff 0%, ${serviceColor.backgroundColor} 100%)`;
+  }
+
+  // Service color gradient for appointment header
+  getAppointmentHeaderGradient(): string {
+    if (this.type !== 'appointment' || !this.appointment) {
+      return 'var(--gradient-header-detail)';
+    }
+
+    const serviceName = this.appointment.serviceName || this.appointment.servei || '';
+    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+
+    // Create gradient from white to service color with more opacity
+    return `linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, ${serviceColor.backgroundColor} 100%)`;
+  }
+
   // Event handlers
   onBack() { this.back.emit(); }
   onEdit() { this.edit.emit(); }
@@ -151,6 +185,24 @@ export class DetailViewComponent implements OnChanges {
   onCancelEdit() { this.cancelEdit.emit(); }
   onDelete() { this.delete.emit(); }
   onUpdateForm(field: string, value: any) { this.updateForm.emit({ field, value }); }
+
+  // Notes editing methods
+  private editingNotes: any[] = [];
+
+  onUpdateNote(index: number, value: string) {
+    this.editingNotes[index] = value;
+  }
+
+  onSaveNotes(section: InfoSection) {
+    if (section.onSave) {
+      const updatedNotes = section.items.map((item, index) => ({
+        ...item,
+        value: this.editingNotes[index] || item.value
+      }));
+      section.onSave({ notes: updatedNotes });
+      this.editingNotes = [];
+    }
+  }
 
   // Utility methods
   formatDate(dateString: string): string {
