@@ -25,10 +25,13 @@ export class PerfilPageComponent {
   private readonly userSignal = signal<any>(null);
   private readonly isLoadingSignal = signal(true);
   private readonly isEditingSignal = signal(false);
+  private readonly isEditingNotesSignal = signal(false);
 
   // Public computed signals
   readonly user = computed(() => this.userSignal());
   readonly isLoading = computed(() => this.isLoadingSignal());
+  readonly isEditing = computed(() => this.isEditingSignal());
+  readonly isEditingNotes = computed(() => this.isEditingNotesSignal());
 
   // Avatar data
   readonly avatarData = computed((): AvatarData => {
@@ -70,7 +73,36 @@ export class PerfilPageComponent {
     return '';
   });
 
+  // Notes del client (dades d'exemple)
+  private readonly clientNotesSignal = signal<InfoItemData[]>([
+    {
+      icon: '📝',
+      label: 'PROFILE.PREFERRED_STYLE',
+      value: 'Estil modern i minimalista'
+    },
+    {
+      icon: '💇‍♀️',
+      label: 'PROFILE.HAIR_TYPE',
+      value: 'Cabell fi, tendència a ser sec'
+    },
+    {
+      icon: '🎨',
+      label: 'PROFILE.COLOR_PREFERENCES',
+      value: 'Tons càlids, morens i rossos'
+    },
+    {
+      icon: '⚠️',
+      label: 'PROFILE.ALLERGIES',
+      value: 'Al·lèrgia a productes amb amoníac'
+    },
+    {
+      icon: '💡',
+      label: 'PROFILE.SPECIAL_REQUESTS',
+      value: 'Preferència per tallades asimètriques'
+    }
+  ]);
 
+  readonly clientNotes = computed(() => this.clientNotesSignal());
 
   readonly infoItems = computed((): InfoItemData[] => [
     {
@@ -82,11 +114,6 @@ export class PerfilPageComponent {
       icon: '📧',
       label: 'PROFILE.EMAIL',
       value: this.email()
-    },
-    {
-      icon: '🆔',
-      label: 'PROFILE.USER_ID',
-      value: this.uid()
     },
     {
       icon: '📅',
@@ -117,6 +144,14 @@ export class PerfilPageComponent {
       {
         title: 'PROFILE.PERSONAL_INFO',
         items: this.infoItems()
+      },
+      {
+        title: 'PROFILE.CLIENT_NOTES',
+        items: this.clientNotes(),
+        isEditing: this.isEditingNotes(),
+        onEdit: () => this.onEditNotes(),
+        onSave: (data: any) => this.onSaveNotes(data),
+        onCancel: () => this.onCancelEditNotes()
       }
     ],
     actions: this.getActions()
@@ -178,6 +213,23 @@ export class PerfilPageComponent {
 
   onUpdateForm(data: any) {
     // Handle form update logic here
+  }
+
+  // Notes editing methods
+  onEditNotes() {
+    this.isEditingNotesSignal.set(true);
+  }
+
+  onSaveNotes(data: any) {
+    // Update the notes with the new data
+    if (data && data.notes) {
+      this.clientNotesSignal.set(data.notes);
+    }
+    this.isEditingNotesSignal.set(false);
+  }
+
+  onCancelEditNotes() {
+    this.isEditingNotesSignal.set(false);
   }
 
   logout() {

@@ -2,6 +2,7 @@ import { Component, input, output, computed, ChangeDetectionStrategy, inject } f
 import { CommonModule } from '@angular/common';
 import { AppointmentEvent } from './calendar.component';
 import { CalendarPositionService } from './calendar-position.service';
+import { ServiceColorsService } from '../../core/services/service-colors.service';
 
 export interface AppointmentSlotData {
   appointment: AppointmentEvent;
@@ -19,15 +20,16 @@ export interface AppointmentSlotData {
          [style.height.px]="position().height"
          [style.left.px]="0"
          [style.right.px]="0"
+         [ngClass]="serviceCssClass()"
          (click)="onAppointmentClick($event)">
       <div class="appointment-content">
         <div class="appointment-info">
-          <div class="appointment-title">{{ data().appointment.title }}</div>
+          <div class="appointment-title" [ngClass]="serviceTextCssClass()">{{ data().appointment.title }}</div>
           @if (data().appointment.serviceName) {
-            <div class="appointment-service">{{ data().appointment.serviceName }}</div>
+            <div class="appointment-service" [ngClass]="serviceTextCssClass()">{{ data().appointment.serviceName }}</div>
           }
         </div>
-        <div class="appointment-duration">{{ formatDuration(data().appointment.duration || 60) }}</div>
+        <div class="appointment-duration" [ngClass]="serviceTextCssClass()">{{ formatDuration(data().appointment.duration || 60) }}</div>
       </div>
     </div>
   `,
@@ -42,10 +44,29 @@ export class AppointmentSlotComponent {
 
   // Inject the position service
   private readonly positionService = inject(CalendarPositionService);
+  private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly position = computed(() => {
     return this.positionService.getAppointmentPosition(this.data().appointment);
+  });
+
+  // Computed service color
+  readonly serviceColor = computed(() => {
+    const serviceName = this.data().appointment.serviceName || '';
+    return this.serviceColorsService.getServiceColor(serviceName);
+  });
+
+  // Computed service CSS class
+  readonly serviceCssClass = computed(() => {
+    const serviceName = this.data().appointment.serviceName || '';
+    return this.serviceColorsService.getServiceCssClass(serviceName);
+  });
+
+  // Computed service text CSS class
+  readonly serviceTextCssClass = computed(() => {
+    const serviceName = this.data().appointment.serviceName || '';
+    return this.serviceColorsService.getServiceTextCssClass(serviceName);
   });
 
   // Methods

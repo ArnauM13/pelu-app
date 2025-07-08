@@ -61,6 +61,7 @@
     "APPOINTMENTS_CALENDAR": "Calendari de Cites",
     "APPOINTMENTS_LIST": "Cites",
     "VIEW_APPOINTMENTS": "Visualitza totes les teves cites en format calendari",
+    "VIEW_APPOINTMENTS_LIST": "Visualitza totes les teves cites en format llista",
     "APPOINTMENTS_FOR_DATE": "Cites del",
     "NO_SCHEDULED_APPOINTMENTS": "No hi ha cites programades",
     "NO_APPOINTMENTS_MESSAGE": "Per aquesta data no tens cites programades. Pots seleccionar una altra data o afegir noves cites.",
@@ -96,6 +97,9 @@
     "CALENDAR_VIEW_LABEL": "Vista calendari",
     "FILTER_BY_DATE": "Filtrar per data:",
     "FILTER_BY_CLIENT": "Filtrar per client:",
+    "FILTER_BY_SERVICE": "Filtrar per servei:",
+    "SELECT_SERVICE": "Selecciona un servei",
+    "ALL_SERVICES": "Tots els serveis",
     "STATUS": "Estat",
     "APP_NAME": "PeluApp",
     "ALL_RIGHTS_RESERVED": "Tots els drets reservats.",
@@ -178,7 +182,11 @@
     "SERVICE_FULL_NAME": "Servei (Nom complet)",
     "DURATION_MINUTES": "Durada (minuts)",
     "PRICE_EURO": "Preu (€)",
-    "VIEW_DETAIL": "Veure detall"
+    "VIEW_DETAIL": "Veure detall",
+    "NEXT_APPOINTMENT": "Pròxima cita",
+    "NEXT_APPOINTMENT_SUBTITLE": "La teva propera cita programada",
+    "NO_NEXT_APPOINTMENT": "No tens pròximes cites",
+    "NO_NEXT_APPOINTMENT_MESSAGE": "No tens cites programades per al futur. Pots reservar una nova cita quan vulguis."
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nova reserva",
@@ -191,6 +199,7 @@
   },
   "PROFILE": {
     "PERSONAL_INFO": "Informació del compte",
+    "CLIENT_NOTES": "Notes del client",
     "NAME": "Nom",
     "SURNAME": "Cognom",
     "PHONE": "Telèfon",
@@ -204,7 +213,12 @@
     "LAST_ACCESS": "Últim accés",
     "ACCOUNT_STATUS": "Estat del compte",
     "ACTIVE": "Actiu",
-    "NOT_FOUND": "No s'ha trobat el perfil"
+    "NOT_FOUND": "No s'ha trobat el perfil",
+    "PREFERRED_STYLE": "Estil preferit",
+    "HAIR_TYPE": "Tipus de cabell",
+    "COLOR_PREFERENCES": "Preferències de color",
+    "ALLERGIES": "Al·lèrgies",
+    "SPECIAL_REQUESTS": "Peticions especials"
   },
   "USER": {
     "TITLE": "Perfil d'Usuari",
@@ -219,7 +233,6 @@
     "TODAY": "Avui",
     "TOMORROW": "Demà",
     "THIS_WEEK": "Aquesta setmana",
-    "NEXT_WEEK": "Pròxima setmana",
     "THIS_MONTH": "Aquest mes",
     "NEXT_MONTH": "Pròxim mes",
     "VIEW_DAY": "Veure dia",
@@ -246,6 +259,28 @@
       "BEARD": "Barba",
       "TREATMENT": "Tractaments",
       "STYLING": "Pentinats"
+    },
+    "COLORS": {
+      "HAIRCUT": "Tall",
+      "STYLING": "Pentinat",
+      "TREATMENT": "Tractament",
+      "COLORING": "Coloració",
+      "SPECIAL": "Especial",
+      "KIDS": "Infantil",
+      "DEFAULT": "General"
+    },
+    "NAMES": {
+      "MALE_HAIRCUT": "Tall de cabell masculí",
+      "HAIRCUT_BEARD": "Tall + Afaitat",
+      "BEARD_SHAVE": "Afaitat de barba",
+      "BEARD_TRIM": "Arreglada de barba",
+      "WASH_TREATMENT": "Lavada i tractament",
+      "COLORING": "Coloració",
+      "SPECIAL_STYLING": "Pentinat especial",
+      "KIDS_HAIRCUT": "Tall infantil",
+      "GENERAL_SERVICE": "Servei general",
+      "COMPLETE_HAIRDRESSING": "Perruqueria completa",
+      "TEST_SERVICE": "Servei de prova"
     }
   },
   "STYLIST": {

@@ -35,7 +35,6 @@ interface Appointment {
     CommonModule,
     ButtonModule,
     TranslateModule,
-    InfoItemComponent,
     AppointmentStatusBadgeComponent
   ],
   templateUrl: './appointment-detail-popup.component.html',
@@ -45,6 +44,7 @@ export class AppointmentDetailPopupComponent {
   // Input signals
   readonly open = input<boolean>(false);
   readonly appointment = input<Appointment | null>(null);
+  readonly hideViewDetailButton = input<boolean>(false);
 
   // Output signals
   readonly closed = output<void>();
@@ -181,6 +181,17 @@ export class AppointmentDetailPopupComponent {
 
     const appointmentId = appointment.id;
     if (!appointmentId) {
+      return;
+    }
+
+    // Assegurem-nos que l'appointment té l'userId correcte
+    if (!appointment.userId) {
+      appointment.userId = currentUser.uid;
+    }
+
+    // Verifiquem que l'appointment pertany a l'usuari actual
+    if (appointment.userId !== currentUser.uid) {
+      console.warn('Appointment does not belong to current user');
       return;
     }
 
