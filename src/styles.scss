@@ -395,6 +395,64 @@ body {
   --info-color: #3B82F6;               /* Blau info modern */
   --info-color-light: #DBEAFE;         /* Blau info clar */
 
+  /* ===== COLORS DE SERVEIS ===== */
+  --service-haircut-color: #3B82F6;           /* Blau - Corte */
+  --service-haircut-bg: #DBEAFE;              /* Blau clar - Corte */
+  --service-haircut-text: #1E40AF;            /* Blau fosc - Corte */
+
+  --service-styling-color: #8B5CF6;           /* Lila - Peinat */
+  --service-styling-bg: #EDE9FE;              /* Lila clar - Peinat */
+  --service-styling-text: #5B21B6;            /* Lila fosc - Peinat */
+
+  --service-treatment-color: #10B981;         /* Verd - Tractament */
+  --service-treatment-bg: #D1FAE5;            /* Verd clar - Tractament */
+  --service-treatment-text: #065F46;          /* Verd fosc - Tractament */
+
+  --service-coloring-color: #F59E0B;          /* Taronja - Coloració */
+  --service-coloring-bg: #FEF3C7;             /* Taronja clar - Coloració */
+  --service-coloring-text: #92400E;           /* Taronja fosc - Coloració */
+
+  --service-special-color: #EF4444;           /* Vermell - Especial */
+  --service-special-bg: #FEE2E2;              /* Vermell clar - Especial */
+  --service-special-text: #991B1B;            /* Vermell fosc - Especial */
+
+  --service-kids-color: #EC4899;              /* Rosa - Infantil */
+  --service-kids-bg: #FCE7F3;                 /* Rosa clar - Infantil */
+  --service-kids-text: #9D174D;               /* Rosa fosc - Infantil */
+
+  --service-default-color: #6B7280;           /* Gris - General */
+  --service-default-bg: #F3F4F6;              /* Gris clar - General */
+  --service-default-text: #374151;            /* Gris fosc - General */
+
+  /* ===== CLASSES UTILITÀRIES PER SERVEIS ===== */
+  --service-haircut: var(--service-haircut-color);
+  --service-haircut-bg-color: var(--service-haircut-bg);
+  --service-haircut-text-color: var(--service-haircut-text);
+
+  --service-styling: var(--service-styling-color);
+  --service-styling-bg-color: var(--service-styling-bg);
+  --service-styling-text-color: var(--service-styling-text);
+
+  --service-treatment: var(--service-treatment-color);
+  --service-treatment-bg-color: var(--service-treatment-bg);
+  --service-treatment-text-color: var(--service-treatment-text);
+
+  --service-coloring: var(--service-coloring-color);
+  --service-coloring-bg-color: var(--service-coloring-bg);
+  --service-coloring-text-color: var(--service-coloring-text);
+
+  --service-special: var(--service-special-color);
+  --service-special-bg-color: var(--service-special-bg);
+  --service-special-text-color: var(--service-special-text);
+
+  --service-kids: var(--service-kids-color);
+  --service-kids-bg-color: var(--service-kids-bg);
+  --service-kids-text-color: var(--service-kids-text);
+
+  --service-default: var(--service-default-color);
+  --service-default-bg-color: var(--service-default-bg);
+  --service-default-text-color: var(--service-default-text);
+
   /* ===== OMBRES I EFECTES ===== */
   --box-shadow: 0 2px 8px rgba(30, 58, 138, 0.08);
   --box-shadow-hover: 0 4px 16px rgba(30, 58, 138, 0.12);
@@ -1357,4 +1415,105 @@ h6 {
     color: var(--text-color) !important;
     opacity: 1 !important;
   }
+}
+
+/* ===== CLASSES UTILITÀRIES PER COLORS DE SERVEIS ===== */
+.service-color-haircut {
+  color: var(--service-haircut-color) !important;
+  background-color: var(--service-haircut-bg) !important;
+  border-color: var(--service-haircut-color) !important;
+}
+
+.service-color-styling {
+  color: var(--service-styling-color) !important;
+  background-color: var(--service-styling-bg) !important;
+  border-color: var(--service-styling-color) !important;
+}
+
+.service-color-treatment {
+  color: var(--service-treatment-color) !important;
+  background-color: var(--service-treatment-bg) !important;
+  border-color: var(--service-treatment-color) !important;
+}
+
+.service-color-coloring {
+  color: var(--service-coloring-color) !important;
+  background-color: var(--service-coloring-bg) !important;
+  border-color: var(--service-coloring-color) !important;
+}
+
+.service-color-special {
+  color: var(--service-special-color) !important;
+  background-color: var(--service-special-bg) !important;
+  border-color: var(--service-special-color) !important;
+}
+
+.service-color-kids {
+  color: var(--service-kids-color) !important;
+  background-color: var(--service-kids-bg) !important;
+  border-color: var(--service-kids-color) !important;
+}
+
+.service-color-default {
+  color: var(--service-default-color) !important;
+  background-color: var(--service-default-bg) !important;
+  border-color: var(--service-default-color) !important;
+}
+
+/* Classes per text dels serveis */
+.service-text-haircut {
+  color: var(--service-haircut-text) !important;
+}
+
+.service-text-styling {
+  color: var(--service-styling-text) !important;
+}
+
+.service-text-treatment {
+  color: var(--service-treatment-text) !important;
+}
+
+.service-text-coloring {
+  color: var(--service-coloring-text) !important;
+}
+
+.service-text-special {
+  color: var(--service-special-text) !important;
+}
+
+.service-text-kids {
+  color: var(--service-kids-text) !important;
+}
+
+.service-text-default {
+  color: var(--service-default-text) !important;
+}
+
+/* Classes per fons dels serveis */
+.service-bg-haircut {
+  background-color: var(--service-haircut-bg) !important;
+}
+
+.service-bg-styling {
+  background-color: var(--service-styling-bg) !important;
+}
+
+.service-bg-treatment {
+  background-color: var(--service-treatment-bg) !important;
+}
+
+.service-bg-coloring {
+  background-color: var(--service-coloring-bg) !important;
+}
+
+.service-bg-special {
+  background-color: var(--service-special-bg) !important;
+}
+
+.service-bg-kids {
+  background-color: var(--service-kids-bg) !important;
+}
+
+.service-bg-default {
+  background-color: var(--service-default-bg) !important;
 }

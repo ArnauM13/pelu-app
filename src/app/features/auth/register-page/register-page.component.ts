@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -18,10 +18,11 @@ import { TranslationService } from '../../../core/services/translation.service';
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss']
 })
-export class RegisterPageComponent {
+export class RegisterPageComponent implements OnDestroy {
   // Internal state
   private readonly isLoading = signal(false);
   readonly errorMessage = signal<string>('');
+  readonly passwordMismatch = signal<boolean>(false);
 
   // Computed properties
   readonly registerConfig = computed((): AuthPopupConfig => ({
@@ -45,29 +46,95 @@ export class RegisterPageComponent {
     private translation: TranslationService
   ) {}
 
+  ngOnDestroy() {
+    // Clean up any subscriptions or timers if needed
+  }
+
+  onPasswordMismatch(mismatch: boolean) {
+    this.passwordMismatch.set(mismatch);
+
+    if (mismatch) {
+      console.log('Les contrasenyes no coincideixen - informació rebuda del component auth-popup');
+      // Aquí pots afegir qualsevol lògica addicional quan les contrasenyes no coincideixen
+    }
+  }
+
   async onRegisterSubmit(formData: {email: string, password: string, repeatPassword?: string}) {
+    if (this.isLoading()) return; // Prevent multiple submissions
+
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {
+      // Validate password match
+      if (formData.password !== formData.repeatPassword) {
+        this.errorMessage.set(this.translation.get('AUTH.PASSWORD_MISMATCH'));
+        return;
+      }
+
+      // Validate password length
+      if (formData.password.length < 6) {
+        this.errorMessage.set('La contrasenya ha de tenir almenys 6 caràcters');
+        return;
+      }
+
       await createUserWithEmailAndPassword(this.auth, formData.email, formData.password);
-      this.router.navigate(['/']); // Redirigir a la pàgina principal
-    } catch (err) {
-      this.errorMessage.set(this.translation.get('AUTH.REGISTER_ERROR') + ": " + (err as any).message);
+      await this.router.navigate(['/']); // Redirigir a la pàgina principal
+    } catch (err: any) {
+      let errorMessage = 'Error desconegut';
+
+      if (err?.code) {
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'Aquest correu electrònic ja està registrat';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'Format de correu electrònic invàlid';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'La contrasenya és massa feble';
+            break;
+          default:
+            errorMessage = err.message || 'Error al registrar-se';
+        }
+      } else {
+        errorMessage = err?.message || 'Error al registrar-se';
+      }
+
+      this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
     }
   }
 
   async onGoogleAuth() {
+    if (this.isLoading()) return; // Prevent multiple submissions
+
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {
       await this.authService.loginWithGoogle();
-      this.router.navigate(['/']); // Redirigir a la pàgina principal
-    } catch (err) {
-      this.errorMessage.set(this.translation.get('AUTH.GOOGLE_REGISTER_ERROR') + ': ' + (err as any).message);
+      await this.router.navigate(['/']); // Redirigir a la pàgina principal
+    } catch (err: any) {
+      let errorMessage = 'Error desconegut';
+
+      if (err?.code) {
+        switch (err.code) {
+          case 'auth/popup-closed-by-user':
+            errorMessage = 'S\'ha tancat la finestra d\'autenticació';
+            break;
+          case 'auth/popup-blocked':
+            errorMessage = 'La finestra d\'autenticació ha estat bloquejada';
+            break;
+          default:
+            errorMessage = err.message || 'Error al registrar-se amb Google';
+        }
+      } else {
+        errorMessage = err?.message || 'Error al registrar-se amb Google';
+      }
+
+      this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
     }

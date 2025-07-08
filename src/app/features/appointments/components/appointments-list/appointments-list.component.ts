@@ -4,6 +4,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { AppointmentStatusBadgeComponent } from '../../../../shared/components/appointment-status-badge';
 import { CardComponent } from '../../../../shared/components/card/card.component';
+import { ServiceColorsService } from '../../../../core/services/service-colors.service';
+import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
 
 export interface Appointment {
   id: string;
@@ -27,168 +29,320 @@ export interface Appointment {
     CardComponent
   ],
   template: `
-    <pelu-card variant="large" style="view-transition-name: list-view">
-      <div class="card-header">
-        <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} ({{ appointments().length }})</h3>
+    @if (appointments().length === 0) {
+      <div class="full-screen-empty-state">
+        <div class="empty-state-content">
+          <div class="empty-icon">📅</div>
+          <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
+          <p>{{ hasActiveFilters() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
+          @if (hasActiveFilters()) {
+            <button class="clear-filters-btn" (click)="onClearFilters.emit()">
+              {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
+            </button>
+          }
+        </div>
       </div>
+    } @else {
+      <pelu-card>
+        <div class="card-header">
+          <div class="header-left">
+            <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} <span class="appointments-count">({{ appointments().length }})</span></h3>
+          </div>
+          <div class="header-right">
+            <span class="list-subtitle" style="color:var(--text-color-light); font-size:0.95rem;">{{ 'COMMON.VIEW_APPOINTMENTS_LIST' | translate }}</span>
+          </div>
+        </div>
 
-      @if (appointments().length === 0) {
-      <div class="empty-state">
-        <div class="empty-icon">📅</div>
-        <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
-        <p>{{ hasActiveFilters() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
-        @if (hasActiveFilters()) {
-        <button class="btn btn-primary" (click)="onClearFilters.emit()">
-          {{ 'COMMON.CLEAR_FILTERS' | translate }}
-        </button>
-        }
-      </div>
-      } @else {
-      <div class="appointments-list">
-        @for (appointment of appointments(); track appointment.id) {
-        <div class="appointment-item clickable" [class.today]="isToday(appointment.data)" (click)="onViewAppointment.emit(appointment)">
-          <!-- Informació de la cita (esquerra) -->
-          <div class="appointment-info">
-            <div class="client-info">
-              <h4 class="client-name">{{ appointment.nom }}</h4>
-              <div class="appointment-details">
-                @if (appointment.hora) {
-                <div class="detail-item">
-                  <span class="detail-icon">⏰</span>
-                  <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
+                <div class="appointments-list">
+          @for (appointment of appointments(); track appointment.id) {
+          <!-- Service color functionality temporarily disabled - uncomment to restore colored appointments -->
+          <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((appointment.serviceName || appointment.servei || '') + '')" (click)="onViewAppointment.emit(appointment)"> -->
+          <div class="appointment-item"
+               (click)="onViewAppointment.emit(appointment)">
+            <div class="appointment-info">
+              <div class="client-info">
+                <div class="client-name-row">
+                  <h4 class="client-name">{{ appointment.nom }}</h4>
+                  <pelu-appointment-status-badge
+                    [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+                    [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
+                  </pelu-appointment-status-badge>
                 </div>
-                }
-                @if (appointment.servei) {
-                <div class="detail-item">
-                  <span class="detail-icon">✂️</span>
-                  <span class="detail-text">{{ appointment.servei }}</span>
+                <div class="appointment-details">
+                  <div class="detail-item">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ appointment.hora ? formatTime(appointment.hora) : '' }} {{ formatDate(appointment.data) }}</span>
+                  </div>
+                  @if (appointment.duration) {
+                  <div class="detail-item">
+                    <span class="detail-icon">⏱️</span>
+                    <span class="detail-text">{{ appointment.duration }} min</span>
+                  </div>
+                  }
+                  @if (appointment.serviceName || appointment.servei) {
+                  <div class="detail-item">
+                    <span class="detail-icon">✂️</span>
+                    <span class="detail-text">{{ getTranslatedServiceName(appointment.serviceName || appointment.servei) }}</span>
+                  </div>
+                  }
                 </div>
-                }
-                @if (appointment.serviceName) {
-                <div class="detail-item">
-                  <span class="detail-icon">✂️</span>
-                  <span class="detail-text">{{ appointment.serviceName }}</span>
-                </div>
-                }
-                @if (appointment.duration) {
-                <div class="detail-item">
-                  <span class="detail-icon">⏱️</span>
-                  <span class="detail-text">{{ appointment.duration }} min</span>
-                </div>
-                }
               </div>
             </div>
-          </div>
-
-          <!-- Status i accions (dreta) -->
-          <div class="appointment-actions-container">
-            <div class="appointment-status">
-              <pelu-appointment-status-badge
-                [appointmentData]="{ date: appointment.data, time: appointment.hora }"
-                [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
-              </pelu-appointment-status-badge>
-            </div>
-
-            <div class="appointment-actions" (click)="$event.stopPropagation()">
+            <div class="appointment-actions-container">
               <button
                 class="btn btn-primary"
-                (click)="onViewAppointment.emit(appointment)"
+                (click)="$event.stopPropagation(); onViewAppointment.emit(appointment)"
                 [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
                 pTooltipPosition="left">
                 👁️
               </button>
               <button
                 class="btn btn-danger"
-                (click)="onDeleteAppointment.emit(appointment)"
+                (click)="$event.stopPropagation(); onDeleteAppointment.emit(appointment)"
                 [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
                 pTooltipPosition="left">
                 🗑️
               </button>
             </div>
           </div>
+          }
         </div>
-        }
-      </div>
-      }
-    </pelu-card>
+      </pelu-card>
+    }
   `,
   styles: [`
+    .full-screen-empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      background: var(--surface-color);
+      border-radius: 16px;
+      box-shadow: var(--box-shadow);
+      border: 1px solid var(--border-color);
+      margin: 2rem 0;
+    }
+
+    .empty-state-content {
+      text-align: center;
+      padding: 4rem 2rem;
+      max-width: 500px;
+    }
+
+    .empty-icon {
+      font-size: 6rem;
+      margin-bottom: 2rem;
+      opacity: 0.6;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .empty-state-content h3 {
+      margin: 0 0 1rem 0;
+      color: var(--text-color);
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .empty-state-content p {
+      margin: 0 0 2rem 0;
+      color: var(--text-color-light);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .clear-filters-btn {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--box-shadow);
+    }
+
+    .clear-filters-btn:hover {
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+      transform: translateY(-2px);
+      box-shadow: var(--box-shadow-hover);
+    }
+
+    .card-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .appointments-count {
+      color: var(--primary-color);
+      font-weight: 500;
+      font-size: 1.2rem;
+    }
+
+    .list-subtitle {
+      margin: 0;
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+    }
+
     .appointments-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .appointment-item {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem;
-      background: var(--surface-card);
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       transition: all 0.2s ease;
+      gap: 0.75rem;
+      min-height: 40px;
+      font-size: 0.9rem;
+      box-shadow: var(--box-shadow);
       cursor: pointer;
     }
 
     .appointment-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      box-shadow: var(--box-shadow-hover);
+      border-color: var(--primary-color-light);
+      transform: translateY(-1px);
     }
 
     .appointment-item.today {
-      border-left: 4px solid var(--primary-color);
+      border-color: var(--primary-color);
+      background: var(--secondary-color-light);
+    }
+
+    .appointment-item.past {
+      opacity: 0.7;
+      background: #f8f9fa;
     }
 
     .appointment-info {
       flex: 1;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .client-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+
+    .client-name-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.2rem;
     }
 
     .client-name {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.1rem;
+      margin: 0;
+      color: var(--text-color);
+      font-size: 0.95rem;
       font-weight: 600;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .appointment-details {
       display: flex;
+      flex-direction: row;
+      gap: 0.6rem;
       flex-wrap: wrap;
-      gap: 1rem;
+      font-size: 0.85rem;
     }
 
     .detail-item {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.2rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
     }
 
     .detail-icon {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
+      width: 16px;
+      text-align: center;
     }
 
     .detail-text {
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
+      color: var(--text-color-light);
+      font-size: 0.85rem;
     }
 
     .appointment-actions-container {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.5rem;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
     }
 
     .appointment-actions {
       display: flex;
       gap: 0.5rem;
+      align-items: center;
+    }
+
+    .btn-primary, .btn-danger {
+      padding: 0.3rem 0.4rem;
+      font-size: 0.85rem;
+      min-width: 28px;
+      min-height: 28px;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+      border-color: var(--primary-color-dark);
+    }
+
+    .btn-danger {
+      background: var(--gradient-error);
+      color: white;
+      border-color: var(--error-color);
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+      border-color: #B91C1C;
     }
 
     .btn {
-      padding: 0.5rem;
+      padding: 0.4rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       transition: all 0.2s ease;
     }
 
@@ -210,24 +364,27 @@ export interface Appointment {
       background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 2rem;
-    }
+    @media (max-width: 768px) {
+      .full-screen-empty-state {
+        min-height: 50vh;
+        margin: 1rem 0;
+      }
 
-    .empty-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
+      .empty-state-content {
+        padding: 3rem 1rem;
+      }
 
-    .empty-state h3 {
-      margin: 0 0 0.5rem 0;
-      color: var(--text-color);
-    }
+      .empty-icon {
+        font-size: 4rem;
+      }
 
-    .empty-state p {
-      margin: 0 0 1rem 0;
-      color: var(--text-color-secondary);
+      .empty-state-content h3 {
+        font-size: 1.5rem;
+      }
+
+      .empty-state-content p {
+        font-size: 1rem;
+      }
     }
   `]
 })
@@ -239,6 +396,11 @@ export class AppointmentsListComponent {
   onDeleteAppointment = output<Appointment>();
   onClearFilters = output<void>();
 
+  constructor(
+    public serviceColorsService: ServiceColorsService,
+    private serviceTranslationService: ServiceTranslationService
+  ) {}
+
   isToday(dateString: string): boolean {
     const today = new Date().toISOString().split('T')[0];
     return dateString === today;
@@ -246,5 +408,14 @@ export class AppointmentsListComponent {
 
   formatTime(timeString: string): string {
     return timeString;
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  }
+
+  getTranslatedServiceName(serviceName: string | undefined): string {
+    return this.serviceTranslationService.translateServiceName(serviceName || '');
   }
 }

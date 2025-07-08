@@ -61,6 +61,7 @@
     "APPOINTMENTS_CALENDAR": "Appointments Calendar",
     "APPOINTMENTS_LIST": "Appointments",
     "VIEW_APPOINTMENTS": "View all your appointments in calendar format",
+    "VIEW_APPOINTMENTS_LIST": "View all your appointments in list format",
     "APPOINTMENTS_FOR_DATE": "Appointments for",
     "NO_SCHEDULED_APPOINTMENTS": "No appointments scheduled",
     "NO_APPOINTMENTS_MESSAGE": "For this date you have no appointments scheduled. You can select another date or add new appointments.",
@@ -96,6 +97,9 @@
     "CALENDAR_VIEW_LABEL": "Calendar view",
     "FILTER_BY_DATE": "Filter by date:",
     "FILTER_BY_CLIENT": "Filter by client:",
+    "FILTER_BY_SERVICE": "Filter by service:",
+    "SELECT_SERVICE": "Select a service",
+    "ALL_SERVICES": "All services",
     "STATUS": "Status",
     "APP_NAME": "PeluApp",
     "ALL_RIGHTS_RESERVED": "All rights reserved.",
@@ -122,13 +126,18 @@
     "REGISTER_FOR_ACTIVITIES": "Register to join new activities",
     "INVALID_CREDENTIALS": "Invalid credentials",
     "PASSWORD_MISMATCH": "Passwords don't match",
+    "PASSWORDS_MATCH": "Passwords match",
+    "EMAIL_REQUIRED": "Email is required",
+    "EMAIL_INVALID": "Invalid email format",
+    "PASSWORD_REQUIRED": "Password is required",
+    "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters",
     "LOGIN_ERROR": "Login error",
-    "REGISTER_ERROR": "Registration error",
+    "REGISTER_ERROR": "Register error",
     "GOOGLE_LOGIN_ERROR": "Google login error",
-    "GOOGLE_REGISTER_ERROR": "Google registration error",
-    "NOT_LOGGED_IN": "You are not logged in",
-    "LOGIN_TO_VIEW_PROFILE": "Log in to view your profile information",
-    "PLEASE_LOGIN": "Please log in to view your profile"
+    "GOOGLE_REGISTER_ERROR": "Google register error",
+    "NOT_LOGGED_IN": "Not logged in",
+    "LOGIN_TO_VIEW_PROFILE": "Sign in to view your profile information",
+    "PLEASE_LOGIN": "Please sign in to view your profile"
   },
   "NAVIGATION": {
     "HOME": "Home",
@@ -173,7 +182,11 @@
     "SERVICE_FULL_NAME": "Service (Full name)",
     "DURATION_MINUTES": "Duration (minutes)",
     "PRICE_EURO": "Price (€)",
-    "VIEW_DETAIL": "View detail"
+    "VIEW_DETAIL": "View detail",
+    "NEXT_APPOINTMENT": "Next appointment",
+    "NEXT_APPOINTMENT_SUBTITLE": "Your next scheduled appointment",
+    "NO_NEXT_APPOINTMENT": "No upcoming appointments",
+    "NO_NEXT_APPOINTMENT_MESSAGE": "You don't have any appointments scheduled for the future. You can book a new appointment whenever you want."
   },
   "BOOKING": {
     "SELECT_SERVICE": "New booking",
@@ -186,6 +199,7 @@
   },
   "PROFILE": {
     "PERSONAL_INFO": "Account information",
+    "CLIENT_NOTES": "Client notes",
     "NAME": "Name",
     "SURNAME": "Surname",
     "PHONE": "Phone",
@@ -198,7 +212,13 @@
     "CREATION_DATE": "Creation date",
     "LAST_ACCESS": "Last access",
     "ACCOUNT_STATUS": "Account status",
-    "ACTIVE": "Active"
+    "ACTIVE": "Active",
+    "PREFERRED_STYLE": "Preferred style",
+    "HAIR_TYPE": "Hair type",
+    "COLOR_PREFERENCES": "Color preferences",
+    "ALLERGIES": "Allergies",
+    "SPECIAL_REQUESTS": "Special requests",
+    "NOT_FOUND": "Profile not found"
   },
   "USER": {
     "TITLE": "User Profile",
@@ -240,6 +260,28 @@
       "BEARD": "Beard",
       "TREATMENT": "Treatments",
       "STYLING": "Styling"
+    },
+    "COLORS": {
+      "HAIRCUT": "Haircut",
+      "STYLING": "Styling",
+      "TREATMENT": "Treatment",
+      "COLORING": "Coloring",
+      "SPECIAL": "Special",
+      "KIDS": "Kids",
+      "DEFAULT": "General"
+    },
+    "NAMES": {
+      "MALE_HAIRCUT": "Male haircut",
+      "HAIRCUT_BEARD": "Haircut + Shave",
+      "BEARD_SHAVE": "Beard shave",
+      "BEARD_TRIM": "Beard trim",
+      "WASH_TREATMENT": "Wash and treatment",
+      "COLORING": "Coloring",
+      "SPECIAL_STYLING": "Special styling",
+      "KIDS_HAIRCUT": "Kids haircut",
+      "GENERAL_SERVICE": "General service",
+      "COMPLETE_HAIRDRESSING": "Complete hairdressing",
+      "TEST_SERVICE": "Test service"
     }
   },
   "STYLIST": {
