@@ -830,3 +830,95 @@
   cursor: not-allowed;
   pointer-events: none;
 }
+
+// Drag & Drop Styles
+.time-slots-container {
+  position: relative;
+
+  &.drag-over {
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px dashed #3b82f6;
+  }
+
+  &.drop-valid {
+    background: rgba(40, 167, 69, 0.1);
+    border: 2px dashed #28a745;
+  }
+
+  &.drop-invalid {
+    background: rgba(220, 53, 69, 0.1);
+    border: 2px dashed #dc3545;
+  }
+}
+
+.time-slot {
+  &.drop-target {
+    background: rgba(59, 130, 246, 0.2);
+    border: 2px dashed #3b82f6;
+  }
+
+  &.drop-invalid {
+    background: rgba(220, 53, 69, 0.2);
+    border: 2px dashed #dc3545;
+  }
+}
+
+// Drag preview styles
+.cdk-drag-preview {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transform: rotate(2deg);
+  z-index: 1000;
+  opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  border: 2px dashed #ccc;
+  background: transparent;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Drop zone indicator
+.drop-zone-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.05);
+  border: 2px dashed #3b82f6;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
+// Drop indicator for showing where appointment will be placed
+.drop-indicator {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 20;
+  border: 2px dashed;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+
+  &.valid {
+    background: rgba(40, 167, 69, 0.2);
+    border-color: #28a745;
+  }
+
+  &.invalid {
+    background: rgba(220, 53, 69, 0.2);
+    border-color: #dc3545;
+  }
+}

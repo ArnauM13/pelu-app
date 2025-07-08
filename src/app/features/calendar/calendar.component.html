@@ -38,7 +38,14 @@
           </div>
 
           <!-- Time Slots Container with relative positioning -->
-          <div class="time-slots-container">
+          <div class="time-slots-container"
+               [class.drag-over]="dragDropService.isDragging()"
+               [class.drop-valid]="dragDropService.isDragging() && dragDropService.isValidDrop()"
+               [class.drop-invalid]="dragDropService.isDragging() && !dragDropService.isValidDrop()"
+               (mouseenter)="onDropZoneMouseEnter($event, day)"
+               (mousemove)="onDropZoneMouseMove($event, day)"
+               (drop)="onDropZoneDrop($event, day)"
+               (dragover)="onDropZoneDragOver($event)">
             <!-- Clickable Time Slots -->
             @for (time of timeSlots(); track time; let k = $index) {
               <div class="time-slot"
@@ -61,6 +68,18 @@
                   [data]="createAppointmentSlotData(appt, day)"
                   (clicked)="openAppointmentPopup($event)">
                 </pelu-appointment-slot>
+              }
+            }
+
+            <!-- Drop indicator when dragging -->
+            @if (dragDropService.isDragging() && dragDropService.targetDate() && dragDropService.targetTime() && dragDropService.draggedAppointment()) {
+              @if (isSameDay(day, dragDropService.targetDate()!)) {
+                <div class="drop-indicator"
+                     [style.top.px]="dragDropService.calculateGridPosition(dragDropService.draggedAppointment()!, day, dragDropService.targetTime()!).top"
+                     [style.height.px]="dragDropService.calculateGridPosition(dragDropService.draggedAppointment()!, day, dragDropService.targetTime()!).height"
+                     [class.valid]="dragDropService.isValidDrop()"
+                     [class.invalid]="!dragDropService.isValidDrop()">
+                </div>
               }
             }
           </div>

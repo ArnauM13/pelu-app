@@ -12,6 +12,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
+import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
 
@@ -48,6 +49,7 @@ export class CalendarComponent {
   private readonly positionService = inject(CalendarPositionService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
+  readonly dragDropService = inject(CalendarDragDropService);
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -485,7 +487,46 @@ export class CalendarComponent {
     this.stateService.navigateToDate(dateString);
   }
 
+  // Drag & Drop methods
+  onDropZoneMouseEnter(event: MouseEvent, day: Date) {
+    if (this.dragDropService.isDragging()) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+    }
+  }
 
+  onDropZoneMouseMove(event: MouseEvent, day: Date) {
+    if (this.dragDropService.isDragging()) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+    }
+  }
+
+    onDropZoneDrop(event: DragEvent, day: Date) {
+    event.preventDefault();
+    const success = this.dragDropService.endDrag();
+
+    if (success) {
+      // Appointment was successfully moved
+      this.reloadAppointments();
+
+      // Force a change detection cycle to update the view
+      setTimeout(() => {
+        this.reloadAppointments();
+      }, 100);
+    }
+  }
+
+  onDropZoneDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  // Helper method to compare dates
+  isSameDay(date1: Date, date2: Date): boolean {
+    return isSameDay(date1, date2);
+  }
 
   // Create appointment slot data for the new component
   createAppointmentSlotData(appointment: AppointmentEvent, date: Date): AppointmentSlotData {

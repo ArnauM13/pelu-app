@@ -1,8 +1,10 @@
-import { Component, input, output, computed, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, DragDropModule } from '@angular/cdk/drag-drop';
 import { AppointmentEvent } from './calendar.component';
 import { CalendarPositionService } from './calendar-position.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
+import { CalendarDragDropService } from './calendar-drag-drop.service';
 
 export interface AppointmentSlotData {
   appointment: AppointmentEvent;
@@ -12,16 +14,22 @@ export interface AppointmentSlotData {
 @Component({
   selector: 'pelu-appointment-slot',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DragDropModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="appointment"
+         cdkDrag
+         [cdkDragData]="data().appointment"
          [style.top.px]="position().top"
          [style.height.px]="position().height"
          [style.left.px]="0"
          [style.right.px]="0"
          [ngClass]="serviceCssClass()"
-         (click)="onAppointmentClick($event)">
+         [class.dragging]="isBeingDragged()"
+         (click)="onAppointmentClick($event)"
+         (cdkDragStarted)="onDragStarted($event)"
+         (cdkDragEnded)="onDragEnded($event)"
+         (cdkDragMoved)="onDragMoved($event)">
       <div class="appointment-content">
         <div class="appointment-info">
           <div class="appointment-title" [ngClass]="serviceTextCssClass()">{{ data().appointment.title }}</div>
@@ -30,6 +38,9 @@ export interface AppointmentSlotData {
           }
         </div>
         <div class="appointment-duration" [ngClass]="serviceTextCssClass()">{{ formatDuration(data().appointment.duration || 60) }}</div>
+      </div>
+      <div class="drag-handle" cdkDragHandle>
+        <div class="drag-indicator"></div>
       </div>
     </div>
   `,
@@ -42,9 +53,11 @@ export class AppointmentSlotComponent {
   // Output signals
   readonly clicked = output<AppointmentEvent>();
 
-  // Inject the position service
+  // Inject services
   private readonly positionService = inject(CalendarPositionService);
   private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly dragDropService = inject(CalendarDragDropService);
+  private readonly elementRef = inject(ElementRef);
 
   // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly position = computed(() => {
@@ -69,10 +82,44 @@ export class AppointmentSlotComponent {
     return this.serviceColorsService.getServiceTextCssClass(serviceName);
   });
 
+  // Computed if this appointment is being dragged
+  readonly isBeingDragged = computed(() => {
+    const draggedAppointment = this.dragDropService.draggedAppointment();
+    return draggedAppointment?.id === this.data().appointment.id;
+  });
+
   // Methods
   onAppointmentClick(event: Event) {
     event.stopPropagation();
-    this.clicked.emit(this.data().appointment);
+    // Only emit click if not currently dragging
+    if (!this.dragDropService.isDragging()) {
+      this.clicked.emit(this.data().appointment);
+    }
+  }
+
+  onDragStarted(event: any) {
+    const appointment = event.source.data;
+    const rect = this.elementRef.nativeElement.getBoundingClientRect();
+    const originalPosition = {
+      top: rect.top,
+      left: rect.left
+    };
+
+    this.dragDropService.startDrag(appointment, originalPosition);
+  }
+
+  onDragMoved(event: any) {
+    const position = event.pointerPosition;
+    this.dragDropService.updateDragPosition(position);
+  }
+
+    onDragEnded(event: any) {
+    const success = this.dragDropService.endDrag();
+
+    if (!success) {
+      // If the drop was invalid, the appointment will return to its original position
+      // The drag service already handles the reset
+    }
   }
 
   // Format duration for display
