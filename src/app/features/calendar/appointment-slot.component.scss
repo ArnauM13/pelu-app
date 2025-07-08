@@ -3,25 +3,24 @@
   position: absolute;
   left: 4px;
   right: 4px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   border-radius: 6px;
   padding: 4px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  color: #fff;
   font-size: 11px;
   cursor: pointer;
   z-index: 10;
   overflow: hidden;
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid;
   min-height: 20px;
+  /* Colors will be applied via CSS classes */
 }
 
 .appointment:hover {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
   z-index: 15;
+  filter: brightness(1.1);
 }
 
 .appointment-content {
@@ -85,6 +84,86 @@
 .appointment[style*="height: 105px"] .appointment-service,
 .appointment[style*="height: 120px"] .appointment-service {
   display: block;
+}
+
+/* ===== ESTILS ESPECÍFICS PER COLORS DE SERVEIS ===== */
+
+/* Tall (Haircut) */
+.appointment.service-color-haircut {
+  background-color: var(--service-haircut-bg) !important;
+  border-color: var(--service-haircut-color) !important;
+  color: var(--service-haircut-text) !important;
+}
+
+/* Pentinat (Styling) */
+.appointment.service-color-styling {
+  background-color: var(--service-styling-bg) !important;
+  border-color: var(--service-styling-color) !important;
+  color: var(--service-styling-text) !important;
+}
+
+/* Tractament (Treatment) */
+.appointment.service-color-treatment {
+  background-color: var(--service-treatment-bg) !important;
+  border-color: var(--service-treatment-color) !important;
+  color: var(--service-treatment-text) !important;
+}
+
+/* Coloració (Coloring) */
+.appointment.service-color-coloring {
+  background-color: var(--service-coloring-bg) !important;
+  border-color: var(--service-coloring-color) !important;
+  color: var(--service-coloring-text) !important;
+}
+
+/* Especial (Special) */
+.appointment.service-color-special {
+  background-color: var(--service-special-bg) !important;
+  border-color: var(--service-special-color) !important;
+  color: var(--service-special-text) !important;
+}
+
+/* Infantil (Kids) */
+.appointment.service-color-kids {
+  background-color: var(--service-kids-bg) !important;
+  border-color: var(--service-kids-color) !important;
+  color: var(--service-kids-text) !important;
+}
+
+/* General (Default) */
+.appointment.service-color-default {
+  background-color: var(--service-default-bg) !important;
+  border-color: var(--service-default-color) !important;
+  color: var(--service-default-text) !important;
+}
+
+/* Estils per text dels serveis */
+.appointment .service-text-haircut {
+  color: var(--service-haircut-text) !important;
+}
+
+.appointment .service-text-styling {
+  color: var(--service-styling-text) !important;
+}
+
+.appointment .service-text-treatment {
+  color: var(--service-treatment-text) !important;
+}
+
+.appointment .service-text-coloring {
+  color: var(--service-coloring-text) !important;
+}
+
+.appointment .service-text-special {
+  color: var(--service-special-text) !important;
+}
+
+.appointment .service-text-kids {
+  color: var(--service-kids-text) !important;
+}
+
+.appointment .service-text-default {
+  color: var(--service-default-text) !important;
 }
 
 // Responsive adjustments

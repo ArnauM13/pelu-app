@@ -12,6 +12,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
+import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
 
 // Interface for appointment with duration
@@ -147,7 +148,7 @@ export class CalendarComponent {
     return this.positionService.getAppointmentPositions(appointments);
   });
 
-  constructor() {
+  constructor(private serviceColorsService: ServiceColorsService) {
     // Initialize appointments from localStorage
     this.loadAppointmentsFromStorage();
   }
@@ -155,11 +156,28 @@ export class CalendarComponent {
   // Load appointments from localStorage
   private loadAppointmentsFromStorage(): void {
     try {
-      const stored = localStorage.getItem('appointments');
-      if (stored) {
-        const appointments = JSON.parse(stored);
-        this.stateService.setAppointments(appointments);
+      // Carreguem les cites des de 'cites' (format original) i també des de 'appointments' si existeix
+      const citesStored = localStorage.getItem('cites');
+      const appointmentsStored = localStorage.getItem('appointments');
+
+      let appointments: any[] = [];
+
+      if (citesStored) {
+        const cites = JSON.parse(citesStored);
+        appointments = [...appointments, ...cites];
       }
+
+      if (appointmentsStored) {
+        const appointmentsData = JSON.parse(appointmentsStored);
+        appointments = [...appointments, ...appointmentsData];
+      }
+
+      // Eliminem duplicats per ID
+      const uniqueAppointments = appointments.filter((appointment, index, self) =>
+        index === self.findIndex(a => a.id === appointment.id)
+      );
+
+      this.stateService.setAppointments(uniqueAppointments);
     } catch (error) {
       // Handle storage error silently
     }
@@ -194,11 +212,21 @@ export class CalendarComponent {
 
     if (originalAppointment) {
       // Use the original appointment data which has the correct format
+      // Assegurem-nos que té l'userId correcte
+      const currentUser = this.authService.user();
+      if (currentUser?.uid && !originalAppointment.userId) {
+        originalAppointment.userId = currentUser.uid;
+      }
       this.stateService.openAppointmentDetail(originalAppointment);
     } else {
       // Fallback: convert AppointmentEvent to the expected format
+      const currentUser = this.authService.user();
+
+      // Generate a unique ID if not available
+      const appointmentId = appointmentEvent.id || uuidv4();
+
       const convertedAppointment = {
-        id: appointmentEvent.id || '',
+        id: appointmentId,
         nom: appointmentEvent.title || appointmentEvent.clientName || '',
         data: appointmentEvent.start ? appointmentEvent.start.split('T')[0] : '',
         hora: appointmentEvent.start ? appointmentEvent.start.split('T')[1]?.substring(0, 5) : '',
@@ -207,11 +235,30 @@ export class CalendarComponent {
         servei: appointmentEvent.serviceName || '',
         notes: '',
         preu: 0,
-        userId: '',
+        userId: currentUser?.uid || '',
         serviceId: ''
       };
 
+      // Save the converted appointment to localStorage so it can be found later
+      this.saveConvertedAppointmentToStorage(convertedAppointment);
+
       this.stateService.openAppointmentDetail(convertedAppointment);
+    }
+  }
+
+  /**
+   * Save a converted appointment to localStorage so it can be found by the detail page
+   */
+  private saveConvertedAppointmentToStorage(appointment: any): void {
+    try {
+      const appointments = this.appointments();
+      const updatedAppointments = [...appointments, appointment];
+      this.stateService.setAppointments(updatedAppointments);
+
+      // Also save to localStorage
+      localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
+    } catch (error) {
+      console.error('Error saving converted appointment:', error);
     }
   }
 

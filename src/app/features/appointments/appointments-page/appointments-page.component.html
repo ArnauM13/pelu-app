@@ -32,12 +32,20 @@
     (onQuickFilterChange)="setQuickFilter($event)">
   </pelu-appointments-stats>
 
+  <!-- Next Appointment -->
+  <pelu-next-appointment
+    [appointments]="appointments()"
+    (onViewDetail)="viewAppointmentDetail($event)">
+  </pelu-next-appointment>
+
   <!-- Inline Filters -->
   <pelu-filters-inline
     [filterDate]="filterDate"
     [filterClient]="filterClient"
+    [filterService]="filterService"
     [onDateChange]="setFilterDate"
     [onClientChange]="setFilterClient"
+    [onServiceChange]="setFilterService"
     [onReset]="clearAllFilters">
   </pelu-filters-inline>
 

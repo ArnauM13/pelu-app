@@ -61,6 +61,7 @@
     "APPOINTMENTS_CALENDAR": "تقويم المواعيد",
     "APPOINTMENTS_LIST": "المواعيد",
     "VIEW_APPOINTMENTS": "عرض جميع مواعيدك بتنسيق التقويم",
+    "VIEW_APPOINTMENTS_LIST": "عرض جميع مواعيدك بتنسيق القائمة",
     "APPOINTMENTS_FOR_DATE": "المواعيد في",
     "NO_SCHEDULED_APPOINTMENTS": "لا توجد مواعيد مجدولة",
     "NO_APPOINTMENTS_MESSAGE": "لهذا التاريخ لا توجد مواعيد مجدولة. يمكنك اختيار تاريخ آخر أو إضافة مواعيد جديدة.",
@@ -96,6 +97,9 @@
     "CALENDAR_VIEW_LABEL": "عرض التقويم",
     "FILTER_BY_DATE": "تصفية حسب التاريخ:",
     "FILTER_BY_CLIENT": "تصفية حسب العميل:",
+    "FILTER_BY_SERVICE": "تصفية حسب الخدمة:",
+    "SELECT_SERVICE": "اختر خدمة",
+    "ALL_SERVICES": "جميع الخدمات",
     "STATUS": "الحالة",
     "APP_NAME": "PeluApp",
     "ALL_RIGHTS_RESERVED": "جميع الحقوق محفوظة."
@@ -174,7 +178,11 @@
     "SERVICE_FULL_NAME": "الخدمة (الاسم الكامل)",
     "DURATION_MINUTES": "المدة (دقائق)",
     "PRICE_EURO": "السعر (€)",
-    "VIEW_DETAIL": "عرض التفصيل"
+    "VIEW_DETAIL": "عرض التفصيل",
+    "NEXT_APPOINTMENT": "الموعد التالي",
+    "NEXT_APPOINTMENT_SUBTITLE": "موعدك التالي المجدول",
+    "NO_NEXT_APPOINTMENT": "لا توجد مواعيد قادمة",
+    "NO_NEXT_APPOINTMENT_MESSAGE": "ليس لديك أي مواعيد مجدولة للمستقبل. يمكنك حجز موعد جديد متى تريد."
   },
   "BOOKING": {
     "SELECT_SERVICE": "حجز جديد",
@@ -187,6 +195,7 @@
   },
   "PROFILE": {
     "PERSONAL_INFO": "معلومات الحساب",
+    "CLIENT_NOTES": "ملاحظات العميل",
     "NAME": "الاسم",
     "SURNAME": "اسم العائلة",
     "PHONE": "الهاتف",
@@ -199,7 +208,13 @@
     "CREATION_DATE": "تاريخ الإنشاء",
     "LAST_ACCESS": "آخر وصول",
     "ACCOUNT_STATUS": "حالة الحساب",
-    "ACTIVE": "نشط"
+    "ACTIVE": "نشط",
+    "PREFERRED_STYLE": "النمط المفضل",
+    "HAIR_TYPE": "نوع الشعر",
+    "COLOR_PREFERENCES": "تفضيلات اللون",
+    "ALLERGIES": "الحساسية",
+    "SPECIAL_REQUESTS": "الطلبات الخاصة",
+    "NOT_FOUND": "لم يتم العثور على الملف الشخصي"
   },
   "CALENDAR": {
     "TODAY": "اليوم",
@@ -232,6 +247,28 @@
       "BEARD": "اللحية",
       "TREATMENT": "العلاجات",
       "STYLING": "التصفيف"
+    },
+    "COLORS": {
+      "HAIRCUT": "قص الشعر",
+      "STYLING": "التصفيف",
+      "TREATMENT": "العلاج",
+      "COLORING": "التلوين",
+      "SPECIAL": "خاص",
+      "KIDS": "الأطفال",
+      "DEFAULT": "عام"
+    },
+    "NAMES": {
+      "MALE_HAIRCUT": "قص شعر رجالي",
+      "HAIRCUT_BEARD": "قص شعر + حلاقة",
+      "BEARD_SHAVE": "حلاقة اللحية",
+      "BEARD_TRIM": "تشذيب اللحية",
+      "WASH_TREATMENT": "غسيل وعلاج",
+      "COLORING": "تلوين",
+      "SPECIAL_STYLING": "تصفيف خاص",
+      "KIDS_HAIRCUT": "قص شعر للأطفال",
+      "GENERAL_SERVICE": "خدمة عامة",
+      "COMPLETE_HAIRDRESSING": "تجميل شعر كامل",
+      "TEST_SERVICE": "خدمة تجريبية"
     }
   },
   "STYLIST": {

@@ -17,6 +17,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { InfoItemComponent, InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../../shared/components/detail-view/detail-view.component';
+import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 
 interface AppointmentForm {
   nom: string;
@@ -43,7 +44,8 @@ interface AppointmentForm {
     InputTextModule,
     CalendarModule,
     TranslateModule,
-    DetailViewComponent
+    DetailViewComponent,
+    AppointmentDetailPopupComponent
   ],
   providers: [MessageService],
   templateUrl: './appointment-detail-page.component.html',
@@ -146,13 +148,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       });
     }
 
-    if (cita.userId) {
-      items.push({
-        icon: '👨‍💼',
-        label: 'COMMON.USER',
-        value: cita.userId
-      });
-    }
+
 
     return items;
   });
@@ -461,5 +457,9 @@ export class AppointmentDetailPageComponent implements OnInit {
     const uniqueId = `${clientId}-${appointmentId}`;
 
     this.#router.navigate(['/appointments', uniqueId]);
+  }
+
+  onPopupClosed() {
+    // No action needed when popup is closed from detail page
   }
 }

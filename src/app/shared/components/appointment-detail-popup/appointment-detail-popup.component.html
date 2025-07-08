@@ -5,10 +5,6 @@
     <div class="popup-header">
       <div class="header-content">
         <h3>{{ 'APPOINTMENTS.APPOINTMENT_DETAIL' | translate }}</h3>
-        <pelu-appointment-status-badge
-          [appointmentData]="{ date: appointmentDate(), time: appointment()?.hora }"
-          [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
-        </pelu-appointment-status-badge>
       </div>
       <button class="close-btn" (click)="onClose()" [title]="'COMMON.CLOSE' | translate">
         <i class="pi pi-times"></i>
@@ -18,16 +14,26 @@
     <!-- Body -->
     <div class="popup-body">
       @if (appointment(); as cita) {
-                <!-- Appointment Info -->
+        <!-- Appointment Info -->
         <div class="appointment-info">
           @for (item of appointmentInfoItems(); track item.label) {
-            <pelu-info-item
-              [data]="item">
-            </pelu-info-item>
+            <div class="info-row">
+              <div class="info-label">{{ item.label }}</div>
+              <div class="info-value">{{ item.value }}</div>
+            </div>
           }
         </div>
 
+        <!-- Status Badge -->
+        <div class="status-section">
+          <pelu-appointment-status-badge
+            [appointmentData]="{ date: appointmentDate(), time: appointment()?.hora }"
+            [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: false }">
+          </pelu-appointment-status-badge>
+        </div>
+
         <!-- Actions -->
+        @if (!hideViewDetailButton()) {
         <div class="popup-actions">
           <button
             class="btn btn-primary"
@@ -37,6 +43,7 @@
             {{ 'APPOINTMENTS.VIEW_FULL_DETAIL' | translate }}
           </button>
         </div>
+        }
       } @else {
         <div class="no-appointment">
           <p>{{ 'APPOINTMENTS.NOT_FOUND' | translate }}</p>
