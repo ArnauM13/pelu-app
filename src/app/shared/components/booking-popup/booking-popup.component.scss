@@ -552,14 +552,14 @@
 }
 
 .btn-primary {
-  background: #306dcd;
+  background: var(--gradient-primary);
   color: white;
-  border-color: #306dcd;
+  border-color: var(--primary-color);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #1f4b91;
-  border-color: #1f4b91;
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+  border-color: var(--primary-color-dark);
 }
 
 .btn-secondary {
