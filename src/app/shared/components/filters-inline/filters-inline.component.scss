@@ -2,15 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: white;
   border-radius: 12px;
   margin: 1rem 0;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
-
-
 
 .quick-filters {
   display: flex;
@@ -19,13 +17,12 @@
   justify-content: center;
 }
 
-
-
 .filters-grid {
   display: flex;
   flex-direction: row;
   gap: 1rem;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .filter-group {
@@ -33,6 +30,7 @@
   flex-direction: column;
   gap: 0.5rem;
   flex: 1;
+  min-width: 200px;
 }
 
 .filter-group label {
@@ -60,12 +58,13 @@
 
 .reset-group {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   padding-top: 1.5rem;
+  flex-shrink: 0;
 }
 
 .reset-btn {
-      background: var(--error-color);
+  background: var(--error-color);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -77,6 +76,7 @@
   align-items: center;
   gap: 0.5rem;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
 .reset-btn:hover {
@@ -168,9 +168,19 @@
 }
 
 // Responsive design
+@media (max-width: 1024px) {
+  .filters-grid {
+    gap: 0.75rem;
+  }
+
+  .filter-group {
+    min-width: 180px;
+  }
+}
+
 @media (max-width: 768px) {
   .filters-inline {
-    padding: 0.75rem;
+    padding: 1rem;
     margin: 0.75rem 0;
   }
 
@@ -179,16 +189,60 @@
   }
 
   .filters-grid {
-    gap: 0.75rem;
+    gap: 1rem;
     flex-direction: column;
+    align-items: stretch;
   }
 
   .filter-group {
     flex: none;
+    min-width: 0;
   }
 
   .reset-group {
-    align-items: center;
-    padding-top: 0.5rem;
+    align-items: stretch;
+    padding-top: 0;
+    margin-top: 0.5rem;
+  }
+
+  .reset-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-inline {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    gap: 1rem;
+  }
+
+  .filters-grid {
+    gap: 0.75rem;
+  }
+
+  .filter-group label {
+    font-size: 0.85rem;
+  }
+
+  .input {
+    padding: 0.625rem;
+    font-size: 0.9rem;
+  }
+
+  .reset-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .service-dropdown ::ng-deep .p-dropdown {
+    padding: 0.625rem;
+    min-height: 44px;
+  }
+
+  .service-dropdown ::ng-deep .p-dropdown-label {
+    font-size: 0.9rem;
   }
 }
