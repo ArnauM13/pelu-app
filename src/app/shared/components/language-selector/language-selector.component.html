@@ -1,0 +1,22 @@
+<div class="language-selector">
+  <button
+    class="language-button"
+    (click)="toggleDropdown()"
+    [attr.aria-label]="'LANGUAGES.SELECT_LANGUAGE' | translate"
+    type="button">
+    <span class="language-name">{{ ('LANGUAGES.' + (currentLanguage()?.code?.toUpperCase() || '')) | translate }}</span>
+    <span class="arrow" [class.open]="isDropdownOpen()">▼</span>
+  </button>
+
+  <div class="dropdown" [class.open]="isDropdownOpen()">
+    @for (lang of availableLanguages; track lang.code) {
+    <button
+      class="language-option"
+      [class.active]="lang.code === currentLanguage()?.code"
+      (click)="selectLanguage(lang.code)"
+      type="button">
+      <span class="language-name">{{ ('LANGUAGES.' + lang.code.toUpperCase()) | translate }}</span>
+    </button>
+    }
+  </div>
+</div>

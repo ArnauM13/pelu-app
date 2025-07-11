@@ -1,0 +1,34 @@
+<div class="calendar-header">
+  <div class="calendar-navigation">
+    <button class="nav-btn"
+            [class.disabled]="!canNavigateToPreviousWeek"
+            [disabled]="!canNavigateToPreviousWeek"
+            (click)="onPreviousWeek()"
+            title="Setmana anterior">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <button class="nav-btn today-btn" (click)="onToday()" title="Anar a avui">
+      Avui
+    </button>
+    <button class="nav-btn" (click)="onNextWeek()" title="Setmana següent">
+      <i class="pi pi-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- Date Input -->
+  <div class="date-input-container">
+    <input
+      type="date"
+      [value]="currentDateString"
+      (input)="onDateChange($event)"
+      class="date-input"
+      title="Seleccionar data"
+      [min]="todayString">
+  </div>
+
+  <div class="calendar-title">
+    <div class="title-main">{{ mainTitle }}</div>
+    <div class="title-info">{{ viewDateInfo }}</div>
+    <div class="title-config">{{ businessDaysInfo }}</div>
+  </div>
+</div>

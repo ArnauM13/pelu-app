@@ -1,0 +1,19 @@
+<div class="register-page" style="view-transition-name: register-page">
+  <pelu-auth-popup
+    [config]="registerConfig()"
+    (submitForm)="onRegisterSubmit($event)"
+    (googleAuth)="onGoogleAuth()"
+    (passwordMismatch)="onPasswordMismatch($event)" />
+
+  @if (hasError()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (isSubmitting()) {
+    <div class="loading-overlay">
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  }
+</div>

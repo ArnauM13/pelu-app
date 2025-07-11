@@ -1,0 +1,78 @@
+<div class="calendar-container">
+  <!-- Calendar Header -->
+  <pelu-calendar-header
+    [mainTitle]="'Setmana del ' + formatPopupDate(format(viewDate(), 'yyyy-MM-dd'))"
+    [viewDateInfo]="getViewDateInfo()"
+    [businessDaysInfo]="getBusinessDaysInfo()"
+    [canNavigateToPreviousWeek]="canNavigateToPreviousWeek()"
+    [currentViewDate]="viewDate()"
+    (today)="today()"
+    (previousWeek)="previousWeek()"
+    (nextWeek)="nextWeek()"
+    (dateChange)="onDateChange($event)"
+  />
+
+  <!-- Calendar Body -->
+  <div class="calendar-body">
+    <div class="horizontal-week-view">
+      <!-- Time Column -->
+      <div class="time-column">
+        <div class="time-header">Hora</div>
+        @for (time of timeSlots(); track time; let k = $index) {
+          <div class="time-slot-label"
+               [class.lunch-break]="isLunchBreak(time)"
+               [class.lunch-break-start]="isLunchBreakStart(time)">
+            {{ time }}
+          </div>
+        }
+      </div>
+
+      <!-- Day Columns -->
+      @for (day of weekDays(); track day; let i = $index) {
+        <div class="day-column"
+             [class.past]="isPastDate(day)"
+             [class.disabled]="isPastDate(day)">
+          <div class="day-header">
+            <div class="day-name">{{ getDayName(day) }}</div>
+            <div class="day-date">{{ format(day, 'dd/MM') }}</div>
+          </div>
+
+          <!-- Time Slots Container with relative positioning -->
+          <div class="time-slots-container">
+            <!-- Clickable Time Slots -->
+            @for (time of timeSlots(); track time; let k = $index) {
+              <div class="time-slot"
+                   [class.available]="isTimeSlotAvailable(day, time)"
+                   [class.booked]="!isTimeSlotAvailable(day, time) && !isLunchBreak(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
+                   [class.lunch-break]="isLunchBreak(time)"
+                   [class.past-date]="isPastDate(day)"
+                   [class.past-time]="isPastTimeSlot(day, time)"
+                   [class.clickable]="isTimeSlotAvailable(day, time)"
+                   [class.disabled]="isPastDate(day)"
+                   [title]="getTimeSlotTooltip(day, time)"
+                   (click)="!isPastDate(day) && selectTimeSlot(day, time)">
+              </div>
+            }
+
+            <!-- Render Appointments with the new optimized component -->
+            @for (appt of getAppointmentsForDay(day); track appt.id + '-' + appt.start) {
+              @if (appt && appt.start) {
+                <pelu-appointment-slot
+                  [data]="createAppointmentSlotData(appt, day)"
+                  (clicked)="openAppointmentPopup($event)">
+                </pelu-appointment-slot>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Appointment Detail Popup -->
+  <pelu-appointment-detail-popup
+    [open]="showDetailPopup()"
+    [appointment]="selectedAppointment()"
+    (closed)="onAppointmentDetailPopupClosed()">
+  </pelu-appointment-detail-popup>
+</div>

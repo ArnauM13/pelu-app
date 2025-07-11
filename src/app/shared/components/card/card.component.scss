@@ -1,0 +1,24 @@
+.pelu-card {
+  background-color: #fff;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.pelu-card:hover {
+  box-shadow: var(--box-shadow-hover);
+}
+
+.pelu-card.compact {
+  padding: 1rem;
+}
+
+.pelu-card.large {
+  padding: 2rem;
+}
+
+.pelu-card.no-margin {
+  margin-bottom: 0;
+}

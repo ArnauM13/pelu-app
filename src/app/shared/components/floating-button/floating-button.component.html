@@ -1,0 +1,9 @@
+<button
+  [class]="buttonClasses()"
+  [style]="buttonStyle()"
+  (click)="onClick()"
+  [attr.aria-label]="config().ariaLabel"
+  [pTooltip]="config().tooltip"
+  pTooltipPosition="bottom">
+  <span aria-hidden="true">{{ config().icon }}</span>
+</button>

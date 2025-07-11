@@ -1,0 +1,859 @@
+/* View Transitions - handled by withViewTransitions() */
+
+/* Appointment Title Section */
+.appointment-title-section {
+  background: linear-gradient(135deg, var(--info-color) 0%, var(--secondary-color-light) 100%);
+  padding: 2rem;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1rem;
+  }
+}
+
+.appointment-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    font-size: 1.4rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
+}
+
+.appointment-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-color-light);
+  margin: 0;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+// CSS Variables - Now using global variables from styles.scss
+
+// Background styles like landing page
+:host {
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
+    pointer-events: none;
+  }
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--box-shadow-card);
+  margin: 2rem 0;
+
+  .loading-spinner {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    animation: spin 1.5s linear infinite;
+    color: var(--primary-color);
+  }
+
+  p {
+    font-size: 1.2rem;
+    color: var(--text-color-light);
+    font-weight: 500;
+  }
+}
+
+// Not Found State
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--box-shadow-card);
+  margin: 2rem 0;
+  padding: 3rem 2rem;
+
+  .not-found-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+
+  h2 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin-bottom: 2rem;
+    color: var(--text-color-light);
+    font-size: 1.1rem;
+    max-width: 400px;
+  }
+
+  .btn {
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: var(--box-shadow);
+  }
+}
+
+// Main Appointment Detail
+.appointment-detail {
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding: 0 0.5rem;
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      background: white;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: var(--box-shadow);
+
+      &:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-color-lighter);
+        box-shadow: var(--box-shadow-hover);
+      }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: var(--text-color);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+  }
+
+  .appointment-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--box-shadow-card);
+    overflow: hidden;
+
+    &:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .appointment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding: 2rem 2rem 1.5rem 2rem;
+      border-bottom: 2px solid var(--border-color);
+      background: linear-gradient(135deg, var(--info-color) 0%, var(--secondary-color-light) 100%);
+
+      .client-name {
+        margin: 0;
+        font-size: 2.2rem;
+        color: var(--text-color);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .status-badge {
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: var(--box-shadow);
+
+        &.today {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        &.past {
+          background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-color-dark) 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        &.upcoming {
+          background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color-dark) 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        &:hover {
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+      }
+    }
+
+    .appointment-info {
+      margin-bottom: 2.5rem;
+      padding: 0 2rem;
+
+      pelu-info-item {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: var(--secondary-color-light);
+
+        &:hover {
+          background: var(--secondary-color);
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .appointment-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      padding: 2rem;
+      border-top: 2px solid var(--border-color);
+      background: #fafafa;
+
+      .btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: var(--box-shadow);
+        min-width: 140px;
+        justify-content: center;
+
+        &.btn-primary {
+          background: var(--gradient-primary);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+            box-shadow: 0 6px 20px rgba(58, 90, 138, 0.3);
+          }
+        }
+
+        &.btn-secondary {
+          background: white;
+          color: var(--text-color);
+          border: 2px solid var(--border-color);
+
+          &:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color-lighter);
+            box-shadow: var(--box-shadow-hover);
+          }
+        }
+
+        &.btn-danger {
+          background: var(--gradient-error);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .appointment-detail {
+    .detail-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 2rem;
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .appointment-content {
+      .appointment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1.5rem 1rem 1rem 1rem;
+
+        .client-name {
+          font-size: 1.8rem;
+        }
+
+        .status-badge {
+          align-self: flex-start;
+        }
+      }
+
+      .appointment-info {
+        padding: 0 1rem;
+        margin-bottom: 2rem;
+
+        pelu-info-item {
+          margin-bottom: 1rem;
+        }
+      }
+
+      .appointment-actions {
+        flex-direction: column;
+        padding: 1.5rem 1rem;
+
+        .btn {
+          width: 100%;
+          min-width: auto;
+        }
+      }
+    }
+  }
+
+  .loading-container,
+  .not-found-container {
+    margin: 1rem 0;
+    min-height: 300px;
+    padding: 2rem 1rem;
+
+    .loading-spinner {
+      font-size: 3rem;
+    }
+
+    .not-found-icon {
+      font-size: 4rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .appointment-detail {
+    .detail-header {
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    .appointment-content {
+      .appointment-header {
+        .client-name {
+          font-size: 1.6rem;
+        }
+      }
+    }
+  }
+}
+
+.perfil-container {
+  height: 100vh;
+  background: linear-gradient(135deg, #f0f6ff 0%, #e3ecfa 100%);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0;
+  }
+}
+
+.perfil-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 800px;
+  max-height: 95vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Section */
+.perfil-header {
+  background: var(--gradient-header-detail);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-color);
+  position: relative;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23E8F0FE" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
+  }
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+  }
+}
+
+.avatar-section {
+  position: relative;
+  z-index: 1;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-text {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.user-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+}
+
+.user-email {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  margin: 0;
+  color: var(--text-color-light);
+}
+
+/* Loading Section */
+.loading-section {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1976d2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Content Section */
+.perfil-content {
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.info-section {
+  margin-bottom: 2rem;
+
+  h2 {
+    color: #1976d2;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.info-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+
+  &:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: #bbdefb;
+  }
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.info-icon {
+  font-size: 1.2rem;
+}
+
+.info-value {
+  color: #1976d2;
+  font-weight: 500;
+  font-size: 1rem;
+  word-break: break-all;
+}
+
+.status-active {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4caf50;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #4caf50;
+  border-radius: 50%;
+}
+
+/* Edit Form Styles */
+.edit-form {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 2rem;
+  border: 2px solid #e3f2fd;
+  margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    color: #495057;
+
+    &:focus {
+      outline: none;
+      border-color: #1976d2;
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    min-width: 120px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+}
+
+/* Actions Section */
+.actions-section {
+  h2 {
+    color: #1976d2;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.primary {
+    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+    }
+  }
+
+  &.secondary {
+    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+    color: #1976d2;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
+    }
+  }
+
+  &.danger {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    }
+  }
+}
+
+.action-icon {
+  font-size: 1.2rem;
+}
+
+/* No User Section */
+.no-user-section {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #666;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+  }
+}
+
+.no-user-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.no-user-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.no-user-content h2 {
+  color: #1976d2;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.no-user-content p {
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+  }
+}
+
+/* CSS Variables - Now using global variables from styles.scss */

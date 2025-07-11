@@ -1,0 +1,624 @@
+/* Booking Popup Styles */
+.booking-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.booking-popup {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+  border-radius: 12px 12px 0 0;
+}
+
+.popup-header h3 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0.25rem;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.popup-body {
+  padding: 1.5rem;
+}
+
+/* Date and Time Selection Styles */
+.datetime-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+  .datetime-selection {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.booking-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.value {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  color: #495057 !important;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-input::placeholder {
+  color: #6c757d;
+  opacity: 1;
+}
+
+.form-input:not(:placeholder-shown) {
+  color: #495057 !important;
+}
+
+/* Calendar and Time Dropdown Styles */
+.date-select,
+.time-select {
+  width: 100%;
+}
+
+/* DatePicker styles */
+.date-select ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
+.date-select ::ng-deep .p-datepicker .p-inputtext {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #dbe2fb;
+  border-radius: 8px;
+  background-color: white;
+  color: #222;
+  font-size: 1rem;
+  height: 48px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.date-select ::ng-deep .p-datepicker .p-inputtext:focus {
+  outline: none;
+  border-color: #306dcd;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1);
+}
+
+.date-select ::ng-deep .p-datepicker .p-inputtext:hover {
+  border-color: #306dcd;
+}
+
+.date-select ::ng-deep .p-datepicker .p-button {
+  background-color: white;
+  border: 2px solid #dbe2fb;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  color: #306dcd;
+  height: 48px;
+  width: 48px;
+  transition: all 0.2s ease;
+}
+
+.date-select ::ng-deep .p-datepicker .p-button:hover {
+  background-color: #f8f9fa;
+  border-color: #306dcd;
+  color: #306dcd;
+}
+
+/* Time dropdown styles */
+.time-select ::ng-deep .p-dropdown {
+  width: 100%;
+  background-color: white;
+  border: 2px solid #dbe2fb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.time-select ::ng-deep .p-dropdown:hover {
+  border-color: #306dcd;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1);
+}
+
+.time-select ::ng-deep .p-dropdown:focus-within {
+  border-color: #306dcd;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15);
+  outline: none;
+}
+
+.time-select ::ng-deep .p-dropdown-trigger {
+  background-color: white;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #306dcd;
+}
+
+.time-select ::ng-deep .p-dropdown-label {
+  background-color: white;
+  color: #222;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.time-select ::ng-deep .p-dropdown-label.p-placeholder {
+  color: #6c757d;
+}
+
+.time-select ::ng-deep .p-dropdown-panel {
+  background-color: white;
+  border: 1px solid #dbe2fb;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.time-select ::ng-deep .p-dropdown-items-wrapper {
+  background-color: white;
+  padding: 0.5rem 0;
+}
+
+.time-select ::ng-deep .p-dropdown-item {
+  background-color: white;
+  color: #222;
+  padding: 0.75rem 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.time-select ::ng-deep .p-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.time-select ::ng-deep .p-dropdown-item.p-highlight {
+  background-color: #e3f2fd;
+  color: #222;
+}
+
+/* Service Dropdown Styles - Enhanced for better appearance */
+.service-select {
+  width: 100%;
+}
+
+/* Enhanced dropdown button styling */
+.service-select ::ng-deep .p-dropdown {
+  background-color: white;
+  border: 2px solid #dbe2fb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.service-select ::ng-deep .p-dropdown:hover {
+  border-color: #306dcd !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
+}
+
+.service-select ::ng-deep .p-dropdown:focus-within {
+  border-color: #306dcd !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
+  outline: none !important;
+}
+
+.service-select ::ng-deep .p-dropdown-trigger {
+  background-color: white !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.service-select ::ng-deep .p-dropdown-label {
+  background-color: white !important;
+  color: #222 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  backdrop-filter: none !important;
+}
+
+.service-select ::ng-deep .p-dropdown-label.p-placeholder {
+  color: #6c757d !important;
+}
+
+/* Enhanced dropdown panel styling */
+.service-select ::ng-deep .p-dropdown-panel {
+  background-color: white !important;
+  border: 1px solid #dbe2fb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+  margin-top: 4px !important;
+  overflow: hidden !important;
+  z-index: 1000 !important;
+}
+
+.service-select ::ng-deep .p-dropdown-items-wrapper {
+  background-color: white !important;
+  padding: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.service-select ::ng-deep .p-dropdown-item {
+  background-color: white !important;
+  color: #222 !important;
+  padding: 0 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  backdrop-filter: none !important;
+  margin: 0 !important;
+}
+
+.service-select ::ng-deep .p-dropdown-item:hover {
+  background-color: transparent !important;
+}
+
+.service-select ::ng-deep .p-dropdown-item.p-highlight {
+  background-color: transparent !important;
+  color: #222 !important;
+}
+
+/* Clear button styling */
+.service-select ::ng-deep .p-dropdown-clear-icon {
+  color: #6c757d !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0.25rem !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  position: absolute !important;
+  right: 0.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.service-select ::ng-deep .p-dropdown-clear-icon:hover {
+  color: #dc3545 !important;
+  background-color: #f8f9fa !important;
+  transform: scale(1.1) !important;
+}
+
+.service-select ::ng-deep .p-dropdown-clear-icon:active {
+  transform: scale(0.95) !important;
+}
+
+/* Service option styles for the template */
+.service-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  gap: 0.75rem;
+  background-color: white !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.service-option:last-child {
+  border-bottom: none !important;
+}
+
+.service-option:hover {
+  background-color: #f8f9fa !important;
+}
+
+.service-option.selected {
+  padding: 0.4rem 1rem;
+  background-color: white !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.service-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+  text-align: center;
+  background-color: transparent !important;
+}
+
+.service-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.15rem;
+}
+
+.service-name {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.service-description {
+  color: #6c757d;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.service-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.15rem;
+}
+
+.service-duration {
+  color: #6c757d;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.service-popular {
+  background-color: #fff3cd;
+  color: #856404;
+  font-size: 0.65rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 10px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.service-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  min-width: 60px;
+  gap: 0.1rem;
+}
+
+.service-price {
+  font-weight: 600;
+  color: #306dcd;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+/* Service Summary Styles */
+.service-summary {
+  background: #e3f2fd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #306dcd;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-row.total {
+  border-top: 1px solid #bbdefb;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.summary-row.total .value {
+  color: #306dcd;
+  font-size: 1rem;
+}
+
+.popup-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Button Styles */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+  border-color: var(--primary-color-dark);
+}
+
+.btn-secondary {
+  background: #e3f2fd;
+  color: #306dcd;
+  border-color: #e3f2fd;
+}
+
+.btn-secondary:hover {
+  background: #c4d3fa;
+  border-color: #c4d3fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .booking-popup {
+    width: 95%;
+    max-width: none;
+  }
+
+  .popup-header,
+  .popup-body,
+  .popup-footer {
+    padding: 1rem;
+  }
+
+  .popup-footer {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .service-option {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .service-details {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* Estil igual que .input de filters-inline */
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  color: #1f2937;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}

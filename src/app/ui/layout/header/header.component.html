@@ -1,0 +1,40 @@
+<header class="header">
+  <div class="header-content">
+    <div class="logo-section" (click)="navigateToHome($event)">
+      <pelu-avatar [data]="avatarData()" size="medium" class="logo-avatar" (click)="navigateToProfile($event)"></pelu-avatar>
+    </div>
+    <nav class="nav">
+      <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        {{ 'NAVIGATION.HOME' | translate }}
+      </a>
+      <a routerLink="/services" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.SERVICES' | translate }}
+      </a>
+      <a routerLink="/booking" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.BOOKING' | translate }}
+      </a>
+      <a routerLink="/appointments" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.APPOINTMENTS' | translate }}
+      </a>
+      @if (hasStylistAccess()) {
+        <a routerLink="/stylist/dashboard" class="nav-link" routerLinkActive="active">
+          {{ 'NAVIGATION.STYLIST_DASHBOARD' | translate }}
+        </a>
+      }
+      <a routerLink="/perfil" class="nav-link" routerLinkActive="active">
+        {{ 'NAVIGATION.PROFILE' | translate }}
+      </a>
+    </nav>
+    <div class="header-actions">
+      <pelu-language-selector class="language-selector" />
+      <button (click)="onLogout()" class="logout-btn" [disabled]="isLoggingOut()">
+        @if (isLoggingOut()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        } @else {
+          <i class="pi pi-sign-out"></i>
+        }
+        {{ 'COMMON.LOGOUT' | translate }}
+      </button>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,801 @@
+// Detail View Component - Full width and height layout
+.detail-view-container {
+  width: 100%;
+  height: calc(100vh - 70px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+}
+
+// Loading and Not Found States
+.loading-section,
+.not-found-section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.not-found-content {
+  max-width: 400px;
+}
+
+.not-found-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.not-found-content h2 {
+  color: #1a202c;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.not-found-content p {
+  color: #4a5568;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.back-btn {
+  background: var(--gradient-primary);
+  color: var(--text-color-white);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(46, 90, 158, 0.3);
+  }
+}
+
+// Main Content Layout
+.detail-view-content {
+  width: 100%;
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Header Section
+.header-section {
+  flex-shrink: 0;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+// Profile Header
+.profile-header {
+  background: var(--gradient-header-lila);
+  color: var(--primary-color-darkest);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23E8F0FE" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
+  }
+
+  .avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+
+    .profile-avatar {
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+
+      .user-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        letter-spacing: -0.025em;
+        color: var(--text-color);
+      }
+
+      .user-email {
+        font-size: 1.2rem;
+        opacity: 0.8;
+        margin: 0;
+        font-weight: 400;
+        color: var(--text-color-light);
+      }
+    }
+  }
+}
+
+// Appointment Header
+.appointment-header {
+  color: var(--text-color);
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23E8F0FE" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23E8F0FE" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.2;
+  }
+
+  .appointment-info {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+
+    .appointment-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      letter-spacing: -0.025em;
+      color: var(--primary-color-darkest);
+    }
+
+    .appointment-subtitle {
+      font-size: 1.2rem;
+      opacity: 0.8;
+      margin: 0;
+      font-weight: 400;
+      color: var(--text-color-light);
+    }
+  }
+
+  .status-section {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+
+    /* Status badge styles now handled by AppointmentStatusBadgeComponent */
+  }
+}
+
+// Content Grid
+.content-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 0;
+  overflow: hidden;
+  background: white;
+}
+
+// Info Column
+.info-column {
+  padding: 1.5rem;
+  overflow-y: auto;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+
+  .info-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0;
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 1.5rem;
+      border-bottom: 3px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+      }
+    }
+  }
+
+  .status-section-mobile {
+    display: none;
+  }
+
+  .info-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  // Edit Form
+  .edit-section {
+    .edit-form {
+      .form-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+        .form-group {
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+
+          label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+          }
+
+          .form-input,
+          .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+
+            &:focus {
+              outline: none;
+              border-color: #667eea;
+              box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+          }
+
+          .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+          }
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+      }
+    }
+  }
+}
+
+// Actions Column
+.actions-column {
+  background: white;
+  border-left: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  .actions-section {
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 1rem;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+      }
+    }
+  }
+
+  .actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+  }
+}
+
+// Action Buttons
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  &.primary {
+    background: var(--gradient-primary);
+    color: var(--text-color-white);
+
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+    }
+  }
+
+  &.secondary {
+    background: var(--gradient-secondary);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+
+    &:hover {
+      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+    }
+  }
+
+  &.danger {
+    background: var(--gradient-error);
+    color: var(--text-color-white);
+
+    &:hover {
+      background: linear-gradient(135deg, #dc2626 0%, var(--error-color) 100%);
+    }
+  }
+
+  .action-icon {
+    font-size: 1.2rem;
+  }
+}
+
+/* Status badge mobile styles now handled by AppointmentStatusBadgeComponent */
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .content-grid {
+    grid-template-columns: 1fr 300px;
+  }
+
+  .profile-header .avatar-section {
+    gap: 1.5rem;
+
+    .user-name {
+      font-size: 2rem;
+    }
+  }
+
+  .appointment-header {
+    .appointment-title {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .profile-header,
+  .appointment-header {
+    padding: 1rem;
+
+    .user-name,
+    .appointment-title {
+      font-size: 1.75rem;
+    }
+
+    .user-email,
+    .appointment-subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .info-column,
+  .actions-column {
+    padding: 1rem;
+  }
+
+  .info-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .actions-grid {
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .info-column {
+    padding: 1rem;
+    order: 1;
+
+    .info-section {
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .status-section-mobile {
+      display: block;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .edit-section .edit-form .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .actions-column {
+    order: 2;
+    padding: 1rem;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+
+    .actions-section h2 {
+      font-size: 1.5rem;
+    }
+
+    .actions-grid {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+  }
+
+  .profile-header {
+    padding: 1.5rem;
+
+    .avatar-section {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+
+      .user-name {
+        font-size: 1.75rem;
+      }
+
+      .user-email {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .appointment-header {
+    padding: 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+
+    .appointment-title {
+      font-size: 1.75rem;
+    }
+
+    .appointment-subtitle {
+      font-size: 1rem;
+    }
+
+    .status-section {
+      .status-badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+  }
+
+  .action-btn {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-header {
+    padding: 1rem;
+
+    .avatar-section .user-name {
+      font-size: 1.5rem;
+    }
+  }
+
+  .appointment-header {
+    padding: 1rem;
+
+    .appointment-title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .info-column {
+    padding: 0.75rem;
+
+    .info-section {
+      padding: 1rem;
+
+      h2 {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .actions-column {
+    padding: 0.75rem;
+
+    .actions-section h2 {
+      font-size: 1.25rem;
+    }
+
+    .actions-grid {
+      flex-direction: column;
+    }
+  }
+
+  .action-btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+// Notes Editing Styles
+.edit-notes-form {
+  .notes-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    .note-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background-color: white;
+      color: var(--text-color);
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      &::placeholder {
+        color: var(--text-color-light);
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color-light);
+  }
+}
+
+// Section Header Styles
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--primary-color-light);
+  padding-bottom: 0.5rem;
+
+  h2 {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .edit-section-btn {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .edit-icon {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Toast Styles
+.p-toast-message-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.p-toast-message-icon {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+}
+
+.p-toast-message-text {
+  flex: 1;
+
+  .p-toast-summary {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .p-toast-detail {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+}
+
+.p-toast-message-actions {
+  margin-top: 0.75rem;
+
+  .p-toast-message-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.p-toast-icon-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}

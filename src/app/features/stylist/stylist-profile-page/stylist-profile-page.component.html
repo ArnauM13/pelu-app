@@ -1,0 +1,124 @@
+<div class="stylist-profile-page">
+  <div class="profile-header">
+    <button class="back-button" (click)="goBack()">
+      {{ 'STYLIST.PROFILE.BACK_TO_DASHBOARD' | translate }}
+    </button>
+    <h1>{{ 'STYLIST.PROFILE.TITLE' | translate }}</h1>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-card">
+      <div class="card-header">
+        <h2>{{ 'STYLIST.PROFILE.PERSONAL_INFO' | translate }}</h2>
+        <button
+          class="edit-button"
+          (click)="toggleEdit()"
+          [class.editing]="isEditing">
+          {{ isEditing ? ('STYLIST.PROFILE.CANCEL' | translate) : ('STYLIST.PROFILE.EDIT' | translate) }}
+        </button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-group">
+          <label for="displayName">{{ 'STYLIST.PROFILE.FULL_NAME' | translate }}</label>
+          <input
+            type="text"
+            id="displayName"
+            [(ngModel)]="profileData.displayName"
+            [disabled]="!isEditing"
+            [placeholder]="'STYLIST.PROFILE.FULL_NAME_PLACEHOLDER' | translate">
+        </div>
+
+        <div class="form-group">
+          <label for="businessName">{{ 'STYLIST.PROFILE.BUSINESS_NAME' | translate }}</label>
+          <input
+            type="text"
+            id="businessName"
+            [(ngModel)]="profileData.businessName"
+            [disabled]="!isEditing"
+            [placeholder]="'STYLIST.PROFILE.BUSINESS_NAME_PLACEHOLDER' | translate">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">{{ 'STYLIST.PROFILE.PHONE' | translate }}</label>
+          <input
+            type="tel"
+            id="phone"
+            [(ngModel)]="profileData.phone"
+            [disabled]="!isEditing"
+            [placeholder]="'STYLIST.PROFILE.PHONE_PLACEHOLDER' | translate">
+        </div>
+
+        <div class="form-group">
+          <label for="address">{{ 'STYLIST.PROFILE.ADDRESS' | translate }}</label>
+          <textarea
+            id="address"
+            [(ngModel)]="profileData.address"
+            [disabled]="!isEditing"
+            [placeholder]="'STYLIST.PROFILE.ADDRESS_PLACEHOLDER' | translate"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'STYLIST.PROFILE.SPECIALTIES' | translate }}</label>
+          <div class="specialties-section">
+            <div class="specialties-list" *ngIf="profileData.specialties.length > 0">
+              <span
+                class="specialty-tag"
+                *ngFor="let specialty of profileData.specialties; let i = index">
+                {{ specialty }}
+                <button
+                  *ngIf="isEditing"
+                  class="remove-specialty"
+                  (click)="removeSpecialty(i)">
+                  ×
+                </button>
+              </span>
+            </div>
+
+            <div class="add-specialty" *ngIf="isEditing">
+              <input
+                type="text"
+                [(ngModel)]="profileData.newSpecialty"
+                [placeholder]="'STYLIST.PROFILE.NEW_SPECIALTY_PLACEHOLDER' | translate"
+                (keyup.enter)="addSpecialty()">
+              <button
+                class="add-button"
+                (click)="addSpecialty()"
+                [disabled]="!profileData.newSpecialty.trim()">
+                {{ 'STYLIST.PROFILE.ADD' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions" *ngIf="isEditing">
+          <button
+            class="save-button"
+            (click)="saveProfile()"
+            [disabled]="isLoading">
+            {{ isLoading ? ('STYLIST.PROFILE.SAVING' | translate) : ('STYLIST.PROFILE.SAVE_CHANGES' | translate) }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>{{ 'STYLIST.PROFILE.ACCOUNT_INFO' | translate }}</h3>
+      <div class="info-item">
+        <label>{{ 'STYLIST.PROFILE.EMAIL' | translate }}:</label>
+        <span>{{ userRole()?.email }}</span>
+      </div>
+      <div class="info-item">
+        <label>{{ 'STYLIST.PROFILE.ROLE' | translate }}:</label>
+        <span class="role-badge" [class.admin]="userRole()?.role === 'admin'" [class.stylist]="userRole()?.role === 'stylist'">
+          {{ userRole()?.role === 'admin' ? ('STYLIST.PROFILE.ROLES.ADMIN' | translate) : (userRole()?.role === 'stylist' ? ('STYLIST.PROFILE.ROLES.STYLIST' | translate) : ('STYLIST.PROFILE.ROLES.USER' | translate)) }}
+        </span>
+      </div>
+      <div class="info-item">
+        <label>{{ 'STYLIST.PROFILE.MEMBER_SINCE' | translate }}:</label>
+        <span>{{ userRole()?.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+.floating-button {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  outline: none;
+  pointer-events: auto;
+  user-select: none;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+// Sizes
+.floating-button--small {
+  width: 36px;
+  height: 36px;
+  font-size: 0.9rem;
+}
+
+.floating-button--medium {
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+}
+
+.floating-button--large {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+}
+
+// Default size (medium)
+.floating-button:not(.floating-button--small):not(.floating-button--medium):not(.floating-button--large) {
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+}
+
+// Variants
+.floating-button--primary {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--primary-color);
+}
+
+.floating-button--secondary {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.floating-button--success {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--success-color);
+}
+
+.floating-button--danger {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--error-color);
+}
+
+// Active states
+.floating-button--active,
+.floating-button:focus-visible {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color-dark);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.floating-button--success.floating-button--active,
+.floating-button--success:focus-visible {
+  background: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.floating-button--danger.floating-button--active,
+.floating-button--danger:focus-visible {
+  background: var(--error-color);
+  color: white;
+  border-color: var(--error-color);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+// Hover states
+.floating-button:hover {
+  background: var(--primary-color-lighter);
+  color: var(--primary-color-dark);
+  border-color: var(--primary-color);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.floating-button--success:hover {
+  background: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+}
+
+.floating-button--danger:hover {
+  background: var(--error-color);
+  color: white;
+  border-color: var(--error-color);
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .floating-button:not(.floating-button--small) {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-button:not(.floating-button--small) {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+}
