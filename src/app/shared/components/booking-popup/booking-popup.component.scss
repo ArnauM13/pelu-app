@@ -149,6 +149,73 @@
   color: #495057 !important;
 }
 
+/* Read-only field styles */
+.readonly-field {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #f8f9fa;
+  color: #495057;
+  font-family: inherit;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.service-display {
+  padding: 1rem;
+  background: white;
+  border: 1px solid #dee2e6;
+}
+
+.service-info-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.service-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #306dcd;
+}
+
+.service-details {
+  flex: 1;
+}
+
+.service-name {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.service-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.service-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.service-price {
+  font-weight: 600;
+  color: #306dcd;
+}
+
 /* Calendar and Time Dropdown Styles */
 .date-select,
 .time-select {

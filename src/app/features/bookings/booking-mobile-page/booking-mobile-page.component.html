@@ -1,0 +1,226 @@
+<p-toast key="booking-mobile-toast" position="top-right" [baseZIndex]="9999" (onClick)="onToastClick($event)">
+  <ng-template let-message pTemplate="message">
+    <div class="p-toast-message-content">
+      <div class="p-toast-message-icon">
+        <i [class]="message.severity === 'success' ? 'pi pi-check' : message.severity === 'error' ? 'pi pi-times' : message.severity === 'warn' ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"></i>
+      </div>
+      <div class="p-toast-message-text">
+        <span class="p-toast-summary">{{ message.summary }}</span>
+        <div class="p-toast-detail">{{ message.detail }}</div>
+        @if (message.data?.showViewButton && message.data?.appointmentId) {
+        <div class="p-toast-message-actions">
+          <button
+            class="p-toast-message-btn p-toast-message-btn-primary"
+            (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
+            👁️ Veure detall
+          </button>
+        </div>
+        }
+      </div>
+      <button class="p-toast-icon-close" (click)="messageService.clear('booking-mobile-toast'); $event.stopPropagation()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </ng-template>
+</p-toast>
+
+<div class="mobile-booking-container">
+  <!-- Desktop version link -->
+  <div class="desktop-version-link">
+    <button class="desktop-btn" (click)="goToDesktopVersion()">
+      <i class="pi pi-desktop"></i>
+      {{ 'COMMON.DESKTOP_VERSION' | translate }}
+    </button>
+  </div>
+
+    <!-- Header with navigation -->
+  <div class="booking-header">
+    <h1>{{ 'COMMON.BOOK_APPOINTMENT' | translate }}</h1>
+
+    <!-- Week navigation -->
+    <div class="week-navigation">
+      <button class="nav-btn" (click)="previousWeek()">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <div class="current-week">
+        <span class="week-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
+        <span class="week-date">{{ formatDay(weekDays()[0]) }} - {{ formatDay(weekDays()[6]) }}</span>
+      </div>
+
+      <button class="nav-btn" (click)="nextWeek()">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Day selection -->
+    <pelu-card class="day-selection-card">
+      <h3>{{ 'COMMON.SELECT_DAY' | translate }}</h3>
+      <div class="days-grid">
+        @for (day of weekDays(); track day) {
+          <div
+            class="day-item"
+            [class.today]="isToday(day)"
+            [class.selected]="isSelected(day)"
+            [class.business-day]="isBusinessDay(day)"
+            [class.weekend]="!isBusinessDay(day)"
+            [class.past-date]="isPastDate(day)"
+            [class.selectable]="canSelectDate(day)"
+            (click)="canSelectDate(day) ? selectDate(day) : null">
+            <div class="day-name">{{ formatDayShort(day) }}</div>
+            <div class="day-number">{{ day.getDate() }}</div>
+            @if (isToday(day)) {
+              <div class="today-indicator">{{ 'COMMON.TODAY' | translate }}</div>
+            }
+          </div>
+        }
+      </div>
+    </pelu-card>
+
+    <button class="today-btn" (click)="today()">
+      {{ 'COMMON.TODAY' | translate }}
+    </button>
+  </div>
+
+  <!-- Service selection -->
+  <pelu-card class="service-selection-card">
+    <h3>{{ 'COMMON.SELECT_SERVICE' | translate }}</h3>
+    <div class="service-grid">
+      @for (service of availableServices(); track service.id) {
+        <div
+          class="service-item"
+          [class.selected]="selectedService()?.id === service.id"
+          (click)="selectService(service)">
+          <div class="service-icon">{{ service.icon }}</div>
+          <div class="service-info">
+            <div class="service-name">{{ service.name | translate }}</div>
+            <div class="service-duration">{{ service.duration }} min</div>
+            <div class="service-price">{{ service.price }}€</div>
+          </div>
+        </div>
+      }
+    </div>
+  </pelu-card>
+
+    <!-- Time slots for selected day -->
+  @if (selectedDaySlots().length > 0) {
+    <pelu-card class="time-slots-card">
+      <h3>{{ 'COMMON.AVAILABLE_TIMES' | translate }} - {{ formatDay(selectedDate()) }}</h3>
+
+      @if (!selectedService()) {
+        <div class="no-service-selected">
+          <p>{{ 'COMMON.PLEASE_SELECT_SERVICE' | translate }}</p>
+        </div>
+      } @else {
+        <!-- Morning slots -->
+        @if (morningSlots().length > 0) {
+          <div class="time-section">
+            <h4 class="time-section-title">{{ 'COMMON.MORNING' | translate }}</h4>
+            <div class="time-slots-grid">
+              @for (slot of morningSlots(); track slot.time) {
+                <div
+                  class="time-slot"
+                  [class.available]="slot.available"
+                  [class.occupied]="!slot.available && !slot.isPastTime"
+                  [class.past-time]="slot.isPastTime"
+                  (click)="slot.available ? selectTimeSlot(slot) : null">
+
+                  @if (slot.isPastTime) {
+                    <div class="slot-content past">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.PAST_TIME' | translate }}</div>
+                    </div>
+                  } @else if (slot.appointment) {
+                    <div class="slot-content occupied">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                      <div class="client">{{ slot.appointment.nom }}</div>
+                    </div>
+                  } @else if (slot.available) {
+                    <div class="slot-content available">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.AVAILABLE' | translate }}</div>
+                    </div>
+                  } @else {
+                    <div class="slot-content occupied">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Afternoon slots -->
+        @if (afternoonSlots().length > 0) {
+          <div class="time-section">
+            <h4 class="time-section-title">{{ 'COMMON.AFTERNOON' | translate }}</h4>
+            <div class="time-slots-grid">
+              @for (slot of afternoonSlots(); track slot.time) {
+                <div
+                  class="time-slot"
+                  [class.available]="slot.available"
+                  [class.occupied]="!slot.available && !slot.isPastTime"
+                  [class.past-time]="slot.isPastTime"
+                  (click)="slot.available ? selectTimeSlot(slot) : null">
+
+                  @if (slot.isPastTime) {
+                    <div class="slot-content past">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.PAST_TIME' | translate }}</div>
+                    </div>
+                  } @else if (slot.appointment) {
+                    <div class="slot-content occupied">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                      <div class="client">{{ slot.appointment.nom }}</div>
+                    </div>
+                  } @else if (slot.available) {
+                    <div class="slot-content available">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.AVAILABLE' | translate }}</div>
+                    </div>
+                  } @else {
+                    <div class="slot-content occupied">
+                      <div class="time">{{ slot.time }}</div>
+                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </pelu-card>
+  }
+
+  <!-- Legend -->
+  <pelu-card class="legend-card">
+    <h4>{{ 'COMMON.LEGEND' | translate }}</h4>
+    <div class="legend-items">
+      <div class="legend-item">
+        <div class="legend-color available"></div>
+        <span>{{ 'COMMON.AVAILABLE' | translate }}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color occupied"></div>
+        <span>{{ 'COMMON.OCCUPIED' | translate }}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color past-time"></div>
+        <span>{{ 'COMMON.PAST_TIME' | translate }}</span>
+      </div>
+    </div>
+  </pelu-card>
+</div>
+
+<!-- Booking Confirmation Popup -->
+<pelu-booking-popup
+  [open]="showBookingPopup()"
+  [bookingDetails]="bookingDetails()"
+  (confirmed)="onBookingConfirmed($event)"
+  (cancelled)="onBookingCancelled()">
+</pelu-booking-popup>

@@ -105,7 +105,21 @@
     "ALL_RIGHTS_RESERVED": "Tots els drets reservats.",
     "MISSING_FIELDS": "Falten camps obligatoris",
     "SEARCH_BY_NAME": "Buscar per nom...",
-    "CLEAR_FILTERS_BUTTON": "🗑️ Netejar filtres"
+    "CLEAR_FILTERS_BUTTON": "🗑️ Netejar filtres",
+    "BOOK_APPOINTMENT": "Reservar Cita",
+    "WEEK_OF": "Setmana del",
+    "SELECT_DAY": "Selecciona un dia",
+    "AVAILABLE_TIMES": "Horaris disponibles",
+    "PLEASE_SELECT_SERVICE": "Si us plau, selecciona un servei primer",
+    "AVAILABLE": "Disponible",
+    "OCCUPIED": "Ocupat",
+    "LUNCH_BREAK": "Pausa per dinar",
+    "PAST_TIME": "Temps passat",
+    "MORNING": "Matí",
+    "AFTERNOON": "Tarda",
+    "LEGEND": "Llegenda",
+    "MOBILE_VERSION": "Versió Mobile",
+    "DESKTOP_VERSION": "Versió Desktop"
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",

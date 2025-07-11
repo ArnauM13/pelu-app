@@ -11,93 +11,40 @@
       <div class="datetime-selection">
         <div class="form-group">
           <label>{{ 'COMMON.DATE' | translate }}:</label>
-          <div class="readonly-field">{{ selectedDate() ? formatDateInput(selectedDate()) : '-' }}</div>
+          <div class="readonly-field">{{ formatDate(bookingDetails().date) }}</div>
         </div>
         <div class="form-group">
           <label>{{ 'COMMON.TIME' | translate }}:</label>
-          <div class="readonly-field">{{ selectedTime() || '-' }}</div>
+          <div class="readonly-field">{{ bookingDetails().time }}</div>
         </div>
       </div>
 
-      <!-- Service Selection -->
+      <!-- Service Information (Read-only) -->
       <div class="form-group">
-        <label for="serviceSelect">{{ 'COMMON.SERVICE' | translate }}:</label>
-        <p-select
-          id="serviceSelect"
-          [options]="services()"
-          [(ngModel)]="selectedService"
-          (onChange)="onServiceChange($event.value)"
-          optionLabel="name"
-          [placeholder]="'COMMON.SELECT_SERVICE' | translate"
-          [showClear]="true"
-          class="service-select">
-
-          <!-- Template for selected item -->
-          <ng-template pTemplate="selectedItem" let-selectedOption>
-            <div class="service-option selected">
-              <div class="service-icon">
-                {{ selectedOption.icon }}
-              </div>
-              <div class="service-info">
-                <span class="service-name">{{ selectedOption.name }}</span>
-                <span class="service-price">{{ formatPrice(selectedOption.price) }}</span>
-              </div>
-            </div>
-          </ng-template>
-
-          <!-- Template for dropdown items -->
-          <ng-template let-service pTemplate="item">
-            <div class="service-option">
-              <div class="service-icon">
-                {{ service.icon }}
-              </div>
-              <div class="service-info">
-                <span class="service-name">{{ service.name }}</span>
-                <span class="service-description">{{ service.description }}</span>
+        <label>{{ 'COMMON.SERVICE' | translate }}:</label>
+        <div class="readonly-field service-display">
+          @if (bookingDetails().service) {
+            <div class="service-info-display">
+              <div class="service-icon">{{ bookingDetails().service?.icon }}</div>
+              <div class="service-details">
+                <div class="service-name">{{ bookingDetails().service?.name }}</div>
                 <div class="service-meta">
-                  <span class="service-duration">⏱️ {{ formatDuration(service.duration) }}</span>
-                  @if (service.popular) {
-                    <span class="service-popular">🔥 Popular</span>
-                  }
+                  <span class="service-duration">{{ formatDuration(bookingDetails().service?.duration || 0) }}</span>
+                  <span class="service-price">{{ formatPrice(bookingDetails().service?.price || 0) }}</span>
                 </div>
               </div>
-              <div class="service-details">
-                <span class="service-price">{{ formatPrice(service.price) }}</span>
-              </div>
             </div>
-          </ng-template>
-        </p-select>
+          } @else {
+            <span>-</span>
+          }
+        </div>
       </div>
 
-      <!-- Service Details (when selected) -->
-      @if (selectedService()) {
-      <div class="service-summary">
-        <div class="summary-row">
-          <span class="label">{{ 'COMMON.SERVICE' | translate }}:</span>
-          <span class="value">{{ selectedService()?.name }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="label">{{ 'COMMON.DURATION' | translate }}:</span>
-          <span class="value">{{ formatDuration(totalDuration()) }}</span>
-        </div>
-        <div class="summary-row total">
-          <span class="label">{{ 'COMMON.PRICE' | translate }}:</span>
-          <span class="value">{{ formatPrice(totalPrice()) }}</span>
-        </div>
-      </div>
-      }
+
 
       <div class="form-group">
-        <label for="clientName">{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
-        <input
-          type="text"
-          id="clientName"
-          [value]="bookingDetails().clientName"
-          (input)="onClientNameChange($any($event.target).value)"
-          [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
-          class="form-input"
-          (keyup.enter)="onConfirm()"
-          autofocus>
+        <label>{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
+        <div class="readonly-field">{{ bookingDetails().clientName || '-' }}</div>
       </div>
     </div>
 
