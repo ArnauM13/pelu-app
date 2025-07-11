@@ -29,6 +29,7 @@
     "SELECTED_DAY": "Día seleccionado",
     "AT_TIME": "a las",
     "TODAY": "Hoy",
+    "TOMORROW": "Mañana",
     "PAST": "Pasada",
     "UPCOMING": "Próxima",
     "CLEAR_FILTERS": "Limpiar Filtros",
@@ -119,7 +120,9 @@
     "AFTERNOON": "Tarde",
     "LEGEND": "Leyenda",
     "MOBILE_VERSION": "Versión Mobile",
-    "DESKTOP_VERSION": "Versión Desktop"
+    "DESKTOP_VERSION": "Versión Desktop",
+    "NO_AVAILABLE_DAYS": "No hay días disponibles",
+    "NO_AVAILABLE_DAYS_MESSAGE": "Todos los días de la semana tienen todas las horas ocupadas. Prueba con otra semana."
   },
   "AUTH": {
     "EMAIL": "Correo electrónico",
@@ -245,7 +248,6 @@
   },
   "CALENDAR": {
     "TODAY": "Hoy",
-    "TOMORROW": "Mañana",
     "THIS_WEEK": "Esta semana",
     "NEXT_WEEK": "Próxima semana",
     "THIS_MONTH": "Este mes",

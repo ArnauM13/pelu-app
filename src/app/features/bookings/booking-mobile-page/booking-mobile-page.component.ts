@@ -79,7 +79,18 @@ export class BookingMobilePageComponent {
   readonly weekDays = computed(() => {
     const start = startOfWeek(this.selectedDate(), { weekStartsOn: 1 });
     const end = endOfWeek(this.selectedDate(), { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end });
+    const allDays = eachDayOfInterval({ start, end });
+
+    // Filter out days that have no available time slots
+    return allDays.filter(day => {
+      // Always show past days (they might have appointments to view)
+      if (this.isPastDate(day)) {
+        return true;
+      }
+
+      // Check if the day has any available time slots
+      return this.hasAvailableTimeSlots(day);
+    });
   });
 
   readonly selectedDaySlots = computed(() => {
@@ -340,6 +351,22 @@ export class BookingMobilePageComponent {
     this.selectedDateSignal.set(new Date());
   }
 
+  tomorrow() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.selectedDateSignal.set(tomorrow);
+  }
+
+  getToday(): Date {
+    return new Date();
+  }
+
+  getTomorrow(): Date {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  }
+
   showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
     this.messageService.add({
       severity,
@@ -379,5 +406,10 @@ export class BookingMobilePageComponent {
 
   goToDesktopVersion() {
     this.router.navigate(['/booking']);
+  }
+
+  private hasAvailableTimeSlots(date: Date): boolean {
+    const slots = this.generateTimeSlotsForDay(date);
+    return slots.some(slot => slot.available);
   }
 }

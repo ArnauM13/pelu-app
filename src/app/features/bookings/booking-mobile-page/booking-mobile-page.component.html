@@ -56,30 +56,49 @@
     <!-- Day selection -->
     <pelu-card class="day-selection-card">
       <h3>{{ 'COMMON.SELECT_DAY' | translate }}</h3>
-      <div class="days-grid">
-        @for (day of weekDays(); track day) {
-          <div
-            class="day-item"
-            [class.today]="isToday(day)"
-            [class.selected]="isSelected(day)"
-            [class.business-day]="isBusinessDay(day)"
-            [class.weekend]="!isBusinessDay(day)"
-            [class.past-date]="isPastDate(day)"
-            [class.selectable]="canSelectDate(day)"
-            (click)="canSelectDate(day) ? selectDate(day) : null">
-            <div class="day-name">{{ formatDayShort(day) }}</div>
-            <div class="day-number">{{ day.getDate() }}</div>
-            @if (isToday(day)) {
-              <div class="today-indicator">{{ 'COMMON.TODAY' | translate }}</div>
-            }
-          </div>
-        }
-      </div>
+      @if (weekDays().length === 0) {
+        <div class="no-available-days">
+          <div class="empty-icon">📅</div>
+          <h4>{{ 'COMMON.NO_AVAILABLE_DAYS' | translate }}</h4>
+          <p>{{ 'COMMON.NO_AVAILABLE_DAYS_MESSAGE' | translate }}</p>
+        </div>
+      } @else {
+        <div class="days-grid">
+          @for (day of weekDays(); track day) {
+            <div
+              class="day-item"
+              [class.today]="isToday(day)"
+              [class.selected]="isSelected(day)"
+              [class.business-day]="isBusinessDay(day)"
+              [class.weekend]="!isBusinessDay(day)"
+              [class.past-date]="isPastDate(day)"
+              [class.selectable]="canSelectDate(day)"
+              (click)="canSelectDate(day) ? selectDate(day) : null">
+              <div class="day-name">{{ formatDayShort(day) }}</div>
+              <div class="day-number">{{ day.getDate() }}</div>
+              @if (isToday(day)) {
+                <div class="today-indicator">{{ 'COMMON.TODAY' | translate }}</div>
+              }
+            </div>
+          }
+        </div>
+      }
     </pelu-card>
 
-    <button class="today-btn" (click)="today()">
-      {{ 'COMMON.TODAY' | translate }}
-    </button>
+    <div class="quick-date-buttons">
+            <button
+        class="quick-date-btn today-btn"
+        (click)="today()"
+        [disabled]="!canSelectDate(getToday())">
+        {{ 'COMMON.TODAY' | translate }}
+      </button>
+      <button
+        class="quick-date-btn tomorrow-btn"
+        (click)="tomorrow()"
+        [disabled]="!canSelectDate(getTomorrow())">
+        {{ 'COMMON.TOMORROW' | translate }}
+      </button>
+    </div>
   </div>
 
   <!-- Service selection -->

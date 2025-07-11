@@ -29,6 +29,7 @@
     "SELECTED_DAY": "Dia seleccionat",
     "AT_TIME": "a les",
     "TODAY": "Avui",
+    "TOMORROW": "Demà",
     "PAST": "Passada",
     "UPCOMING": "Pròxima",
     "CLEAR_FILTERS": "Netejar Filtres",
@@ -119,7 +120,9 @@
     "AFTERNOON": "Tarda",
     "LEGEND": "Llegenda",
     "MOBILE_VERSION": "Versió Mobile",
-    "DESKTOP_VERSION": "Versió Desktop"
+    "DESKTOP_VERSION": "Versió Desktop",
+    "NO_AVAILABLE_DAYS": "No hi ha dies disponibles",
+    "NO_AVAILABLE_DAYS_MESSAGE": "Tots els dies de la setmana tenen totes les hores ocupades. Prova amb una altra setmana."
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",
@@ -245,7 +248,6 @@
   },
   "CALENDAR": {
     "TODAY": "Avui",
-    "TOMORROW": "Demà",
     "THIS_WEEK": "Aquesta setmana",
     "THIS_MONTH": "Aquest mes",
     "NEXT_MONTH": "Pròxim mes",

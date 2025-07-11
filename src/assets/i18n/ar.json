@@ -29,6 +29,7 @@
     "SELECTED_DAY": "اليوم المختار",
     "AT_TIME": "في",
     "TODAY": "اليوم",
+    "TOMORROW": "غداً",
     "PAST": "ماضية",
     "UPCOMING": "قادمة",
     "CLEAR_FILTERS": "مسح المرشحات",
@@ -119,7 +120,9 @@
     "AFTERNOON": "مساءً",
     "LEGEND": "المفتاح",
     "MOBILE_VERSION": "النسخة المحمولة",
-    "DESKTOP_VERSION": "النسخة المكتبية"
+    "DESKTOP_VERSION": "النسخة المكتبية",
+    "NO_AVAILABLE_DAYS": "لا توجد أيام متاحة",
+    "NO_AVAILABLE_DAYS_MESSAGE": "جميع أيام الأسبوع مشغولة بالكامل. جرب مع أسبوع آخر."
   },
   "AUTH": {
     "EMAIL": "البريد الإلكتروني",
@@ -235,7 +238,6 @@
   },
   "CALENDAR": {
     "TODAY": "اليوم",
-    "TOMORROW": "غداً",
     "THIS_WEEK": "هذا الأسبوع",
     "NEXT_WEEK": "الأسبوع القادم",
     "THIS_MONTH": "هذا الشهر",
