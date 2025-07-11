@@ -12,6 +12,7 @@ export interface AvatarData {
   selector: 'pelu-avatar',
   standalone: true,
   imports: [CommonModule],
+  styleUrls: ['./avatar.component.scss'],
   template: `
     <div
       class="avatar"
@@ -43,78 +44,7 @@ export interface AvatarData {
         {{ initials() }}
       </div>
     </div>
-  `,
-  styles: [`
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #6366f1;
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
-      border: 2px solid #e5e7eb;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .avatar:hover {
-      transform: scale(1.05);
-      border-color: #d1d5db;
-    }
-
-    .avatar.has-image {
-      background-color: transparent;
-    }
-
-    .avatar-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      border-radius: 50%;
-    }
-
-    .initials {
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      z-index: 1;
-      position: relative;
-    }
-
-    /* Size variants */
-    .avatar.small {
-      width: 32px;
-      height: 32px;
-      font-size: 12px;
-    }
-
-    .avatar.medium {
-      width: 40px;
-      height: 40px;
-      font-size: 14px;
-    }
-
-    .avatar.large {
-      width: 56px;
-      height: 56px;
-      font-size: 18px;
-    }
-
-    .avatar.xlarge {
-      width: 80px;
-      height: 80px;
-      font-size: 24px;
-    }
-  `]
+  `
 })
 export class AvatarComponent implements OnInit, OnDestroy, OnChanges {
   @Input() data: AvatarData = {};

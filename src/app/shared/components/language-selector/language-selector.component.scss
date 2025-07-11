@@ -101,3 +101,43 @@
 :host-context([dir="rtl"]) .language-option {
   text-align: right;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 480px) {
+  .language-button {
+    padding: 0.25rem 0.4rem;
+    min-width: 32px;
+    justify-content: center;
+  }
+
+  .language-button::before {
+    content: attr(data-lang-code);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .language-button .language-name {
+    display: none;
+  }
+
+  .language-button .arrow {
+    display: none;
+  }
+
+  /* Show full language names in dropdown */
+  .dropdown .language-name {
+    display: inline;
+  }
+}
+
+@media (max-width: 360px) {
+  .language-button {
+    padding: 0.2rem 0.3rem;
+    min-width: 28px;
+  }
+
+  .language-button::before {
+    font-size: 0.8rem;
+  }
+}
