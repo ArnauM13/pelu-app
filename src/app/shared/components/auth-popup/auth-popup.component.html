@@ -1,0 +1,71 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2 class="auth-title">{{ config().title }}</h2>
+    <p class="auth-subtitle">{{ config().subtitle }}</p>
+
+    @if (form()) {
+    <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-field">
+        <label class="form-label">{{ 'AUTH.EMAIL' | translate }}</label>
+        <input pInputText type="email" formControlName="email" [placeholder]="'AUTH.EMAIL' | translate" class="form-input" />
+        @if (form()!.get('email')?.invalid && form()!.get('email')?.touched) {
+          <div class="error-message">
+            @if (form()!.get('email')?.errors?.['required']) {
+              {{ 'AUTH.EMAIL_REQUIRED' | translate }}
+            } @else if (form()!.get('email')?.errors?.['email']) {
+              {{ 'AUTH.EMAIL_INVALID' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">{{ 'AUTH.PASSWORD' | translate }}</label>
+        <input pInputText type="password" formControlName="password" [placeholder]="'AUTH.PASSWORD' | translate" class="form-input"
+               (input)="onPasswordChange($event)" />
+        @if (form()!.get('password')?.invalid && form()!.get('password')?.touched) {
+          <div class="error-message">
+            @if (form()!.get('password')?.errors?.['required']) {
+              {{ 'AUTH.PASSWORD_REQUIRED' | translate }}
+            } @else if (form()!.get('password')?.errors?.['minlength']) {
+              {{ 'AUTH.PASSWORD_MIN_LENGTH' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      @if (hasRepeatPassword()) {
+      <div class="form-field">
+        <label class="form-label">{{ 'AUTH.REPEAT_PASSWORD' | translate }}</label>
+        <input pInputText type="password" formControlName="repeatPassword" [placeholder]="'AUTH.PASSWORD' | translate" class="form-input"
+               (input)="onRepeatPasswordChange($event)" />
+        @if (isRepeatPasswordEnabled() && form()!.get('repeatPassword')?.touched) {
+          @if (form()!.get('repeatPassword')?.errors?.['passwordMismatch']) {
+            <div class="error-message">
+              {{ 'AUTH.PASSWORD_MISMATCH' | translate }}
+            </div>
+          } @else if (passwordsMatch()) {
+            <div class="success-message">
+              ✓ {{ 'AUTH.PASSWORDS_MATCH' | translate }}
+            </div>
+          }
+        }
+      </div>
+      }
+
+      <button pButton type="submit" [label]="config().submitButtonText" class="auth-button" [disabled]="form()!.invalid"></button>
+    </form>
+    }
+
+    <div class="divider">
+      <span>{{ 'COMMON.OR' | translate }}</span>
+    </div>
+
+    <button pButton type="button" [label]="config().googleButtonText" icon="pi pi-google"
+            class="google-auth-button" (click)="onGoogleAuth()"></button>
+
+    <div class="auth-link">
+      <p>{{ config().linkText }} <a [routerLink]="config().linkRoute" class="link">{{ config().linkLabel }}</a></p>
+    </div>
+  </div>
+</div>

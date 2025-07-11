@@ -1,0 +1,12 @@
+<div class="info-item">
+  <div class="info-label">
+    <i class="info-icon">{{ data().icon }}</i>
+    {{ data().label | translate }}
+  </div>
+  <div class="info-value" [class]="statusClass()">
+    @if (hasStatus()) {
+      <span class="status-dot"></span>
+    }
+    {{ (data().statusText || data().value) | translate }}
+  </div>
+</div>

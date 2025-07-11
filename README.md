@@ -25,3 +25,36 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Stack front
+
+| Paquet                | Versió Recomanada | Notes                                                                    |
+| --------------------- | ----------------- | ------------------------------------------------------------------------ |
+| `@angular/core`       | `^18.2.0`         | El nucli d'Angular 18 estable                                            |
+| `@angular/cli`        | `^18.2.0`         | Per generar, servir i compilar                                           |
+| `@angular/animations` | `^18.2.0`         | Necessari per components com `Dialog`, `Toast`, etc.                     |
+| `primeng`             | `18`              | Compatible amb Angular 18                                                |
+| `primeicons`          | `^6.1.1`          | Icons per botons, menús, etc.                                            |
+| `primeflex`           | `^3.3.1`          | Utilitats CSS per layout i estil ràpid                                   |
+| `rxjs`                | `^7.8.1`          | Ja ve amb Angular, però assegura’t que és una versió 7.x estable         |
+| `typescript`          | `~5.4.5`          | Compatible amb Angular 18 (Angular 18 no és 100% compatible amb TS 5.5+) |
+
+## Stack back
+
+| Paquet        | Versió Recomanada    | Notes                                      |
+| ------------- | -------------------- | ------------------------------------------ |
+| `node`        | `18.x` LTS           | Estable, compatible amb la majoria de dep. |
+| `express`     | `^4.18.2`            | Framework web lleuger i robust             |
+| `cors`        | `^2.8.5`             | Per habilitar peticions cross-origin       |
+| `body-parser` | `^1.20.2`            | Per parsejar el `req.body` en JSON         |
+| `mongoose`    | `^7.6.1` (opcional)  | Si treballes amb MongoDB                   |
+| `typeorm`     | `^0.3.17` (opcional) | Si fas servir Postgres, MySQL, etc.        |
+
+## Stack test
+
+| Eina       | Ús                                        |
+| ---------- | ----------------------------------------- |
+| `Jest`     | Testing d'unitat (millor que Karma)       |
+| `Cypress`  | Testing e2e si vols testar fluxos sencers |
+| `ESLint`   | Bona pràctica per mantenir el codi net    |
+| `Prettier` | Formatador automàtic                      |

@@ -1,1 +1,1519 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* PrimeNG CSS imports are now handled in primeng.config.ts */
+
+/* Global styles to ensure proper layout */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #1a202c;
+  background-color: #f8fafc;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Ensure proper viewport height calculation */
+#root, app-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure components take full width when needed */
+.perfil-container,
+.detail-page-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: calc(100vh - 70px); /* Account for header height */
+  overflow: hidden;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Global page layout styles to prevent overflow */
+.pelu-appointments-page,
+.pelu-booking-page,
+.pelu-services-page,
+.pelu-landing-page,
+.pelu-perfil-page,
+.pelu-stylist-dashboard-page,
+.pelu-stylist-profile-page {
+  min-height: calc(100vh - 70px); /* Account for header height */
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Container styles to prevent overflow */
+.container {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 1rem;
+}
+
+/* Responsive container adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .pelu-appointments-page,
+  .pelu-booking-page,
+  .pelu-services-page,
+  .pelu-landing-page,
+  .pelu-perfil-page,
+  .pelu-stylist-dashboard-page,
+  .pelu-stylist-profile-page {
+    padding: 0.5rem;
+  }
+}
+
+/* Angular Calendar */
+@import '../node_modules/angular-calendar/css/angular-calendar.css';
+
+/* PrimeNG Overrides to fix transparency issues */
+.p-dropdown {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.p-dropdown:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
+}
+
+.p-dropdown:focus-within {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
+  outline: none !important;
+}
+
+.p-dropdown .p-dropdown-trigger {
+  background-color: white !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.p-dropdown .p-dropdown-label {
+  background-color: white !important;
+  color: var(--text-color) !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.p-dropdown .p-dropdown-label.p-placeholder {
+  color: var(--text-color-light) !important;
+}
+
+/* Dropdown panel styles */
+.p-dropdown-panel {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+  margin-top: 4px !important;
+  overflow: hidden !important;
+  z-index: 1000 !important;
+}
+
+.p-dropdown-items-wrapper {
+  background-color: white !important;
+  padding: 0.5rem 0 !important;
+}
+
+.p-dropdown-item {
+  background-color: white !important;
+  color: var(--text-color) !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.p-dropdown-item:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.p-dropdown-item.p-highlight {
+  background-color: var(--primary-color-lighter) !important;
+  color: var(--text-color) !important;
+}
+
+/* Filter input styles */
+.p-dropdown-filter {
+  width: 100% !important;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  background-color: white !important;
+  color: var(--text-color) !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+.p-dropdown-filter:focus {
+  outline: none !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
+}
+
+.p-dropdown-filter:hover {
+  border-color: var(--primary-color) !important;
+}
+
+.p-dropdown-filter::placeholder {
+  color: var(--text-color-light) !important;
+  opacity: 1 !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+}
+
+/* Search icon styles - positioned on the left */
+.p-dropdown-filter-icon {
+  position: absolute !important;
+  left: 0.75rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: var(--text-color-light) !important;
+  font-size: 1rem !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+/* Clear button styles */
+.p-dropdown-clear-icon {
+  color: var(--text-color-light) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0.25rem !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  position: absolute !important;
+  right: 0.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.p-dropdown-clear-icon:hover {
+  color: var(--error-color) !important;
+  background-color: var(--surface-color-hover) !important;
+  transform: scale(1.1) !important;
+}
+
+.p-dropdown-clear-icon:active {
+  transform: scale(0.95) !important;
+}
+
+/* Filter container styles */
+.p-dropdown-filter-container {
+  background-color: white !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 0.75rem !important;
+  position: relative !important;
+}
+
+/* Remove the pseudo-elements for search icon and label */
+.p-dropdown-filter-container::before,
+.p-dropdown-filter-container::after {
+  display: none !important;
+}
+
+/* Additional styles for p-select dropdown items */
+.p-select-panel .p-select-item {
+  background-color: white !important;
+  color: var(--text-color) !important;
+}
+
+.p-select-panel .p-select-item:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.p-select-panel .p-select-item.p-highlight {
+  background-color: var(--primary-color-lighter) !important;
+  color: var(--text-color) !important;
+}
+
+/* Ensure dropdown panel has solid background */
+.p-select-panel {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--box-shadow) !important;
+}
+
+/* Fix for any nested elements inside select items */
+.p-select-item * {
+  background-color: transparent !important;
+}
+
+.p-select-item:hover * {
+  background-color: transparent !important;
+}
+
+/* Specific styles for service option elements in booking popup */
+.service-option {
+  background-color: white !important;
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--border-color-light) !important;
+  transition: background-color 0.2s ease !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.service-option:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.service-option:last-child {
+  border-bottom: none !important;
+}
+
+.service-option.selected {
+  padding: 0.4rem 1rem !important;
+}
+
+.service-option .service-info {
+  background-color: transparent !important;
+}
+
+.service-option .service-icon {
+  background-color: transparent !important;
+}
+
+.service-option .service-name {
+  background-color: transparent !important;
+  color: var(--text-color) !important;
+}
+
+.service-option .service-description {
+  background-color: transparent !important;
+  color: var(--text-color-light) !important;
+}
+
+.service-option .service-price {
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
+}
+
+.service-option .service-meta {
+  background-color: transparent !important;
+}
+
+.service-option .service-duration {
+  background-color: transparent !important;
+  color: var(--text-color-light) !important;
+}
+
+.service-option .service-popular {
+  background-color: #fff3cd !important;
+  color: var(--success-color) !important;
+}
+
+.service-option .service-details {
+  background-color: transparent !important;
+}
+
+/* Ensure selected item has proper styling */
+.service-option.selected {
+  background-color: white !important;
+}
+
+.service-option.selected * {
+  background-color: transparent !important;
+}
+
+/* ===== PALETA DE COLORS UNIFICADA ===== */
+:root {
+  /* ===== COLORS PRINCIPALS - GAMA BLAVA ===== */
+  --primary-color-darkest: #1A2E4A;    /* Blau molt fosc - reduït intensitat */
+  --primary-color-dark: #2A4A7A;       /* Blau fosc - reduït intensitat */
+  --primary-color: #3A5A8A;            /* Blau principal - reduït intensitat */
+  --primary-color-light: #5A7AA0;      /* Blau clar - reduït intensitat */
+  --primary-color-lighter: #8FA3C0;    /* Blau molt clar - reduït intensitat */
+  --primary-color-lightest: #C7D4E0;   /* Blau gairebé blanc - reduït intensitat */
+
+  /* ===== COLORS SECUNDARIS ===== */
+  --secondary-color: #E8F0FE;          /* Blau gris molt clar */
+  --secondary-color-light: #f8faff;    /* Blau més clar - evita coincidència amb serveis */
+  --secondary-color-dark: #d1e0f7;     /* Blau gris clar */
+
+  /* ===== COLORS DE TEXT ===== */
+  --text-color: #1A2C4A;               /* Text principal - blau fosc */
+  --text-color-light: #5A6B8A;         /* Text secundari - gris blau */
+  --text-color-lighter: #8A9BB8;       /* Text terciari - gris molt clar */
+  --text-color-white: #FFFFFF;         /* Text blanc */
+
+  /* ===== COLORS DE FONS ===== */
+  --background-color: #f5f8ff;         /* Fons principal - més clar, evita coincidència amb serveis */
+  --surface-color: #FFFFFF;            /* Superfícies - blanc pur */
+  --surface-color-hover: #F0F5FF;      /* Hover - blau molt clar */
+  --surface-color-secondary: #F8FAFF;  /* Fons secundari */
+
+  /* ===== COLORS DE BORDES ===== */
+  --border-color: #E1E8F5;             /* Bordes principals */
+  --border-color-light: #F0F4FA;       /* Bordes lleugers */
+  --border-color-dark: #C5D4E8;        /* Bordes foscos */
+
+  /* ===== COLORS D'ESTAT ===== */
+  --success-color: #10B981;            /* Verd modern */
+  --success-color-light: #D1FAE5;      /* Verd clar */
+  --warning-color: #F59E0B;            /* Taronja modern */
+  --warning-color-light: #FEF3C7;      /* Taronja clar */
+  --error-color: #DC2626;              /* Vermell modern - més intens */
+  --error-color-light: #FEE2E2;        /* Vermell clar */
+  --info-color: #3B82F6;               /* Blau info modern */
+  --info-color-light: #DBEAFE;         /* Blau info clar */
+
+  /* ===== COLORS DE SERVEIS ===== */
+  --service-haircut-color: #3B82F6;           /* Blau - Corte */
+  --service-haircut-bg: #DBEAFE;              /* Blau clar - Corte */
+  --service-haircut-text: #1E40AF;            /* Blau fosc - Corte */
+
+  --service-styling-color: #8B5CF6;           /* Lila - Peinat */
+  --service-styling-bg: #EDE9FE;              /* Lila clar - Peinat */
+  --service-styling-text: #5B21B6;            /* Lila fosc - Peinat */
+
+  --service-treatment-color: #10B981;         /* Verd - Tractament */
+  --service-treatment-bg: #D1FAE5;            /* Verd clar - Tractament */
+  --service-treatment-text: #065F46;          /* Verd fosc - Tractament */
+
+  --service-coloring-color: #F59E0B;          /* Taronja - Coloració */
+  --service-coloring-bg: #FEF3C7;             /* Taronja clar - Coloració */
+  --service-coloring-text: #92400E;           /* Taronja fosc - Coloració */
+
+  --service-special-color: #EF4444;           /* Vermell - Especial */
+  --service-special-bg: #FEE2E2;              /* Vermell clar - Especial */
+  --service-special-text: #991B1B;            /* Vermell fosc - Especial */
+
+  --service-kids-color: #EC4899;              /* Rosa - Infantil */
+  --service-kids-bg: #FCE7F3;                 /* Rosa clar - Infantil */
+  --service-kids-text: #9D174D;               /* Rosa fosc - Infantil */
+
+  --service-default-color: #6B7280;           /* Gris - General */
+  --service-default-bg: #F3F4F6;              /* Gris clar - General */
+  --service-default-text: #374151;            /* Gris fosc - General */
+
+  /* ===== CLASSES UTILITÀRIES PER SERVEIS ===== */
+  --service-haircut: var(--service-haircut-color);
+  --service-haircut-bg-color: var(--service-haircut-bg);
+  --service-haircut-text-color: var(--service-haircut-text);
+
+  --service-styling: var(--service-styling-color);
+  --service-styling-bg-color: var(--service-styling-bg);
+  --service-styling-text-color: var(--service-styling-text);
+
+  --service-treatment: var(--service-treatment-color);
+  --service-treatment-bg-color: var(--service-treatment-bg);
+  --service-treatment-text-color: var(--service-treatment-text);
+
+  --service-coloring: var(--service-coloring-color);
+  --service-coloring-bg-color: var(--service-coloring-bg);
+  --service-coloring-text-color: var(--service-coloring-text);
+
+  --service-special: var(--service-special-color);
+  --service-special-bg-color: var(--service-special-bg);
+  --service-special-text-color: var(--service-special-text);
+
+  --service-kids: var(--service-kids-color);
+  --service-kids-bg-color: var(--service-kids-bg);
+  --service-kids-text-color: var(--service-kids-text);
+
+  --service-default: var(--service-default-color);
+  --service-default-bg-color: var(--service-default-bg);
+  --service-default-text-color: var(--service-default-text);
+
+  /* ===== OMBRES I EFECTES ===== */
+  --box-shadow: 0 2px 8px rgba(30, 58, 138, 0.08);
+  --box-shadow-hover: 0 4px 16px rgba(30, 58, 138, 0.12);
+  --box-shadow-elevated: 0 8px 32px rgba(30, 58, 138, 0.16);
+  --box-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* ===== GRADIENTS ===== */
+  --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--surface-color) 100%);
+  --gradient-success: linear-gradient(135deg, var(--success-color) 0%, #34D399 100%);
+  --gradient-warning: linear-gradient(135deg, var(--warning-color) 0%, #FBBF24 100%);
+  --gradient-error: linear-gradient(135deg, var(--error-color) 0%, #F87171 100%);
+
+  /* ===== GRADIENTS SUAUS PER HEADERS ===== */
+  --gradient-header-profile: linear-gradient(135deg, #FFFFFF 0%, #F0F4FF 50%, #E8F0FE 100%);
+  --gradient-header-detail: linear-gradient(135deg, #FFFFFF 0%, #F5F8FF 50%, #E8F0FE 100%);
+  --gradient-header-lila: linear-gradient(135deg, #FFFFFF 0%, #F8F5FF 50%, #F0E8FF 100%);
+
+  /* ===== RADIUS ===== */
+  --border-radius-sm: 6px;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 24px;
+
+  /* ===== SPACING ===== */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+}
+
+/* ===== ESTILS GLOBALS UNIFICATS ===== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom styles for the application */
+:host {
+  display: block;
+}
+
+/* ===== ESTILS DE BOTONS UNIFICATS ===== */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--box-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: var(--text-color-white);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+  border-color: var(--primary-color-dark);
+}
+
+.btn-secondary {
+  background: var(--gradient-secondary);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+  border-color: var(--border-color-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  background: var(--gradient-primary);
+  color: var(--text-color-white);
+  border-color: var(--primary-color);
+}
+
+.btn-success {
+  background: var(--gradient-success);
+  color: var(--text-color-white);
+  border-color: var(--success-color);
+}
+
+.btn-warning {
+  background: var(--gradient-warning);
+  color: var(--text-color-white);
+  border-color: var(--warning-color);
+}
+
+.btn-error {
+  background: var(--gradient-error);
+  color: var(--text-color-white);
+  border-color: var(--error-color);
+}
+
+/* ===== ESTILS DE TARGETES UNIFICATS ===== */
+.card {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--box-shadow);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing);
+  border: 1px solid var(--border-color-light);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: var(--box-shadow-hover);
+  transform: translateY(-2px);
+  border-color: var(--border-color);
+}
+
+.card-header {
+  border-bottom: 1px solid var(--border-color-light);
+  padding-bottom: var(--spacing);
+  margin-bottom: var(--spacing);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.card-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-color-light);
+  margin: var(--spacing-xs) 0 0 0;
+}
+
+.card-content {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.card-footer {
+  border-top: 1px solid var(--border-color-light);
+  padding-top: var(--spacing);
+  margin-top: var(--spacing);
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+/* ===== ESTILS D'INPUTS UNIFICATS ===== */
+.input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(46, 90, 158, 0.1);
+  background-color: var(--surface-color);
+}
+
+.input:hover {
+  border-color: var(--border-color-dark);
+}
+
+.input::placeholder {
+  color: var(--text-color-lighter);
+}
+
+.input:disabled {
+  background-color: var(--surface-color-secondary);
+  color: var(--text-color-lighter);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Estils per textarea */
+.textarea {
+  @extend .input;
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+}
+
+/* Estils per select */
+.select {
+  @extend .input;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%235A6B8A' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--spacing-sm) center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: calc(var(--spacing) + 24px);
+}
+
+/* ===== ESTILS D'ENLLAÇOS UNIFICATS ===== */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+a:hover {
+  color: var(--primary-color-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color-light);
+  text-underline-offset: 2px;
+}
+
+a:active {
+  color: var(--primary-color-darkest);
+}
+
+/* ===== ESTILS DE TÍTOLS UNIFICATS ===== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+  margin-bottom: var(--spacing);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing);
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+h6 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ===== ESTILS DE CONTAINERS UNIFICATS ===== */
+.container {
+  margin: 0 auto;
+  padding: 0 var(--spacing);
+  max-width: 1200px;
+  width: 100%;
+}
+
+.container-sm {
+  max-width: 640px;
+}
+
+.container-md {
+  max-width: 768px;
+}
+
+.container-lg {
+  max-width: 1024px;
+}
+
+.container-xl {
+  max-width: 1280px;
+}
+
+/* ===== ESTILS DE SECCIONS UNIFICATS ===== */
+.section {
+  padding: var(--spacing-2xl) 0;
+}
+
+.section-sm {
+  padding: var(--spacing-xl) 0;
+}
+
+.section-lg {
+  padding: calc(var(--spacing-2xl) * 2) 0;
+}
+
+/* ===== ESTILS DE GRID UNIFICATS ===== */
+.grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.grid-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== ESTILS DE FLEXBOX UNIFICATS ===== */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-auto {
+  flex: auto;
+}
+
+.flex-none {
+  flex: none;
+}
+
+/* Flexbox alignment */
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-around {
+  justify-content: space-around;
+  align-items: center;
+}
+
+.flex-start {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flex-end {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.flex-top {
+  align-items: flex-start;
+}
+
+.flex-bottom {
+  align-items: flex-end;
+}
+
+.flex-stretch {
+  align-items: stretch;
+}
+
+.flex-baseline {
+  align-items: baseline;
+}
+
+/* Gap utilities */
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.gap { gap: var(--spacing); }
+.gap-lg { gap: var(--spacing-lg); }
+.gap-xl { gap: var(--spacing-xl); }
+.gap-2xl { gap: var(--spacing-2xl); }
+
+/* RTL Support Styles */
+[dir="rtl"] {
+  /* Text alignment */
+  text-align: right;
+
+  /* Margins and paddings */
+  .btn, .card, .input {
+    text-align: right;
+  }
+
+  /* Flexbox direction */
+  .flex {
+    flex-direction: row-reverse;
+  }
+
+  /* Grid direction */
+  .grid {
+    direction: rtl;
+  }
+
+  /* Icons and arrows */
+  .arrow, .icon {
+    transform: scaleX(-1);
+  }
+
+  /* Dropdowns and menus */
+  .dropdown, .menu {
+    right: auto;
+    left: 0;
+  }
+
+  /* Form elements */
+  input, textarea, select {
+    text-align: right;
+  }
+
+  /* Lists */
+  ul, ol {
+    padding-right: 1.5rem;
+    padding-left: 0;
+  }
+
+  /* Navigation */
+  nav ul {
+    flex-direction: row-reverse;
+  }
+
+  /* Buttons with icons */
+  .btn .icon {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
+  /* Cards and containers */
+  .card, .container {
+    direction: rtl;
+  }
+}
+
+/* RTL specific overrides for PrimeNG components */
+[dir="rtl"] {
+  .p-dropdown, .p-multiselect, .p-calendar {
+    text-align: right;
+  }
+
+  .p-dropdown-panel, .p-multiselect-panel {
+    right: auto;
+    left: 0;
+  }
+
+  .p-menu {
+    direction: rtl;
+  }
+
+  .p-menuitem-icon {
+    margin-left: 0.5rem;
+    margin-right: 0;
+  }
+}
+
+/* ===== UTILITATS D'ESPAIAT UNIFICADES ===== */
+/* Margins */
+.mt-xs { margin-top: var(--spacing-xs); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt { margin-top: var(--spacing); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+.mt-2xl { margin-top: var(--spacing-2xl); }
+
+.mb-xs { margin-bottom: var(--spacing-xs); }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb { margin-bottom: var(--spacing); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+.mb-2xl { margin-bottom: var(--spacing-2xl); }
+
+.ml-xs { margin-left: var(--spacing-xs); }
+.ml-sm { margin-left: var(--spacing-sm); }
+.ml { margin-left: var(--spacing); }
+.ml-lg { margin-left: var(--spacing-lg); }
+.ml-xl { margin-left: var(--spacing-xl); }
+.ml-2xl { margin-left: var(--spacing-2xl); }
+
+.mr-xs { margin-right: var(--spacing-xs); }
+.mr-sm { margin-right: var(--spacing-sm); }
+.mr { margin-right: var(--spacing); }
+.mr-lg { margin-right: var(--spacing-lg); }
+.mr-xl { margin-right: var(--spacing-xl); }
+.mr-2xl { margin-right: var(--spacing-2xl); }
+
+.mx-xs { margin-left: var(--spacing-xs); margin-right: var(--spacing-xs); }
+.mx-sm { margin-left: var(--spacing-sm); margin-right: var(--spacing-sm); }
+.mx { margin-left: var(--spacing); margin-right: var(--spacing); }
+.mx-lg { margin-left: var(--spacing-lg); margin-right: var(--spacing-lg); }
+.mx-xl { margin-left: var(--spacing-xl); margin-right: var(--spacing-xl); }
+.mx-2xl { margin-left: var(--spacing-2xl); margin-right: var(--spacing-2xl); }
+
+.my-xs { margin-top: var(--spacing-xs); margin-bottom: var(--spacing-xs); }
+.my-sm { margin-top: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
+.my { margin-top: var(--spacing); margin-bottom: var(--spacing); }
+.my-lg { margin-top: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+.my-xl { margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+.my-2xl { margin-top: var(--spacing-2xl); margin-bottom: var(--spacing-2xl); }
+
+/* Paddings */
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p { padding: var(--spacing); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+.p-2xl { padding: var(--spacing-2xl); }
+
+.pt-xs { padding-top: var(--spacing-xs); }
+.pt-sm { padding-top: var(--spacing-sm); }
+.pt { padding-top: var(--spacing); }
+.pt-lg { padding-top: var(--spacing-lg); }
+.pt-xl { padding-top: var(--spacing-xl); }
+.pt-2xl { padding-top: var(--spacing-2xl); }
+
+.pb-xs { padding-bottom: var(--spacing-xs); }
+.pb-sm { padding-bottom: var(--spacing-sm); }
+.pb { padding-bottom: var(--spacing); }
+.pb-lg { padding-bottom: var(--spacing-lg); }
+.pb-xl { padding-bottom: var(--spacing-xl); }
+.pb-2xl { padding-bottom: var(--spacing-2xl); }
+
+.pl-xs { padding-left: var(--spacing-xs); }
+.pl-sm { padding-left: var(--spacing-sm); }
+.pl { padding-left: var(--spacing); }
+.pl-lg { padding-left: var(--spacing-lg); }
+.pl-xl { padding-left: var(--spacing-xl); }
+.pl-2xl { padding-left: var(--spacing-2xl); }
+
+.pr-xs { padding-right: var(--spacing-xs); }
+.pr-sm { padding-right: var(--spacing-sm); }
+.pr { padding-right: var(--spacing); }
+.pr-lg { padding-right: var(--spacing-lg); }
+.pr-xl { padding-right: var(--spacing-xl); }
+.pr-2xl { padding-right: var(--spacing-2xl); }
+
+.px-xs { padding-left: var(--spacing-xs); padding-right: var(--spacing-xs); }
+.px-sm { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+.px { padding-left: var(--spacing); padding-right: var(--spacing); }
+.px-lg { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+.px-xl { padding-left: var(--spacing-xl); padding-right: var(--spacing-xl); }
+.px-2xl { padding-left: var(--spacing-2xl); padding-right: var(--spacing-2xl); }
+
+.py-xs { padding-top: var(--spacing-xs); padding-bottom: var(--spacing-xs); }
+.py-sm { padding-top: var(--spacing-sm); padding-bottom: var(--spacing-sm); }
+.py { padding-top: var(--spacing); padding-bottom: var(--spacing); }
+.py-lg { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+.py-xl { padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl); }
+.py-2xl { padding-top: var(--spacing-2xl); padding-bottom: var(--spacing-2xl); }
+
+/* Prevenir interferències amb el popup de Google */
+.firebaseui-container {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+.firebaseui-card {
+  position: relative !important;
+  transform: none !important;
+}
+
+.firebaseui-card-content {
+  position: relative !important;
+  transform: none !important;
+}
+
+/* Prevenir que els estils de la pàgina afectin el popup */
+.firebaseui-container * {
+  box-sizing: border-box !important;
+}
+
+/* Assegurar que el popup no es mogui */
+.firebaseui-idp-button {
+  position: relative !important;
+  transform: none !important;
+}
+
+.firebaseui-idp-button:hover {
+  transform: none !important;
+}
+
+/* PrimeNG Toast Custom Styles - Minimalist Design */
+.p-toast {
+  z-index: 9999 !important;
+}
+
+.p-toast .p-toast-message {
+  margin: 0.5rem 0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  background: var(--surface-color) !important;
+  animation: toastSlideIn 0.2s ease-out !important;
+  cursor: default !important;
+  transition: all 0.15s ease !important;
+  min-width: 280px !important;
+  max-width: 360px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.p-toast .p-toast-message[data-clickable="true"] {
+  cursor: pointer !important;
+}
+
+.p-toast .p-toast-message:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.p-toast .p-toast-message[data-clickable="true"]::after {
+  content: '👆 Clic per veure detalls' !important;
+  position: absolute !important;
+  bottom: 0.25rem !important;
+  right: 0.75rem !important;
+  font-size: 0.7rem !important;
+  color: var(--primary-color) !important;
+  opacity: 0 !important;
+  transition: opacity 0.15s ease !important;
+  font-weight: 400 !important;
+}
+
+.p-toast .p-toast-message[data-clickable="true"]:hover::after {
+  opacity: 1 !important;
+}
+
+/* Severity indicators - subtle left border */
+.p-toast .p-toast-message.p-toast-message-success {
+  border-left: 3px solid var(--success-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-error {
+  border-left: 3px solid var(--error-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn {
+  border-left: 3px solid var(--warning-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-info {
+  border-left: 3px solid var(--info-color) !important;
+}
+
+/* Simplified icon styling */
+.p-toast .p-toast-message-icon {
+  font-size: 0.875rem !important;
+  margin-right: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  opacity: 0.8 !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon {
+  color: var(--success-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon {
+  color: var(--error-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-message-icon {
+  color: var(--warning-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-info .p-toast-message-icon {
+  color: var(--info-color) !important;
+}
+
+/* Simplified content layout */
+.p-toast .p-toast-message-content {
+  padding: 0.75rem !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+}
+
+.p-toast .p-toast-message-actions {
+  display: flex !important;
+  gap: 0.5rem !important;
+  margin-top: 0.5rem !important;
+  justify-content: flex-end !important;
+}
+
+/* Simplified button styling */
+.p-toast .p-toast-message-btn {
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  border: 1px solid transparent !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.p-toast .p-toast-message-btn-primary {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+.p-toast .p-toast-message-btn-primary:hover {
+  background: var(--primary-color-dark) !important;
+  border-color: var(--primary-color-dark) !important;
+}
+
+.p-toast .p-toast-message-btn-secondary {
+  background: transparent !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.p-toast .p-toast-message-btn-secondary:hover {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Simplified text styling */
+.p-toast .p-toast-message-text {
+  flex: 1 !important;
+  color: var(--text-color) !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+}
+
+.p-toast .p-toast-summary {
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  color: var(--text-color) !important;
+  margin: 0 !important;
+  display: inline !important;
+}
+
+.p-toast .p-toast-detail {
+  font-size: 0.8rem !important;
+  color: var(--text-color-light) !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  font-weight: 400 !important;
+}
+
+/* Simplified close button */
+.p-toast .p-toast-icon-close {
+  color: var(--text-color-light) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 18px !important;
+  height: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  flex-shrink: 0 !important;
+  margin-left: 0.25rem !important;
+  font-size: 0.7rem !important;
+  opacity: 0.5 !important;
+}
+
+.p-toast .p-toast-icon-close:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--text-color) !important;
+  opacity: 1 !important;
+}
+
+/* Simplified animations */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Toast position styles */
+.p-toast.p-toast-top-right {
+  top: 1rem !important;
+  right: 1rem !important;
+}
+
+.p-toast.p-toast-top-left {
+  top: 1rem !important;
+  left: 1rem !important;
+}
+
+.p-toast.p-toast-top-center {
+  top: 1rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.p-toast.p-toast-bottom-right {
+  bottom: 1rem !important;
+  right: 1rem !important;
+}
+
+.p-toast.p-toast-bottom-left {
+  bottom: 1rem !important;
+  left: 1rem !important;
+}
+
+.p-toast.p-toast-bottom-center {
+  bottom: 1rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Responsive toast styles */
+@media (max-width: 768px) {
+  .p-toast {
+    width: calc(100% - 2rem) !important;
+    max-width: 320px !important;
+  }
+
+  .p-toast .p-toast-message-content {
+    padding: 0.625rem !important;
+  }
+
+  .p-toast .p-toast-message-text {
+    font-size: 0.75rem !important;
+  }
+
+  .p-toast .p-toast-summary {
+    font-size: 0.8rem !important;
+  }
+
+  .p-toast .p-toast-detail {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Dark mode support for toasts */
+@media (prefers-color-scheme: dark) {
+  .p-toast .p-toast-message {
+    background: var(--surface-color) !important;
+    color: var(--text-color) !important;
+  }
+
+  .p-toast .p-toast-message-text {
+    color: var(--text-color) !important;
+  }
+
+  .p-toast .p-toast-summary {
+    color: var(--text-color) !important;
+  }
+
+  .p-toast .p-toast-detail {
+    color: var(--text-color-light) !important;
+  }
+
+  .p-toast .p-toast-icon-close {
+    color: var(--text-color-light) !important;
+    background: transparent !important;
+    opacity: 0.5 !important;
+  }
+
+  .p-toast .p-toast-icon-close:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-color) !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ===== CLASSES UTILITÀRIES PER COLORS DE SERVEIS ===== */
+.service-color-haircut {
+  color: var(--service-haircut-color) !important;
+  background-color: var(--service-haircut-bg) !important;
+  border-color: var(--service-haircut-color) !important;
+}
+
+.service-color-styling {
+  color: var(--service-styling-color) !important;
+  background-color: var(--service-styling-bg) !important;
+  border-color: var(--service-styling-color) !important;
+}
+
+.service-color-treatment {
+  color: var(--service-treatment-color) !important;
+  background-color: var(--service-treatment-bg) !important;
+  border-color: var(--service-treatment-color) !important;
+}
+
+.service-color-coloring {
+  color: var(--service-coloring-color) !important;
+  background-color: var(--service-coloring-bg) !important;
+  border-color: var(--service-coloring-color) !important;
+}
+
+.service-color-special {
+  color: var(--service-special-color) !important;
+  background-color: var(--service-special-bg) !important;
+  border-color: var(--service-special-color) !important;
+}
+
+.service-color-kids {
+  color: var(--service-kids-color) !important;
+  background-color: var(--service-kids-bg) !important;
+  border-color: var(--service-kids-color) !important;
+}
+
+.service-color-default {
+  color: var(--service-default-color) !important;
+  background-color: var(--service-default-bg) !important;
+  border-color: var(--service-default-color) !important;
+}
+
+/* Classes per text dels serveis */
+.service-text-haircut {
+  color: var(--service-haircut-text) !important;
+}
+
+.service-text-styling {
+  color: var(--service-styling-text) !important;
+}
+
+.service-text-treatment {
+  color: var(--service-treatment-text) !important;
+}
+
+.service-text-coloring {
+  color: var(--service-coloring-text) !important;
+}
+
+.service-text-special {
+  color: var(--service-special-text) !important;
+}
+
+.service-text-kids {
+  color: var(--service-kids-text) !important;
+}
+
+.service-text-default {
+  color: var(--service-default-text) !important;
+}
+
+/* Classes per fons dels serveis */
+.service-bg-haircut {
+  background-color: var(--service-haircut-bg) !important;
+}
+
+.service-bg-styling {
+  background-color: var(--service-styling-bg) !important;
+}
+
+.service-bg-treatment {
+  background-color: var(--service-treatment-bg) !important;
+}
+
+.service-bg-coloring {
+  background-color: var(--service-coloring-bg) !important;
+}
+
+.service-bg-special {
+  background-color: var(--service-special-bg) !important;
+}
+
+.service-bg-kids {
+  background-color: var(--service-kids-bg) !important;
+}
+
+.service-bg-default {
+  background-color: var(--service-default-bg) !important;
+}

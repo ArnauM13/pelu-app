@@ -1,0 +1,43 @@
+<div class="filters-popup">
+  <!-- Quick Filters -->
+  <div class="quick-filters">
+    @for (button of filterButtonsValue(); track button.icon; let i = $index) {
+    <pelu-floating-button
+      [config]="button"
+      (clicked)="onFilterClickHandler(i)">
+    </pelu-floating-button>
+    }
+  </div>
+
+  <!-- Advanced Filters Section -->
+  @if (showAdvancedFiltersValue()) {
+  <div class="advanced-filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="filterDate">{{ 'COMMON.FILTER_BY_DATE' | translate }}</label>
+        <input
+          type="date"
+          id="filterDate"
+          [value]="filterDateValue()"
+          (input)="onDateChangeHandler($any($event.target).value)"
+          class="input">
+      </div>
+      <div class="filter-group">
+        <label for="filterClient">{{ 'COMMON.FILTER_BY_CLIENT' | translate }}</label>
+        <input
+          type="text"
+          id="filterClient"
+          [value]="filterClientValue()"
+          (input)="onClientChangeHandler($any($event.target).value)"
+          [placeholder]="'COMMON.SEARCH_BY_NAME' | translate"
+          class="input">
+      </div>
+    </div>
+    <div class="reset-section">
+      <button class="reset-btn" (click)="onResetHandler()">
+        {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
+      </button>
+    </div>
+  </div>
+  }
+</div>
