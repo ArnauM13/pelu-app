@@ -27,12 +27,12 @@ export class CalendarBusinessService {
       end: 20
     },
     days: {
-      start: 2, // Tuesday
+      start: 1, // Monday
       end: 6    // Saturday
     },
     lunchBreak: {
       start: 13,
-      end: 15
+      end: 14
     }
   };
 
@@ -88,9 +88,16 @@ export class CalendarBusinessService {
     const slots: string[] = [];
     const startHour = this.businessConfig.hours.start;
     const endHour = this.businessConfig.hours.end;
+    const lunchStart = this.businessConfig.lunchBreak.start;
+    const lunchEnd = this.businessConfig.lunchBreak.end;
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minutes of [0, 30]) {
+        // Skip lunch break
+        if (hour >= lunchStart && hour < lunchEnd) {
+          continue;
+        }
+
         const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         slots.push(timeString);
       }

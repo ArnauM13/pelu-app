@@ -186,8 +186,8 @@ describe('CalendarComponent', () => {
     it('should detect lunch break times', () => {
       expect(component.isLunchBreak('13:00')).toBe(true);
       expect(component.isLunchBreak('13:30')).toBe(true);
-      expect(component.isLunchBreak('14:00')).toBe(true);
-      expect(component.isLunchBreak('14:30')).toBe(true);
+      expect(component.isLunchBreak('14:00')).toBe(false);
+      expect(component.isLunchBreak('14:30')).toBe(false);
       expect(component.isLunchBreak('15:00')).toBe(false);
     });
 

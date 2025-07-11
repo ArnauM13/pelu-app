@@ -64,7 +64,7 @@ La versió mobile utilitza la mateixa configuració que la versió desktop:
 // Horaris de treball
 businessHours = { start: '08:00', end: '20:00' }
 
-// Pausa per dinar
+// Pausa per dinar (configurable pel perruquer)
 lunchBreak = { start: '13:00', end: '14:00' }
 
 // Dies laborables (1=Monday, 6=Saturday)
