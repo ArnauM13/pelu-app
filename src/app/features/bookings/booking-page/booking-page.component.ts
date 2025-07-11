@@ -168,9 +168,7 @@ export class BookingPageComponent {
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
   }
 
-  onBookingClientNameChanged(value: string) {
-    this.bookingDetailsSignal.update(details => ({ ...details, clientName: value }));
-  }
+
 
   afegirCita() {
     if (!this.canAddAppointment()) return;
@@ -263,5 +261,9 @@ export class BookingPageComponent {
     const uniqueId = `${clientId}-${appointmentId}`;
 
     this.router.navigate(['/appointments', uniqueId]);
+  }
+
+  goToMobileVersion() {
+    this.router.navigate(['/booking-mobile']);
   }
 }

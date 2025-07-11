@@ -105,7 +105,21 @@
     "ALL_RIGHTS_RESERVED": "All rights reserved.",
     "MISSING_FIELDS": "Missing required fields",
     "SEARCH_BY_NAME": "Search by name...",
-    "CLEAR_FILTERS_BUTTON": "🗑️ Clear filters"
+    "CLEAR_FILTERS_BUTTON": "🗑️ Clear filters",
+    "BOOK_APPOINTMENT": "Book Appointment",
+    "WEEK_OF": "Week of",
+    "SELECT_DAY": "Select a day",
+    "AVAILABLE_TIMES": "Available times",
+    "PLEASE_SELECT_SERVICE": "Please select a service first",
+    "AVAILABLE": "Available",
+    "OCCUPIED": "Occupied",
+    "LUNCH_BREAK": "Lunch break",
+    "PAST_TIME": "Past time",
+    "MORNING": "Morning",
+    "AFTERNOON": "Afternoon",
+    "LEGEND": "Legend",
+    "MOBILE_VERSION": "Mobile Version",
+    "DESKTOP_VERSION": "Desktop Version"
   },
   "AUTH": {
     "EMAIL": "Email",

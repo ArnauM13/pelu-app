@@ -105,7 +105,21 @@
     "ALL_RIGHTS_RESERVED": "Todos los derechos reservados.",
     "MISSING_FIELDS": "Faltan campos obligatorios",
     "SEARCH_BY_NAME": "Buscar por nombre...",
-    "CLEAR_FILTERS_BUTTON": "🗑️ Limpiar filtros"
+    "CLEAR_FILTERS_BUTTON": "🗑️ Limpiar filtros",
+    "BOOK_APPOINTMENT": "Reservar Cita",
+    "WEEK_OF": "Semana del",
+    "SELECT_DAY": "Selecciona un día",
+    "AVAILABLE_TIMES": "Horarios disponibles",
+    "PLEASE_SELECT_SERVICE": "Por favor, selecciona un servicio primero",
+    "AVAILABLE": "Disponible",
+    "OCCUPIED": "Ocupado",
+    "LUNCH_BREAK": "Pausa para comer",
+    "PAST_TIME": "Tiempo pasado",
+    "MORNING": "Mañana",
+    "AFTERNOON": "Tarde",
+    "LEGEND": "Leyenda",
+    "MOBILE_VERSION": "Versión Mobile",
+    "DESKTOP_VERSION": "Versión Desktop"
   },
   "AUTH": {
     "EMAIL": "Correo electrónico",
