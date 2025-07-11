@@ -88,15 +88,17 @@ export class BookingMobilePageComponent {
 
   readonly morningSlots = computed(() => {
     return this.selectedDaySlots().filter(slot => {
-      const hour = parseInt(slot.time.split(':')[0]);
-      return hour < 13; // Matí: 08:00 - 12:30
+      const slotTime = slot.time;
+      const lunchStart = this.lunchBreak.start;
+      return slotTime < lunchStart; // Matí: fins l'inici de l'hora de dinar
     });
   });
 
   readonly afternoonSlots = computed(() => {
     return this.selectedDaySlots().filter(slot => {
-      const hour = parseInt(slot.time.split(':')[0]);
-      return hour >= 13; // Tarda: 13:00 - 20:00
+      const slotTime = slot.time;
+      const lunchEnd = this.lunchBreak.end;
+      return slotTime >= lunchEnd; // Tarda: després de l'hora de dinar
     });
   });
 
@@ -146,10 +148,23 @@ export class BookingMobilePageComponent {
     const slots: TimeSlot[] = [];
     const startHour = parseInt(this.businessHours.start.split(':')[0]);
     const endHour = parseInt(this.businessHours.end.split(':')[0]);
+    const lunchStartHour = parseInt(this.lunchBreak.start.split(':')[0]);
+    const lunchStartMinute = parseInt(this.lunchBreak.start.split(':')[1]);
+    const lunchEndHour = parseInt(this.lunchBreak.end.split(':')[0]);
+    const lunchEndMinute = parseInt(this.lunchBreak.end.split(':')[1]);
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += this.slotDuration) {
         const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
+        // Skip lunch break
+        const isLunchBreak = (hour === lunchStartHour && minute >= lunchStartMinute) ||
+                            (hour > lunchStartHour && hour < lunchEndHour) ||
+                            (hour === lunchEndHour && minute < lunchEndMinute);
+
+        if (isLunchBreak) {
+          continue;
+        }
 
         // Check if slot is available
         const available = this.isTimeSlotAvailable(date, time);
