@@ -4,8 +4,7 @@ import { LoginPageComponent } from './features/auth/login-page/login-page.compon
 import { RegisterPageComponent } from './features/auth/register-page/register-page.component';
 import { PerfilPageComponent } from './features/profile/perfil-page/perfil-page.component';
 import { authGuard, publicGuard, stylistGuard } from './core/guards/auth.guard';
-import { BookingPageComponent } from './features/bookings/booking-page/booking-page.component';
-import { BookingMobilePageComponent } from './features/bookings/booking-mobile-page/booking-mobile-page.component';
+import { BookingWrapperComponent } from './features/bookings/booking-wrapper/booking-wrapper.component';
 import { AppointmentsPageComponent } from './features/appointments/appointments-page/appointments-page.component';
 import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
 import { ServicesPageComponent } from './features/services/services-page/services-page.component';
@@ -36,15 +35,9 @@ export const routes: Routes = [
   },
   {
     path: 'booking',
-    component: BookingPageComponent,
+    component: BookingWrapperComponent,
     canActivate: [authGuard],
     data: { viewTransitionName: 'booking' }
-  },
-  {
-    path: 'booking-mobile',
-    component: BookingMobilePageComponent,
-    canActivate: [authGuard],
-    data: { viewTransitionName: 'booking-mobile' }
   },
   {
     path: 'appointments',
