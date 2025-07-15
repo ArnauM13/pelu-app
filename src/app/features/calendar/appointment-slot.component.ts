@@ -15,29 +15,31 @@ export interface AppointmentSlotData {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="appointment"
-         [style.top.px]="position().top"
-         [style.height.px]="position().height"
-         [style.left.px]="0"
-         [style.right.px]="0"
-         [ngClass]="serviceCssClass()"
-         (click)="onAppointmentClick($event)">
-      <div class="appointment-content">
-        <div class="appointment-info">
-          <div class="appointment-title" [ngClass]="serviceTextCssClass()">{{ data().appointment.title }}</div>
-          @if (data().appointment.serviceName) {
-            <div class="appointment-service" [ngClass]="serviceTextCssClass()">{{ data().appointment.serviceName }}</div>
-          }
+    @if (data()?.appointment) {
+      <div class="appointment"
+           [style.top.px]="position().top"
+           [style.height.px]="position().height"
+           [style.left.px]="0"
+           [style.right.px]="0"
+           [ngClass]="serviceCssClass()"
+           (click)="onAppointmentClick($event)">
+        <div class="appointment-content">
+          <div class="appointment-info">
+            <div class="appointment-title" [ngClass]="serviceTextCssClass()">{{ data()!.appointment!.title }}</div>
+            @if (data()!.appointment!.serviceName) {
+              <div class="appointment-service" [ngClass]="serviceTextCssClass()">{{ data()!.appointment!.serviceName }}</div>
+            }
+          </div>
+          <div class="appointment-duration" [ngClass]="serviceTextCssClass()">{{ formatDuration(data()!.appointment!.duration || 60) }}</div>
         </div>
-        <div class="appointment-duration" [ngClass]="serviceTextCssClass()">{{ formatDuration(data().appointment.duration || 60) }}</div>
       </div>
-    </div>
+    }
   `,
   styleUrls: ['./appointment-slot.component.scss']
 })
 export class AppointmentSlotComponent {
   // Input signals
-  readonly data = input.required<AppointmentSlotData>();
+  readonly data = input.required<AppointmentSlotData | null>();
 
   // Output signals
   readonly clicked = output<AppointmentEvent>();
@@ -48,31 +50,37 @@ export class AppointmentSlotComponent {
 
   // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly position = computed(() => {
-    return this.positionService.getAppointmentPosition(this.data().appointment);
+    if (!this.data() || !this.data()!.appointment) return { top: 0, height: 0 };
+    return this.positionService.getAppointmentPosition(this.data()!.appointment!);
   });
 
   // Computed service color
   readonly serviceColor = computed(() => {
-    const serviceName = this.data().appointment.serviceName || '';
+    if (!this.data() || !this.data()!.appointment) return this.serviceColorsService.getDefaultColor();
+    const serviceName = this.data()!.appointment!.serviceName || '';
     return this.serviceColorsService.getServiceColor(serviceName);
   });
 
   // Computed service CSS class
   readonly serviceCssClass = computed(() => {
-    const serviceName = this.data().appointment.serviceName || '';
+    if (!this.data() || !this.data()!.appointment) return '';
+    const serviceName = this.data()!.appointment!.serviceName || '';
     return this.serviceColorsService.getServiceCssClass(serviceName);
   });
 
   // Computed service text CSS class
   readonly serviceTextCssClass = computed(() => {
-    const serviceName = this.data().appointment.serviceName || '';
+    if (!this.data() || !this.data()!.appointment) return '';
+    const serviceName = this.data()!.appointment!.serviceName || '';
     return this.serviceColorsService.getServiceTextCssClass(serviceName);
   });
 
   // Methods
   onAppointmentClick(event: Event) {
     event.stopPropagation();
-    this.clicked.emit(this.data().appointment);
+    if (this.data() && this.data()!.appointment) {
+      this.clicked.emit(this.data()!.appointment!);
+    }
   }
 
   // Format duration for display

@@ -1,178 +1,194 @@
-import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../app/core/services/translation.service';
+import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { computed } from '@angular/core';
 
-// Enhanced mock for TranslateService that properly handles the pipe
-export const createMockTranslateService = () => {
-  const mockService = jasmine.createSpyObj('TranslateService', [
-    'addLangs',
-    'use',
-    'getBrowserLang',
-    'instant',
-    'get',
-    'reloadLang',
-    'setDefaultLang',
-    'getCurrentLang',
-    'onLangChange',
-    'onTranslationChange',
-    'onDefaultLangChange'
-  ]);
-
-  // Mock the instant method to return the key if no translation is found
-  mockService.instant.and.callFake((key: string) => {
-    // Return the key itself as a fallback
-    return key;
-  });
-
-  // Mock the get method to return an observable with the key
-  mockService.get.and.callFake((key: string) => {
-    return of(key);
-  });
-
-  // Mock other methods
-  mockService.addLangs.and.returnValue(undefined);
-  mockService.use.and.returnValue(of(undefined));
-  mockService.getBrowserLang.and.returnValue('ca');
-  mockService.reloadLang.and.returnValue(of(undefined));
-  mockService.setDefaultLang.and.returnValue(undefined);
-  mockService.getCurrentLang.and.returnValue('ca');
-
-  // Mock observables
-  mockService.onLangChange = of({ lang: 'ca', translations: {} });
-  mockService.onTranslationChange = of({ lang: 'ca', translations: {} });
-  mockService.onDefaultLangChange = of({ lang: 'ca', translations: {} });
-
-  return mockService;
+// Mock TranslateService
+export const mockTranslateService = {
+  instant: jasmine.createSpy('instant').and.returnValue('Mocked Translation'),
+  get: jasmine.createSpy('get').and.returnValue(of('Mocked Translation')),
+  use: jasmine.createSpy('use').and.returnValue(of('Mocked Translation')),
+  addLangs: jasmine.createSpy('addLangs'),
+  getBrowserLang: jasmine.createSpy('getBrowserLang').and.returnValue('ca'),
+  reloadLang: jasmine.createSpy('reloadLang').and.returnValue(of({})),
+  setDefaultLang: jasmine.createSpy('setDefaultLang'),
+  getDefaultLang: jasmine.createSpy('getDefaultLang').and.returnValue('ca'),
+  getLangs: jasmine.createSpy('getLangs').and.returnValue(['ca', 'es', 'en']),
+  onLangChange: new EventEmitter(),
+  onDefaultLangChange: new EventEmitter(),
+  onTranslationChange: new EventEmitter()
 };
 
-// Enhanced mock for TranslateStore
-export const createMockTranslateStore = () => {
-  const mockStore = jasmine.createSpyObj('TranslateStore', [
-    'onLangChange',
-    'onDefaultLangChange',
-    'onTranslationChange'
-  ]);
-
-  mockStore.onLangChange = of({ lang: 'ca', translations: {} });
-  mockStore.onDefaultLangChange = of({ lang: 'ca', translations: {} });
-  mockStore.onTranslationChange = of({ lang: 'ca', translations: {} });
-
-  return mockStore;
+// Mock TranslateStore
+export const mockTranslateStore = {
+  onLangChange: new EventEmitter(),
+  onDefaultLangChange: new EventEmitter(),
+  onTranslationChange: new EventEmitter()
 };
 
-// Enhanced mock for TranslationService
-export const createMockTranslationService = () => {
-  const mockService = jasmine.createSpyObj('TranslationService', [
-    'setLanguage',
-    'getLanguage',
-    'getCurrentLanguageInfo',
-    'isLanguageAvailable',
-    'isRTL',
-    'get',
-    'get$',
-    'reload',
-    'getBrowserLanguage',
-    'saveUserLanguagePreference',
-    'getUserLanguagePreference',
-    'restoreUserLanguagePreference'
-  ]);
-
-  // Mock methods
-  mockService.setLanguage.and.returnValue(undefined);
-  mockService.getLanguage.and.returnValue('ca');
-  mockService.getCurrentLanguageInfo.and.returnValue({ code: 'ca', name: 'Català' });
-  mockService.isLanguageAvailable.and.returnValue(true);
-  mockService.isRTL.and.returnValue(false);
-  mockService.get.and.callFake((key: string) => key);
-  mockService.get$.and.callFake((key: string) => of(key));
-  mockService.reload.and.returnValue(undefined);
-  mockService.getBrowserLanguage.and.returnValue('ca');
-  mockService.saveUserLanguagePreference.and.returnValue(undefined);
-  mockService.getUserLanguagePreference.and.returnValue('ca');
-  mockService.restoreUserLanguagePreference.and.returnValue(undefined);
-
-  // Mock signals
-  mockService.currentLanguage = computed(() => 'ca');
-  mockService.currentLanguageInfo = computed(() => ({ code: 'ca', name: 'Català' }));
-  mockService.availableLanguages = [
-    { code: 'ca', name: 'Català', flagImage: '/assets/images/ca.png' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true }
-  ];
-
-  return mockService;
+// Mock TranslationService
+export const mockTranslationService = {
+  get: jasmine.createSpy('get').and.returnValue('Mocked Translation'),
+  get$: jasmine.createSpy('get$').and.returnValue(of('Mocked Translation')),
+  setLanguage: jasmine.createSpy('setLanguage'),
+  getLanguage: jasmine.createSpy('getLanguage').and.returnValue('ca'),
+  getCurrentLanguageInfo: jasmine.createSpy('getCurrentLanguageInfo').and.returnValue({
+    code: 'ca',
+    name: 'Català',
+    flag: '🏴󠁥󠁳󠁣󠁴󠁿'
+  }),
+  isLanguageAvailable: jasmine.createSpy('isLanguageAvailable').and.returnValue(true),
+  isRTL: jasmine.createSpy('isRTL').and.returnValue(false),
+  reload: jasmine.createSpy('reload'),
+  getBrowserLanguage: jasmine.createSpy('getBrowserLanguage').and.returnValue('ca'),
+  saveUserLanguagePreference: jasmine.createSpy('saveUserLanguagePreference'),
+  getUserLanguagePreference: jasmine.createSpy('getUserLanguagePreference').and.returnValue('ca'),
+  initializeLanguage: jasmine.createSpy('initializeLanguage')
 };
 
-// Translation test utilities
-export const translationTestUtils = {
-  // Mock translation keys for testing
-  mockTranslationKeys: {
-    'COMMON.TOTAL_APPOINTMENTS': 'Total de cites',
-    'COMMON.TODAY_APPOINTMENTS': 'Cites d\'avui',
-    'COMMON.UPCOMING_APPOINTMENTS': 'Cites properes',
-    'COMMON.MY_APPOINTMENTS': 'Les meves cites',
-    'COMMON.APPOINTMENTS_CALENDAR': 'Calendari de cites',
-    'COMMON.VIEW_APPOINTMENTS': 'Veure cites',
-    'COMMON.APPOINTMENTS_FOR_DATE': 'Cites per a la data',
-    'COMMON.NO_SCHEDULED_APPOINTMENTS': 'No hi ha cites programades',
-    'COMMON.NO_APPOINTMENTS_MESSAGE': 'No hi ha cites programades per a aquesta data',
-    'COMMON.APPOINTMENTS_LIST': 'Llista de cites',
-    'COMMON.NO_APPOINTMENTS': 'No hi ha cites',
-    'COMMON.NO_APPOINTMENTS_FILTERED': 'No hi ha cites que coincideixin amb els filtres',
-    'COMMON.NO_APPOINTMENTS_SCHEDULED': 'No hi ha cites programades',
-    'COMMON.CLEAR_FILTERS': 'Netejar filtres',
-    'COMMON.TODAY': 'Avui',
-    'COMMON.PAST': 'Passat',
-    'COMMON.UPCOMING': 'Proper',
-    'COMMON.CLICK_TO_VIEW': 'Clic per veure',
-    'COMMON.DELETE_CONFIRMATION': 'Confirmar eliminació',
-    'COMMON.CHANGE_VIEW': 'Canviar vista',
-    'COMMON.FILTER_BY_DATE': 'Filtrar per data:',
-    'COMMON.FILTER_BY_CLIENT': 'Filtrar per client:',
-    'COMMON.CLEAR_FILTERS_BUTTON': '🗑️ Netejar filtres',
-    'LANDING.SERVICES': 'Serveis',
-    'LANDING.PROFILE': 'Perfil',
-    'LANDING.BOOK_NOW': 'Reservar',
-    'LANDING.APPOINTMENTS': 'Cites',
-    'LANDING.HERO_SUBTITLE': 'Reserva el teu moment',
-    'COMMON.APP_NAME': 'PeluApp',
-    'COMMON.ALL_RIGHTS_RESERVED': 'Tots els drets reservats'
-  } as Record<string, string>,
+// Mock ServiceColorsService
+export const mockServiceColorsService = {
+  getServiceColor: jasmine.createSpy('getServiceColor').and.returnValue('#007bff'),
+  getServiceColorClass: jasmine.createSpy('getServiceColorClass').and.returnValue('primary'),
+  getServiceIcon: jasmine.createSpy('getServiceIcon').and.returnValue('scissors'),
+  getServiceTranslation: jasmine.createSpy('getServiceTranslation').and.returnValue('Mocked Service')
+};
 
-  // Create a mock service that returns actual translations
-  createRealisticTranslateService: () => {
-    const mockService = createMockTranslateService();
+// Mock AuthService
+export const mockAuthService = {
+  currentUser: jasmine.createSpy('currentUser').and.returnValue({
+    uid: 'test-user-id',
+    email: 'test@example.com',
+    displayName: 'Test User'
+  }),
+  signIn: jasmine.createSpy('signIn'),
+  signUp: jasmine.createSpy('signUp'),
+  signOut: jasmine.createSpy('signOut'),
+  isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true)
+};
 
-    mockService.instant.and.callFake((key: string) => {
-      return translationTestUtils.mockTranslationKeys[key] || key;
-    });
+// Mock ServicesService
+export const mockServicesService = {
+  getAllServices: jasmine.createSpy('getAllServices').and.returnValue(of([
+    { id: '1', name: 'Haircut', duration: 60, price: 25 },
+    { id: '2', name: 'Hair Coloring', duration: 120, price: 80 }
+  ])),
+  getServiceById: jasmine.createSpy('getServiceById').and.returnValue(of({
+    id: '1', name: 'Haircut', duration: 60, price: 25
+  })),
+  addService: jasmine.createSpy('addService'),
+  updateService: jasmine.createSpy('updateService'),
+  deleteService: jasmine.createSpy('deleteService')
+};
 
-    mockService.get.and.callFake((key: string) => {
-      return of(translationTestUtils.mockTranslationKeys[key] || key);
-    });
+// Mock MessageService
+export const mockMessageService = {
+  add: jasmine.createSpy('add'),
+  clear: jasmine.createSpy('clear'),
+  addAll: jasmine.createSpy('addAll'),
+  addOne: jasmine.createSpy('addOne'),
+  remove: jasmine.createSpy('remove'),
+  removeAll: jasmine.createSpy('removeAll')
+};
 
-    return mockService;
-  },
+// Mock Router
+export const mockRouter = {
+  navigate: jasmine.createSpy('navigate'),
+  navigateByUrl: jasmine.createSpy('navigateByUrl'),
+  url: '/test',
+  events: of({}),
+  routerState: { snapshot: { url: '/test' } }
+};
 
-  // Create a mock service that returns actual translations
-  createRealisticTranslationService: () => {
-    const mockService = createMockTranslationService();
+// Mock ActivatedRoute
+export const mockActivatedRoute = {
+  params: of({}),
+  queryParams: of({}),
+  snapshot: { params: {}, queryParams: {} }
+};
 
-    mockService.get.and.callFake((key: string) => {
-      return translationTestUtils.mockTranslationKeys[key] || key;
-    });
+// Mock RoleService
+export const mockRoleService = {
+  currentRole: jasmine.createSpy('currentRole').and.returnValue('stylist'),
+  setRole: jasmine.createSpy('setRole'),
+  isStylist: jasmine.createSpy('isStylist').and.returnValue(true),
+  isClient: jasmine.createSpy('isClient').and.returnValue(false),
+  initializeRoleListener: jasmine.createSpy('initializeRoleListener')
+};
 
-    mockService.get$.and.callFake((key: string) => {
-      return of(translationTestUtils.mockTranslationKeys[key] || key);
-    });
+// Mock CalendarPositionService
+export const mockCalendarPositionService = {
+  calculatePosition: jasmine.createSpy('calculatePosition').and.returnValue({ top: 0, left: 0 }),
+  getTimeSlotPosition: jasmine.createSpy('getTimeSlotPosition').and.returnValue({ top: 0, left: 0 }),
+  getDayPosition: jasmine.createSpy('getDayPosition').and.returnValue({ top: 0, left: 0 })
+};
 
-    return mockService;
+// Mock CalendarBusinessService
+export const mockCalendarBusinessService = {
+  getBusinessHours: jasmine.createSpy('getBusinessHours').and.returnValue({
+    start: 8,
+    end: 20,
+    lunchStart: 13,
+    lunchEnd: 14
+  }),
+  getBusinessDays: jasmine.createSpy('getBusinessDays').and.returnValue([1, 2, 3, 4, 5, 6]),
+  isBusinessDay: jasmine.createSpy('isBusinessDay').and.returnValue(true),
+  isBusinessHour: jasmine.createSpy('isBusinessHour').and.returnValue(true)
+};
+
+// Mock CalendarStateService
+export const mockCalendarStateService = {
+  selectedDate: jasmine.createSpy('selectedDate').and.returnValue(new Date()),
+  setSelectedDate: jasmine.createSpy('setSelectedDate'),
+  selectedTimeSlot: jasmine.createSpy('selectedTimeSlot').and.returnValue(null),
+  setSelectedTimeSlot: jasmine.createSpy('setSelectedTimeSlot'),
+  appointments: jasmine.createSpy('appointments').and.returnValue([]),
+  setAppointments: jasmine.createSpy('setAppointments')
+};
+
+// Mock Firebase Auth
+export const mockAuth = {
+  currentUser: Promise.resolve({
+    uid: 'test-user-id',
+    email: 'test@example.com',
+    displayName: 'Test User'
+  }),
+  onAuthStateChanged: jasmine.createSpy('onAuthStateChanged').and.returnValue(() => {}),
+  signInWithEmailAndPassword: jasmine.createSpy('signInWithEmailAndPassword'),
+  createUserWithEmailAndPassword: jasmine.createSpy('createUserWithEmailAndPassword'),
+  signOut: jasmine.createSpy('signOut')
+};
+
+// Mock data for tests
+export const mockData = {
+  appointments: [
+    {
+      id: '1',
+      nom: 'John Doe',
+      data: '2024-01-15',
+      hora: '10:00',
+      servei: 'Corte de pelo',
+      serviceName: 'Haircut',
+      duration: 60,
+      userId: 'user1'
+    },
+    {
+      id: '2',
+      nom: 'Jane Smith',
+      data: '2024-01-15',
+      hora: '14:00',
+      servei: 'Coloración',
+      serviceName: 'Hair Coloring',
+      duration: 120,
+      userId: 'user2'
+    }
+  ],
+  services: [
+    { id: '1', name: 'Haircut', duration: 60, price: 25 },
+    { id: '2', name: 'Hair Coloring', duration: 120, price: 80 }
+  ],
+  stats: {
+    total: 10,
+    today: 3,
+    pending: 2,
+    completed: 5
   }
 };
-
-// Export the enhanced mocks
-export const mockTranslateService = createMockTranslateService();
-export const mockTranslateStore = createMockTranslateStore();
-export const mockTranslationService = createMockTranslationService();
