@@ -1,12 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppointmentsViewControlsComponent, ViewButton } from './appointments-view-controls.component';
+import { Component, signal } from '@angular/core';
 
-describe('AppointmentsViewControlsComponent', () => {
-  let component: AppointmentsViewControlsComponent;
-  let fixture: ComponentFixture<AppointmentsViewControlsComponent>;
-
-  const mockViewButtons: ViewButton[] = [
+// Test wrapper component to provide input signals
+@Component({
+  template: `
+    <pelu-appointments-view-controls
+      [viewButtons]="viewButtons()"
+      (onViewModeChange)="onViewModeChange($event)">
+    </pelu-appointments-view-controls>
+  `,
+  imports: [AppointmentsViewControlsComponent],
+  standalone: true
+})
+class TestWrapperComponent {
+  viewButtons = signal<ViewButton[]>([
     {
       icon: '📋',
       tooltip: 'COMMON.LIST_VIEW',
@@ -23,12 +32,20 @@ describe('AppointmentsViewControlsComponent', () => {
       variant: 'primary',
       size: 'large'
     }
-  ];
+  ]);
+
+  onViewModeChange(mode: 'list' | 'calendar') {}
+}
+
+describe('AppointmentsViewControlsComponent', () => {
+  let component: AppointmentsViewControlsComponent;
+  let fixture: ComponentFixture<TestWrapperComponent>;
+  let wrapperComponent: TestWrapperComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        AppointmentsViewControlsComponent,
+        TestWrapperComponent,
         TranslateModule.forRoot()
       ],
       providers: [
@@ -36,14 +53,19 @@ describe('AppointmentsViewControlsComponent', () => {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+            addLangs: () => {},
+            use: () => {},
+            setDefaultLang: () => {},
+            getBrowserLang: () => 'ca'
           }
         }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AppointmentsViewControlsComponent);
-    component = fixture.componentInstance;
+    fixture = TestBed.createComponent(TestWrapperComponent);
+    wrapperComponent = fixture.componentInstance;
+    component = fixture.debugElement.children[0].componentInstance;
     fixture.detectChanges();
   });
 
