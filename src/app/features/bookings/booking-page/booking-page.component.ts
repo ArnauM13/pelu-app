@@ -17,6 +17,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 
 
+
 @Component({
   selector: 'pelu-booking-page',
   standalone: true,
@@ -42,6 +43,7 @@ export class BookingPageComponent {
   public readonly messageService = inject(MessageService);
   public readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
 
   // Internal state signals
   private readonly nouClientSignal = signal({ nom: '', data: '', hora: '' });
@@ -79,6 +81,8 @@ export class BookingPageComponent {
 
     // Initialize user effect
     this.#initUserEffect();
+
+
   }
 
   #initUserEffect() {
@@ -89,6 +93,8 @@ export class BookingPageComponent {
       }
     }, { allowSignalWrites: true });
   }
+
+
 
   private loadAppointments() {
     const dades = JSON.parse(localStorage.getItem('cites') || '[]');
@@ -263,7 +269,5 @@ export class BookingPageComponent {
     this.router.navigate(['/appointments', uniqueId]);
   }
 
-  goToMobileVersion() {
-    this.router.navigate(['/booking-mobile']);
-  }
+
 }

@@ -17,6 +17,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { ServicesService, Service } from '../../../core/services/services.service';
 
+
 interface DaySlot {
   date: Date;
   timeSlots: TimeSlot[];
@@ -54,6 +55,7 @@ export class BookingMobilePageComponent {
   public readonly authService = inject(AuthService);
   public readonly servicesService = inject(ServicesService);
   private readonly router = inject(Router);
+
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date>(new Date());
@@ -127,6 +129,8 @@ export class BookingMobilePageComponent {
 
     // Initialize user effect
     this.#initUserEffect();
+
+
   }
 
   #initUserEffect() {
@@ -137,6 +141,8 @@ export class BookingMobilePageComponent {
       }
     }, { allowSignalWrites: true });
   }
+
+
 
   private loadAppointments() {
     const dades = JSON.parse(localStorage.getItem('cites') || '[]');
@@ -404,9 +410,7 @@ export class BookingMobilePageComponent {
     this.router.navigate(['/appointments', uniqueId]);
   }
 
-  goToDesktopVersion() {
-    this.router.navigate(['/booking']);
-  }
+
 
   private hasAvailableTimeSlots(date: Date): boolean {
     const slots = this.generateTimeSlotsForDay(date);

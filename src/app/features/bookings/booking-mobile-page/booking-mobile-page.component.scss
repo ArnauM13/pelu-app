@@ -25,37 +25,7 @@
   }
 }
 
-.desktop-version-link {
-  text-align: center;
-  margin-bottom: 1rem;
-  position: relative;
-  z-index: 1;
 
-  .desktop-btn {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    color: #1976d2;
-    border: 1px solid rgba(25, 118, 210, 0.2);
-    border-radius: 25px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 4px 12px rgba(13, 71, 161, 0.08);
-
-    &:hover {
-      background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(25, 118, 210, 0.15);
-    }
-
-    i {
-      font-size: 1.1rem;
-    }
-  }
-}
 
 .booking-header {
   text-align: center;
