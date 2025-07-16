@@ -107,10 +107,10 @@ export const mockActivatedRoute = {
 
 // Mock RoleService
 export const mockRoleService = {
-  currentRole: jasmine.createSpy('currentRole').and.returnValue('stylist'),
+  currentRole: jasmine.createSpy('currentRole').and.returnValue('client'),
   setRole: jasmine.createSpy('setRole'),
-  isStylist: jasmine.createSpy('isStylist').and.returnValue(true),
-  isClient: jasmine.createSpy('isClient').and.returnValue(false),
+  isClient: jasmine.createSpy('isClient').and.returnValue(true),
+  isAdmin: jasmine.createSpy('isAdmin').and.returnValue(false),
   initializeRoleListener: jasmine.createSpy('initializeRoleListener')
 };
 
