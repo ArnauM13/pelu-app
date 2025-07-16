@@ -1,21 +1,13 @@
 import { inject, Injectable, signal, computed, effect } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, deleteDoc, CollectionReference, DocumentData } from '@angular/fire/firestore';
 import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
 
 export interface UserRole {
   uid: string;
-  role: 'user' | 'stylist' | 'admin';
-  displayName?: string;
   email: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  stylistInfo?: {
-    businessName?: string;
-    phone?: string;
-    address?: string;
-    specialties?: string[];
-  };
+  lang: string;
+  role: 'client' | 'admin';
+  theme: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,81 +22,81 @@ export class RoleService {
   // Public computed signals
   readonly userRole = computed(() => this.userRoleSignal());
   readonly isLoadingRole = computed(() => this.isLoadingRoleSignal());
-  readonly isStylist = computed(() => this.userRoleSignal()?.role === 'stylist');
+  readonly isClient = computed(() => this.userRoleSignal()?.role === 'client');
   readonly isAdmin = computed(() => this.userRoleSignal()?.role === 'admin');
-  readonly isUser = computed(() => this.userRoleSignal()?.role === 'user');
-  readonly hasStylistAccess = computed(() =>
-    this.userRoleSignal()?.role === 'stylist' || this.userRoleSignal()?.role === 'admin'
-  );
+  readonly hasAdminAccess = computed(() => this.userRoleSignal()?.role === 'admin');
 
   constructor() {
     this.initializeRoleListener();
   }
 
   private initializeRoleListener() {
-    // Listen to auth changes and load user role
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
         this.loadUserRole(user);
       } else {
-        this.userRoleSignal.set(null);
-        this.isLoadingRoleSignal.set(false);
+        // Use setTimeout to avoid signal write conflicts
+        setTimeout(() => {
+          this.userRoleSignal.set(null);
+          this.isLoadingRoleSignal.set(false);
+        }, 0);
       }
     });
   }
 
   private async loadUserRole(user: User) {
     try {
-      this.isLoadingRoleSignal.set(true);
-      const userDocRef = doc(this.firestore, 'users', user.uid);
+      // Use setTimeout to avoid signal write conflicts
+      setTimeout(() => {
+        this.isLoadingRoleSignal.set(true);
+      }, 0);
 
-      // Set up real-time listener for user role
+      const userDocRef = doc(this.firestore, 'users', user.uid);
       const unsubscribe = onSnapshot(userDocRef, (doc) => {
         if (doc.exists()) {
           const data = doc.data() as UserRole;
-          this.userRoleSignal.set({
-            ...data,
-            createdAt: data.createdAt instanceof Date ? data.createdAt : (data.createdAt as any)?.toDate() || new Date(),
-            updatedAt: data.updatedAt instanceof Date ? data.updatedAt : (data.updatedAt as any)?.toDate() || new Date()
-          });
+          // Use setTimeout to avoid signal write conflicts
+          setTimeout(() => {
+            this.userRoleSignal.set(data);
+            this.isLoadingRoleSignal.set(false);
+          }, 0);
         } else {
-          // Create default user role if doesn't exist
           this.createDefaultUserRole(user);
         }
-        this.isLoadingRoleSignal.set(false);
       }, (error) => {
-        this.isLoadingRoleSignal.set(false);
+        console.error('Error loading user role:', error);
+        // Use setTimeout to avoid signal write conflicts
+        setTimeout(() => {
+          this.isLoadingRoleSignal.set(false);
+        }, 0);
       });
-
-      // Store unsubscribe function for cleanup
       (this as any).unsubscribeRole = unsubscribe;
     } catch (error) {
-      this.isLoadingRoleSignal.set(false);
+      console.error('Error in loadUserRole:', error);
+      // Use setTimeout to avoid signal write conflicts
+      setTimeout(() => {
+        this.isLoadingRoleSignal.set(false);
+      }, 0);
     }
   }
 
   private async createDefaultUserRole(user: User) {
     const defaultRole: UserRole = {
       uid: user.uid,
-      role: 'user',
-      displayName: user.displayName || user.email?.split('@')[0] || 'User',
       email: user.email || '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isActive: true
+      lang: 'ca',
+      role: 'client',
+      theme: 'light'
     };
-
     await this.setUserRole(defaultRole);
   }
 
   async setUserRole(userRole: UserRole): Promise<void> {
     try {
       const userDocRef = doc(this.firestore, 'users', userRole.uid);
-      await setDoc(userDocRef, {
-        ...userRole,
-        updatedAt: new Date()
-      });
+      await setDoc(userDocRef, userRole);
     } catch (error) {
+      console.error('Error setting user role:', error);
       throw error;
     }
   }
@@ -112,36 +104,48 @@ export class RoleService {
   async updateUserRole(uid: string, updates: Partial<UserRole>): Promise<void> {
     try {
       const userDocRef = doc(this.firestore, 'users', uid);
-      await updateDoc(userDocRef, {
-        ...updates,
-        updatedAt: new Date()
-      });
+      await updateDoc(userDocRef, updates);
     } catch (error) {
+      console.error('Error updating user role:', error);
       throw error;
     }
   }
 
-  async promoteToStylist(uid: string, stylistInfo?: UserRole['stylistInfo']): Promise<void> {
-    await this.updateUserRole(uid, {
-      role: 'stylist',
-      stylistInfo: stylistInfo || {}
-    });
+  async deleteUser(uid: string): Promise<void> {
+    try {
+      const userDocRef = doc(this.firestore, 'users', uid);
+      await deleteDoc(userDocRef);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
   }
 
-  async demoteToUser(uid: string): Promise<void> {
-    await this.updateUserRole(uid, {
-      role: 'user',
-      stylistInfo: undefined
-    });
+  async getUserRole(uid: string): Promise<UserRole | null> {
+    try {
+      const userDocRef = doc(this.firestore, 'users', uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        return userDoc.data() as UserRole;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user role:', error);
+      return null;
+    }
   }
 
-  async promoteToAdmin(uid: string): Promise<void> {
-    await this.updateUserRole(uid, {
-      role: 'admin'
-    });
+  async listAllUsers(): Promise<UserRole[]> {
+    try {
+      const usersCol = collection(this.firestore, 'users') as CollectionReference<DocumentData>;
+      const snapshot = await getDocs(usersCol);
+      return snapshot.docs.map(doc => doc.data() as UserRole);
+    } catch (error) {
+      console.error('Error listing users:', error);
+      return [];
+    }
   }
 
-  // Cleanup method
   cleanup() {
     if ((this as any).unsubscribeRole) {
       (this as any).unsubscribeRole();
