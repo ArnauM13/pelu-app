@@ -18,6 +18,7 @@ import { InfoItemComponent, InfoItemData } from '../../../shared/components/info
 import { AuthService } from '../../../core/auth/auth.service';
 import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 interface AppointmentForm {
   nom: string;
@@ -58,6 +59,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   #router = inject(Router);
   #location = inject(Location);
   #authService = inject(AuthService);
+  #currencyService = inject(CurrencyService);
 
   // Core data signals
   #appointmentSignal = signal<any>(null);
@@ -111,7 +113,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     if (cita.servei) {
       items.push({
         icon: '✂️',
-        label: 'APPOINTMENTS.SERVICE',
+        label: 'COMMON.SERVICE',
         value: cita.servei
       });
     }
@@ -119,7 +121,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     if (cita.serviceName) {
       items.push({
         icon: '✂️',
-        label: 'APPOINTMENTS.SERVICE',
+        label: 'COMMON.SERVICE',
         value: cita.serviceName
       });
     }
@@ -136,7 +138,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       items.push({
         icon: '💰',
         label: 'APPOINTMENTS.PRICE',
-        value: `${cita.preu}€`
+        value: this.#currencyService.formatPrice(cita.preu)
       });
     }
 
@@ -166,9 +168,9 @@ export class AppointmentDetailPageComponent implements OnInit {
   });
 
   readonly statusBadge = computed(() => {
-    if (this.isToday()) return { text: 'COMMON.TODAY', class: 'today' };
-    if (this.isPast()) return { text: 'COMMON.PAST', class: 'past' };
-    return { text: 'COMMON.UPCOMING', class: 'upcoming' };
+    if (this.isToday()) return { text: 'COMMON.TIME.TODAY', class: 'today' };
+    if (this.isPast()) return { text: 'COMMON.TIME.PAST', class: 'past' };
+    return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
   });
 
   readonly canSave = computed(() => {
@@ -214,20 +216,20 @@ export class AppointmentDetailPageComponent implements OnInit {
   private getActions(): DetailAction[] {
     return [
       {
-        label: 'COMMON.BACK',
+        label: 'COMMON.ACTIONS.BACK',
         icon: '←',
         type: 'secondary',
         onClick: () => this.goBack()
       },
       {
-        label: 'COMMON.EDIT',
+        label: 'COMMON.ACTIONS.EDIT',
         icon: '✏️',
         type: 'primary',
         onClick: () => this.startEditing(),
         disabled: this.isEditing()
       },
       {
-        label: 'COMMON.DELETE',
+        label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
         type: 'danger',
         onClick: () => this.deleteAppointment()
@@ -241,7 +243,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.loadAppointment();
   }
 
-  private loadAppointment() {
+      private loadAppointment() {
     const uniqueId = this.#route.snapshot.paramMap.get('id');
 
     if (!uniqueId) {
@@ -266,6 +268,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     // Verifiquem que l'usuari actual coincideix amb el clientId
     const currentUser = this.#authService.user();
+
     if (!currentUser || currentUser.uid !== clientId) {
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
@@ -279,6 +282,17 @@ export class AppointmentDetailPageComponent implements OnInit {
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
+    }
+
+    // Si la cita no té userId, l'afegim (migració automàtica)
+    if (!appointment.userId) {
+      appointment.userId = currentUser.uid;
+
+      // Actualitzem localStorage
+      const updatedAppointments = appointments.map((cita: any) =>
+        cita.id === appointmentId ? appointment : cita
+      );
+      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
     }
 
     // Verifiquem que la cita pertany a l'usuari actual

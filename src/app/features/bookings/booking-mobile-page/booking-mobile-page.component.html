@@ -29,7 +29,7 @@
 
     <!-- Header with navigation -->
   <div class="booking-header">
-    <h1>{{ 'COMMON.BOOK_APPOINTMENT' | translate }}</h1>
+    <h1>{{ 'COMMON.ACTIONS.BOOK_APPOINTMENT' | translate }}</h1>
 
     <!-- Week navigation -->
     <div class="week-navigation">
@@ -49,7 +49,7 @@
 
     <!-- Day selection -->
     <pelu-card class="day-selection-card">
-      <h3>{{ 'COMMON.SELECT_DAY' | translate }}</h3>
+      <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
       @if (weekDays().length === 0) {
         <div class="no-available-days">
           <div class="empty-icon">📅</div>
@@ -71,7 +71,7 @@
               <div class="day-name">{{ formatDayShort(day) }}</div>
               <div class="day-number">{{ day.getDate() }}</div>
               @if (isToday(day)) {
-                <div class="today-indicator">{{ 'COMMON.TODAY' | translate }}</div>
+                <div class="today-indicator">{{ 'COMMON.TIME.TODAY' | translate }}</div>
               }
             </div>
           }
@@ -84,20 +84,20 @@
         class="quick-date-btn today-btn"
         (click)="today()"
         [disabled]="!canSelectDate(getToday())">
-        {{ 'COMMON.TODAY' | translate }}
+        {{ 'COMMON.TIME.TODAY' | translate }}
       </button>
       <button
         class="quick-date-btn tomorrow-btn"
         (click)="tomorrow()"
         [disabled]="!canSelectDate(getTomorrow())">
-        {{ 'COMMON.TOMORROW' | translate }}
+        {{ 'COMMON.TIME.TOMORROW' | translate }}
       </button>
     </div>
   </div>
 
   <!-- Service selection -->
   <pelu-card class="service-selection-card">
-    <h3>{{ 'COMMON.SELECT_SERVICE' | translate }}</h3>
+    <h3>{{ 'COMMON.SELECTION.SELECT_SERVICE' | translate }}</h3>
     <div class="service-grid">
       @for (service of availableServices(); track service.id) {
         <div
@@ -108,7 +108,7 @@
           <div class="service-info">
             <div class="service-name">{{ service.name | translate }}</div>
             <div class="service-duration">{{ service.duration }} min</div>
-            <div class="service-price">{{ service.price }}€</div>
+                            <div class="service-price">{{ service.price | currency }}</div>
           </div>
         </div>
       }
@@ -122,13 +122,13 @@
 
       @if (!selectedService()) {
         <div class="no-service-selected">
-          <p>{{ 'COMMON.PLEASE_SELECT_SERVICE' | translate }}</p>
+          <p>{{ 'COMMON.SELECTION.PLEASE_SELECT_SERVICE' | translate }}</p>
         </div>
       } @else {
         <!-- Morning slots -->
         @if (morningSlots().length > 0) {
           <div class="time-section">
-            <h4 class="time-section-title">{{ 'COMMON.MORNING' | translate }}</h4>
+            <h4 class="time-section-title">{{ 'COMMON.TIME.MORNING' | translate }}</h4>
             <div class="time-slots-grid">
               @for (slot of morningSlots(); track slot.time) {
                 <div
@@ -141,23 +141,23 @@
                   @if (slot.isPastTime) {
                     <div class="slot-content past">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.PAST_TIME' | translate }}</div>
+                      <div class="status">{{ 'COMMON.TIME.PAST_TIME' | translate }}</div>
                     </div>
                   } @else if (slot.appointment) {
                     <div class="slot-content occupied">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                      <div class="status">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</div>
                       <div class="client">{{ slot.appointment.nom }}</div>
                     </div>
                   } @else if (slot.available) {
                     <div class="slot-content available">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.AVAILABLE' | translate }}</div>
+                      <div class="status">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
                     </div>
                   } @else {
                     <div class="slot-content occupied">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                      <div class="status">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</div>
                     </div>
                   }
                 </div>
@@ -169,7 +169,7 @@
         <!-- Afternoon slots -->
         @if (afternoonSlots().length > 0) {
           <div class="time-section">
-            <h4 class="time-section-title">{{ 'COMMON.AFTERNOON' | translate }}</h4>
+            <h4 class="time-section-title">{{ 'COMMON.TIME.AFTERNOON' | translate }}</h4>
             <div class="time-slots-grid">
               @for (slot of afternoonSlots(); track slot.time) {
                 <div
@@ -182,23 +182,23 @@
                   @if (slot.isPastTime) {
                     <div class="slot-content past">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.PAST_TIME' | translate }}</div>
+                      <div class="status">{{ 'COMMON.TIME.PAST_TIME' | translate }}</div>
                     </div>
                   } @else if (slot.appointment) {
                     <div class="slot-content occupied">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                      <div class="status">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</div>
                       <div class="client">{{ slot.appointment.nom }}</div>
                     </div>
                   } @else if (slot.available) {
                     <div class="slot-content available">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.AVAILABLE' | translate }}</div>
+                      <div class="status">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
                     </div>
                   } @else {
                     <div class="slot-content occupied">
                       <div class="time">{{ slot.time }}</div>
-                      <div class="status">{{ 'COMMON.OCCUPIED' | translate }}</div>
+                      <div class="status">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</div>
                     </div>
                   }
                 </div>
@@ -216,15 +216,15 @@
     <div class="legend-items">
       <div class="legend-item">
         <div class="legend-color available"></div>
-        <span>{{ 'COMMON.AVAILABLE' | translate }}</span>
+        <span>{{ 'COMMON.STATUS.AVAILABLE' | translate }}</span>
       </div>
       <div class="legend-item">
         <div class="legend-color occupied"></div>
-        <span>{{ 'COMMON.OCCUPIED' | translate }}</span>
+        <span>{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
       </div>
       <div class="legend-item">
         <div class="legend-color past-time"></div>
-        <span>{{ 'COMMON.PAST_TIME' | translate }}</span>
+        <span>{{ 'COMMON.TIME.PAST_TIME' | translate }}</span>
       </div>
     </div>
   </pelu-card>
