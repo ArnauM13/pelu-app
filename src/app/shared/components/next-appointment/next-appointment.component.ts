@@ -35,8 +35,8 @@ export interface Appointment {
             ⏰
           </div>
           <div class="header-content">
-            <h3 class="title">{{ 'APPOINTMENTS.NEXT_APPOINTMENT' | translate }}</h3>
-            <p class="subtitle">{{ 'APPOINTMENTS.NEXT_APPOINTMENT_SUBTITLE' | translate }}</p>
+            <h3 class="title">{{ 'APPOINTMENTS.MESSAGES.NEXT_APPOINTMENT' | translate }}</h3>
+            <p class="subtitle">{{ 'APPOINTMENTS.MESSAGES.NEXT_APPOINTMENT_SUBTITLE' | translate }}</p>
           </div>
         </div>
 
@@ -89,8 +89,8 @@ export interface Appointment {
     } @else {
       <div class="no-next-appointment">
         <div class="no-appointment-icon">📅</div>
-        <h3>{{ 'APPOINTMENTS.NO_NEXT_APPOINTMENT' | translate }}</h3>
-        <p>{{ 'APPOINTMENTS.NO_NEXT_APPOINTMENT_MESSAGE' | translate }}</p>
+        <h3>{{ 'APPOINTMENTS.MESSAGES.NO_NEXT_APPOINTMENT' | translate }}</h3>
+        <p>{{ 'APPOINTMENTS.MESSAGES.NO_NEXT_APPOINTMENT_MESSAGE' | translate }}</p>
       </div>
     }
   `,
