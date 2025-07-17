@@ -22,7 +22,7 @@
   position: fixed;
   top: 2rem;
   right: 2rem;
-  z-index: 1000;
+  z-index: var(--z-popup);
 
   @media (max-width: 768px) {
     position: static;
@@ -68,7 +68,6 @@
 
 .avatar-section {
   position: relative;
-  z-index: 1;
 }
 
 .profile-avatar {
