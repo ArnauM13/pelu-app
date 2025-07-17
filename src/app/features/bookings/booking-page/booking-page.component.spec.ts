@@ -1,83 +1,70 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { BookingPageComponent } from './booking-page.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
-import { mockAuth } from '../../../../testing/firebase-mocks';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { UserService } from '../../../core/services/user.service';
+import { RoleService } from '../../../core/services/role.service';
+import { ServicesService } from '../../../core/services/services.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
-// Mock translate loader
+// Mock classes
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {
     return of({});
   }
 }
 
-// Mock services
-const mockAuthService = {
-  user: jasmine.createSpy('user').and.returnValue({
-    uid: 'test-user-id',
-    displayName: 'Test User',
-    email: 'test@example.com'
-  }),
-  isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true)
-};
-
-const mockRouter = {
-  navigate: jasmine.createSpy('navigate')
-};
-
-const mockMessageService = {
-  add: jasmine.createSpy('add'),
-  clear: jasmine.createSpy('clear')
-};
-
-const mockTranslateService = {
-  instant: jasmine.createSpy('instant').and.returnValue('translated text'),
-  get: jasmine.createSpy('get').and.returnValue(of('translated text')),
-  addLangs: jasmine.createSpy('addLangs').and.returnValue(undefined),
-  use: jasmine.createSpy('use').and.returnValue(undefined),
-  setDefaultLang: jasmine.createSpy('setDefaultLang').and.returnValue(undefined),
-  getBrowserLang: jasmine.createSpy('getBrowserLang').and.returnValue('ca')
-};
-
 describe('BookingPageComponent', () => {
   let component: BookingPageComponent;
   let fixture: ComponentFixture<BookingPageComponent>;
-  let authService: jasmine.SpyObj<AuthService>;
   let router: jasmine.SpyObj<Router>;
-  let messageService: jasmine.SpyObj<MessageService>;
+  let authService: jasmine.SpyObj<AuthService>;
+  let userService: jasmine.SpyObj<UserService>;
+  let roleService: jasmine.SpyObj<RoleService>;
+  let servicesService: jasmine.SpyObj<ServicesService>;
+  let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['user']);
+    const userServiceSpy = jasmine.createSpyObj('UserService', ['userDisplayName']);
+    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['userRole']);
+    const servicesServiceSpy = jasmine.createSpyObj('ServicesService', ['getServicesWithTranslatedNamesAsync']);
+    const toastServiceSpy = jasmine.createSpyObj('ToastService', ['showLoginRequired', 'showAppointmentCreated', 'showNetworkError']);
+
+    // Setup default return values
+    authServiceSpy.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    userServiceSpy.userDisplayName.and.returnValue('Test User');
+    servicesServiceSpy.getServicesWithTranslatedNamesAsync.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [
         BookingPageComponent,
-        HttpClientModule,
         TranslateModule.forRoot({
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
         })
       ],
       providers: [
-        { provide: Auth, useValue: mockAuth },
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: Router, useValue: mockRouter },
-        { provide: MessageService, useValue: mockMessageService },
-        { provide: TranslateService, useValue: mockTranslateService },
-        provideRouter([])
+        { provide: Router, useValue: routerSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: UserService, useValue: userServiceSpy },
+        { provide: RoleService, useValue: roleServiceSpy },
+        { provide: ServicesService, useValue: servicesServiceSpy },
+        { provide: ToastService, useValue: toastServiceSpy }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(BookingPageComponent);
     component = fixture.componentInstance;
-
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
+    roleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
+    servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
+    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
+    fixture.detectChanges();
   });
 
   describe('Component Creation and Basic Properties', () => {
@@ -86,82 +73,14 @@ describe('BookingPageComponent', () => {
     });
 
     it('should have required computed signals', () => {
-      expect(component.nouClient).toBeDefined();
-      expect(component.cites).toBeDefined();
       expect(component.showBookingPopup).toBeDefined();
       expect(component.bookingDetails).toBeDefined();
+      expect(component.availableServices).toBeDefined();
     });
 
-    it('should have computed properties for events', () => {
-      expect(component.events).toBeDefined();
-    });
-
-    it('should have canAddAppointment computed property', () => {
-      expect(component.canAddAppointment).toBeDefined();
-    });
-  });
-
-  describe('Navigation Methods', () => {
-    it('should have goToMobileVersion method', () => {
-      expect(typeof component.goToMobileVersion).toBe('function');
-    });
-
-    it('should navigate to mobile version when goToMobileVersion is called', () => {
-      component.goToMobileVersion();
-      expect(router.navigate).toHaveBeenCalledWith(['/booking-mobile']);
-    });
-  });
-
-  describe('Date and Time Methods', () => {
-    it('should have onDateSelected method', () => {
-      expect(typeof component.onDateSelected).toBe('function');
-    });
-
-    it('should have updateNom method', () => {
-      expect(typeof component.updateNom).toBe('function');
-    });
-
-    it('should have updateData method', () => {
-      expect(typeof component.updateData).toBe('function');
-    });
-
-    it('should have updateHora method', () => {
-      expect(typeof component.updateHora).toBe('function');
-    });
-  });
-
-  describe('Booking Methods', () => {
-    it('should have afegirCita method', () => {
-      expect(typeof component.afegirCita).toBe('function');
-    });
-
-    it('should have onBookingConfirmed method', () => {
-      expect(typeof component.onBookingConfirmed).toBe('function');
-    });
-
-    it('should have onBookingCancelled method', () => {
-      expect(typeof component.onBookingCancelled).toBe('function');
-    });
-
-    it('should have showToast method', () => {
-      expect(typeof component.showToast).toBe('function');
-    });
-
-    it('should have onToastClick method', () => {
-      expect(typeof component.onToastClick).toBe('function');
-    });
-
-    it('should have viewAppointmentDetail method', () => {
-      expect(typeof component.viewAppointmentDetail).toBe('function');
-    });
-  });
-
-  describe('Component Behavior', () => {
-    it('should initialize with default values', () => {
-      expect(component.nouClient()).toEqual({ nom: '', data: '', hora: '' });
-      expect(component.cites()).toEqual([]);
-      expect(component.showBookingPopup()).toBeFalse();
-      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '' });
+    it('should have info items', () => {
+      expect(component.infoItems).toBeDefined();
+      expect(Array.isArray(component.infoItems)).toBeTrue();
     });
   });
 
@@ -170,8 +89,16 @@ describe('BookingPageComponent', () => {
       expect(authService.user).toHaveBeenCalled();
     });
 
-    it('should use MessageService for toast notifications', () => {
-      expect(messageService).toBeDefined();
+    it('should use UserService for display name', () => {
+      expect(userService.userDisplayName).toHaveBeenCalled();
+    });
+
+    it('should use ServicesService for loading services', () => {
+      expect(servicesService.getServicesWithTranslatedNamesAsync).toHaveBeenCalled();
+    });
+
+    it('should use ToastService for notifications', () => {
+      expect(toastService).toBeDefined();
     });
 
     it('should use Router for navigation', () => {
@@ -179,22 +106,22 @@ describe('BookingPageComponent', () => {
     });
   });
 
+  describe('Component Behavior', () => {
+    it('should initialize with default values', () => {
+      expect(component.showBookingPopup()).toBeFalse();
+      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '' });
+      expect(component.availableServices()).toEqual([]);
+    });
+  });
+
   describe('Event Handling', () => {
-    it('should handle date selection', () => {
-      const testDate = { date: '2024-01-01', time: '10:00' };
-      expect(() => component.onDateSelected(testDate)).not.toThrow();
+    it('should handle time slot selection', () => {
+      const event = { date: '2024-01-01', time: '10:00' };
+      expect(() => component.onTimeSlotSelected(event)).not.toThrow();
     });
 
-    it('should handle client name updates', () => {
-      expect(() => component.updateNom('Test User')).not.toThrow();
-    });
-
-    it('should handle date updates', () => {
-      expect(() => component.updateData('2024-01-01')).not.toThrow();
-    });
-
-    it('should handle time updates', () => {
-      expect(() => component.updateHora('10:00')).not.toThrow();
+    it('should handle client name changes', () => {
+      expect(() => component.onClientNameChanged('New Name')).not.toThrow();
     });
   });
 
@@ -212,70 +139,44 @@ describe('BookingPageComponent', () => {
     it('should handle booking cancellation', () => {
       expect(() => component.onBookingCancelled()).not.toThrow();
     });
-
-    it('should handle appointment addition', () => {
-      expect(() => component.afegirCita()).not.toThrow();
-    });
-  });
-
-  describe('Toast Notifications', () => {
-    it('should show toast notifications', () => {
-      expect(() => component.showToast('success', 'Test', 'Test message')).not.toThrow();
-    });
-
-    it('should handle toast clicks', () => {
-      const mockEvent = { value: { data: { appointmentId: 'test-id' } } };
-      expect(() => component.onToastClick(mockEvent)).not.toThrow();
-    });
-  });
-
-  describe('Appointment Management', () => {
-    it('should view appointment details', () => {
-      expect(() => component.viewAppointmentDetail('test-id')).not.toThrow();
-    });
-  });
-
-  describe('Computed Properties', () => {
-    it('should compute events correctly', () => {
-      expect(Array.isArray(component.events())).toBeTrue();
-    });
-
-    it('should compute canAddAppointment correctly', () => {
-      expect(typeof component.canAddAppointment()).toBe('boolean');
-    });
-
-    it('should compute nouClient correctly', () => {
-      expect(component.nouClient()).toEqual({ nom: '', data: '', hora: '' });
-    });
-
-    it('should compute cites correctly', () => {
-      expect(Array.isArray(component.cites())).toBeTrue();
-    });
   });
 
   describe('Error Handling', () => {
     it('should handle missing user gracefully', () => {
       authService.user.and.returnValue(null);
-      expect(() => component).not.toThrow();
+      const bookingDetails = {
+        date: '2024-01-01',
+        time: '10:00',
+        clientName: 'Test User'
+      };
+
+      component.onBookingConfirmed(bookingDetails);
+
+      expect(toastService.showLoginRequired).toHaveBeenCalled();
     });
 
-    it('should handle empty appointments list', () => {
-      expect(component.cites()).toEqual([]);
-    });
-
-    it('should handle missing appointment data', () => {
-      expect(() => component.viewAppointmentDetail('')).not.toThrow();
+    it('should handle empty services list', () => {
+      expect(component.availableServices()).toEqual([]);
     });
   });
 
-  describe('Mobile Integration', () => {
-    it('should provide mobile version navigation', () => {
-      expect(typeof component.goToMobileVersion).toBe('function');
+  describe('Local Storage Integration', () => {
+    beforeEach(() => {
+      spyOn(localStorage, 'getItem').and.returnValue('[]');
+      spyOn(localStorage, 'setItem');
     });
 
-    it('should navigate to mobile booking page', () => {
-      component.goToMobileVersion();
-      expect(router.navigate).toHaveBeenCalledWith(['/booking-mobile']);
+    it('should handle appointment storage', () => {
+      const bookingDetails = {
+        date: '2024-01-01',
+        time: '10:00',
+        clientName: 'Test User'
+      };
+
+      component.onBookingConfirmed(bookingDetails);
+
+      expect(localStorage.setItem).toHaveBeenCalled();
+      expect(toastService.showAppointmentCreated).toHaveBeenCalled();
     });
   });
 });

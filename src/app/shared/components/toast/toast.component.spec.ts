@@ -1,9 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { ToastComponent } from './toast.component';
 import { AuthService } from '../../../core/auth/auth.service';
+
+// Mock classes
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation() {
+    return of({});
+  }
+}
 
 describe('ToastComponent', () => {
   let component: ToastComponent;
@@ -17,8 +25,16 @@ describe('ToastComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['user']);
 
+    // Setup default return values
+    authServiceSpy.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+
     await TestBed.configureTestingModule({
-      imports: [ToastComponent, TranslateModule.forRoot()],
+      imports: [
+        ToastComponent,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
+        })
+      ],
       providers: [
         { provide: MessageService, useValue: messageServiceSpy },
         { provide: Router, useValue: routerSpy },

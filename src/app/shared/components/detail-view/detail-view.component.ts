@@ -83,6 +83,13 @@ export class DetailViewComponent implements OnChanges {
   get appointment() { return this.config?.appointment; }
   get infoSections() { return this.config?.infoSections || []; }
   get actions() { return this.config?.actions || []; }
+  get filteredActions() {
+    return this.actions.filter(action =>
+      action.label !== 'COMMON.ACTIONS.BACK' &&
+      action.label !== 'Back' &&
+      action.label !== 'Tornar endarrere'
+    );
+  }
   get editForm() { return this.config?.editForm || {}; }
   get isEditing() { return this.config?.isEditing; }
   get hasChanges() { return this.config?.hasChanges; }
