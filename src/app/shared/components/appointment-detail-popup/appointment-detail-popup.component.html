@@ -16,7 +16,11 @@
 
     <!-- Body -->
     <div class="popup-body">
-      @if (appointment(); as cita) {
+      @if (isLoading()) {
+        <div class="no-appointment"><p>Carregant...</p></div>
+      } @else if (loadError()) {
+        <div class="no-appointment"><p>{{ 'APPOINTMENTS.NOT_FOUND' | translate }}</p></div>
+      } @else if (appointmentToShow()) {
         <!-- Appointment Info -->
         <div class="appointment-info">
           @for (item of appointmentInfoItems(); track item.label) {
@@ -30,7 +34,7 @@
         <!-- Status Badge -->
         <div class="status-section">
           <pelu-appointment-status-badge
-            [appointmentData]="{ date: appointmentDate(), time: appointment()?.hora }"
+            [appointmentData]="{ date: appointmentDate(), time: appointmentToShow()?.hora }"
             [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: false }">
           </pelu-appointment-status-badge>
         </div>

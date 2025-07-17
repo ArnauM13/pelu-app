@@ -51,13 +51,15 @@ describe('CalendarDragDropService', () => {
     };
 
     const originalPosition = { top: 100, left: 50 };
+    const originalDate = new Date('2024-01-01');
 
-    service.startDrag(appointment, originalPosition);
+    service.startDrag(appointment, originalPosition, originalDate);
 
     expect(service.isDragging()).toBe(true);
     expect(service.draggedAppointment()).toEqual(appointment);
     expect(service.originalPosition()).toEqual(originalPosition);
     expect(service.currentPosition()).toEqual(originalPosition);
+    expect(service.originalDate()).toEqual(originalDate);
   });
 
   it('should update drag position correctly', () => {
@@ -68,7 +70,7 @@ describe('CalendarDragDropService', () => {
       duration: 60
     };
 
-    service.startDrag(appointment, { top: 100, left: 50 });
+    service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
 
     const newPosition = { top: 150, left: 75 };
     service.updateDragPosition(newPosition);
@@ -84,7 +86,7 @@ describe('CalendarDragDropService', () => {
       duration: 60
     };
 
-    service.startDrag(appointment, { top: 100, left: 50 });
+    service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
 
     const day = new Date('2024-01-01');
     const position = { top: 120, left: 0 }; // 120 minutes from 8:00 = 10:00
@@ -106,7 +108,7 @@ describe('CalendarDragDropService', () => {
     positionService.isTimeSlotAvailable.and.returnValue(true);
     stateService.appointments.and.returnValue([]);
 
-    service.startDrag(appointment, { top: 100, left: 50 });
+    service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
 
     const day = new Date('2024-01-01');
     const position = { top: 120, left: 0 };
@@ -127,7 +129,7 @@ describe('CalendarDragDropService', () => {
     positionService.isTimeSlotAvailable.and.returnValue(true);
     stateService.appointments.and.returnValue([]);
 
-    service.startDrag(appointment, { top: 100, left: 50 });
+    service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
 
     const day = new Date('2024-01-01');
     const position = { top: 120, left: 0 };
@@ -148,7 +150,7 @@ describe('CalendarDragDropService', () => {
       duration: 60
     };
 
-    service.startDrag(appointment, { top: 100, left: 50 });
+    service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
     expect(service.isDragging()).toBe(true);
 
     service.cancelDrag();
@@ -159,5 +161,26 @@ describe('CalendarDragDropService', () => {
     expect(service.currentPosition()).toBeNull();
     expect(service.targetDate()).toBeNull();
     expect(service.targetTime()).toBeNull();
+  });
+
+  it('should detect cross-day dragging correctly', () => {
+    const appointment: AppointmentEvent = {
+      id: 'test-1',
+      title: 'Test Appointment',
+      start: '2024-01-01T10:00:00',
+      duration: 60
+    };
+
+    const originalDate = new Date('2024-01-01');
+    service.startDrag(appointment, { top: 100, left: 50 }, originalDate);
+
+    // Same day - should return false
+    service.updateTargetDateTime({ top: 120, left: 0 }, originalDate);
+    expect(service.isMovingToDifferentDay()).toBe(false);
+
+    // Different day - should return true
+    const differentDate = new Date('2024-01-02');
+    service.updateTargetDateTime({ top: 120, left: 0 }, differentDate);
+    expect(service.isMovingToDifferentDay()).toBe(true);
   });
 });
