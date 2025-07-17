@@ -6,6 +6,7 @@ import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthPopupComponent, AuthPopupConfig } from '../../../shared/components/auth-popup/auth-popup.component';
 import { TranslationService } from '../../../core/services/translation.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-register-page',
@@ -43,7 +44,8 @@ export class RegisterPageComponent implements OnDestroy {
     private auth: Auth,
     private router: Router,
     private authService: AuthService,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnDestroy() {
@@ -63,6 +65,7 @@ export class RegisterPageComponent implements OnDestroy {
     if (this.isLoading()) return; // Prevent multiple submissions
 
     this.isLoading.set(true);
+    this.loaderService.showWithMessage(this.translation.get('AUTH.REGISTERING'));
     this.errorMessage.set('');
 
     try {
@@ -104,6 +107,7 @@ export class RegisterPageComponent implements OnDestroy {
       this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
+      this.loaderService.hide();
     }
   }
 
@@ -111,6 +115,7 @@ export class RegisterPageComponent implements OnDestroy {
     if (this.isLoading()) return; // Prevent multiple submissions
 
     this.isLoading.set(true);
+    this.loaderService.showWithMessage(this.translation.get('AUTH.REGISTERING'));
     this.errorMessage.set('');
 
     try {
@@ -137,6 +142,7 @@ export class RegisterPageComponent implements OnDestroy {
       this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
+      this.loaderService.hide();
     }
   }
 }

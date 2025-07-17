@@ -27,7 +27,7 @@ export class CalendarBusinessService {
       end: 20
     },
     days: {
-      start: 2, // Tuesday
+      start: 1, // Monday
       end: 6    // Saturday
     },
     lunchBreak: {
@@ -56,6 +56,26 @@ export class CalendarBusinessService {
   isLunchBreak(time: string): boolean {
     const [hour] = time.split(':').map(Number);
     return hour >= this.businessConfig.lunchBreak.start && hour < this.businessConfig.lunchBreak.end;
+  }
+
+  /**
+   * Check if a time slot is bookable (allows reservations until 12:30 and from 15:00)
+   */
+  isTimeSlotBookable(time: string): boolean {
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Allow bookings until 12:30
+    if (hour < 12 || (hour === 12 && minute <= 30)) {
+      return true;
+    }
+
+    // Allow bookings from 15:00 onwards
+    if (hour >= 15) {
+      return true;
+    }
+
+    // Block 12:30-15:00 (lunch break period)
+    return false;
   }
 
   /**
@@ -88,9 +108,16 @@ export class CalendarBusinessService {
     const slots: string[] = [];
     const startHour = this.businessConfig.hours.start;
     const endHour = this.businessConfig.hours.end;
+    const lunchStart = this.businessConfig.lunchBreak.start;
+    const lunchEnd = this.businessConfig.lunchBreak.end;
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minutes of [0, 30]) {
+        // Skip lunch break (13:00-15:00)
+        if (hour >= lunchStart && hour < lunchEnd) {
+          continue;
+        }
+
         const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         slots.push(timeString);
       }
@@ -180,14 +207,58 @@ export class CalendarBusinessService {
   /**
    * Check if can navigate to previous week
    */
-  canNavigateToPreviousWeek(currentViewDate: Date = new Date()): boolean {
+  canNavigateToPreviousWeek(currentViewDate: Date = new Date(), appointments: AppointmentEvent[] = []): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     // Calcular la data d'inici de la setmana anterior
     const prevWeekStart = new Date(currentViewDate);
     prevWeekStart.setDate(prevWeekStart.getDate() - 7);
-    // Si algun dia de la setmana anterior és igual o posterior a avui, permet navegar-hi
+    // Si algun dia de la setmana anterior és igual o posterior a avui i té hores disponibles, permet navegar-hi
     const weekDays = this.getBusinessDaysForWeek(prevWeekStart);
-    return weekDays.some(day => day >= today);
+    return weekDays.some(day => {
+      // Always allow navigation to past days
+      if (day >= today) {
+        return true;
+      }
+      // For future days, check if they have available time slots
+      return this.hasAvailableTimeSlots(day, appointments);
+    });
+  }
+
+  /**
+   * Check if a day has any available time slots
+   */
+  hasAvailableTimeSlots(date: Date, appointments: AppointmentEvent[]): boolean {
+    const timeSlots = this.generateTimeSlots();
+    const dayAppointments = this.getAppointmentsForDay(date, appointments);
+
+    // Check if any time slot is available
+    for (const timeSlot of timeSlots) {
+      const [hour, minute] = timeSlot.split(':').map(Number);
+      const slotStart = new Date(date);
+      slotStart.setHours(hour, minute, 0, 0);
+
+      // Skip if slot is in the past
+      if (this.isPastTimeSlot(date, timeSlot)) {
+        continue;
+      }
+
+      // Check if slot is available (not occupied by any appointment)
+      const isAvailable = !dayAppointments.some(appointment => {
+        if (!appointment.start) return false;
+
+        const appointmentStart = new Date(appointment.start);
+        const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
+
+        // Check for overlap
+        return appointmentStart < addMinutes(slotStart, 30) && appointmentEnd > slotStart;
+      });
+
+      if (isAvailable) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

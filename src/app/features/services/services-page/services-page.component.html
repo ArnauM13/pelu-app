@@ -14,7 +14,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('haircut'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -28,10 +28,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
+                    <span class="price">{{ service.price | currency }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -49,7 +49,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('beard'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -63,10 +63,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
+                    <span class="price">{{ service.price | currency }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -84,7 +84,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('treatment'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -98,10 +98,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
+                    <span class="price">{{ service.price | currency }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -119,7 +119,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('styling'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -133,10 +133,10 @@
                 <p class="service-description">{{ service.description }}</p>
                 <div class="service-details">
                   <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'SERVICES.MINUTES' | translate }}</span>
+                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
                   </div>
                   <div class="service-price">
-                    <span class="price">{{ service.price }}{{ 'SERVICES.EURO' | translate }}</span>
+                    <span class="price">{{ service.price | currency }}</span>
                   </div>
                 </div>
               </ng-template>

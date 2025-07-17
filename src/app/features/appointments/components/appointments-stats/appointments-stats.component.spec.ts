@@ -1,22 +1,39 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppointmentsStatsComponent, AppointmentStats } from './appointments-stats.component';
+import { Component, signal } from '@angular/core';
 
-describe('AppointmentsStatsComponent', () => {
-  let component: AppointmentsStatsComponent;
-  let fixture: ComponentFixture<AppointmentsStatsComponent>;
-
-  const mockStats: AppointmentStats = {
+// Test wrapper component to provide input signals
+@Component({
+  template: `
+    <pelu-appointments-stats
+      [stats]="stats()"
+      (onQuickFilterChange)="onQuickFilterChange($event)">
+    </pelu-appointments-stats>
+  `,
+  imports: [AppointmentsStatsComponent],
+  standalone: true
+})
+class TestWrapperComponent {
+  stats = signal<AppointmentStats>({
     total: 10,
     today: 3,
     upcoming: 7,
     mine: 5
-  };
+  });
+
+  onQuickFilterChange(filter: 'all' | 'today' | 'upcoming' | 'mine') {}
+}
+
+describe('AppointmentsStatsComponent', () => {
+  let component: AppointmentsStatsComponent;
+  let fixture: ComponentFixture<TestWrapperComponent>;
+  let wrapperComponent: TestWrapperComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        AppointmentsStatsComponent,
+        TestWrapperComponent,
         TranslateModule.forRoot()
       ],
       providers: [
@@ -24,14 +41,19 @@ describe('AppointmentsStatsComponent', () => {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+            addLangs: () => {},
+            use: () => {},
+            setDefaultLang: () => {},
+            getBrowserLang: () => 'ca'
           }
         }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AppointmentsStatsComponent);
-    component = fixture.componentInstance;
+    fixture = TestBed.createComponent(TestWrapperComponent);
+    wrapperComponent = fixture.componentInstance;
+    component = fixture.debugElement.children[0].componentInstance;
     fixture.detectChanges();
   });
 

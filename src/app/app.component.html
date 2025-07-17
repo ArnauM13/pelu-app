@@ -1,20 +1,12 @@
-<!-- Loading indicator -->
-@if (isLoading()) {
-  <div class="loading-overlay">
-    <div class="loading-content">
-      <div class="loading-spinner"></div>
-      <p>{{ 'COMMON.LOADING' | translate }}</p>
-    </div>
-  </div>
-}
-
 <!-- Main app content -->
-@if (!isLoading()) {
-  @if (shouldShowHeader()) {
-    <pelu-header></pelu-header>
-  }
-
-  <main class="main-content">
-    <router-outlet></router-outlet>
-  </main>
+@if (shouldShowHeader()) {
+  <pelu-header></pelu-header>
 }
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Global components -->
+<pelu-toast></pelu-toast>
+<pelu-loader></pelu-loader>

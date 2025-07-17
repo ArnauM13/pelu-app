@@ -1,29 +1,3 @@
-<p-toast key="appointments-toast" position="top-right" [baseZIndex]="9999" (onClick)="onToastClick($event)">
-  <ng-template let-message pTemplate="message">
-    <div class="p-toast-message-content">
-      <div class="p-toast-message-icon">
-        <i [class]="message.severity === 'success' ? 'pi pi-check' : message.severity === 'error' ? 'pi pi-times' : message.severity === 'warn' ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"></i>
-      </div>
-      <div class="p-toast-message-text">
-        <span class="p-toast-summary">{{ message.summary }}</span>
-        <div class="p-toast-detail">{{ message.detail }}</div>
-        @if (message.data?.showViewButton && message.data?.appointmentId) {
-        <div class="p-toast-message-actions">
-          <button
-            class="p-toast-message-btn p-toast-message-btn-primary"
-            (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
-            👁️ Veure detall
-          </button>
-        </div>
-        }
-      </div>
-      <button class="p-toast-icon-close" (click)="messageService.clear('appointments-toast'); $event.stopPropagation()">
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
-  </ng-template>
-</p-toast>
-
 <div class="container pelu-appointments-page" style="margin-top: 2rem; view-transition-name: appointments-container">
 
   <!-- Statistics Cards -->
@@ -67,12 +41,14 @@
       @defer {
         <pelu-calendar-component
           [events]="calendarEvents()"
-          [mini]="false">
+          [mini]="false"
+          (onEditAppointment)="editAppointment($event)"
+          (onDeleteAppointment)="deleteAppointment($event)">
         </pelu-calendar-component>
       } @placeholder {
         <div class="calendar-placeholder">
           <div class="loading-spinner"></div>
-          <p>{{ 'COMMON.LOADING' | translate }}</p>
+          <p>{{ 'COMMON.STATUS.LOADING' | translate }}</p>
         </div>
       }
     </div>
@@ -141,6 +117,14 @@
                 pTooltipPosition="left">
                 👁️
               </button>
+              @if (isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
+                <button
+                  class="btn btn-secondary"
+                  (click)="editAppointment(appointment)"
+                  [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                  pTooltipPosition="left">
+                  ✏️
+              </button>
               <button
                 class="btn btn-danger"
                 (click)="deleteAppointment(appointment)"
@@ -148,6 +132,7 @@
                 pTooltipPosition="left">
                 🗑️
               </button>
+              }
             </div>
           </div>
         </div>
@@ -165,6 +150,7 @@
     [appointments]="filteredAppointments()"
     [hasActiveFilters]="hasActiveFilters()"
     (onViewAppointment)="viewAppointmentDetail($event)"
+    (onEditAppointment)="editAppointment($event)"
     (onDeleteAppointment)="deleteAppointment($event)"
     (onClearFilters)="clearAllFilters()">
   </pelu-appointments-list>

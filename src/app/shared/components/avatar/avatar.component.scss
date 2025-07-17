@@ -1,0 +1,82 @@
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #6366f1;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &.small {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  &.medium {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  &.large {
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+  }
+
+  &.xlarge {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+  }
+
+  &.has-image {
+    background-color: transparent;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    border-color: #d1d5db;
+  }
+}
+
+.avatar-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+}
+
+.initials {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .avatar {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  .avatar:hover,
+  .avatar:active {
+    transform: none !important;
+    border-color: #d1d5db !important;
+  }
+}

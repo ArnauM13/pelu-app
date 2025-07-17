@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslationService, Language } from '../../../core/services/translation.service';
@@ -11,7 +11,7 @@ import { AuthService } from '../../../core/auth/auth.service';
   templateUrl: './language-selector.component.html',
   styleUrls: ['./language-selector.component.scss']
 })
-export class LanguageSelectorComponent {
+export class LanguageSelectorComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
 
@@ -27,10 +27,20 @@ export class LanguageSelectorComponent {
   constructor() {
     // Initialize current language
     this.currentLanguageSignal.set(this.translationService.getCurrentLanguageInfo());
-
     // Initialize language effect
     this.#initLanguageEffect();
   }
+
+  ngOnInit() {
+    document.addEventListener('click', this.onDocumentClickBound, true);
+  }
+
+  ngOnDestroy() {
+    document.removeEventListener('click', this.onDocumentClickBound, true);
+  }
+
+  // Bound version for add/removeEventListener
+  private onDocumentClickBound = (event: Event) => this.onDocumentClick(event);
 
   #initLanguageEffect() {
     effect(() => {
@@ -44,10 +54,8 @@ export class LanguageSelectorComponent {
 
   selectLanguage(langCode: string): void {
     this.translationService.setLanguage(langCode);
-
     // Save user's language preference when they change it
     this.authService.saveCurrentUserLanguage();
-
     this.isDropdownOpenSignal.set(false);
   }
 
@@ -55,7 +63,9 @@ export class LanguageSelectorComponent {
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.language-selector')) {
-      this.isDropdownOpenSignal.set(false);
+      if (this.isDropdownOpenSignal()) {
+        this.isDropdownOpenSignal.set(false);
+      }
     }
   }
 }

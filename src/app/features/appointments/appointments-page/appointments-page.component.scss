@@ -25,7 +25,6 @@
 // Container styles
 .container {
   position: relative;
-  z-index: 1;
 }
 
 // Input styles
@@ -194,7 +193,6 @@ pelu-appointments-view-controls {
 .appointments-section-separator {
   margin: 2rem 0;
   position: relative;
-  z-index: 1;
 
   h2 {
     color: #1976d2;
@@ -897,7 +895,7 @@ pelu-appointments-list {
 
 // Tooltip Styles - Ensure tooltips appear above filters and don't get cut off
 ::ng-deep .p-tooltip {
-  z-index: 6000 !important; /* Higher than popups */
+  z-index: var(--z-notification) !important; /* Higher than popups */
 }
 
 ::ng-deep .p-tooltip .p-tooltip-text {
@@ -943,7 +941,7 @@ pelu-appointments-list {
   position: fixed;
   top: 5rem;
   right: 1.5rem;
-  z-index: 2000;
+  z-index: var(--z-overlay);
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
@@ -959,7 +957,7 @@ pelu-appointments-list {
   position: fixed;
   top: 5rem;
   left: 1.5rem;
-  z-index: 2000;
+  z-index: var(--z-overlay);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -999,7 +997,7 @@ pelu-appointments-list {
   position: fixed;
   top: 5rem;
   left: 1.5rem;
-  z-index: 1999;
+  z-index: var(--z-overlay);
   background: white;
   border-radius: 12px;
   box-shadow: var(--box-shadow-hover);
@@ -1039,14 +1037,14 @@ pelu-appointments-list {
   .view-toggle-fab {
     top: 4.5rem;
     right: 1rem;
-    z-index: 2000;
+    z-index: var(--z-overlay);
     gap: 0.5rem;
   }
 
   .filters-fab {
     top: 4.5rem;
     left: 1rem;
-    z-index: 2000;
+    z-index: var(--z-overlay);
     gap: 0.5rem;
   }
 
@@ -1095,7 +1093,7 @@ pelu-appointments-list {
   position: fixed;
   top: 5rem;
   left: 1.5rem;
-  z-index: 3200;
+  z-index: var(--z-notification);
   width: fit-content;
 }
 
@@ -1250,7 +1248,7 @@ pelu-appointments-list {
   animation: spin 1s linear infinite;
   margin-bottom: 1.5rem;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-base);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
@@ -1321,4 +1319,41 @@ pelu-appointments-list {
       padding: 0.75rem;
     }
   }
+}
+
+// Button styles for appointment actions
+.btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+}
+
+.btn-secondary {
+  background: var(--gradient-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+}
+
+.btn-danger {
+  background: var(--gradient-error);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
 }

@@ -1,19 +1,26 @@
 @if (open()) {
-<div class="appointment-detail-popup-overlay" (click)="onBackdropClick($event)">
-  <div class="appointment-detail-popup">
+<div class="appointment-detail-popup-overlay"
+     [class.closing]="isClosingState()"
+     (click)="onBackdropClick($event)">
+  <div class="appointment-detail-popup"
+       [class.closing]="isClosingState()">
     <!-- Header -->
     <div class="popup-header">
       <div class="header-content">
         <h3>{{ 'APPOINTMENTS.APPOINTMENT_DETAIL' | translate }}</h3>
       </div>
-      <button class="close-btn" (click)="onClose()" [title]="'COMMON.CLOSE' | translate">
+      <button class="close-btn" (click)="onClose()" [title]="'COMMON.ACTIONS.CLOSE' | translate">
         <i class="pi pi-times"></i>
       </button>
     </div>
 
     <!-- Body -->
     <div class="popup-body">
-      @if (appointment(); as cita) {
+      @if (isLoading()) {
+        <div class="no-appointment"><p>Carregant...</p></div>
+      } @else if (loadError()) {
+        <div class="no-appointment"><p>{{ 'APPOINTMENTS.NOT_FOUND' | translate }}</p></div>
+      } @else if (appointmentToShow()) {
         <!-- Appointment Info -->
         <div class="appointment-info">
           @for (item of appointmentInfoItems(); track item.label) {
@@ -27,7 +34,7 @@
         <!-- Status Badge -->
         <div class="status-section">
           <pelu-appointment-status-badge
-            [appointmentData]="{ date: appointmentDate(), time: appointment()?.hora }"
+            [appointmentData]="{ date: appointmentDate(), time: appointmentToShow()?.hora }"
             [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: false }">
           </pelu-appointment-status-badge>
         </div>
@@ -35,13 +42,28 @@
         <!-- Actions -->
         @if (!hideViewDetailButton()) {
         <div class="popup-actions">
-          <button
-            class="btn btn-primary"
-            (click)="onViewFullDetail()"
-            [title]="'APPOINTMENTS.VIEW_FULL_DETAIL' | translate">
-            <i class="pi pi-external-link"></i>
-            {{ 'APPOINTMENTS.VIEW_FULL_DETAIL' | translate }}
-          </button>
+          <div class="actions-row">
+            <button
+              class="btn btn-primary"
+              (click)="onViewFullDetail()"
+              [title]="'APPOINTMENTS.VIEW_FULL_DETAIL' | translate">
+              👁️ {{ 'APPOINTMENTS.VIEW_FULL_DETAIL' | translate }}
+            </button>
+            @if (canEditOrDelete()) {
+              <button
+                class="btn btn-secondary"
+                (click)="onEditAppointment()"
+                [title]="'COMMON.ACTIONS.EDIT' | translate">
+                ✏️ {{ 'COMMON.ACTIONS.EDIT' | translate }}
+              </button>
+              <button
+                class="btn btn-danger"
+                (click)="onDeleteAppointment()"
+                [title]="'COMMON.ACTIONS.DELETE' | translate">
+                🗑️ {{ 'COMMON.ACTIONS.DELETE' | translate }}
+              </button>
+            }
+          </div>
         </div>
         }
       } @else {

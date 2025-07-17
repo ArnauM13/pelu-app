@@ -8,18 +8,48 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   font-size: 11px;
   cursor: pointer;
-  z-index: 10;
+  z-index: var(--z-interactive);
   overflow: hidden;
   transition: all 0.2s ease;
   border: 2px solid;
   min-height: 20px;
   /* Colors will be applied via CSS classes */
+
+  /* Custom Drag & Drop styles */
+  &.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+    z-index: var(--z-popup);
+    pointer-events: none;
+  }
+
+  /* Drag preview styles for cross-day dragging */
+  &.drag-preview {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: rotate(2deg);
+    z-index: var(--z-popup);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  /* Placeholder styles */
+  &.drag-placeholder {
+    opacity: 0.3;
+    border: 2px dashed #ccc;
+    background: transparent;
+  }
+
+  /* Click feedback */
+  &:active:not(.dragging) {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
 }
 
 .appointment:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
-  z-index: 15;
+  z-index: var(--z-interactive);
   filter: brightness(1.1);
 }
 
@@ -60,15 +90,53 @@
   display: none; /* Per defecte ocult, es mostra si hi ha espai */
 }
 
-.appointment-duration {
-  font-size: 8px;
-  opacity: 0.8;
-  line-height: 1;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 1px 3px;
+  .appointment-duration {
+    font-size: 8px;
+    opacity: 0.8;
+    line-height: 1;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1px 3px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0; /* No es redueix */
+  }
+
+/* Drag Handle */
+.drag-handle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  cursor: grab;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-indicator {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 2px;
-  white-space: nowrap;
-  flex-shrink: 0; /* No es redueix */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-indicator::before {
+  content: '⋮⋮';
+  font-size: 8px;
+  color: #666;
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
 /* Mostrar el servei si hi ha espai suficient */

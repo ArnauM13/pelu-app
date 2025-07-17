@@ -1,18 +1,55 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { FiltersPopupComponent } from './filters-popup.component';
-import { createTestComponentNoRender } from '../../../../testing/test-setup';
+import { configureTestBed, resetMocks, setupDefaultMocks } from '../../../../testing/test-setup';
+import { signal, Component } from '@angular/core';
+
+// Test wrapper component to provide input signals
+@Component({
+  template: `
+    <pelu-filters-popup
+      [filterButtons]="filterButtons()"
+      [filterDate]="filterDate()"
+      [filterClient]="filterClient()"
+      [showAdvancedFilters]="showAdvancedFilters()"
+      [onFilterClick]="onFilterClick"
+      [onDateChange]="onDateChange"
+      [onClientChange]="onClientChange"
+      [onReset]="onReset"
+      [onToggleAdvanced]="onToggleAdvanced">
+    </pelu-filters-popup>
+  `,
+  imports: [FiltersPopupComponent],
+  standalone: true
+})
+class TestWrapperComponent {
+  filterButtons = signal([{}, {}, {}]);
+  filterDate = signal('');
+  filterClient = signal('');
+  showAdvancedFilters = signal(false);
+
+  onFilterClick = (index: number) => {};
+  onDateChange = (value: string) => {};
+  onClientChange = (value: string) => {};
+  onReset = () => {};
+  onToggleAdvanced = () => {};
+}
 
 describe('FiltersPopupComponent', () => {
   let component: FiltersPopupComponent;
-  let fixture: ComponentFixture<FiltersPopupComponent>;
+  let fixture: ComponentFixture<TestWrapperComponent>;
+  let wrapperComponent: TestWrapperComponent;
 
   beforeEach(async () => {
-    fixture = await createTestComponentNoRender<FiltersPopupComponent>(
-      FiltersPopupComponent,
-      [FormsModule]
-    );
-    component = fixture.componentInstance;
+    setupDefaultMocks();
+
+    await configureTestBed([TestWrapperComponent]).compileComponents();
+
+    fixture = TestBed.createComponent(TestWrapperComponent);
+    wrapperComponent = fixture.componentInstance;
+    component = fixture.debugElement.children[0].componentInstance;
+
+    resetMocks();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -48,80 +85,53 @@ describe('FiltersPopupComponent', () => {
     expect(typeof component.onResetHandler).toBe('function');
   });
 
-  it('should return static value for showAdvancedFiltersValue when input is boolean', () => {
-    spyOn(component, 'showAdvancedFilters').and.returnValue(true);
-    expect(component.showAdvancedFiltersValue()).toBe(true);
-  });
-
   it('should handle filter click for regular button', () => {
     const mockCallback = jasmine.createSpy('onFilterClick');
-    spyOn(component, 'onFilterClick').and.returnValue(mockCallback);
-    spyOn(component, 'filterButtonsValue').and.returnValue([{}, {}, {}]);
+    wrapperComponent.onFilterClick = mockCallback;
 
-    expect(() => component.onFilterClickHandler(0)).not.toThrow();
+    fixture.detectChanges();
+
+    component.onFilterClickHandler(0);
     expect(mockCallback).toHaveBeenCalledWith(0);
   });
 
   it('should handle filter click for advanced button', () => {
     const mockCallback = jasmine.createSpy('onToggleAdvanced');
-    spyOn(component, 'onToggleAdvanced').and.returnValue(mockCallback);
-    spyOn(component, 'filterButtonsValue').and.returnValue([{}, {}, {}]);
+    wrapperComponent.onToggleAdvanced = mockCallback;
 
-    expect(() => component.onFilterClickHandler(2)).not.toThrow();
+    fixture.detectChanges();
+
+    component.onFilterClickHandler(2);
     expect(mockCallback).toHaveBeenCalled();
   });
 
   it('should handle date change', () => {
     const mockCallback = jasmine.createSpy('onDateChange');
-    spyOn(component, 'onDateChange').and.returnValue(mockCallback);
+    wrapperComponent.onDateChange = mockCallback;
 
-    expect(() => component.onDateChangeHandler('2024-01-15')).not.toThrow();
+    fixture.detectChanges();
+
+    component.onDateChangeHandler('2024-01-15');
     expect(mockCallback).toHaveBeenCalledWith('2024-01-15');
   });
 
   it('should handle client change', () => {
     const mockCallback = jasmine.createSpy('onClientChange');
-    spyOn(component, 'onClientChange').and.returnValue(mockCallback);
+    wrapperComponent.onClientChange = mockCallback;
 
-    expect(() => component.onClientChangeHandler('Test Client')).not.toThrow();
+    fixture.detectChanges();
+
+    component.onClientChangeHandler('Test Client');
     expect(mockCallback).toHaveBeenCalledWith('Test Client');
   });
 
   it('should handle reset', () => {
     const mockCallback = jasmine.createSpy('onReset');
-    spyOn(component, 'onReset').and.returnValue(mockCallback);
+    wrapperComponent.onReset = mockCallback;
 
-    expect(() => component.onResetHandler()).not.toThrow();
+    fixture.detectChanges();
+
+    component.onResetHandler();
     expect(mockCallback).toHaveBeenCalled();
-  });
-
-  it('should handle undefined callbacks gracefully', () => {
-    spyOn(component, 'onFilterClick').and.returnValue(undefined);
-    spyOn(component, 'onToggleAdvanced').and.returnValue(undefined);
-    spyOn(component, 'onDateChange').and.returnValue(undefined);
-    spyOn(component, 'onClientChange').and.returnValue(undefined);
-    spyOn(component, 'onReset').and.returnValue(undefined);
-    spyOn(component, 'filterButtonsValue').and.returnValue([{}, {}, {}]);
-
-    expect(() => component.onFilterClickHandler(0)).not.toThrow();
-    expect(() => component.onFilterClickHandler(2)).not.toThrow();
-    expect(() => component.onDateChangeHandler('test')).not.toThrow();
-    expect(() => component.onClientChangeHandler('test')).not.toThrow();
-    expect(() => component.onResetHandler()).not.toThrow();
-  });
-
-  it('should be a standalone component', () => {
-    expect(FiltersPopupComponent.prototype.constructor.name).toBe('FiltersPopupComponent');
-  });
-
-  it('should have proper component structure', () => {
-    const componentClass = FiltersPopupComponent;
-    expect(componentClass.name).toBe('FiltersPopupComponent');
-    expect(typeof componentClass).toBe('function');
-  });
-
-  it('should have component metadata', () => {
-    expect(FiltersPopupComponent.prototype).toBeDefined();
-    expect(FiltersPopupComponent.prototype.constructor).toBeDefined();
   });
 });

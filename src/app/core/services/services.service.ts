@@ -54,7 +54,8 @@ export class ServicesService {
       price: 35,
       duration: 45,
       category: 'haircut',
-      icon: '✂️'
+      icon: '✂️',
+      popular: true
     },
     {
       id: '3',
@@ -90,7 +91,8 @@ export class ServicesService {
       price: 45,
       duration: 60,
       category: 'treatment',
-      icon: '💆'
+      icon: '💆',
+      popular: true
     },
     {
       id: '7',
@@ -99,7 +101,8 @@ export class ServicesService {
       price: 30,
       duration: 40,
       category: 'styling',
-      icon: '💇'
+      icon: '💇',
+      popular: true
     },
     {
       id: '8',

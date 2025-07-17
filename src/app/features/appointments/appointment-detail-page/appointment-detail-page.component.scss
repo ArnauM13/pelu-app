@@ -32,7 +32,6 @@
   line-height: 1.2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
-  z-index: 1;
 
   @media (max-width: 768px) {
     font-size: 1.4rem;
@@ -49,7 +48,6 @@
   margin: 0;
   opacity: 0.9;
   position: relative;
-  z-index: 1;
 
   @media (max-width: 768px) {
     font-size: 0.9rem;
@@ -83,7 +81,6 @@
   margin: 0 auto;
   padding: 2rem 1rem;
   position: relative;
-  z-index: 1;
 }
 
 // Loading State
@@ -493,11 +490,6 @@
   @media (max-width: 768px) {
     padding: 2rem 1rem;
   }
-}
-
-.avatar-section {
-  position: relative;
-  z-index: 1;
 }
 
 .avatar {

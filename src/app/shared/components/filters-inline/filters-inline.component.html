@@ -1,7 +1,7 @@
 <div class="filters-inline">
   <div class="filters-grid">
     <div class="filter-group">
-      <label for="filterDate">{{ 'COMMON.FILTER_BY_DATE' | translate }}</label>
+      <label for="filterDate">{{ 'COMMON.FILTERS.FILTER_BY_DATE' | translate }}</label>
       <input
         type="date"
         id="filterDate"
@@ -10,17 +10,17 @@
         class="input">
     </div>
     <div class="filter-group">
-      <label for="filterClient">{{ 'COMMON.FILTER_BY_CLIENT' | translate }}</label>
+      <label for="filterClient">{{ 'COMMON.FILTERS.FILTER_BY_CLIENT' | translate }}</label>
       <input
         type="text"
         id="filterClient"
         [value]="filterClientValue()"
         (input)="onClientChangeHandler($any($event.target).value)"
-        [placeholder]="'COMMON.SEARCH_BY_NAME' | translate"
+        [placeholder]="'COMMON.SEARCH.SEARCH_BY_NAME' | translate"
         class="input">
     </div>
     <div class="filter-group">
-      <label for="filterService">{{ 'COMMON.FILTER_BY_SERVICE' | translate }}</label>
+      <label for="filterService">{{ 'COMMON.FILTERS.FILTER_BY_SERVICE' | translate }}</label>
       <p-dropdown
         id="filterService"
         [options]="serviceOptions()"
@@ -28,7 +28,7 @@
         (ngModelChange)="onServiceChangeHandler($event)"
         optionLabel="label"
         optionValue="value"
-        [placeholder]="'COMMON.SELECT_SERVICE' | translate"
+        [placeholder]="'COMMON.SELECTION.SELECT_SERVICE' | translate"
         class="service-dropdown">
         <ng-template pTemplate="selectedItem" let-option>
           @if (option.color) {
@@ -54,7 +54,7 @@
     </div>
     <div class="reset-group">
       <button class="reset-btn" (click)="onResetHandler()">
-        {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
+        {{ 'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate }}
       </button>
     </div>
   </div>
