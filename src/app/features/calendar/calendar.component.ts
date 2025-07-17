@@ -1,8 +1,8 @@
-import { Component, input, output, signal, computed, effect, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
-import { startOfWeek, endOfWeek, startOfDay, endOfDay, format as dateFnsFormat, addDays, isSameDay, isSameWeek, eachDayOfInterval, addMinutes } from 'date-fns';
+import { CalendarModule, CalendarView, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
+import { startOfWeek, endOfWeek, format as dateFnsFormat, isSameDay, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';

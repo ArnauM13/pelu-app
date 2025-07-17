@@ -192,6 +192,7 @@
     "PRICE": "السعر",
     "VIEW_FULL_DETAIL": "عرض التفصيل الكامل",
     "VIEW_DETAIL": "عرض التفصيل",
+    "RESERVATION_CREATED": "تم إنشاء الحجز",
     "NOT_FOUND": "لم يتم العثور على الموعد",
     "NO_SPECIFIED": "غير محدد",
     "DATA_NOT_AVAILABLE": "البيانات غير متاحة",

@@ -109,16 +109,4 @@
     </div>
   </div>
 </div>
-
-<!-- Error Toast -->
-<p-toast
-  [baseZIndex]="10000"
-  [key]="'booking-error'">
-  <ng-template let-message pTemplate="message">
-    <div class="error-toast">
-      <i class="pi pi-exclamation-triangle"></i>
-      <span>{{ errorMessage() }}</span>
-    </div>
-  </ng-template>
-</p-toast>
 }

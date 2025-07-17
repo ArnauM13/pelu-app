@@ -3,6 +3,7 @@ import { AppointmentEvent } from './calendar.component';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarStateService } from './calendar-state.service';
 import { addMinutes, format, parseISO } from 'date-fns';
+import { ToastService } from '../../shared/services/toast.service';
 
 export interface DragDropState {
   isDragging: boolean;
@@ -19,6 +20,7 @@ export interface DragDropState {
 export class CalendarDragDropService {
   private readonly positionService = inject(CalendarPositionService);
   private readonly stateService = inject(CalendarStateService);
+  private readonly toastService = inject(ToastService);
 
   // Internal state signals
   private readonly isDraggingSignal = signal<boolean>(false);
@@ -228,6 +230,9 @@ export class CalendarDragDropService {
     // Save to state and localStorage
     this.stateService.setAppointments(updatedAppointments);
     localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
+
+    // Show toast notification
+    this.toastService.showAppointmentUpdated(originalAppointment.nom);
   }
 
   /**

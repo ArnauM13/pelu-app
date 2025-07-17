@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
-import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ServicesService, Service } from '../../../core/services/services.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 export interface BookingDetails {
   date: string;
@@ -19,7 +19,7 @@ export interface BookingDetails {
 @Component({
   selector: 'pelu-booking-popup',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToastModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss']
 })
@@ -35,8 +35,6 @@ export class BookingPopupComponent {
   readonly clientNameChanged = output<string>();
 
   // Internal state
-  readonly errorMessage = signal('');
-  readonly showErrorToast = signal(false);
   readonly clientName = signal<string>('');
   readonly selectedService = signal<Service | null>(null);
 
@@ -61,14 +59,13 @@ export class BookingPopupComponent {
   readonly currencyService = inject(CurrencyService);
   private readonly servicesService = inject(ServicesService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
 
   constructor() {
     // Clean up state when popup opens
     effect(() => {
       if (this.open()) {
         this.selectedService.set(null);
-        this.errorMessage.set('');
-        this.showErrorToast.set(false);
 
         // Set client name based on authentication status
         if (this.isAuthenticated()) {
@@ -83,8 +80,6 @@ export class BookingPopupComponent {
   onClose() {
     this.selectedService.set(null);
     this.clientName.set('');
-    this.errorMessage.set('');
-    this.showErrorToast.set(false);
     this.cancelled.emit();
   }
 
@@ -127,16 +122,12 @@ export class BookingPopupComponent {
     const clientName = this.clientName() || details.clientName;
 
     if (!clientName.trim()) {
-      this.errorMessage.set(this.translate.instant('COMMON.MISSING_CLIENT_NAME'));
-      this.showErrorToast.set(true);
-      setTimeout(() => this.showErrorToast.set(false), 3000);
+      this.toastService.showValidationError('nom del client');
       return;
     }
 
     if (!service) {
-      this.errorMessage.set(this.translate.instant('COMMON.MISSING_SERVICE'));
-      this.showErrorToast.set(true);
-      setTimeout(() => this.showErrorToast.set(false), 3000);
+      this.toastService.showValidationError('servei');
       return;
     }
 
@@ -149,8 +140,6 @@ export class BookingPopupComponent {
     // Clean up state
     this.selectedService.set(null);
     this.clientName.set('');
-    this.errorMessage.set('');
-    this.showErrorToast.set(false);
 
     this.confirmed.emit(confirmedDetails);
   }
