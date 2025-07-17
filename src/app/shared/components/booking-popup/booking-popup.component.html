@@ -46,7 +46,7 @@
 
         <!-- Service Selection (when no service is selected) -->
         <div class="service-selection" *ngIf="!bookingDetails().service">
-          <p-dropdown
+          <p-select
             [options]="availableServices()"
             [(ngModel)]="selectedService"
             optionLabel="name"
@@ -77,7 +77,7 @@
                 </div>
               </div>
             </ng-template>
-          </p-dropdown>
+          </p-select>
         </div>
       </div>
 

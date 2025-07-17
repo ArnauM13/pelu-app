@@ -3,83 +3,78 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 99999;
-  backdrop-filter: blur(10px);
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .appointment-detail-popup {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  max-width: 450px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  animation: popupSlideIn 0.3s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
 }
 
-@keyframes popupSlideIn {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-30px) scale(0.9);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-// Header Section
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
-  border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+  }
 }
 
-.header-content h3 {
-  margin: 0;
-  color: #495057;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  color: #6c757d;
-  padding: 0.5rem;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-  background: #e9ecef;
-  color: #495057;
-  transform: scale(1.1);
-}
-
-// Body Section
 .popup-body {
-  padding: 1.25rem;
-  overflow-y: auto;
-  max-height: calc(80vh - 100px);
+  padding: 1.5rem;
 }
 
 .appointment-info {
@@ -119,12 +114,11 @@
   margin-bottom: 1.5rem;
 }
 
-// Actions Section
 .popup-actions {
   display: flex;
   justify-content: center;
   padding-top: 1rem;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid #e5e7eb;
 }
 
 .btn {
@@ -144,15 +138,15 @@
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
+  background: #3b82f6;
   color: white;
-  box-shadow: 0 4px 12px rgba(58, 90, 138, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+  background: #2563eb;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(58, 90, 138, 0.4);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
 .btn-primary:active {
@@ -176,14 +170,13 @@
   .appointment-detail-popup {
     width: 95%;
     max-width: none;
-    margin: 1rem;
   }
 
   .popup-header {
     padding: 1rem;
   }
 
-  .header-content h3 {
+  .popup-header h3 {
     font-size: 1.1rem;
   }
 

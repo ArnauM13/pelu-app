@@ -64,7 +64,7 @@ export class AppointmentDetailPopupComponent {
     const items: InfoItemData[] = [
       {
         icon: '👤',
-        label: this.translateService.instant('APPOINTMENTS.CLIENT'),
+        label: this.translateService.instant('COMMON.CLIENT'),
         value: cita.nom || cita.title || cita.clientName || this.translateService.instant('APPOINTMENTS.NO_SPECIFIED')
       },
       {
