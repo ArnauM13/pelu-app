@@ -202,7 +202,7 @@ export class PerfilPageComponent {
       const user = this.authService.user();
       this.userSignal.set(user);
       this.isLoadingSignal.set(false);
-    });
+    }, { allowSignalWrites: true });
   }
 
   // Event handlers for detail page

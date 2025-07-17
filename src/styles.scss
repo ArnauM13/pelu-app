@@ -76,7 +76,7 @@ body {
 @import '../node_modules/angular-calendar/css/angular-calendar.css';
 
 /* PrimeNG Overrides to fix transparency issues */
-.p-dropdown {
+.p-dropdown, .p-select {
   background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
@@ -87,37 +87,37 @@ body {
   transition: all 0.2s ease !important;
 }
 
-.p-dropdown:hover {
+.p-dropdown:hover, .p-select:hover {
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.1) !important;
 }
 
-.p-dropdown:focus-within {
+.p-dropdown:focus-within, .p-select:focus-within {
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 3px rgba(48, 109, 205, 0.15) !important;
   outline: none !important;
 }
 
-.p-dropdown .p-dropdown-trigger {
+.p-dropdown .p-dropdown-trigger, .p-select .p-select-trigger {
   background-color: white !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
 }
 
-.p-dropdown .p-dropdown-label {
+.p-dropdown .p-dropdown-label, .p-select .p-select-label {
   background-color: white !important;
   color: var(--text-color) !important;
   font-size: 0.95rem !important;
   line-height: 1.4 !important;
 }
 
-.p-dropdown .p-dropdown-label.p-placeholder {
+.p-dropdown .p-dropdown-label.p-placeholder, .p-select .p-select-label.p-placeholder {
   color: var(--text-color-light) !important;
 }
 
 /* Dropdown panel styles */
-.p-dropdown-panel {
+.p-dropdown-panel, .p-select-panel {
   background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
@@ -125,7 +125,7 @@ body {
   backdrop-filter: none !important;
   margin-top: 4px !important;
   overflow: hidden !important;
-  z-index: 1000 !important;
+  z-index: var(--z-dropdown) !important;
 }
 
 .p-dropdown-items-wrapper {
@@ -134,7 +134,7 @@ body {
   min-width: 250px !important;
 }
 
-.p-dropdown-item {
+.p-dropdown-item, .p-select-item {
   background-color: white !important;
   color: var(--text-color) !important;
   padding: 1rem 1.25rem !important;
@@ -153,11 +153,11 @@ body {
   min-width: 250px !important;
 }
 
-.p-dropdown-item:hover {
+.p-dropdown-item:hover, .p-select-item:hover {
   background-color: var(--surface-color-hover) !important;
 }
 
-.p-dropdown-item.p-highlight {
+.p-dropdown-item.p-highlight, .p-select-item.p-highlight {
   background-color: var(--primary-color-lighter) !important;
   color: var(--text-color) !important;
 }
@@ -203,7 +203,6 @@ body {
   color: var(--text-color-light) !important;
   font-size: 1rem !important;
   pointer-events: none !important;
-  z-index: 1 !important;
 }
 
 /* Clear button styles */
@@ -413,6 +412,31 @@ body {
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
+
+  /* ===== SISTEMA UNIFICAT DE Z-INDEX ===== */
+  /* Base layer - Contingut principal */
+  --z-base: 1;
+
+  /* Elements interactius bàsics */
+  --z-interactive: 10;
+
+  /* Dropdowns i menús */
+  --z-dropdown: 100;
+
+  /* Header i navegació */
+  --z-header: 200;
+
+  /* Popups i modals */
+  --z-popup: 1000;
+
+  /* Overlays i pantalles de càrrega */
+  --z-overlay: 2000;
+
+  /* Notificacions i toasts */
+  --z-notification: 3000;
+
+  /* Elements crítics (Firebase UI, etc.) */
+  --z-critical: 9999;
 }
 
 /* ===== ESTILS GLOBALS UNIFICATS ===== */
@@ -1012,7 +1036,7 @@ h6 {
 /* Prevenir interferències amb el popup de Google */
 .firebaseui-container {
   position: fixed !important;
-  z-index: 9999 !important;
+  z-index: var(--z-critical) !important;
 }
 
 .firebaseui-card {
@@ -1040,310 +1064,7 @@ h6 {
   transform: none !important;
 }
 
-/* PrimeNG Toast Custom Styles - Minimalist Design */
-.p-toast {
-  z-index: 9999 !important;
-}
 
-.p-toast .p-toast-message {
-  margin: 0.5rem 0 !important;
-  border-radius: 6px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  border: none !important;
-  background: var(--surface-color) !important;
-  animation: toastSlideIn 0.2s ease-out !important;
-  cursor: default !important;
-  transition: all 0.15s ease !important;
-  min-width: 280px !important;
-  max-width: 360px !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.p-toast .p-toast-message[data-clickable="true"] {
-  cursor: pointer !important;
-}
-
-.p-toast .p-toast-message:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  transform: translateY(-1px) !important;
-}
-
-.p-toast .p-toast-message[data-clickable="true"]::after {
-  content: '👆 Clic per veure detalls' !important;
-  position: absolute !important;
-  bottom: 0.25rem !important;
-  right: 0.75rem !important;
-  font-size: 0.7rem !important;
-  color: var(--primary-color) !important;
-  opacity: 0 !important;
-  transition: opacity 0.15s ease !important;
-  font-weight: 400 !important;
-}
-
-.p-toast .p-toast-message[data-clickable="true"]:hover::after {
-  opacity: 1 !important;
-}
-
-/* Severity indicators - subtle left border */
-.p-toast .p-toast-message.p-toast-message-success {
-  border-left: 3px solid var(--success-color) !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-error {
-  border-left: 3px solid var(--error-color) !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-warn {
-  border-left: 3px solid var(--warning-color) !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-info {
-  border-left: 3px solid var(--info-color) !important;
-}
-
-/* Simplified icon styling */
-.p-toast .p-toast-message-icon {
-  font-size: 0.875rem !important;
-  margin-right: 0.5rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 16px !important;
-  height: 16px !important;
-  flex-shrink: 0 !important;
-  opacity: 0.8 !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon {
-  color: var(--success-color) !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon {
-  color: var(--error-color) !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-warn .p-toast-message-icon {
-  color: var(--warning-color) !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-info .p-toast-message-icon {
-  color: var(--info-color) !important;
-}
-
-/* Simplified content layout */
-.p-toast .p-toast-message-content {
-  padding: 0.75rem !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 0.5rem !important;
-}
-
-.p-toast .p-toast-message-actions {
-  display: flex !important;
-  gap: 0.5rem !important;
-  margin-top: 0.5rem !important;
-  justify-content: flex-end !important;
-}
-
-/* Simplified button styling */
-.p-toast .p-toast-message-btn {
-  padding: 0.25rem 0.75rem !important;
-  border-radius: 4px !important;
-  font-weight: 500 !important;
-  font-size: 0.75rem !important;
-  cursor: pointer !important;
-  border: 1px solid transparent !important;
-  transition: all 0.15s ease !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-}
-
-.p-toast .p-toast-message-btn-primary {
-  background: var(--primary-color) !important;
-  color: white !important;
-  border-color: var(--primary-color) !important;
-}
-
-.p-toast .p-toast-message-btn-primary:hover {
-  background: var(--primary-color-dark) !important;
-  border-color: var(--primary-color-dark) !important;
-}
-
-.p-toast .p-toast-message-btn-secondary {
-  background: transparent !important;
-  color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-}
-
-.p-toast .p-toast-message-btn-secondary:hover {
-  background: var(--primary-color) !important;
-  color: white !important;
-}
-
-/* Simplified text styling */
-.p-toast .p-toast-message-text {
-  flex: 1 !important;
-  color: var(--text-color) !important;
-  font-weight: 400 !important;
-  line-height: 1.4 !important;
-  margin: 0 !important;
-}
-
-.p-toast .p-toast-summary {
-  font-weight: 600 !important;
-  font-size: 0.875rem !important;
-  color: var(--text-color) !important;
-  margin: 0 !important;
-  display: inline !important;
-}
-
-.p-toast .p-toast-detail {
-  font-size: 0.8rem !important;
-  color: var(--text-color-light) !important;
-  line-height: 1.4 !important;
-  margin: 0 !important;
-  font-weight: 400 !important;
-}
-
-/* Simplified close button */
-.p-toast .p-toast-icon-close {
-  color: var(--text-color-light) !important;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 18px !important;
-  height: 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-  flex-shrink: 0 !important;
-  margin-left: 0.25rem !important;
-  font-size: 0.7rem !important;
-  opacity: 0.5 !important;
-}
-
-.p-toast .p-toast-icon-close:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: var(--text-color) !important;
-  opacity: 1 !important;
-}
-
-/* Simplified animations */
-@keyframes toastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes toastSlideOut {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-}
-
-/* Toast position styles */
-.p-toast.p-toast-top-right {
-  top: 1rem !important;
-  right: 1rem !important;
-}
-
-.p-toast.p-toast-top-left {
-  top: 1rem !important;
-  left: 1rem !important;
-}
-
-.p-toast.p-toast-top-center {
-  top: 1rem !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-}
-
-.p-toast.p-toast-bottom-right {
-  bottom: 1rem !important;
-  right: 1rem !important;
-}
-
-.p-toast.p-toast-bottom-left {
-  bottom: 1rem !important;
-  left: 1rem !important;
-}
-
-.p-toast.p-toast-bottom-center {
-  bottom: 1rem !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-}
-
-/* Responsive toast styles */
-@media (max-width: 768px) {
-  .p-toast {
-    width: calc(100% - 2rem) !important;
-    max-width: 320px !important;
-  }
-
-  .p-toast .p-toast-message-content {
-    padding: 0.625rem !important;
-  }
-
-  .p-toast .p-toast-message-text {
-    font-size: 0.75rem !important;
-  }
-
-  .p-toast .p-toast-summary {
-    font-size: 0.8rem !important;
-  }
-
-  .p-toast .p-toast-detail {
-    font-size: 0.75rem !important;
-  }
-}
-
-/* Dark mode support for toasts */
-@media (prefers-color-scheme: dark) {
-  .p-toast .p-toast-message {
-    background: var(--surface-color) !important;
-    color: var(--text-color) !important;
-  }
-
-  .p-toast .p-toast-message-text {
-    color: var(--text-color) !important;
-  }
-
-  .p-toast .p-toast-summary {
-    color: var(--text-color) !important;
-  }
-
-  .p-toast .p-toast-detail {
-    color: var(--text-color-light) !important;
-  }
-
-  .p-toast .p-toast-icon-close {
-    color: var(--text-color-light) !important;
-    background: transparent !important;
-    opacity: 0.5 !important;
-  }
-
-  .p-toast .p-toast-icon-close:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: var(--text-color) !important;
-    opacity: 1 !important;
-  }
-}
 
 /* ===== CLASSES UTILITÀRIES PER COLORS DE SERVEIS ===== */
 .service-color-haircut {
@@ -1446,8 +1167,8 @@ h6 {
   background-color: var(--service-default-bg) !important;
 }
 
-/* ===== ESTILS ESPECÍFICS PER AL BOOKING POPUP DROPDOWN ===== */
-.booking-popup .service-select .p-dropdown-item {
+/* ===== ESTILS ESPECÍFICS PER AL BOOKING POPUP SELECT ===== */
+.booking-popup .service-select .p-select-item {
   background-color: white !important;
   color: #374151 !important;
   padding: 0.75rem 1rem !important;
@@ -1467,28 +1188,272 @@ h6 {
   min-width: unset !important;
 }
 
-.booking-popup .service-select .p-dropdown-item:hover {
+.booking-popup .service-select .p-select-item:hover {
   background-color: #f3f4f6 !important;
 }
 
-.booking-popup .service-select .p-dropdown-item.p-highlight {
+.booking-popup .service-select .p-select-item.p-highlight {
   background-color: #3b82f6 !important;
   color: white !important;
 }
 
-.booking-popup .service-select .p-dropdown-item:last-child {
+.booking-popup .service-select .p-select-item:last-child {
   border-bottom: none !important;
 }
 
-.booking-popup .service-select .p-dropdown-panel {
+.booking-popup .service-select .p-select-panel {
   border: 1px solid #e5e7eb !important;
   border-radius: 8px !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
   background: white !important;
 }
 
-.booking-popup .service-select .p-dropdown-items-wrapper {
+.booking-popup .service-select .p-select-items-wrapper {
   background-color: white !important;
   padding: 0.5rem 0 !important;
   min-width: unset !important;
+}
+
+/* ===== ESTILS GLOBALS PER AL TOAST COMPONENT ===== */
+/* Variables CSS per consistència amb l'aplicació */
+:root {
+  --toast-border-radius: 12px;
+  --toast-padding: 16px;
+  --toast-margin: 8px;
+  --toast-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --toast-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.16);
+  --toast-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --toast-max-width: 400px;
+  --toast-min-width: 320px;
+}
+
+/* Estil base del toast */
+.p-toast .p-toast-message {
+  background: white !important;
+  border: none !important;
+  border-radius: var(--toast-border-radius) !important;
+  box-shadow: var(--toast-shadow) !important;
+  padding: 0 !important;
+  margin: var(--toast-margin) 0 !important;
+  min-width: var(--toast-min-width) !important;
+  max-width: var(--toast-max-width) !important;
+  position: relative !important;
+  z-index: 10001 !important;
+  transition: var(--toast-transition) !important;
+  overflow: hidden !important;
+}
+
+.p-toast .p-toast-message:hover {
+  box-shadow: var(--toast-shadow-hover) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Container principal del toast */
+.toast-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: var(--toast-padding) !important;
+  position: relative !important;
+}
+
+/* Icona del tipus de toast */
+.toast-icon {
+  flex-shrink: 0 !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  border-radius: 50% !important;
+  background: var(--success-color-light) !important;
+  color: var(--success-color) !important;
+}
+
+/* Contingut principal */
+.toast-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.toast-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.toast-title {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  color: var(--text-color) !important;
+  margin: 0 !important;
+}
+
+.toast-detail {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  color: var(--text-color-light) !important;
+  margin: 0 !important;
+}
+
+/* Accions */
+.toast-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Botons d'acció */
+.toast-action-btn {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: var(--toast-transition) !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 32px !important;
+}
+
+.toast-action-btn:hover {
+  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(58, 90, 138, 0.3) !important;
+}
+
+.toast-action-btn:active {
+  transform: translateY(0) !important;
+}
+
+/* Botó de tancar */
+.toast-close-btn {
+  background: none !important;
+  border: none !important;
+  color: var(--text-color-light) !important;
+  cursor: pointer !important;
+  padding: 8px !important;
+  border-radius: 50% !important;
+  font-size: 18px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  transition: var(--toast-transition) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  opacity: 0.7 !important;
+}
+
+.toast-close-btn:hover {
+  background: var(--surface-color-hover) !important;
+  color: var(--text-color) !important;
+  opacity: 1 !important;
+}
+
+/* Colors específics per tipus de toast */
+.p-toast .p-toast-message.p-toast-message-success .toast-icon {
+  background: var(--success-color-light) !important;
+  color: var(--success-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-error .toast-icon {
+  background: var(--error-color-light) !important;
+  color: var(--error-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn .toast-icon {
+  background: var(--warning-color-light) !important;
+  color: var(--warning-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-info .toast-icon {
+  background: var(--primary-color-lightest) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Bordes de color per tipus */
+.p-toast .p-toast-message.p-toast-message-success {
+  border-left: 4px solid var(--success-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-error {
+  border-left: 4px solid var(--error-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn {
+  border-left: 4px solid var(--warning-color) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-info {
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+/* Animacions suaus */
+.p-toast .p-toast-message {
+  animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsiu per mòbils */
+@media (max-width: 768px) {
+  :root {
+    --toast-max-width: calc(100vw - 32px);
+    --toast-min-width: 280px;
+  }
+
+  .toast-container {
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+
+  .toast-title {
+    font-size: 13px !important;
+  }
+
+  .toast-detail {
+    font-size: 12px !important;
+  }
+
+  .toast-action-btn {
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+    min-height: 28px !important;
+  }
+
+  .toast-close-btn {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* Garantir que els toasts no interfereixin amb altres elements */
+.p-toast * {
+  box-sizing: border-box !important;
+}
+
+/* Hover effects millorats */
+.p-toast .p-toast-message:hover .toast-close-btn {
+  opacity: 1 !important;
 }

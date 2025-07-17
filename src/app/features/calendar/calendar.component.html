@@ -38,7 +38,14 @@
           </div>
 
           <!-- Time Slots Container with relative positioning -->
-          <div class="time-slots-container">
+          <div class="time-slots-container"
+               [class.drag-over]="dragDropService.isDragging()"
+               [class.drop-valid]="dragDropService.isDragging() && dragDropService.isValidDrop()"
+               [class.drop-invalid]="dragDropService.isDragging() && !dragDropService.isValidDrop()"
+               (mouseenter)="onDropZoneMouseEnter($event, day)"
+               (mousemove)="onDropZoneMouseMove($event, day)"
+               (drop)="onDropZoneDrop($event, day)"
+               (dragover)="onDropZoneDragOver($event)">
             <!-- Clickable Time Slots -->
             @for (time of timeSlots(); track time; let k = $index) {
               <div class="time-slot"
@@ -63,6 +70,18 @@
                 </pelu-appointment-slot>
               }
             }
+
+            <!-- Drop indicator when dragging -->
+            @if (dragDropService.isDragging() && dragDropService.targetDate() && dragDropService.targetTime() && dragDropService.draggedAppointment()) {
+              @if (isSameDay(day, dragDropService.targetDate()!)) {
+                <div class="drop-indicator"
+                     [style.top.px]="dragDropService.calculateGridPosition(dragDropService.draggedAppointment()!, day, dragDropService.targetTime()!).top"
+                     [style.height.px]="dragDropService.calculateGridPosition(dragDropService.draggedAppointment()!, day, dragDropService.targetTime()!).height"
+                     [class.valid]="dragDropService.isValidDrop()"
+                     [class.invalid]="!dragDropService.isValidDrop()">
+                </div>
+              }
+            }
           </div>
         </div>
       }
@@ -73,6 +92,24 @@
   <pelu-appointment-detail-popup
     [open]="showDetailPopup()"
     [appointment]="selectedAppointment()"
-    (closed)="onAppointmentDetailPopupClosed()">
+    (closed)="onAppointmentDetailPopupClosed()"
+    (deleted)="onAppointmentDeleted($event)"
+    (editRequested)="onAppointmentEditRequested($event)">
   </pelu-appointment-detail-popup>
+
+  <!-- Global Drag Preview for Cross-Day Dragging -->
+  @if (dragDropService.isDragging() && dragDropService.draggedAppointment()) {
+    <div class="global-drag-preview"
+         [style.left.px]="dragDropService.currentPosition()?.left || 0"
+         [style.top.px]="dragDropService.currentPosition()?.top || 0">
+      <div class="drag-preview-content"
+           [ngClass]="getServiceCssClass(dragDropService.draggedAppointment()!)">
+        <div class="drag-preview-title">{{ dragDropService.draggedAppointment()!.title }}</div>
+        @if (dragDropService.draggedAppointment()!.serviceName) {
+          <div class="drag-preview-service">{{ dragDropService.draggedAppointment()!.serviceName }}</div>
+        }
+        <div class="drag-preview-duration">{{ formatDuration(dragDropService.draggedAppointment()!.duration || 60) }}</div>
+      </div>
+    </div>
+  }
 </div>

@@ -1,69 +1,54 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BookingPopupComponent } from './booking-popup.component';
-import { ServicesService, Service } from '../../../core/services/services.service';
-import { TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
+import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
-import { mockAuth } from '../../../../testing/firebase-mocks';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { BookingPopupComponent } from './booking-popup.component';
+import { ServicesService } from '../../../core/services/services.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { ToastService } from '../../services/toast.service';
 
-// Mock translate loader
+// Mock classes
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {
     return of({});
   }
 }
 
-// Mock services
-const mockServicesService = {
-  getAllServices: jasmine.createSpy('getAllServices').and.returnValue([
-    {
-      id: '1',
-      name: 'Haircut',
-      description: 'Classic or modern haircut',
-      price: 25,
-      duration: 30,
-      category: 'haircut' as const,
-      icon: '✂️'
-    }
-  ])
-};
-
-const mockTranslateService = {
-  instant: jasmine.createSpy('instant').and.returnValue('translated text'),
-  get: jasmine.createSpy('get').and.returnValue(of('translated text'))
-};
-
-const mockMessageService = {
-  add: jasmine.createSpy('add'),
-  clear: jasmine.createSpy('clear')
-};
-
 describe('BookingPopupComponent', () => {
   let component: BookingPopupComponent;
   let fixture: ComponentFixture<BookingPopupComponent>;
   let servicesService: jasmine.SpyObj<ServicesService>;
   let translateService: jasmine.SpyObj<TranslateService>;
-  let messageService: jasmine.SpyObj<MessageService>;
+  let authService: jasmine.SpyObj<AuthService>;
+  let currencyService: jasmine.SpyObj<CurrencyService>;
+  let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
+    const servicesServiceSpy = jasmine.createSpyObj('ServicesService', ['getServiceName']);
+    const translateServiceSpy = jasmine.createSpyObj('TranslateService', ['instant']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'userDisplayName']);
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['formatPrice']);
+    const toastServiceSpy = jasmine.createSpyObj('ToastService', ['showValidationError']);
+
+    // Setup default return values
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+    authServiceSpy.userDisplayName.and.returnValue('Test User');
+    servicesServiceSpy.getServiceName.and.returnValue('Test Service');
+    currencyServiceSpy.formatPrice.and.returnValue('25.00 €');
+
     await TestBed.configureTestingModule({
       imports: [
         BookingPopupComponent,
-        HttpClientModule,
         TranslateModule.forRoot({
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
         })
       ],
       providers: [
-        { provide: Auth, useValue: mockAuth },
-        { provide: ServicesService, useValue: mockServicesService },
-        { provide: TranslateService, useValue: mockTranslateService },
-        { provide: MessageService, useValue: mockMessageService },
-        provideRouter([])
+        { provide: ServicesService, useValue: servicesServiceSpy },
+        { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: CurrencyService, useValue: currencyServiceSpy },
+        { provide: ToastService, useValue: toastServiceSpy }
       ]
     }).compileComponents();
 
@@ -72,7 +57,9 @@ describe('BookingPopupComponent', () => {
 
     servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-    messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
+    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
   });
 
   describe('Component Creation and Basic Properties', () => {
@@ -89,17 +76,14 @@ describe('BookingPopupComponent', () => {
     it('should have required output signals', () => {
       expect(component.confirmed).toBeDefined();
       expect(component.cancelled).toBeDefined();
+      expect(component.clientNameChanged).toBeDefined();
     });
 
     it('should have computed properties', () => {
       expect(component.canConfirm).toBeDefined();
       expect(component.totalPrice).toBeDefined();
-      expect(component.totalDuration).toBeDefined();
-    });
-
-    it('should have error handling properties', () => {
-      expect(component.errorMessage).toBeDefined();
-      expect(component.showErrorToast).toBeDefined();
+      expect(component.isAuthenticated).toBeDefined();
+      expect(component.currentUserName).toBeDefined();
     });
   });
 
@@ -126,6 +110,18 @@ describe('BookingPopupComponent', () => {
 
     it('should have formatDuration method', () => {
       expect(typeof component.formatDuration).toBe('function');
+    });
+
+    it('should have updateClientName method', () => {
+      expect(typeof component.updateClientName).toBe('function');
+    });
+
+    it('should have onServiceChange method', () => {
+      expect(typeof component.onServiceChange).toBe('function');
+    });
+
+    it('should have getServiceName method', () => {
+      expect(typeof component.getServiceName).toBe('function');
     });
   });
 
@@ -154,9 +150,14 @@ describe('BookingPopupComponent', () => {
       expect(typeof component.totalPrice()).toBe('number');
     });
 
-    it('should have totalDuration computed property', () => {
-      expect(component.totalDuration).toBeDefined();
-      expect(typeof component.totalDuration()).toBe('number');
+    it('should have isAuthenticated computed property', () => {
+      expect(component.isAuthenticated).toBeDefined();
+      expect(typeof component.isAuthenticated()).toBe('boolean');
+    });
+
+    it('should have currentUserName computed property', () => {
+      expect(component.currentUserName).toBeDefined();
+      expect(typeof component.currentUserName()).toBe('string');
     });
   });
 
@@ -176,6 +177,14 @@ describe('BookingPopupComponent', () => {
     it('should have onBackdropClick method that can be called', () => {
       const mockEvent = { target: { classList: { contains: () => true } } };
       expect(() => component.onBackdropClick(mockEvent as any)).not.toThrow();
+    });
+
+    it('should emit clientNameChanged when updateClientName is called', () => {
+      const clientNameChangedSpy = jasmine.createSpy('clientNameChanged');
+      component.clientNameChanged.subscribe(clientNameChangedSpy);
+
+      component.updateClientName('New Name');
+      expect(clientNameChangedSpy).toHaveBeenCalledWith('New Name');
     });
   });
 
@@ -200,16 +209,34 @@ describe('BookingPopupComponent', () => {
   });
 
   describe('Service Integration', () => {
-    it('should use ServicesService for available services', () => {
-      expect(servicesService.getAllServices).toHaveBeenCalled();
+    it('should use ServicesService for service names', () => {
+      const mockService = {
+        id: '1',
+        name: 'Test Service',
+        description: 'Test description',
+        price: 25,
+        duration: 30,
+        category: 'haircut' as const,
+        icon: '✂️'
+      };
+      component.getServiceName(mockService);
+      expect(servicesService.getServiceName).toHaveBeenCalledWith(mockService);
     });
 
     it('should use TranslateService for translations', () => {
       expect(translateService).toBeDefined();
     });
 
-    it('should use MessageService for notifications', () => {
-      expect(messageService).toBeDefined();
+    it('should use AuthService for authentication', () => {
+      expect(authService).toBeDefined();
+    });
+
+    it('should use CurrencyService for price formatting', () => {
+      expect(currencyService).toBeDefined();
+    });
+
+    it('should use ToastService for notifications', () => {
+      expect(toastService).toBeDefined();
     });
   });
 
@@ -227,10 +254,17 @@ describe('BookingPopupComponent', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    it('should have error handling properties', () => {
-      expect(component.errorMessage).toBeDefined();
-      expect(component.showErrorToast).toBeDefined();
+  describe('Validation Logic', () => {
+    it('should show validation error for empty client name', () => {
+      component.onConfirm();
+      expect(toastService.showValidationError).toHaveBeenCalledWith('nom del client');
+    });
+
+    it('should show validation error for missing service', () => {
+      // Set client name but no service
+      component.updateClientName('Test User');
+      component.onConfirm();
+      expect(toastService.showValidationError).toHaveBeenCalledWith('servei');
     });
   });
 

@@ -11,6 +11,7 @@ import { Auth } from '@angular/fire/auth';
 import { mockAuth } from '../../../../testing/firebase-mocks';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { ToastService } from '../../../shared/services/toast.service';
 
 // Mock translate loader
 class MockTranslateLoader implements TranslateLoader {
@@ -61,6 +62,10 @@ const mockMessageService = {
   clear: jasmine.createSpy('clear')
 };
 
+const mockToastService = {
+  showLoginRequired: jasmine.createSpy('showLoginRequired')
+};
+
 const mockTranslateService = {
   instant: jasmine.createSpy('instant').and.returnValue('translated text'),
   get: jasmine.createSpy('get').and.returnValue(of('translated text'))
@@ -73,6 +78,7 @@ describe('BookingMobilePageComponent', () => {
   let servicesService: jasmine.SpyObj<ServicesService>;
   let router: jasmine.SpyObj<Router>;
   let messageService: jasmine.SpyObj<MessageService>;
+  let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -89,6 +95,7 @@ describe('BookingMobilePageComponent', () => {
         { provide: ServicesService, useValue: mockServicesService },
         { provide: Router, useValue: mockRouter },
         { provide: MessageService, useValue: mockMessageService },
+        { provide: ToastService, useValue: mockToastService },
         { provide: TranslateService, useValue: mockTranslateService },
         provideRouter([])
       ]
@@ -101,6 +108,7 @@ describe('BookingMobilePageComponent', () => {
     servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
+    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
   });
 
   describe('Component Creation and Basic Properties', () => {
@@ -140,15 +148,6 @@ describe('BookingMobilePageComponent', () => {
   });
 
   describe('Navigation Methods', () => {
-    it('should have goToDesktopVersion method', () => {
-      expect(typeof component.goToDesktopVersion).toBe('function');
-    });
-
-    it('should navigate to desktop version when goToDesktopVersion is called', () => {
-      component.goToDesktopVersion();
-      expect(router.navigate).toHaveBeenCalledWith(['/booking']);
-    });
-
     it('should have previousWeek method', () => {
       expect(typeof component.previousWeek).toBe('function');
     });
@@ -226,18 +225,6 @@ describe('BookingMobilePageComponent', () => {
     it('should have onBookingCancelled method', () => {
       expect(typeof component.onBookingCancelled).toBe('function');
     });
-
-    it('should have showToast method', () => {
-      expect(typeof component.showToast).toBe('function');
-    });
-
-    it('should have onToastClick method', () => {
-      expect(typeof component.onToastClick).toBe('function');
-    });
-
-    it('should have viewAppointmentDetail method', () => {
-      expect(typeof component.viewAppointmentDetail).toBe('function');
-    });
   });
 
   describe('Data Management', () => {
@@ -293,7 +280,7 @@ describe('BookingMobilePageComponent', () => {
 
   describe('Error Handling', () => {
     it('should handle booking confirmation errors', () => {
-      spyOn(component, 'showToast');
+      spyOn(toastService, 'showLoginRequired');
       authService.user.and.returnValue(null);
 
       const bookingDetails = {
@@ -304,7 +291,7 @@ describe('BookingMobilePageComponent', () => {
       };
 
       component.onBookingConfirmed(bookingDetails);
-      expect(component.showToast).toHaveBeenCalledWith('error', 'Error', 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.');
+      expect(toastService.showLoginRequired).toHaveBeenCalled();
     });
   });
 

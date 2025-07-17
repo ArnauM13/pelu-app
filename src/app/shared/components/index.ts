@@ -2,6 +2,15 @@
 export { RoleBasedContentComponent } from './role-based-content/role-based-content.component';
 export { AdminSetupComponent } from './admin-setup/admin-setup.component';
 
+// Profile dropdown component
+export { ProfileDropdownComponent } from './profile-dropdown';
+export type { ProfileDropdownItem } from './profile-dropdown';
+
+// Loader component
+export { LoaderComponent } from './loader';
+export { LoaderService } from './loader';
+export type { LoaderConfig } from './loader';
+
 // Existing components (if any)
 // Add other shared components here as needed
 

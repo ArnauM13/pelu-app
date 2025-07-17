@@ -19,6 +19,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 interface AppointmentForm {
   nom: string;
@@ -60,6 +61,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   #location = inject(Location);
   #authService = inject(AuthService);
   #currencyService = inject(CurrencyService);
+  #toastService = inject(ToastService);
 
   // Core data signals
   #appointmentSignal = signal<any>(null);
@@ -214,6 +216,11 @@ export class AppointmentDetailPageComponent implements OnInit {
   }));
 
   private getActions(): DetailAction[] {
+    // Don't show actions when in editing mode
+    if (this.isEditing()) {
+      return [];
+    }
+
     return [
       {
         label: 'COMMON.ACTIONS.BACK',
@@ -241,6 +248,13 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   ngOnInit() {
     this.loadAppointment();
+
+    // Check if we should start in edit mode
+    this.#route.queryParams.subscribe(params => {
+      if (params['edit'] === 'true' && this.appointment()) {
+        this.startEditing();
+      }
+    });
   }
 
       private loadAppointment() {
@@ -347,7 +361,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     const user = this.#authService.user();
     if (!user) {
-      this.showToast('error', '❌ Error', 'No s\'ha pogut guardar la cita. Si us plau, inicia sessió.');
+      this.#toastService.showError('No s\'ha pogut guardar la cita. Si us plau, inicia sessió.');
       return;
     }
 
@@ -374,7 +388,12 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.#appointmentSignal.set(updatedAppointment);
     this.#isEditingSignal.set(false);
 
-    this.showToast('success', '✅ Cita actualitzada', `S'ha actualitzat la cita de ${updatedAppointment.nom}`, updatedAppointment.id, true);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('appointmentUpdated', {
+      detail: { appointment: updatedAppointment }
+    }));
+
+    this.#toastService.showAppointmentUpdated(updatedAppointment.nom);
   }
 
   deleteAppointment() {
@@ -385,7 +404,12 @@ export class AppointmentDetailPageComponent implements OnInit {
     const updatedAppointments = appointments.filter((app: any) => app.id !== cita.id);
     localStorage.setItem('cites', JSON.stringify(updatedAppointments));
 
-    this.showToast('success', '🗑️ Cita eliminada', `S'ha eliminat la cita de ${cita.nom}`, cita.id);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('appointmentDeleted', {
+      detail: { appointment: cita }
+    }));
+
+    this.#toastService.showAppointmentDeleted(cita.nom);
 
     this.goBack();
   }
@@ -432,17 +456,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     return appointmentDate < today;
   }
 
-  private showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
-    this.messageService.add({
-      severity,
-      summary,
-      detail,
-      life: 4000,
-      closable: false,
-      key: 'appointment-detail-toast',
-      data: { appointmentId, showViewButton }
-    });
-  }
+
 
   onToastClick(event: any) {
     const appointmentId = event.message?.data?.appointmentId;
