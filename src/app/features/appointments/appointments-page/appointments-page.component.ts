@@ -23,6 +23,7 @@ import { AppointmentsViewControlsComponent, ViewButton } from '../components/app
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { isFutureAppointment } from '../../../shared/services';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -144,8 +145,16 @@ export class AppointmentsPageComponent {
 
     // Sort by date and time
     return filtered.sort((a, b) => {
-      const dateA = new Date(a.data + 'T' + (a.hora || '00:00'));
-      const dateB = new Date(b.data + 'T' + (b.hora || '00:00'));
+      // Create dates in local timezone to avoid UTC conversion issues
+      const createLocalDateTime = (dateStr: string, timeStr: string) => {
+        const [hours, minutes] = (timeStr || '00:00').split(':').map(Number);
+        const date = new Date(dateStr);
+        date.setHours(hours, minutes, 0, 0);
+        return date;
+      };
+
+      const dateA = createLocalDateTime(a.data, a.hora || '00:00');
+      const dateB = createLocalDateTime(b.data, b.hora || '00:00');
       return dateA.getTime() - dateB.getTime();
     });
   });
@@ -190,6 +199,8 @@ export class AppointmentsPageComponent {
     upcoming: this.upcomingAppointments(),
     mine: this.myAppointments()
   }));
+
+  readonly isFutureAppointment = isFutureAppointment;
 
   constructor(private serviceColorsService: ServiceColorsService) {
     this.loadAppointments();
@@ -248,12 +259,34 @@ export class AppointmentsPageComponent {
   }
 
   deleteAppointment(appointment: any): void {
+    if (!isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
+      this.toastService.showError('No es pot eliminar una cita passada');
+      return;
+    }
+
     this.appointmentsSignal.update(appointments =>
       appointments.filter(a => a.id !== appointment.id)
     );
     this.saveAppointments();
 
-    this.toastService.showAppointmentDeleted(appointment.nom);
+    // Show success message with better fallback for client name
+    const clientName = appointment.nom || appointment.title || appointment.clientName || 'Client';
+    this.toastService.showAppointmentDeleted(clientName);
+  }
+
+  editAppointment(appointment: any): void {
+    const user = this.authService.user();
+    if (!user?.uid) {
+      this.toastService.showError('No s\'ha pogut editar la cita. Si us plau, inicia sessió.');
+      return;
+    }
+
+    // Generem un ID únic combinant clientId i appointmentId
+    const clientId = user.uid;
+    const uniqueId = `${clientId}-${appointment.id}`;
+
+    // Naveguem a la pàgina de detall en mode edició
+    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
   }
 
   private saveAppointments(): void {

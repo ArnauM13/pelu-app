@@ -54,6 +54,8 @@ export class BookingPageComponent {
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly availableServices = computed(() => this.availableServicesSignal());
 
+
+
   // Info items for the page
   readonly infoItems: InfoItemData[] = [
     {
@@ -82,6 +84,8 @@ export class BookingPageComponent {
       this.availableServicesSignal.set(services);
     });
   }
+
+
 
   onTimeSlotSelected(event: {date: string, time: string}) {
     this.bookingDetailsSignal.set({
@@ -134,15 +138,10 @@ export class BookingPageComponent {
       // Add new appointment
       existingAppointments.push(appointment);
 
-      // Save back to localStorage
+      // Save to localStorage
       localStorage.setItem('cites', JSON.stringify(existingAppointments));
 
       console.log('Appointment saved to localStorage:', appointment);
-
-      // Reload calendar to show the new appointment
-      if (this.calendarComponent) {
-        this.calendarComponent.reloadAppointments();
-      }
     } catch (error) {
       console.error('Error saving appointment to localStorage:', error);
       this.toastService.showNetworkError();
@@ -159,6 +158,8 @@ export class BookingPageComponent {
     }
   }
 
+
+
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
@@ -171,6 +172,39 @@ export class BookingPageComponent {
       clientName: name
     });
   }
+
+  onEditAppointment(appointment: any) {
+    const user = this.authService.user();
+    if (!user?.uid) {
+      this.toastService.showError('No s\'ha pogut editar la cita. Si us plau, inicia sessió.');
+      return;
+    }
+
+    // Generem un ID únic combinant clientId i appointmentId
+    const clientId = user.uid;
+    const uniqueId = `${clientId}-${appointment.id}`;
+
+    // Naveguem a la pàgina de detall en mode edició
+    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+  }
+
+  onDeleteAppointment(appointment: AppointmentEvent) {
+    // Remove from localStorage
+    try {
+      const existingAppointments = this.loadAppointmentsFromStorage();
+      const updatedAppointments = existingAppointments.filter((app: any) => app.id !== appointment.id);
+      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+
+      // Show success message with better fallback for client name
+      const clientName = appointment.title || appointment.clientName || 'Client';
+      this.toastService.showAppointmentDeleted(clientName);
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      this.toastService.showNetworkError();
+    }
+  }
+
+
 
 
 }

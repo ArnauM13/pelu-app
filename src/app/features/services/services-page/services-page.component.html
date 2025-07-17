@@ -14,7 +14,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('haircut'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -49,7 +49,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('beard'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -84,7 +84,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('treatment'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">
@@ -119,7 +119,7 @@
       </div>
       <div class="services-grid">
         @for (service of getServicesByCategory('styling'); track service.id) {
-          <div class="service-card">
+          <div class="service-card" [class.popular-service]="service.popular">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="service-card-header">

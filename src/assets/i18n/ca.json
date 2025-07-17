@@ -81,7 +81,8 @@
       "SELECT_DATE": "Seleccionar data",
       "SELECT_DAY": "Seleccionar dia",
       "SELECT_SERVICE": "Seleccionar servei",
-      "PLEASE_SELECT_SERVICE": "Si us plau, selecciona un servei"
+      "PLEASE_SELECT_SERVICE": "Si us plau, selecciona un servei",
+      "NO_AVAILABLE_HOURS": "Cap hora disponible pel dia seleccionat"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Cerca per nom",

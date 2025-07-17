@@ -5,7 +5,9 @@
       #calendarComponent
       [mini]="false"
       [events]="[]"
-      (dateSelected)="onTimeSlotSelected($event)">
+      (dateSelected)="onTimeSlotSelected($event)"
+      (onEditAppointment)="onEditAppointment($event)"
+      (onDeleteAppointment)="onDeleteAppointment($event)">
     </pelu-calendar-component>
   </div>
 </div>
