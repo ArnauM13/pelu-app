@@ -179,7 +179,10 @@ export class AppointmentsPageComponent {
   readonly upcomingAppointments = computed(() => {
     const now = new Date();
     return this.appointments().filter(appointment => {
-      const appointmentDateTime = new Date(appointment.data + 'T' + (appointment.hora || '23:59'));
+      // Create date in local timezone to avoid UTC conversion issues
+      const [hours, minutes] = (appointment.hora || '23:59').split(':').map(Number);
+      const appointmentDateTime = new Date(appointment.data);
+      appointmentDateTime.setHours(hours, minutes, 0, 0);
       return appointmentDateTime > now;
     }).length;
   });

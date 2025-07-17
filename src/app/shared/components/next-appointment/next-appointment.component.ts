@@ -364,7 +364,10 @@ export class NextAppointmentComponent {
       const appointmentDate = appointment.data || appointment.start?.split('T')[0];
       if (!appointmentDate) return false;
 
-      const appointmentDateTime = new Date(appointmentDate + 'T' + (appointment.hora || '23:59'));
+      // Create date in local timezone to avoid UTC conversion issues
+      const [hours, minutes] = (appointment.hora || '23:59').split(':').map(Number);
+      const appointmentDateTime = new Date(appointmentDate);
+      appointmentDateTime.setHours(hours, minutes, 0, 0);
       return appointmentDateTime > now;
     });
 
@@ -374,8 +377,16 @@ export class NextAppointmentComponent {
 
     // Ordenar per data i hora i retornar la primera
     return futureAppointments.sort((a, b) => {
-      const dateA = new Date(a.data + 'T' + (a.hora || '00:00'));
-      const dateB = new Date(b.data + 'T' + (b.hora || '00:00'));
+      // Create dates in local timezone to avoid UTC conversion issues
+      const createLocalDateTime = (dateStr: string, timeStr: string) => {
+        const [hours, minutes] = (timeStr || '00:00').split(':').map(Number);
+        const date = new Date(dateStr);
+        date.setHours(hours, minutes, 0, 0);
+        return date;
+      };
+
+      const dateA = createLocalDateTime(a.data || '', a.hora || '00:00');
+      const dateB = createLocalDateTime(b.data || '', b.hora || '00:00');
       return dateA.getTime() - dateB.getTime();
     })[0];
   });
