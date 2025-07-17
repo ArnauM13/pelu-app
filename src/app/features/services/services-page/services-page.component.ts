@@ -6,11 +6,12 @@ import { CardModule } from 'primeng/card';
 import { TranslateModule } from '@ngx-translate/core';
 import { TagModule } from 'primeng/tag';
 import { ServicesService, Service, ServiceCategory } from '../../../core/services/services.service';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'pelu-services-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule, TagModule],
+  imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule, TagModule, CurrencyPipe],
   templateUrl: './services-page.component.html',
   styleUrls: ['./services-page.component.scss']
 })

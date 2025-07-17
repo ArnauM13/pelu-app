@@ -3,13 +3,14 @@ import { LandingPageComponent } from './features/landing-page/landing-page.compo
 import { LoginPageComponent } from './features/auth/login-page/login-page.component';
 import { RegisterPageComponent } from './features/auth/register-page/register-page.component';
 import { PerfilPageComponent } from './features/profile/perfil-page/perfil-page.component';
-import { authGuard, publicGuard, stylistGuard } from './core/guards/auth.guard';
+import { authGuard, publicGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { BookingWrapperComponent } from './features/bookings/booking-wrapper/booking-wrapper.component';
 import { AppointmentsPageComponent } from './features/appointments/appointments-page/appointments-page.component';
 import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
 import { ServicesPageComponent } from './features/services/services-page/services-page.component';
-import { StylistDashboardPageComponent } from './features/stylist/stylist-dashboard-page/stylist-dashboard-page.component';
-import { StylistProfilePageComponent } from './features/stylist/stylist-profile-page/stylist-profile-page.component';
+import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
+import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
 
 export const routes: Routes = [
   // Public routes
@@ -64,33 +65,23 @@ export const routes: Routes = [
     data: { viewTransitionName: 'services' }
   },
 
-  // Stylist pages - accessible only to stylists and admins
+
+
+  // Admin pages - accessible only to admins
   {
-    path: 'stylist',
+    path: 'admin',
     children: [
       {
         path: 'dashboard',
-        component: StylistDashboardPageComponent,
-        canActivate: [stylistGuard],
-        data: { viewTransitionName: 'stylist-dashboard' }
+        component: AdminDashboardPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-dashboard' }
       },
       {
-        path: 'profile',
-        component: StylistProfilePageComponent,
-        canActivate: [stylistGuard],
-        data: { viewTransitionName: 'stylist-profile' }
-      },
-      {
-        path: 'appointments',
-        component: AppointmentsPageComponent,
-        canActivate: [stylistGuard],
-        data: { viewTransitionName: 'stylist-appointments' }
-      },
-      {
-        path: 'services',
-        component: ServicesPageComponent,
-        canActivate: [stylistGuard],
-        data: { viewTransitionName: 'stylist-services' }
+        path: 'settings',
+        component: AdminSettingsPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-settings' }
       }
     ]
   },

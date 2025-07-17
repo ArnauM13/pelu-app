@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { ServicesService, Service } from '../../../core/services/services.service';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 
 interface DaySlot {
@@ -45,6 +46,7 @@ interface TimeSlot {
     TranslateModule,
     CardComponent,
     BookingPopupComponent,
+    CurrencyPipe,
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss']

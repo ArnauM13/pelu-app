@@ -122,7 +122,7 @@ export function resetMocks() {
   // Reset RoleService mocks
   mockRoleService.currentRole.calls.reset();
   mockRoleService.setRole.calls.reset();
-  mockRoleService.isStylist.calls.reset();
+      mockRoleService.isAdmin.calls.reset();
   mockRoleService.isClient.calls.reset();
   mockRoleService.initializeRoleListener.calls.reset();
 
@@ -186,8 +186,8 @@ export function setupDefaultMocks() {
   mockServicesService.getAllServices.and.returnValue({ subscribe: () => ({ unsubscribe: () => {} }) });
   mockServicesService.getServiceById.and.returnValue({ subscribe: () => ({ unsubscribe: () => {} }) });
 
-  mockRoleService.currentRole.and.returnValue('stylist');
-  mockRoleService.isStylist.and.returnValue(true);
+      mockRoleService.currentRole.and.returnValue('client');
+    mockRoleService.isClient.and.returnValue(true);
   mockRoleService.isClient.and.returnValue(false);
 
   mockCalendarPositionService.calculatePosition.and.returnValue({ top: 0, left: 0 });

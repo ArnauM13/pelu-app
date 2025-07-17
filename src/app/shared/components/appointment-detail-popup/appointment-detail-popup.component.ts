@@ -69,7 +69,7 @@ export class AppointmentDetailPopupComponent {
       },
       {
         icon: '📅',
-        label: this.translateService.instant('APPOINTMENTS.DATE'),
+        label: this.translateService.instant('COMMON.DATE'),
         value: this.formatDate(cita.data || cita.start || '')
       }
     ];
@@ -77,7 +77,7 @@ export class AppointmentDetailPopupComponent {
     if (cita.hora) {
       items.push({
         icon: '⏰',
-        label: this.translateService.instant('APPOINTMENTS.TIME'),
+        label: this.translateService.instant('COMMON.HOURS'),
         value: this.formatTime(cita.hora)
       });
     } else if (cita.start) {
@@ -86,7 +86,7 @@ export class AppointmentDetailPopupComponent {
       if (time) {
         items.push({
           icon: '⏰',
-          label: this.translateService.instant('APPOINTMENTS.TIME'),
+          label: this.translateService.instant('COMMON.HOURS'),
           value: this.formatTime(time)
         });
       }
@@ -95,13 +95,13 @@ export class AppointmentDetailPopupComponent {
     if (cita.serviceName) {
       items.push({
         icon: '✂️',
-        label: this.translateService.instant('APPOINTMENTS.SERVICE'),
+        label: this.translateService.instant('COMMON.SERVICE'),
         value: cita.serviceName
       });
     } else if (cita.servei) {
       items.push({
         icon: '✂️',
-        label: this.translateService.instant('APPOINTMENTS.SERVICE'),
+        label: this.translateService.instant('COMMON.SERVICE'),
         value: cita.servei
       });
     }
@@ -110,7 +110,7 @@ export class AppointmentDetailPopupComponent {
       items.push({
         icon: '⏱️',
         label: this.translateService.instant('APPOINTMENTS.DURATION'),
-        value: `${cita.duration} ${this.translateService.instant('APPOINTMENTS.MINUTES')}`
+        value: `${cita.duration} ${this.translateService.instant('COMMON.UNITS.MINUTES')}`
       });
     }
 
@@ -167,7 +167,7 @@ export class AppointmentDetailPopupComponent {
     this.closed.emit();
   }
 
-  onViewFullDetail() {
+      onViewFullDetail() {
     const appointment = this.appointment();
     const currentUser = this.authService.user();
 
@@ -180,6 +180,7 @@ export class AppointmentDetailPopupComponent {
     }
 
     const appointmentId = appointment.id;
+
     if (!appointmentId) {
       return;
     }
@@ -187,6 +188,17 @@ export class AppointmentDetailPopupComponent {
     // Assegurem-nos que l'appointment té l'userId correcte
     if (!appointment.userId) {
       appointment.userId = currentUser.uid;
+
+      // Actualitzem localStorage per assegurar-nos que es guarda
+      try {
+        const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
+        const updatedAppointments = appointments.map((cita: any) =>
+          cita.id === appointmentId ? appointment : cita
+        );
+        localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+      } catch (error) {
+        console.error('Error updating appointment in localStorage:', error);
+      }
     }
 
     // Verifiquem que l'appointment pertany a l'usuari actual

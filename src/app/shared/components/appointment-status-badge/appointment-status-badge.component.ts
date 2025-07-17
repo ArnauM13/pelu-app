@@ -44,11 +44,11 @@ export class AppointmentStatusBadgeComponent {
     appointmentDate.setHours(0, 0, 0, 0);
 
     if (appointmentDate.getTime() === today.getTime()) {
-      return { type: 'today', text: 'COMMON.TODAY', icon: '🎯' };
+      return { type: 'today', text: 'COMMON.TIME.TODAY', icon: '🎯' };
     } else if (appointmentDate < today) {
-      return { type: 'past', text: 'COMMON.PAST', icon: '📅' };
+      return { type: 'past', text: 'COMMON.TIME.PAST', icon: '📅' };
     } else {
-      return { type: 'upcoming', text: 'COMMON.UPCOMING', icon: '⏰' };
+      return { type: 'upcoming', text: 'COMMON.TIME.UPCOMING', icon: '⏰' };
     }
   });
 

@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Funció per verificar si l'usuari és admin
+    function isAdmin() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Funció per verificar si l'usuari és el propietari del document
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Funció per verificar si l'usuari té un permís específic
+    function hasPermission(permission) {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
+             permission in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.adminInfo.permissions;
+    }
+
+    // Col·lecció d'usuaris
+    match /users/{userId} {
+      // Lectura: només el propietari
+      allow read: if isOwner(userId);
+
+      // Creació: només el propietari
+      allow create: if isOwner(userId);
+
+      // Update: només admins poden modificar 'role' o 'adminInfo'.
+      // L'usuari pot modificar la resta del seu perfil, però NO aquests camps.
+      allow update: if (
+        // L'usuari pot modificar el seu perfil, però NO 'role' ni 'adminInfo'
+        (isOwner(userId)
+          && !(('role' in request.resource.data) || ('adminInfo' in request.resource.data))
+          && !(('role' in request.resource.data.diff(resource.data).affectedKeys()) || ('adminInfo' in request.resource.data.diff(resource.data).affectedKeys()))
+        )
+        // O un admin pot modificar qualsevol camp
+        || isAdmin()
+      );
+    }
+
+    // Col·lecció de cites (appointments)
+    match /appointments/{appointmentId} {
+      // Usuaris poden llegir/escriure només les seves pròpies cites
+      allow read, write: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Administradors poden llegir totes les cites si tenen el permís
+      allow read: if hasPermission('view_all_appointments');
+
+      // Administradors poden actualitzar cites si tenen el permís
+      allow update: if hasPermission('view_all_appointments') &&
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'notes', 'updatedAt']));
+    }
+
+    // Col·lecció de serveis
+    match /services/{serviceId} {
+      // Tots els usuaris autenticats poden llegir serveis
+      allow read: if request.auth != null;
+
+      // Només administradors poden crear/actualitzar/eliminar serveis
+      allow write: if isAdmin();
+    }
+
+    // Col·lecció de reserves (bookings)
+    match /bookings/{bookingId} {
+      // Usuaris poden llegir/escriure només les seves pròpies reserves
+      allow read, write: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Administradors poden llegir totes les reserves
+      allow read: if isAdmin();
+
+      // Administradors poden actualitzar reserves
+      allow update: if isAdmin();
+    }
+
+    // Col·lecció de preferències d'idioma
+    match /userPreferences/{userId} {
+      // Usuaris poden llegir/escriure només les seves pròpies preferències
+      allow read, write: if isOwner(userId);
+    }
+
+    // Regla per defecte: denegar tot el que no estigui explícitament permès
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
