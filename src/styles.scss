@@ -125,7 +125,7 @@ body {
   backdrop-filter: none !important;
   margin-top: 4px !important;
   overflow: hidden !important;
-  z-index: 1000 !important;
+  z-index: var(--z-dropdown) !important;
 }
 
 .p-dropdown-items-wrapper {
@@ -203,7 +203,6 @@ body {
   color: var(--text-color-light) !important;
   font-size: 1rem !important;
   pointer-events: none !important;
-  z-index: 1 !important;
 }
 
 /* Clear button styles */
@@ -413,6 +412,31 @@ body {
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
+
+  /* ===== SISTEMA UNIFICAT DE Z-INDEX ===== */
+  /* Base layer - Contingut principal */
+  --z-base: 1;
+
+  /* Elements interactius bàsics */
+  --z-interactive: 10;
+
+  /* Dropdowns i menús */
+  --z-dropdown: 100;
+
+  /* Header i navegació */
+  --z-header: 200;
+
+  /* Popups i modals */
+  --z-popup: 1000;
+
+  /* Overlays i pantalles de càrrega */
+  --z-overlay: 2000;
+
+  /* Notificacions i toasts */
+  --z-notification: 3000;
+
+  /* Elements crítics (Firebase UI, etc.) */
+  --z-critical: 9999;
 }
 
 /* ===== ESTILS GLOBALS UNIFICATS ===== */
@@ -1012,7 +1036,7 @@ h6 {
 /* Prevenir interferències amb el popup de Google */
 .firebaseui-container {
   position: fixed !important;
-  z-index: 9999 !important;
+  z-index: var(--z-critical) !important;
 }
 
 .firebaseui-card {
@@ -1042,7 +1066,7 @@ h6 {
 
 /* PrimeNG Toast Custom Styles - Minimalist Design */
 .p-toast {
-  z-index: 9999 !important;
+  z-index: var(--z-notification) !important;
 }
 
 .p-toast .p-toast-message {

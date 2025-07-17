@@ -5,7 +5,7 @@
   position: fixed;
   top: 2rem;
   left: 2rem;
-  z-index: 1000;
+  z-index: var(--z-popup);
 
   @media (max-width: 768px) {
     position: static;
@@ -89,7 +89,6 @@
 
 .header-section {
   position: relative;
-  z-index: 1;
 }
 
 .header-icon {
