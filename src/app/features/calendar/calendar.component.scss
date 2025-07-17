@@ -12,7 +12,6 @@
 .calendar-container {
   position: relative;
   width: 100%;
-  min-height: 400px;
   background: white;
   border-radius: 8px;
   overflow: hidden;
@@ -22,7 +21,6 @@
 /* Calendar page background */
 :host {
   background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
-  min-height: calc(100vh - 70px);
   display: block;
   padding: 1rem;
   box-sizing: border-box;
@@ -141,6 +139,7 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   overflow: hidden;
+  height: calc(var(--calendar-slot-count, 24) * 30px + 40px);
 }
 
 // Time Column
@@ -149,7 +148,7 @@
   background: #f8f9fa;
   border-right: 1px solid #e9ecef;
   display: grid;
-  grid-template-rows: 40px repeat(24, 30px); /* 40px header + 24 slots of 30px each (30-minute slots) */
+  grid-template-rows: 40px repeat(var(--calendar-slot-count, 24), 30px); /* 40px header + N slots */
 }
 
 .time-header {
@@ -200,7 +199,7 @@
   border-right: 1px solid #e9ecef;
   background: white;
   display: grid;
-  grid-template-rows: 40px repeat(24, 30px); /* 40px for header + 24 time slots of 30px each (30-minute slots) */
+  grid-template-rows: 40px repeat(var(--calendar-slot-count, 24), 30px); /* 40px for header + N slots */
 }
 
 .day-column:last-child {
@@ -241,8 +240,8 @@
   position: relative;
   grid-row: 2 / -1;
   display: grid;
-  grid-template-rows: repeat(24, 30px); /* 24 slots of 30px each (30-minute slots) */
-  min-height: 720px; /* 24 * 30px */
+  grid-template-rows: repeat(var(--calendar-slot-count, 24), 30px); /* N slots */
+  min-height: calc(var(--calendar-slot-count, 24) * 30px);
 }
 
 // Clickable time slots
@@ -503,12 +502,12 @@
 
   .time-column {
     min-width: 60px;
-    grid-template-rows: 35px repeat(24, 25px); /* Smaller slots for mobile */
+    grid-template-rows: 35px repeat(var(--calendar-slot-count, 24), 25px); /* Smaller slots for mobile */
   }
 
   .day-column {
     min-width: 100px;
-    grid-template-rows: 35px repeat(24, 25px); /* Smaller header and time slots for mobile */
+    grid-template-rows: 35px repeat(var(--calendar-slot-count, 24), 25px); /* Smaller header and time slots for mobile */
   }
 
   .time-slot-label {

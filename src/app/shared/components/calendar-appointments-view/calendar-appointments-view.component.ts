@@ -5,6 +5,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardComponent } from '../card/card.component';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
+import { isFutureAppointment } from '../../services';
 
 export interface Appointment {
   id: string;
@@ -49,7 +50,9 @@ export interface Appointment {
             <pelu-calendar-component
               [events]="calendarEvents()"
               [mini]="false"
-              (dateSelected)="onDateSelected.emit($event)">
+              (dateSelected)="onDateSelected.emit($event)"
+              (onEditAppointment)="onCalendarEditAppointment($event)"
+              (onDeleteAppointment)="onCalendarDeleteAppointment($event)">
             </pelu-calendar-component>
           } @placeholder {
             <div class="calendar-placeholder">
@@ -123,13 +126,22 @@ export interface Appointment {
                           pTooltipPosition="left">
                           👁️
                         </button>
-                        <button
-                          class="btn btn-danger"
-                          (click)="onDeleteAppointment.emit(appointment)"
-                          [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-                          pTooltipPosition="left">
-                          🗑️
-                        </button>
+                        @if (isFutureAppointment({ data: appointment.data, hora: appointment.hora || '' })) {
+                          <button
+                            class="btn btn-secondary"
+                            (click)="onEditAppointment.emit(appointment)"
+                            [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                            pTooltipPosition="left">
+                            ✏️
+                          </button>
+                          <button
+                            class="btn btn-danger"
+                            (click)="onDeleteAppointment.emit(appointment)"
+                            [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
+                            pTooltipPosition="left">
+                            🗑️
+                          </button>
+                        }
                       </div>
                     </div>
                   </div>
@@ -355,6 +367,15 @@ export interface Appointment {
       background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
     }
 
+    .btn-secondary {
+      background: var(--gradient-secondary);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+    }
+
     .btn-danger {
       background: var(--gradient-error);
       color: white;
@@ -410,7 +431,55 @@ export class CalendarAppointmentsViewComponent {
 
   onDateSelected = output<{date: string, time: string}>();
   onViewAppointment = output<Appointment>();
+  onEditAppointment = output<Appointment>();
   onDeleteAppointment = output<Appointment>();
+
+  // Internal event handlers that convert AppointmentEvent to Appointment
+  onCalendarEditAppointment(appointmentEvent: AppointmentEvent) {
+    // Convert AppointmentEvent to Appointment
+    const appointment = this.convertAppointmentEventToAppointment(appointmentEvent);
+    this.onEditAppointment.emit(appointment);
+  }
+
+  onCalendarDeleteAppointment(appointmentEvent: AppointmentEvent) {
+    // Convert AppointmentEvent to Appointment
+    const appointment = this.convertAppointmentEventToAppointment(appointmentEvent);
+    this.onDeleteAppointment.emit(appointment);
+  }
+
+  private convertAppointmentEventToAppointment(appointmentEvent: AppointmentEvent): Appointment {
+    // Find the original appointment from the appointments array
+    const originalAppointment = this.appointments().find(app => {
+      if (appointmentEvent.id && app.id === appointmentEvent.id) {
+        return true;
+      }
+
+      // Match by date, time and name
+      const eventDate = appointmentEvent.start.split('T')[0];
+      const eventTime = appointmentEvent.start.split('T')[1]?.substring(0, 5);
+
+      return app.data === eventDate &&
+             app.hora === eventTime &&
+             app.nom === appointmentEvent.title;
+    });
+
+    if (originalAppointment) {
+      return originalAppointment;
+    }
+
+    // Fallback: create a new appointment from the event
+    return {
+      id: appointmentEvent.id || '',
+      nom: appointmentEvent.title || appointmentEvent.clientName || '',
+      data: appointmentEvent.start.split('T')[0],
+      hora: appointmentEvent.start.split('T')[1]?.substring(0, 5),
+      serviceName: appointmentEvent.serviceName,
+      duration: appointmentEvent.duration,
+      userId: ''
+    };
+  }
+
+  readonly isFutureAppointment = isFutureAppointment;
 
   calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({

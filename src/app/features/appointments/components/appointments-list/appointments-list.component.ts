@@ -6,6 +6,7 @@ import { AppointmentStatusBadgeComponent } from '../../../../shared/components/a
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { ServiceColorsService } from '../../../../core/services/service-colors.service';
 import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
+import { isFutureAppointment } from '../../../../shared/services';
 
 export interface Appointment {
   id: string;
@@ -96,13 +97,22 @@ export interface Appointment {
                 pTooltipPosition="left">
                 👁️
               </button>
-              <button
-                class="btn btn-danger"
-                (click)="$event.stopPropagation(); onDeleteAppointment.emit(appointment)"
-                [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-                pTooltipPosition="left">
-                🗑️
-              </button>
+              @if (isFutureAppointment({ data: appointment.data, hora: appointment.hora || '' })) {
+                <button
+                  class="btn btn-secondary"
+                  (click)="$event.stopPropagation(); onEditAppointment.emit(appointment)"
+                  [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                  pTooltipPosition="left">
+                  ✏️
+                </button>
+                <button
+                  class="btn btn-danger"
+                  (click)="$event.stopPropagation(); onDeleteAppointment.emit(appointment)"
+                  [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
+                  pTooltipPosition="left">
+                  🗑️
+                </button>
+              }
             </div>
           </div>
           }
@@ -308,7 +318,7 @@ export interface Appointment {
       align-items: center;
     }
 
-    .btn-primary, .btn-danger {
+    .btn-primary, .btn-secondary, .btn-danger {
       padding: 0.3rem 0.4rem;
       font-size: 0.85rem;
       min-width: 28px;
@@ -324,6 +334,17 @@ export interface Appointment {
     .btn-primary:hover {
       background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
       border-color: var(--primary-color-dark);
+    }
+
+    .btn-secondary {
+      background: var(--gradient-secondary);
+      color: white;
+      border-color: var(--secondary-color);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+      border-color: var(--secondary-color-dark);
     }
 
     .btn-danger {
@@ -393,8 +414,11 @@ export class AppointmentsListComponent {
   hasActiveFilters = input.required<boolean>();
 
   onViewAppointment = output<Appointment>();
+  onEditAppointment = output<Appointment>();
   onDeleteAppointment = output<Appointment>();
   onClearFilters = output<void>();
+
+  readonly isFutureAppointment = isFutureAppointment;
 
   constructor(
     public serviceColorsService: ServiceColorsService,

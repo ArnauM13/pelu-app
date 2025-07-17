@@ -20,6 +20,7 @@ import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { isFutureAppointment } from '../../../shared/services';
 
 interface AppointmentForm {
   nom: string;
@@ -196,53 +197,65 @@ export class AppointmentDetailPageComponent implements OnInit {
            cita.serviceId !== form.serviceId;
   });
 
-  // Detail page configuration
-  readonly detailConfig = computed((): DetailViewConfig => ({
-    type: 'appointment',
-    loading: this.loading(),
-    notFound: this.notFound(),
-    appointment: this.appointment(),
-    infoSections: [
-      {
-        title: 'APPOINTMENTS.APPOINTMENT_DETAILS',
-        items: this.appointmentInfoItems()
-      }
-    ],
-    actions: this.getActions(),
-    editForm: this.editForm(),
-    isEditing: this.isEditing(),
-    hasChanges: this.hasChanges(),
-    canSave: this.canSave()
-  }));
+  readonly canEditOrDelete = computed(() => {
+    const cita = this.appointment();
+    return !!cita && isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
+  });
 
-  private getActions(): DetailAction[] {
-    // Don't show actions when in editing mode
-    if (this.isEditing()) {
-      return [];
-    }
+    // Detail page configuration
+  readonly detailConfig = computed((): DetailViewConfig => {
+    const isEditing = this.isEditing();
+    const editForm = this.editForm();
+    const hasChanges = this.hasChanges();
+    const canSave = this.canSave();
+    const canEditOrDelete = this.canEditOrDelete();
 
-    return [
+    // Build actions reactively
+    const actions: DetailAction[] = [
       {
         label: 'COMMON.ACTIONS.BACK',
         icon: '←',
         type: 'secondary',
         onClick: () => this.goBack()
-      },
-      {
+      }
+    ];
+
+    // Show edit/delete actions only when not editing
+    if (!isEditing && canEditOrDelete) {
+      actions.push({
         label: 'COMMON.ACTIONS.EDIT',
         icon: '✏️',
         type: 'primary',
-        onClick: () => this.startEditing(),
-        disabled: this.isEditing()
-      },
-      {
+        onClick: () => this.startEditing()
+      });
+      actions.push({
         label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
         type: 'danger',
         onClick: () => this.deleteAppointment()
-      }
-    ];
-  }
+      });
+    }
+
+    return {
+      type: 'appointment',
+      loading: this.loading(),
+      notFound: this.notFound(),
+      appointment: this.appointment(),
+      infoSections: [
+        {
+          title: 'APPOINTMENTS.APPOINTMENT_DETAILS',
+          items: this.appointmentInfoItems()
+        }
+      ],
+      actions: actions,
+      editForm: editForm,
+      isEditing: isEditing,
+      hasChanges: hasChanges,
+      canSave: canSave
+    };
+  });
+
+
 
   constructor() {}
 
@@ -393,7 +406,9 @@ export class AppointmentDetailPageComponent implements OnInit {
       detail: { appointment: updatedAppointment }
     }));
 
-    this.#toastService.showAppointmentUpdated(updatedAppointment.nom);
+    // Show success message with better fallback for client name
+    const clientName = updatedAppointment.nom || updatedAppointment.title || updatedAppointment.clientName || 'Client';
+    this.#toastService.showAppointmentUpdated(clientName);
   }
 
   deleteAppointment() {
@@ -409,7 +424,9 @@ export class AppointmentDetailPageComponent implements OnInit {
       detail: { appointment: cita }
     }));
 
-    this.#toastService.showAppointmentDeleted(cita.nom);
+    // Show success message with better fallback for client name
+    const clientName = cita.nom || cita.title || cita.clientName || 'Client';
+    this.#toastService.showAppointmentDeleted(clientName);
 
     this.goBack();
   }

@@ -84,8 +84,13 @@ export class CalendarPositionService {
 
     const slotEnd = addMinutes(slotStart, requestedDuration);
 
-    // Check if the time slot is during lunch break
+    // Check if the time slot is during lunch break (13:00-15:00)
     if (this.isLunchBreak(time)) {
+      return false;
+    }
+
+    // Check if the time slot is bookable (allows reservations until 12:30 and from 15:00)
+    if (!this.isTimeSlotBookable(time)) {
       return false;
     }
 
@@ -106,7 +111,27 @@ export class CalendarPositionService {
    */
   private isLunchBreak(time: string): boolean {
     const [hour] = time.split(':').map(Number);
-    return hour >= 13 && hour < 14; // Lunch break from 13:00 to 14:00
+    return hour >= 13 && hour < 15; // Lunch break from 13:00 to 15:00
+  }
+
+  /**
+   * Check if a time slot is bookable (allows reservations until 12:30 and from 15:00)
+   */
+  private isTimeSlotBookable(time: string): boolean {
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Allow bookings until 12:30
+    if (hour < 12 || (hour === 12 && minute <= 30)) {
+      return true;
+    }
+
+    // Allow bookings from 15:00 onwards
+    if (hour >= 15) {
+      return true;
+    }
+
+    // Block 12:30-15:00 (lunch break period)
+    return false;
   }
 
   /**

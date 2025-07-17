@@ -83,16 +83,8 @@ export class BookingMobilePageComponent {
     const end = endOfWeek(this.selectedDate(), { weekStartsOn: 1 });
     const allDays = eachDayOfInterval({ start, end });
 
-    // Filter out days that have no available time slots
-    return allDays.filter(day => {
-      // Always show past days (they might have appointments to view)
-      if (this.isPastDate(day)) {
-        return true;
-      }
-
-      // Check if the day has any available time slots
-      return this.hasAvailableTimeSlots(day);
-    });
+    // Always return all 7 days of the week
+    return allDays;
   });
 
   readonly selectedDaySlots = computed(() => {
@@ -103,7 +95,21 @@ export class BookingMobilePageComponent {
     return this.selectedDaySlots().filter(slot => {
       const slotTime = slot.time;
       const lunchStart = this.lunchBreak.start;
-      return slotTime < lunchStart; // Matí: fins l'inici de l'hora de dinar
+      const isMorning = slotTime < lunchStart; // Matí: fins l'inici de l'hora de dinar
+
+      // Per a hui, no mostrar hores passades
+      if (this.isToday(this.selectedDate())) {
+        const currentTime = new Date();
+        // Create date in local timezone to avoid UTC conversion issues
+        const [hours, minutes] = slotTime.split(':').map(Number);
+        const slotDateTime = new Date(this.selectedDate());
+        slotDateTime.setHours(hours, minutes, 0, 0);
+        if (slotDateTime <= currentTime) {
+          return false;
+        }
+      }
+
+      return isMorning;
     });
   });
 
@@ -111,7 +117,21 @@ export class BookingMobilePageComponent {
     return this.selectedDaySlots().filter(slot => {
       const slotTime = slot.time;
       const lunchEnd = this.lunchBreak.end;
-      return slotTime >= lunchEnd; // Tarda: després de l'hora de dinar
+      const isAfternoon = slotTime >= lunchEnd; // Tarda: després de l'hora de dinar
+
+      // Per a hui, no mostrar hores passades
+      if (this.isToday(this.selectedDate())) {
+        const currentTime = new Date();
+        // Create date in local timezone to avoid UTC conversion issues
+        const [hours, minutes] = slotTime.split(':').map(Number);
+        const slotDateTime = new Date(this.selectedDate());
+        slotDateTime.setHours(hours, minutes, 0, 0);
+        if (slotDateTime <= currentTime) {
+          return false;
+        }
+      }
+
+      return isAfternoon;
     });
   });
 
@@ -121,6 +141,10 @@ export class BookingMobilePageComponent {
 
   readonly canBook = computed(() => {
     return this.selectedService() !== null;
+  });
+
+  readonly selectedDayHasAvailableSlots = computed(() => {
+    return this.morningSlots().length > 0 || this.afternoonSlots().length > 0;
   });
 
   constructor() {
@@ -203,7 +227,10 @@ export class BookingMobilePageComponent {
   private isPastTimeSlot(date: Date, time: string): boolean {
     if (isSameDay(date, new Date())) {
       const currentTime = new Date();
-      const slotTime = new Date(`${format(date, 'yyyy-MM-dd')}T${time}:00`);
+      // Create date in local timezone to avoid UTC conversion issues
+      const [hours, minutes] = time.split(':').map(Number);
+      const slotTime = new Date(date);
+      slotTime.setHours(hours, minutes, 0, 0);
       return slotTime <= currentTime;
     }
     return false;
@@ -224,7 +251,10 @@ export class BookingMobilePageComponent {
     // Check if the time slot is in the past for today
     if (isSameDay(date, new Date())) {
       const currentTime = new Date();
-      const slotTime = new Date(`${format(date, 'yyyy-MM-dd')}T${time}:00`);
+      // Create date in local timezone to avoid UTC conversion issues
+      const [hours, minutes] = time.split(':').map(Number);
+      const slotTime = new Date(date);
+      slotTime.setHours(hours, minutes, 0, 0);
       if (slotTime <= currentTime) {
         return false;
       }
@@ -285,6 +315,12 @@ export class BookingMobilePageComponent {
 
     this.appointmentsSignal.update(appointments => [...appointments, nova]);
     this.guardarCites();
+
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('appointmentCreated', {
+      detail: { appointment: nova }
+    }));
+
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
 
@@ -313,10 +349,16 @@ export class BookingMobilePageComponent {
   }
 
   formatDay(date: Date): string {
+    if (!date || isNaN(date.getTime())) {
+      return '';
+    }
     return format(date, 'EEEE, d MMMM', { locale: ca });
   }
 
   formatDayShort(date: Date): string {
+    if (!date || isNaN(date.getTime())) {
+      return '';
+    }
     return format(date, 'EEE d', { locale: ca });
   }
 
