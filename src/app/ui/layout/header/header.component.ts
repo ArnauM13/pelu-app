@@ -1,11 +1,10 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, effect, inject, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
 import { AvatarComponent, AvatarData } from '../../../shared/components/avatar/avatar.component';
-import { AuthService } from '../../../core/auth/auth.service';
-import { RoleService } from '../../../core/services/role.service';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'pelu-header',
@@ -17,25 +16,26 @@ import { RoleService } from '../../../core/services/role.service';
 export class HeaderComponent {
   // Internal state
   private readonly isLoggingOutSignal = signal(false);
+  private readonly isDropdownOpenSignal = signal(false);
 
   constructor(
-    private authService: AuthService,
-    private roleService: RoleService,
+    private userService: UserService,
     private router: Router
   ) {}
 
   // Getter per accedir des del template
-  get authServicePublic() {
-    return this.authService;
+  get userServicePublic() {
+    return this.userService;
   }
 
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
-  readonly isLoading = computed(() => this.authService.isLoading());
-  readonly hasStylistAccess = computed(() => this.roleService.hasStylistAccess());
+  readonly isLoading = computed(() => this.userService.isLoading());
+  readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
+  readonly isDropdownOpen = computed(() => this.isDropdownOpenSignal());
 
   readonly avatarData = computed((): AvatarData => {
-    const user = this.authService.user();
+    const user = this.userService.currentUser();
 
     return {
       imageUrl: user?.photoURL || undefined,
@@ -45,9 +45,22 @@ export class HeaderComponent {
     };
   });
 
-  navigateToProfile(event: Event) {
-    event.stopPropagation(); // Evita que es propagui al logo-section
-    this.router.navigate(['/perfil']);
+  // Dropdown methods
+  toggleDropdown(event: Event) {
+    event.stopPropagation();
+    this.isDropdownOpenSignal.set(!this.isDropdownOpenSignal());
+  }
+
+  closeDropdown() {
+    this.isDropdownOpenSignal.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.avatar-dropdown')) {
+      this.closeDropdown();
+    }
   }
 
   navigateToHome(event: Event) {
@@ -60,9 +73,12 @@ export class HeaderComponent {
 
   async onLogout() {
     try {
-      await this.authService.logout();
+      this.isLoggingOutSignal.set(true);
+      await this.userService.logout();
     } catch (error) {
       // Handle logout error silently
+    } finally {
+      this.isLoggingOutSignal.set(false);
     }
   }
 }

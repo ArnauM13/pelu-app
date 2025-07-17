@@ -23,13 +23,6 @@ body {
   overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Ensure proper viewport height calculation */
-#root, app-root {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 /* Ensure components take full width when needed */
 .perfil-container,
 .detail-page-container {
@@ -48,9 +41,7 @@ body {
 .pelu-booking-page,
 .pelu-services-page,
 .pelu-landing-page,
-.pelu-perfil-page,
-.pelu-stylist-dashboard-page,
-.pelu-stylist-profile-page {
+.pelu-perfil-page {
   min-height: calc(100vh - 70px); /* Account for header height */
   padding: 1rem;
   box-sizing: border-box;
@@ -76,9 +67,7 @@ body {
   .pelu-booking-page,
   .pelu-services-page,
   .pelu-landing-page,
-  .pelu-perfil-page,
-  .pelu-stylist-dashboard-page,
-  .pelu-stylist-profile-page {
+  .pelu-perfil-page {
     padding: 0.5rem;
   }
 }
@@ -91,9 +80,8 @@ body {
   background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
-  padding: 0.75rem !important;
-  min-height: 48px !important;
-  display: flex !important;
+  padding: 0.5rem !important;
+  height: 53.05px !important;
   align-items: center !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
@@ -120,8 +108,8 @@ body {
 .p-dropdown .p-dropdown-label {
   background-color: white !important;
   color: var(--text-color) !important;
-  font-size: 1rem !important;
-  line-height: 1.5 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
 }
 
 .p-dropdown .p-dropdown-label.p-placeholder {
@@ -142,16 +130,27 @@ body {
 
 .p-dropdown-items-wrapper {
   background-color: white !important;
-  padding: 0.5rem 0 !important;
+  padding: 0.75rem 0 !important;
+  min-width: 250px !important;
 }
 
 .p-dropdown-item {
   background-color: white !important;
   color: var(--text-color) !important;
-  padding: 0.75rem 1rem !important;
+  padding: 1rem 1.25rem !important;
   border: none !important;
   cursor: pointer !important;
   transition: background-color 0.2s ease !important;
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 1.1rem !important;
+  line-height: 1.4 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+  min-width: 250px !important;
 }
 
 .p-dropdown-item:hover {
@@ -282,77 +281,6 @@ body {
   background-color: transparent !important;
 }
 
-/* Specific styles for service option elements in booking popup */
-.service-option {
-  background-color: white !important;
-  color: var(--text-color) !important;
-  border-bottom: 1px solid var(--border-color-light) !important;
-  transition: background-color 0.2s ease !important;
-  padding: 0.5rem 1rem !important;
-}
-
-.service-option:hover {
-  background-color: var(--surface-color-hover) !important;
-}
-
-.service-option:last-child {
-  border-bottom: none !important;
-}
-
-.service-option.selected {
-  padding: 0.4rem 1rem !important;
-}
-
-.service-option .service-info {
-  background-color: transparent !important;
-}
-
-.service-option .service-icon {
-  background-color: transparent !important;
-}
-
-.service-option .service-name {
-  background-color: transparent !important;
-  color: var(--text-color) !important;
-}
-
-.service-option .service-description {
-  background-color: transparent !important;
-  color: var(--text-color-light) !important;
-}
-
-.service-option .service-price {
-  background-color: transparent !important;
-  color: var(--primary-color) !important;
-}
-
-.service-option .service-meta {
-  background-color: transparent !important;
-}
-
-.service-option .service-duration {
-  background-color: transparent !important;
-  color: var(--text-color-light) !important;
-}
-
-.service-option .service-popular {
-  background-color: #fff3cd !important;
-  color: var(--success-color) !important;
-}
-
-.service-option .service-details {
-  background-color: transparent !important;
-}
-
-/* Ensure selected item has proper styling */
-.service-option.selected {
-  background-color: white !important;
-}
-
-.service-option.selected * {
-  background-color: transparent !important;
-}
-
 /* ===== PALETA DE COLORS UNIFICADA ===== */
 :root {
   /* ===== COLORS PRINCIPALS - GAMA BLAVA ===== */
@@ -365,8 +293,8 @@ body {
 
   /* ===== COLORS SECUNDARIS ===== */
   --secondary-color: #E8F0FE;          /* Blau gris molt clar */
-  --secondary-color-light: #F5F8FF;    /* Blau gairebé blanc */
-  --secondary-color-dark: #D1E0F7;     /* Blau gris clar */
+  --secondary-color-light: #f8faff;    /* Blau més clar - evita coincidència amb serveis */
+  --secondary-color-dark: #d1e0f7;     /* Blau gris clar */
 
   /* ===== COLORS DE TEXT ===== */
   --text-color: #1A2C4A;               /* Text principal - blau fosc */
@@ -375,7 +303,7 @@ body {
   --text-color-white: #FFFFFF;         /* Text blanc */
 
   /* ===== COLORS DE FONS ===== */
-  --background-color: #FAFCFF;         /* Fons principal - blanc blavós */
+  --background-color: #f5f8ff;         /* Fons principal - més clar, evita coincidència amb serveis */
   --surface-color: #FFFFFF;            /* Superfícies - blanc pur */
   --surface-color-hover: #F0F5FF;      /* Hover - blau molt clar */
   --surface-color-secondary: #F8FAFF;  /* Fons secundari */
@@ -1516,4 +1444,51 @@ h6 {
 
 .service-bg-default {
   background-color: var(--service-default-bg) !important;
+}
+
+/* ===== ESTILS ESPECÍFICS PER AL BOOKING POPUP DROPDOWN ===== */
+.booking-popup .service-select .p-dropdown-item {
+  background-color: white !important;
+  color: #374151 !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  transition: background-color 0.2s ease !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  white-space: normal !important;
+  width: 100% !important;
+  min-width: unset !important;
+}
+
+.booking-popup .service-select .p-dropdown-item:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.booking-popup .service-select .p-dropdown-item.p-highlight {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+.booking-popup .service-select .p-dropdown-item:last-child {
+  border-bottom: none !important;
+}
+
+.booking-popup .service-select .p-dropdown-panel {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  background: white !important;
+}
+
+.booking-popup .service-select .p-dropdown-items-wrapper {
+  background-color: white !important;
+  padding: 0.5rem 0 !important;
+  min-width: unset !important;
 }

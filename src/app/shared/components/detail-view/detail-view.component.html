@@ -3,7 +3,7 @@
   @if (loading) {
   <div class="loading-section">
     <div class="loading-spinner"></div>
-    <p>{{ 'COMMON.LOADING' | translate }}</p>
+    <p>{{ 'COMMON.STATUS.LOADING' | translate }}</p>
   </div>
   }
 
@@ -15,7 +15,7 @@
       <h2>{{ notFoundTitle | translate }}</h2>
       <p>{{ notFoundMessage | translate }}</p>
       <button class="back-btn" (click)="onBack()">
-        {{ 'COMMON.BACK' | translate }}
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
       </button>
     </div>
   </div>
@@ -47,7 +47,7 @@
           <h1 class="appointment-title">
             {{ appointment?.nom }} - {{ formatDate(appointment?.data) }}
             @if (appointment?.hora) {
-              {{ 'COMMON.AT_TIME' | translate }} {{ formatTime(appointment?.hora) }}
+              {{ 'COMMON.TIME.AT_TIME' | translate }} {{ formatTime(appointment?.hora) }}
             }
           </h1>
           <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
@@ -83,7 +83,7 @@
           <div class="section-header">
             <h2>{{ section.title | translate }}</h2>
             @if (section.onEdit && !section.isEditing) {
-              <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.EDIT' | translate">
+              <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.ACTIONS.EDIT' | translate">
                 <i class="edit-icon">✏️</i>
               </button>
             }
@@ -112,13 +112,13 @@
                   class="action-btn secondary"
                   (click)="section.onCancel?.()">
                   <i class="action-icon">❌</i>
-                  {{ 'COMMON.CANCEL' | translate }}
+                  {{ 'COMMON.ACTIONS.CANCEL' | translate }}
                 </button>
                 <button
                   class="action-btn primary"
                   (click)="onSaveNotes(section)">
                   <i class="action-icon">💾</i>
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.ACTIONS.SAVE' | translate }}
                 </button>
               </div>
             </div>
@@ -137,7 +137,7 @@
         <!-- Edit Form (when editing appointments) -->
         @if (type === 'appointment' && isEditing && appointment) {
         <div class="info-section edit-section">
-          <h2>{{ 'COMMON.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+          <h2>{{ 'COMMON.ACTIONS.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
 
           <div class="edit-form">
             <div class="form-grid">
@@ -178,14 +178,14 @@
 
               <!-- Service -->
               <div class="form-group">
-                <label for="servei">{{ 'APPOINTMENTS.SERVICE' | translate }}</label>
+                <label for="servei">{{ 'COMMON.SERVICE' | translate }}</label>
                 <input
                   type="text"
                   id="servei"
                   pInputText
                   [value]="editForm.servei"
                   (input)="onUpdateForm('servei', $any($event.target).value)"
-                  [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                  [placeholder]="'COMMON.SERVICE' | translate"
                   class="form-input">
               </div>
 
@@ -198,7 +198,7 @@
                   pInputText
                   [value]="editForm.serviceName"
                   (input)="onUpdateForm('serviceName', $any($event.target).value)"
-                  [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                  [placeholder]="'COMMON.SERVICE' | translate"
                   class="form-input">
               </div>
 
@@ -250,14 +250,14 @@
                 (click)="onCancelEdit()"
                 [disabled]="!hasChanges">
                 <i class="action-icon">❌</i>
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.ACTIONS.CANCEL' | translate }}
               </button>
               <button
                 class="action-btn primary"
                 (click)="onSave()"
                 [disabled]="!canSave || !hasChanges">
                 <i class="action-icon">💾</i>
-                {{ 'COMMON.SAVE' | translate }}
+                {{ 'COMMON.ACTIONS.SAVE' | translate }}
               </button>
             </div>
           </div>

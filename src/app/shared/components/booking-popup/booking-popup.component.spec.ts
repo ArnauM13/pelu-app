@@ -1,147 +1,244 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { BookingPopupComponent } from './booking-popup.component';
+import { ServicesService, Service } from '../../../core/services/services.service';
+import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
-import { createTestComponentNoRender } from '../../../../testing/test-setup';
-import { mockMessageService } from '../../../../testing/firebase-mocks';
+import { of } from 'rxjs';
+import { provideRouter } from '@angular/router';
+import { Auth } from '@angular/fire/auth';
+import { mockAuth } from '../../../../testing/firebase-mocks';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
-describe('BookingPopupComponent', () => {
-  let component: BookingPopupComponent;
-  let fixture: ComponentFixture<BookingPopupComponent>;
-  let messageService: MessageService;
+// Mock translate loader
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation() {
+    return of({});
+  }
+}
 
-  beforeEach(async () => {
-    // Reset mocks before each test
-    mockMessageService.add.calls.reset();
-    mockMessageService.clear.calls.reset();
-
-    fixture = await createTestComponentNoRender<BookingPopupComponent>(
-      BookingPopupComponent,
-      [FormsModule],
-      [{ provide: MessageService, useValue: mockMessageService }]
-    );
-    component = fixture.componentInstance;
-    messageService = TestBed.inject(MessageService);
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should have required input signals', () => {
-    expect(component.open).toBeDefined();
-    expect(component.bookingDetails).toBeDefined();
-    expect(component.availableServices).toBeDefined();
-  });
-
-  it('should have required output signals', () => {
-    expect(component.confirmed).toBeDefined();
-    expect(component.cancelled).toBeDefined();
-    expect(component.clientNameChanged).toBeDefined();
-    expect(component.serviceChanged).toBeDefined();
-    expect(component.dateChanged).toBeDefined();
-    expect(component.timeChanged).toBeDefined();
-  });
-
-  it('should have computed properties', () => {
-    expect(component.selectedService).toBeDefined();
-    expect(component.selectedDate).toBeDefined();
-    expect(component.selectedTime).toBeDefined();
-    expect(component.services).toBeDefined();
-    expect(component.canConfirm).toBeDefined();
-    expect(component.totalPrice).toBeDefined();
-    expect(component.totalDuration).toBeDefined();
-  });
-
-  it('should have required methods', () => {
-    expect(typeof component.onClose).toBe('function');
-    expect(typeof component.onConfirm).toBe('function');
-    expect(typeof component.onClientNameChange).toBe('function');
-    expect(typeof component.onServiceChange).toBe('function');
-    expect(typeof component.formatDate).toBe('function');
-    expect(typeof component.formatPrice).toBe('function');
-    expect(typeof component.formatDuration).toBe('function');
-    expect(typeof component.formatDateInput).toBe('function');
-  });
-
-  it('should format date correctly', () => {
-    const testDate = '2024-01-15';
-    const formatted = component.formatDate(testDate);
-    expect(formatted).toBeDefined();
-    expect(typeof formatted).toBe('string');
-  });
-
-  it('should format price correctly', () => {
-    const testPrice = 25;
-    const formatted = component.formatPrice(testPrice);
-    expect(formatted).toBeDefined();
-    expect(typeof formatted).toBe('string');
-  });
-
-  it('should format duration correctly', () => {
-    const testDuration = 30;
-    const formatted = component.formatDuration(testDuration);
-    expect(formatted).toBeDefined();
-    expect(typeof formatted).toBe('string');
-  });
-
-  it('should emit confirmed event when onConfirm is called', () => {
-    spyOn(component.confirmed, 'emit');
-    expect(() => component.onConfirm()).not.toThrow();
-  });
-
-  it('should emit cancelled event when onClose is called', () => {
-    spyOn(component.cancelled, 'emit');
-    expect(() => component.onClose()).not.toThrow();
-  });
-
-  it('should handle service change', () => {
-    const testService = {
+// Mock services
+const mockServicesService = {
+  getAllServices: jasmine.createSpy('getAllServices').and.returnValue([
+    {
       id: '1',
-      name: 'Test Service',
-      description: 'Test',
+      name: 'Haircut',
+      description: 'Classic or modern haircut',
       price: 25,
       duration: 30,
       category: 'haircut' as const,
       icon: '✂️'
-    };
-    expect(() => component.onServiceChange(testService)).not.toThrow();
+    }
+  ])
+};
+
+const mockTranslateService = {
+  instant: jasmine.createSpy('instant').and.returnValue('translated text'),
+  get: jasmine.createSpy('get').and.returnValue(of('translated text'))
+};
+
+const mockMessageService = {
+  add: jasmine.createSpy('add'),
+  clear: jasmine.createSpy('clear')
+};
+
+describe('BookingPopupComponent', () => {
+  let component: BookingPopupComponent;
+  let fixture: ComponentFixture<BookingPopupComponent>;
+  let servicesService: jasmine.SpyObj<ServicesService>;
+  let translateService: jasmine.SpyObj<TranslateService>;
+  let messageService: jasmine.SpyObj<MessageService>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        BookingPopupComponent,
+        HttpClientModule,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
+        })
+      ],
+      providers: [
+        { provide: Auth, useValue: mockAuth },
+        { provide: ServicesService, useValue: mockServicesService },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: MessageService, useValue: mockMessageService },
+        provideRouter([])
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(BookingPopupComponent);
+    component = fixture.componentInstance;
+
+    servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
+    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
   });
 
-  it('should handle client name change', () => {
-    const testClientName = 'Test Client';
-    expect(() => component.onClientNameChange(testClientName)).not.toThrow();
+  describe('Component Creation and Basic Properties', () => {
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should have required input signals', () => {
+      expect(component.open).toBeDefined();
+      expect(component.bookingDetails).toBeDefined();
+      expect(component.availableServices).toBeDefined();
+    });
+
+    it('should have required output signals', () => {
+      expect(component.confirmed).toBeDefined();
+      expect(component.cancelled).toBeDefined();
+    });
+
+    it('should have computed properties', () => {
+      expect(component.canConfirm).toBeDefined();
+      expect(component.totalPrice).toBeDefined();
+      expect(component.totalDuration).toBeDefined();
+    });
+
+    it('should have error handling properties', () => {
+      expect(component.errorMessage).toBeDefined();
+      expect(component.showErrorToast).toBeDefined();
+    });
   });
 
-  it('should have time slots', () => {
-    expect(component.timeSlots).toBeDefined();
-    expect(Array.isArray(component.timeSlots)).toBe(true);
-    expect(component.timeSlots.length).toBeGreaterThan(0);
+  describe('Required Methods', () => {
+    it('should have onClose method', () => {
+      expect(typeof component.onClose).toBe('function');
+    });
+
+    it('should have onConfirm method', () => {
+      expect(typeof component.onConfirm).toBe('function');
+    });
+
+    it('should have onBackdropClick method', () => {
+      expect(typeof component.onBackdropClick).toBe('function');
+    });
+
+    it('should have formatDate method', () => {
+      expect(typeof component.formatDate).toBe('function');
+    });
+
+    it('should have formatPrice method', () => {
+      expect(typeof component.formatPrice).toBe('function');
+    });
+
+    it('should have formatDuration method', () => {
+      expect(typeof component.formatDuration).toBe('function');
+    });
   });
 
-  it('should have service categories', () => {
-    expect(component.serviceCategories).toBeDefined();
-    expect(Array.isArray(component.serviceCategories)).toBe(true);
-    expect(component.serviceCategories.length).toBeGreaterThan(0);
+  describe('Component Behavior', () => {
+    it('should initialize with default values', () => {
+      expect(component.open()).toBeFalse();
+      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '' });
+      expect(component.availableServices()).toEqual([]);
+    });
+
+    it('should have input signals defined', () => {
+      expect(component.open).toBeDefined();
+      expect(component.bookingDetails).toBeDefined();
+      expect(component.availableServices).toBeDefined();
+    });
   });
 
-  it('should have default services', () => {
-    expect(component.defaultServices).toBeDefined();
-    expect(Array.isArray(component.defaultServices)).toBe(true);
-    expect(component.defaultServices.length).toBeGreaterThan(0);
+  describe('Computed Properties Logic', () => {
+    it('should have canConfirm computed property', () => {
+      expect(component.canConfirm).toBeDefined();
+      expect(typeof component.canConfirm()).toBe('boolean');
+    });
+
+    it('should have totalPrice computed property', () => {
+      expect(component.totalPrice).toBeDefined();
+      expect(typeof component.totalPrice()).toBe('number');
+    });
+
+    it('should have totalDuration computed property', () => {
+      expect(component.totalDuration).toBeDefined();
+      expect(typeof component.totalDuration()).toBe('number');
+    });
   });
 
-  it('should get category icon', () => {
-    const icon = component.getCategoryIcon('haircut');
-    expect(icon).toBeDefined();
-    expect(typeof icon).toBe('string');
+  describe('Event Handling', () => {
+    it('should emit cancelled event when onClose is called', () => {
+      const cancelledSpy = jasmine.createSpy('cancelled');
+      component.cancelled.subscribe(cancelledSpy);
+
+      component.onClose();
+      expect(cancelledSpy).toHaveBeenCalled();
+    });
+
+    it('should have onConfirm method that can be called', () => {
+      expect(() => component.onConfirm()).not.toThrow();
+    });
+
+    it('should have onBackdropClick method that can be called', () => {
+      const mockEvent = { target: { classList: { contains: () => true } } };
+      expect(() => component.onBackdropClick(mockEvent as any)).not.toThrow();
+    });
   });
 
-  it('should have proper component structure', () => {
-    expect(BookingPopupComponent.prototype.constructor.name).toBe('BookingPopupComponent');
+  describe('Formatting Methods', () => {
+    it('should format date correctly', () => {
+      const formattedDate = component.formatDate('2024-01-01');
+      expect(typeof formattedDate).toBe('string');
+      expect(formattedDate).toContain('2024');
+    });
+
+    it('should format price correctly', () => {
+      const formattedPrice = component.formatPrice(25);
+      expect(typeof formattedPrice).toBe('string');
+      expect(formattedPrice).toContain('25');
+    });
+
+    it('should format duration correctly', () => {
+      const formattedDuration = component.formatDuration(30);
+      expect(typeof formattedDuration).toBe('string');
+      expect(formattedDuration).toContain('30');
+    });
   });
 
-  it('should be a standalone component', () => {
-    expect(BookingPopupComponent.prototype).toBeDefined();
+  describe('Service Integration', () => {
+    it('should use ServicesService for available services', () => {
+      expect(servicesService.getAllServices).toHaveBeenCalled();
+    });
+
+    it('should use TranslateService for translations', () => {
+      expect(translateService).toBeDefined();
+    });
+
+    it('should use MessageService for notifications', () => {
+      expect(messageService).toBeDefined();
+    });
+  });
+
+  describe('Template Integration', () => {
+    it('should have proper component selector', () => {
+      expect(BookingPopupComponent.prototype.constructor.name).toBe('BookingPopupComponent');
+    });
+
+    it('should be a standalone component', () => {
+      expect(BookingPopupComponent.prototype.constructor).toBeDefined();
+    });
+
+    it('should have component metadata', () => {
+      expect(BookingPopupComponent.prototype).toBeDefined();
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should have error handling properties', () => {
+      expect(component.errorMessage).toBeDefined();
+      expect(component.showErrorToast).toBeDefined();
+    });
+  });
+
+  describe('Popup State Management', () => {
+    it('should have input signals for state management', () => {
+      expect(component.open).toBeDefined();
+      expect(component.bookingDetails).toBeDefined();
+      expect(component.availableServices).toBeDefined();
+    });
   });
 });

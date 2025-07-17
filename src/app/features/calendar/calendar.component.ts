@@ -123,7 +123,18 @@ export class CalendarComponent {
 
   // Computed properties
   readonly weekDays = computed(() => {
-    return this.businessService.getBusinessDaysForWeek(this.viewDate());
+    const allBusinessDays = this.businessService.getBusinessDaysForWeek(this.viewDate());
+
+    // Filter out days that have no available time slots
+    return allBusinessDays.filter(day => {
+      // Always show past days (they might have appointments to view)
+      if (this.isPastDate(day)) {
+        return true;
+      }
+
+      // Check if the day has any available time slots
+      return this.businessService.hasAvailableTimeSlots(day, this.allEvents());
+    });
   });
 
   readonly calendarEvents = computed(() => {
@@ -385,7 +396,7 @@ export class CalendarComponent {
   }
 
   canNavigateToPreviousWeek(): boolean {
-    return this.businessService.canNavigateToPreviousWeek(this.viewDate());
+    return this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
   }
 
   getViewDateInfo(): string {
