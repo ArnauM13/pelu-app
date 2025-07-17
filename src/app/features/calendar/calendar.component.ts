@@ -554,8 +554,16 @@ export class CalendarComponent {
     }
   }
 
-    onDropZoneDrop(event: DragEvent, day: Date) {
+  onDropZoneDrop(event: DragEvent, day: Date) {
     event.preventDefault();
+
+    // Update the target date and time one final time before ending drag
+    if (this.dragDropService.isDragging()) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+    }
+
     const success = this.dragDropService.endDrag();
 
     if (success) {
@@ -584,6 +592,27 @@ export class CalendarComponent {
       appointment,
       date
     };
+  }
+
+  // Get service CSS class for drag preview
+  getServiceCssClass(appointment: AppointmentEvent): string {
+    const serviceName = appointment.serviceName || '';
+    return this.serviceColorsService.getServiceCssClass(serviceName);
+  }
+
+  // Format duration for display
+  formatDuration(minutes: number): string {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      if (remainingMinutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${remainingMinutes}min`;
+      }
+    }
   }
 
   private convertToCalendarEvent(appointment: any): AppointmentEvent {

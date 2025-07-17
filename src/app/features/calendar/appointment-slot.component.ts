@@ -1,6 +1,5 @@
 import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, DragDropModule } from '@angular/cdk/drag-drop';
 import { AppointmentEvent } from './calendar.component';
 import { CalendarPositionService } from './calendar-position.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
@@ -14,23 +13,22 @@ export interface AppointmentSlotData {
 @Component({
   selector: 'pelu-appointment-slot',
   standalone: true,
-  imports: [CommonModule, DragDropModule],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (data()?.appointment) {
       <div class="appointment"
-           cdkDrag
-           [cdkDragData]="data()!.appointment"
            [style.top.px]="position().top"
            [style.height.px]="position().height"
            [style.left.px]="0"
            [style.right.px]="0"
            [ngClass]="serviceCssClass()"
            [class.dragging]="isBeingDragged()"
-           (click)="onAppointmentClick($event)"
-           (cdkDragStarted)="onDragStarted($event)"
-           (cdkDragEnded)="onDragEnded($event)"
-           (cdkDragMoved)="onDragMoved($event)">
+           (mousedown)="onMouseDown($event)"
+           (mousemove)="onMouseMove($event)"
+           (mouseup)="onMouseUp($event)"
+           (mouseenter)="onMouseEnter($event)"
+           (mouseleave)="onMouseLeave($event)">
         <div class="appointment-content">
           <div class="appointment-info">
             <div class="appointment-title" [ngClass]="serviceTextCssClass()">{{ data()!.appointment!.title }}</div>
@@ -40,7 +38,7 @@ export interface AppointmentSlotData {
           </div>
           <div class="appointment-duration" [ngClass]="serviceTextCssClass()">{{ formatDuration(data()!.appointment!.duration || 60) }}</div>
         </div>
-        <div class="drag-handle" cdkDragHandle>
+        <div class="drag-handle">
           <div class="drag-indicator"></div>
         </div>
       </div>
@@ -63,6 +61,15 @@ export class AppointmentSlotComponent {
 
   // Local state to track drag operations
   private readonly hasDragStarted = signal<boolean>(false);
+  private readonly isMouseOver = signal<boolean>(false);
+
+  // Click vs drag detection
+  private clickTimeout: number | null = null;
+  private mouseDownTime = 0;
+  private mouseDownPosition = { x: 0, y: 0 };
+  private readonly CLICK_THRESHOLD = 300; // ms - increased for better click detection
+  private readonly DRAG_THRESHOLD = 8; // pixels - increased to prevent accidental drags
+  private isDragging = false;
 
   // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly position = computed(() => {
@@ -101,32 +108,106 @@ export class AppointmentSlotComponent {
   // Methods
   onAppointmentClick(event: Event) {
     event.stopPropagation();
+
     // Only emit click if not currently dragging and no drag has started
-    if (!this.dragDropService.isDragging() && !this.hasDragStarted() && this.data() && this.data()!.appointment) {
+    if (!this.dragDropService.isDragging() && !this.hasDragStarted() && !this.isDragging && this.data() && this.data()!.appointment) {
       this.clicked.emit(this.data()!.appointment!);
     }
   }
 
-  onDragStarted(event: any) {
+  onMouseDown(event: MouseEvent) {
+    // Only start drag on left mouse button
+    if (event.button !== 0) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Record mouse down time and position
+    this.mouseDownTime = Date.now();
+    this.mouseDownPosition = { x: event.clientX, y: event.clientY };
+    this.isDragging = false;
+
+    // Set a timeout for click detection
+    this.clickTimeout = window.setTimeout(() => {
+      // If we reach this timeout, it's likely a drag operation
+      this.startDrag(event);
+    }, this.CLICK_THRESHOLD);
+  }
+
+  onMouseMove(event: MouseEvent) {
+    if (this.clickTimeout && !this.isDragging) {
+      // Check if mouse has moved enough to be considered a drag
+      const deltaX = Math.abs(event.clientX - this.mouseDownPosition.x);
+      const deltaY = Math.abs(event.clientY - this.mouseDownPosition.y);
+
+      if (deltaX > this.DRAG_THRESHOLD || deltaY > this.DRAG_THRESHOLD) {
+        // Clear the click timeout and start drag
+        if (this.clickTimeout) {
+          clearTimeout(this.clickTimeout);
+          this.clickTimeout = null;
+        }
+        this.startDrag(event);
+      }
+    }
+  }
+
+  onMouseUp(event: MouseEvent) {
+    // Clear the click timeout
+    if (this.clickTimeout) {
+      clearTimeout(this.clickTimeout);
+      this.clickTimeout = null;
+
+      // Check if it was a quick click (not a drag)
+      const clickDuration = Date.now() - this.mouseDownTime;
+      if (clickDuration < this.CLICK_THRESHOLD && !this.isDragging && !this.hasDragStarted()) {
+        // It was a click, emit the click event
+        this.onAppointmentClick(event);
+      }
+    }
+  }
+
+  private startDrag(event: MouseEvent) {
     // Mark that drag has started
+    this.isDragging = true;
     this.hasDragStarted.set(true);
 
-    const appointment = event.source.data;
+    const appointment = this.data()!.appointment!;
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
     const originalPosition = {
       top: rect.top,
       left: rect.left
     };
 
-    this.dragDropService.startDrag(appointment, originalPosition);
+    // Pass the original date for cross-day dragging support
+    this.dragDropService.startDrag(appointment, originalPosition, this.data()!.date);
+
+    // Add global mouse event listeners for cross-day dragging
+    document.addEventListener('mousemove', this.onGlobalMouseMove);
+    document.addEventListener('mouseup', this.onGlobalMouseUp);
   }
 
-  onDragMoved(event: any) {
-    const position = event.pointerPosition;
-    this.dragDropService.updateDragPosition(position);
+  onMouseEnter(event: MouseEvent) {
+    this.isMouseOver.set(true);
   }
 
-  onDragEnded(event: any) {
+  onMouseLeave(event: MouseEvent) {
+    this.isMouseOver.set(false);
+  }
+
+  private onGlobalMouseMove = (event: MouseEvent) => {
+    if (this.dragDropService.isDragging()) {
+      this.dragDropService.updateDragPosition({
+        top: event.clientY,
+        left: event.clientX
+      });
+    }
+  };
+
+  private onGlobalMouseUp = (event: MouseEvent) => {
+    // Remove global event listeners
+    document.removeEventListener('mousemove', this.onGlobalMouseMove);
+    document.removeEventListener('mouseup', this.onGlobalMouseUp);
+
     const success = this.dragDropService.endDrag();
 
     if (!success) {
@@ -137,8 +218,9 @@ export class AppointmentSlotComponent {
     // Reset the drag started flag after a short delay to prevent immediate clicks
     setTimeout(() => {
       this.hasDragStarted.set(false);
+      this.isDragging = false;
     }, 100);
-  }
+  };
 
   // Format duration for display
   formatDuration(minutes: number): string {

@@ -293,8 +293,8 @@ export class CalendarDragDropService {
       detail: { appointment: updatedAppointment }
     }));
 
-    // Show toast notification
-    this.toastService.showAppointmentUpdated(originalAppointment.nom);
+    // Show toast notification for drag&drop (different from edit)
+    this.toastService.showSuccess('Cita moguda', `S'ha mogut la cita de ${originalAppointment.nom} a ${format(targetDate, 'dd/MM')} a les ${alignedTime}`);
   }
 
   /**

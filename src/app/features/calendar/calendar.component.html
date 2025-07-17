@@ -96,4 +96,20 @@
     (deleted)="onAppointmentDeleted($event)"
     (editRequested)="onAppointmentEditRequested($event)">
   </pelu-appointment-detail-popup>
+
+  <!-- Global Drag Preview for Cross-Day Dragging -->
+  @if (dragDropService.isDragging() && dragDropService.draggedAppointment()) {
+    <div class="global-drag-preview"
+         [style.left.px]="dragDropService.currentPosition()?.left || 0"
+         [style.top.px]="dragDropService.currentPosition()?.top || 0">
+      <div class="drag-preview-content"
+           [ngClass]="getServiceCssClass(dragDropService.draggedAppointment()!)">
+        <div class="drag-preview-title">{{ dragDropService.draggedAppointment()!.title }}</div>
+        @if (dragDropService.draggedAppointment()!.serviceName) {
+          <div class="drag-preview-service">{{ dragDropService.draggedAppointment()!.serviceName }}</div>
+        }
+        <div class="drag-preview-duration">{{ formatDuration(dragDropService.draggedAppointment()!.duration || 60) }}</div>
+      </div>
+    </div>
+  }
 </div>
