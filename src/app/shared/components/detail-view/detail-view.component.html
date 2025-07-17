@@ -1,11 +1,5 @@
 <div class="detail-view-container" [style.view-transition-name]="viewTransitionName" [style.background]="serviceGradient">
-  <!-- Loading State -->
-  @if (loading) {
-  <div class="loading-section">
-    <div class="loading-spinner"></div>
-    <p>{{ 'COMMON.LOADING' | translate }}</p>
-  </div>
-  }
+  <!-- Loading State - Now handled by global loader service -->
 
   <!-- Not Found State -->
   @if (notFound) {
@@ -15,7 +9,7 @@
       <h2>{{ notFoundTitle | translate }}</h2>
       <p>{{ notFoundMessage | translate }}</p>
       <button class="back-btn" (click)="onBack()">
-        {{ 'COMMON.BACK' | translate }}
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
       </button>
     </div>
   </div>
@@ -43,27 +37,31 @@
       <!-- Appointment Header -->
       @if (type === 'appointment' && appointment) {
       <div class="appointment-header" [style.background]="getAppointmentHeaderGradient()">
-        <div class="appointment-info">
-          <h1 class="appointment-title">
-            {{ appointment?.nom }} - {{ formatDate(appointment?.data) }}
-            @if (appointment?.hora) {
-              {{ 'COMMON.AT_TIME' | translate }} {{ formatTime(appointment?.hora) }}
-            }
-          </h1>
-          <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
-        </div>
-        <div class="status-section">
-          <pelu-appointment-status-badge
-            [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
-            [config]="{ size: 'large', variant: 'default', showIcon: true, showDot: true }">
-          </pelu-appointment-status-badge>
+        <div class="appointment-content">
+          <!-- Back Button -->
+          <button class="back-btn-emoji" (click)="onBack()" [title]="'COMMON.ACTIONS.BACK' | translate">
+            ←
+          </button>
+
+          <div class="appointment-info">
+            <h1 class="appointment-title">
+              {{ 'COMMON.TIME.APPOINTMENT_TITLE' | translate: { nom: appointment?.nom, data: formatDate(appointment?.data), hora: formatTime(appointment?.hora) } }}
+            </h1>
+            <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
+          </div>
+          <div class="status-section">
+            <pelu-appointment-status-badge
+              [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
+              [config]="{ size: 'large', variant: 'default', showIcon: true, showDot: true }">
+            </pelu-appointment-status-badge>
+          </div>
         </div>
       </div>
       }
     </div>
 
     <!-- Main Content Grid -->
-    <div class="content-grid">
+    <div class="content-grid" [class.editing-mode]="isEditing" [class.full-width]="!hasAvailableActions">
       <!-- Left Column - Information Sections -->
       <div class="info-column">
         <!-- Status Badge (for appointments) -->
@@ -77,67 +75,10 @@
         </div>
         }
 
-        <!-- Information Sections -->
-        @for (section of infoSections; track section.title; let i = $index) {
-        <div class="info-section">
-          <div class="section-header">
-            <h2>{{ section.title | translate }}</h2>
-            @if (section.onEdit && !section.isEditing) {
-              <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.EDIT' | translate">
-                <i class="edit-icon">✏️</i>
-              </button>
-            }
-          </div>
-
-          @if (section.isEditing) {
-            <div class="edit-notes-form">
-              <div class="notes-form-grid">
-                @for (item of section.items; track item.label; let j = $index) {
-                  <div class="form-group">
-                    <label [for]="'note-' + j">{{ item.label | translate }}</label>
-                    <textarea
-                      [id]="'note-' + j"
-                      [value]="item.value"
-                      (input)="onUpdateNote(j, $any($event.target).value)"
-                      [placeholder]="item.label | translate"
-                      rows="2"
-                      class="form-textarea note-textarea">
-                    </textarea>
-                  </div>
-                }
-              </div>
-
-              <div class="form-actions">
-                <button
-                  class="action-btn secondary"
-                  (click)="section.onCancel?.()">
-                  <i class="action-icon">❌</i>
-                  {{ 'COMMON.CANCEL' | translate }}
-                </button>
-                <button
-                  class="action-btn primary"
-                  (click)="onSaveNotes(section)">
-                  <i class="action-icon">💾</i>
-                  {{ 'COMMON.SAVE' | translate }}
-                </button>
-              </div>
-            </div>
-          } @else {
-            <div class="info-grid">
-              @for (item of section.items; track item.label; let j = $index) {
-              <pelu-info-item
-                [data]="item"
-                [showStatus]="item.status === 'active'" />
-              }
-            </div>
-          }
-        </div>
-        }
-
-        <!-- Edit Form (when editing appointments) -->
+        <!-- Edit Form (when editing appointments) - IN-PLACE -->
         @if (type === 'appointment' && isEditing && appointment) {
         <div class="info-section edit-section">
-          <h2>{{ 'COMMON.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+          <h2>{{ 'COMMON.ACTIONS.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
 
           <div class="edit-form">
             <div class="form-grid">
@@ -167,7 +108,7 @@
 
               <!-- Time -->
               <div class="form-group">
-                <label for="hora">{{ 'COMMON.TIME' | translate }}</label>
+                <label for="hora">{{ 'COMMON.HOURS' | translate }}</label>
                 <input
                   type="time"
                   id="hora"
@@ -178,14 +119,14 @@
 
               <!-- Service -->
               <div class="form-group">
-                <label for="servei">{{ 'APPOINTMENTS.SERVICE' | translate }}</label>
+                <label for="servei">{{ 'COMMON.SERVICE' | translate }}</label>
                 <input
                   type="text"
                   id="servei"
                   pInputText
                   [value]="editForm.servei"
                   (input)="onUpdateForm('servei', $any($event.target).value)"
-                  [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                  [placeholder]="'COMMON.SERVICE' | translate"
                   class="form-input">
               </div>
 
@@ -198,7 +139,7 @@
                   pInputText
                   [value]="editForm.serviceName"
                   (input)="onUpdateForm('serviceName', $any($event.target).value)"
-                  [placeholder]="'APPOINTMENTS.SERVICE' | translate"
+                  [placeholder]="'COMMON.SERVICE' | translate"
                   class="form-input">
               </div>
 
@@ -247,30 +188,89 @@
             <div class="form-actions">
               <button
                 class="action-btn secondary"
-                (click)="onCancelEdit()"
-                [disabled]="!hasChanges">
+                (click)="onCancelEdit()">
                 <i class="action-icon">❌</i>
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.ACTIONS.CANCEL' | translate }}
               </button>
               <button
                 class="action-btn primary"
                 (click)="onSave()"
                 [disabled]="!canSave || !hasChanges">
                 <i class="action-icon">💾</i>
-                {{ 'COMMON.SAVE' | translate }}
+                {{ 'COMMON.ACTIONS.SAVE' | translate }}
               </button>
             </div>
           </div>
         </div>
         }
+
+        <!-- Information Sections (only show when NOT editing) -->
+        @if (!isEditing) {
+          @for (section of infoSections; track section.title; let i = $index) {
+          <div class="info-section">
+            <div class="section-header">
+              <h2>{{ section.title | translate }}</h2>
+              @if (section.onEdit && !section.isEditing) {
+                <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.ACTIONS.EDIT' | translate">
+                  <i class="edit-icon">✏️</i>
+                </button>
+              }
+            </div>
+
+            @if (section.isEditing) {
+              <div class="edit-notes-form">
+                <div class="notes-form-grid">
+                  @for (item of section.items; track item.label; let j = $index) {
+                    <div class="form-group">
+                      <label [for]="'note-' + j">{{ item.label | translate }}</label>
+                      <textarea
+                        [id]="'note-' + j"
+                        [value]="item.value"
+                        (input)="onUpdateNote(j, $any($event.target).value)"
+                        [placeholder]="item.label | translate"
+                        rows="2"
+                        class="form-textarea note-textarea">
+                      </textarea>
+                    </div>
+                  }
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    class="action-btn secondary"
+                    (click)="section.onCancel?.()">
+                    <i class="action-icon">❌</i>
+                    {{ 'COMMON.ACTIONS.CANCEL' | translate }}
+                  </button>
+                  <button
+                    class="action-btn primary"
+                    (click)="onSaveNotes(section)">
+                    <i class="action-icon">💾</i>
+                    {{ 'COMMON.ACTIONS.SAVE' | translate }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="info-grid">
+                @for (item of section.items; track item.label; let j = $index) {
+                <pelu-info-item
+                  [data]="item"
+                  [showStatus]="item.status === 'active'" />
+                }
+              </div>
+            }
+          </div>
+          }
+        }
       </div>
 
       <!-- Right Column - Actions -->
+      @if (!isEditing && hasAvailableActions) {
       <div class="actions-column">
         <div class="actions-section">
-          <h2>{{ 'COMMON.ACTIONS' | translate }}</h2>
+          <h2>{{ 'COMMON.ACTIONS.ACTIONS' | translate }}</h2>
           <div class="actions-grid">
-            @for (action of actions; track action.label; let k = $index) {
+            @for (action of filteredActions; track action.label; let k = $index) {
             <button
               class="action-btn"
               [class]="action.type || 'secondary'"
@@ -289,34 +289,8 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
   }
 </div>
-
-<!-- Toast for notifications -->
-<p-toast [key]="toastKey" position="top-right" [baseZIndex]="9999" (onClick)="onToastClick($event)">
-  <ng-template let-message pTemplate="message">
-    <div class="p-toast-message-content">
-      <div class="p-toast-message-icon">
-        <i [class]="message.severity === 'success' ? 'pi pi-check' : message.severity === 'error' ? 'pi pi-times' : message.severity === 'warn' ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"></i>
-      </div>
-      <div class="p-toast-message-text">
-        <span class="p-toast-summary">{{ message.summary }}</span>
-        <div class="p-toast-detail">{{ message.detail }}</div>
-        @if (message.data?.showViewButton && message.data?.appointmentId) {
-        <div class="p-toast-message-actions">
-          <button
-            class="p-toast-message-btn p-toast-message-btn-primary"
-            (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
-            👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
-          </button>
-        </div>
-        }
-      </div>
-      <button class="p-toast-icon-close" (click)="messageService.clear(toastKey); $event.stopPropagation()">
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
-  </ng-template>
-</p-toast>

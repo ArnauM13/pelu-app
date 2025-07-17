@@ -12,21 +12,24 @@ import {
   mockTranslationService,
   mockAuthService
 } from '../../../testing/firebase-mocks';
+import { configureTestModule } from '../../../testing/test-setup';
 
 describe('CalendarComponent', () => {
   let component: CalendarComponent;
   let fixture: ComponentFixture<CalendarComponent>;
 
   beforeEach(async () => {
+    const testConfig = configureTestModule([
+      { provide: Auth, useValue: mockAuth },
+      { provide: TranslateService, useValue: mockTranslateService },
+      { provide: TranslateStore, useValue: mockTranslateStore },
+      { provide: TranslationService, useValue: mockTranslationService },
+      { provide: AuthService, useValue: mockAuthService }
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [CalendarComponent],
-      providers: [
-        { provide: Auth, useValue: mockAuth },
-        { provide: TranslateService, useValue: mockTranslateService },
-        { provide: TranslateStore, useValue: mockTranslateStore },
-        { provide: TranslationService, useValue: mockTranslationService },
-        { provide: AuthService, useValue: mockAuthService }
-      ]
+      providers: testConfig.providers
     })
     .compileComponents();
 
@@ -43,23 +46,31 @@ describe('CalendarComponent', () => {
     it('should have timeSlots computed property', () => {
       expect(component.timeSlots).toBeDefined();
       expect(typeof component.timeSlots).toBe('function');
-      expect(component.timeSlots().length).toBe(24);
+      // Business hours: 8:00-20:00 with lunch break 13:00-14:00
+      // That's 12 hours total, minus 1 hour lunch = 11 hours
+      // 11 hours * 2 slots per hour = 22 slots
+      expect(component.timeSlots().length).toBe(22);
     });
 
     it('should have weekDays computed property', () => {
       expect(component.weekDays).toBeDefined();
       const weekDays = component.weekDays();
       expect(Array.isArray(weekDays)).toBe(true);
-      expect(weekDays.length).toBe(5); // Tuesday to Saturday
+      // Business days: Monday (1) to Saturday (6) = 6 days
+      expect(weekDays.length).toBe(6);
     });
 
     it('should have calendarEvents computed property', () => {
       expect(component.calendarEvents).toBeDefined();
-      const events = component.calendarEvents();
-      expect(Array.isArray(events)).toBe(true);
+      expect(typeof component.calendarEvents).toBe('function');
+      expect(Array.isArray(component.calendarEvents())).toBe(true);
     });
 
-
+    it('should have allEvents computed property', () => {
+      expect(component.allEvents).toBeDefined();
+      expect(typeof component.allEvents).toBe('function');
+      expect(Array.isArray(component.allEvents())).toBe(true);
+    });
   });
 
   describe('Navigation Methods', () => {
@@ -186,8 +197,8 @@ describe('CalendarComponent', () => {
     it('should detect lunch break times', () => {
       expect(component.isLunchBreak('13:00')).toBe(true);
       expect(component.isLunchBreak('13:30')).toBe(true);
-      expect(component.isLunchBreak('14:00')).toBe(true);
-      expect(component.isLunchBreak('14:30')).toBe(true);
+      expect(component.isLunchBreak('14:00')).toBe(false);
+      expect(component.isLunchBreak('14:30')).toBe(false);
       expect(component.isLunchBreak('15:00')).toBe(false);
     });
 

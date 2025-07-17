@@ -45,7 +45,7 @@ export class FiltersInlineComponent {
   readonly serviceOptions = computed(() => {
     const colors = this.serviceColorsService.getAllColors();
     return [
-      { label: this.translationService.get('COMMON.ALL_SERVICES'), value: '' },
+      { label: this.translationService.get('SERVICES.ALL_SERVICES'), value: '' },
       ...colors.map(color => ({
         label: this.serviceColorsService.getServiceColorName(color),
         value: color.id,

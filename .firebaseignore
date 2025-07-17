@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.angular/
+
+# Environment files
+src/environments/environment.ts
+src/environments/environment.prod.ts
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+
+# Scripts
+scripts/
+deploy-firestore-rules.sh
+
+# Test files
+src/**/*.spec.ts
+src/**/*.test.ts
+testing/
+
+# Source maps
+*.map

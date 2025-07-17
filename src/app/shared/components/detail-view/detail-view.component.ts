@@ -2,15 +2,15 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { RouterModule } from '@angular/router';
 
 import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
-import { MessageService } from 'primeng/api';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ToastService } from '../../services/toast.service';
+import { LoaderService } from '../../services/loader.service';
 
 export interface DetailAction {
   label: string;
@@ -50,7 +50,6 @@ export interface DetailViewConfig {
   imports: [
     CommonModule,
     TranslateModule,
-    ToastModule,
     InputTextModule,
     AvatarComponent,
     InfoItemComponent,
@@ -71,11 +70,21 @@ export class DetailViewComponent implements OnChanges {
 
     constructor(
     private router: Router,
-    public messageService: MessageService,
-    private serviceColorsService: ServiceColorsService
+    private serviceColorsService: ServiceColorsService,
+    private toastService: ToastService,
+    private loaderService: LoaderService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges) {
+    // Handle loading state with global loader service
+    if (changes['config']) {
+      if (this.config?.loading) {
+        this.loaderService.show();
+      } else {
+        this.loaderService.hide();
+      }
+    }
+  }
 
   // Helper getters for template
   get type() { return this.config?.type; }
@@ -85,6 +94,17 @@ export class DetailViewComponent implements OnChanges {
   get appointment() { return this.config?.appointment; }
   get infoSections() { return this.config?.infoSections || []; }
   get actions() { return this.config?.actions || []; }
+  get filteredActions() {
+    return this.actions.filter(action =>
+      action.label !== 'COMMON.ACTIONS.BACK' &&
+      action.label !== 'Back' &&
+      action.label !== 'Tornar endarrere'
+    );
+  }
+
+  get hasAvailableActions() {
+    return this.filteredActions.length > 0;
+  }
   get editForm() { return this.config?.editForm || {}; }
   get isEditing() { return this.config?.isEditing; }
   get hasChanges() { return this.config?.hasChanges; }
@@ -125,11 +145,11 @@ export class DetailViewComponent implements OnChanges {
     const today = new Date();
     const appointmentDate = new Date(appointment.data);
     if (appointmentDate.toDateString() === today.toDateString()) {
-      return { text: 'COMMON.TODAY', class: 'today' };
+      return { text: 'COMMON.TIME.TODAY', class: 'today' };
     } else if (appointmentDate < today) {
-      return { text: 'COMMON.PAST', class: 'past' };
+      return { text: 'COMMON.TIME.PAST', class: 'past' };
     } else {
-      return { text: 'COMMON.UPCOMING', class: 'upcoming' };
+      return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
     }
   }
 

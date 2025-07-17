@@ -13,8 +13,8 @@ export interface AppointmentPosition {
 export class CalendarPositionService {
   // Constants
   private readonly SLOT_DURATION_MINUTES = 30;
-  private readonly PIXELS_PER_MINUTE = 1;
-  private readonly SLOT_HEIGHT_PX = this.SLOT_DURATION_MINUTES * this.PIXELS_PER_MINUTE;
+  private readonly PIXELS_PER_MINUTE = 1; // 1 pixel per minute
+  private readonly SLOT_HEIGHT_PX = this.SLOT_DURATION_MINUTES * this.PIXELS_PER_MINUTE; // 30px per 30 minutes
 
   // Business hours
   private readonly businessHours = {
@@ -35,9 +35,16 @@ export class CalendarPositionService {
     const startMinute = startDate.getMinutes();
 
     // Calculate minutes since business start
-    const minutesSinceStart = (startHour - this.businessHours.start) * 60 + startMinute;
+    let minutesSinceStart = (startHour - this.businessHours.start) * 60 + startMinute;
 
-    // Convert to pixels
+    // Adjust for lunch break gap (13:00-15:00 = 2 hours = 120 minutes)
+    if (startHour >= 15) {
+      // If appointment is after lunch break, subtract the lunch break duration
+      minutesSinceStart -= 120; // 2 hours = 120 minutes
+    }
+
+    // Convert to pixels - each slot is 30px, so we need to align with the grid
+    // The position should align with the time slot grid
     return minutesSinceStart * this.PIXELS_PER_MINUTE;
   }
 
@@ -84,8 +91,13 @@ export class CalendarPositionService {
 
     const slotEnd = addMinutes(slotStart, requestedDuration);
 
-    // Check if the time slot is during lunch break
+    // Check if the time slot is during lunch break (13:00-15:00)
     if (this.isLunchBreak(time)) {
+      return false;
+    }
+
+    // Check if the time slot is bookable (allows reservations until 12:30 and from 15:00)
+    if (!this.isTimeSlotBookable(time)) {
       return false;
     }
 
@@ -107,6 +119,26 @@ export class CalendarPositionService {
   private isLunchBreak(time: string): boolean {
     const [hour] = time.split(':').map(Number);
     return hour >= 13 && hour < 15; // Lunch break from 13:00 to 15:00
+  }
+
+  /**
+   * Check if a time slot is bookable (allows reservations until 12:30 and from 15:00)
+   */
+  private isTimeSlotBookable(time: string): boolean {
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Allow bookings until 12:30
+    if (hour < 12 || (hour === 12 && minute <= 30)) {
+      return true;
+    }
+
+    // Allow bookings from 15:00 onwards
+    if (hour >= 15) {
+      return true;
+    }
+
+    // Block 12:30-15:00 (lunch break period)
+    return false;
   }
 
   /**

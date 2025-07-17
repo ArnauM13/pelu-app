@@ -3,6 +3,7 @@
     class="language-button"
     (click)="toggleDropdown()"
     [attr.aria-label]="'LANGUAGES.SELECT_LANGUAGE' | translate"
+    [attr.data-lang-code]="currentLanguage()?.code?.toUpperCase()"
     type="button">
     <span class="language-name">{{ ('LANGUAGES.' + (currentLanguage()?.code?.toUpperCase() || '')) | translate }}</span>
     <span class="arrow" [class.open]="isDropdownOpen()">▼</span>

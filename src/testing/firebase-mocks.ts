@@ -10,8 +10,7 @@ import { TranslationService } from '../app/core/services/translation.service';
 import {
   mockTranslateService,
   mockTranslateStore,
-  mockTranslationService,
-  translationTestUtils
+  mockTranslationService
 } from './translation-mocks';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
@@ -185,7 +184,7 @@ export const mockFirebaseConfig = {
 };
 
 // Re-export translation mocks
-export { mockTranslateService, mockTranslateStore, mockTranslationService, translationTestUtils };
+export { mockTranslateService, mockTranslateStore, mockTranslationService };
 
 // Mock AuthService with signals
 export const mockAuthService: jasmine.SpyObj<AuthService> = jasmine.createSpyObj('AuthService', [

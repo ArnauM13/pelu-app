@@ -2,8 +2,6 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { CalendarModule } from 'primeng/calendar';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,6 +22,8 @@ import { AppointmentsListComponent, Appointment } from '../components/appointmen
 import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { isFutureAppointment } from '../../../shared/services';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -33,7 +33,6 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
     FormsModule,
     CardModule,
     ButtonModule,
-    ToastModule,
     TooltipModule,
     TranslateModule,
     CalendarModule,
@@ -51,9 +50,9 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
 })
 export class AppointmentsPageComponent {
   // Inject services
-  public readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
 
   // Core data signals
   private readonly appointmentsSignal = signal<any[]>([]);
@@ -146,8 +145,16 @@ export class AppointmentsPageComponent {
 
     // Sort by date and time
     return filtered.sort((a, b) => {
-      const dateA = new Date(a.data + 'T' + (a.hora || '00:00'));
-      const dateB = new Date(b.data + 'T' + (b.hora || '00:00'));
+      // Create dates in local timezone to avoid UTC conversion issues
+      const createLocalDateTime = (dateStr: string, timeStr: string) => {
+        const [hours, minutes] = (timeStr || '00:00').split(':').map(Number);
+        const date = new Date(dateStr);
+        date.setHours(hours, minutes, 0, 0);
+        return date;
+      };
+
+      const dateA = createLocalDateTime(a.data, a.hora || '00:00');
+      const dateB = createLocalDateTime(b.data, b.hora || '00:00');
       return dateA.getTime() - dateB.getTime();
     });
   });
@@ -172,7 +179,10 @@ export class AppointmentsPageComponent {
   readonly upcomingAppointments = computed(() => {
     const now = new Date();
     return this.appointments().filter(appointment => {
-      const appointmentDateTime = new Date(appointment.data + 'T' + (appointment.hora || '23:59'));
+      // Create date in local timezone to avoid UTC conversion issues
+      const [hours, minutes] = (appointment.hora || '23:59').split(':').map(Number);
+      const appointmentDateTime = new Date(appointment.data);
+      appointmentDateTime.setHours(hours, minutes, 0, 0);
       return appointmentDateTime > now;
     }).length;
   });
@@ -192,6 +202,8 @@ export class AppointmentsPageComponent {
     upcoming: this.upcomingAppointments(),
     mine: this.myAppointments()
   }));
+
+  readonly isFutureAppointment = isFutureAppointment;
 
   constructor(private serviceColorsService: ServiceColorsService) {
     this.loadAppointments();
@@ -250,12 +262,34 @@ export class AppointmentsPageComponent {
   }
 
   deleteAppointment(appointment: any): void {
+    if (!isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
+      this.toastService.showError('No es pot eliminar una cita passada');
+      return;
+    }
+
     this.appointmentsSignal.update(appointments =>
       appointments.filter(a => a.id !== appointment.id)
     );
     this.saveAppointments();
 
-    this.showToast('success', '🗑️ Cita eliminada', `S'ha eliminat la cita de ${appointment.nom}`, appointment.id);
+    // Show success message with better fallback for client name
+    const clientName = appointment.nom || appointment.title || appointment.clientName || 'Client';
+    this.toastService.showAppointmentDeleted(clientName);
+  }
+
+  editAppointment(appointment: any): void {
+    const user = this.authService.user();
+    if (!user?.uid) {
+      this.toastService.showError('No s\'ha pogut editar la cita. Si us plau, inicia sessió.');
+      return;
+    }
+
+    // Generem un ID únic combinant clientId i appointmentId
+    const clientId = user.uid;
+    const uniqueId = `${clientId}-${appointment.id}`;
+
+    // Naveguem a la pàgina de detall en mode edició
+    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
   }
 
   private saveAppointments(): void {
@@ -325,15 +359,7 @@ export class AppointmentsPageComponent {
   }
 
   showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
-    this.messageService.add({
-      severity,
-      summary,
-      detail,
-      life: 4000,
-      closable: false,
-      key: 'appointments-toast',
-      data: { appointmentId, showViewButton }
-    });
+    this.toastService.showToast(severity, summary, detail, appointmentId, showViewButton);
   }
 
   onToastClick(event: any) {
