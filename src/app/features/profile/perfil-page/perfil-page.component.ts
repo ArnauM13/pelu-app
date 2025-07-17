@@ -1,9 +1,10 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
+import { RoleService } from '../../../core/services/role.service';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { AvatarData } from '../../../shared/components/avatar/avatar.component';
 import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../../shared/components/detail-view/detail-view.component';
@@ -20,6 +21,7 @@ export class PerfilPageComponent {
   private auth = inject(Auth);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private roleService = inject(RoleService);
 
   // Internal state
   private readonly userSignal = signal<any>(null);
@@ -73,6 +75,13 @@ export class PerfilPageComponent {
     return '';
   });
 
+  readonly userRole = computed(() => {
+    const role = this.roleService.userRole();
+    if (!role) return '';
+
+    return role.role === 'admin' ? 'ADMIN.ADMIN_ROLE' : 'ADMIN.CLIENT_ROLE';
+  });
+
   // Notes del client (dades d'exemple)
   private readonly clientNotesSignal = signal<InfoItemData[]>([
     {
@@ -114,6 +123,11 @@ export class PerfilPageComponent {
       icon: '📧',
       label: 'PROFILE.EMAIL',
       value: this.email()
+    },
+    {
+      icon: '🔑',
+      label: 'ADMIN.ROLE',
+      value: this.userRole()
     },
     {
       icon: '📅',
@@ -174,7 +188,7 @@ export class PerfilPageComponent {
         routerLink: '/'
       },
       {
-        label: 'COMMON.LOGOUT',
+        label: 'COMMON.ACTIONS.LOGOUT',
         icon: '🚪',
         type: 'danger',
         onClick: () => this.logout()
@@ -183,8 +197,10 @@ export class PerfilPageComponent {
   }
 
   constructor() {
-    onAuthStateChanged(this.auth, (u: any) => {
-      this.userSignal.set(u);
+    // Use the centralized auth service instead of direct Firebase auth
+    effect(() => {
+      const user = this.authService.user();
+      this.userSignal.set(user);
       this.isLoadingSignal.set(false);
     });
   }
@@ -233,8 +249,6 @@ export class PerfilPageComponent {
   }
 
   logout() {
-    this.authService.logout().then(() => {
-      this.router.navigate(['/']);
-    });
+    this.authService.logout();
   }
 }

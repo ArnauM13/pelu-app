@@ -2,75 +2,123 @@
 <div class="booking-popup-overlay" (click)="onBackdropClick($event)">
   <div class="booking-popup" (click)="$event.stopPropagation()">
     <div class="popup-header">
-      <h3>{{ 'COMMON.BOOKING_CONFIRMATION' | translate }}</h3>
+      <h3>{{ 'COMMON.ACTIONS.CONFIRM_BOOKING' | translate }}</h3>
       <button class="close-btn" (click)="onClose()">×</button>
     </div>
 
     <div class="popup-body">
-      <!-- Date and Time Selection -->
-      <div class="datetime-selection">
-        <div class="form-group">
-          <label>{{ 'COMMON.DATE' | translate }}:</label>
-          <div class="readonly-field">{{ formatDate(bookingDetails().date) }}</div>
-        </div>
-        <div class="form-group">
-          <label>{{ 'COMMON.TIME' | translate }}:</label>
-          <div class="readonly-field">{{ bookingDetails().time }}</div>
+      <!-- Date and Time Display (Read-only) -->
+      <div class="form-group">
+        <label>{{ 'COMMON.DATE' | translate }}:</label>
+        <div class="readonly-field">{{ formatDate(bookingDetails().date) }}</div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'COMMON.HOURS' | translate }}:</label>
+        <div class="readonly-field">{{ bookingDetails().time }}</div>
+      </div>
+
+      <!-- Service Display (Mobile only - Read-only) -->
+      <div class="form-group mobile-only" *ngIf="bookingDetails().service">
+        <label>{{ 'COMMON.SERVICE' | translate }}:</label>
+        <div class="service-display-mobile">
+          <div class="service-info-mobile">
+            <div class="service-icon-mobile">{{ bookingDetails().service!.icon }}</div>
+            <div class="service-details-mobile">
+              <span class="service-name-mobile">{{ getServiceName(bookingDetails().service!) }}</span>
+              <span class="service-duration-mobile">{{ bookingDetails().service!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+              <span class="service-price-mobile">{{ formatPrice(bookingDetails().service!.price) }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Service Information (Read-only) -->
-      <div class="form-group">
+      <!-- Service Selection/Display (Desktop only) -->
+      <div class="form-group desktop-only">
         <label>{{ 'COMMON.SERVICE' | translate }}:</label>
-        <div class="readonly-field service-display">
-          @if (bookingDetails().service) {
-            <div class="service-info-display">
-              <div class="service-icon">{{ bookingDetails().service?.icon }}</div>
-              <div class="service-details">
-                <div class="service-name">{{ bookingDetails().service?.name }}</div>
-                <div class="service-meta">
-                  <span class="service-duration">{{ formatDuration(bookingDetails().service?.duration || 0) }}</span>
-                  <span class="service-price">{{ formatPrice(bookingDetails().service?.price || 0) }}</span>
+
+        <!-- Service Display (when service is already selected) -->
+        <div class="service-display" *ngIf="bookingDetails().service">
+          <div class="service-info">
+            <span class="service-name">{{ bookingDetails().service!.name | translate }}</span>
+            <span class="service-duration">{{ bookingDetails().service!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+          </div>
+        </div>
+
+        <!-- Service Selection (when no service is selected) -->
+        <div class="service-selection" *ngIf="!bookingDetails().service">
+          <p-dropdown
+            [options]="availableServices()"
+            [(ngModel)]="selectedService"
+            optionLabel="name"
+            [placeholder]="'COMMON.SELECTION.SELECT_SERVICE' | translate"
+            class="service-select"
+            (onChange)="onServiceChange($event)">
+            <ng-template pTemplate="selectedItem" let-service>
+              <div class="service-option-selected">
+                <span class="service-icon">{{ service.icon }}</span>
+                <span>{{ getServiceName(service) }}</span>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="item" let-service>
+              <div class="service-option">
+                <span class="service-icon">{{ service.icon }}</span>
+                <div class="service-info">
+                  <div class="service-name">{{ getServiceName(service) }}</div>
+                  <div class="service-description">{{ service.description }}</div>
+                  <div class="service-meta">
+                    <span class="service-duration">{{ formatDuration(service.duration) }}</span>
+                    @if (service.popular) {
+                      <span class="service-popular">⭐ Popular</span>
+                    }
+                  </div>
+                </div>
+                <div class="service-details">
+                  <div class="service-price">{{ formatPrice(service.price) }}</div>
                 </div>
               </div>
-            </div>
-          } @else {
-            <span>-</span>
-          }
+            </ng-template>
+          </p-dropdown>
         </div>
       </div>
 
-
-
+      <!-- Client Name Input -->
       <div class="form-group">
         <label>{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
-        <div class="readonly-field">{{ bookingDetails().clientName || '-' }}</div>
+        @if (isAuthenticated()) {
+          <div class="readonly-field">{{ currentUserName() }}</div>
+        } @else {
+          <input
+            type="text"
+            class="form-input"
+            [value]="clientName() || bookingDetails().clientName"
+            (input)="updateClientName($any($event.target).value)"
+            [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate">
+        }
       </div>
+
+
     </div>
 
     <div class="popup-footer">
-      <button class="btn btn-secondary" (click)="onClose()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button
-        class="btn btn-primary"
-        (click)="onConfirm()"
-        [disabled]="!canConfirm()">
-        {{ 'COMMON.CONFIRM_BOOKING' | translate }}
+      <button class="btn-secondary" (click)="onClose()">
+        {{ 'COMMON.ACTIONS.CANCEL' | translate }}
+      </button>
+      <button class="btn-primary" (click)="onConfirm()" [disabled]="!canConfirm()">
+        {{ 'COMMON.ACTIONS.CONFIRM' | translate }}
       </button>
     </div>
   </div>
 </div>
-}
 
-<p-toast key="booking-error-toast" position="top-right" [baseZIndex]="9999" *ngIf="showErrorToast()">
+<!-- Error Toast -->
+<p-toast
+  [baseZIndex]="10000"
+  [key]="'booking-error'">
   <ng-template let-message pTemplate="message">
-    <div class="p-toast-message-content">
-      <div class="p-toast-message-icon">
-        <i class="pi pi-times"></i>
-      </div>
-      <div class="p-toast-message-text">
-        <span class="p-toast-summary">Error</span>
-        <div class="p-toast-detail">{{ errorMessage() || 'Només es poden seleccionar dies laborables.' }}</div>
-      </div>
+    <div class="error-toast">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>{{ errorMessage() }}</span>
     </div>
   </ng-template>
 </p-toast>
+}

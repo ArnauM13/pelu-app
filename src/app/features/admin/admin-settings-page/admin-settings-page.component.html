@@ -1,0 +1,140 @@
+<div class="admin-settings-page single-screen">
+  <div class="settings-card">
+    <div class="settings-header">
+      <h1>{{ 'ADMIN.SETTINGS_PAGE.TITLE' | translate }}</h1>
+      <p>{{ 'ADMIN.SETTINGS_PAGE.SUBTITLE' | translate }}</p>
+      <div class="mode-toggle">
+        <button
+          type="button"
+          class="mode-btn"
+          [class.active]="!isEditMode()"
+          (click)="setViewMode()">
+          <i class="pi pi-eye"></i>
+          {{ 'ADMIN.SETTINGS_PAGE.VIEW_MODE' | translate }}
+        </button>
+        <button
+          type="button"
+          class="mode-btn"
+          [class.active]="isEditMode()"
+          (click)="setEditMode()">
+          <i class="pi pi-pencil"></i>
+          {{ 'ADMIN.SETTINGS_PAGE.EDIT_MODE' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- View Mode -->
+    <div class="settings-content" *ngIf="!isEditMode()">
+      <div class="settings-grid">
+        <!-- Business Info -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate }}</label>
+          <div class="readonly-field">{{ settingsForm.get('businessName')?.value || 'Barberia Soca' }}</div>
+        </div>
+        <!-- Appointment Duration -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION' | translate }}</label>
+          <div class="readonly-field">{{ settingsForm.get('appointmentDuration')?.value || 60 }} min</div>
+        </div>
+        <!-- Max Appointments -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS' | translate }}</label>
+          <div class="readonly-field">{{ settingsForm.get('maxAppointments')?.value || 20 }}</div>
+        </div>
+        <!-- Auto Confirm -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM' | translate }}</label>
+          <div class="readonly-field">
+            <i class="pi" [class.pi-check]="settingsForm.get('autoConfirm')?.value" [class.pi-times]="!settingsForm.get('autoConfirm')?.value"></i>
+            {{ settingsForm.get('autoConfirm')?.value ? 'Sí' : 'No' }}
+          </div>
+        </div>
+        <!-- Notifications -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS' | translate }}</label>
+          <div class="readonly-field">
+            <i class="pi" [class.pi-check]="settingsForm.get('sendNotifications')?.value" [class.pi-times]="!settingsForm.get('sendNotifications')?.value"></i>
+            {{ settingsForm.get('sendNotifications')?.value ? 'Sí' : 'No' }}
+          </div>
+        </div>
+        <!-- Maintenance Mode -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE' | translate }}</label>
+          <div class="readonly-field">
+            <i class="pi" [class.pi-check]="settingsForm.get('maintenanceMode')?.value" [class.pi-times]="!settingsForm.get('maintenanceMode')?.value"></i>
+            {{ settingsForm.get('maintenanceMode')?.value ? 'Sí' : 'No' }}
+          </div>
+        </div>
+        <!-- Language -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate }}</label>
+          <div class="readonly-field">{{ getLanguageLabel(settingsForm.get('defaultLanguage')?.value) }}</div>
+        </div>
+        <!-- Currency -->
+        <div class="settings-group">
+          <label>{{ 'ADMIN.SETTINGS_PAGE.CURRENCY' | translate }}</label>
+          <div class="readonly-field">{{ getCurrencyLabel(settingsForm.get('currency')?.value) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" *ngIf="isEditMode()">
+      <div class="settings-grid">
+        <!-- Business Info -->
+        <div class="settings-group">
+          <label for="businessName">{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate }}</label>
+          <input id="businessName" type="text" pInputText formControlName="businessName" [placeholder]="'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate">
+        </div>
+        <!-- Appointment Duration -->
+        <div class="settings-group">
+          <label for="appointmentDuration">{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION' | translate }}</label>
+          <p-inputNumber id="appointmentDuration" formControlName="appointmentDuration" [min]="15" [max]="480" [step]="15" suffix=" min"></p-inputNumber>
+        </div>
+        <!-- Max Appointments -->
+        <div class="settings-group">
+          <label for="maxAppointments">{{ 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS' | translate }}</label>
+          <p-inputNumber id="maxAppointments" formControlName="maxAppointments" [min]="1" [max]="100"></p-inputNumber>
+        </div>
+        <!-- Auto Confirm -->
+        <div class="settings-group checkbox-group">
+          <p-checkbox formControlName="autoConfirm" [binary]="true" [inputId]="'autoConfirm'"></p-checkbox>
+          <label for="autoConfirm">{{ 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM' | translate }}</label>
+        </div>
+        <!-- Notifications -->
+        <div class="settings-group checkbox-group">
+          <p-checkbox formControlName="sendNotifications" [binary]="true" [inputId]="'sendNotifications'"></p-checkbox>
+          <label for="sendNotifications">{{ 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS' | translate }}</label>
+        </div>
+        <!-- Maintenance Mode -->
+        <div class="settings-group checkbox-group">
+          <p-checkbox formControlName="maintenanceMode" [binary]="true" [inputId]="'maintenanceMode'"></p-checkbox>
+          <label for="maintenanceMode">{{ 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE' | translate }}</label>
+        </div>
+        <!-- Language -->
+        <div class="settings-group">
+          <label for="defaultLanguage">{{ 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate }}</label>
+          <p-dropdown id="defaultLanguage" formControlName="defaultLanguage" [options]="languageOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate"></p-dropdown>
+        </div>
+        <!-- Currency -->
+        <div class="settings-group">
+          <label for="currency">{{ 'ADMIN.SETTINGS_PAGE.CURRENCY' | translate }}</label>
+          <p-dropdown id="currency" formControlName="currency" [options]="currencyOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.CURRENCY' | translate"></p-dropdown>
+          <small class="form-help">{{ 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP' | translate }}</small>
+        </div>
+      </div>
+      <div class="settings-actions">
+        <p-button type="submit" [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate" [loading]="saving()" icon="pi pi-save"></p-button>
+        <p-button type="button" severity="secondary" [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate" icon="pi pi-refresh" (click)="resetToDefaults()"></p-button>
+        <p-button type="button" severity="secondary" [label]="'ADMIN.SETTINGS_PAGE.CANCEL' | translate" icon="pi pi-times" (click)="setViewMode()"></p-button>
+      </div>
+    </form>
+
+    <ng-template [ngIf]="loading()">
+      <div class="loading-container">
+        <p-progressSpinner></p-progressSpinner>
+        <p>{{ 'ADMIN.SETTINGS_PAGE.LOADING' | translate }}</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
