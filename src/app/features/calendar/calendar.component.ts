@@ -1,8 +1,8 @@
-import { Component, input, output, signal, computed, effect, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CalendarModule, CalendarView, CalendarEvent, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
-import { startOfWeek, endOfWeek, startOfDay, endOfDay, format as dateFnsFormat, addDays, isSameDay, isSameWeek, eachDayOfInterval, addMinutes } from 'date-fns';
+import { CalendarModule, CalendarView, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
+import { startOfWeek, endOfWeek, format as dateFnsFormat, isSameDay, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,6 +12,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
+import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
 
@@ -48,6 +49,7 @@ export class CalendarComponent {
   private readonly positionService = inject(CalendarPositionService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
+  readonly dragDropService = inject(CalendarDragDropService);
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -160,8 +162,24 @@ export class CalendarComponent {
   });
 
   constructor(private serviceColorsService: ServiceColorsService) {
-    // Initialize appointments from localStorage
     this.loadAppointmentsFromStorage();
+
+    // Listen for localStorage changes to update calendar in real-time
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'cites') {
+        this.reloadAppointments();
+      }
+    });
+
+    // Listen for custom appointment update events
+    window.addEventListener('appointmentUpdated', () => {
+      this.reloadAppointments();
+    });
+
+    // Listen for custom appointment delete events
+    window.addEventListener('appointmentDeleted', () => {
+      this.reloadAppointments();
+    });
   }
 
   // Load appointments from localStorage
@@ -484,6 +502,29 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
   }
 
+  onAppointmentDeleted(appointment: any) {
+    // Remove the appointment from the state
+    this.stateService.removeAppointment(appointment.id);
+
+    // Also remove from localStorage 'cites' to keep it in sync
+    try {
+      const cites = JSON.parse(localStorage.getItem('cites') || '[]');
+      const updatedCites = cites.filter((cita: any) => cita.id !== appointment.id);
+      localStorage.setItem('cites', JSON.stringify(updatedCites));
+    } catch (error) {
+      console.error('Error updating cites in localStorage:', error);
+    }
+
+    // Reload appointments to update the view
+    this.reloadAppointments();
+  }
+
+  onAppointmentEditRequested(appointment: any) {
+    // The popup already handles navigation to edit mode
+    // Just close the popup
+    this.stateService.closeAppointmentDetail();
+  }
+
   isLunchBreakStart(time: string): boolean {
     return this.businessService.isLunchBreakStart(time);
   }
@@ -496,7 +537,54 @@ export class CalendarComponent {
     this.stateService.navigateToDate(dateString);
   }
 
+  // Drag & Drop methods
+  onDropZoneMouseEnter(event: MouseEvent, day: Date) {
+    if (this.dragDropService.isDragging()) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+    }
+  }
 
+  onDropZoneMouseMove(event: MouseEvent, day: Date) {
+    if (this.dragDropService.isDragging()) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+    }
+  }
+
+  onDropZoneDrop(event: DragEvent, day: Date) {
+    event.preventDefault();
+
+    // Update the target date and time one final time before ending drag
+    if (this.dragDropService.isDragging()) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+    }
+
+    const success = this.dragDropService.endDrag();
+
+    if (success) {
+      // Appointment was successfully moved
+      this.reloadAppointments();
+
+      // Force a change detection cycle to update the view
+      setTimeout(() => {
+        this.reloadAppointments();
+      }, 100);
+    }
+  }
+
+  onDropZoneDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  // Helper method to compare dates
+  isSameDay(date1: Date, date2: Date): boolean {
+    return isSameDay(date1, date2);
+  }
 
   // Create appointment slot data for the new component
   createAppointmentSlotData(appointment: AppointmentEvent, date: Date): AppointmentSlotData {
@@ -504,6 +592,27 @@ export class CalendarComponent {
       appointment,
       date
     };
+  }
+
+  // Get service CSS class for drag preview
+  getServiceCssClass(appointment: AppointmentEvent): string {
+    const serviceName = appointment.serviceName || '';
+    return this.serviceColorsService.getServiceCssClass(serviceName);
+  }
+
+  // Format duration for display
+  formatDuration(minutes: number): string {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      if (remainingMinutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${remainingMinutes}min`;
+      }
+    }
   }
 
   private convertToCalendarEvent(appointment: any): AppointmentEvent {

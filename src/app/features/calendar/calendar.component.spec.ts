@@ -12,21 +12,24 @@ import {
   mockTranslationService,
   mockAuthService
 } from '../../../testing/firebase-mocks';
+import { configureTestModule } from '../../../testing/test-setup';
 
 describe('CalendarComponent', () => {
   let component: CalendarComponent;
   let fixture: ComponentFixture<CalendarComponent>;
 
   beforeEach(async () => {
+    const testConfig = configureTestModule([
+      { provide: Auth, useValue: mockAuth },
+      { provide: TranslateService, useValue: mockTranslateService },
+      { provide: TranslateStore, useValue: mockTranslateStore },
+      { provide: TranslationService, useValue: mockTranslationService },
+      { provide: AuthService, useValue: mockAuthService }
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [CalendarComponent],
-      providers: [
-        { provide: Auth, useValue: mockAuth },
-        { provide: TranslateService, useValue: mockTranslateService },
-        { provide: TranslateStore, useValue: mockTranslateStore },
-        { provide: TranslationService, useValue: mockTranslationService },
-        { provide: AuthService, useValue: mockAuthService }
-      ]
+      providers: testConfig.providers
     })
     .compileComponents();
 

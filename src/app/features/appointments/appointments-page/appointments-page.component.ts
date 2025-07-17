@@ -2,8 +2,6 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { CalendarModule } from 'primeng/calendar';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,6 +22,7 @@ import { AppointmentsListComponent, Appointment } from '../components/appointmen
 import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -33,7 +32,6 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
     FormsModule,
     CardModule,
     ButtonModule,
-    ToastModule,
     TooltipModule,
     TranslateModule,
     CalendarModule,
@@ -51,9 +49,9 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
 })
 export class AppointmentsPageComponent {
   // Inject services
-  public readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
 
   // Core data signals
   private readonly appointmentsSignal = signal<any[]>([]);
@@ -255,7 +253,7 @@ export class AppointmentsPageComponent {
     );
     this.saveAppointments();
 
-    this.showToast('success', '🗑️ Cita eliminada', `S'ha eliminat la cita de ${appointment.nom}`, appointment.id);
+    this.toastService.showAppointmentDeleted(appointment.nom);
   }
 
   private saveAppointments(): void {
@@ -325,15 +323,7 @@ export class AppointmentsPageComponent {
   }
 
   showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
-    this.messageService.add({
-      severity,
-      summary,
-      detail,
-      life: 4000,
-      closable: false,
-      key: 'appointments-toast',
-      data: { appointmentId, showViewButton }
-    });
+    this.toastService.showToast(severity, summary, detail, appointmentId, showViewButton);
   }
 
   onToastClick(event: any) {

@@ -160,7 +160,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   margin-top: 2px !important;
   overflow: hidden !important;
-  z-index: 200 !important;
+  z-index: var(--z-dropdown) !important;
   width: 100% !important;
   min-width: 100% !important;
 }

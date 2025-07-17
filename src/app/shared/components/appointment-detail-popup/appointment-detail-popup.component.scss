@@ -3,32 +3,59 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 99999;
-  backdrop-filter: blur(10px);
+  justify-content: center;
+  z-index: var(--z-popup);
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.appointment-detail-popup-overlay.closing {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .appointment-detail-popup {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  max-width: 450px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  animation: popupSlideIn 0.3s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out forwards;
 }
 
-@keyframes popupSlideIn {
+.appointment-detail-popup.closing {
+  animation: slideDown 0.3s ease-in forwards;
+}
+
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-30px) scale(0.9);
+    transform: translateY(20px) scale(0.95);
   }
   to {
     opacity: 1;
@@ -36,50 +63,50 @@
   }
 }
 
-// Header Section
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
-  border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+  }
 }
 
-.header-content h3 {
-  margin: 0;
-  color: #495057;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  color: #6c757d;
-  padding: 0.5rem;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-  background: #e9ecef;
-  color: #495057;
-  transform: scale(1.1);
-}
-
-// Body Section
 .popup-body {
-  padding: 1.25rem;
-  overflow-y: auto;
-  max-height: calc(80vh - 100px);
+  padding: 1.5rem;
 }
 
 .appointment-info {
@@ -119,43 +146,81 @@
   margin-bottom: 1.5rem;
 }
 
-// Actions Section
 .popup-actions {
   display: flex;
   justify-content: center;
   padding-top: 1rem;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid #e5e7eb;
+}
+
+.actions-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
   border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
-  min-width: 160px;
+  min-width: auto;
   justify-content: center;
+  white-space: nowrap;
 }
 
 .btn-primary {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(58, 90, 138, 0.3);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(58, 90, 138, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-danger {
+  background: var(--gradient-error);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:active {
   transform: translateY(0);
 }
 
@@ -176,14 +241,13 @@
   .appointment-detail-popup {
     width: 95%;
     max-width: none;
-    margin: 1rem;
   }
 
   .popup-header {
     padding: 1rem;
   }
 
-  .header-content h3 {
+  .popup-header h3 {
     font-size: 1.1rem;
   }
 
@@ -191,10 +255,18 @@
     padding: 1rem;
   }
 
+  .popup-actions {
+    gap: 0.5rem;
+  }
+
+  .actions-row {
+    gap: 0.4rem;
+  }
+
   .btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-    min-width: 140px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    min-width: auto;
   }
 
   .info-row {
@@ -218,5 +290,16 @@
 
   .close-btn {
     align-self: flex-end;
+  }
+
+  .actions-row {
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    min-width: auto;
   }
 }

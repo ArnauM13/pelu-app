@@ -5,9 +5,7 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
-import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
 import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
@@ -17,6 +15,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { ServicesService, Service } from '../../../core/services/services.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { ToastService } from '../../../shared/services/toast.service';
 
 
 interface DaySlot {
@@ -41,7 +40,6 @@ interface TimeSlot {
     CardModule,
     InputTextModule,
     ButtonModule,
-    ToastModule,
     DropdownModule,
     TranslateModule,
     CardComponent,
@@ -53,10 +51,10 @@ interface TimeSlot {
 })
 export class BookingMobilePageComponent {
   // Inject services
-  public readonly messageService = inject(MessageService);
   public readonly authService = inject(AuthService);
   public readonly servicesService = inject(ServicesService);
   private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
 
 
   // Internal state signals
@@ -270,7 +268,7 @@ export class BookingMobilePageComponent {
   onBookingConfirmed(details: BookingDetails) {
     const user = this.authService.user();
     if (!user) {
-      this.showToast('error', 'Error', 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.');
+      this.toastService.showLoginRequired();
       return;
     }
 
@@ -290,8 +288,7 @@ export class BookingMobilePageComponent {
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
 
-    const serviceInfo = details.service ? ` (${details.service.name} - ${details.service.duration} min)` : '';
-    this.showToast('success', '✅ Reserva creada', `S'ha creat una reserva per ${nova.nom} el ${this.formatDate(nova.data)} a les ${nova.hora}${serviceInfo}`, nova.id, true);
+    this.toastService.showAppointmentCreated(details.clientName, nova.id);
   }
 
   onBookingCancelled() {
@@ -375,42 +372,7 @@ export class BookingMobilePageComponent {
     return tomorrow;
   }
 
-  showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
-    this.messageService.add({
-      severity,
-      summary,
-      detail,
-      life: 4000,
-      closable: false,
-      key: 'booking-mobile-toast',
-      data: { appointmentId, showViewButton }
-    });
-  }
 
-  onToastClick(event: any) {
-    const appointmentId = event.message?.data?.appointmentId;
-    if (appointmentId) {
-      const user = this.authService.user();
-      if (!user?.uid) {
-        return;
-      }
-
-      const clientId = user.uid;
-      const uniqueId = `${clientId}-${appointmentId}`;
-      this.router.navigate(['/appointments', uniqueId]);
-    }
-  }
-
-  viewAppointmentDetail(appointmentId: string) {
-    const user = this.authService.user();
-    if (!user?.uid) {
-      return;
-    }
-
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointmentId}`;
-    this.router.navigate(['/appointments', uniqueId]);
-  }
 
 
 

@@ -60,10 +60,15 @@ describe('AppointmentDetailPopupComponent', () => {
     expect(typeof component.isPastDate).toBe('function');
   });
 
-  it('should emit closed event when onClose is called', () => {
+  it('should emit closed event when onClose is called', (done) => {
     spyOn(component.closed, 'emit');
     component.onClose();
-    expect(component.closed.emit).toHaveBeenCalled();
+
+    // Wait for the setTimeout to complete
+    setTimeout(() => {
+      expect(component.closed.emit).toHaveBeenCalled();
+      done();
+    }, 350); // Slightly longer than the 300ms timeout in the component
   });
 
   it('should format date correctly', () => {
