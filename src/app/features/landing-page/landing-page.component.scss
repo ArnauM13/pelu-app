@@ -88,11 +88,12 @@
     flex-direction: column;
   }
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
+  // Remove mobile adaptation - keep 2x2 layout always
+  // @media (max-width: 768px) {
+  //   flex-direction: column;
+  //   align-items: center;
+  //   gap: 1rem;
+  // }
 }
 
 .btn-primary, .btn-secondary, .btn-outline, .btn-profile {
@@ -297,13 +298,14 @@
     padding: 1rem;
   }
 
-  .hero-buttons {
-    gap: 0.75rem;
-  }
+  // Keep buttons consistent across all screen sizes
+  // .hero-buttons {
+  //   gap: 0.75rem;
+  // }
 
-  .btn-primary, .btn-secondary, .btn-outline, .btn-profile {
-    padding: 0.7rem 1rem;
-    font-size: 0.85rem;
-    min-width: 120px;
-  }
+  // .btn-primary, .btn-secondary, .btn-outline, .btn-profile {
+  //   padding: 0.7rem 1rem;
+  //   font-size: 0.85rem;
+  //   min-width: 120px;
+  // }
 }

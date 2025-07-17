@@ -125,11 +125,11 @@ export class DetailViewComponent implements OnChanges {
     const today = new Date();
     const appointmentDate = new Date(appointment.data);
     if (appointmentDate.toDateString() === today.toDateString()) {
-      return { text: 'COMMON.TODAY', class: 'today' };
+      return { text: 'COMMON.TIME.TODAY', class: 'today' };
     } else if (appointmentDate < today) {
-      return { text: 'COMMON.PAST', class: 'past' };
+      return { text: 'COMMON.TIME.PAST', class: 'past' };
     } else {
-      return { text: 'COMMON.UPCOMING', class: 'upcoming' };
+      return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
     }
   }
 

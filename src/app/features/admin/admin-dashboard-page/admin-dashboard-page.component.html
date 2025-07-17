@@ -1,0 +1,42 @@
+<div class="admin-dashboard single-screen">
+  <div class="dashboard-card">
+    <div class="dashboard-header">
+      <h1>{{ 'ADMIN.DASHBOARD_TITLE' | translate }}</h1>
+      <p>{{ 'ADMIN.WELCOME_MESSAGE' | translate }}</p>
+    </div>
+    <div class="dashboard-grid">
+      <!-- User Info -->
+      <div class="user-info-group">
+        <div class="info-item">
+          <label>{{ 'ADMIN.NAME' | translate }}</label>
+          <span>{{ userService.userDisplayName() }}</span>
+        </div>
+        <div class="info-item">
+          <label>{{ 'ADMIN.EMAIL' | translate }}</label>
+          <span>{{ userService.userEmail() }}</span>
+        </div>
+        <div class="info-item">
+          <label>{{ 'ADMIN.ROLE' | translate }}</label>
+          <span class="role-badge admin">{{ 'ADMIN.ADMIN_ROLE' | translate }}</span>
+        </div>
+      </div>
+      <!-- Features -->
+      <div class="features-group">
+        <div class="feature-card">
+          <h3>{{ 'ADMIN.APPOINTMENT_MANAGEMENT' | translate }}</h3>
+          <p>{{ 'ADMIN.APPOINTMENT_MANAGEMENT_DESCRIPTION' | translate }}</p>
+          <button class="btn-primary" routerLink="/appointments">
+            {{ 'ADMIN.VIEW_ALL_APPOINTMENTS' | translate }}
+          </button>
+        </div>
+        <div class="feature-card">
+          <h3>{{ 'ADMIN.SYSTEM_SETTINGS' | translate }}</h3>
+          <p>{{ 'ADMIN.SYSTEM_SETTINGS_DESCRIPTION' | translate }}</p>
+          <button class="btn-secondary" routerLink="/admin/settings">
+            {{ 'ADMIN.ACCESS_SETTINGS' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

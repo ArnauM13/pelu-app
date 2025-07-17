@@ -106,7 +106,7 @@ export class CalendarPositionService {
    */
   private isLunchBreak(time: string): boolean {
     const [hour] = time.split(':').map(Number);
-    return hour >= 13 && hour < 15; // Lunch break from 13:00 to 15:00
+    return hour >= 13 && hour < 14; // Lunch break from 13:00 to 14:00
   }
 
   /**

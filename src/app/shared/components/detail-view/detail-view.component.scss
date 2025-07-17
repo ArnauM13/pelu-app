@@ -548,19 +548,39 @@
   }
 
   .profile-header {
-    padding: 1.5rem;
+    padding: 1rem;
 
     .avatar-section {
-      flex-direction: column;
-      text-align: center;
+      flex-direction: row;
+      text-align: left;
       gap: 1rem;
+      align-items: center;
 
-      .user-name {
-        font-size: 1.75rem;
+      .profile-avatar {
+        flex-shrink: 0;
+        // Make avatar smaller on mobile
+        ::ng-deep .avatar {
+          width: 60px !important;
+          height: 60px !important;
+          font-size: 1.5rem !important;
+        }
       }
 
-      .user-email {
-        font-size: 1rem;
+      .user-info {
+        flex: 1;
+        min-width: 0; // Allow text to wrap
+
+        .user-name {
+          font-size: 1.5rem;
+          margin-bottom: 0.25rem;
+          line-height: 1.2;
+        }
+
+        .user-email {
+          font-size: 0.9rem;
+          line-height: 1.3;
+          word-break: break-word;
+        }
       }
     }
   }
@@ -597,10 +617,28 @@
 
 @media (max-width: 480px) {
   .profile-header {
-    padding: 1rem;
+    padding: 0.75rem;
 
-    .avatar-section .user-name {
-      font-size: 1.5rem;
+    .avatar-section {
+      gap: 0.75rem;
+
+      .profile-avatar {
+        ::ng-deep .avatar {
+          width: 50px !important;
+          height: 50px !important;
+          font-size: 1.25rem !important;
+        }
+      }
+
+      .user-info {
+        .user-name {
+          font-size: 1.25rem;
+        }
+
+        .user-email {
+          font-size: 0.85rem;
+        }
+      }
     }
   }
 
