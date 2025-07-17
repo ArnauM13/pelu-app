@@ -49,18 +49,20 @@
               [title]="'APPOINTMENTS.VIEW_FULL_DETAIL' | translate">
               👁️ {{ 'APPOINTMENTS.VIEW_FULL_DETAIL' | translate }}
             </button>
-            <button
-              class="btn btn-secondary"
-              (click)="onEditAppointment()"
-              [title]="'COMMON.ACTIONS.EDIT' | translate">
-              ✏️ {{ 'COMMON.ACTIONS.EDIT' | translate }}
-            </button>
-            <button
-              class="btn btn-danger"
-              (click)="onDeleteAppointment()"
-              [title]="'COMMON.ACTIONS.DELETE' | translate">
-              🗑️ {{ 'COMMON.ACTIONS.DELETE' | translate }}
-            </button>
+            @if (canEditOrDelete()) {
+              <button
+                class="btn btn-secondary"
+                (click)="onEditAppointment()"
+                [title]="'COMMON.ACTIONS.EDIT' | translate">
+                ✏️ {{ 'COMMON.ACTIONS.EDIT' | translate }}
+              </button>
+              <button
+                class="btn btn-danger"
+                (click)="onDeleteAppointment()"
+                [title]="'COMMON.ACTIONS.DELETE' | translate">
+                🗑️ {{ 'COMMON.ACTIONS.DELETE' | translate }}
+              </button>
+            }
           </div>
         </div>
         }

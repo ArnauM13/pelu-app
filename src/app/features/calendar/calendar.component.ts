@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, computed, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
@@ -15,6 +15,7 @@ import { CalendarStateService } from './calendar-state.service';
 import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
+import { Router } from '@angular/router';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -46,10 +47,12 @@ export interface AppointmentEvent {
 export class CalendarComponent {
   // Inject services
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly positionService = inject(CalendarPositionService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
   readonly dragDropService = inject(CalendarDragDropService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -57,6 +60,8 @@ export class CalendarComponent {
 
   // Output signals
   readonly dateSelected = output<{date: string, time: string}>();
+  readonly onEditAppointment = output<AppointmentEvent>();
+  readonly onDeleteAppointment = output<AppointmentEvent>();
 
   // Public computed signals from state service
   readonly viewDate = this.stateService.viewDate;
@@ -94,13 +99,24 @@ export class CalendarComponent {
       const time = c.hora || '00:00';
       const duration = c.duration || 60;
 
-      // Create proper ISO string for start
+      // Create proper ISO string for start with local timezone
       const startString = `${date}T${time}:00`;
 
       // Calculate end time based on duration
       const startDate = new Date(startString);
       const endDate = addMinutes(startDate, duration);
-      const endString = endDate.toISOString().slice(0, 16).replace('T', 'T');
+
+      // Format dates in local timezone to avoid UTC conversion issues
+      const formatLocalDateTime = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+
+      const endString = formatLocalDateTime(endDate);
 
       return {
         id: c.id || uuidv4(), // Generate unique ID if not exists
@@ -168,18 +184,32 @@ export class CalendarComponent {
     window.addEventListener('storage', (event) => {
       if (event.key === 'cites') {
         this.reloadAppointments();
+        this.cdr.detectChanges();
       }
     });
 
     // Listen for custom appointment update events
     window.addEventListener('appointmentUpdated', () => {
       this.reloadAppointments();
+      this.cdr.detectChanges();
     });
 
     // Listen for custom appointment delete events
     window.addEventListener('appointmentDeleted', () => {
       this.reloadAppointments();
+      this.cdr.detectChanges();
     });
+
+    // Listen for custom appointment created events
+    window.addEventListener('appointmentCreated', () => {
+      this.reloadAppointments();
+      this.cdr.detectChanges();
+    });
+
+    // Set up a periodic check for localStorage changes (fallback)
+    setInterval(() => {
+      this.checkForStorageChanges();
+    }, 1000);
   }
 
   // Load appointments from localStorage
@@ -293,6 +323,13 @@ export class CalendarComponent {
 
   isLunchBreak(time: string): boolean {
     return this.businessService.isLunchBreak(time);
+  }
+
+  /**
+   * Check if a time slot should be shown as lunch break (blocked)
+   */
+  isTimeSlotBlocked(time: string): boolean {
+    return this.businessService.isLunchBreak(time) || !this.businessService.isTimeSlotBookable(time);
   }
 
   getAppointmentForTimeSlot(date: Date, time: string) {
@@ -470,7 +507,10 @@ export class CalendarComponent {
 
   getEventTime(startString: string): string {
     const date = new Date(startString);
-    return dateFnsFormat(date, 'HH:mm');
+    // Use local timezone formatting to avoid UTC conversion issues
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
 
   getTimeSlotTooltip(date: Date, time: string): string {
@@ -482,7 +522,7 @@ export class CalendarComponent {
       return 'Hora passada';
     }
 
-    if (this.isLunchBreak(time)) {
+    if (this.isTimeSlotBlocked(time)) {
       return 'Pausa per dinar';
     }
 
@@ -502,7 +542,10 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
   }
 
-  onAppointmentDeleted(appointment: any) {
+      onAppointmentDeleted(appointment: any) {
+    // Don't emit the delete event to parent since the popup already handles the toast
+    // this.onDeleteAppointment.emit(appointment);
+
     // Remove the appointment from the state
     this.stateService.removeAppointment(appointment.id);
 
@@ -515,13 +558,35 @@ export class CalendarComponent {
       console.error('Error updating cites in localStorage:', error);
     }
 
-    // Reload appointments to update the view
-    this.reloadAppointments();
+    // Force reload appointments to update the view immediately
+    this.loadAppointmentsFromStorage();
+    this.cdr.detectChanges();
+
+    // Also trigger a change detection cycle
+    setTimeout(() => {
+      this.loadAppointmentsFromStorage();
+      this.cdr.detectChanges();
+
+      // Force a change detection cycle by triggering a custom event
+      window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: appointment }));
+    }, 100);
   }
 
   onAppointmentEditRequested(appointment: any) {
-    // The popup already handles navigation to edit mode
-    // Just close the popup
+    const currentUser = this.authService.user();
+    if (!currentUser?.uid) {
+      console.warn('No user found');
+      return;
+    }
+
+    // Generate unique ID combining clientId and appointmentId (mateixa estratègia que la pàgina de cites)
+    const clientId = currentUser.uid;
+    const uniqueId = `${clientId}-${appointment.id}`;
+
+    // Navigate to the appointment detail page in edit mode
+    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+
+    // Close the popup
     this.stateService.closeAppointmentDetail();
   }
 
@@ -531,6 +596,28 @@ export class CalendarComponent {
 
   reloadAppointments() {
     this.loadAppointmentsFromStorage();
+  }
+
+  // Check for localStorage changes and update if needed
+  private checkForStorageChanges() {
+    try {
+      const currentCites = localStorage.getItem('cites');
+      const currentAppointments = this.appointments();
+
+      if (currentCites) {
+        const parsedCites = JSON.parse(currentCites);
+        const currentIds = currentAppointments.map(app => app.id).sort();
+        const newIds = parsedCites.map((app: any) => app.id).sort();
+
+        // Check if the IDs are different (indicating a change)
+        if (JSON.stringify(currentIds) !== JSON.stringify(newIds)) {
+          this.loadAppointmentsFromStorage();
+          this.cdr.detectChanges();
+        }
+      }
+    } catch (error) {
+      // Handle errors silently
+    }
   }
 
   onDateChange(dateString: string) {

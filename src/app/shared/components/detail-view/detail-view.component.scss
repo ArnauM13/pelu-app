@@ -227,6 +227,11 @@
   &.editing-mode {
     grid-template-columns: 1fr;
   }
+
+  // When no actions available, info column takes full width
+  &.full-width {
+    grid-template-columns: 1fr;
+  }
 }
 
 // Info Column

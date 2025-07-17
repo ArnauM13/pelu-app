@@ -12,7 +12,11 @@
 
       <div class="current-week">
         <span class="week-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
-        <span class="week-date">{{ formatDay(weekDays()[0]) }} - {{ formatDay(weekDays()[6]) }}</span>
+        <span class="week-date">
+          {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
+          -
+          {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
+        </span>
       </div>
 
       <button class="nav-btn" (click)="nextWeek()">
@@ -23,34 +27,34 @@
     <!-- Day selection -->
     <pelu-card class="day-selection-card">
       <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
-      @if (weekDays().length === 0) {
-        <div class="no-available-days">
-          <div class="empty-icon">📅</div>
-          <h4>{{ 'COMMON.NO_AVAILABLE_DAYS' | translate }}</h4>
-          <p>{{ 'COMMON.NO_AVAILABLE_DAYS_MESSAGE' | translate }}</p>
-        </div>
-      } @else {
-        <div class="days-grid">
-          @for (day of weekDays(); track day) {
-            <div
-              class="day-item"
-              [class.today]="isToday(day)"
-              [class.selected]="isSelected(day)"
-              [class.business-day]="isBusinessDay(day)"
-              [class.weekend]="!isBusinessDay(day)"
-              [class.past-date]="isPastDate(day)"
-              [class.selectable]="canSelectDate(day)"
-              (click)="canSelectDate(day) ? selectDate(day) : null">
-              <div class="day-name">{{ formatDayShort(day) }}</div>
-              <div class="day-number">{{ day.getDate() }}</div>
-              @if (isToday(day)) {
-                <div class="today-indicator">{{ 'COMMON.TIME.TODAY' | translate }}</div>
-              }
-            </div>
-          }
-        </div>
-      }
+      <div class="days-grid">
+        @for (day of weekDays(); track day) {
+          <div
+            class="day-item"
+            [class.today]="isToday(day)"
+            [class.selected]="isSelected(day)"
+            [class.business-day]="isBusinessDay(day)"
+            [class.weekend]="!isBusinessDay(day)"
+            [class.past-date]="isPastDate(day)"
+            [class.selectable]="canSelectDate(day)"
+            (click)="canSelectDate(day) ? selectDate(day) : null">
+            <div class="day-name">{{ formatDayShort(day) }}</div>
+            <div class="day-number">{{ day.getDate() }}</div>
+            @if (isToday(day)) {
+              <div class="today-indicator">{{ 'COMMON.TIME.TODAY' | translate }}</div>
+            }
+          </div>
+        }
+      </div>
     </pelu-card>
+
+    <!-- Warning message when selected day has no available slots -->
+    @if (selectedDayHasAvailableSlots() === false && selectedDate()) {
+      <div class="warning-message">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>{{ 'COMMON.SELECTION.NO_AVAILABLE_HOURS' | translate }}</span>
+      </div>
+    }
 
     <div class="quick-date-buttons">
             <button

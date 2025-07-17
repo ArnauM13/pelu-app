@@ -61,7 +61,7 @@
     </div>
 
     <!-- Main Content Grid -->
-    <div class="content-grid" [class.editing-mode]="isEditing">
+    <div class="content-grid" [class.editing-mode]="isEditing" [class.full-width]="!hasAvailableActions">
       <!-- Left Column - Information Sections -->
       <div class="info-column">
         <!-- Status Badge (for appointments) -->
@@ -188,8 +188,7 @@
             <div class="form-actions">
               <button
                 class="action-btn secondary"
-                (click)="onCancelEdit()"
-                [disabled]="!hasChanges">
+                (click)="onCancelEdit()">
                 <i class="action-icon">❌</i>
                 {{ 'COMMON.ACTIONS.CANCEL' | translate }}
               </button>
@@ -266,7 +265,7 @@
       </div>
 
       <!-- Right Column - Actions -->
-      @if (!isEditing) {
+      @if (!isEditing && hasAvailableActions) {
       <div class="actions-column">
         <div class="actions-section">
           <h2>{{ 'COMMON.ACTIONS.ACTIONS' | translate }}</h2>
