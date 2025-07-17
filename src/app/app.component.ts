@@ -6,11 +6,12 @@ import { HeaderComponent } from './ui/layout/header/header.component';
 import { AuthService } from './core/auth/auth.service';
 import { ScrollService } from './core/services/scroll.service';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { LoaderComponent } from './shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, TranslateModule, HeaderComponent, ToastComponent],
+  imports: [RouterOutlet, CommonModule, TranslateModule, HeaderComponent, ToastComponent, LoaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

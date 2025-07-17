@@ -29,6 +29,38 @@ import { CalendarPositionService } from '../app/features/calendar/calendar-posit
 import { CalendarBusinessService } from '../app/features/calendar/calendar-business.service';
 import { CalendarStateService } from '../app/features/calendar/calendar-state.service';
 import { Auth } from '@angular/fire/auth';
+import { UserService } from '../app/core/services/user.service';
+import { CurrencyService } from '../app/core/services/currency.service';
+import { ToastService } from '../app/shared/services/toast.service';
+
+// Mock classes per a serveis que depenen de Firebase/AngularFire
+class MockAuthService {
+  user() {
+    return { uid: 'test-uid', email: 'test@example.com' };
+  }
+}
+
+class MockRoleService {
+  userRole = { subscribe: () => ({ unsubscribe: () => {} }) };
+  isAdmin() { return false; }
+  isClient() { return true; }
+  initializeRoleListener() {}
+}
+
+class MockUserService {
+  currentUser = { subscribe: () => ({ unsubscribe: () => {} }) };
+  getUser() { return Promise.resolve({ uid: 'test-uid', email: 'test@example.com' }); }
+}
+
+class MockServicesService {
+  getAllServices() { return Promise.resolve([]); }
+  getServiceName(service: any) { return service?.name || 'Unknown Service'; }
+}
+
+class MockCurrencyService {
+  getCurrentCurrency() { return 'EUR'; }
+  formatPrice(price: number) { return `${price}€`; }
+}
 
 /**
  * Configure TestBed with common providers for all tests
@@ -236,3 +268,50 @@ export function createTestComponentNoRender<T>(componentClass: any, inputs: Reco
  * Mock data for tests
  */
 export { mockData };
+
+// Configuració global per als tests
+export function setupTestEnvironment() {
+  const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add', 'clear']);
+  const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: MessageService, useValue: messageServiceSpy },
+      { provide: Router, useValue: routerSpy },
+      { provide: AuthService, useClass: MockAuthService },
+      { provide: RoleService, useClass: MockRoleService },
+      { provide: UserService, useClass: MockUserService },
+      { provide: ServicesService, useClass: MockServicesService },
+      { provide: CurrencyService, useClass: MockCurrencyService },
+      ToastService
+    ]
+  });
+
+  return {
+    messageService: messageServiceSpy,
+    router: routerSpy
+  };
+}
+
+// Funció per configurar tests individuals
+export function configureTestModule(additionalProviders: any[] = []) {
+  const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add', 'clear']);
+  const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+  const baseProviders = [
+    { provide: MessageService, useValue: messageServiceSpy },
+    { provide: Router, useValue: routerSpy },
+    { provide: AuthService, useClass: MockAuthService },
+    { provide: RoleService, useClass: MockRoleService },
+    { provide: UserService, useClass: MockUserService },
+    { provide: ServicesService, useClass: MockServicesService },
+    { provide: CurrencyService, useClass: MockCurrencyService },
+    ToastService
+  ];
+
+  return {
+    providers: [...baseProviders, ...additionalProviders],
+    messageService: messageServiceSpy,
+    router: routerSpy
+  };
+}

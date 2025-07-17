@@ -92,6 +92,8 @@
   <pelu-appointment-detail-popup
     [open]="showDetailPopup()"
     [appointment]="selectedAppointment()"
-    (closed)="onAppointmentDetailPopupClosed()">
+    (closed)="onAppointmentDetailPopupClosed()"
+    (deleted)="onAppointmentDeleted($event)"
+    (editRequested)="onAppointmentEditRequested($event)">
   </pelu-appointment-detail-popup>
 </div>

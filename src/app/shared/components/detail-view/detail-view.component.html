@@ -1,11 +1,5 @@
 <div class="detail-view-container" [style.view-transition-name]="viewTransitionName" [style.background]="serviceGradient">
-  <!-- Loading State -->
-  @if (loading) {
-  <div class="loading-section">
-    <div class="loading-spinner"></div>
-    <p>{{ 'COMMON.STATUS.LOADING' | translate }}</p>
-  </div>
-  }
+  <!-- Loading State - Now handled by global loader service -->
 
   <!-- Not Found State -->
   @if (notFound) {
@@ -67,7 +61,7 @@
     </div>
 
     <!-- Main Content Grid -->
-    <div class="content-grid">
+    <div class="content-grid" [class.editing-mode]="isEditing">
       <!-- Left Column - Information Sections -->
       <div class="info-column">
         <!-- Status Badge (for appointments) -->
@@ -272,6 +266,7 @@
       </div>
 
       <!-- Right Column - Actions -->
+      @if (!isEditing) {
       <div class="actions-column">
         <div class="actions-section">
           <h2>{{ 'COMMON.ACTIONS.ACTIONS' | translate }}</h2>
@@ -295,6 +290,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
   }

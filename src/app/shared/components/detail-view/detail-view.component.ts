@@ -10,6 +10,7 @@ import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
+import { LoaderService } from '../../services/loader.service';
 
 export interface DetailAction {
   label: string;
@@ -70,10 +71,20 @@ export class DetailViewComponent implements OnChanges {
     constructor(
     private router: Router,
     private serviceColorsService: ServiceColorsService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private loaderService: LoaderService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges) {
+    // Handle loading state with global loader service
+    if (changes['config']) {
+      if (this.config?.loading) {
+        this.loaderService.show();
+      } else {
+        this.loaderService.hide();
+      }
+    }
+  }
 
   // Helper getters for template
   get type() { return this.config?.type; }

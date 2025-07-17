@@ -6,6 +6,7 @@ import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthPopupComponent, AuthPopupConfig } from '../../../shared/components/auth-popup/auth-popup.component';
 import { TranslationService } from '../../../core/services/translation.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-login-page',
@@ -42,11 +43,13 @@ export class LoginPageComponent {
     private auth: Auth,
     private router: Router,
     private authService: AuthService,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private loaderService: LoaderService
   ) {}
 
   async onLoginSubmit(formData: {email: string, password: string}) {
     this.isLoading.set(true);
+    this.loaderService.showWithMessage(this.translation.get('AUTH.LOGGING_IN'));
     this.errorMessage.set('');
 
     try {
@@ -56,11 +59,13 @@ export class LoginPageComponent {
       this.errorMessage.set(this.translation.get('AUTH.LOGIN_ERROR') + ': ' + (err as any).message);
     } finally {
       this.isLoading.set(false);
+      this.loaderService.hide();
     }
   }
 
   async onGoogleAuth() {
     this.isLoading.set(true);
+    this.loaderService.showWithMessage(this.translation.get('AUTH.LOGGING_IN'));
     this.errorMessage.set('');
 
     try {
@@ -70,6 +75,7 @@ export class LoginPageComponent {
       this.errorMessage.set(this.translation.get('AUTH.GOOGLE_LOGIN_ERROR') + ': ' + (err as any).message);
     } finally {
       this.isLoading.set(false);
+      this.loaderService.hide();
     }
   }
 }
