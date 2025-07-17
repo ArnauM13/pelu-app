@@ -41,7 +41,9 @@
       @defer {
         <pelu-calendar-component
           [events]="calendarEvents()"
-          [mini]="false">
+          [mini]="false"
+          (onEditAppointment)="editAppointment($event)"
+          (onDeleteAppointment)="deleteAppointment($event)">
         </pelu-calendar-component>
       } @placeholder {
         <div class="calendar-placeholder">
@@ -115,6 +117,14 @@
                 pTooltipPosition="left">
                 👁️
               </button>
+              @if (isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
+                <button
+                  class="btn btn-secondary"
+                  (click)="editAppointment(appointment)"
+                  [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                  pTooltipPosition="left">
+                  ✏️
+              </button>
               <button
                 class="btn btn-danger"
                 (click)="deleteAppointment(appointment)"
@@ -122,6 +132,7 @@
                 pTooltipPosition="left">
                 🗑️
               </button>
+              }
             </div>
           </div>
         </div>
@@ -139,6 +150,7 @@
     [appointments]="filteredAppointments()"
     [hasActiveFilters]="hasActiveFilters()"
     (onViewAppointment)="viewAppointmentDetail($event)"
+    (onEditAppointment)="editAppointment($event)"
     (onDeleteAppointment)="deleteAppointment($event)"
     (onClearFilters)="clearAllFilters()">
   </pelu-appointments-list>

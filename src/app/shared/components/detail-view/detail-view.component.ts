@@ -101,6 +101,10 @@ export class DetailViewComponent implements OnChanges {
       action.label !== 'Tornar endarrere'
     );
   }
+
+  get hasAvailableActions() {
+    return this.filteredActions.length > 0;
+  }
   get editForm() { return this.config?.editForm || {}; }
   get isEditing() { return this.config?.isEditing; }
   get hasChanges() { return this.config?.hasChanges; }

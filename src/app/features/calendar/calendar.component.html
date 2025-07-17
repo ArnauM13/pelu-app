@@ -14,13 +14,13 @@
 
   <!-- Calendar Body -->
   <div class="calendar-body">
-    <div class="horizontal-week-view">
+    <div class="horizontal-week-view" [style.--calendar-slot-count]="timeSlots().length">
       <!-- Time Column -->
       <div class="time-column">
         <div class="time-header">Hora</div>
         @for (time of timeSlots(); track time; let k = $index) {
           <div class="time-slot-label"
-               [class.lunch-break]="isLunchBreak(time)"
+               [class.lunch-break]="isTimeSlotBlocked(time)"
                [class.lunch-break-start]="isLunchBreakStart(time)">
             {{ time }}
           </div>
@@ -50,8 +50,8 @@
             @for (time of timeSlots(); track time; let k = $index) {
               <div class="time-slot"
                    [class.available]="isTimeSlotAvailable(day, time)"
-                   [class.booked]="!isTimeSlotAvailable(day, time) && !isLunchBreak(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
-                   [class.lunch-break]="isLunchBreak(time)"
+                   [class.booked]="!isTimeSlotAvailable(day, time) && !isTimeSlotBlocked(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
+                   [class.lunch-break]="isTimeSlotBlocked(time)"
                    [class.past-date]="isPastDate(day)"
                    [class.past-time]="isPastTimeSlot(day, time)"
                    [class.clickable]="isTimeSlotAvailable(day, time)"

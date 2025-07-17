@@ -9,6 +9,7 @@ import { InfoItemComponent, InfoItemData } from '../info-item/info-item.componen
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { isFutureAppointment } from '../../services';
 
 interface Appointment {
   id: string;
@@ -200,6 +201,26 @@ export class AppointmentDetailPopupComponent implements OnInit {
     return '';
   });
 
+  public canEditOrDelete(): boolean {
+    const apt = this.appointmentToShow();
+    if (!apt) return false;
+
+    // Si la cita té data i hora, verifica si és passada
+    if (apt.data && apt.hora) {
+      return isFutureAppointment({ data: apt.data, hora: apt.hora });
+    }
+
+    // Si la cita té start (ISO string), verifica si és passada
+    if (apt.start) {
+      const appointmentDate = new Date(apt.start);
+      const now = new Date();
+      return appointmentDate > now;
+    }
+
+    // Si no té ni data/hora ni start, no es pot editar/eliminar
+    return false;
+  }
+
   // Methods
   onClose() {
     if (this.isClosing()) return; // Prevent multiple close calls
@@ -283,7 +304,7 @@ export class AppointmentDetailPopupComponent implements OnInit {
       return;
     }
 
-    // Generem un ID únic combinant clientId i appointmentId
+    // Generem un ID únic combinant clientId i appointmentId (mateixa estratègia que la pàgina de cites)
     const clientId = currentUser.uid;
     const uniqueId = `${clientId}-${appointmentId}`;
 
@@ -314,24 +335,26 @@ export class AppointmentDetailPopupComponent implements OnInit {
       return;
     }
 
-    // Generate unique ID combining clientId and appointmentId
-    const clientId = currentUser.uid;
-    const uniqueId = `${clientId}-${appointmentId}`;
-
-    // Navigate instantly without animation
-    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    // Emit edit requested event
+    this.editRequested.emit(appointment);
     this.closed.emit();
   }
 
-  onDeleteAppointment() {
+    onDeleteAppointment() {
     const appointment = this.appointmentToShow();
-    if (!appointment) return;
+    if (!appointment) {
+      return;
+    }
 
     const currentUser = this.authService.user();
-    if (!currentUser?.uid) return;
+    if (!currentUser?.uid) {
+      return;
+    }
 
     const appointmentId = appointment.id;
-    if (!appointmentId) return;
+    if (!appointmentId) {
+      return;
+    }
 
     // Ensure appointment has correct userId
     if (!appointment.userId) {
@@ -351,12 +374,17 @@ export class AppointmentDetailPopupComponent implements OnInit {
       const updatedAppointments = appointments.filter((cita: any) => cita.id !== appointmentId);
       localStorage.setItem('cites', JSON.stringify(updatedAppointments));
 
-      // Show success message
-      this.toastService.showAppointmentDeleted(appointment.nom || appointment.title || 'Cita');
+      // Show success message with better fallback for client name
+      const clientName = appointment.nom || appointment.title || appointment.clientName || 'Client';
+      this.toastService.showAppointmentDeleted(clientName);
 
-      // Emit deleted event and close popup instantly
+      // Emit deleted event and close popup with a small delay to ensure processing
       this.deleted.emit(appointment);
-      this.closed.emit();
+
+      // Small delay before closing to ensure the delete event is processed
+      setTimeout(() => {
+        this.closed.emit();
+      }, 50);
     } catch (error) {
       console.error('Error deleting appointment:', error);
       this.toastService.showError('Error al eliminar la cita', 'No s\'ha pogut eliminar la cita. Si us plau, torna-ho a provar.');

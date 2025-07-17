@@ -32,7 +32,7 @@ export class CalendarBusinessService {
     },
     lunchBreak: {
       start: 13,
-      end: 14
+      end: 15
     }
   };
 
@@ -56,6 +56,26 @@ export class CalendarBusinessService {
   isLunchBreak(time: string): boolean {
     const [hour] = time.split(':').map(Number);
     return hour >= this.businessConfig.lunchBreak.start && hour < this.businessConfig.lunchBreak.end;
+  }
+
+  /**
+   * Check if a time slot is bookable (allows reservations until 12:30 and from 15:00)
+   */
+  isTimeSlotBookable(time: string): boolean {
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Allow bookings until 12:30
+    if (hour < 12 || (hour === 12 && minute <= 30)) {
+      return true;
+    }
+
+    // Allow bookings from 15:00 onwards
+    if (hour >= 15) {
+      return true;
+    }
+
+    // Block 12:30-15:00 (lunch break period)
+    return false;
   }
 
   /**
@@ -93,7 +113,7 @@ export class CalendarBusinessService {
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minutes of [0, 30]) {
-        // Skip lunch break
+        // Skip lunch break (13:00-15:00)
         if (hour >= lunchStart && hour < lunchEnd) {
           continue;
         }
