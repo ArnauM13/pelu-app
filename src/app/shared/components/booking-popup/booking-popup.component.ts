@@ -2,7 +2,7 @@ import { Component, input, output, signal, computed, inject, effect } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -19,7 +19,7 @@ export interface BookingDetails {
 @Component({
   selector: 'pelu-booking-popup',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, DropdownModule, ToastModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToastModule, TranslateModule],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss']
 })
@@ -77,7 +77,7 @@ export class BookingPopupComponent {
           this.clientName.set('');
         }
       }
-    });
+    }, {allowSignalWrites: true});
   }
 
   onClose() {

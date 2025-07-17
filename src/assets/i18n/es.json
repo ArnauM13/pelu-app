@@ -7,6 +7,7 @@
     "NO_AVAILABLE_DAYS_MESSAGE": "Todos los días de la semana tienen todas las horas ocupadas. Prueba con otra semana.",
     "LEGEND": "Leyenda",
     "MANUAL_BOOKING": "Reserva Manual",
+    "CLIENT": "Cliente",
     "CLIENT_NAME": "Nombre del cliente",
     "ENTER_CLIENT_NAME": "Introduce el nombre del cliente",
     "DATE": "Fecha",
@@ -30,6 +31,7 @@
     "MY_APPOINTMENTS": "Mis Citas",
     "AVAILABLE_TIMES": "Horarios disponibles",
     "ACTIONS": {
+      "ACTIONS": "Acciones",
       "LOGOUT": "Cerrar sesión",
       "EDIT": "Editar",
       "DELETE": "Eliminar",
@@ -68,7 +70,8 @@
       "AFTERNOON": "Tarde",
       "LUNCH_BREAK": "Pausa para comer",
       "PAST_TIME": "Tiempo pasado",
-      "AT_TIME": "A las"
+      "AT_TIME": "A las",
+      "APPOINTMENT_TITLE": "{{nom}} - {{data}} a las {{hora}}"
     },
     "SELECTION": {
       "NO_SELECTION": "Sin selección",
@@ -183,13 +186,10 @@
     "NEW_APPOINTMENT": "Nueva cita",
     "APPOINTMENT_DETAILS": "Detalles de la cita",
     "APPOINTMENT_DETAIL": "Detalle de la cita",
-    "CLIENT": "Cliente",
     "STATUS": "Estado",
     "NOTES": "Notas",
     "DURATION": "Duración",
     "PRICE": "Precio",
-    "CLIENT_NAME": "Nombre del cliente",
-    "ENTER_CLIENT_NAME": "Introduce el nombre del cliente",
     "VIEW_FULL_DETAIL": "Ver detalle completo",
     "VIEW_DETAIL": "Ver detalle",
     "NOT_FOUND": "No se encontró la cita",

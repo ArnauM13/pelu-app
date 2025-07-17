@@ -45,10 +45,7 @@
       <div class="appointment-header" [style.background]="getAppointmentHeaderGradient()">
         <div class="appointment-info">
           <h1 class="appointment-title">
-            {{ appointment?.nom }} - {{ formatDate(appointment?.data) }}
-            @if (appointment?.hora) {
-              {{ 'COMMON.TIME.AT_TIME' | translate }} {{ formatTime(appointment?.hora) }}
-            }
+            {{ 'COMMON.TIME.APPOINTMENT_TITLE' | translate: { nom: appointment?.nom, data: formatDate(appointment?.data), hora: formatTime(appointment?.hora) } }}
           </h1>
           <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
         </div>
@@ -167,7 +164,7 @@
 
               <!-- Time -->
               <div class="form-group">
-                <label for="hora">{{ 'COMMON.TIME' | translate }}</label>
+                <label for="hora">{{ 'COMMON.HOURS' | translate }}</label>
                 <input
                   type="time"
                   id="hora"
@@ -268,7 +265,7 @@
       <!-- Right Column - Actions -->
       <div class="actions-column">
         <div class="actions-section">
-          <h2>{{ 'COMMON.ACTIONS' | translate }}</h2>
+          <h2>{{ 'COMMON.ACTIONS.ACTIONS' | translate }}</h2>
           <div class="actions-grid">
             @for (action of actions; track action.label; let k = $index) {
             <button

@@ -7,6 +7,7 @@
     "NO_AVAILABLE_DAYS_MESSAGE": "All days of the week have all hours occupied. Try with another week.",
     "LEGEND": "Legend",
     "MANUAL_BOOKING": "Manual Booking",
+    "CLIENT": "Client",
     "CLIENT_NAME": "Client name",
     "ENTER_CLIENT_NAME": "Enter client name",
     "DATE": "Date",
@@ -30,6 +31,7 @@
     "MY_APPOINTMENTS": "My Appointments",
     "AVAILABLE_TIMES": "Available times",
     "ACTIONS": {
+      "ACTIONS": "Actions",
       "LOGOUT": "Log out",
       "EDIT": "Edit",
       "DELETE": "Delete",
@@ -68,7 +70,8 @@
       "AFTERNOON": "Afternoon",
       "LUNCH_BREAK": "Lunch break",
       "PAST_TIME": "Past time",
-      "AT_TIME": "At"
+      "AT_TIME": "At",
+      "APPOINTMENT_TITLE": "{{nom}} - {{data}} at {{hora}}"
     },
     "SELECTION": {
       "NO_SELECTION": "No selection",
@@ -183,13 +186,10 @@
     "NEW_APPOINTMENT": "New appointment",
     "APPOINTMENT_DETAILS": "Appointment details",
     "APPOINTMENT_DETAIL": "Appointment detail",
-    "CLIENT": "Client",
     "STATUS": "Status",
     "NOTES": "Notes",
     "DURATION": "Duration",
     "PRICE": "Price",
-    "CLIENT_NAME": "Client name",
-    "ENTER_CLIENT_NAME": "Enter client name",
     "VIEW_FULL_DETAIL": "View full detail",
     "VIEW_DETAIL": "View detail",
     "NOT_FOUND": "Appointment not found",

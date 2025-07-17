@@ -1,4 +1,4 @@
-import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, DragDropModule } from '@angular/cdk/drag-drop';
 import { AppointmentEvent } from './calendar.component';
@@ -61,6 +61,9 @@ export class AppointmentSlotComponent {
   private readonly dragDropService = inject(CalendarDragDropService);
   private readonly elementRef = inject(ElementRef);
 
+  // Local state to track drag operations
+  private readonly hasDragStarted = signal<boolean>(false);
+
   // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly position = computed(() => {
     if (!this.data() || !this.data()!.appointment) return { top: 0, height: 0 };
@@ -98,13 +101,16 @@ export class AppointmentSlotComponent {
   // Methods
   onAppointmentClick(event: Event) {
     event.stopPropagation();
-    // Only emit click if not currently dragging
-    if (!this.dragDropService.isDragging() && this.data() && this.data()!.appointment) {
+    // Only emit click if not currently dragging and no drag has started
+    if (!this.dragDropService.isDragging() && !this.hasDragStarted() && this.data() && this.data()!.appointment) {
       this.clicked.emit(this.data()!.appointment!);
     }
   }
 
   onDragStarted(event: any) {
+    // Mark that drag has started
+    this.hasDragStarted.set(true);
+
     const appointment = event.source.data;
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
     const originalPosition = {
@@ -127,6 +133,11 @@ export class AppointmentSlotComponent {
       // If the drop was invalid, the appointment will return to its original position
       // The drag service already handles the reset
     }
+
+    // Reset the drag started flag after a short delay to prevent immediate clicks
+    setTimeout(() => {
+      this.hasDragStarted.set(false);
+    }, 100);
   }
 
   // Format duration for display

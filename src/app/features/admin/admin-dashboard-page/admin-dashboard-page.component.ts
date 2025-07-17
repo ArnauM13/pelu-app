@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserService } from '../../../core/services/user.service';
-import { RoleBasedContentComponent } from '../../../shared/components/role-based-content/role-based-content.component';
 
 @Component({
   selector: 'pelu-admin-dashboard-page',
@@ -11,8 +10,7 @@ import { RoleBasedContentComponent } from '../../../shared/components/role-based
   imports: [
     CommonModule,
     RouterModule,
-    TranslateModule,
-    RoleBasedContentComponent
+    TranslateModule
   ],
   templateUrl: './admin-dashboard-page.component.html',
   styleUrls: ['./admin-dashboard-page.component.scss']
