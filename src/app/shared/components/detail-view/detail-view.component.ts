@@ -2,15 +2,14 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { RouterModule } from '@angular/router';
 
 import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
-import { MessageService } from 'primeng/api';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ToastService } from '../../services/toast.service';
 
 export interface DetailAction {
   label: string;
@@ -50,7 +49,6 @@ export interface DetailViewConfig {
   imports: [
     CommonModule,
     TranslateModule,
-    ToastModule,
     InputTextModule,
     AvatarComponent,
     InfoItemComponent,
@@ -71,8 +69,8 @@ export class DetailViewComponent implements OnChanges {
 
     constructor(
     private router: Router,
-    public messageService: MessageService,
-    private serviceColorsService: ServiceColorsService
+    private serviceColorsService: ServiceColorsService,
+    private toastService: ToastService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {}

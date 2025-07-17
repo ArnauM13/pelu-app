@@ -5,9 +5,7 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
@@ -17,6 +15,7 @@ import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ServicesService, Service } from '../../../core/services/services.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -27,7 +26,6 @@ import { AuthService } from '../../../core/auth/auth.service';
     CardModule,
     InputTextModule,
     ButtonModule,
-    ToastModule,
     TooltipModule,
     TranslateModule,
     CalendarComponent,
@@ -42,9 +40,9 @@ export class BookingPageComponent {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
-  private readonly messageService = inject(MessageService);
   private readonly servicesService = inject(ServicesService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
 
   // Signals
   readonly showBookingPopupSignal = signal(false);
@@ -101,11 +99,7 @@ export class BookingPageComponent {
     // Get current user
     const currentUser = this.authService.user();
     if (!currentUser?.uid) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No s\'ha pogut crear la reserva. Si us plau, inicia sessió.'
-      });
+      this.toastService.showLoginRequired();
       return;
     }
 
@@ -126,11 +120,7 @@ export class BookingPageComponent {
     this.saveAppointmentToStorage(appointment);
 
     // Show success message
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'Booking confirmed successfully!'
-    });
+    this.toastService.showAppointmentCreated(details.clientName, appointment.id);
 
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
@@ -155,11 +145,7 @@ export class BookingPageComponent {
       }
     } catch (error) {
       console.error('Error saving appointment to localStorage:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to save booking. Please try again.'
-      });
+      this.toastService.showNetworkError();
     }
   }
 
@@ -185,4 +171,6 @@ export class BookingPageComponent {
       clientName: name
     });
   }
+
+
 }
