@@ -3,20 +3,19 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
-import { AvatarComponent, AvatarData } from '../../../shared/components/avatar/avatar.component';
+import { ProfileDropdownComponent, ProfileDropdownItem } from '../../../shared/components/profile-dropdown/profile-dropdown.component';
 import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'pelu-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent, AvatarComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent, ProfileDropdownComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   // Internal state
   private readonly isLoggingOutSignal = signal(false);
-  private readonly isDropdownOpenSignal = signal(false);
 
   constructor(
     private userService: UserService,
@@ -32,36 +31,18 @@ export class HeaderComponent {
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
   readonly isLoading = computed(() => this.userService.isLoading());
   readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
-  readonly isDropdownOpen = computed(() => this.isDropdownOpenSignal());
 
-  readonly avatarData = computed((): AvatarData => {
-    const user = this.userService.currentUser();
-
-    return {
-      imageUrl: user?.photoURL || undefined,
-      name: user?.displayName?.split(' ')[0] || undefined,
-      surname: user?.displayName?.split(' ').slice(1).join(' ') || undefined,
-      email: user?.email || undefined
-    };
+  readonly customDropdownItems = computed((): ProfileDropdownItem[] => {
+    return [
+      {
+        label: 'COMMON.ACTIONS.LOGOUT',
+        icon: 'pi pi-sign-out',
+        type: 'danger',
+        onClick: () => this.onLogout(),
+        disabled: this.isLoggingOut()
+      }
+    ];
   });
-
-  // Dropdown methods
-  toggleDropdown(event: Event) {
-    event.stopPropagation();
-    this.isDropdownOpenSignal.set(!this.isDropdownOpenSignal());
-  }
-
-  closeDropdown() {
-    this.isDropdownOpenSignal.set(false);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.avatar-dropdown')) {
-      this.closeDropdown();
-    }
-  }
 
   navigateToHome(event: Event) {
     event.stopPropagation();
@@ -79,6 +60,13 @@ export class HeaderComponent {
       // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);
+    }
+  }
+
+  onDropdownItemClicked(item: ProfileDropdownItem) {
+    // Handle custom dropdown item clicks if needed
+    if (item.onClick) {
+      item.onClick();
     }
   }
 }

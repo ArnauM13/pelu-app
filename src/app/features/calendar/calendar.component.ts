@@ -162,8 +162,24 @@ export class CalendarComponent {
   });
 
   constructor(private serviceColorsService: ServiceColorsService) {
-    // Initialize appointments from localStorage
     this.loadAppointmentsFromStorage();
+
+    // Listen for localStorage changes to update calendar in real-time
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'cites') {
+        this.reloadAppointments();
+      }
+    });
+
+    // Listen for custom appointment update events
+    window.addEventListener('appointmentUpdated', () => {
+      this.reloadAppointments();
+    });
+
+    // Listen for custom appointment delete events
+    window.addEventListener('appointmentDeleted', () => {
+      this.reloadAppointments();
+    });
   }
 
   // Load appointments from localStorage
@@ -483,6 +499,29 @@ export class CalendarComponent {
   }
 
   onAppointmentDetailPopupClosed() {
+    this.stateService.closeAppointmentDetail();
+  }
+
+  onAppointmentDeleted(appointment: any) {
+    // Remove the appointment from the state
+    this.stateService.removeAppointment(appointment.id);
+
+    // Also remove from localStorage 'cites' to keep it in sync
+    try {
+      const cites = JSON.parse(localStorage.getItem('cites') || '[]');
+      const updatedCites = cites.filter((cita: any) => cita.id !== appointment.id);
+      localStorage.setItem('cites', JSON.stringify(updatedCites));
+    } catch (error) {
+      console.error('Error updating cites in localStorage:', error);
+    }
+
+    // Reload appointments to update the view
+    this.reloadAppointments();
+  }
+
+  onAppointmentEditRequested(appointment: any) {
+    // The popup already handles navigation to edit mode
+    // Just close the popup
     this.stateService.closeAppointmentDetail();
   }
 

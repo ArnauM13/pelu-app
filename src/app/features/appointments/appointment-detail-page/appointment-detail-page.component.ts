@@ -216,6 +216,11 @@ export class AppointmentDetailPageComponent implements OnInit {
   }));
 
   private getActions(): DetailAction[] {
+    // Don't show actions when in editing mode
+    if (this.isEditing()) {
+      return [];
+    }
+
     return [
       {
         label: 'COMMON.ACTIONS.BACK',
@@ -243,6 +248,13 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   ngOnInit() {
     this.loadAppointment();
+
+    // Check if we should start in edit mode
+    this.#route.queryParams.subscribe(params => {
+      if (params['edit'] === 'true' && this.appointment()) {
+        this.startEditing();
+      }
+    });
   }
 
       private loadAppointment() {
@@ -376,6 +388,11 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.#appointmentSignal.set(updatedAppointment);
     this.#isEditingSignal.set(false);
 
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('appointmentUpdated', {
+      detail: { appointment: updatedAppointment }
+    }));
+
     this.#toastService.showAppointmentUpdated(updatedAppointment.nom);
   }
 
@@ -386,6 +403,11 @@ export class AppointmentDetailPageComponent implements OnInit {
     const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
     const updatedAppointments = appointments.filter((app: any) => app.id !== cita.id);
     localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('appointmentDeleted', {
+      detail: { appointment: cita }
+    }));
 
     this.#toastService.showAppointmentDeleted(cita.nom);
 

@@ -142,7 +142,7 @@ describe('ToastService', () => {
 
       service.showAppointmentDeleted(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('🗑️ Cita eliminada', `S'ha eliminat la cita de ${appointmentName}`);
+      expect(service.showSuccess).toHaveBeenCalledWith('Cita eliminada', `S'ha eliminat la cita de ${appointmentName}`);
     });
   });
 
@@ -153,7 +153,7 @@ describe('ToastService', () => {
 
       service.showAppointmentUpdated(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('✅ Cita actualitzada', `S'ha actualitzat la cita de ${appointmentName}`);
+      expect(service.showSuccess).toHaveBeenCalledWith('Cita actualitzada', `S'ha actualitzat la cita de ${appointmentName}`);
     });
   });
 
@@ -165,7 +165,7 @@ describe('ToastService', () => {
 
       service.showAppointmentCreated(appointmentName, appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('✅ Cita creada', `S'ha creat la cita per ${appointmentName}`, appointmentId, true);
+      expect(service.showSuccess).toHaveBeenCalledWith('Cita creada', `S'ha creat la cita per ${appointmentName}`, appointmentId, true);
     });
   });
 
@@ -217,7 +217,7 @@ describe('ToastService', () => {
 
       service.showGenericSuccess(message);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('✅ Èxit', message);
+      expect(service.showSuccess).toHaveBeenCalledWith('Èxit', message);
     });
   });
 
@@ -228,7 +228,7 @@ describe('ToastService', () => {
 
       service.showGenericError(message);
 
-      expect(service.showError).toHaveBeenCalledWith('❌ Error', message);
+      expect(service.showError).toHaveBeenCalledWith('Error', message);
     });
   });
 
@@ -239,7 +239,7 @@ describe('ToastService', () => {
 
       service.showGenericInfo(message);
 
-      expect(service.showInfo).toHaveBeenCalledWith('ℹ️ Informació', message);
+      expect(service.showInfo).toHaveBeenCalledWith('Informació', message);
     });
   });
 
@@ -250,7 +250,7 @@ describe('ToastService', () => {
 
       service.showGenericWarning(message);
 
-      expect(service.showWarning).toHaveBeenCalledWith('⚠️ Advertència', message);
+      expect(service.showWarning).toHaveBeenCalledWith('Advertència', message);
     });
   });
 

@@ -8,6 +8,7 @@ import { ca } from 'date-fns/locale';
 import { InfoItemComponent, InfoItemData } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 interface Appointment {
   id: string;
@@ -48,15 +49,23 @@ export class AppointmentDetailPopupComponent {
 
   // Output signals
   readonly closed = output<void>();
+  readonly deleted = output<Appointment>();
+  readonly editRequested = output<Appointment>();
+
+  // Internal state
+  private isClosing = signal<boolean>(false);
 
   // Inject services
   constructor(
     private router: Router,
     private authService: AuthService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private toastService: ToastService
   ) {}
 
   // Computed properties
+  readonly isClosingState = computed(() => this.isClosing());
+
   readonly appointmentInfoItems = computed(() => {
     const cita = this.appointment();
     if (!cita) return [];
@@ -164,7 +173,15 @@ export class AppointmentDetailPopupComponent {
 
   // Methods
   onClose() {
-    this.closed.emit();
+    if (this.isClosing()) return; // Prevent multiple close calls
+
+    this.isClosing.set(true);
+
+    // Wait for animation to complete before emitting closed event
+    setTimeout(() => {
+      this.closed.emit();
+      this.isClosing.set(false);
+    }, 300); // Match animation duration
   }
 
       onViewFullDetail() {
@@ -211,8 +228,92 @@ export class AppointmentDetailPopupComponent {
     const clientId = currentUser.uid;
     const uniqueId = `${clientId}-${appointmentId}`;
 
+    // Navigate instantly without animation
     this.router.navigate(['/appointments', uniqueId]);
-    this.onClose();
+    this.closed.emit();
+  }
+
+  onEditAppointment() {
+    const appointment = this.appointment();
+    if (!appointment) return;
+
+    const currentUser = this.authService.user();
+    if (!currentUser?.uid) return;
+
+    const appointmentId = appointment.id;
+    if (!appointmentId) return;
+
+    // Ensure appointment has correct userId
+    if (!appointment.userId) {
+      appointment.userId = currentUser.uid;
+      this.updateAppointmentInStorage(appointment);
+    }
+
+    // Verify appointment belongs to current user
+    if (appointment.userId !== currentUser.uid) {
+      console.warn('Appointment does not belong to current user');
+      return;
+    }
+
+    // Generate unique ID combining clientId and appointmentId
+    const clientId = currentUser.uid;
+    const uniqueId = `${clientId}-${appointmentId}`;
+
+    // Navigate instantly without animation
+    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    this.closed.emit();
+  }
+
+  onDeleteAppointment() {
+    const appointment = this.appointment();
+    if (!appointment) return;
+
+    const currentUser = this.authService.user();
+    if (!currentUser?.uid) return;
+
+    const appointmentId = appointment.id;
+    if (!appointmentId) return;
+
+    // Ensure appointment has correct userId
+    if (!appointment.userId) {
+      appointment.userId = currentUser.uid;
+      this.updateAppointmentInStorage(appointment);
+    }
+
+    // Verify appointment belongs to current user
+    if (appointment.userId !== currentUser.uid) {
+      console.warn('Appointment does not belong to current user');
+      return;
+    }
+
+    // Remove from localStorage
+    try {
+      const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
+      const updatedAppointments = appointments.filter((cita: any) => cita.id !== appointmentId);
+      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+
+      // Show success message
+      this.toastService.showAppointmentDeleted(appointment.nom || appointment.title || 'Cita');
+
+      // Emit deleted event and close popup instantly
+      this.deleted.emit(appointment);
+      this.closed.emit();
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      this.toastService.showError('Error al eliminar la cita', 'No s\'ha pogut eliminar la cita. Si us plau, torna-ho a provar.');
+    }
+  }
+
+  private updateAppointmentInStorage(appointment: Appointment): void {
+    try {
+      const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
+      const updatedAppointments = appointments.map((cita: any) =>
+        cita.id === appointment.id ? appointment : cita
+      );
+      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+    } catch (error) {
+      console.error('Error updating appointment in localStorage:', error);
+    }
   }
 
   onBackdropClick(event: Event) {

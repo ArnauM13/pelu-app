@@ -2,8 +2,9 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { AppointmentEvent } from './calendar.component';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarStateService } from './calendar-state.service';
-import { addMinutes, format, parseISO } from 'date-fns';
+import { addMinutes, format, parseISO, isSameDay } from 'date-fns';
 import { ToastService } from '../../shared/services/toast.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 export interface DragDropState {
   isDragging: boolean;
@@ -12,6 +13,7 @@ export interface DragDropState {
   currentPosition: { top: number; left: number } | null;
   targetDate: Date | null;
   targetTime: string | null;
+  originalDate: Date | null; // Add original date tracking
 }
 
 @Injectable({
@@ -21,6 +23,7 @@ export class CalendarDragDropService {
   private readonly positionService = inject(CalendarPositionService);
   private readonly stateService = inject(CalendarStateService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   // Internal state signals
   private readonly isDraggingSignal = signal<boolean>(false);
@@ -30,6 +33,7 @@ export class CalendarDragDropService {
   private readonly targetDateSignal = signal<Date | null>(null);
   private readonly targetTimeSignal = signal<string | null>(null);
   private readonly isValidDropSignal = signal<boolean>(true);
+  private readonly originalDateSignal = signal<Date | null>(null); // Track original date
 
   // Public computed signals
   readonly isDragging = computed(() => this.isDraggingSignal());
@@ -39,6 +43,7 @@ export class CalendarDragDropService {
   readonly targetDate = computed(() => this.targetDateSignal());
   readonly targetTime = computed(() => this.targetTimeSignal());
   readonly isValidDrop = computed(() => this.isValidDropSignal());
+  readonly originalDate = computed(() => this.originalDateSignal());
 
   // Computed state
   readonly dragState = computed((): DragDropState => ({
@@ -47,33 +52,41 @@ export class CalendarDragDropService {
     originalPosition: this.originalPosition(),
     currentPosition: this.currentPosition(),
     targetDate: this.targetDate(),
-    targetTime: this.targetTime()
+    targetTime: this.targetTime(),
+    originalDate: this.originalDate()
   }));
 
   /**
    * Start dragging an appointment
    */
-  startDrag(appointment: AppointmentEvent, originalPosition: { top: number; left: number }): void {
+  startDrag(appointment: AppointmentEvent, originalPosition: { top: number; left: number }, originalDate: Date): void {
     this.isDraggingSignal.set(true);
     this.draggedAppointmentSignal.set(appointment);
     this.originalPositionSignal.set(originalPosition);
     this.currentPositionSignal.set(originalPosition);
+    this.originalDateSignal.set(originalDate);
+
+    // Initialize target to original position
+    this.targetDateSignal.set(originalDate);
+    this.targetTimeSignal.set(this.extractTimeFromAppointment(appointment));
   }
 
   /**
-   * Update drag position
+   * Update drag position globally (for cross-day dragging)
    */
   updateDragPosition(position: { top: number; left: number }): void {
     this.currentPositionSignal.set(position);
   }
 
-      /**
-   * Update target date and time based on position
+  /**
+   * Update target date and time based on position and day column
+   * This method now properly handles cross-day dragging
    */
   updateTargetDateTime(position: { top: number; left: number }, dayColumn: Date): void {
     const targetTime = this.calculateTimeFromPosition(position.top);
     const alignedTime = this.alignTimeToGrid(targetTime);
 
+    // Update target date and time
     this.targetTimeSignal.set(alignedTime);
     this.targetDateSignal.set(dayColumn);
 
@@ -82,6 +95,32 @@ export class CalendarDragDropService {
     if (draggedAppointment) {
       const isValid = this.isValidDropPosition(draggedAppointment, dayColumn, alignedTime);
       this.isValidDropSignal.set(isValid);
+    }
+  }
+
+  /**
+   * Check if the appointment is being moved to a different day
+   */
+  isMovingToDifferentDay(): boolean {
+    const originalDate = this.originalDate();
+    const targetDate = this.targetDate();
+
+    if (!originalDate || !targetDate) return false;
+
+    return !isSameDay(originalDate, targetDate);
+  }
+
+  /**
+   * Extract time from appointment start string
+   */
+  private extractTimeFromAppointment(appointment: AppointmentEvent): string {
+    if (!appointment.start) return '08:00';
+
+    try {
+      const date = new Date(appointment.start);
+      return format(date, 'HH:mm');
+    } catch {
+      return '08:00';
     }
   }
 
@@ -145,6 +184,7 @@ export class CalendarDragDropService {
     this.targetDateSignal.set(null);
     this.targetTimeSignal.set(null);
     this.isValidDropSignal.set(true);
+    this.originalDateSignal.set(null);
   }
 
   /**
@@ -212,14 +252,30 @@ export class CalendarDragDropService {
     const originalAppointment = appointments.find(app => app.id === appointment.id);
     if (!originalAppointment) return;
 
+    // Check user authentication (like edit form does)
+    const user = this.authService.user();
+    if (!user) {
+      this.toastService.showError('No s\'ha pogut actualitzar la cita. Si us plau, inicia sessió.');
+      return;
+    }
+
     // Ensure the time is aligned to the grid (30-minute slots)
     const alignedTime = this.alignTimeToGrid(targetTime);
 
-    // Create updated appointment with aligned time
+    // Create updated appointment with all fields preserved (like edit form does)
     const updatedAppointment = {
       ...originalAppointment,
       data: format(targetDate, 'yyyy-MM-dd'),
-      hora: alignedTime
+      hora: alignedTime,
+      // Preserve all other fields exactly as they are
+      nom: originalAppointment.nom || '',
+      notes: originalAppointment.notes || '',
+      servei: originalAppointment.servei || '',
+      preu: originalAppointment.preu || 0,
+      duration: originalAppointment.duration || 60,
+      serviceName: originalAppointment.serviceName || '',
+      serviceId: originalAppointment.serviceId || '',
+      userId: user.uid // Ensure userId is set to current user (like edit form does)
     };
 
     // Update the appointment in the list
@@ -227,9 +283,15 @@ export class CalendarDragDropService {
       app.id === appointment.id ? updatedAppointment : app
     );
 
-    // Save to state and localStorage
+    // Save to state and localStorage (using both keys for consistency)
     this.stateService.setAppointments(updatedAppointments);
+    localStorage.setItem('cites', JSON.stringify(updatedAppointments));
     localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
+
+    // Dispatch custom event to notify other components (like edit form does)
+    window.dispatchEvent(new CustomEvent('appointmentUpdated', {
+      detail: { appointment: updatedAppointment }
+    }));
 
     // Show toast notification
     this.toastService.showAppointmentUpdated(originalAppointment.nom);

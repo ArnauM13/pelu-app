@@ -3,6 +3,7 @@ import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarStateService } from './calendar-state.service';
 import { AppointmentEvent } from './calendar.component';
+import { configureTestModule } from '../../../testing/test-setup';
 
 describe('CalendarDragDropService', () => {
   let service: CalendarDragDropService;
@@ -19,12 +20,13 @@ describe('CalendarDragDropService', () => {
       'setAppointments'
     ]);
 
+    const testConfig = configureTestModule([
+      { provide: CalendarPositionService, useValue: positionSpy },
+      { provide: CalendarStateService, useValue: stateSpy }
+    ]);
+
     TestBed.configureTestingModule({
-      providers: [
-        CalendarDragDropService,
-        { provide: CalendarPositionService, useValue: positionSpy },
-        { provide: CalendarStateService, useValue: stateSpy }
-      ]
+      providers: testConfig.providers
     });
 
     service = TestBed.inject(CalendarDragDropService);

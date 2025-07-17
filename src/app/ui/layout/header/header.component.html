@@ -18,50 +18,10 @@
     </div>
     <div class="user-actions">
       <pelu-language-selector class="language-selector" />
-      <div class="avatar-dropdown" (click)="toggleDropdown($event)">
-        <pelu-avatar [data]="avatarData()" size="medium"></pelu-avatar>
-        <i class="pi pi-chevron-down dropdown-arrow" [class.rotated]="isDropdownOpen()"></i>
-
-        <!-- Dropdown Menu -->
-        <div class="dropdown-menu" [class.show]="isDropdownOpen()">
-          <div class="dropdown-header">
-            <div class="user-info">
-              <span class="user-name">{{ userServicePublic.currentUser()?.displayName || 'Usuari' }}</span>
-              <span class="user-email">{{ userServicePublic.currentUser()?.email }}</span>
-            </div>
-          </div>
-
-          <div class="dropdown-items">
-            <a routerLink="/perfil" class="dropdown-item" (click)="closeDropdown()">
-              <i class="pi pi-user"></i>
-              <span>{{ 'NAVIGATION.PROFILE' | translate }}</span>
-            </a>
-
-            @if (hasAdminAccess()) {
-              <a routerLink="/admin/dashboard" class="dropdown-item" (click)="closeDropdown()">
-                <i class="pi pi-chart-bar"></i>
-                <span>{{ 'NAVIGATION.ADMIN_DASHBOARD' | translate }}</span>
-              </a>
-
-              <a routerLink="/admin/settings" class="dropdown-item" (click)="closeDropdown()">
-                <i class="pi pi-cog"></i>
-                <span>{{ 'NAVIGATION.ADMIN_SETTINGS' | translate }}</span>
-              </a>
-            }
-
-            <div class="dropdown-divider"></div>
-
-            <button class="dropdown-item logout-item" (click)="onLogout()" [disabled]="isLoggingOut()">
-              @if (isLoggingOut()) {
-                <i class="pi pi-spinner pi-spin"></i>
-              } @else {
-                <i class="pi pi-sign-out"></i>
-              }
-              <span>{{ 'COMMON.ACTIONS.LOGOUT' | translate }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <pelu-profile-dropdown
+        [customItems]="customDropdownItems()"
+        (itemClicked)="onDropdownItemClicked($event)">
+      </pelu-profile-dropdown>
     </div>
   </div>
 </header>
