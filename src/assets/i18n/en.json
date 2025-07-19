@@ -306,7 +306,9 @@
       "QUICK_BOOKING": "Quick Booking",
       "QUICK_BOOKING_LABEL": "Add new appointment quickly",
       "BOOKING_CONFIRMATION": "Confirm Booking"
-    }
+    },
+    "EDIT_APPOINTMENT_DESCRIPTION": "Modify appointment details",
+    "DELETE_APPOINTMENT_DESCRIPTION": "Permanently delete the appointment"
   },
   "BOOKING": {
     "SELECT_SERVICE": "New booking",
