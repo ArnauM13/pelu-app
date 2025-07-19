@@ -9,11 +9,9 @@ import { LoaderService } from '../../services/loader.service';
   imports: [CommonModule, TranslateModule],
   template: `
     @if (loaderService.isLoading()) {
-      <div class="loader-overlay" [class.with-overlay]="loaderService.config().overlay">
+      <div class="loader-overlay">
         <div class="loader-content">
-          @if (loaderService.config().showSpinner) {
-            <div class="loader-spinner"></div>
-          }
+          <div class="loader-spinner"></div>
           @if (loaderService.config().message) {
             <p class="loader-message">{{ (loaderService.config().message || '') | translate }}</p>
           }
