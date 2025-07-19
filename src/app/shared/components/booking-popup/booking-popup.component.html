@@ -35,49 +35,52 @@
       <!-- Service Selection/Display (Desktop only) -->
       <div class="form-group desktop-only">
         <label>{{ 'COMMON.SERVICE' | translate }}:</label>
-
-        <!-- Service Display (when service is already selected) -->
-        <div class="service-display" *ngIf="bookingDetails().service">
-          <div class="service-info">
-            <span class="service-name">{{ bookingDetails().service!.name | translate }}</span>
-            <span class="service-duration">{{ bookingDetails().service!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
-          </div>
-        </div>
-
-        <!-- Service Selection (when no service is selected) -->
-        <div class="service-selection" *ngIf="!bookingDetails().service">
-          <p-select
-            [options]="availableServices()"
-            [(ngModel)]="selectedService"
-            optionLabel="name"
-            [placeholder]="'COMMON.SELECTION.SELECT_SERVICE' | translate"
-            class="service-select"
-            (onChange)="onServiceChange($event)">
-            <ng-template pTemplate="selectedItem" let-service>
-              <div class="service-option-selected">
-                <span class="service-icon">{{ service.icon }}</span>
-                <span>{{ getServiceName(service) }}</span>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="item" let-service>
-              <div class="service-option">
-                <span class="service-icon">{{ service.icon }}</span>
-                <div class="service-info">
-                  <div class="service-name">{{ getServiceName(service) }}</div>
-                  <div class="service-description">{{ service.description }}</div>
+        <div class="service-selection">
+          @if (bookingDetails().service) {
+            <div class="selected-service">
+              <div class="service-info">
+                <span class="service-icon">{{ bookingDetails().service!.icon }}</span>
+                <div class="service-details">
+                  <div class="service-name">{{ getServiceName(bookingDetails().service!) }}</div>
+                  <div class="service-description">{{ bookingDetails().service!.description }}</div>
                   <div class="service-meta">
-                    <span class="service-duration">{{ formatDuration(service.duration) }}</span>
-                    @if (service.popular) {
+                    <span class="service-duration">{{ formatDuration(bookingDetails().service!.duration) }}</span>
+                    @if (bookingDetails().service!.popular) {
                       <span class="service-popular">⭐ Popular</span>
                     }
+                  </div>
+                </div>
+              </div>
+              <div class="service-price">{{ formatPrice(bookingDetails().service!.price) }}</div>
+            </div>
+          } @else {
+            <p-select
+              [options]="availableServices()"
+              [(ngModel)]="selectedService"
+              (onChange)="onServiceChange($event)"
+              optionLabel="name"
+              placeholder="{{ 'COMMON.SELECTION.SELECT_SERVICE' | translate }}"
+              class="service-select">
+              <ng-template pTemplate="item" let-service>
+                <div class="service-option">
+                  <span class="service-icon">{{ service.icon }}</span>
+                  <div class="service-info">
+                    <div class="service-name">{{ getServiceName(service) }}</div>
+                    <div class="service-description">{{ service.description }}</div>
+                    <div class="service-meta">
+                      <span class="service-duration">{{ formatDuration(service.duration) }}</span>
+                      @if (service.popular) {
+                        <span class="service-popular">⭐ Popular</span>
+                      }
+                    </div>
                   </div>
                 </div>
                 <div class="service-details">
                   <div class="service-price">{{ formatPrice(service.price) }}</div>
                 </div>
-              </div>
-            </ng-template>
-          </p-select>
+              </ng-template>
+            </p-select>
+          }
         </div>
       </div>
 
@@ -96,6 +99,30 @@
         }
       </div>
 
+      <!-- Email Input (Always required) -->
+      <div class="form-group">
+        <label>{{ 'COMMON.EMAIL' | translate }}: <span class="required">*</span></label>
+        @if (isAuthenticated()) {
+          <div class="readonly-field">{{ currentUserEmail() }}</div>
+        } @else {
+          <input
+            type="email"
+            class="form-input"
+            [value]="email() || bookingDetails().email"
+            (input)="updateEmail($any($event.target).value)"
+            [placeholder]="'COMMON.ENTER_EMAIL' | translate"
+            [class.invalid]="email() && !isValidEmail(email())">
+          @if (email() && !isValidEmail(email())) {
+            <div class="error-message">{{ 'COMMON.VALIDATION.INVALID_EMAIL' | translate }}</div>
+          }
+        }
+      </div>
+
+      <!-- Total Price Display -->
+      <div class="form-group total-price">
+        <label>{{ 'COMMON.TOTAL_PRICE' | translate }}:</label>
+        <div class="price-display">{{ formatPrice(totalPrice()) }}</div>
+      </div>
 
     </div>
 

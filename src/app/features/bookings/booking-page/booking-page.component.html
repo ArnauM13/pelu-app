@@ -19,5 +19,37 @@
   [availableServices]="availableServices()"
   (confirmed)="onBookingConfirmed($event)"
   (cancelled)="onBookingCancelled()"
-  (clientNameChanged)="onClientNameChanged($event)">
+  (clientNameChanged)="onClientNameChanged($event)"
+  (emailChanged)="onEmailChanged($event)">
 </pelu-booking-popup>
+
+<!-- Login Prompt for Anonymous Users -->
+@if (showLoginPrompt()) {
+<div class="login-prompt-overlay" (click)="onLoginPromptClose()">
+  <div class="login-prompt" (click)="$event.stopPropagation()">
+    <div class="prompt-header">
+      <h3>🎉 {{ 'BOOKING.SUCCESS_TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="onLoginPromptClose()">×</button>
+    </div>
+
+    <div class="prompt-body">
+      <div class="success-icon">✅</div>
+      <p class="success-message">
+        {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
+      </p>
+      <p class="email-notice">
+        {{ 'BOOKING.EMAIL_NOTICE' | translate }}
+      </p>
+
+      <div class="prompt-actions">
+        <button class="btn-secondary" (click)="onLoginPromptClose()">
+          {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
+        </button>
+        <button class="btn-primary" (click)="onLoginPromptLogin()">
+          {{ 'COMMON.ACTIONS.LOGIN' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

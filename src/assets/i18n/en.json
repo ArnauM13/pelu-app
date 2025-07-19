@@ -253,7 +253,24 @@
     "AVAILABLE": "Available",
     "NO_AVAILABLE_DAYS": "No available days",
     "NO_AVAILABLE_DAYS_MESSAGE": "All days of the week have all hours occupied. Try with another week.",
-    "LEGEND": "Legend"
+    "LEGEND": "Legend",
+    "SUCCESS_TITLE": "Booking confirmed!",
+    "SUCCESS_MESSAGE": "Your booking has been created successfully. You will receive an email with the details and a link to edit it.",
+    "EMAIL_NOTICE": "Check your inbox to see the booking details.",
+    "EDIT_TITLE": "Edit booking",
+    "DETAILS": "Booking details",
+    "APPOINTMENT_INFO": "Appointment information",
+    "LOGIN_PROMPT_TITLE": "Want to manage your bookings?",
+    "LOGIN_PROMPT_MESSAGE": "Sign in to have full access to all your bookings and manage them easily.",
+    "STATUS": {
+      "CONFIRMED": "Confirmed",
+      "CANCELLED": "Cancelled",
+      "COMPLETED": "Completed"
+    },
+    "NOT_FOUND": {
+      "TITLE": "Appointment not found",
+      "MESSAGE": "The appointment you're looking for could not be found. The link might be incorrect or the appointment may have been deleted."
+    }
   },
   "PROFILE": {
     "PERSONAL_INFO": "Account information",
