@@ -389,6 +389,144 @@ export class FirebaseServicesService {
   }
 
   /**
+   * Create sample services for development (admin only)
+   */
+  async createSampleServices(): Promise<boolean> {
+    try {
+      // Check admin permissions
+      if (!this.hasAdminAccess()) {
+        throw new Error('Access denied - admin required');
+      }
+
+      this._isLoading.set(true);
+      this._error.set(null);
+
+      const currentUser = this.authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      const sampleServices: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>[] = [
+        {
+          name: 'Tall Masculí',
+          description: 'Corte clàssic o modern segons les teves preferències',
+          price: 25,
+          duration: 30,
+          category: 'haircut',
+          icon: '✂️',
+          popular: true,
+          active: true
+        },
+        {
+          name: 'Tall + Afaitat',
+          description: 'Corte complet amb afaitat de barba inclòs',
+          price: 35,
+          duration: 45,
+          category: 'haircut',
+          icon: '✂️',
+          popular: true,
+          active: true
+        },
+        {
+          name: 'Afaitat de Barba',
+          description: 'Afaitat tradicional amb navalla o màquina',
+          price: 15,
+          duration: 20,
+          category: 'beard',
+          icon: '🧔',
+          active: true
+        },
+        {
+          name: 'Arreglada de Barba',
+          description: 'Perfilat i arreglada de barba',
+          price: 12,
+          duration: 15,
+          category: 'beard',
+          icon: '🧔',
+          active: true
+        },
+        {
+          name: 'Lavada i Tractament',
+          description: 'Lavada professional amb productes de qualitat',
+          price: 18,
+          duration: 25,
+          category: 'treatment',
+          icon: '💆',
+          active: true
+        },
+        {
+          name: 'Coloració',
+          description: 'Coloració completa o retocs',
+          price: 45,
+          duration: 60,
+          category: 'treatment',
+          icon: '💆',
+          popular: true,
+          active: true
+        },
+        {
+          name: 'Pentinat Especial',
+          description: 'Peinat per a esdeveniments especials',
+          price: 30,
+          duration: 40,
+          category: 'styling',
+          icon: '💇',
+          popular: true,
+          active: true
+        },
+        {
+          name: 'Tall Infantil',
+          description: 'Tall especial per a nens i nenes',
+          price: 20,
+          duration: 25,
+          category: 'haircut',
+          icon: '👶',
+          active: true
+        }
+      ];
+
+      let createdCount = 0;
+      for (const serviceData of sampleServices) {
+        try {
+          const result = await this.createService(serviceData);
+          if (result) {
+            createdCount++;
+          }
+        } catch (error) {
+          this.logger.error(`Error creating sample service: ${serviceData.name}`, {
+            component: 'FirebaseServicesService',
+            method: 'createSampleServices'
+          });
+        }
+      }
+
+      if (createdCount > 0) {
+        this.toastService.showSuccess(`${createdCount} serveis d'exemple creats`);
+        this.logger.info('Sample services created', {
+          component: 'FirebaseServicesService',
+          method: 'createSampleServices',
+          data: { count: createdCount }
+        });
+      }
+
+      return createdCount > 0;
+    } catch (error) {
+      this.logger.firebaseError(error, 'createSampleServices', {
+        component: 'FirebaseServicesService',
+        method: 'createSampleServices',
+        userId: this.authService.user()?.uid
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Error creating sample services';
+      this._error.set(errorMessage);
+      this.toastService.showGenericError('COMMON.ERROR_CREATING_SAMPLE_SERVICES');
+      return false;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
    * Check if we should use cache instead of fetching from Firebase
    */
   private shouldUseCache(): boolean {
