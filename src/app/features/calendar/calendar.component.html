@@ -1,19 +1,28 @@
 <div class="calendar-container">
-  <!-- Calendar Header -->
-  <pelu-calendar-header
-    [mainTitle]="'Setmana del ' + formatPopupDate(format(viewDate(), 'yyyy-MM-dd'))"
-    [viewDateInfo]="getViewDateInfo()"
-    [businessDaysInfo]="getBusinessDaysInfo()"
-    [canNavigateToPreviousWeek]="canNavigateToPreviousWeek()"
-    [currentViewDate]="viewDate()"
-    (today)="today()"
-    (previousWeek)="previousWeek()"
-    (nextWeek)="nextWeek()"
-    (dateChange)="onDateChange($event)"
-  />
+  <!-- Loader while bookings are loading -->
+  @if (isLoading()) {
+    <div class="calendar-loader">
+      <pelu-loader></pelu-loader>
+    </div>
+  }
 
-  <!-- Calendar Body -->
-  <div class="calendar-body">
+  <!-- Calendar Content (only show when bookings are loaded) -->
+  @if (isBookingsLoaded()) {
+    <!-- Calendar Header -->
+    <pelu-calendar-header
+      [mainTitle]="'Setmana del ' + formatPopupDate(format(viewDate(), 'yyyy-MM-dd'))"
+      [viewDateInfo]="getViewDateInfo()"
+      [businessDaysInfo]="getBusinessDaysInfo()"
+      [canNavigateToPreviousWeek]="canNavigateToPreviousWeek()"
+      [currentViewDate]="viewDate()"
+      (today)="today()"
+      (previousWeek)="previousWeek()"
+      (nextWeek)="nextWeek()"
+      (dateChange)="onDateChange($event)"
+    />
+
+    <!-- Calendar Body -->
+    <div class="calendar-body">
     <div class="horizontal-week-view" [style.--calendar-slot-count]="timeSlots().length">
       <!-- Time Column -->
       <div class="time-column">
@@ -55,9 +64,9 @@
                    [class.past-date]="isPastDate(day)"
                    [class.past-time]="isPastTimeSlot(day, time)"
                    [class.clickable]="isTimeSlotAvailable(day, time)"
-                   [class.disabled]="isPastDate(day)"
+                   [class.disabled]="isPastDate(day) || isPastTimeSlot(day, time)"
                    [title]="getTimeSlotTooltip(day, time)"
-                   (click)="!isPastDate(day) && selectTimeSlot(day, time)">
+                   (click)="!isPastDate(day) && !isPastTimeSlot(day, time) && selectTimeSlot(day, time)">
               </div>
             }
 
@@ -111,5 +120,6 @@
         <div class="drag-preview-duration">{{ formatDuration(dragDropService.draggedAppointment()!.duration || 60) }}</div>
       </div>
     </div>
+  }
   }
 </div>

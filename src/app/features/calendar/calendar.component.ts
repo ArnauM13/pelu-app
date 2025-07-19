@@ -6,10 +6,13 @@ import { startOfWeek, endOfWeek, format as dateFnsFormat, isSameDay, addMinutes 
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { AuthService } from '../../core/auth/auth.service';
 import { BookingService, Booking } from '../../core/services/booking.service';
+import { RoleService } from '../../core/services/role.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
@@ -28,12 +31,16 @@ export interface AppointmentEvent {
   duration?: number; // in minutes, default 60 if not specified
   serviceName?: string;
   clientName?: string;
+  isPublicBooking?: boolean;
+  isOwnBooking?: boolean;
+  canDrag?: boolean;
+  canViewDetails?: boolean;
 }
 
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentSlotComponent, CalendarHeaderComponent],
+  imports: [CommonModule, CalendarModule, FormsModule, TranslateModule, AppointmentDetailPopupComponent, AppointmentSlotComponent, CalendarHeaderComponent, LoaderComponent],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -50,6 +57,8 @@ export class CalendarComponent {
   // Inject services
   private readonly authService = inject(AuthService);
   private readonly appointmentService = inject(BookingService);
+  private readonly roleService = inject(RoleService);
+  private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly positionService = inject(CalendarPositionService);
   private readonly businessService = inject(CalendarBusinessService);
@@ -72,6 +81,8 @@ export class CalendarComponent {
   readonly showDetailPopup = this.stateService.showDetailPopup;
   readonly selectedAppointment = this.stateService.selectedAppointment;
   readonly appointments = this.appointmentService.bookings;
+  readonly isLoading = this.appointmentService.isLoading;
+  readonly isBookingsLoaded = computed(() => !this.isLoading());
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
@@ -96,6 +107,9 @@ export class CalendarComponent {
 
     // Use appointments from signal - ensure it's always an array
     const appointments = this.appointments() || [];
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+
     const events = appointments.map(c => {
       // Ensure proper date and time formatting
       const date = c.data || '';
@@ -121,14 +135,22 @@ export class CalendarComponent {
 
       const endString = formatLocalDateTime(endDate);
 
+      // Check if this is a public booking (not owned by current user)
+      const isOwnBooking = !!(currentUser?.uid && c.uid === currentUser.uid);
+      const isPublicBooking = !isAdmin && !isOwnBooking && c.nom === 'Ocupat';
+
       return {
         id: c.id || uuidv4(), // Generate unique ID if not exists
-        title: c.nom || 'Client',
+        title: isPublicBooking ? this.translateService.instant('COMMON.STATUS.RESERVED') : (c.nom || 'Client'),
         start: startString,
         end: endString,
         duration: duration,
         serviceName: c.serviceName || c.servei || '',
-        clientName: c.nom || 'Client'
+        clientName: c.nom || 'Client',
+        isPublicBooking: isPublicBooking,
+        isOwnBooking: isOwnBooking,
+        canDrag: isAdmin || isOwnBooking,
+        canViewDetails: isAdmin || isOwnBooking
       };
     });
 
@@ -186,6 +208,9 @@ export class CalendarComponent {
   });
 
   constructor(private serviceColorsService: ServiceColorsService) {
+    // Load bookings when component initializes
+    this.appointmentService.loadBookings();
+
     // Listen for custom appointment update events
     window.addEventListener('appointmentUpdated', () => {
       this.appointmentService.refreshBookings();
@@ -378,6 +403,11 @@ export class CalendarComponent {
   }
 
   selectTimeSlot(date: Date, time: string) {
+    // Prevent selection of past dates and time slots
+    if (this.isPastDate(date) || this.isPastTimeSlot(date, time)) {
+      return;
+    }
+
     if (!this.isTimeSlotAvailable(date, time)) {
       return;
     }
@@ -458,11 +488,11 @@ export class CalendarComponent {
 
   getTimeSlotTooltip(date: Date, time: string): string {
     if (this.isPastDate(date)) {
-      return 'Data passada';
+      return this.translateService.instant('COMMON.PAST_DATE');
     }
 
     if (this.isPastTimeSlot(date, time)) {
-      return 'Hora passada';
+      return this.translateService.instant('COMMON.PAST_TIME');
     }
 
     if (this.isTimeSlotBlocked(time)) {
@@ -492,18 +522,12 @@ export class CalendarComponent {
     // Remove the appointment from the state
     this.stateService.removeAppointment(appointment.id);
 
-          // Force reload appointments to update the view immediately
-      this.appointmentService.refreshBookings();
-      this.cdr.detectChanges();
+    // Force reload appointments to update the view immediately
+    this.appointmentService.refreshBookings();
+    this.cdr.detectChanges();
 
-      // Also trigger a change detection cycle
-      setTimeout(() => {
-        this.appointmentService.refreshBookings();
-        this.cdr.detectChanges();
-
-        // Force a change detection cycle by triggering a custom event
-        window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: appointment }));
-      }, 100);
+    // The popup will close itself after emitting the event
+    // No need to manually close it here
   }
 
     onAppointmentEditRequested(appointment: any) {

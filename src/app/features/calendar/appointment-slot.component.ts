@@ -22,8 +22,10 @@ export interface AppointmentSlotData {
            [style.height.px]="position().height"
            [style.left.px]="0"
            [style.right.px]="0"
-           [ngClass]="serviceCssClass()"
+           [ngClass]="appointmentCssClass()"
            [class.dragging]="isBeingDragged()"
+           [class.public-booking]="data()!.appointment!.isPublicBooking"
+           [class.no-drag]="!data()!.appointment!.canDrag"
            (mousedown)="onMouseDown($event)"
            (mousemove)="onMouseMove($event)"
            (mouseup)="onMouseUp($event)"
@@ -31,16 +33,20 @@ export interface AppointmentSlotData {
            (mouseleave)="onMouseLeave($event)">
         <div class="appointment-content">
           <div class="appointment-info">
-            <div class="appointment-title" [ngClass]="serviceTextCssClass()">{{ data()!.appointment!.title }}</div>
-            @if (data()!.appointment!.serviceName) {
-              <div class="appointment-service" [ngClass]="serviceTextCssClass()">{{ data()!.appointment!.serviceName }}</div>
+            <div class="appointment-title" [ngClass]="textCssClass()">{{ data()!.appointment!.title }}</div>
+            @if (data()!.appointment!.serviceName && !data()!.appointment!.isPublicBooking) {
+              <div class="appointment-service" [ngClass]="textCssClass()">{{ data()!.appointment!.serviceName }}</div>
             }
           </div>
-          <div class="appointment-duration" [ngClass]="serviceTextCssClass()">{{ formatDuration(data()!.appointment!.duration || 60) }}</div>
+          @if (!data()!.appointment!.isPublicBooking) {
+            <div class="appointment-duration" [ngClass]="textCssClass()">{{ formatDuration(data()!.appointment!.duration || 60) }}</div>
+          }
         </div>
-        <div class="drag-handle">
-          <div class="drag-indicator"></div>
-        </div>
+        @if (data()!.appointment!.canDrag) {
+          <div class="drag-handle">
+            <div class="drag-indicator"></div>
+          </div>
+        }
       </div>
     }
   `,
@@ -84,16 +90,30 @@ export class AppointmentSlotComponent {
     return this.serviceColorsService.getServiceColor(serviceName);
   });
 
-  // Computed service CSS class
-  readonly serviceCssClass = computed(() => {
+  // Computed appointment CSS class
+  readonly appointmentCssClass = computed(() => {
     if (!this.data() || !this.data()!.appointment) return '';
+
+    // If it's a public booking, use red styling
+    if (this.data()!.appointment!.isPublicBooking) {
+      return 'public-booking';
+    }
+
+    // Otherwise use service color
     const serviceName = this.data()!.appointment!.serviceName || '';
     return this.serviceColorsService.getServiceCssClass(serviceName);
   });
 
-  // Computed service text CSS class
-  readonly serviceTextCssClass = computed(() => {
+  // Computed text CSS class
+  readonly textCssClass = computed(() => {
     if (!this.data() || !this.data()!.appointment) return '';
+
+    // If it's a public booking, use red text
+    if (this.data()!.appointment!.isPublicBooking) {
+      return 'public-booking-text';
+    }
+
+    // Otherwise use service text color
     const serviceName = this.data()!.appointment!.serviceName || '';
     return this.serviceColorsService.getServiceTextCssClass(serviceName);
   });
@@ -110,7 +130,9 @@ export class AppointmentSlotComponent {
     event.stopPropagation();
 
     // Only emit click if not currently dragging and no drag has started
-    if (!this.dragDropService.isDragging() && !this.hasDragStarted() && !this.isDragging && this.data() && this.data()!.appointment) {
+    // and if the appointment can be viewed
+    if (!this.dragDropService.isDragging() && !this.hasDragStarted() && !this.isDragging &&
+        this.data() && this.data()!.appointment && this.data()!.appointment!.canViewDetails) {
       this.clicked.emit(this.data()!.appointment!);
     }
   }
@@ -118,6 +140,13 @@ export class AppointmentSlotComponent {
   onMouseDown(event: MouseEvent) {
     // Only start drag on left mouse button
     if (event.button !== 0) return;
+
+    // Check if this appointment can be dragged
+    if (!this.data()?.appointment?.canDrag) {
+      // If it can't be dragged, just handle as click
+      this.onAppointmentClick(event);
+      return;
+    }
 
     event.preventDefault();
     event.stopPropagation();

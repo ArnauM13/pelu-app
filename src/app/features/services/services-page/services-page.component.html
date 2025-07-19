@@ -6,144 +6,41 @@
   </div>
 
   <div class="services-container">
-    <!-- Cortes Section -->
-    <section class="service-category">
-      <div class="category-header">
-        <span class="category-icon">{{ getCategoryIcon('haircut') }}</span>
-        <h2>{{ getCategoryName('haircut') }}</h2>
-      </div>
-      <div class="services-grid">
-        @for (service of getServicesByCategory('haircut'); track service.id) {
-          <div class="service-card" [class.popular-service]="service.popular">
-            <p-card>
-              <ng-template pTemplate="header">
-                <div class="service-card-header">
-                  <h3>{{ service.name }}</h3>
-                  @if (service.popular) {
-                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
-                  }
-                </div>
-              </ng-template>
-              <ng-template pTemplate="content">
-                <p class="service-description">{{ service.description }}</p>
-                <div class="service-details">
-                  <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+    <!-- Services by Category -->
+    @for (category of servicesByCategory(); track category.id) {
+      <section class="service-category">
+        <div class="category-header">
+          <span class="category-icon">{{ getCategoryIcon(category.id) }}</span>
+          <h2>{{ getCategoryName(category.id) }}</h2>
+        </div>
+        <div class="services-grid">
+          @for (service of category.services; track service.id) {
+            <div class="service-card" [class.popular-service]="service.popular">
+              <p-card>
+                <ng-template pTemplate="header">
+                  <div class="service-card-header">
+                    <h3>{{ service.name }}</h3>
+                    @if (service.popular) {
+                      <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
+                    }
                   </div>
-                  <div class="service-price">
-                    <span class="price">{{ service.price | currency }}</span>
+                </ng-template>
+                <ng-template pTemplate="content">
+                  <p class="service-description">{{ service.description }}</p>
+                  <div class="service-details">
+                    <div class="service-info">
+                      <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+                    </div>
+                    <div class="service-price">
+                      <span class="price">{{ service.price | currency }}</span>
+                    </div>
                   </div>
-                </div>
-              </ng-template>
-            </p-card>
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- Barba Section -->
-    <section class="service-category">
-      <div class="category-header">
-        <span class="category-icon">{{ getCategoryIcon('beard') }}</span>
-        <h2>{{ getCategoryName('beard') }}</h2>
-      </div>
-      <div class="services-grid">
-        @for (service of getServicesByCategory('beard'); track service.id) {
-          <div class="service-card" [class.popular-service]="service.popular">
-            <p-card>
-              <ng-template pTemplate="header">
-                <div class="service-card-header">
-                  <h3>{{ service.name }}</h3>
-                  @if (service.popular) {
-                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
-                  }
-                </div>
-              </ng-template>
-              <ng-template pTemplate="content">
-                <p class="service-description">{{ service.description }}</p>
-                <div class="service-details">
-                  <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
-                  </div>
-                  <div class="service-price">
-                    <span class="price">{{ service.price | currency }}</span>
-                  </div>
-                </div>
-              </ng-template>
-            </p-card>
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- Tractaments Section -->
-    <section class="service-category">
-      <div class="category-header">
-        <span class="category-icon">{{ getCategoryIcon('treatment') }}</span>
-        <h2>{{ getCategoryName('treatment') }}</h2>
-      </div>
-      <div class="services-grid">
-        @for (service of getServicesByCategory('treatment'); track service.id) {
-          <div class="service-card" [class.popular-service]="service.popular">
-            <p-card>
-              <ng-template pTemplate="header">
-                <div class="service-card-header">
-                  <h3>{{ service.name }}</h3>
-                  @if (service.popular) {
-                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
-                  }
-                </div>
-              </ng-template>
-              <ng-template pTemplate="content">
-                <p class="service-description">{{ service.description }}</p>
-                <div class="service-details">
-                  <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
-                  </div>
-                  <div class="service-price">
-                    <span class="price">{{ service.price | currency }}</span>
-                  </div>
-                </div>
-              </ng-template>
-            </p-card>
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- Peinats Section -->
-    <section class="service-category">
-      <div class="category-header">
-        <span class="category-icon">{{ getCategoryIcon('styling') }}</span>
-        <h2>{{ getCategoryName('styling') }}</h2>
-      </div>
-      <div class="services-grid">
-        @for (service of getServicesByCategory('styling'); track service.id) {
-          <div class="service-card" [class.popular-service]="service.popular">
-            <p-card>
-              <ng-template pTemplate="header">
-                <div class="service-card-header">
-                  <h3>{{ service.name }}</h3>
-                  @if (service.popular) {
-                    <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
-                  }
-                </div>
-              </ng-template>
-              <ng-template pTemplate="content">
-                <p class="service-description">{{ service.description }}</p>
-                <div class="service-details">
-                  <div class="service-info">
-                    <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
-                  </div>
-                  <div class="service-price">
-                    <span class="price">{{ service.price | currency }}</span>
-                  </div>
-                </div>
-              </ng-template>
-            </p-card>
-          </div>
-        }
-      </div>
-    </section>
+                </ng-template>
+              </p-card>
+            </div>
+          }
+        </div>
+      </section>
+    }
   </div>
 </div>
