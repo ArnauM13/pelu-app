@@ -30,7 +30,6 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: calc(100vh - 70px); /* Account for header height */
   overflow: hidden;
   padding: 1rem;
   box-sizing: border-box;
@@ -42,7 +41,6 @@ body {
 .pelu-services-page,
 .pelu-landing-page,
 .pelu-perfil-page {
-  min-height: calc(100vh - 70px); /* Account for header height */
   padding: 1rem;
   box-sizing: border-box;
   overflow-x: hidden;

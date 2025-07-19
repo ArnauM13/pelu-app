@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { AppointmentStatusBadgeComponent } from '../../../../shared/components/appointment-status-badge';
 import { CardComponent } from '../../../../shared/components/card/card.component';
+import { NotFoundStateComponent } from '../../../../shared/components/not-found-state/not-found-state.component';
 import { ServiceColorsService } from '../../../../core/services/service-colors.service';
 import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
 import { isFutureAppointment } from '../../../../shared/services';
@@ -27,21 +28,16 @@ export interface Appointment {
     TranslateModule,
     TooltipModule,
     AppointmentStatusBadgeComponent,
-    CardComponent
+    CardComponent,
+    NotFoundStateComponent
   ],
   template: `
     @if (appointments().length === 0) {
       <div class="full-screen-empty-state">
-        <div class="empty-state-content">
-          <div class="empty-icon">📅</div>
-          <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
-          <p>{{ hasActiveFilters() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
-          @if (hasActiveFilters()) {
-            <button class="clear-filters-btn" (click)="onClearFilters.emit()">
-              {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
-            </button>
-          }
-        </div>
+        <pelu-not-found-state
+          [config]="notFoundConfig"
+          (onButtonClick)="onClearFilters.emit()">
+        </pelu-not-found-state>
       </div>
     } @else {
       <pelu-card>
@@ -133,55 +129,11 @@ export interface Appointment {
       margin: 2rem 0;
     }
 
-    .empty-state-content {
-      text-align: center;
-      padding: 4rem 2rem;
-      max-width: 500px;
-    }
-
-    .empty-icon {
-      font-size: 6rem;
-      margin-bottom: 2rem;
-      opacity: 0.6;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .empty-state-content h3 {
-      margin: 0 0 1rem 0;
-      color: var(--text-color);
-      font-size: 2rem;
-      font-weight: 600;
-    }
-
-    .empty-state-content p {
-      margin: 0 0 2rem 0;
-      color: var(--text-color-light);
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    .clear-filters-btn {
-      background: var(--gradient-primary);
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: var(--box-shadow);
-    }
-
-    .clear-filters-btn:hover {
-      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
-      transform: translateY(-2px);
-      box-shadow: var(--box-shadow-hover);
+    @media (max-width: 768px) {
+      .full-screen-empty-state {
+        min-height: 50vh;
+        margin: 1rem 0;
+      }
     }
 
     .card-header {
@@ -419,6 +371,16 @@ export class AppointmentsListComponent {
   onClearFilters = output<void>();
 
   readonly isFutureAppointment = isFutureAppointment;
+
+  get notFoundConfig() {
+    return {
+      icon: '📅',
+      title: 'COMMON.NO_APPOINTMENTS',
+      message: this.hasActiveFilters() ? 'COMMON.NO_APPOINTMENTS_FILTERED' : 'COMMON.NO_APPOINTMENTS_SCHEDULED',
+      buttonText: this.hasActiveFilters() ? 'COMMON.CLEAR_FILTERS_BUTTON' : undefined,
+      showButton: this.hasActiveFilters()
+    };
+  }
 
   constructor(
     public serviceColorsService: ServiceColorsService,

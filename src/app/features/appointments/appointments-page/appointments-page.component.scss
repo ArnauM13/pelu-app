@@ -273,11 +273,7 @@ pelu-appointments-list {
   border: 1px solid var(--border-color);
 }
 
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
+
 
 .empty-state h3 {
   margin: 0 0 0.5rem 0;
@@ -1185,24 +1181,7 @@ pelu-appointments-list {
   gap: 0.5rem;
 }
 
-.clear-filters-btn {
-          background: var(--error-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
-.clear-filters-btn:hover {
-  background: #dc2626;
-}
 
 .filters-content {
   background: white;

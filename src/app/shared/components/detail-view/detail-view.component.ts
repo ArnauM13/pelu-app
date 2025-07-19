@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
+import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
 import { LoaderService } from '../../services/loader.service';
@@ -54,6 +55,7 @@ export interface DetailViewConfig {
     AvatarComponent,
     InfoItemComponent,
     AppointmentStatusBadgeComponent,
+    NotFoundStateComponent,
     RouterModule
   ],
   templateUrl: './detail-view.component.html',
@@ -154,16 +156,14 @@ export class DetailViewComponent implements OnChanges {
   }
 
   // Not found states
-  get notFoundIcon() {
-    return this.type === 'profile' ? '👤' : '📅';
-  }
-
-  get notFoundTitle() {
-    return this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND';
-  }
-
-  get notFoundMessage() {
-    return this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA';
+  get notFoundConfig() {
+    return {
+      icon: this.type === 'profile' ? '👤' : '📅',
+      title: this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
+      message: this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
+      buttonText: 'COMMON.ACTIONS.BACK',
+      showButton: true
+    };
   }
 
   // View transitions and toast keys
