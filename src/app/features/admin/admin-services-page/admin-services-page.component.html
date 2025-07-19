@@ -1,0 +1,393 @@
+<div class="admin-services-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>🛠️ {{ 'ADMIN.SERVICES.TITLE' | translate }}</h1>
+      <p>{{ 'ADMIN.SERVICES.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button
+        pButton
+        type="button"
+        label="{{ 'ADMIN.SERVICES.ADD_SERVICE' | translate }}"
+        icon="pi pi-plus"
+        class="p-button-primary"
+        (click)="showCreateService()">
+      </button>
+            <button
+        pButton
+        type="button"
+        label="{{ 'COMMON.REFRESH' | translate }}"
+        icon="pi pi-refresh"
+        class="p-button-secondary"
+        (click)="refreshServices()">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Migrar Serveis"
+        icon="pi pi-download"
+        class="p-button-warning"
+        (click)="migrateServices()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <pelu-loading-state [config]="loadingConfig"></pelu-loading-state>
+  }
+
+  <!-- Services Content -->
+  @if (!isLoading()) {
+    <div class="services-content">
+      <!-- Services by Category -->
+      @for (category of servicesByCategory(); track category.id) {
+        <pelu-card>
+          <div class="category-header">
+            <div class="category-info">
+              <span class="category-icon">{{ getCategoryIcon(category.id) }}</span>
+              <h2>{{ getCategoryName(category.id) }}</h2>
+              <span class="service-count">({{ category.services.length }})</span>
+            </div>
+          </div>
+
+          <div class="services-grid">
+            @for (service of category.services; track service.id) {
+              <div class="service-card">
+                <div class="service-header">
+                  <div class="service-icon">{{ service.icon }}</div>
+                  <div class="service-info">
+                    <h3>{{ service.name }}</h3>
+                    @if (service.popular) {
+                      <span class="popular-badge">⭐ Popular</span>
+                    }
+                  </div>
+                  <div class="service-actions">
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-pencil"
+                      class="p-button-text p-button-sm"
+                      [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                      (click)="showEditService(service)">
+                    </button>
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="p-button-text p-button-danger p-button-sm"
+                      [pTooltip]="'COMMON.ACTIONS.DELETE' | translate"
+                      (click)="deleteService(service)">
+                    </button>
+                  </div>
+                </div>
+                <div class="service-details">
+                  <p class="service-description">{{ service.description }}</p>
+                  <div class="service-meta">
+                    <div class="meta-item">
+                      <span class="meta-label">⏱️ {{ 'COMMON.DURATION' | translate }}:</span>
+                      <span class="meta-value">{{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">💰 {{ 'COMMON.PRICE' | translate }}:</span>
+                      <span class="meta-value">{{ service.price | currency }}</span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">📂 {{ 'COMMON.CATEGORY' | translate }}:</span>
+                      <span class="meta-value">{{ getCategoryName(service.category) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (category.services.length === 0) {
+            <div class="empty-category">
+              <p>{{ 'ADMIN.SERVICES.NO_SERVICES_IN_CATEGORY' | translate }}</p>
+            </div>
+          }
+        </pelu-card>
+      }
+    </div>
+  }
+
+  <!-- Create Service Dialog -->
+    <p-dialog
+    [visible]="showCreateDialog()"
+    (visibleChange)="onCreateDialogVisibilityChange($event)"
+    [header]="'ADMIN.SERVICES.CREATE_SERVICE' | translate"
+    [modal]="true"
+    [style]="{width: '600px'}"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="service-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="serviceName">{{ 'COMMON.NAME' | translate }} *</label>
+          <input
+            pInputText
+            id="serviceName"
+            [(ngModel)]="formData().name"
+            placeholder="{{ 'ADMIN.SERVICES.NAME_PLACEHOLDER' | translate }}"
+            class="w-full">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="serviceDescription">{{ 'COMMON.DESCRIPTION' | translate }} *</label>
+          <textarea
+            pInputText
+            id="serviceDescription"
+            [(ngModel)]="formData().description"
+            placeholder="{{ 'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER' | translate }}"
+            rows="3"
+            class="w-full">
+          </textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="serviceCategory">{{ 'COMMON.CATEGORY' | translate }} *</label>
+          <p-dropdown
+            id="serviceCategory"
+            [(ngModel)]="formData().category"
+            [options]="categoryOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="{{ 'ADMIN.SERVICES.SELECT_CATEGORY' | translate }}"
+            class="w-full">
+            <ng-template pTemplate="selectedItem" let-option>
+              <span>{{ option.icon }} {{ option.label | translate }}</span>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <span>{{ option.icon }} {{ option.label | translate }}</span>
+            </ng-template>
+          </p-dropdown>
+        </div>
+        <div class="form-field">
+          <label for="serviceIcon">{{ 'COMMON.ICON' | translate }}</label>
+          <p-dropdown
+            id="serviceIcon"
+            [(ngModel)]="formData().icon"
+            [options]="iconOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="{{ 'ADMIN.SERVICES.SELECT_ICON' | translate }}"
+            class="w-full">
+            <ng-template pTemplate="selectedItem" let-option>
+              <span>{{ option.value }} {{ option.label }}</span>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <span>{{ option.value }} {{ option.label }}</span>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="servicePrice">{{ 'COMMON.PRICE' | translate }} (€) *</label>
+          <p-inputNumber
+            id="servicePrice"
+            [(ngModel)]="formData().price"
+            [min]="0"
+            [max]="1000"
+            [step]="0.01"
+            placeholder="0.00"
+            class="w-full">
+          </p-inputNumber>
+        </div>
+        <div class="form-field">
+          <label for="serviceDuration">{{ 'COMMON.DURATION' | translate }} ({{ 'COMMON.UNITS.MINUTES' | translate }}) *</label>
+          <p-inputNumber
+            id="serviceDuration"
+            [(ngModel)]="formData().duration"
+            [min]="5"
+            [max]="480"
+            [step]="5"
+            placeholder="30"
+            class="w-full">
+          </p-inputNumber>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <p-checkbox
+            id="servicePopular"
+            [(ngModel)]="formData().popular"
+            [binary]="true">
+          </p-checkbox>
+          <label for="servicePopular" class="checkbox-label">
+            {{ 'ADMIN.SERVICES.MARK_AS_POPULAR' | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        type="button"
+        label="{{ 'COMMON.CANCEL' | translate }}"
+        class="p-button-text"
+        (click)="cancelDialog()">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="{{ 'COMMON.CREATE' | translate }}"
+        icon="pi pi-check"
+        class="p-button-primary"
+        (click)="createService()">
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Edit Service Dialog -->
+    <p-dialog
+    [visible]="showEditDialog()"
+    (visibleChange)="onEditDialogVisibilityChange($event)"
+    [header]="'ADMIN.SERVICES.EDIT_SERVICE' | translate"
+    [modal]="true"
+    [style]="{width: '600px'}"
+    [draggable]="false"
+    [resizable]="false">
+
+    <div class="service-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="editServiceName">{{ 'COMMON.NAME' | translate }} *</label>
+          <input
+            pInputText
+            id="editServiceName"
+            [(ngModel)]="formData().name"
+            placeholder="{{ 'ADMIN.SERVICES.NAME_PLACEHOLDER' | translate }}"
+            class="w-full">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="editServiceDescription">{{ 'COMMON.DESCRIPTION' | translate }} *</label>
+          <textarea
+            pInputText
+            id="editServiceDescription"
+            [(ngModel)]="formData().description"
+            placeholder="{{ 'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER' | translate }}"
+            rows="3"
+            class="w-full">
+          </textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="editServiceCategory">{{ 'COMMON.CATEGORY' | translate }} *</label>
+          <p-dropdown
+            id="editServiceCategory"
+            [(ngModel)]="formData().category"
+            [options]="categoryOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="{{ 'ADMIN.SERVICES.SELECT_CATEGORY' | translate }}"
+            class="w-full">
+            <ng-template pTemplate="selectedItem" let-option>
+              <span>{{ option.icon }} {{ option.label | translate }}</span>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <span>{{ option.icon }} {{ option.label | translate }}</span>
+            </ng-template>
+          </p-dropdown>
+        </div>
+        <div class="form-field">
+          <label for="editServiceIcon">{{ 'COMMON.ICON' | translate }}</label>
+          <p-dropdown
+            id="editServiceIcon"
+            [(ngModel)]="formData().icon"
+            [options]="iconOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="{{ 'ADMIN.SERVICES.SELECT_ICON' | translate }}"
+            class="w-full">
+            <ng-template pTemplate="selectedItem" let-option>
+              <span>{{ option.value }} {{ option.label }}</span>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <span>{{ option.value }} {{ option.label }}</span>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="editServicePrice">{{ 'COMMON.PRICE' | translate }} (€) *</label>
+          <p-inputNumber
+            id="editServicePrice"
+            [(ngModel)]="formData().price"
+            [min]="0"
+            [max]="1000"
+            [step]="0.01"
+            placeholder="0.00"
+            class="w-full">
+          </p-inputNumber>
+        </div>
+        <div class="form-field">
+          <label for="editServiceDuration">{{ 'COMMON.DURATION' | translate }} ({{ 'COMMON.UNITS.MINUTES' | translate }}) *</label>
+          <p-inputNumber
+            id="editServiceDuration"
+            [(ngModel)]="formData().duration"
+            [min]="5"
+            [max]="480"
+            [step]="5"
+            placeholder="30"
+            class="w-full">
+          </p-inputNumber>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <p-checkbox
+            id="editServicePopular"
+            [(ngModel)]="formData().popular"
+            [binary]="true">
+          </p-checkbox>
+          <label for="editServicePopular" class="checkbox-label">
+            {{ 'ADMIN.SERVICES.MARK_AS_POPULAR' | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        type="button"
+        label="{{ 'COMMON.CANCEL' | translate }}"
+        class="p-button-text"
+        (click)="cancelDialog()">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="{{ 'COMMON.UPDATE' | translate }}"
+        icon="pi pi-check"
+        class="p-button-primary"
+        (click)="updateService()">
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Confirm Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
+</div>
