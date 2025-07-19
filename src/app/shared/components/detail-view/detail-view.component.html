@@ -3,16 +3,12 @@
 
   <!-- Not Found State -->
   @if (notFound) {
-  <div class="not-found-section">
-    <div class="not-found-content">
-      <i class="not-found-icon">{{ notFoundIcon }}</i>
-      <h2>{{ notFoundTitle | translate }}</h2>
-      <p>{{ notFoundMessage | translate }}</p>
-      <button class="back-btn" (click)="onBack()">
-        {{ 'COMMON.ACTIONS.BACK' | translate }}
-      </button>
+    <div class="not-found-section">
+      <pelu-not-found-state
+        [config]="notFoundConfig"
+        (onButtonClick)="onBack()">
+      </pelu-not-found-state>
     </div>
-  </div>
   }
 
   <!-- Main Content -->

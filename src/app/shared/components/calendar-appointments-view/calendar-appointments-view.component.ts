@@ -5,6 +5,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardComponent } from '../card/card.component';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
+import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
 import { isFutureAppointment } from '../../services';
 
 export interface Appointment {
@@ -27,16 +28,15 @@ export interface Appointment {
     TooltipModule,
     CardComponent,
     CalendarComponent,
-    AppointmentStatusBadgeComponent
+    AppointmentStatusBadgeComponent,
+    NotFoundStateComponent
   ],
   template: `
     @if (appointments().length === 0) {
       <div class="full-screen-empty-state">
-        <div class="empty-state-content">
-          <div class="empty-icon">📅</div>
-          <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
-          <p>{{ 'COMMON.NO_APPOINTMENTS_SCHEDULED' | translate }}</p>
-        </div>
+        <pelu-not-found-state
+          [config]="notFoundConfig">
+        </pelu-not-found-state>
       </div>
     } @else {
       <pelu-card variant="large" class="calendar-view-card">
@@ -166,36 +166,11 @@ export interface Appointment {
       margin: 2rem 0;
     }
 
-    .empty-state-content {
-      text-align: center;
-      padding: 4rem 2rem;
-      max-width: 500px;
-    }
-
-    .empty-icon {
-      font-size: 6rem;
-      margin-bottom: 2rem;
-      opacity: 0.6;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .empty-state-content h3 {
-      margin: 0 0 1rem 0;
-      color: var(--text-color);
-      font-size: 2rem;
-      font-weight: 600;
-    }
-
-    .empty-state-content p {
-      margin: 0 0 2rem 0;
-      color: var(--text-color-light);
-      font-size: 1.1rem;
-      line-height: 1.6;
+    @media (max-width: 768px) {
+      .full-screen-empty-state {
+        min-height: 50vh;
+        margin: 1rem 0;
+      }
     }
 
     .calendar-view-card {
@@ -480,6 +455,15 @@ export class CalendarAppointmentsViewComponent {
   }
 
   readonly isFutureAppointment = isFutureAppointment;
+
+  get notFoundConfig() {
+    return {
+      icon: '📅',
+      title: 'COMMON.NO_APPOINTMENTS',
+      message: 'COMMON.NO_APPOINTMENTS_SCHEDULED',
+      showButton: false
+    };
+  }
 
   calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({

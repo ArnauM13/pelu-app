@@ -14,3 +14,7 @@ export type { LoaderConfig } from './loader';
 // Existing components (if any)
 // Add other shared components here as needed
 
+// Not found state component
+export { NotFoundStateComponent } from './not-found-state/not-found-state.component';
+export type { NotFoundStateConfig } from './not-found-state/not-found-state.component';
+

@@ -1,18 +1,14 @@
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   width: 100vw;
+  height: 100vh;
 }
-
-/* Loading styles now handled by global loader component */
 
 /* Main content styles - Fixed to account for header height */
 .main-content {
-  min-height: calc(100vh - 70px); /* 70px is the header height */
-  padding-top: 0;
-  overflow-x: hidden;
-  overflow-y: auto; /* Permet scroll vertical si cal */
+  width: 100%;
+  height: 100%;
 }
 
 /* Responsive adjustments */
