@@ -193,7 +193,7 @@
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 0;
-  overflow: hidden;
+  overflow-y: auto;
   background: white;
   min-height: 0; // Important for flex child
 
@@ -215,7 +215,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0; // Important for flex child
-  overflow: hidden; // Remove scroll, let content flow
+  overflow-y: auto; // Allow scroll for content
 
   .info-section {
     background: white;
@@ -336,7 +336,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0; // Important for flex child
-  overflow: hidden; // Remove scroll, let content flow
+  overflow-y: auto; // Allow scroll for content
 
   .actions-section {
     flex: 1; // Take remaining space
@@ -481,14 +481,12 @@
     min-height: 0;
   }
   .content-grid {
-    overflow-y: visible;
-  }
-  .info-column {
-    overflow: visible;
-  }
-  .content-grid {
+    overflow-y: auto;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
+  }
+  .info-column {
+    overflow-y: auto;
   }
 
 
@@ -869,5 +867,60 @@
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Appointment Action Buttons
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+  }
+
+  .appointment-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    .action-btn-small {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      &.edit-btn {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+
+        &:hover {
+          background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+      }
+
+      &.delete-btn {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: white;
+
+        &:hover {
+          background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+        }
+      }
+    }
   }
 }

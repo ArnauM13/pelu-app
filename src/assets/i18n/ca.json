@@ -12,23 +12,13 @@
     "ENTER_CLIENT_NAME": "Introdueix el nom del client",
     "DATE": "Data",
     "HOURS": "Hora",
-    "APPOINTMENTS_CALENDAR": "Calendari de Cites",
-    "VIEW_APPOINTMENTS": "Visualitza totes les teves cites en format calendari",
     "APPOINTMENTS_FOR_DATE": "Cites del",
-    "NO_SCHEDULED_APPOINTMENTS": "No hi ha cites programades",
     "NO_APPOINTMENTS_MESSAGE": "Per aquesta data no tens cites programades. Pots seleccionar una altra data o afegir noves cites.",
     "CLICK_TO_VIEW": "Clica per veure",
     "DELETE_CONFIRMATION": "Eliminar cita",
-    "NO_APPOINTMENTS": "No hi ha cites",
-    "NO_APPOINTMENTS_FILTERED": "No s'han trobat cites amb els filtres aplicats.",
-    "NO_APPOINTMENTS_SCHEDULED": "Encara no tens cites programades.",
     "CLEAR_FILTERS_BUTTON": "Netejar filtres",
     "APPOINTMENTS_LIST": "Cites",
     "VIEW_APPOINTMENTS_LIST": "Visualitza totes les teves cites en format llista",
-    "TOTAL_APPOINTMENTS": "Total Cites",
-    "TODAY_APPOINTMENTS": "Cites avui",
-    "UPCOMING_APPOINTMENTS": "Pròximes Cites",
-    "MY_APPOINTMENTS": "Cites meves",
     "AVAILABLE_TIMES": "Horaris disponibles",
     "OR": "o",
     "ACTIONS": {
@@ -56,16 +46,19 @@
     },
     "STATUS": {
       "LOADING": "Carregant...",
-      "ERROR": "Error",
-      "SUCCESS": "Èxit",
-      "WARNING": "Advertència",
-      "INFO": "Informació",
+      "STATUS_ERROR": "Error",
+      "STATUS_SUCCESS": "Èxit",
+      "STATUS_WARNING": "Advertència",
+      "STATUS_INFO": "Informació",
       "AVAILABLE": "Disponible",
       "OCCUPIED": "Ocupat",
       "ACTIVE": "Actiu",
-      "INACTIVE": "Inactiu"
+      "INACTIVE": "Inactiu",
+      "RESERVED": "Reservada",
+      "DRAFT": "Esborrany"
     },
     "TIME": {
+      "HOUR": "Hora",
       "TODAY": "Avui",
       "TOMORROW": "Demà",
       "PAST": "Passat",
@@ -138,9 +131,10 @@
     "MISSING_CLIENT_NAME": "Si us plau, introdueix el nom del client",
     "MISSING_SERVICE": "Si us plau, selecciona un servei",
     "TOTAL": "Total",
+    "TOTAL_PRICE": "Preu total",
     "NO_DATA": "No hi ha dades",
-    "LOADING": "Carregant...",
-    "ERROR": "Error",
+    "GENERAL_LOADING": "Carregant...",
+    "GENERAL_ERROR": "Error",
     "EMAIL": "Email",
     "ENTER_EMAIL": "Introdueix el teu email",
     "NOTES": "Notes",
@@ -152,20 +146,47 @@
     "CLIENT_INFORMATION": "Informació del client",
     "BOOKING_INFORMATION": "Informació de la reserva",
     "NAME": "Nom",
-    "TIME": "Hora",
-    "STATUS": "Estat",
     "DURATION": "Durada",
     "PRICE": "Preu",
     "ERROR_LOADING_BOOKING": "Error al carregar la reserva",
     "BOOKING_NOT_FOUND": "Reserva no trobada",
     "BOOKING_NOT_FOUND_MESSAGE": "No s'ha pogut trobar la reserva que busques",
+    "ERROR_PAST_BOOKING": "No es poden crear reserves en el passat",
+    "PAST_DATE": "Data passada",
+    "PAST_TIME": "Hora passada",
+    "ERRORS": {
+      "GENERIC_ERROR": "S'ha produït un error inesperat. Si us plau, torna-ho a provar.",
+      "NETWORK_ERROR": "Error de connexió. Verifica la teva connexió a internet i torna-ho a provar.",
+      "AUTH_ERROR": "Error d'autenticació. Si us plau, torna a iniciar sessió.",
+      "FIREBASE_ERROR": "Error de base de dades. Si us plau, torna-ho a provar.",
+      "VALIDATION_ERROR": "Error de validació. Verifica les dades introduïdes.",
+      "PERMISSION_ERROR": "No tens permisos per realitzar aquesta acció.",
+      "NOT_FOUND_ERROR": "No s'ha trobat el recurs sol·licitat.",
+      "TIMEOUT_ERROR": "La operació ha tardat massa temps. Si us plau, torna-ho a provar.",
+      "SERVER_ERROR": "Error del servidor. Si us plau, torna-ho a provar més tard.",
+      "CLIENT_ERROR": "Error en les dades enviades. Verifica la informació introduïda.",
+      "UNKNOWN_ERROR": "Error desconegut. Si us plau, contacta amb el suport tècnic."
+    },
+    "POPULAR": "Popular",
     "VALIDATION": {
       "INVALID_EMAIL": "Si us plau, introdueix un email vàlid"
+    },
+    "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la cita de {{name}}?",
+    "DELETE_SUCCESS": "S'ha eliminat la cita de {{name}} correctament",
+    "CONFIRMATION": {
+      "TITLE": "Confirmació",
+      "MESSAGE": "Estàs segur que vols realitzar aquesta acció?",
+      "DELETE_TITLE": "Eliminar cita",
+      "DELETE_MESSAGE": "Estàs segur que vols eliminar la cita de {{name}}?",
+      "YES": "Sí",
+      "NO": "No"
     },
     "MIGRATION": {
       "COMPLETED": "Migració completada",
       "MESSAGE": "S'han migrat {{count}} cites antigues al teu compte. Ara pots veure els detalls de totes les teves cites."
-    }
+    },
+    "NO_ACTIONS_AVAILABLE": "No hi ha accions disponibles",
+    "NO_ACTIONS_AVAILABLE_MESSAGE": "Aquesta cita no es pot editar o eliminar. Pot ser que ja hagi passat, no siguis el propietari, o no tenguis els permisos necessaris."
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",
@@ -201,7 +222,8 @@
       "REGISTER_ERROR": "Error al registrar",
       "GOOGLE_LOGIN_ERROR": "Error al iniciar sessió amb Google",
       "GOOGLE_REGISTER_ERROR": "Error al registrar amb Google"
-    }
+    },
+    "SESSION_REQUIRED": "Sessió requerida"
   },
   "NAVIGATION": {
     "HOME": "Inici",
@@ -281,6 +303,9 @@
     "SELECT_SERVICE": "Nova reserva",
     "SELECT_DATE": "Seleccionar data",
     "SELECT_TIME": "Seleccionar hora",
+    "SELECT_DATE_DESCRIPTION": "Tria la data que més t'ajusti",
+    "SELECT_TIME_DESCRIPTION": "Selecciona l'hora disponible que prefereixis",
+    "SELECT_SERVICE_DESCRIPTION": "Elegeix el servei que necessites",
     "BOOK_NOW": "Reservar ara",
     "AVAILABLE_TIMES": "Horaris disponibles",
     "NO_AVAILABLE_TIMES": "No hi ha horaris disponibles",
@@ -354,6 +379,19 @@
     "SYSTEM_SETTINGS": "Configuració del sistema",
     "SYSTEM_SETTINGS_DESCRIPTION": "Configura els paràmetres del sistema i l'aplicació",
     "ACCESS_SETTINGS": "Accedir a configuració",
+    "SERVICES": {
+      "TITLE": "Gestió de Serveis",
+      "SUBTITLE": "Crea, edita i elimina serveis de perruqueria",
+      "ADD_SERVICE": "Afegir Servei",
+      "CREATE_SERVICE": "Crear Servei",
+      "EDIT_SERVICE": "Editar Servei",
+      "NAME_PLACEHOLDER": "Ex: Tall masculí",
+      "DESCRIPTION_PLACEHOLDER": "Descriu el servei...",
+      "SELECT_CATEGORY": "Selecciona una categoria",
+      "SELECT_ICON": "Selecciona una icona",
+      "MARK_AS_POPULAR": "Marcar com a popular",
+      "NO_SERVICES_IN_CATEGORY": "No hi ha serveis en aquesta categoria"
+    },
     "SETTINGS_PAGE": {
       "TITLE": "Configuració del sistema",
       "SUBTITLE": "Gestiona els paràmetres de l'aplicació",
@@ -455,5 +493,8 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "Seleccionar idioma"
-  }
+  },
+  "NO_DATE_SET": "Data no establerta",
+  "VIEW_CALENDAR_APPOINTMENTS": "Visualitza les cites en format calendari",
+  "BOOKINGS_FOR_DATE": "Reserves per a la data"
 }

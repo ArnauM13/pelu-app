@@ -49,20 +49,25 @@
       "CLEAR_FILTERS": "Clear filters",
       "BOOK_APPOINTMENT": "Book appointment",
       "ADD_BOOKING": "Add booking",
-      "CONFIRM_BOOKING": "Confirm booking"
+      "CONFIRM_BOOKING": "Confirm booking",
+      "CONTINUE": "Continue",
+      "LOGIN": "Sign in",
+      "TRY_AGAIN": "Try again"
     },
     "STATUS": {
       "LOADING": "Loading...",
-      "ERROR": "Error",
-      "SUCCESS": "Success",
-      "WARNING": "Warning",
-      "INFO": "Information",
+      "STATUS_ERROR": "Error",
+      "STATUS_SUCCESS": "Success",
+      "STATUS_WARNING": "Warning",
+      "STATUS_INFO": "Information",
       "AVAILABLE": "Available",
       "OCCUPIED": "Occupied",
       "ACTIVE": "Active",
-      "INACTIVE": "Inactive"
+      "INACTIVE": "Inactive",
+      "RESERVED": "Reserved"
     },
     "TIME": {
+      "HOUR": "Hour",
       "TODAY": "Today",
       "TOMORROW": "Tomorrow",
       "PAST": "Past",
@@ -134,9 +139,10 @@
     "MISSING_CLIENT_NAME": "Please enter the client name",
     "MISSING_SERVICE": "Please select a service",
     "TOTAL": "Total",
+    "TOTAL_PRICE": "Total price",
     "NO_DATA": "No data",
-    "LOADING": "Loading...",
-    "ERROR": "Error",
+    "GENERAL_LOADING": "Loading...",
+    "GENERAL_ERROR": "Error",
     "EMAIL": "Email",
     "ENTER_EMAIL": "Enter your email",
     "NOTES": "Notes",
@@ -148,20 +154,47 @@
     "CLIENT_INFORMATION": "Client Information",
     "BOOKING_INFORMATION": "Booking Information",
     "NAME": "Name",
-    "TIME": "Time",
-    "STATUS": "Status",
     "DURATION": "Duration",
     "PRICE": "Price",
     "ERROR_LOADING_BOOKING": "Error loading booking",
     "BOOKING_NOT_FOUND": "Booking not found",
     "BOOKING_NOT_FOUND_MESSAGE": "The booking you are looking for could not be found",
+    "ERROR_PAST_BOOKING": "Cannot create bookings in the past",
+    "PAST_DATE": "Past date",
+    "PAST_TIME": "Past time",
+    "ERRORS": {
+      "GENERIC_ERROR": "An unexpected error occurred. Please try again.",
+      "NETWORK_ERROR": "Connection error. Please check your internet connection and try again.",
+      "AUTH_ERROR": "Authentication error. Please log in again.",
+      "FIREBASE_ERROR": "Database error. Please try again.",
+      "VALIDATION_ERROR": "Validation error. Please check the entered data.",
+      "PERMISSION_ERROR": "You don't have permission to perform this action.",
+      "NOT_FOUND_ERROR": "The requested resource was not found.",
+      "TIMEOUT_ERROR": "The operation took too long. Please try again.",
+      "SERVER_ERROR": "Server error. Please try again later.",
+      "CLIENT_ERROR": "Error in sent data. Please verify the entered information.",
+      "UNKNOWN_ERROR": "Unknown error. Please contact technical support."
+    },
+    "POPULAR": "Popular",
     "VALIDATION": {
       "INVALID_EMAIL": "Please enter a valid email"
+    },
+    "DELETE_CONFIRMATION_MESSAGE": "Are you sure you want to delete the appointment for {{name}}?",
+    "DELETE_SUCCESS": "Appointment for {{name}} has been deleted successfully",
+    "CONFIRMATION": {
+      "TITLE": "Confirmation",
+      "MESSAGE": "Are you sure you want to perform this action?",
+      "DELETE_TITLE": "Delete appointment",
+      "DELETE_MESSAGE": "Are you sure you want to delete the appointment for {{name}}?",
+      "YES": "Yes",
+      "NO": "No"
     },
     "MIGRATION": {
       "COMPLETED": "Migration completed",
       "MESSAGE": "{{count}} old appointments have been migrated to your account. You can now view details of all your appointments."
-    }
+    },
+    "NO_ACTIONS_AVAILABLE": "No actions available",
+    "NO_ACTIONS_AVAILABLE_MESSAGE": "This appointment cannot be edited or deleted. It may have already passed, you may not be the owner, or you may not have the necessary permissions."
   },
   "AUTH": {
     "EMAIL": "Email",
@@ -197,7 +230,8 @@
       "REGISTER_ERROR": "Register error",
       "GOOGLE_LOGIN_ERROR": "Google login error",
       "GOOGLE_REGISTER_ERROR": "Google register error"
-    }
+    },
+    "SESSION_REQUIRED": "Session required"
   },
   "NAVIGATION": {
     "HOME": "Home",
@@ -278,6 +312,9 @@
     "SELECT_SERVICE": "New booking",
     "SELECT_DATE": "Select date",
     "SELECT_TIME": "Select time",
+    "SELECT_DATE_DESCRIPTION": "Choose the date that best suits you",
+    "SELECT_TIME_DESCRIPTION": "Select the available time you prefer",
+    "SELECT_SERVICE_DESCRIPTION": "Choose the service you need",
     "BOOK_NOW": "Book now",
     "AVAILABLE_TIMES": "Available times",
     "NO_AVAILABLE_TIMES": "No available times",
@@ -352,6 +389,19 @@
     "SYSTEM_SETTINGS": "System settings",
     "SYSTEM_SETTINGS_DESCRIPTION": "Configure system and application parameters",
     "ACCESS_SETTINGS": "Access settings",
+    "SERVICES": {
+      "TITLE": "Services Management",
+      "SUBTITLE": "Create, edit and delete hairdressing services",
+      "ADD_SERVICE": "Add Service",
+      "CREATE_SERVICE": "Create Service",
+      "EDIT_SERVICE": "Edit Service",
+      "NAME_PLACEHOLDER": "Ex: Male haircut",
+      "DESCRIPTION_PLACEHOLDER": "Describe the service...",
+      "SELECT_CATEGORY": "Select a category",
+      "SELECT_ICON": "Select an icon",
+      "MARK_AS_POPULAR": "Mark as popular",
+      "NO_SERVICES_IN_CATEGORY": "No services in this category"
+    },
     "SETTINGS_PAGE": {
       "TITLE": "System settings",
       "SUBTITLE": "Manage application parameters",

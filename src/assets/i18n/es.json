@@ -49,20 +49,24 @@
       "CLEAR_FILTERS": "Limpiar filtros",
       "BOOK_APPOINTMENT": "Reservar cita",
       "ADD_BOOKING": "Añadir reserva",
-      "CONFIRM_BOOKING": "Confirmar reserva"
+      "CONFIRM_BOOKING": "Confirmar reserva",
+      "CONTINUE": "Continuar",
+      "LOGIN": "Iniciar sesión",
+      "TRY_AGAIN": "Intentar de nuevo"
     },
     "STATUS": {
       "LOADING": "Cargando...",
-      "ERROR": "Error",
-      "SUCCESS": "Éxito",
-      "WARNING": "Advertencia",
-      "INFO": "Información",
+      "STATUS_ERROR": "Error",
+      "STATUS_SUCCESS": "Éxito",
+      "STATUS_WARNING": "Advertencia",
+      "STATUS_INFO": "Información",
       "AVAILABLE": "Disponible",
       "OCCUPIED": "Ocupado",
       "ACTIVE": "Activo",
       "INACTIVE": "Inactivo"
     },
     "TIME": {
+      "HOUR": "Hora",
       "TODAY": "Hoy",
       "TOMORROW": "Mañana",
       "PAST": "Pasado",
@@ -134,9 +138,10 @@
     "MISSING_CLIENT_NAME": "Por favor, introduce el nombre del cliente",
     "MISSING_SERVICE": "Por favor, selecciona un servicio",
     "TOTAL": "Total",
+    "TOTAL_PRICE": "Precio total",
     "NO_DATA": "No hay datos",
-    "LOADING": "Cargando...",
-    "ERROR": "Error",
+    "GENERAL_LOADING": "Cargando...",
+    "GENERAL_ERROR": "Error",
     "EMAIL": "Email",
     "ENTER_EMAIL": "Introduce tu email",
     "NOTES": "Notas",
@@ -148,20 +153,47 @@
     "CLIENT_INFORMATION": "Información del cliente",
     "BOOKING_INFORMATION": "Información de la reserva",
     "NAME": "Nombre",
-    "TIME": "Hora",
-    "STATUS": "Estado",
     "DURATION": "Duración",
     "PRICE": "Precio",
     "ERROR_LOADING_BOOKING": "Error al cargar la reserva",
     "BOOKING_NOT_FOUND": "Reserva no encontrada",
     "BOOKING_NOT_FOUND_MESSAGE": "No se pudo encontrar la reserva que buscas",
+    "ERROR_PAST_BOOKING": "No se pueden crear reservas en el pasado",
+    "PAST_DATE": "Fecha pasada",
+    "PAST_TIME": "Hora pasada",
+    "ERRORS": {
+      "GENERIC_ERROR": "Se ha producido un error inesperado. Por favor, inténtalo de nuevo.",
+      "NETWORK_ERROR": "Error de conexión. Verifica tu conexión a internet e inténtalo de nuevo.",
+      "AUTH_ERROR": "Error de autenticación. Por favor, vuelve a iniciar sesión.",
+      "FIREBASE_ERROR": "Error de base de datos. Por favor, inténtalo de nuevo.",
+      "VALIDATION_ERROR": "Error de validación. Verifica los datos introducidos.",
+      "PERMISSION_ERROR": "No tienes permisos para realizar esta acción.",
+      "NOT_FOUND_ERROR": "No se ha encontrado el recurso solicitado.",
+      "TIMEOUT_ERROR": "La operación ha tardado demasiado tiempo. Por favor, inténtalo de nuevo.",
+      "SERVER_ERROR": "Error del servidor. Por favor, inténtalo de nuevo más tarde.",
+      "CLIENT_ERROR": "Error en los datos enviados. Verifica la información introducida.",
+      "UNKNOWN_ERROR": "Error desconocido. Por favor, contacta con el soporte técnico."
+    },
+    "POPULAR": "Popular",
     "VALIDATION": {
       "INVALID_EMAIL": "Por favor, introduce un email válido"
+    },
+    "DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar la cita de {{name}}?",
+    "DELETE_SUCCESS": "Se ha eliminado la cita de {{name}} correctamente",
+    "CONFIRMATION": {
+      "TITLE": "Confirmación",
+      "MESSAGE": "¿Estás seguro de que quieres realizar esta acción?",
+      "DELETE_TITLE": "Eliminar cita",
+      "DELETE_MESSAGE": "¿Estás seguro de que quieres eliminar la cita de {{name}}?",
+      "YES": "Sí",
+      "NO": "No"
     },
     "MIGRATION": {
       "COMPLETED": "Migración completada",
       "MESSAGE": "Se han migrado {{count}} citas antiguas a tu cuenta. Ahora puedes ver los detalles de todas tus citas."
-    }
+    },
+    "NO_ACTIONS_AVAILABLE": "No hay acciones disponibles",
+    "NO_ACTIONS_AVAILABLE_MESSAGE": "Esta cita no se puede editar o eliminar. Puede que ya haya pasado, no seas el propietario, o no tengas los permisos necesarios."
   },
   "AUTH": {
     "EMAIL": "Correo electrónico",
@@ -197,7 +229,8 @@
       "REGISTER_ERROR": "Error al registrar",
       "GOOGLE_LOGIN_ERROR": "Error al iniciar sesión con Google",
       "GOOGLE_REGISTER_ERROR": "Error al registrar con Google"
-    }
+    },
+    "SESSION_REQUIRED": "Sesión requerida"
   },
   "NAVIGATION": {
     "HOME": "Inicio",
@@ -277,6 +310,9 @@
     "SELECT_SERVICE": "Nueva reserva",
     "SELECT_DATE": "Seleccionar fecha",
     "SELECT_TIME": "Seleccionar hora",
+    "SELECT_DATE_DESCRIPTION": "Elige la fecha que mejor te convenga",
+    "SELECT_TIME_DESCRIPTION": "Selecciona la hora disponible que prefieras",
+    "SELECT_SERVICE_DESCRIPTION": "Elige el servicio que necesitas",
     "BOOK_NOW": "Reservar ahora",
     "AVAILABLE_TIMES": "Horarios disponibles",
     "NO_AVAILABLE_TIMES": "No hay horarios disponibles",
