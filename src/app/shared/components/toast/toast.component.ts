@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { LoggerService } from '../../services/logger.service';
 
 export interface ToastData {
   appointmentId?: string;
@@ -105,6 +106,7 @@ export class ToastComponent {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly logger = inject(LoggerService);
 
   readonly toastKey = 'pelu-toast';
 
@@ -148,25 +150,45 @@ export class ToastComponent {
       this.clearToast();
       action();
     } catch (error) {
-      console.error('Error executing toast action:', error);
+      this.logger.error(error, {
+        component: 'ToastComponent',
+        method: 'executeAction'
+      }, false); // No mostrar toast per evitar recursió
     }
   }
 
   viewAppointmentDetail(appointmentId: string) {
-    console.log('viewAppointmentDetail called with:', appointmentId);
+    // Log de l'acció de l'usuari
+    this.logger.userAction('viewAppointmentDetail', {
+      component: 'ToastComponent',
+      method: 'viewAppointmentDetail',
+      userId: this.authService.user()?.uid,
+      data: { appointmentId }
+    });
 
     // Amagar el toast automàticament
     this.clearToast();
 
     const user = this.authService.user();
     if (!user?.uid) {
-      console.log('No user found');
+      this.logger.warn('No user found when trying to view appointment detail', {
+        component: 'ToastComponent',
+        method: 'viewAppointmentDetail',
+        data: { appointmentId }
+      });
       return;
     }
 
     const clientId = user.uid;
     const uniqueId = `${clientId}-${appointmentId}`;
-    console.log('Navigating to:', uniqueId);
+
+    this.logger.info('Navigating to appointment detail', {
+      component: 'ToastComponent',
+      method: 'viewAppointmentDetail',
+      userId: user.uid,
+      data: { appointmentId, uniqueId }
+    });
+
     this.router.navigate(['/appointments', uniqueId]);
   }
 }

@@ -11,6 +11,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
 import { isFutureAppointment } from '../../services';
+import { ConfirmationPopupComponent, ConfirmationData } from '../confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'pelu-appointment-detail-popup',
@@ -19,7 +20,8 @@ import { isFutureAppointment } from '../../services';
     CommonModule,
     ButtonModule,
     TranslateModule,
-    AppointmentStatusBadgeComponent
+    AppointmentStatusBadgeComponent,
+    ConfirmationPopupComponent
   ],
   templateUrl: './appointment-detail-popup.component.html',
   styleUrls: ['./appointment-detail-popup.component.scss']
@@ -41,6 +43,10 @@ export class AppointmentDetailPopupComponent implements OnInit {
   readonly isLoading = signal<boolean>(false);
   readonly loadError = signal<boolean>(false);
   private loadedBooking = signal<Booking | null>(null);
+
+  // Confirmation popup state
+  readonly showConfirmationPopup = signal<boolean>(false);
+  readonly confirmationData = signal<ConfirmationData | null>(null);
 
   // Inject services
   constructor(
@@ -75,11 +81,24 @@ export class AppointmentDetailPopupComponent implements OnInit {
     if (!currentUser?.uid) return false;
 
     // Check if user owns the booking or if it's an anonymous booking
-    return booking.uid === currentUser.uid || !booking.uid;
+    const isOwner = booking.uid === currentUser.uid || !booking.uid;
+
+    // Only allow editing if it's a future appointment
+    return isOwner && this.isFuture();
   });
 
   readonly canDelete = computed(() => {
-    return this.canEdit();
+    const booking = this.currentBooking();
+    if (!booking) return false;
+
+    const currentUser = this.authService.user();
+    if (!currentUser?.uid) return false;
+
+    // Check if user owns the booking or if it's an anonymous booking
+    const isOwner = booking.uid === currentUser.uid || !booking.uid;
+
+    // Only allow deletion if it's a future appointment
+    return isOwner && this.isFuture();
   });
 
   readonly isFuture = computed(() => {
@@ -113,34 +132,45 @@ export class AppointmentDetailPopupComponent implements OnInit {
     if (this.isClosing()) return;
 
     this.isClosing.set(true);
-    setTimeout(() => {
-      this.closed.emit();
-      this.isClosing.set(false);
-    }, 200);
+    // Emit immediately to avoid timing issues
+    this.closed.emit();
+    this.isClosing.set(false);
   }
 
   onEdit(): void {
     const booking = this.currentBooking();
     if (booking) {
       this.editRequested.emit(booking);
+      this.onClose();
     }
   }
 
-  async onDelete(): Promise<void> {
+  onDelete(): void {
     const booking = this.currentBooking();
     if (!booking || !booking.id) {
       this.toastService.showGenericError('Booking not found');
+      this.onClose();
       return;
     }
 
-    // Confirm deletion
-    const confirmed = confirm(
-      this.translateService.instant('COMMON.DELETE_CONFIRMATION_MESSAGE', {
+    // Show confirmation popup
+    this.confirmationData.set({
+      title: this.translateService.instant('COMMON.CONFIRMATION.DELETE_TITLE'),
+      message: this.translateService.instant('COMMON.CONFIRMATION.DELETE_MESSAGE', {
         name: booking.nom
-      })
-    );
+      }),
+      confirmText: this.translateService.instant('COMMON.CONFIRMATION.YES'),
+      cancelText: this.translateService.instant('COMMON.CONFIRMATION.NO'),
+      severity: 'danger'
+    });
+    this.showConfirmationPopup.set(true);
+  }
 
-    if (!confirmed) {
+  async onConfirmDelete(): Promise<void> {
+    const booking = this.currentBooking();
+    if (!booking || !booking.id) {
+      this.toastService.showGenericError('Booking not found');
+      this.onClose();
       return;
     }
 
@@ -157,18 +187,38 @@ export class AppointmentDetailPopupComponent implements OnInit {
               name: booking.nom
             })
           );
+
+          // Emit the deleted event immediately
           this.deleted.emit(booking);
+
+          // Close the confirmation popup first
+          this.showConfirmationPopup.set(false);
+          this.confirmationData.set(null);
+
+          // Close the main popup immediately without delay
           this.onClose();
         } else {
           this.toastService.showGenericError('Error deleting booking');
+          // Close the confirmation popup on error
+          this.showConfirmationPopup.set(false);
+          this.confirmationData.set(null);
         }
       } catch (error) {
         console.error('Error deleting booking:', error);
         this.toastService.showGenericError('Error deleting booking');
+        // Close the confirmation popup on error
+        this.showConfirmationPopup.set(false);
+        this.confirmationData.set(null);
       }
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  onConfirmationCancelled(): void {
+    this.showConfirmationPopup.set(false);
+    this.confirmationData.set(null);
+    // The main popup stays open when cancelling deletion
   }
 
   onViewDetail(): void {

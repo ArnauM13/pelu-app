@@ -123,3 +123,10 @@ export function isFutureAppointment(appointment: { data: string, hora: string })
   const citaDate = new Date(`${appointment.data}T${appointment.hora}:00`);
   return citaDate > now;
 }
+
+export function isPastDateTime(data: string, hora: string): boolean {
+  if (!data || !hora) return false;
+  const now = new Date();
+  const appointmentDateTime = new Date(`${data}T${hora}:00`);
+  return appointmentDateTime <= now;
+}

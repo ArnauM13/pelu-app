@@ -99,7 +99,9 @@ export class DetailViewComponent implements OnChanges {
   }
 
   get hasAvailableActions() {
-    return this.filteredActions.length > 0;
+    // Només mostrar accions si hi ha accions disponibles (excloent el botó de tornar)
+    // i si no estem en mode edició
+    return this.filteredActions.length > 0 && !this.isEditing;
   }
   get editForm() { return this.config?.editForm || {}; }
   get isEditing() { return this.config?.isEditing; }
@@ -209,6 +211,37 @@ export class DetailViewComponent implements OnChanges {
   onCancelEdit() { this.cancelEdit.emit(); }
   onDelete() { this.delete.emit(); }
   onUpdateForm(field: string, value: any) { this.updateForm.emit({ field, value }); }
+
+  // Appointment action checks
+  canEditAppointment(): boolean {
+    if (this.type !== 'appointment' || !this.appointment) return false;
+
+    // Verificar que és una cita futura
+    const appointmentDate = new Date(this.appointment.data);
+    const appointmentTime = this.appointment.hora;
+    const now = new Date();
+
+    // Crear data completa de la cita
+    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
+    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    return appointmentDate > now;
+  }
+
+  canDeleteAppointment(): boolean {
+    if (this.type !== 'appointment' || !this.appointment) return false;
+
+    // Verificar que és una cita futura
+    const appointmentDate = new Date(this.appointment.data);
+    const appointmentTime = this.appointment.hora;
+    const now = new Date();
+
+    // Crear data completa de la cita
+    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
+    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    return appointmentDate > now;
+  }
 
   // Notes editing methods
   private editingNotes: any[] = [];

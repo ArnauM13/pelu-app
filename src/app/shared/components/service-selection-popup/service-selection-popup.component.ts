@@ -8,7 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
-import { Service } from '../../../core/services/services.service';
+import { Service, ServicesService } from '../../../core/services/services.service';
 
 export interface ServiceSelectionDetails {
   date: string;
@@ -37,6 +37,7 @@ export interface ServiceSelectionDetails {
 export class ServiceSelectionPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly serviceTranslationService = inject(ServiceTranslationService);
+  private readonly servicesService = inject(ServicesService);
 
   // Input signals
   @Input() set open(value: boolean) {
@@ -65,46 +66,8 @@ export class ServiceSelectionPopupComponent {
   readonly selectionDetailsComputed = computed(() => this.selectionDetailsSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal());
 
-  // Available services (mock data - replace with service call)
-  readonly availableServices = computed(() => [
-    {
-      id: '1',
-      name: 'SERVICES.NAMES.MALE_HAIRCUT',
-      description: 'Tall de cabell clàssic o modern segons les teves preferències',
-      price: 25,
-      duration: 30,
-      category: 'haircut' as const,
-      icon: '💇‍♀️',
-      popular: true
-    },
-    {
-      id: '2',
-      name: 'SERVICES.NAMES.COLORING',
-      description: 'Tintura professional amb productes de qualitat',
-      price: 45,
-      duration: 90,
-      category: 'treatment' as const,
-      icon: '🎨'
-    },
-    {
-      id: '3',
-      name: 'SERVICES.NAMES.BEARD_TRIM',
-      description: 'Arreglada de barba professional',
-      price: 20,
-      duration: 45,
-      category: 'beard' as const,
-      icon: '💅'
-    },
-    {
-      id: '4',
-      name: 'SERVICES.NAMES.SPECIAL_STYLING',
-      description: 'Pentinat especial per a ocasions especials',
-      price: 30,
-      duration: 60,
-      category: 'styling' as const,
-      icon: '🦶'
-    }
-  ]);
+  // Available services from centralized service
+  readonly availableServices = computed(() => this.servicesService.getAllServices());
 
   // Methods
   onServiceSelect(service: Service): void {
