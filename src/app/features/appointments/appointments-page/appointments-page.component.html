@@ -1,5 +1,14 @@
 <div class="container pelu-appointments-page" style="margin-top: 2rem; view-transition-name: appointments-container">
 
+  <!-- Full Screen Loading State -->
+  @if (loading()) {
+    <pelu-loading-state
+      [config]="loadingConfig">
+    </pelu-loading-state>
+  }
+
+  <!-- Main Content -->
+  @if (!loading()) {
   <!-- Statistics Cards -->
   <pelu-appointments-stats
     [stats]="appointmentStats()"
@@ -155,6 +164,7 @@
       (onDeleteBooking)="deleteAppointment($event)"
     (onClearFilters)="clearAllFilters()">
   </pelu-appointments-list>
+  }
   }
 
 </div>

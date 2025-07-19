@@ -58,7 +58,7 @@ export class AppointmentsPageComponent {
   private readonly toastService = inject(ToastService);
   private readonly appointmentService = inject(BookingService);
 
-  // Core data signals - now using Firebase
+    // Core data signals - now using Firebase
   readonly appointments = this.appointmentService.bookings;
   private readonly viewModeSignal = signal<'list' | 'calendar'>('list');
   private readonly selectedDateSignal = signal<Date | null>(null);
@@ -206,6 +206,9 @@ export class AppointmentsPageComponent {
     mine: this.myAppointments()
   }));
 
+  // Loading state
+  readonly loading = computed(() => this.appointmentService.isLoading());
+
   readonly isFutureAppointment = isFutureAppointment;
 
   get loadingConfig() {
@@ -213,11 +216,12 @@ export class AppointmentsPageComponent {
       message: 'COMMON.STATUS.LOADING',
       spinnerSize: 'large' as const,
       showMessage: true,
-      fullHeight: false
+      fullHeight: true,
+      overlay: true
     };
   }
 
-  constructor(private serviceColorsService: ServiceColorsService) {
+    constructor(private serviceColorsService: ServiceColorsService) {
     // Removed localStorage loading - now using Firebase
   }
 

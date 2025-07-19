@@ -204,6 +204,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     const cita = this.appointment();
     if (!cita) return false;
 
+    // Verificar que l'usuari actual és el propietari
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) return false;
+
+    // Verificar propietat
+    const isOwner = cita.uid === currentUser.uid;
+    if (!isOwner) return false;
+
     // Si és una reserva (té editToken), sempre es pot editar
     if (cita.editToken) {
       return true;
@@ -216,6 +224,14 @@ export class AppointmentDetailPageComponent implements OnInit {
   readonly canDelete = computed(() => {
     const cita = this.appointment();
     if (!cita) return false;
+
+    // Verificar que l'usuari actual és el propietari
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) return false;
+
+    // Verificar propietat
+    const isOwner = cita.uid === currentUser.uid;
+    if (!isOwner) return false;
 
     // No permetem eliminar reserves des d'aquí
     if (cita.editToken) {
@@ -234,7 +250,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     const canSave = this.canSave();
     const canEditOrDelete = this.canEditOrDelete();
 
-    // Build actions reactively
+    // Build actions reactively - només el botó de tornar
     const actions: DetailAction[] = [
       {
         label: 'COMMON.ACTIONS.BACK',
@@ -243,26 +259,6 @@ export class AppointmentDetailPageComponent implements OnInit {
         onClick: () => this.goBack()
       }
     ];
-
-    // Show edit action when not editing and can edit
-    if (!isEditing && canEditOrDelete) {
-      actions.push({
-        label: 'COMMON.ACTIONS.EDIT',
-        icon: '✏️',
-        type: 'primary',
-        onClick: () => this.startEditing()
-      });
-    }
-
-    // Show delete action when not editing and can delete
-    if (!isEditing && this.canDelete()) {
-      actions.push({
-        label: 'COMMON.ACTIONS.DELETE',
-        icon: '🗑️',
-        type: 'danger',
-        onClick: () => this.deleteAppointment()
-      });
-    }
 
     return {
       type: 'appointment',
@@ -358,22 +354,16 @@ export class AppointmentDetailPageComponent implements OnInit {
         }
       }
 
-      // If not found in user bookings or user is not authenticated, try anonymous loading
-      let appointment = await this.#appointmentService.loadAnonymousBooking(token);
-
-      if (!appointment) {
-        // Fallback to booking service
-        const booking = await this.#bookingService.loadAnonymousBooking(token);
-
-        if (!booking) {
-          this.#notFoundSignal.set(true);
-          this.#loadingSignal.set(false);
-          return;
-        }
-
-        // Convertir la reserva al format de cita
-        appointment = this.convertBookingToAppointment(booking);
+      // Load booking by token for authenticated users
+      const booking = await this.#bookingService.getBookingById(token);
+      if (!booking) {
+        this.#notFoundSignal.set(true);
+        this.#loadingSignal.set(false);
+        return;
       }
+
+      // Convertir la reserva al format de cita
+      const appointment = this.convertBookingToAppointment(booking);
 
       if (appointment) {
         this.#appointmentSignal.set(appointment);
@@ -562,15 +552,13 @@ export class AppointmentDetailPageComponent implements OnInit {
       serviceId: form.serviceId || ''
     };
 
-    let success = false;
-
-    // If user is authenticated, use the authenticated update method
-    if (currentUser?.uid) {
-      success = await this.#bookingService.updateBooking(cita.id!, updates);
-    } else {
-      // If user is not authenticated, use the anonymous update method
-      success = await this.#bookingService.updateAnonymousBooking(cita.id!, updates, token);
+    // Only authenticated users can update bookings
+    if (!currentUser?.uid) {
+      this.#toastService.showError('No s\'ha pogut guardar la reserva. Si us plau, inicia sessió.');
+      return;
     }
+
+    const success = await this.#bookingService.updateBooking(cita.id!, updates);
 
     if (success) {
       // Actualitzar l'estat local
