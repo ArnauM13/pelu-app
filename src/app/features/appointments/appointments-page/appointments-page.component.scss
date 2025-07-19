@@ -1218,49 +1218,11 @@ pelu-appointments-list {
   }
 }
 
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(59, 130, 246, 0.2);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: var(--z-base);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.calendar-placeholder p {
-  color: var(--text-color-light);
-  font-size: 1rem;
-  margin: 0;
-  font-weight: 500;
-  position: relative;
-  z-index: 1;
-}
-
 // Responsive loader styles
 @media (max-width: 768px) {
   .calendar-placeholder {
     padding: 2rem 1rem;
     min-height: 250px;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border-width: 3px;
-    margin-bottom: 1rem;
-  }
-
-  .calendar-placeholder p {
-    font-size: 0.9rem;
   }
 
   .appointments-section-separator {
@@ -1277,17 +1239,6 @@ pelu-appointments-list {
   .calendar-placeholder {
     padding: 1.5rem 1rem;
     min-height: 200px;
-  }
-
-  .loading-spinner {
-    width: 35px;
-    height: 35px;
-    border-width: 3px;
-    margin-bottom: 0.75rem;
-  }
-
-  .calendar-placeholder p {
-    font-size: 0.875rem;
   }
 
   .appointments-section-separator {

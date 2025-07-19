@@ -6,12 +6,12 @@ import { CardModule } from 'primeng/card';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'pelu-landing-page',
+  selector: 'pelu-landing',
   standalone: true,
   imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule],
-  templateUrl: './landing-page.component.html',
-  styleUrls: ['./landing-page.component.scss']
+  templateUrl: './landing.component.html',
+  styleUrls: ['./landing.component.scss']
 })
-export class LandingPageComponent {
+export class LandingComponent {
   readonly year = computed(() => new Date().getFullYear());
 }

@@ -21,6 +21,7 @@ import { AppointmentsStatsComponent, AppointmentStats } from '../components/appo
 import { AppointmentsListComponent, Appointment } from '../components/appointments-list/appointments-list.component';
 import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { isFutureAppointment } from '../../../shared/services';
@@ -43,7 +44,8 @@ import { isFutureAppointment } from '../../../shared/services';
     AppointmentsStatsComponent,
     AppointmentsListComponent,
     AppointmentsViewControlsComponent,
-    NextAppointmentComponent
+    NextAppointmentComponent,
+    LoadingStateComponent
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss']
@@ -204,6 +206,15 @@ export class AppointmentsPageComponent {
   }));
 
   readonly isFutureAppointment = isFutureAppointment;
+
+  get loadingConfig() {
+    return {
+      message: 'COMMON.STATUS.LOADING',
+      spinnerSize: 'large' as const,
+      showMessage: true,
+      fullHeight: false
+    };
+  }
 
   constructor(private serviceColorsService: ServiceColorsService) {
     this.loadAppointments();

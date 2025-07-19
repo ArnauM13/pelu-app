@@ -1,5 +1,10 @@
 <div class="detail-view-container" [style.view-transition-name]="viewTransitionName" [style.background]="serviceGradient">
-  <!-- Loading State - Now handled by global loader service -->
+  <!-- Loading State -->
+  @if (loading) {
+    <pelu-loading-state
+      [config]="loadingConfig">
+    </pelu-loading-state>
+  }
 
   <!-- Not Found State -->
   @if (notFound) {

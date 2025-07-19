@@ -6,6 +6,7 @@ import { CardComponent } from '../card/card.component';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { isFutureAppointment } from '../../services';
 
 export interface Appointment {
@@ -29,7 +30,8 @@ export interface Appointment {
     CardComponent,
     CalendarComponent,
     AppointmentStatusBadgeComponent,
-    NotFoundStateComponent
+    NotFoundStateComponent,
+    LoadingStateComponent
   ],
   template: `
     @if (appointments().length === 0) {
@@ -56,8 +58,9 @@ export interface Appointment {
             </pelu-calendar-component>
           } @placeholder {
             <div class="calendar-placeholder">
-              <div class="loading-spinner"></div>
-              <p>{{ 'COMMON.LOADING' | translate }}</p>
+              <pelu-loading-state
+                [config]="loadingConfig">
+              </pelu-loading-state>
             </div>
           }
         </div>
@@ -205,21 +208,6 @@ export interface Appointment {
       justify-content: center;
       padding: 2rem;
       color: var(--text-color-secondary);
-    }
-
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--surface-border);
-      border-top: 4px solid var(--primary-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
 
     .selected-date-appointments {
@@ -462,6 +450,15 @@ export class CalendarAppointmentsViewComponent {
       title: 'COMMON.NO_APPOINTMENTS',
       message: 'COMMON.NO_APPOINTMENTS_SCHEDULED',
       showButton: false
+    };
+  }
+
+  get loadingConfig() {
+    return {
+      message: 'COMMON.LOADING',
+      spinnerSize: 'large' as const,
+      showMessage: true,
+      fullHeight: false
     };
   }
 

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { LandingPageComponent } from './features/landing-page/landing-page.component';
+import { LandingComponent } from './features/landing/landing.component';
 import { LoginPageComponent } from './features/auth/login-page/login-page.component';
 import { RegisterPageComponent } from './features/auth/register-page/register-page.component';
 import { PerfilPageComponent } from './features/profile/perfil-page/perfil-page.component';
@@ -30,7 +30,7 @@ export const routes: Routes = [
   // All authenticated routes - accessible to all roles
   {
     path: '',
-    component: LandingPageComponent,
+    component: LandingComponent,
     canActivate: [authGuard],
     data: { viewTransitionName: 'landing' }
   },
