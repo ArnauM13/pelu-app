@@ -20,6 +20,7 @@ import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { isFutureAppointment } from '../../../shared/services';
 
 interface AppointmentForm {
@@ -63,6 +64,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   #authService = inject(AuthService);
   #currencyService = inject(CurrencyService);
   #toastService = inject(ToastService);
+  #bookingService = inject(BookingService);
 
   // Core data signals
   #appointmentSignal = signal<any>(null);
@@ -199,7 +201,28 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   readonly canEditOrDelete = computed(() => {
     const cita = this.appointment();
-    return !!cita && isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
+    if (!cita) return false;
+
+    // Si és una reserva (té editToken), sempre es pot editar
+    if (cita.editToken) {
+      return true;
+    }
+
+    // Per a cites normals, verificar que és una cita futura
+    return isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
+  });
+
+  readonly canDelete = computed(() => {
+    const cita = this.appointment();
+    if (!cita) return false;
+
+    // No permetem eliminar reserves des d'aquí
+    if (cita.editToken) {
+      return false;
+    }
+
+    // Per a cites normals, verificar que és una cita futura
+    return isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
   });
 
     // Detail page configuration
@@ -220,7 +243,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       }
     ];
 
-    // Show edit/delete actions only when not editing
+    // Show edit action when not editing and can edit
     if (!isEditing && canEditOrDelete) {
       actions.push({
         label: 'COMMON.ACTIONS.EDIT',
@@ -228,6 +251,10 @@ export class AppointmentDetailPageComponent implements OnInit {
         type: 'primary',
         onClick: () => this.startEditing()
       });
+    }
+
+    // Show delete action when not editing and can delete
+    if (!isEditing && this.canDelete()) {
       actions.push({
         label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
@@ -270,8 +297,10 @@ export class AppointmentDetailPageComponent implements OnInit {
     });
   }
 
-      private loadAppointment() {
+      private async loadAppointment() {
     const uniqueId = this.#route.snapshot.paramMap.get('id');
+    const token = this.#route.snapshot.queryParams['token'];
+    const editMode = this.#route.snapshot.queryParams['edit'] === 'true';
 
     if (!uniqueId) {
       this.#notFoundSignal.set(true);
@@ -279,6 +308,49 @@ export class AppointmentDetailPageComponent implements OnInit {
       return;
     }
 
+    // Si hi ha un token, intentem carregar una reserva
+    if (token) {
+      await this.loadBookingByToken(token);
+      // Si estem en mode edició, iniciem l'edició automàticament
+      if (editMode) {
+        setTimeout(() => this.startEditing(), 100);
+      }
+      return;
+    }
+
+    // Si l'ID comença amb "booking-", és una reserva sense token (no hauria de passar)
+    if (uniqueId.startsWith('booking-')) {
+      this.#notFoundSignal.set(true);
+      this.#loadingSignal.set(false);
+      return;
+    }
+
+    // Sinó, carreguem una cita normal
+    await this.loadAppointmentById(uniqueId);
+  }
+
+  private async loadBookingByToken(token: string) {
+    try {
+      const booking = await this.#bookingService.getBookingByToken(token);
+
+      if (!booking) {
+        this.#notFoundSignal.set(true);
+        this.#loadingSignal.set(false);
+        return;
+      }
+
+      // Convertir la reserva al format de cita
+      const appointment = this.convertBookingToAppointment(booking);
+      this.#appointmentSignal.set(appointment);
+      this.#loadingSignal.set(false);
+    } catch (error) {
+      console.error('Error loading booking by token:', error);
+      this.#notFoundSignal.set(true);
+      this.#loadingSignal.set(false);
+    }
+  }
+
+  private async loadAppointmentById(uniqueId: string) {
     const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
 
     // Parsegem l'ID únic: format "clientId-appointmentId"
@@ -333,6 +405,26 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.#loadingSignal.set(false);
   }
 
+  private convertBookingToAppointment(booking: any): any {
+    return {
+      id: booking.id,
+      nom: booking.nom,
+      data: booking.data,
+      hora: booking.hora,
+      notes: booking.notes || '',
+      servei: booking.serviceName,
+      serviceName: booking.serviceName,
+      serviceId: booking.serviceId,
+      preu: booking.price,
+      duration: booking.duration,
+      status: booking.status,
+      userId: booking.uid,
+      editToken: booking.editToken,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt
+    };
+  }
+
   startEditing() {
     const cita = this.appointment();
     if (!cita) return;
@@ -366,12 +458,57 @@ export class AppointmentDetailPageComponent implements OnInit {
     });
   }
 
-  saveAppointment() {
+  async saveAppointment() {
     const cita = this.appointment();
     const form = this.editForm();
 
     if (!cita || !this.canSave()) return;
 
+    // Si és una reserva (té editToken), desem via BookingService
+    if (cita.editToken) {
+      await this.saveBooking(cita, form);
+      return;
+    }
+
+    // Sinó, desem com a cita normal
+    await this.saveAppointmentToLocalStorage(cita, form);
+  }
+
+  private async saveBooking(cita: any, form: any) {
+    const token = this.#route.snapshot.queryParams['token'];
+
+    if (!token) {
+      this.#toastService.showError('No s\'ha pogut guardar la reserva. Token invàlid.');
+      return;
+    }
+
+    const updates = {
+      nom: form.nom.trim(),
+      data: form.data,
+      hora: form.hora,
+      notes: form.notes?.trim() || '',
+      serviceName: form.serviceName?.trim() || '',
+      serviceId: form.serviceId || ''
+    };
+
+    const success = await this.#bookingService.updateBooking(cita.id!, updates, token);
+
+    if (success) {
+      // Actualitzar l'estat local
+      const updatedAppointment = {
+        ...cita,
+        ...updates
+      };
+      this.#appointmentSignal.set(updatedAppointment);
+      this.#isEditingSignal.set(false);
+
+      // Show success message
+      const clientName = updatedAppointment.nom || 'Client';
+      this.#toastService.showAppointmentUpdated(clientName);
+    }
+  }
+
+  private async saveAppointmentToLocalStorage(cita: any, form: any) {
     const user = this.#authService.user();
     if (!user) {
       this.#toastService.showError('No s\'ha pogut guardar la cita. Si us plau, inicia sessió.');
@@ -414,6 +551,12 @@ export class AppointmentDetailPageComponent implements OnInit {
   deleteAppointment() {
     const cita = this.appointment();
     if (!cita) return;
+
+    // Si és una reserva (té editToken), no permetem eliminar des d'aquí
+    if (cita.editToken) {
+      this.#toastService.showError('No es pot eliminar una reserva des d\'aquesta pàgina.');
+      return;
+    }
 
     const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
     const updatedAppointments = appointments.filter((app: any) => app.id !== cita.id);

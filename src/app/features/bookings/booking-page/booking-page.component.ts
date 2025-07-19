@@ -15,6 +15,7 @@ import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ServicesService, Service } from '../../../core/services/services.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
@@ -42,19 +43,21 @@ export class BookingPageComponent {
   private readonly roleService = inject(RoleService);
   private readonly servicesService = inject(ServicesService);
   private readonly authService = inject(AuthService);
+  private readonly bookingService = inject(BookingService);
   private readonly toastService = inject(ToastService);
 
   // Signals
   readonly showBookingPopupSignal = signal(false);
-  readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: ''});
+  readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
   readonly availableServicesSignal = signal<Service[]>([]);
+  readonly showLoginPromptSignal = signal(false);
 
   // Computed properties
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly availableServices = computed(() => this.availableServicesSignal());
-
-
+  readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
+  readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
 
   // Info items for the page
   readonly infoItems: InfoItemData[] = [
@@ -79,132 +82,83 @@ export class BookingPageComponent {
     this.loadServices();
   }
 
-  private loadServices() {
-    this.servicesService.getServicesWithTranslatedNamesAsync().subscribe(services => {
+  private async loadServices() {
+    try {
+      const services = this.servicesService.getAllServices();
       this.availableServicesSignal.set(services);
-    });
+    } catch (error) {
+      console.error('Error loading services:', error);
+      this.toastService.showGenericError('Error loading services');
+    }
   }
 
-
-
   onTimeSlotSelected(event: {date: string, time: string}) {
-    this.bookingDetailsSignal.set({
+    const details: BookingDetails = {
       date: event.date,
       time: event.time,
-      clientName: this.userService.userDisplayName() || ''
-    });
+      clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : ''
+    };
+
+    this.bookingDetailsSignal.set(details);
     this.showBookingPopupSignal.set(true);
   }
 
-  onBookingConfirmed(details: BookingDetails) {
-    // Here you would typically save the booking to your backend
-    console.log('Booking confirmed:', details);
-
-    // Get current user
-    const currentUser = this.authService.user();
-    if (!currentUser?.uid) {
-      this.toastService.showLoginRequired();
-      return;
+  onEditAppointment(event: AppointmentEvent) {
+    // Navigate to appointment detail or edit page
+    if (event.id) {
+      this.router.navigate(['/appointments', event.id]);
     }
-
-    // Create a new appointment
-    const appointment = {
-      id: uuidv4(),
-      data: details.date,
-      hora: details.time,
-      nom: details.clientName,
-      serviceName: details.service?.name || 'General Service',
-      duration: details.service?.duration || 60,
-      status: 'confirmed',
-      createdAt: new Date().toISOString(),
-      userId: currentUser.uid
-    };
-
-    // Save to localStorage
-    this.saveAppointmentToStorage(appointment);
-
-    // Show success message
-    this.toastService.showAppointmentCreated(details.clientName, appointment.id);
-
-    this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
   }
 
-  private saveAppointmentToStorage(appointment: any): void {
+  onDeleteAppointment(event: AppointmentEvent) {
+    // Handle appointment deletion
+    console.log('Delete appointment:', event);
+  }
+
+  async onBookingConfirmed(details: BookingDetails) {
     try {
-      // Load existing appointments
-      const existingAppointments = this.loadAppointmentsFromStorage();
+      // Create booking using the new service
+      const booking = await this.bookingService.createBooking(details);
 
-      // Add new appointment
-      existingAppointments.push(appointment);
+      if (booking) {
+        // Show success message
+        this.toastService.showAppointmentCreated(details.clientName, booking.id || '');
 
-      // Save to localStorage
-      localStorage.setItem('cites', JSON.stringify(existingAppointments));
+        // Show login prompt for anonymous users
+        if (!this.isAuthenticated()) {
+          this.showLoginPromptSignal.set(true);
+        }
+      }
 
-      console.log('Appointment saved to localStorage:', appointment);
+      this.showBookingPopupSignal.set(false);
+      this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
     } catch (error) {
-      console.error('Error saving appointment to localStorage:', error);
-      this.toastService.showNetworkError();
+      console.error('Error creating booking:', error);
+      this.toastService.showGenericError('Error creating booking');
     }
   }
-
-  private loadAppointmentsFromStorage(): any[] {
-    try {
-      const stored = localStorage.getItem('cites');
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      console.error('Error loading appointments from localStorage:', error);
-      return [];
-    }
-  }
-
-
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
+    this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
   }
 
   onClientNameChanged(name: string) {
-    const currentDetails = this.bookingDetails();
-    this.bookingDetailsSignal.set({
-      ...currentDetails,
-      clientName: name
-    });
+    this.bookingDetailsSignal.update(details => ({ ...details, clientName: name }));
   }
 
-  onEditAppointment(appointment: any) {
-    const user = this.authService.user();
-    if (!user?.uid) {
-      this.toastService.showError('No s\'ha pogut editar la cita. Si us plau, inicia sessió.');
-      return;
-    }
-
-    // Generem un ID únic combinant clientId i appointmentId
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointment.id}`;
-
-    // Naveguem a la pàgina de detall en mode edició
-    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+  onEmailChanged(email: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, email: email }));
   }
 
-  onDeleteAppointment(appointment: AppointmentEvent) {
-    // Remove from localStorage
-    try {
-      const existingAppointments = this.loadAppointmentsFromStorage();
-      const updatedAppointments = existingAppointments.filter((app: any) => app.id !== appointment.id);
-      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
-
-      // Show success message with better fallback for client name
-      const clientName = appointment.title || appointment.clientName || 'Client';
-      this.toastService.showAppointmentDeleted(clientName);
-    } catch (error) {
-      console.error('Error deleting appointment:', error);
-      this.toastService.showNetworkError();
-    }
+  // Login prompt handlers
+  onLoginPromptClose() {
+    this.showLoginPromptSignal.set(false);
   }
 
-
-
-
+  onLoginPromptLogin() {
+    this.showLoginPromptSignal.set(false);
+    this.router.navigate(['/login']);
+  }
 }

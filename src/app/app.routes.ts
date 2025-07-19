@@ -27,6 +27,8 @@ export const routes: Routes = [
     data: { viewTransitionName: 'register' }
   },
 
+
+
   // All authenticated routes - accessible to all roles
   {
     path: '',
@@ -37,7 +39,6 @@ export const routes: Routes = [
   {
     path: 'booking',
     component: BookingWrapperComponent,
-    canActivate: [authGuard],
     data: { viewTransitionName: 'booking' }
   },
   {
@@ -49,7 +50,6 @@ export const routes: Routes = [
   {
     path: 'appointments/:id',
     component: AppointmentDetailPageComponent,
-    canActivate: [authGuard],
     data: { viewTransitionName: 'appointment-detail' }
   },
   {

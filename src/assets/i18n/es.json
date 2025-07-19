@@ -252,7 +252,24 @@
     "AVAILABLE": "Disponible",
     "NO_AVAILABLE_DAYS": "No hay días disponibles",
     "NO_AVAILABLE_DAYS_MESSAGE": "Todos los días de la semana tienen todas las horas ocupadas. Prueba con otra semana.",
-    "LEGEND": "Leyenda"
+    "LEGEND": "Leyenda",
+    "SUCCESS_TITLE": "¡Reserva confirmada!",
+    "SUCCESS_MESSAGE": "Tu reserva se ha creado correctamente. Recibirás un email con los detalles y un enlace para editarla.",
+    "EMAIL_NOTICE": "Revisa tu bandeja de entrada para ver los detalles de la reserva.",
+    "EDIT_TITLE": "Editar reserva",
+    "DETAILS": "Detalles de la reserva",
+    "APPOINTMENT_INFO": "Información de la cita",
+    "LOGIN_PROMPT_TITLE": "¿Quieres gestionar tus reservas?",
+    "LOGIN_PROMPT_MESSAGE": "Inicia sesión para tener acceso completo a todas tus reservas y poder gestionarlas fácilmente.",
+    "STATUS": {
+      "CONFIRMED": "Confirmada",
+      "CANCELLED": "Cancelada",
+      "COMPLETED": "Completada"
+    },
+    "NOT_FOUND": {
+      "TITLE": "Cita no encontrada",
+      "MESSAGE": "No se ha podido encontrar la cita que buscas. Es posible que el enlace sea incorrecto o que la cita haya sido eliminada."
+    }
   },
   "PROFILE": {
     "PERSONAL_INFO": "Información de la cuenta",

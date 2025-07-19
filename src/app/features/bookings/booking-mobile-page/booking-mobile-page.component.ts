@@ -14,21 +14,20 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { ServicesService, Service } from '../../../core/services/services.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
-
-
-interface DaySlot {
-  date: Date;
-  timeSlots: TimeSlot[];
-}
 
 interface TimeSlot {
   time: string;
   available: boolean;
-  appointment?: any;
-  isLunchBreak: boolean;
-  isPastTime?: boolean;
+  isSelected: boolean;
+  clientName?: string;
+}
+
+interface DaySlot {
+  date: Date;
+  timeSlots: TimeSlot[];
 }
 
 @Component({
@@ -53,16 +52,17 @@ export class BookingMobilePageComponent {
   // Inject services
   public readonly authService = inject(AuthService);
   public readonly servicesService = inject(ServicesService);
+  public readonly bookingService = inject(BookingService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
-
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date>(new Date());
   private readonly selectedServiceSignal = signal<Service | null>(null);
   private readonly appointmentsSignal = signal<any[]>([]);
   private readonly showBookingPopupSignal = signal<boolean>(false);
-  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: ''});
+  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
+  private readonly showLoginPromptSignal = signal<boolean>(false);
 
   // Public computed signals
   readonly selectedDate = computed(() => this.selectedDateSignal());
@@ -70,153 +70,103 @@ export class BookingMobilePageComponent {
   readonly appointments = computed(() => this.appointmentsSignal());
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
+  readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
+  readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
 
   // Business configuration
   readonly businessHours = { start: '08:00', end: '20:00' };
   readonly lunchBreak = { start: '13:00', end: '14:00' };
   readonly businessDays = [1, 2, 3, 4, 5, 6]; // Monday to Saturday
-  readonly slotDuration = 30; // minutes
+  readonly slotDuration = 30;
 
-  // Computed properties
+  // Available services
+  readonly availableServices = computed(() => this.servicesService.getAllServices());
+
+  // Week days computation
   readonly weekDays = computed(() => {
     const start = startOfWeek(this.selectedDate(), { weekStartsOn: 1 });
     const end = endOfWeek(this.selectedDate(), { weekStartsOn: 1 });
-    const allDays = eachDayOfInterval({ start, end });
-
-    // Always return all 7 days of the week
-    return allDays;
+    return eachDayOfInterval({ start, end });
   });
 
-  readonly selectedDaySlots = computed(() => {
-    return this.generateTimeSlotsForDay(this.selectedDate());
-  });
-
-  readonly morningSlots = computed(() => {
-    return this.selectedDaySlots().filter(slot => {
-      const slotTime = slot.time;
-      const lunchStart = this.lunchBreak.start;
-      const isMorning = slotTime < lunchStart; // Matí: fins l'inici de l'hora de dinar
-
-      // Per a hui, no mostrar hores passades
-      if (this.isToday(this.selectedDate())) {
-        const currentTime = new Date();
-        // Create date in local timezone to avoid UTC conversion issues
-        const [hours, minutes] = slotTime.split(':').map(Number);
-        const slotDateTime = new Date(this.selectedDate());
-        slotDateTime.setHours(hours, minutes, 0, 0);
-        if (slotDateTime <= currentTime) {
-          return false;
-        }
-      }
-
-      return isMorning;
-    });
-  });
-
-  readonly afternoonSlots = computed(() => {
-    return this.selectedDaySlots().filter(slot => {
-      const slotTime = slot.time;
-      const lunchEnd = this.lunchBreak.end;
-      const isAfternoon = slotTime >= lunchEnd; // Tarda: després de l'hora de dinar
-
-      // Per a hui, no mostrar hores passades
-      if (this.isToday(this.selectedDate())) {
-        const currentTime = new Date();
-        // Create date in local timezone to avoid UTC conversion issues
-        const [hours, minutes] = slotTime.split(':').map(Number);
-        const slotDateTime = new Date(this.selectedDate());
-        slotDateTime.setHours(hours, minutes, 0, 0);
-        if (slotDateTime <= currentTime) {
-          return false;
-        }
-      }
-
-      return isAfternoon;
-    });
-  });
-
-  readonly availableServices = computed(() => {
-    return this.servicesService.getAllServices();
-  });
-
-  readonly canBook = computed(() => {
-    return this.selectedService() !== null;
-  });
-
-  readonly selectedDayHasAvailableSlots = computed(() => {
-    return this.morningSlots().length > 0 || this.afternoonSlots().length > 0;
+  // Day slots computation
+  readonly daySlots = computed(() => {
+    return this.weekDays().map(day => ({
+      date: day,
+      timeSlots: this.generateTimeSlots(day)
+    }));
   });
 
   constructor() {
+    this.loadServices();
     this.loadAppointments();
-    this.setDefaultClientName();
-
-    // Initialize user effect
-    this.#initUserEffect();
-
-
   }
 
-  #initUserEffect() {
-    effect(() => {
-      const user = this.authService.user();
-      if (user) {
-        this.setDefaultClientName();
+  private async loadServices() {
+    try {
+      const services = this.servicesService.getAllServices();
+      // Set first service as default if available
+      if (services.length > 0) {
+        this.selectedServiceSignal.set(services[0]);
       }
-    }, { allowSignalWrites: true });
+    } catch (error) {
+      console.error('Error loading services:', error);
+      this.toastService.showGenericError('Error loading services');
+    }
   }
 
-
-
-  private loadAppointments() {
-    const dades = JSON.parse(localStorage.getItem('cites') || '[]');
-    const dadesAmbIds = dades.map((cita: any) => {
-      if (!cita.id) {
-        return { ...cita, id: uuidv4() };
-      }
-      return cita;
-    });
-    this.appointmentsSignal.set(dadesAmbIds);
+  private async loadAppointments() {
+    try {
+      // Load appointments from localStorage for now
+      const appointments = this.loadAppointmentsFromStorage();
+      this.appointmentsSignal.set(appointments);
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    }
   }
 
-  private setDefaultClientName() {
-    const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || '';
-    this.bookingDetailsSignal.update(details => ({ ...details, clientName: defaultName }));
+  private loadAppointmentsFromStorage(): any[] {
+    try {
+      const appointments = localStorage.getItem('cites');
+      return appointments ? JSON.parse(appointments) : [];
+    } catch (error) {
+      console.error('Error loading appointments from storage:', error);
+      return [];
+    }
   }
 
-      private generateTimeSlotsForDay(date: Date): TimeSlot[] {
+  private generateTimeSlots(date: Date): TimeSlot[] {
     const slots: TimeSlot[] = [];
+    const dayOfWeek = date.getDay();
+
+    // Check if it's a business day
+    if (!this.businessDays.includes(dayOfWeek)) {
+      return slots;
+    }
+
     const startHour = parseInt(this.businessHours.start.split(':')[0]);
     const endHour = parseInt(this.businessHours.end.split(':')[0]);
-    const lunchStartHour = parseInt(this.lunchBreak.start.split(':')[0]);
-    const lunchStartMinute = parseInt(this.lunchBreak.start.split(':')[1]);
-    const lunchEndHour = parseInt(this.lunchBreak.end.split(':')[0]);
-    const lunchEndMinute = parseInt(this.lunchBreak.end.split(':')[1]);
+    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
+    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += this.slotDuration) {
-        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-
         // Skip lunch break
-        const isLunchBreak = (hour === lunchStartHour && minute >= lunchStartMinute) ||
-                            (hour > lunchStartHour && hour < lunchEndHour) ||
-                            (hour === lunchEndHour && minute < lunchEndMinute);
-
-        if (isLunchBreak) {
+        if (hour >= lunchStart && hour < lunchEnd) {
           continue;
         }
 
-        // Check if slot is available
-        const available = this.isTimeSlotAvailable(date, time);
-        const appointment = this.getAppointmentForTimeSlot(date, time);
-        const isPastTime = this.isPastTimeSlot(date, time);
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const slotDate = new Date(date);
+        slotDate.setHours(hour, minute, 0, 0);
+
+        // Check if slot is available (not in the past and not booked)
+        const isAvailable = slotDate > new Date() && !this.isSlotBooked(slotDate);
 
         slots.push({
-          time,
-          available: available && !isPastTime,
-          appointment,
-          isLunchBreak: false
+          time: timeString,
+          available: isAvailable,
+          isSelected: false
         });
       }
     }
@@ -224,144 +174,138 @@ export class BookingMobilePageComponent {
     return slots;
   }
 
-  private isPastTimeSlot(date: Date, time: string): boolean {
-    if (isSameDay(date, new Date())) {
-      const currentTime = new Date();
-      // Create date in local timezone to avoid UTC conversion issues
-      const [hours, minutes] = time.split(':').map(Number);
-      const slotTime = new Date(date);
-      slotTime.setHours(hours, minutes, 0, 0);
-      return slotTime <= currentTime;
-    }
-    return false;
+  private isSlotBooked(date: Date): boolean {
+    const appointments = this.appointments();
+    return appointments.some(appointment => {
+      const appointmentDate = new Date(appointment.date);
+      return isSameDay(appointmentDate, date) && appointment.time === format(date, 'HH:mm');
+    });
   }
 
-    private isTimeSlotAvailable(date: Date, time: string): boolean {
-    const dayAppointments = this.appointments().filter(apt =>
-      isSameDay(new Date(apt.data), date)
-    );
-
-    // Check if any appointment overlaps with this time slot
-    for (const apt of dayAppointments) {
-      if (apt.hora === time) {
-        return false;
-      }
-    }
-
-    // Check if the time slot is in the past for today
-    if (isSameDay(date, new Date())) {
-      const currentTime = new Date();
-      // Create date in local timezone to avoid UTC conversion issues
-      const [hours, minutes] = time.split(':').map(Number);
-      const slotTime = new Date(date);
-      slotTime.setHours(hours, minutes, 0, 0);
-      if (slotTime <= currentTime) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private getAppointmentForTimeSlot(date: Date, time: string): any | undefined {
-    return this.appointments().find(apt =>
-      isSameDay(new Date(apt.data), date) && apt.hora === time
-    );
-  }
-
-  selectDate(date: Date) {
+  onDateSelected(date: Date) {
     this.selectedDateSignal.set(date);
   }
 
-  selectService(service: Service) {
+  onServiceSelected(service: Service) {
     this.selectedServiceSignal.set(service);
   }
 
-    selectTimeSlot(timeSlot: TimeSlot) {
+  onTimeSlotSelected(timeSlot: TimeSlot, daySlot: DaySlot) {
     if (!timeSlot.available) return;
 
-    const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || '';
-
-    // Crear detalls de reserva amb tota la informació ja seleccionada
-    const bookingDetails: BookingDetails = {
-      date: format(this.selectedDate(), 'yyyy-MM-dd'),
+    const details: BookingDetails = {
+      date: format(daySlot.date, 'yyyy-MM-dd'),
       time: timeSlot.time,
-      clientName: defaultName,
+      clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
       service: this.selectedService()
     };
 
-    this.bookingDetailsSignal.set(bookingDetails);
+    this.bookingDetailsSignal.set(details);
     this.showBookingPopupSignal.set(true);
   }
 
-  onBookingConfirmed(details: BookingDetails) {
-    const user = this.authService.user();
-    if (!user) {
-      this.toastService.showLoginRequired();
-      return;
+  async onBookingConfirmed(details: BookingDetails) {
+    try {
+      // Create booking using the new service
+      const booking = await this.bookingService.createBooking(details);
+
+      if (booking) {
+        // Show success message
+        this.toastService.showAppointmentCreated(details.clientName, booking.id || '');
+
+        // Show login prompt for anonymous users
+        if (!this.isAuthenticated()) {
+          this.showLoginPromptSignal.set(true);
+        }
+      }
+
+      this.showBookingPopupSignal.set(false);
+      this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      this.toastService.showGenericError('Error creating booking');
     }
-
-    const nova = {
-      nom: details.clientName,
-      data: details.date,
-      hora: details.time,
-      id: uuidv4(),
-      userId: user.uid,
-      duration: details.service?.duration || 60,
-      serviceName: details.service?.name,
-      serviceId: details.service?.id
-    };
-
-    this.appointmentsSignal.update(appointments => [...appointments, nova]);
-    this.guardarCites();
-
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('appointmentCreated', {
-      detail: { appointment: nova }
-    }));
-
-    this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
-
-    this.toastService.showAppointmentCreated(details.clientName, nova.id);
   }
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
+    this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
   }
 
-
-
-  guardarCites() {
-    localStorage.setItem('cites', JSON.stringify(this.appointments()));
+  onClientNameChanged(name: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, clientName: name }));
   }
 
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ca-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  onEmailChanged(email: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, email: email }));
   }
 
-  formatDay(date: Date): string {
-    if (!date || isNaN(date.getTime())) {
-      return '';
+  // Login prompt handlers
+  onLoginPromptClose() {
+    this.showLoginPromptSignal.set(false);
+  }
+
+  onLoginPromptLogin() {
+    this.showLoginPromptSignal.set(false);
+    this.router.navigate(['/login']);
+  }
+
+  // Navigation
+  goToPreviousWeek() {
+    const newDate = addDays(this.selectedDate(), -7);
+    this.selectedDateSignal.set(newDate);
+  }
+
+  goToNextWeek() {
+    const newDate = addDays(this.selectedDate(), 7);
+    this.selectedDateSignal.set(newDate);
+  }
+
+  goToToday() {
+    this.selectedDateSignal.set(new Date());
+  }
+
+  // Template methods
+  previousWeek() {
+    this.goToPreviousWeek();
+  }
+
+  nextWeek() {
+    this.goToNextWeek();
+  }
+
+  selectDate(date: Date) {
+    this.onDateSelected(date);
+  }
+
+  selectService(service: Service) {
+    this.onServiceSelected(service);
+  }
+
+  selectTimeSlot(timeSlot: TimeSlot) {
+    const daySlot = this.daySlots().find(slot =>
+      slot.timeSlots.some(ts => ts.time === timeSlot.time)
+    );
+    if (daySlot) {
+      this.onTimeSlotSelected(timeSlot, daySlot);
     }
+  }
+
+  // Format methods
+  formatDay(date: Date): string {
     return format(date, 'EEEE, d MMMM', { locale: ca });
   }
 
   formatDayShort(date: Date): string {
-    if (!date || isNaN(date.getTime())) {
-      return '';
-    }
-    return format(date, 'EEE d', { locale: ca });
+    return format(date, 'EEE', { locale: ca });
   }
 
+  formatTime(time: string): string {
+    return time;
+  }
+
+  // State check methods
   isToday(date: Date): boolean {
     return isSameDay(date, new Date());
   }
@@ -375,51 +319,10 @@ export class BookingMobilePageComponent {
   }
 
   isPastDate(date: Date): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
-    return checkDate < today;
+    return date < new Date() && !isSameDay(date, new Date());
   }
 
   canSelectDate(date: Date): boolean {
-    return this.isBusinessDay(date) && !this.isPastDate(date);
-  }
-
-  previousWeek() {
-    this.selectedDateSignal.update(date => addDays(date, -7));
-  }
-
-  nextWeek() {
-    this.selectedDateSignal.update(date => addDays(date, 7));
-  }
-
-  today() {
-    this.selectedDateSignal.set(new Date());
-  }
-
-  tomorrow() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    this.selectedDateSignal.set(tomorrow);
-  }
-
-  getToday(): Date {
-    return new Date();
-  }
-
-  getTomorrow(): Date {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
-  }
-
-
-
-
-
-  private hasAvailableTimeSlots(date: Date): boolean {
-    const slots = this.generateTimeSlotsForDay(date);
-    return slots.some(slot => slot.available);
+    return !this.isPastDate(date) && this.isBusinessDay(date);
   }
 }

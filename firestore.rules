@@ -1,45 +1,38 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Funció per verificar si l'usuari és admin
-    function isAdmin() {
-      return request.auth != null &&
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // Funció per verificar si l'usuari és el propietari del document
     function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
 
-    // Funció per verificar si l'usuari té un permís específic
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     function hasPermission(permission) {
-      return request.auth != null &&
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
-             permission in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.adminInfo.permissions;
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions[permission] == true;
     }
 
     // Col·lecció d'usuaris
     match /users/{userId} {
-      // Lectura: només el propietari
-      allow read: if isOwner(userId);
+      // Usuaris poden llegir/escriure només les seves pròpies dades
+      allow read, write: if isOwner(userId);
 
-      // Creació: només el propietari
-      allow create: if isOwner(userId);
+      // Administradors poden llegir totes les dades d'usuari
+      allow read: if isAdmin();
 
-      // Update: només admins poden modificar 'role' o 'adminInfo'.
-      // L'usuari pot modificar la resta del seu perfil, però NO aquests camps.
-      allow update: if (
-        // L'usuari pot modificar el seu perfil, però NO 'role' ni 'adminInfo'
-        (isOwner(userId)
-          && !(('role' in request.resource.data) || ('adminInfo' in request.resource.data))
-          && !(('role' in request.resource.data.diff(resource.data).affectedKeys()) || ('adminInfo' in request.resource.data.diff(resource.data).affectedKeys()))
-        )
-        // O un admin pot modificar qualsevol camp
-        || isAdmin()
-      );
+      // Administradors poden actualitzar rols i permisos
+      allow update: if isAdmin() &&
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'permissions', 'updatedAt']));
     }
 
     // Col·lecció de cites (appointments)
@@ -67,9 +60,19 @@ service cloud.firestore {
 
     // Col·lecció de reserves (bookings)
     match /bookings/{bookingId} {
+      // Permetre creació de reserves (anònimes i autenticades)
+      allow create: if true;
+
       // Usuaris poden llegir/escriure només les seves pròpies reserves
       allow read, write: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
+        resource.data.uid == request.auth.uid;
+
+      // Permetre accés amb token d'edició (per usuaris anònims)
+      allow read: if resource.data.editToken == request.query.token;
+
+      // Permetre actualització amb token d'edició (per usuaris anònims)
+      allow update: if resource.data.editToken == request.query.token &&
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nom', 'email', 'data', 'hora', 'serviceId', 'serviceName', 'duration', 'price', 'notes', 'uid', 'updatedAt']));
 
       // Administradors poden llegir totes les reserves
       allow read: if isAdmin();
