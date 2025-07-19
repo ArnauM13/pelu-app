@@ -407,7 +407,10 @@
       "RESET_DEFAULTS": "Restaurar por defecto",
       "CANCEL": "Cancelar",
       "LOADING": "Cargando configuración..."
-    }
+    },
+    "SERVICES_MANAGEMENT": "Gestión de Servicios",
+    "SERVICES_MANAGEMENT_DESCRIPTION": "Crea, edita y elimina servicios de peluquería",
+    "MANAGE_SERVICES": "Gestionar Servicios"
   },
   "CALENDAR": {
     "TODAY": "Hoy",

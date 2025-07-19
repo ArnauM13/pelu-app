@@ -383,6 +383,24 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   /**
+   * Create sample services for development
+   */
+  async createSampleServices(): Promise<void> {
+    this.confirmationService.confirm({
+      message: 'Vols crear serveis d\'exemple? Això afegirà serveis de prova a Firebase.',
+      header: 'Crear Serveis d\'Exemple',
+      icon: 'pi pi-plus-circle',
+      accept: async () => {
+        const success = await this.firebaseServicesService.createSampleServices();
+        if (success) {
+          // Refresh services after creation
+          await this.refreshServices();
+        }
+      }
+    });
+  }
+
+  /**
    * Loading configuration
    */
   get loadingConfig() {

@@ -408,7 +408,10 @@
       "RESET_DEFAULTS": "إعادة تعيين إلى الافتراضي",
       "CANCEL": "إلغاء",
       "LOADING": "جاري تحميل الإعدادات..."
-    }
+    },
+    "SERVICES_MANAGEMENT": "إدارة الخدمات",
+    "SERVICES_MANAGEMENT_DESCRIPTION": "إنشاء وتحرير وحذف خدمات تصفيف الشعر",
+    "MANAGE_SERVICES": "إدارة الخدمات"
   },
   "CALENDAR": {
     "TODAY": "اليوم",

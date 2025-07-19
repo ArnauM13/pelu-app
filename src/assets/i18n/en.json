@@ -422,7 +422,10 @@
       "RESET_DEFAULTS": "Reset to defaults",
       "CANCEL": "Cancel",
       "LOADING": "Loading settings..."
-    }
+    },
+    "SERVICES_MANAGEMENT": "Services Management",
+    "SERVICES_MANAGEMENT_DESCRIPTION": "Create, edit and delete hairdressing services",
+    "MANAGE_SERVICES": "Manage Services"
   },
   "CALENDAR": {
     "TODAY": "Today",

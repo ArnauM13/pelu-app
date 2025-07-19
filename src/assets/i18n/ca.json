@@ -383,14 +383,14 @@
     "ACCESS_SETTINGS": "Accedir a configuració",
     "SERVICES": {
       "TITLE": "Gestió de Serveis",
-      "SUBTITLE": "Crea, edita i elimina serveis de perruqueria",
+      "SUBTITLE": "Crea, edita i elimina serveis de la peluqueria",
       "ADD_SERVICE": "Afegir Servei",
       "CREATE_SERVICE": "Crear Servei",
       "EDIT_SERVICE": "Editar Servei",
-      "NAME_PLACEHOLDER": "Ex: Tall masculí",
-      "DESCRIPTION_PLACEHOLDER": "Descriu el servei...",
-      "SELECT_CATEGORY": "Selecciona una categoria",
-      "SELECT_ICON": "Selecciona una icona",
+      "NAME_PLACEHOLDER": "Nom del servei",
+      "DESCRIPTION_PLACEHOLDER": "Descripció del servei",
+      "SELECT_CATEGORY": "Seleccionar categoria",
+      "SELECT_ICON": "Seleccionar icona",
       "MARK_AS_POPULAR": "Marcar com a popular",
       "NO_SERVICES_IN_CATEGORY": "No hi ha serveis en aquesta categoria"
     },
@@ -412,7 +412,10 @@
       "RESET_DEFAULTS": "Restaurar per defecte",
       "CANCEL": "Cancel·lar",
       "LOADING": "Carregant configuració..."
-    }
+    },
+    "SERVICES_MANAGEMENT": "Gestió de Serveis",
+    "SERVICES_MANAGEMENT_DESCRIPTION": "Crea, edita i elimina serveis de la peluqueria",
+    "MANAGE_SERVICES": "Gestionar Serveis"
   },
   "CALENDAR": {
     "TODAY": "Avui",
