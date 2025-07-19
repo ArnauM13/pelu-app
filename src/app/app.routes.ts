@@ -10,6 +10,7 @@ import { AppointmentsPageComponent } from './features/appointments/appointments-
 import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
 import { ServicesPageComponent } from './features/services/services-page/services-page.component';
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
+import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
 
 export const routes: Routes = [
@@ -76,6 +77,12 @@ export const routes: Routes = [
         component: AdminDashboardPageComponent,
         canActivate: [adminGuard],
         data: { viewTransitionName: 'admin-dashboard' }
+      },
+      {
+        path: 'services',
+        component: AdminServicesPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-services' }
       },
       {
         path: 'settings',
