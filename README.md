@@ -1,60 +1,60 @@
-# PeluApp
+# 🎨 PeluApp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.20.
+Aplicació web per a la gestió de reserves de perruqueria desenvolupada amb **Angular 18**.
 
-## Development server
+## 🚀 Inici Ràpid
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+```bash
+# Instal·lar dependències
+npm install
 
-## Code scaffolding
+# Servidor de desenvolupament
+npm start
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+# Build de producció
+npm run build
+```
 
-## Build
+## 📚 Documentació Completa
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Per a informació detallada sobre l'arquitectura, components, funcionalitats i guies d'ús, consulta la **[Documentació Completa](DOCUMENTATION.md)**.
 
-## Running unit tests
+### Contingut de la Documentació:
+- 🏗️ Arquitectura del projecte
+- 🛠️ Stack tecnològic
+- ⚡ Funcionalitats principals
+- 🧩 Components compartits
+- 🌐 Sistema de traduccions
+- 🔐 Sistema de permisos
+- 📅 Calendari i reserves
+- 🧪 Testing
+- 🚀 Desplegament
+- 🔧 Troubleshooting
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## 🎯 Característiques Principals
 
-## Running end-to-end tests
+- ✅ **Sistema de Reserves**: Creació i gestió de cites
+- ✅ **Calendari Interactiu**: Visualització en temps real amb drag & drop
+- ✅ **Sistema de Permisos**: Rol-based access control
+- ✅ **Multiidioma**: Suport per català, castellà, anglès i àrab
+- ✅ **Responsive Design**: Optimitzat per mòbil i desktop
+- ✅ **Notificacions**: Sistema de toast integrat
+- ✅ **Loader Global**: Indicador de càrrega consistent
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## 🛠️ Comandaments Útils
 
-## Further help
+```bash
+# Desenvolupament
+npm start              # Servidor de desenvolupament
+npm run build          # Build de producció
+npm test               # Tests unitaris
+npm run e2e            # Tests e2e
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+# Desplegament
+firebase deploy        # Desplegar a Firebase
+```
 
-## Stack front
+## 📖 Més Informació
 
-| Paquet                | Versió Recomanada | Notes                                                                    |
-| --------------------- | ----------------- | ------------------------------------------------------------------------ |
-| `@angular/core`       | `^18.2.0`         | El nucli d'Angular 18 estable                                            |
-| `@angular/cli`        | `^18.2.0`         | Per generar, servir i compilar                                           |
-| `@angular/animations` | `^18.2.0`         | Necessari per components com `Dialog`, `Toast`, etc.                     |
-| `primeng`             | `18`              | Compatible amb Angular 18                                                |
-| `primeicons`          | `^6.1.1`          | Icons per botons, menús, etc.                                            |
-| `primeflex`           | `^3.3.1`          | Utilitats CSS per layout i estil ràpid                                   |
-| `rxjs`                | `^7.8.1`          | Ja ve amb Angular, però assegura’t que és una versió 7.x estable         |
-| `typescript`          | `~5.4.5`          | Compatible amb Angular 18 (Angular 18 no és 100% compatible amb TS 5.5+) |
-
-## Stack back
-
-| Paquet        | Versió Recomanada    | Notes                                      |
-| ------------- | -------------------- | ------------------------------------------ |
-| `node`        | `18.x` LTS           | Estable, compatible amb la majoria de dep. |
-| `express`     | `^4.18.2`            | Framework web lleuger i robust             |
-| `cors`        | `^2.8.5`             | Per habilitar peticions cross-origin       |
-| `body-parser` | `^1.20.2`            | Per parsejar el `req.body` en JSON         |
-| `mongoose`    | `^7.6.1` (opcional)  | Si treballes amb MongoDB                   |
-| `typeorm`     | `^0.3.17` (opcional) | Si fas servir Postgres, MySQL, etc.        |
-
-## Stack test
-
-| Eina       | Ús                                        |
-| ---------- | ----------------------------------------- |
-| `Jest`     | Testing d'unitat (millor que Karma)       |
-| `Cypress`  | Testing e2e si vols testar fluxos sencers |
-| `ESLint`   | Bona pràctica per mantenir el codi net    |
-| `Prettier` | Formatador automàtic                      |
+- **[Documentació Completa](DOCUMENTATION.md)** - Guia completa del projecte
+- **[Angular CLI](https://angular.dev/tools/cli)** - Documentació oficial d'Angular CLI
