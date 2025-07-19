@@ -9,9 +9,10 @@ import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
-import { LoaderService } from '../../services/loader.service';
+
 
 export interface DetailAction {
   label: string;
@@ -56,6 +57,7 @@ export interface DetailViewConfig {
     InfoItemComponent,
     AppointmentStatusBadgeComponent,
     NotFoundStateComponent,
+    LoadingStateComponent,
     RouterModule
   ],
   templateUrl: './detail-view.component.html',
@@ -73,19 +75,11 @@ export class DetailViewComponent implements OnChanges {
     constructor(
     private router: Router,
     private serviceColorsService: ServiceColorsService,
-    private toastService: ToastService,
-    private loaderService: LoaderService
+    private toastService: ToastService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    // Handle loading state with global loader service
-    if (changes['config']) {
-      if (this.config?.loading) {
-        this.loaderService.show();
-      } else {
-        this.loaderService.hide();
-      }
-    }
+    // Loading state now handled by LoadingStateComponent in template
   }
 
   // Helper getters for template
@@ -163,6 +157,16 @@ export class DetailViewComponent implements OnChanges {
       message: this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
       buttonText: 'COMMON.ACTIONS.BACK',
       showButton: true
+    };
+  }
+
+  get loadingConfig() {
+    return {
+      message: 'COMMON.LOADING',
+      spinnerSize: 'large' as const,
+      showMessage: true,
+      fullHeight: true,
+      overlay: true
     };
   }
 

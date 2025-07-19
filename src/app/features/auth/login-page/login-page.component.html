@@ -11,8 +11,8 @@
   }
 
   @if (isSubmitting()) {
-    <div class="loading-overlay">
-      <p>{{ 'COMMON.STATUS.LOADING' | translate }}</p>
-    </div>
+    <pelu-loading-state
+      [config]="loadingConfig()">
+    </pelu-loading-state>
   }
 </div>

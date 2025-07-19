@@ -1,5 +1,8 @@
 .landing-container {
   background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 // Animation keyframes for slide-in effect
@@ -23,6 +26,7 @@
   background: linear-gradient(135deg, #e3ecfa 0%, #f0f6ff 100%);
   position: relative;
   overflow: hidden;
+  flex: 1;
 
   &::before {
     content: '';
@@ -198,8 +202,6 @@
     box-shadow: 0 4px 12px rgba(25, 118, 210, 0.12);
   }
 }
-
-
 
 /* Features Section */
 .features-section {

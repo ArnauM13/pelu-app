@@ -18,3 +18,7 @@ export type { LoaderConfig } from './loader';
 export { NotFoundStateComponent } from './not-found-state/not-found-state.component';
 export type { NotFoundStateConfig } from './not-found-state/not-found-state.component';
 
+// Loading state component
+export { LoadingStateComponent } from './loading-state/loading-state.component';
+export type { LoadingStateConfig } from './loading-state/loading-state.component';
+

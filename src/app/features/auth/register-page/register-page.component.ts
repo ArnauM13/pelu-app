@@ -6,7 +6,7 @@ import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthPopupComponent, AuthPopupConfig } from '../../../shared/components/auth-popup/auth-popup.component';
 import { TranslationService } from '../../../core/services/translation.service';
-import { LoaderService } from '../../../shared/services/loader.service';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 
 @Component({
   selector: 'pelu-register-page',
@@ -14,7 +14,8 @@ import { LoaderService } from '../../../shared/services/loader.service';
   imports: [
     CommonModule,
     TranslateModule,
-    AuthPopupComponent
+    AuthPopupComponent,
+    LoadingStateComponent
   ],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss']
@@ -40,12 +41,19 @@ export class RegisterPageComponent implements OnDestroy {
   readonly isSubmitting = computed(() => this.isLoading());
   readonly hasError = computed(() => this.errorMessage() !== '');
 
+  readonly loadingConfig = computed(() => ({
+    message: this.translation.get('AUTH.REGISTERING'),
+    spinnerSize: 'medium' as const,
+    showMessage: true,
+    fullHeight: false,
+    overlay: true
+  }));
+
   constructor(
     private auth: Auth,
     private router: Router,
     private authService: AuthService,
-    private translation: TranslationService,
-    private loaderService: LoaderService
+    private translation: TranslationService
   ) {}
 
   ngOnDestroy() {
@@ -65,7 +73,6 @@ export class RegisterPageComponent implements OnDestroy {
     if (this.isLoading()) return; // Prevent multiple submissions
 
     this.isLoading.set(true);
-    this.loaderService.showWithMessage(this.translation.get('AUTH.REGISTERING'));
     this.errorMessage.set('');
 
     try {
@@ -107,7 +114,6 @@ export class RegisterPageComponent implements OnDestroy {
       this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
-      this.loaderService.hide();
     }
   }
 
@@ -115,7 +121,6 @@ export class RegisterPageComponent implements OnDestroy {
     if (this.isLoading()) return; // Prevent multiple submissions
 
     this.isLoading.set(true);
-    this.loaderService.showWithMessage(this.translation.get('AUTH.REGISTERING'));
     this.errorMessage.set('');
 
     try {
@@ -142,7 +147,6 @@ export class RegisterPageComponent implements OnDestroy {
       this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
-      this.loaderService.hide();
     }
   }
 }

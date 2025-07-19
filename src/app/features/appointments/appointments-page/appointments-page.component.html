@@ -47,8 +47,9 @@
         </pelu-calendar-component>
       } @placeholder {
         <div class="calendar-placeholder">
-          <div class="loading-spinner"></div>
-          <p>{{ 'COMMON.STATUS.LOADING' | translate }}</p>
+          <pelu-loading-state
+            [config]="loadingConfig">
+          </pelu-loading-state>
         </div>
       }
     </div>
