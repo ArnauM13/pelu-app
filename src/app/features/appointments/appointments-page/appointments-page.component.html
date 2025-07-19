@@ -8,7 +8,7 @@
 
   <!-- Next Appointment -->
   <pelu-next-appointment
-    [appointments]="appointments()"
+    [bookings]="appointments()"
     (onViewDetail)="viewAppointmentDetail($event)">
   </pelu-next-appointment>
 
@@ -148,11 +148,11 @@
   <!-- Appointments List View -->
   @if (viewMode() === 'list') {
   <pelu-appointments-list
-    [appointments]="filteredAppointments()"
+    [bookings]="filteredAppointments()"
     [hasActiveFilters]="hasActiveFilters()"
-    (onViewAppointment)="viewAppointmentDetail($event)"
-    (onEditAppointment)="editAppointment($event)"
-    (onDeleteAppointment)="deleteAppointment($event)"
+          (onViewBooking)="viewAppointmentDetail($event)"
+      (onEditBooking)="editAppointment($event)"
+      (onDeleteBooking)="deleteAppointment($event)"
     (onClearFilters)="clearAllFilters()">
   </pelu-appointments-list>
   }

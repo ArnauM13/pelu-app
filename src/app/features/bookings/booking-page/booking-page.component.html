@@ -12,6 +12,14 @@
   </div>
 </div>
 
+<!-- Service Selection Popup -->
+<pelu-service-selection-popup
+  [open]="showServiceSelectionPopup()"
+  [selectionDetails]="serviceSelectionDetails()"
+  (serviceSelected)="onServiceSelected($event)"
+  (cancelled)="onServiceSelectionCancelled()">
+</pelu-service-selection-popup>
+
 <!-- Booking Confirmation Popup -->
 <pelu-booking-popup
   [open]="showBookingPopup()"

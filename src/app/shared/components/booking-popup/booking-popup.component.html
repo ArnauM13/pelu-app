@@ -17,70 +17,24 @@
         <div class="readonly-field">{{ bookingDetails().time }}</div>
       </div>
 
-      <!-- Service Display (Mobile only - Read-only) -->
-      <div class="form-group mobile-only" *ngIf="bookingDetails().service">
+      <!-- Service Display (Read-only) -->
+      <div class="form-group" *ngIf="bookingDetails().service">
         <label>{{ 'COMMON.SERVICE' | translate }}:</label>
-        <div class="service-display-mobile">
-          <div class="service-info-mobile">
-            <div class="service-icon-mobile">{{ bookingDetails().service!.icon }}</div>
-            <div class="service-details-mobile">
-              <span class="service-name-mobile">{{ getServiceName(bookingDetails().service!) }}</span>
-              <span class="service-duration-mobile">{{ bookingDetails().service!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
-              <span class="service-price-mobile">{{ formatPrice(bookingDetails().service!.price) }}</span>
+        <div class="selected-service-display">
+          <div class="service-info">
+            <span class="service-icon">{{ bookingDetails().service!.icon }}</span>
+            <div class="service-details">
+              <div class="service-name">{{ getServiceName(bookingDetails().service!) }}</div>
+              <div class="service-description">{{ bookingDetails().service!.description }}</div>
+              <div class="service-meta">
+                <span class="service-duration">{{ formatDuration(bookingDetails().service!.duration) }}</span>
+                @if (bookingDetails().service!.popular) {
+                  <span class="service-popular">⭐ {{ 'COMMON.POPULAR' | translate }}</span>
+                }
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Service Selection/Display (Desktop only) -->
-      <div class="form-group desktop-only">
-        <label>{{ 'COMMON.SERVICE' | translate }}:</label>
-        <div class="service-selection">
-          @if (bookingDetails().service) {
-            <div class="selected-service">
-              <div class="service-info">
-                <span class="service-icon">{{ bookingDetails().service!.icon }}</span>
-                <div class="service-details">
-                  <div class="service-name">{{ getServiceName(bookingDetails().service!) }}</div>
-                  <div class="service-description">{{ bookingDetails().service!.description }}</div>
-                  <div class="service-meta">
-                    <span class="service-duration">{{ formatDuration(bookingDetails().service!.duration) }}</span>
-                    @if (bookingDetails().service!.popular) {
-                      <span class="service-popular">⭐ Popular</span>
-                    }
-                  </div>
-                </div>
-              </div>
-              <div class="service-price">{{ formatPrice(bookingDetails().service!.price) }}</div>
-            </div>
-          } @else {
-            <p-select
-              [options]="availableServices()"
-              [(ngModel)]="selectedService"
-              (onChange)="onServiceChange($event)"
-              optionLabel="name"
-              placeholder="{{ 'COMMON.SELECTION.SELECT_SERVICE' | translate }}"
-              class="service-select">
-              <ng-template pTemplate="item" let-service>
-                <div class="service-option">
-                  <span class="service-icon">{{ service.icon }}</span>
-                  <div class="service-info">
-                    <div class="service-name">{{ getServiceName(service) }}</div>
-                    <div class="service-description">{{ service.description }}</div>
-                    <div class="service-meta">
-                      <span class="service-duration">{{ formatDuration(service.duration) }}</span>
-                      @if (service.popular) {
-                        <span class="service-popular">⭐ Popular</span>
-                      }
-                    </div>
-                  </div>
-                </div>
-                <div class="service-details">
-                  <div class="service-price">{{ formatPrice(service.price) }}</div>
-                </div>
-              </ng-template>
-            </p-select>
-          }
+          <div class="service-price">{{ formatPrice(bookingDetails().service!.price) }}</div>
         </div>
       </div>
 

@@ -8,17 +8,7 @@ import { NotFoundStateComponent } from '../../../../shared/components/not-found-
 import { ServiceColorsService } from '../../../../core/services/service-colors.service';
 import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
 import { isFutureAppointment } from '../../../../shared/services';
-
-export interface Appointment {
-  id: string;
-  nom: string;
-  data: string;
-  hora?: string;
-  servei?: string;
-  serviceName?: string;
-  duration?: number;
-  userId?: string;
-}
+import { Booking } from '../../../../core/services/booking.service';
 
 @Component({
   selector: 'pelu-appointments-list',
@@ -32,7 +22,7 @@ export interface Appointment {
     NotFoundStateComponent
   ],
   template: `
-    @if (appointments().length === 0) {
+    @if (bookings().length === 0) {
       <div class="full-screen-empty-state">
         <pelu-not-found-state
           [config]="notFoundConfig"
@@ -43,7 +33,7 @@ export interface Appointment {
       <pelu-card>
         <div class="card-header">
           <div class="header-left">
-            <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} <span class="appointments-count">({{ appointments().length }})</span></h3>
+            <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} <span class="appointments-count">({{ bookings().length }})</span></h3>
           </div>
           <div class="header-right">
             <span class="list-subtitle" style="color:var(--text-color-light); font-size:0.95rem;">{{ 'COMMON.VIEW_APPOINTMENTS_LIST' | translate }}</span>
@@ -51,35 +41,47 @@ export interface Appointment {
         </div>
 
                 <div class="appointments-list">
-          @for (appointment of appointments(); track appointment.id) {
+          @for (booking of bookings(); track booking.id) {
           <!-- Service color functionality temporarily disabled - uncomment to restore colored appointments -->
-          <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((appointment.serviceName || appointment.servei || '') + '')" (click)="onViewAppointment.emit(appointment)"> -->
+          <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((booking.serviceName || booking.servei || '') + '')" (click)="onViewBooking.emit(booking)"> -->
           <div class="appointment-item"
-               (click)="onViewAppointment.emit(appointment)">
+               (click)="onViewBooking.emit(booking)">
             <div class="appointment-info">
               <div class="client-info">
                 <div class="client-name-row">
-                  <h4 class="client-name">{{ appointment.nom }}</h4>
+                  <h4 class="client-name">{{ getClientName(booking) }}</h4>
                   <pelu-appointment-status-badge
-                    [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+                    [appointmentData]="{ date: booking.data || '', time: booking.hora || '' }"
                     [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
                   </pelu-appointment-status-badge>
                 </div>
                 <div class="appointment-details">
+                  @if (booking.data && booking.hora) {
                   <div class="detail-item">
                     <span class="detail-icon">📅</span>
-                    <span class="detail-text">{{ appointment.hora ? formatTime(appointment.hora) : '' }} {{ formatDate(appointment.data) }}</span>
+                    <span class="detail-text">{{ formatTime(booking.hora || '') }} {{ formatDate(booking.data || '') }}</span>
                   </div>
-                  @if (appointment.duration) {
+                  } @else if (booking.data) {
                   <div class="detail-item">
-                    <span class="detail-icon">⏱️</span>
-                    <span class="detail-text">{{ appointment.duration }} min</span>
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ formatDate(booking.data || '') }}</span>
+                  </div>
+                  } @else {
+                  <div class="detail-item">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ 'COMMON.NO_DATE_SET' | translate }}</span>
                   </div>
                   }
-                  @if (appointment.serviceName || appointment.servei) {
+                  @if (booking.duration) {
+                  <div class="detail-item">
+                    <span class="detail-icon">⏱️</span>
+                    <span class="detail-text">{{ booking.duration }} min</span>
+                  </div>
+                  }
+                  @if (booking.serviceName || booking.servei) {
                   <div class="detail-item">
                     <span class="detail-icon">✂️</span>
-                    <span class="detail-text">{{ getTranslatedServiceName(appointment.serviceName || appointment.servei) }}</span>
+                    <span class="detail-text">{{ getTranslatedServiceName(booking.serviceName || booking.servei) }}</span>
                   </div>
                   }
                 </div>
@@ -88,22 +90,22 @@ export interface Appointment {
             <div class="appointment-actions-container">
               <button
                 class="btn btn-primary"
-                (click)="$event.stopPropagation(); onViewAppointment.emit(appointment)"
+                (click)="$event.stopPropagation(); onViewBooking.emit(booking)"
                 [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
                 pTooltipPosition="left">
                 👁️
               </button>
-              @if (isFutureAppointment({ data: appointment.data, hora: appointment.hora || '' })) {
+              @if (isFutureAppointment({ data: booking.data || '', hora: booking.hora || '' })) {
                 <button
                   class="btn btn-secondary"
-                  (click)="$event.stopPropagation(); onEditAppointment.emit(appointment)"
+                  (click)="$event.stopPropagation(); onEditBooking.emit(booking)"
                   [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
                   pTooltipPosition="left">
                   ✏️
                 </button>
                 <button
                   class="btn btn-danger"
-                  (click)="$event.stopPropagation(); onDeleteAppointment.emit(appointment)"
+                  (click)="$event.stopPropagation(); onDeleteBooking.emit(booking)"
                   [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
                   pTooltipPosition="left">
                   🗑️
@@ -362,12 +364,12 @@ export interface Appointment {
   `]
 })
 export class AppointmentsListComponent {
-  appointments = input.required<Appointment[]>();
+  bookings = input.required<Booking[]>();
   hasActiveFilters = input.required<boolean>();
 
-  onViewAppointment = output<Appointment>();
-  onEditAppointment = output<Appointment>();
-  onDeleteAppointment = output<Appointment>();
+  onViewBooking = output<Booking>();
+  onEditBooking = output<Booking>();
+  onDeleteBooking = output<Booking>();
   onClearFilters = output<void>();
 
   readonly isFutureAppointment = isFutureAppointment;
@@ -403,5 +405,9 @@ export class AppointmentsListComponent {
 
   getTranslatedServiceName(serviceName: string | undefined): string {
     return this.serviceTranslationService.translateServiceName(serviceName || '');
+  }
+
+  getClientName(booking: Booking): string {
+    return booking.nom || booking.title || booking.clientName || 'Client';
   }
 }

@@ -21,7 +21,7 @@
     </div>
     <div class="filter-group">
       <label for="filterService">{{ 'COMMON.FILTERS.FILTER_BY_SERVICE' | translate }}</label>
-      <p-dropdown
+      <p-select
         id="filterService"
         [options]="serviceOptions()"
         [ngModel]="filterServiceValue()"
@@ -50,7 +50,7 @@
             <span>{{ option.label }}</span>
           }
         </ng-template>
-      </p-dropdown>
+      </p-select>
     </div>
     <div class="reset-group">
       <button class="reset-btn" (click)="onResetHandler()">

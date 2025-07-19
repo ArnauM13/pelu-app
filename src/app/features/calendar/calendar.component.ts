@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
 import { AuthService } from '../../core/auth/auth.service';
+import { BookingService, Booking } from '../../core/services/booking.service';
 import { CalendarPositionService } from './calendar-position.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
@@ -16,6 +17,7 @@ import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
 import { Router } from '@angular/router';
+import { migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../shared/services';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -47,6 +49,7 @@ export interface AppointmentEvent {
 export class CalendarComponent {
   // Inject services
   private readonly authService = inject(AuthService);
+  private readonly appointmentService = inject(BookingService);
   private readonly router = inject(Router);
   private readonly positionService = inject(CalendarPositionService);
   private readonly businessService = inject(CalendarBusinessService);
@@ -68,7 +71,7 @@ export class CalendarComponent {
   readonly selectedDay = this.stateService.selectedDay;
   readonly showDetailPopup = this.stateService.showDetailPopup;
   readonly selectedAppointment = this.stateService.selectedAppointment;
-  readonly appointments = this.stateService.appointments;
+  readonly appointments = this.appointmentService.bookings;
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
@@ -79,7 +82,7 @@ export class CalendarComponent {
   readonly PIXELS_PER_MINUTE = this.positionService.getPixelsPerMinute();
   readonly SLOT_HEIGHT_PX = this.positionService.getSlotHeightPx();
 
-  // Computed events that combines input events with localStorage appointments
+  // Computed events that combines input events with Firebase bookings
   readonly allEvents = computed((): AppointmentEvent[] => {
     // Use provided events or load from appointments signal
     const providedEvents = this.events();
@@ -120,16 +123,21 @@ export class CalendarComponent {
 
       return {
         id: c.id || uuidv4(), // Generate unique ID if not exists
-        title: c.nom,
+        title: c.nom || 'Client',
         start: startString,
         end: endString,
         duration: duration,
-        serviceName: c.serviceName,
-        clientName: c.nom
+        serviceName: c.serviceName || c.servei || '',
+        clientName: c.nom || 'Client'
       };
     });
 
-    return events;
+    return events.map(event => ({
+      ...event,
+      title: event.title || 'Client',
+      serviceName: event.serviceName || '',
+      clientName: event.clientName || 'Client'
+    }));
   });
 
   // ✅ Generate 30-minute time slots from 08:00 to 20:00
@@ -178,25 +186,15 @@ export class CalendarComponent {
   });
 
   constructor(private serviceColorsService: ServiceColorsService) {
-    this.loadAppointmentsFromStorage();
-
-    // Listen for localStorage changes to update calendar in real-time
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'cites') {
-        this.reloadAppointments();
-        this.cdr.detectChanges();
-      }
-    });
-
     // Listen for custom appointment update events
     window.addEventListener('appointmentUpdated', () => {
-      this.reloadAppointments();
+      this.appointmentService.refreshBookings();
       this.cdr.detectChanges();
     });
 
     // Listen for custom appointment delete events
     window.addEventListener('appointmentDeleted', () => {
-      this.reloadAppointments();
+      this.appointmentService.refreshBookings();
       this.cdr.detectChanges();
     });
 
@@ -207,50 +205,10 @@ export class CalendarComponent {
     });
 
     // Set up a periodic check for localStorage changes (fallback)
-    setInterval(() => {
-      this.checkForStorageChanges();
-    }, 1000);
+    // Removed localStorage checking - now using Firebase
   }
 
-  // Load appointments from localStorage
-  private loadAppointmentsFromStorage(): void {
-    try {
-      // Carreguem les cites des de 'cites' (format original) i també des de 'appointments' si existeix
-      const citesStored = localStorage.getItem('cites');
-      const appointmentsStored = localStorage.getItem('appointments');
-
-      let appointments: any[] = [];
-
-      if (citesStored) {
-        const cites = JSON.parse(citesStored);
-        appointments = [...appointments, ...cites];
-      }
-
-      if (appointmentsStored) {
-        const appointmentsData = JSON.parse(appointmentsStored);
-        appointments = [...appointments, ...appointmentsData];
-      }
-
-      // Eliminem duplicats per ID
-      const uniqueAppointments = appointments.filter((appointment, index, self) =>
-        index === self.findIndex(a => a.id === appointment.id)
-      );
-
-      this.stateService.setAppointments(uniqueAppointments);
-    } catch (error) {
-      // Handle storage error silently
-    }
-  }
-
-  // Save appointments to localStorage
-  private saveAppointmentsToStorage(): void {
-    try {
-      const appointments = this.appointments();
-      localStorage.setItem('appointments', JSON.stringify(appointments));
-    } catch (error) {
-      // Handle storage error silently
-    }
-  }
+  // Removed localStorage methods - now using Firebase via AppointmentService
 
   // Methods that delegate to services
   isTimeSlotAvailable(date: Date, time: string, requestedDuration: number = this.SLOT_DURATION_MINUTES): boolean {
@@ -298,28 +256,13 @@ export class CalendarComponent {
         serviceId: ''
       };
 
-      // Save the converted appointment to localStorage so it can be found later
-      this.saveConvertedAppointmentToStorage(convertedAppointment);
+      // Removed localStorage saving - now using Firebase
 
       this.stateService.openAppointmentDetail(convertedAppointment);
     }
   }
 
-  /**
-   * Save a converted appointment to localStorage so it can be found by the detail page
-   */
-  private saveConvertedAppointmentToStorage(appointment: any): void {
-    try {
-      const appointments = this.appointments();
-      const updatedAppointments = [...appointments, appointment];
-      this.stateService.setAppointments(updatedAppointments);
-
-      // Also save to localStorage
-      localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
-    } catch (error) {
-      console.error('Error saving converted appointment:', error);
-    }
-  }
+  // Removed localStorage saving - now using Firebase
 
   isLunchBreak(time: string): boolean {
     return this.businessService.isLunchBreak(time);
@@ -549,42 +492,41 @@ export class CalendarComponent {
     // Remove the appointment from the state
     this.stateService.removeAppointment(appointment.id);
 
-    // Also remove from localStorage 'cites' to keep it in sync
-    try {
-      const cites = JSON.parse(localStorage.getItem('cites') || '[]');
-      const updatedCites = cites.filter((cita: any) => cita.id !== appointment.id);
-      localStorage.setItem('cites', JSON.stringify(updatedCites));
-    } catch (error) {
-      console.error('Error updating cites in localStorage:', error);
-    }
-
-    // Force reload appointments to update the view immediately
-    this.loadAppointmentsFromStorage();
-    this.cdr.detectChanges();
-
-    // Also trigger a change detection cycle
-    setTimeout(() => {
-      this.loadAppointmentsFromStorage();
+          // Force reload appointments to update the view immediately
+      this.appointmentService.refreshBookings();
       this.cdr.detectChanges();
 
-      // Force a change detection cycle by triggering a custom event
-      window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: appointment }));
-    }, 100);
+      // Also trigger a change detection cycle
+      setTimeout(() => {
+        this.appointmentService.refreshBookings();
+        this.cdr.detectChanges();
+
+        // Force a change detection cycle by triggering a custom event
+        window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: appointment }));
+      }, 100);
   }
 
-  onAppointmentEditRequested(appointment: any) {
+    onAppointmentEditRequested(appointment: any) {
     const currentUser = this.authService.user();
     if (!currentUser?.uid) {
       console.warn('No user found');
       return;
     }
 
-    // Generate unique ID combining clientId and appointmentId (mateixa estratègia que la pàgina de cites)
-    const clientId = currentUser.uid;
-    const uniqueId = `${clientId}-${appointment.id}`;
-
-    // Navigate to the appointment detail page in edit mode
-    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    // All appointments are now bookings, so use the direct ID with token
+    if (appointment.editToken) {
+      this.router.navigate(['/appointments', appointment.id], {
+        queryParams: {
+          token: appointment.editToken,
+          edit: 'true'
+        }
+      });
+    } else {
+      // Fallback for appointments without editToken (shouldn't happen)
+      const clientId = currentUser.uid;
+      const uniqueId = `${clientId}-${appointment.id}`;
+      this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    }
 
     // Close the popup
     this.stateService.closeAppointmentDetail();
@@ -595,30 +537,10 @@ export class CalendarComponent {
   }
 
   reloadAppointments() {
-    this.loadAppointmentsFromStorage();
+    this.appointmentService.refreshBookings();
   }
 
-  // Check for localStorage changes and update if needed
-  private checkForStorageChanges() {
-    try {
-      const currentCites = localStorage.getItem('cites');
-      const currentAppointments = this.appointments();
-
-      if (currentCites) {
-        const parsedCites = JSON.parse(currentCites);
-        const currentIds = currentAppointments.map(app => app.id).sort();
-        const newIds = parsedCites.map((app: any) => app.id).sort();
-
-        // Check if the IDs are different (indicating a change)
-        if (JSON.stringify(currentIds) !== JSON.stringify(newIds)) {
-          this.loadAppointmentsFromStorage();
-          this.cdr.detectChanges();
-        }
-      }
-    } catch (error) {
-      // Handle errors silently
-    }
-  }
+  // Removed localStorage change checking - now using Firebase
 
   onDateChange(dateString: string) {
     this.stateService.navigateToDate(dateString);

@@ -45,6 +45,10 @@
 .logo-image {
   height: 40px;
   width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .nav {

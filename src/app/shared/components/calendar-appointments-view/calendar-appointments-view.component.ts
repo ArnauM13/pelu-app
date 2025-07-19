@@ -8,17 +8,7 @@ import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/app
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { isFutureAppointment } from '../../services';
-
-export interface Appointment {
-  id: string;
-  nom: string;
-  data: string;
-  hora?: string;
-  servei?: string;
-  serviceName?: string;
-  duration?: number;
-  userId: string;
-}
+import { Booking } from '../../../core/services/booking.service';
 
 @Component({
   selector: 'pelu-calendar-appointments-view',
@@ -34,123 +24,98 @@ export interface Appointment {
     LoadingStateComponent
   ],
   template: `
-    @if (appointments().length === 0) {
+    @if (isLoading()) {
+      <pelu-loading-state [config]="loadingConfig"></pelu-loading-state>
+    } @else if (bookings().length === 0) {
       <div class="full-screen-empty-state">
         <pelu-not-found-state
           [config]="notFoundConfig">
         </pelu-not-found-state>
       </div>
     } @else {
-      <pelu-card variant="large" class="calendar-view-card">
+      <pelu-card>
         <div class="card-header">
-          <h3>📅 {{ 'COMMON.APPOINTMENTS_CALENDAR' | translate }}</h3>
-          <p class="calendar-subtitle">{{ 'COMMON.VIEW_APPOINTMENTS' | translate }}</p>
+          <div class="header-left">
+            <h3>{{ 'COMMON.CALENDAR_VIEW' | translate }}</h3>
+          </div>
+          <div class="header-right">
+            <span class="list-subtitle" style="color:var(--text-color-light); font-size:0.95rem;">{{ 'COMMON.VIEW_CALENDAR_APPOINTMENTS' | translate }}</span>
+          </div>
         </div>
 
         <div class="calendar-container">
-          @defer {
-            <pelu-calendar-component
-              [events]="calendarEvents()"
-              [mini]="false"
-              (dateSelected)="onDateSelected.emit($event)"
-              (onEditAppointment)="onCalendarEditAppointment($event)"
-              (onDeleteAppointment)="onCalendarDeleteAppointment($event)">
-            </pelu-calendar-component>
-          } @placeholder {
-            <div class="calendar-placeholder">
-              <pelu-loading-state
-                [config]="loadingConfig">
-              </pelu-loading-state>
-            </div>
-          }
+          <pelu-calendar-component
+            [mini]="false"
+            [events]="calendarEvents()"
+            (dateSelected)="onDateSelected.emit($event)"
+            (onEditAppointment)="onCalendarEditBooking($event)"
+            (onDeleteAppointment)="onCalendarDeleteBooking($event)">
+          </pelu-calendar-component>
         </div>
 
-        <!-- Mostra la llista de cites o el missatge d'instrucció a sota del calendari -->
         @if (selectedDate()) {
-          <div class="selected-date-appointments">
-            <h4>📋 {{ 'COMMON.APPOINTMENTS_FOR_DATE' | translate }} {{ formatDate(formatDateForDisplay(selectedDate()!)) }}</h4>
-            @if (getAppointmentsForDate(selectedDate()!).length === 0) {
-              <div class="empty-state">
-                <div class="empty-icon">📅</div>
-                <h3>{{ 'COMMON.NO_SCHEDULED_APPOINTMENTS' | translate }}</h3>
-                <p>{{ 'COMMON.NO_APPOINTMENTS_MESSAGE' | translate }}</p>
-              </div>
-            } @else {
-              <div class="appointments-list">
-                @for (appointment of getAppointmentsForDate(selectedDate()!); track appointment.id) {
-                  <div class="appointment-item clickable" [class.today]="isToday(appointment.data)" (click)="onViewAppointment.emit(appointment)">
-                    <!-- Informació de la cita (esquerra) -->
-                    <div class="appointment-info">
-                      <div class="client-info">
-                        <h4 class="client-name">{{ appointment.nom }}</h4>
-                        <div class="appointment-details">
-                          @if (appointment.hora) {
-                            <div class="detail-item">
-                              <span class="detail-icon">⏰</span>
-                              <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
-                            </div>
-                          }
-                          @if (appointment.servei) {
-                            <div class="detail-item">
-                              <span class="detail-icon">✂️</span>
-                              <span class="detail-text">{{ appointment.servei }}</span>
-                            </div>
-                          }
-                          @if (appointment.serviceName) {
-                            <div class="detail-item">
-                              <span class="detail-icon">✂️</span>
-                              <span class="detail-text">{{ appointment.serviceName }}</span>
-                            </div>
-                          }
-                          @if (appointment.duration) {
-                            <div class="detail-item">
-                              <span class="detail-icon">⏱️</span>
-                              <span class="detail-text">{{ appointment.duration }} min</span>
-                            </div>
-                          }
+          <div class="selected-date-bookings">
+            <h4>{{ 'COMMON.BOOKINGS_FOR_DATE' | translate }} {{ formatDateForDisplay(selectedDate()!) }}</h4>
+            <div class="bookings-list">
+              @for (booking of getBookingsForDate(selectedDate()!); track booking.id) {
+                <div class="booking-item"
+                     [ngClass]="{'today': isToday(booking.data)}"
+                     (click)="onViewBooking.emit(booking)">
+                  <div class="booking-info">
+                    <div class="client-info">
+                      <h5 class="client-name">{{ booking.nom }}</h5>
+                      <div class="booking-details">
+                        <div class="detail-item">
+                          <span class="detail-icon">🕐</span>
+                          <span class="detail-text">{{ formatTime(booking.hora) }}</span>
                         </div>
-                      </div>
-                    </div>
-
-                    <!-- Status i accions (dreta) -->
-                    <div class="appointment-actions-container">
-                      <div class="appointment-status">
-                        <pelu-appointment-status-badge
-                          [appointmentData]="{ date: appointment.data, time: appointment.hora }"
-                          [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
-                        </pelu-appointment-status-badge>
-                      </div>
-
-                      <div class="appointment-actions" (click)="$event.stopPropagation()">
-                        <button
-                          class="btn btn-primary"
-                          (click)="onViewAppointment.emit(appointment)"
-                          [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
-                          pTooltipPosition="left">
-                          👁️
-                        </button>
-                        @if (isFutureAppointment({ data: appointment.data, hora: appointment.hora || '' })) {
-                          <button
-                            class="btn btn-secondary"
-                            (click)="onEditAppointment.emit(appointment)"
-                            [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
-                            pTooltipPosition="left">
-                            ✏️
-                          </button>
-                          <button
-                            class="btn btn-danger"
-                            (click)="onDeleteAppointment.emit(appointment)"
-                            [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-                            pTooltipPosition="left">
-                            🗑️
-                          </button>
+                        @if (booking.duration) {
+                          <div class="detail-item">
+                            <span class="detail-icon">⏱️</span>
+                            <span class="detail-text">{{ booking.duration }} min</span>
+                          </div>
+                        }
+                        @if (booking.serviceName || booking.servei) {
+                          <div class="detail-item">
+                            <span class="detail-icon">✂️</span>
+                            <span class="detail-text">{{ booking.serviceName || booking.servei }}</span>
+                          </div>
                         }
                       </div>
                     </div>
                   </div>
-                }
-              </div>
-            }
+                  <div class="booking-actions">
+                    <pelu-appointment-status-badge
+                      [appointmentData]="{ date: booking.data, time: booking.hora }"
+                      [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
+                    </pelu-appointment-status-badge>
+                    <button
+                      class="btn btn-primary"
+                      (click)="$event.stopPropagation(); onViewBooking.emit(booking)"
+                      [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
+                      pTooltipPosition="left">
+                      👁️
+                    </button>
+                    @if (isFutureAppointment({ data: booking.data, hora: booking.hora || '' })) {
+                      <button
+                        class="btn btn-secondary"
+                        (click)="$event.stopPropagation(); onEditBooking.emit(booking)"
+                        [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                        pTooltipPosition="left">
+                        ✏️
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        (click)="$event.stopPropagation(); onDeleteBooking.emit(booking)"
+                        [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
+                        pTooltipPosition="left">
+                        🗑️
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         }
       </pelu-card>
@@ -176,10 +141,6 @@ export interface Appointment {
       }
     }
 
-    .calendar-view-card {
-      margin-bottom: 1rem;
-    }
-
     .card-header {
       margin-bottom: 1.5rem;
     }
@@ -191,7 +152,7 @@ export interface Appointment {
       color: var(--text-color);
     }
 
-    .calendar-subtitle {
+    .list-subtitle {
       margin: 0;
       color: var(--text-color-secondary);
       font-size: 0.875rem;
@@ -201,151 +162,159 @@ export interface Appointment {
       margin-bottom: 2rem;
     }
 
-    .calendar-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      color: var(--text-color-secondary);
+    .selected-date-bookings {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
     }
 
-    .selected-date-appointments {
-      border-top: 1px solid var(--surface-border);
-      padding-top: 1.5rem;
-    }
-
-    .selected-date-appointments h4 {
+    .selected-date-bookings h4 {
       margin: 0 0 1rem 0;
       font-size: 1.25rem;
       font-weight: 600;
       color: var(--text-color);
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-color-secondary);
-    }
-
-    .empty-state .empty-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .empty-state h3 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-
-    .empty-state p {
-      margin: 0;
-      font-size: 0.875rem;
-    }
-
-    .appointments-list {
+    .bookings-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
-    .appointment-item {
+    .booking-item {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem;
-      background: var(--surface-card);
-      border: 1px solid var(--surface-border);
-      border-radius: 8px;
       transition: all 0.2s ease;
+      gap: 0.75rem;
+      min-height: 40px;
+      font-size: 0.9rem;
+      box-shadow: var(--box-shadow);
       cursor: pointer;
     }
 
-    .appointment-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    .booking-item:hover {
+      box-shadow: var(--box-shadow-hover);
+      border-color: var(--primary-color-light);
+      transform: translateY(-1px);
     }
 
-    .appointment-item.today {
+    .booking-item.today {
       border-color: var(--primary-color);
-      background: var(--primary-color-alpha-10);
+      background: var(--secondary-color-light);
     }
 
-    .appointment-info {
+    .booking-info {
       flex: 1;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .client-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
     }
 
     .client-name {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.1rem;
-      font-weight: 600;
+      margin: 0 0 0.2rem 0;
       color: var(--text-color);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .appointment-details {
+    .booking-details {
       display: flex;
+      flex-direction: row;
+      gap: 0.6rem;
       flex-wrap: wrap;
-      gap: 1rem;
+      font-size: 0.85rem;
     }
 
     .detail-item {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
+      gap: 0.2rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
     }
 
     .detail-icon {
-      font-size: 1rem;
+      font-size: 0.9rem;
+      width: 16px;
+      text-align: center;
     }
 
-    .appointment-actions-container {
+    .detail-text {
+      color: var(--text-color-light);
+      font-size: 0.85rem;
+    }
+
+    .booking-actions {
       display: flex;
+      flex-direction: row;
       align-items: center;
-      gap: 1rem;
+      gap: 0.4rem;
+      flex-shrink: 0;
     }
 
-    .appointment-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn {
-      padding: 0.5rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.2s ease;
+    .btn-primary, .btn-secondary, .btn-danger {
+      padding: 0.3rem 0.4rem;
+      font-size: 0.85rem;
+      min-width: 28px;
+      min-height: 28px;
     }
 
     .btn-primary {
       background: var(--gradient-primary);
       color: white;
+      border-color: var(--primary-color);
     }
 
     .btn-primary:hover {
       background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+      border-color: var(--primary-color-dark);
     }
 
     .btn-secondary {
       background: var(--gradient-secondary);
       color: white;
+      border-color: var(--secondary-color);
     }
 
     .btn-secondary:hover {
       background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+      border-color: var(--secondary-color-dark);
     }
 
     .btn-danger {
       background: var(--gradient-error);
       color: white;
+      border-color: var(--error-color);
     }
 
     .btn-danger:hover {
       background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+      border-color: #B91C1C;
+    }
+
+    .btn {
+      padding: 0.4rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
     }
 
     @media (max-width: 768px) {
@@ -354,34 +323,18 @@ export interface Appointment {
         margin: 1rem 0;
       }
 
-      .empty-state-content {
-        padding: 3rem 1rem;
-      }
-
-      .empty-icon {
-        font-size: 4rem;
-      }
-
-      .empty-state-content h3 {
-        font-size: 1.5rem;
-      }
-
-      .empty-state-content p {
-        font-size: 1rem;
-      }
-
-      .appointment-item {
+      .booking-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
       }
 
-      .appointment-actions-container {
+      .booking-actions {
         width: 100%;
         justify-content: space-between;
       }
 
-      .appointment-details {
+      .booking-details {
         flex-direction: column;
         gap: 0.5rem;
       }
@@ -389,31 +342,32 @@ export interface Appointment {
   `]
 })
 export class CalendarAppointmentsViewComponent {
-  appointments = input.required<Appointment[]>();
+  bookings = input.required<Booking[]>();
   selectedDate = input<string | null>(null);
+  isLoading = input<boolean>(false);
 
   onDateSelected = output<{date: string, time: string}>();
-  onViewAppointment = output<Appointment>();
-  onEditAppointment = output<Appointment>();
-  onDeleteAppointment = output<Appointment>();
+  onViewBooking = output<Booking>();
+  onEditBooking = output<Booking>();
+  onDeleteBooking = output<Booking>();
 
-  // Internal event handlers that convert AppointmentEvent to Appointment
-  onCalendarEditAppointment(appointmentEvent: AppointmentEvent) {
-    // Convert AppointmentEvent to Appointment
-    const appointment = this.convertAppointmentEventToAppointment(appointmentEvent);
-    this.onEditAppointment.emit(appointment);
+  // Internal event handlers that convert AppointmentEvent to Booking
+  onCalendarEditBooking(appointmentEvent: AppointmentEvent) {
+    // Convert AppointmentEvent to Booking
+    const booking = this.convertAppointmentEventToBooking(appointmentEvent);
+    this.onEditBooking.emit(booking);
   }
 
-  onCalendarDeleteAppointment(appointmentEvent: AppointmentEvent) {
-    // Convert AppointmentEvent to Appointment
-    const appointment = this.convertAppointmentEventToAppointment(appointmentEvent);
-    this.onDeleteAppointment.emit(appointment);
+  onCalendarDeleteBooking(appointmentEvent: AppointmentEvent) {
+    // Convert AppointmentEvent to Booking
+    const booking = this.convertAppointmentEventToBooking(appointmentEvent);
+    this.onDeleteBooking.emit(booking);
   }
 
-  private convertAppointmentEventToAppointment(appointmentEvent: AppointmentEvent): Appointment {
-    // Find the original appointment from the appointments array
-    const originalAppointment = this.appointments().find(app => {
-      if (appointmentEvent.id && app.id === appointmentEvent.id) {
+  private convertAppointmentEventToBooking(appointmentEvent: AppointmentEvent): Booking {
+    // Find the original booking from the bookings array
+    const originalBooking = this.bookings().find(booking => {
+      if (appointmentEvent.id && booking.id === appointmentEvent.id) {
         return true;
       }
 
@@ -421,24 +375,37 @@ export class CalendarAppointmentsViewComponent {
       const eventDate = appointmentEvent.start.split('T')[0];
       const eventTime = appointmentEvent.start.split('T')[1]?.substring(0, 5);
 
-      return app.data === eventDate &&
-             app.hora === eventTime &&
-             app.nom === appointmentEvent.title;
+      return booking.data === eventDate &&
+             booking.hora === eventTime &&
+             booking.nom === appointmentEvent.title;
     });
 
-    if (originalAppointment) {
-      return originalAppointment;
+    if (originalBooking) {
+      return originalBooking;
     }
 
-    // Fallback: create a new appointment from the event
+    // Fallback: create a new booking from the event
     return {
       id: appointmentEvent.id || '',
       nom: appointmentEvent.title || appointmentEvent.clientName || '',
+      email: '',
       data: appointmentEvent.start.split('T')[0],
-      hora: appointmentEvent.start.split('T')[1]?.substring(0, 5),
-      serviceName: appointmentEvent.serviceName,
-      duration: appointmentEvent.duration,
-      userId: ''
+      hora: appointmentEvent.start.split('T')[1]?.substring(0, 5) || '',
+      serviceName: appointmentEvent.serviceName || '',
+      serviceId: '',
+      duration: appointmentEvent.duration || 60,
+      price: 0,
+      notes: '',
+      status: 'confirmed',
+      editToken: '',
+      uid: null,
+      createdAt: new Date(),
+      title: appointmentEvent.title || appointmentEvent.clientName || '',
+      start: appointmentEvent.start,
+      servei: appointmentEvent.serviceName || '',
+      preu: 0,
+      userId: '',
+      clientName: appointmentEvent.clientName || ''
     };
   }
 
@@ -463,17 +430,18 @@ export class CalendarAppointmentsViewComponent {
   }
 
   calendarEvents = computed((): AppointmentEvent[] => {
-    return this.appointments().map(appointment => ({
-      title: appointment.nom,
-      start: appointment.data + (appointment.hora ? 'T' + appointment.hora : ''),
-      duration: appointment.duration || 60,
-      serviceName: appointment.serviceName,
-      clientName: appointment.nom
+    return this.bookings().map(booking => ({
+      id: booking.id,
+      title: booking.nom,
+      start: booking.data + (booking.hora ? 'T' + booking.hora : ''),
+      duration: booking.duration || 60,
+      serviceName: booking.serviceName,
+      clientName: booking.nom
     }));
   });
 
-  getAppointmentsForDate(date: string): Appointment[] {
-    return this.appointments().filter(appointment => appointment.data === date);
+  getBookingsForDate(date: string): Booking[] {
+    return this.bookings().filter(booking => booking.data === date);
   }
 
   isToday(date: string): boolean {

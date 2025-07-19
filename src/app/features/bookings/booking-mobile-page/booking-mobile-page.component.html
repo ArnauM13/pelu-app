@@ -72,7 +72,7 @@
   <!-- Time Slots for Selected Day -->
   @if (selectedService()) {
     <pelu-card class="time-slots-card">
-      <h3>{{ 'COMMON.SELECTION.SELECT_TIME' | translate }}</h3>
+      <h3>{{ 'BOOKING.SELECT_TIME' | translate }}</h3>
       <p class="selected-date">{{ formatDay(selectedDate()) }}</p>
 
       @for (daySlot of daySlots(); track daySlot.date) {
@@ -122,6 +122,14 @@
     </div>
   </pelu-card>
 </div>
+
+<!-- Service Selection Popup -->
+<pelu-service-selection-popup
+  [open]="showServiceSelectionPopup()"
+  [selectionDetails]="serviceSelectionDetails()"
+  (serviceSelected)="onServiceSelected($event)"
+  (cancelled)="onServiceSelectionCancelled()">
+</pelu-service-selection-popup>
 
 <!-- Booking Confirmation Popup -->
 <pelu-booking-popup

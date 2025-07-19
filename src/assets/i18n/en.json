@@ -81,6 +81,8 @@
       "SELECT_DATE": "Select date",
       "SELECT_DAY": "Select day",
       "SELECT_SERVICE": "Select service",
+      "CHOOSE_SERVICE": "Choose a service",
+      "SELECTED_SERVICE": "Selected service",
       "PLEASE_SELECT_SERVICE": "Please select a service"
     },
     "SEARCH": {
@@ -104,6 +106,10 @@
         "TIME_SLOT_BUSY": "Time slot busy"
       }
     },
+    "LIST_VIEW": "List view",
+    "LIST_VIEW_LABEL": "View appointments in list format",
+    "CALENDAR_VIEW": "Calendar view",
+    "CALENDAR_VIEW_LABEL": "View appointments in calendar format",
     "FILTERS": {
       "FILTERS": "Filters",
       "OPEN_FILTERS": "Open filters",
@@ -128,7 +134,34 @@
     "MISSING_CLIENT_NAME": "Please enter the client name",
     "MISSING_SERVICE": "Please select a service",
     "TOTAL": "Total",
-    "NO_DATA": "No data"
+    "NO_DATA": "No data",
+    "LOADING": "Loading...",
+    "ERROR": "Error",
+    "EMAIL": "Email",
+    "ENTER_EMAIL": "Enter your email",
+    "NOTES": "Notes",
+    "ENTER_NOTES": "Enter notes (optional)",
+    "SHARE": "Share",
+    "SHARE_WHATSAPP": "Share via WhatsApp",
+    "DANGER_ZONE": "Danger Zone",
+    "BOOKING_DETAILS": "Booking Details",
+    "CLIENT_INFORMATION": "Client Information",
+    "BOOKING_INFORMATION": "Booking Information",
+    "NAME": "Name",
+    "TIME": "Time",
+    "STATUS": "Status",
+    "DURATION": "Duration",
+    "PRICE": "Price",
+    "ERROR_LOADING_BOOKING": "Error loading booking",
+    "BOOKING_NOT_FOUND": "Booking not found",
+    "BOOKING_NOT_FOUND_MESSAGE": "The booking you are looking for could not be found",
+    "VALIDATION": {
+      "INVALID_EMAIL": "Please enter a valid email"
+    },
+    "MIGRATION": {
+      "COMPLETED": "Migration completed",
+      "MESSAGE": "{{count}} old appointments have been migrated to your account. You can now view details of all your appointments."
+    }
   },
   "AUTH": {
     "EMAIL": "Email",
@@ -176,7 +209,7 @@
     "ADMIN_SETTINGS": "Settings"
   },
   "LANDING": {
-    "HERO_TITLE": "Barberia Soca",
+    "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Book your moment. Fast, easy and no calls.",
     "BOOK_NOW": "Book now",
     "APPOINTMENTS": "Appointments",

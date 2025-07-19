@@ -84,6 +84,8 @@
       "SELECT_DATE": "Seleccionar data",
       "SELECT_DAY": "Seleccionar dia",
       "SELECT_SERVICE": "Seleccionar servei",
+      "CHOOSE_SERVICE": "Tria un servei",
+      "SELECTED_SERVICE": "Servei seleccionat",
       "PLEASE_SELECT_SERVICE": "Si us plau, selecciona un servei",
       "NO_AVAILABLE_HOURS": "Cap hora disponible pel dia seleccionat"
     },
@@ -108,6 +110,10 @@
         "TIME_SLOT_BUSY": "Horari ocupat"
       }
     },
+    "LIST_VIEW": "Vista de llista",
+    "LIST_VIEW_LABEL": "Visualitza les cites en format llista",
+    "CALENDAR_VIEW": "Vista de calendari",
+    "CALENDAR_VIEW_LABEL": "Visualitza les cites en format calendari",
     "FILTERS": {
       "FILTERS": "Filtres",
       "OPEN_FILTERS": "Obrir filtres",
@@ -142,8 +148,23 @@
     "SHARE": "Compartir",
     "SHARE_WHATSAPP": "Compartir per WhatsApp",
     "DANGER_ZONE": "Zona de perill",
+    "BOOKING_DETAILS": "Detalls de la reserva",
+    "CLIENT_INFORMATION": "Informació del client",
+    "BOOKING_INFORMATION": "Informació de la reserva",
+    "NAME": "Nom",
+    "TIME": "Hora",
+    "STATUS": "Estat",
+    "DURATION": "Durada",
+    "PRICE": "Preu",
+    "ERROR_LOADING_BOOKING": "Error al carregar la reserva",
+    "BOOKING_NOT_FOUND": "Reserva no trobada",
+    "BOOKING_NOT_FOUND_MESSAGE": "No s'ha pogut trobar la reserva que busques",
     "VALIDATION": {
       "INVALID_EMAIL": "Si us plau, introdueix un email vàlid"
+    },
+    "MIGRATION": {
+      "COMPLETED": "Migració completada",
+      "MESSAGE": "S'han migrat {{count}} cites antigues al teu compte. Ara pots veure els detalls de totes les teves cites."
     }
   },
   "AUTH": {
@@ -192,7 +213,7 @@
     "ADMIN_SETTINGS": "Configuració"
   },
   "LANDING": {
-    "HERO_TITLE": "Barberia Soca",
+    "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva el teu moment. Ràpid, fàcil i sense trucades.",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Cites",

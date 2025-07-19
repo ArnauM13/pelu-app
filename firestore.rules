@@ -35,19 +35,8 @@ service cloud.firestore {
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'permissions', 'updatedAt']));
     }
 
-    // Col·lecció de cites (appointments)
-    match /appointments/{appointmentId} {
-      // Usuaris poden llegir/escriure només les seves pròpies cites
-      allow read, write: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
-
-      // Administradors poden llegir totes les cites si tenen el permís
-      allow read: if hasPermission('view_all_appointments');
-
-      // Administradors poden actualitzar cites si tenen el permís
-      allow update: if hasPermission('view_all_appointments') &&
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'notes', 'updatedAt']));
-    }
+    // Col·lecció de cites (bookings) - totes les cites es gestionen com a reserves
+    // Les regles estan definides a la secció de bookings més avall
 
     // Col·lecció de serveis
     match /services/{serviceId} {

@@ -40,7 +40,6 @@ export class BookingPopupComponent {
   // Internal state
   readonly clientName = signal<string>('');
   readonly email = signal<string>('');
-  readonly selectedService = signal<Service | null>(null);
 
   // Computed properties
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
@@ -51,7 +50,7 @@ export class BookingPopupComponent {
     const details = this.bookingDetails();
     const name = this.clientName() || details.clientName;
     const email = this.email() || details.email;
-    const hasService = details.service !== undefined || this.selectedService() !== null;
+    const hasService = details.service !== undefined;
 
     // Email is always required (for both authenticated and anonymous users)
     const hasValidEmail = email.trim() !== '' && this.isValidEmail(email);
@@ -60,7 +59,7 @@ export class BookingPopupComponent {
   });
 
   readonly totalPrice = computed(() => {
-    const service = this.bookingDetails().service || this.selectedService();
+    const service = this.bookingDetails().service;
     return service ? service.price : 0;
   });
 
@@ -97,10 +96,7 @@ export class BookingPopupComponent {
     this.emailChanged.emit(value);
   }
 
-  // Service selection
-  onServiceChange(event: any) {
-    this.selectedService.set(event.value);
-  }
+
 
   // Format methods
   formatDate(date: string): string {
@@ -138,7 +134,7 @@ export class BookingPopupComponent {
 
   onConfirm() {
     const details = this.bookingDetails();
-    const service = details.service || this.selectedService();
+    const service = details.service;
     const clientName = this.clientName() || details.clientName;
     const email = this.email() || details.email;
 
@@ -170,7 +166,6 @@ export class BookingPopupComponent {
     };
 
     // Clean up state
-    this.selectedService.set(null);
     this.clientName.set('');
     this.email.set('');
 

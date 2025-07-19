@@ -29,51 +29,51 @@
         <!-- Business Info -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate }}</label>
-          <div class="readonly-field">{{ settingsForm.get('businessName')?.value || 'Barberia Soca' }}</div>
+          <div class="readonly-field">{{ settings().businessName }}</div>
         </div>
         <!-- Appointment Duration -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION' | translate }}</label>
-          <div class="readonly-field">{{ settingsForm.get('appointmentDuration')?.value || 60 }} min</div>
+          <div class="readonly-field">{{ settings().appointmentDuration }} min</div>
         </div>
         <!-- Max Appointments -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS' | translate }}</label>
-          <div class="readonly-field">{{ settingsForm.get('maxAppointments')?.value || 20 }}</div>
+          <div class="readonly-field">{{ settings().maxAppointmentsPerDay }}</div>
         </div>
         <!-- Auto Confirm -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM' | translate }}</label>
           <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settingsForm.get('autoConfirm')?.value" [class.pi-times]="!settingsForm.get('autoConfirm')?.value"></i>
-            {{ settingsForm.get('autoConfirm')?.value ? 'Sí' : 'No' }}
+            <i class="pi" [class.pi-check]="settings().autoConfirmAppointments" [class.pi-times]="!settings().autoConfirmAppointments"></i>
+            {{ settings().autoConfirmAppointments ? 'Sí' : 'No' }}
           </div>
         </div>
         <!-- Notifications -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS' | translate }}</label>
           <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settingsForm.get('sendNotifications')?.value" [class.pi-times]="!settingsForm.get('sendNotifications')?.value"></i>
-            {{ settingsForm.get('sendNotifications')?.value ? 'Sí' : 'No' }}
+            <i class="pi" [class.pi-check]="settings().sendNotifications" [class.pi-times]="!settings().sendNotifications"></i>
+            {{ settings().sendNotifications ? 'Sí' : 'No' }}
           </div>
         </div>
         <!-- Maintenance Mode -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE' | translate }}</label>
           <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settingsForm.get('maintenanceMode')?.value" [class.pi-times]="!settingsForm.get('maintenanceMode')?.value"></i>
-            {{ settingsForm.get('maintenanceMode')?.value ? 'Sí' : 'No' }}
+            <i class="pi" [class.pi-check]="settings().maintenanceMode" [class.pi-times]="!settings().maintenanceMode"></i>
+            {{ settings().maintenanceMode ? 'Sí' : 'No' }}
           </div>
         </div>
         <!-- Language -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate }}</label>
-          <div class="readonly-field">{{ getLanguageLabel(settingsForm.get('defaultLanguage')?.value) }}</div>
+          <div class="readonly-field">{{ getLanguageLabel(settings().language) }}</div>
         </div>
         <!-- Currency -->
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.CURRENCY' | translate }}</label>
-          <div class="readonly-field">{{ getCurrencyLabel(settingsForm.get('currency')?.value) }}</div>
+          <div class="readonly-field">{{ getCurrencyLabel(settings().currency) }}</div>
         </div>
       </div>
     </div>
@@ -114,12 +114,12 @@
         <!-- Language -->
         <div class="settings-group">
           <label for="defaultLanguage">{{ 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate }}</label>
-          <p-dropdown id="defaultLanguage" formControlName="defaultLanguage" [options]="languageOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate"></p-dropdown>
+          <p-select id="defaultLanguage" formControlName="defaultLanguage" [options]="languageOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate"></p-select>
         </div>
         <!-- Currency -->
         <div class="settings-group">
           <label for="currency">{{ 'ADMIN.SETTINGS_PAGE.CURRENCY' | translate }}</label>
-          <p-dropdown id="currency" formControlName="currency" [options]="currencyOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.CURRENCY' | translate"></p-dropdown>
+          <p-select id="currency" formControlName="currency" [options]="currencyOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.CURRENCY' | translate"></p-select>
           <small class="form-help">{{ 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP' | translate }}</small>
         </div>
       </div>
