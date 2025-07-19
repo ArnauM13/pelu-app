@@ -65,10 +65,32 @@
     <div class="content-grid" [class.editing-mode]="isEditing" [class.full-width]="!hasAvailableActions">
       <!-- Left Column - Information Sections -->
       <div class="info-column">
-        <!-- Status Badge (for appointments) -->
+        <!-- Status Badge and Action Buttons (for appointments) -->
         @if (type === 'appointment' && appointment) {
         <div class="info-section status-section-mobile">
-          <h2>{{ 'COMMON.STATUS' | translate }}</h2>
+          <div class="status-header">
+            <h2>{{ 'APPOINTMENTS.STATUS' | translate }}</h2>
+            @if (!isEditing && canEditAppointment()) {
+            <div class="appointment-actions">
+              @if (canEditAppointment()) {
+              <button
+                class="action-btn-small edit-btn"
+                (click)="onEdit()"
+                [title]="'COMMON.ACTIONS.EDIT' | translate">
+                ✏️
+              </button>
+              }
+              @if (canDeleteAppointment()) {
+              <button
+                class="action-btn-small delete-btn"
+                (click)="onDelete()"
+                [title]="'COMMON.ACTIONS.DELETE' | translate">
+                🗑️
+              </button>
+              }
+            </div>
+            }
+          </div>
           <pelu-appointment-status-badge
             [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
             [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }">

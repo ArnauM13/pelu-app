@@ -35,7 +35,8 @@ export interface LoadingStateConfig {
     }
 
     .loading-content.full-height {
-      min-height: 60vh;
+      min-height: 100vh;
+      height: 100vh;
     }
 
     .loading-content.overlay {
@@ -44,7 +45,7 @@ export interface LoadingStateConfig {
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.95);
       z-index: 9999;
       backdrop-filter: blur(4px);
     }
@@ -99,7 +100,8 @@ export interface LoadingStateConfig {
       }
 
       .loading-content.full-height {
-        min-height: 50vh;
+        min-height: 100vh;
+        height: 100vh;
       }
 
       .spinner-small .spinner {

@@ -41,7 +41,6 @@
                   <span class="service-duration">
                     ⏱️ {{ formatDuration(service.duration) }}
                   </span>
-                  <!-- Popular indicator removed as it's not in the service interface -->
                 </div>
                 @if (selectedService()?.id === service.id) {
                   <div class="selection-indicator">
@@ -53,14 +52,9 @@
           }
         </div>
       </div>
-
-
     </div>
 
     <div class="popup-footer">
-      <button class="btn-secondary" (click)="onCancel()">
-        {{ 'COMMON.ACTIONS.CANCEL' | translate }}
-      </button>
       <button class="btn-primary" (click)="onConfirm()" [disabled]="!canConfirm()">
         {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
       </button>

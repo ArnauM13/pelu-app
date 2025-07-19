@@ -61,7 +61,7 @@
                   <span class="info-value">{{ getPrice(currentBooking()!) }}€</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.STATUS' | translate }}:</span>
+                  <span class="info-label">{{ 'APPOINTMENTS.STATUS' | translate }}:</span>
                   <span class="info-value status-badge" [style.color]="getStatusColor(getStatus(currentBooking()!))">
                     {{ getStatusText(getStatus(currentBooking()!)) }}
                   </span>
@@ -114,3 +114,11 @@
     </div>
   </div>
 }
+
+<!-- Confirmation Popup -->
+<pelu-confirmation-popup
+  [isOpen]="showConfirmationPopup()"
+  [data]="confirmationData()"
+  (confirmed)="onConfirmDelete()"
+  (cancelled)="onConfirmationCancelled()">
+</pelu-confirmation-popup>
