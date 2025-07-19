@@ -128,76 +128,74 @@
   }
 }
 
-.service-selection {
-  .selected-service {
-    background: #f8f9fa;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
-    padding: 1rem;
+.selected-service-display {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #1976d2;
+  }
+
+  .service-info {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    transition: border-color 0.2s;
+    gap: 0.75rem;
+    flex: 1;
 
-    &:hover {
-      border-color: #1976d2;
-    }
-
-    .service-info {
+    .service-icon {
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      justify-content: center;
+      background: #e3f2fd;
+      border-radius: 50%;
+      color: #1976d2;
+    }
+
+    .service-details {
       flex: 1;
 
-      .service-icon {
-        font-size: 1.5rem;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #e3f2fd;
-        border-radius: 50%;
-        color: #1976d2;
+      .service-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
       }
 
-      .service-details {
-        flex: 1;
+      .service-description {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+      }
 
-        .service-name {
-          font-weight: 600;
-          color: #333;
-          margin-bottom: 0.25rem;
+      .service-meta {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+
+        .service-duration {
+          background: #e8f5e8;
+          color: #2e7d32;
+          padding: 0.25rem 0.5rem;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 500;
         }
 
-        .service-description {
-          color: #666;
-          font-size: 0.85rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .service-meta {
-          display: flex;
-          gap: 0.75rem;
-          align-items: center;
-
-          .service-duration {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-          }
-
-          .service-popular {
-            background: #fff3e0;
-            color: #f57c00;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-          }
+        .service-popular {
+          background: #fff3e0;
+          color: #f57c00;
+          padding: 0.25rem 0.5rem;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 500;
         }
       }
     }
@@ -208,148 +206,14 @@
       font-size: 1.1rem;
     }
   }
-
-  .service-select {
-    width: 100%;
-
-    ::ng-deep .p-dropdown {
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      transition: border-color 0.2s;
-
-      &:hover {
-        border-color: #1976d2;
-      }
-
-      &.p-focus {
-        border-color: #1976d2;
-        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
-      }
-    }
-  }
-}
-
-.service-option {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-
-  .service-icon {
-    font-size: 1.25rem;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #e3f2fd;
-    border-radius: 50%;
-    color: #1976d2;
-  }
-
-  .service-info {
-    flex: 1;
-
-    .service-name {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 0.25rem;
-    }
-
-    .service-description {
-      color: #666;
-      font-size: 0.85rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .service-meta {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-
-      .service-duration {
-        background: #e8f5e8;
-        color: #2e7d32;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-
-      .service-popular {
-        background: #fff3e0;
-        color: #f57c00;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-    }
-  }
-
-  .service-details {
-    .service-price {
-      font-weight: 700;
-      color: #1976d2;
-      font-size: 1rem;
-    }
-  }
-}
-
-.service-display-mobile {
-  .service-info-mobile {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 0.75rem;
-
-    .service-icon-mobile {
-      font-size: 1.25rem;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #e3f2fd;
-      border-radius: 50%;
-      color: #1976d2;
-    }
-
-    .service-details-mobile {
-      flex: 1;
-
-      .service-name-mobile {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.25rem;
-        display: block;
-      }
-
-      .service-duration-mobile {
-        color: #666;
-        font-size: 0.85rem;
-        margin-bottom: 0.25rem;
-        display: block;
-      }
-
-      .service-price-mobile {
-        font-weight: 700;
-        color: #1976d2;
-        font-size: 0.9rem;
-      }
-    }
-  }
 }
 
 .total-price {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+  background: #e3f2fd;
+  border: 2px solid #1976d2;
   border-radius: 12px;
   padding: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 
   .price-display {
     font-size: 1.25rem;
@@ -362,100 +226,59 @@
 .popup-footer {
   display: flex;
   gap: 1rem;
+  justify-content: flex-end;
   padding: 1.5rem;
   border-top: 1px solid #e0e0e0;
   background: #f8f9fa;
   border-radius: 0 0 16px 16px;
 
-  button {
-    flex: 1;
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+  }
+
+  .btn-secondary {
+    background: #f5f5f5;
+    color: #666;
+    border: 2px solid #e0e0e0;
     padding: 0.75rem 1.5rem;
-    border: none;
     border-radius: 8px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    font-size: 0.9rem;
 
-    &.btn-secondary {
-      background: #6c757d;
-      color: white;
-
-      &:hover {
-        background: #5a6268;
-        transform: translateY(-1px);
-      }
+    &:hover {
+      background: #e0e0e0;
+      border-color: #ccc;
     }
 
-    &.btn-primary {
-      background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
-      color: white;
-
-      &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
-      }
-
-      &:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-      }
-    }
-  }
-}
-
-// Responsive design
-@media (max-width: 768px) {
-  .booking-popup {
-    width: 95%;
-    max-height: 95vh;
-  }
-
-  .popup-header {
-    padding: 1rem;
-
-    h3 {
-      font-size: 1.1rem;
-    }
-  }
-
-  .popup-body {
-    padding: 1rem;
-  }
-
-  .popup-footer {
-    padding: 1rem;
-    flex-direction: column;
-
-    button {
+    @media (max-width: 768px) {
       width: 100%;
     }
   }
 
-  .service-selection .selected-service {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  .btn-primary {
+    background: #1976d2;
+    color: white;
+    border: 2px solid #1976d2;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
 
-    .service-price {
-      align-self: flex-end;
+    &:hover:not(:disabled) {
+      background: #1565c0;
+      border-color: #1565c0;
     }
-  }
-}
 
-// Hide desktop elements on mobile
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none !important;
-  }
-}
+    &:disabled {
+      background: #ccc;
+      border-color: #ccc;
+      cursor: not-allowed;
+    }
 
-// Hide mobile elements on desktop
-@media (min-width: 769px) {
-  .mobile-only {
-    display: none !important;
+    @media (max-width: 768px) {
+      width: 100%;
+    }
   }
 }

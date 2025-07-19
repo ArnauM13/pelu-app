@@ -1,39 +1,22 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { UserService } from '../../../core/services/user.service';
-import { CurrencyService } from '../../../core/services/currency.service';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
-import { CalendarModule } from 'primeng/calendar';
+import { SelectModule } from 'primeng/select';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CardComponent } from '../../../shared/components/card/card.component';
+import { ToastService } from '../../../shared/services/toast.service';
+import { UserService } from '../../../core/services/user.service';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { BusinessSettingsService, BusinessSettings } from '../../../core/services/business-settings.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-interface SystemSettings {
-  businessName: string;
-  businessHours: {
-    start: number;
-    end: number;
-    lunchStart: number;
-    lunchEnd: number;
-  };
-  workingDays: number[];
-  appointmentDuration: number;
-  maxAppointmentsPerDay: number;
-  autoConfirmAppointments: boolean;
-  sendNotifications: boolean;
-  maintenanceMode: boolean;
-  backupFrequency: string;
-  language: string;
-  timezone: string;
-  currency: string;
-}
+
 
 @Component({
   selector: 'app-admin-settings-page',
@@ -43,51 +26,35 @@ interface SystemSettings {
     ReactiveFormsModule,
     TranslateModule,
     ButtonModule,
-    CardModule,
+    CardComponent,
     InputTextModule,
     InputNumberModule,
-    DropdownModule,
+    SelectModule,
     CheckboxModule,
-    CalendarModule,
-    ToastModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    ToastModule
   ],
   providers: [MessageService],
   templateUrl: './admin-settings-page.component.html',
   styleUrls: ['./admin-settings-page.component.scss']
 })
-export class AdminSettingsPageComponent implements OnInit {
+export class AdminSettingsPageComponent {
   private userService = inject(UserService);
   private messageService = inject(MessageService);
   private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
+  private businessSettingsService = inject(BusinessSettingsService);
 
   settingsForm!: FormGroup;
 
   // Mode management
   private readonly isEditModeSignal = signal(false);
 
-  settings = signal<SystemSettings>({
-    businessName: 'Barberia Soca',
-    businessHours: {
-      start: 8,
-      end: 20,
-      lunchStart: 13,
-      lunchEnd: 14
-    },
-    workingDays: [1, 2, 3, 4, 5, 6], // Monday to Saturday
-    appointmentDuration: 60,
-    maxAppointmentsPerDay: 20,
-    autoConfirmAppointments: false,
-    sendNotifications: true,
-    maintenanceMode: false,
-    backupFrequency: 'daily',
-    language: 'ca',
-    timezone: 'Europe/Madrid',
-    currency: 'EUR'
-  });
+  // Use the business settings service
+  settings = computed(() => this.businessSettingsService.settings());
+  loading = computed(() => this.businessSettingsService.loading());
+  error = computed(() => this.businessSettingsService.error());
 
-  loading = signal(false);
   saving = signal(false);
 
   // Computed properties
@@ -153,28 +120,22 @@ export class AdminSettingsPageComponent implements OnInit {
   }
 
   private initializeForm() {
+    const currentSettings = this.settings();
     this.settingsForm = this.fb.group({
-      businessName: [''],
-      appointmentDuration: [60],
-      maxAppointments: [20],
-      autoConfirm: [false],
-      sendNotifications: [true],
-      maintenanceMode: [false],
-      defaultLanguage: ['ca'],
-      currency: [this.currencyService.getCurrentCurrency()]
+      businessName: [currentSettings.businessName],
+      appointmentDuration: [currentSettings.appointmentDuration],
+      maxAppointments: [currentSettings.maxAppointmentsPerDay],
+      autoConfirm: [currentSettings.autoConfirmAppointments],
+      sendNotifications: [currentSettings.sendNotifications],
+      maintenanceMode: [currentSettings.maintenanceMode],
+      defaultLanguage: [currentSettings.language],
+      currency: [currentSettings.currency]
     });
   }
 
   async loadSettings() {
-    this.loading.set(true);
     try {
-      // Simular càrrega de configuració (en un cas real, això vindria de Firestore)
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Aquí carregaríem la configuració real de Firestore
-      // const settings = await this.getSystemSettings();
-      // this.settings.set(settings);
-
+      await this.businessSettingsService.loadSettings();
     } catch (error) {
       console.error('Error loading settings:', error);
       this.messageService.add({
@@ -182,8 +143,6 @@ export class AdminSettingsPageComponent implements OnInit {
         summary: 'Error',
         detail: 'Error al carregar la configuració'
       });
-    } finally {
-      this.loading.set(false);
     }
   }
 
@@ -198,11 +157,17 @@ export class AdminSettingsPageComponent implements OnInit {
           this.currencyService.setCurrentCurrency(formValue.currency);
         }
 
-        // Simular desament (en un cas real, això es desaria a Firestore)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Aquí desaríem la configuració real a Firestore
-        // await this.updateSystemSettings(this.settingsForm.value);
+        // Save settings using the business settings service
+        await this.businessSettingsService.saveSettings({
+          businessName: formValue.businessName,
+          appointmentDuration: formValue.appointmentDuration,
+          maxAppointmentsPerDay: formValue.maxAppointments,
+          autoConfirmAppointments: formValue.autoConfirm,
+          sendNotifications: formValue.sendNotifications,
+          maintenanceMode: formValue.maintenanceMode,
+          language: formValue.defaultLanguage,
+          currency: formValue.currency
+        });
 
         this.messageService.add({
           severity: 'success',
@@ -227,30 +192,19 @@ export class AdminSettingsPageComponent implements OnInit {
 
   resetToDefaults() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.settings.set({
-        businessName: 'Barberia Soca',
-        businessHours: {
-          start: 8,
-          end: 20,
-          lunchStart: 13,
-          lunchEnd: 14
-        },
-        workingDays: [1, 2, 3, 4, 5, 6],
-        appointmentDuration: 60,
-        maxAppointmentsPerDay: 20,
-        autoConfirmAppointments: false,
-        sendNotifications: true,
-        maintenanceMode: false,
-        backupFrequency: 'daily',
-        language: 'ca',
-        timezone: 'Europe/Madrid',
-        currency: 'EUR'
-      });
-
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Restaurat',
-        detail: 'Configuració restaurada per defecte'
+      this.businessSettingsService.resetToDefaults().then(() => {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Restaurat',
+          detail: 'Configuració restaurada per defecte'
+        });
+      }).catch(error => {
+        console.error('Error resetting to defaults:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al restaurar la configuració per defecte'
+        });
       });
     }
   }
@@ -258,7 +212,7 @@ export class AdminSettingsPageComponent implements OnInit {
   resetSettings() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
       this.settingsForm.patchValue({
-        businessName: 'Barberia Soca',
+        businessName: 'PeluApp',
         appointmentDuration: 60,
         maxAppointments: 20,
         autoConfirm: false,
@@ -271,11 +225,9 @@ export class AdminSettingsPageComponent implements OnInit {
 
   toggleMaintenanceMode() {
     const currentSettings = this.settings();
-    const newSettings = {
-      ...currentSettings,
+    this.businessSettingsService.saveSettings({
       maintenanceMode: !currentSettings.maintenanceMode
-    };
-    this.settings.set(newSettings);
+    });
   }
 
   getWorkingDaysLabels(): string {

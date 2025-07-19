@@ -31,14 +31,17 @@ export class AuthService {
 
   private initializeAuth() {
     try {
+      console.log('Initializing auth...');
       onAuthStateChanged(this.auth,
         async (user) => {
+          console.log('Auth state changed - User:', user?.uid, 'Email:', user?.email);
           // Use setTimeout to avoid signal write conflicts
           setTimeout(() => {
             this.userSignal.set(user);
             this.isLoadingSignal.set(false);
             this.isInitializedSignal.set(true);
             this.errorSignal.set(null);
+            console.log('Auth signals updated - User:', this.userSignal(), 'IsAuthenticated:', this.isAuthenticated());
           }, 0);
 
           // Restore user's language preference when user logs in
@@ -49,6 +52,7 @@ export class AuthService {
           }
         },
         (error) => {
+          console.error('Auth state error:', error);
           // Use setTimeout to avoid signal write conflicts
           setTimeout(() => {
             this.errorSignal.set(error.message);
@@ -58,6 +62,7 @@ export class AuthService {
         }
       );
     } catch (error) {
+      console.error('Auth initialization error:', error);
       // Use setTimeout to avoid signal write conflicts
       setTimeout(() => {
         this.errorSignal.set('Error initializing authentication');

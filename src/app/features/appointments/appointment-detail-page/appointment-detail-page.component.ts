@@ -20,8 +20,8 @@ import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { BookingService } from '../../../core/services/booking.service';
-import { isFutureAppointment } from '../../../shared/services';
+import { BookingService, Booking } from '../../../core/services/booking.service';
+import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
 
 interface AppointmentForm {
   nom: string;
@@ -65,6 +65,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   #currencyService = inject(CurrencyService);
   #toastService = inject(ToastService);
   #bookingService = inject(BookingService);
+  #appointmentService = inject(BookingService);
 
   // Core data signals
   #appointmentSignal = signal<any>(null);
@@ -331,17 +332,63 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   private async loadBookingByToken(token: string) {
     try {
-      const booking = await this.#bookingService.getBookingByToken(token);
+      const currentUser = this.#authService.user();
 
-      if (!booking) {
-        this.#notFoundSignal.set(true);
-        this.#loadingSignal.set(false);
-        return;
+      // If user is authenticated, try to load from their bookings first
+      if (currentUser?.uid) {
+        const userBookings = this.#bookingService.bookings();
+        const userBooking = userBookings.find(booking => booking.editToken === token);
+
+        if (userBooking) {
+          const appointment = this.convertBookingToAppointment(userBooking);
+          this.#appointmentSignal.set(appointment);
+          this.#editFormSignal.set({
+            nom: appointment.nom || '',
+            data: appointment.data || '',
+            hora: appointment.hora || '',
+            notes: appointment.notes || '',
+            servei: appointment.servei || '',
+            preu: appointment.preu || 0,
+            duration: appointment.duration || 0,
+            serviceName: appointment.serviceName || '',
+            serviceId: appointment.serviceId || ''
+          });
+          this.#loadingSignal.set(false);
+          return;
+        }
       }
 
-      // Convertir la reserva al format de cita
-      const appointment = this.convertBookingToAppointment(booking);
-      this.#appointmentSignal.set(appointment);
+      // If not found in user bookings or user is not authenticated, try anonymous loading
+      let appointment = await this.#appointmentService.loadAnonymousBooking(token);
+
+      if (!appointment) {
+        // Fallback to booking service
+        const booking = await this.#bookingService.loadAnonymousBooking(token);
+
+        if (!booking) {
+          this.#notFoundSignal.set(true);
+          this.#loadingSignal.set(false);
+          return;
+        }
+
+        // Convertir la reserva al format de cita
+        appointment = this.convertBookingToAppointment(booking);
+      }
+
+      if (appointment) {
+        this.#appointmentSignal.set(appointment);
+        this.#editFormSignal.set({
+          nom: appointment.nom || '',
+          data: appointment.data || '',
+          hora: appointment.hora || '',
+          notes: appointment.notes || '',
+          servei: appointment.servei || '',
+          preu: appointment.preu || 0,
+          duration: appointment.duration || 0,
+          serviceName: appointment.serviceName || '',
+          serviceId: appointment.serviceId || ''
+        });
+      }
       this.#loadingSignal.set(false);
     } catch (error) {
       console.error('Error loading booking by token:', error);
@@ -351,74 +398,97 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   private async loadAppointmentById(uniqueId: string) {
-    const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
+    try {
+      // Check if it's the old format (clientId-appointmentId) for backward compatibility
+      if (uniqueId.includes('-') && !uniqueId.startsWith('booking-')) {
+        const parts = uniqueId.split('-');
+        if (parts.length === 2) {
+          const clientId = parts[0];
+          const appointmentId = parts[1];
 
-    // Parsegem l'ID únic: format "clientId-appointmentId"
-    const parts = uniqueId.split('-');
+          // Verify that the client ID matches the current user
+          const currentUser = this.#authService.user();
+          if (!currentUser?.uid || currentUser.uid !== clientId) {
+            throw new Error('Access denied');
+          }
 
-    if (parts.length < 2) {
+          // Load from Firebase using the appointment ID
+          const appointment = await this.#appointmentService.getBookingById(appointmentId);
+
+          if (!appointment) {
+            this.#notFoundSignal.set(true);
+            return;
+          }
+
+          this.#appointmentSignal.set(appointment);
+          this.#editFormSignal.set({
+            nom: appointment.nom || '',
+            data: appointment.data || '',
+            hora: appointment.hora || '',
+            notes: appointment.notes || '',
+            servei: appointment.servei || '',
+            preu: appointment.preu || 0,
+            duration: appointment.duration || 0,
+            serviceName: appointment.serviceName || '',
+            serviceId: appointment.serviceId || ''
+          });
+          return;
+        }
+      }
+
+      // If it's a direct ID (new format), try to load it directly
+      const currentUser = this.#authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      // Load from Firebase (bookings collection) - try booking service first
+      let appointment = await this.#bookingService.getBookingById(uniqueId);
+
+      if (!appointment) {
+        // Fallback to appointment service
+        appointment = await this.#appointmentService.getBookingById(uniqueId);
+      }
+
+      if (!appointment) {
+        this.#notFoundSignal.set(true);
+        return;
+      }
+
+      this.#appointmentSignal.set(appointment);
+      this.#editFormSignal.set({
+        nom: appointment.nom || '',
+        data: appointment.data || '',
+        hora: appointment.hora || '',
+        notes: appointment.notes || '',
+        servei: appointment.servei || '',
+        preu: appointment.preu || 0,
+        duration: appointment.duration || 0,
+        serviceName: appointment.serviceName || '',
+        serviceId: appointment.serviceId || ''
+      });
+    } catch (error) {
+      console.error('Error loading appointment:', error);
       this.#notFoundSignal.set(true);
+    } finally {
       this.#loadingSignal.set(false);
-      return;
     }
-
-    const clientId = parts[0];
-    const appointmentId = parts.slice(1).join('-'); // En cas que l'appointmentId tingui guions
-
-    // Verifiquem que l'usuari actual coincideix amb el clientId
-    const currentUser = this.#authService.user();
-
-    if (!currentUser || currentUser.uid !== clientId) {
-      this.#notFoundSignal.set(true);
-      this.#loadingSignal.set(false);
-      return;
-    }
-
-    // Busquem la cita per l'ID
-    const appointment = appointments.find((cita: any) => cita.id === appointmentId);
-
-    if (!appointment) {
-      this.#notFoundSignal.set(true);
-      this.#loadingSignal.set(false);
-      return;
-    }
-
-    // Si la cita no té userId, l'afegim (migració automàtica)
-    if (!appointment.userId) {
-      appointment.userId = currentUser.uid;
-
-      // Actualitzem localStorage
-      const updatedAppointments = appointments.map((cita: any) =>
-        cita.id === appointmentId ? appointment : cita
-      );
-      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
-    }
-
-    // Verifiquem que la cita pertany a l'usuari actual
-    if (appointment.userId !== currentUser.uid) {
-      this.#notFoundSignal.set(true);
-      this.#loadingSignal.set(false);
-      return;
-    }
-
-    this.#appointmentSignal.set(appointment);
-    this.#loadingSignal.set(false);
   }
 
   private convertBookingToAppointment(booking: any): any {
     return {
       id: booking.id,
-      nom: booking.nom,
-      data: booking.data,
-      hora: booking.hora,
+      nom: booking.nom || booking.title || booking.clientName || '',
+      data: booking.data || booking.start?.split('T')[0] || '',
+      hora: booking.hora || booking.start?.split('T')[1]?.substring(0, 5) || '',
       notes: booking.notes || '',
-      servei: booking.serviceName,
-      serviceName: booking.serviceName,
-      serviceId: booking.serviceId,
-      preu: booking.price,
-      duration: booking.duration,
-      status: booking.status,
-      userId: booking.uid,
+      servei: booking.serviceName || booking.servei || '',
+      serviceName: booking.serviceName || booking.servei || '',
+      serviceId: booking.serviceId || '',
+      preu: booking.price || booking.preu || 0,
+      duration: booking.duration || 60,
+      status: booking.status || 'confirmed',
+      userId: booking.uid || booking.userId || '',
       editToken: booking.editToken,
       createdAt: booking.createdAt,
       updatedAt: booking.updatedAt
@@ -475,6 +545,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   private async saveBooking(cita: any, form: any) {
+    const currentUser = this.#authService.user();
     const token = this.#route.snapshot.queryParams['token'];
 
     if (!token) {
@@ -491,7 +562,15 @@ export class AppointmentDetailPageComponent implements OnInit {
       serviceId: form.serviceId || ''
     };
 
-    const success = await this.#bookingService.updateBooking(cita.id!, updates, token);
+    let success = false;
+
+    // If user is authenticated, use the authenticated update method
+    if (currentUser?.uid) {
+      success = await this.#bookingService.updateBooking(cita.id!, updates);
+    } else {
+      // If user is not authenticated, use the anonymous update method
+      success = await this.#bookingService.updateAnonymousBooking(cita.id!, updates, token);
+    }
 
     if (success) {
       // Actualitzar l'estat local
@@ -515,8 +594,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       return;
     }
 
-    const updatedAppointment = {
-      ...cita,
+    const updates = {
       nom: form.nom.trim(),
       data: form.data,
       hora: form.hora,
@@ -525,30 +603,30 @@ export class AppointmentDetailPageComponent implements OnInit {
       preu: form.preu || 0,
       duration: form.duration || 60,
       serviceName: form.serviceName?.trim() || '',
-      serviceId: form.serviceId || '',
-      userId: user.uid
+      serviceId: form.serviceId || ''
     };
 
-    const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
-    const updatedAppointments = appointments.map((app: any) =>
-      app.id === cita.id ? updatedAppointment : app
-    );
+          const success = await this.#appointmentService.updateBooking(cita.id!, updates);
 
-    localStorage.setItem('cites', JSON.stringify(updatedAppointments));
-    this.#appointmentSignal.set(updatedAppointment);
-    this.#isEditingSignal.set(false);
+    if (success) {
+      // Update local state
+      const updatedAppointment = {
+        ...cita,
+        ...updates
+      };
+      this.#appointmentSignal.set(updatedAppointment);
+      this.#isEditingSignal.set(false);
 
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('appointmentUpdated', {
-      detail: { appointment: updatedAppointment }
-    }));
+      // Show success message
+      const clientName = updatedAppointment.nom || 'Client';
+      this.#toastService.showAppointmentUpdated(clientName);
 
-    // Show success message with better fallback for client name
-    const clientName = updatedAppointment.nom || updatedAppointment.title || updatedAppointment.clientName || 'Client';
-    this.#toastService.showAppointmentUpdated(clientName);
+      // Trigger custom event for calendar update
+      window.dispatchEvent(new CustomEvent('appointmentUpdated', { detail: updatedAppointment }));
+    }
   }
 
-  deleteAppointment() {
+  async deleteAppointment() {
     const cita = this.appointment();
     if (!cita) return;
 
@@ -558,20 +636,18 @@ export class AppointmentDetailPageComponent implements OnInit {
       return;
     }
 
-    const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
-    const updatedAppointments = appointments.filter((app: any) => app.id !== cita.id);
-    localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+          const success = await this.#appointmentService.deleteBooking(cita.id!);
 
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('appointmentDeleted', {
-      detail: { appointment: cita }
-    }));
+    if (success) {
+      // Show success message
+      const clientName = cita.nom || 'Client';
+      this.#toastService.showAppointmentDeleted(clientName);
 
-    // Show success message with better fallback for client name
-    const clientName = cita.nom || cita.title || cita.clientName || 'Client';
-    this.#toastService.showAppointmentDeleted(clientName);
+      // Trigger custom event for calendar update
+      window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: cita }));
 
-    this.goBack();
+      this.goBack();
+    }
   }
 
   goBack() {

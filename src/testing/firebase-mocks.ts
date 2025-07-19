@@ -21,7 +21,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SliderModule } from 'primeng/slider';
@@ -457,7 +457,7 @@ export const commonPrimeNGModules = [
   CardModule,
   CalendarModule,
   InputTextModule,
-  DropdownModule,
+  SelectModule,
   CheckboxModule,
   RadioButtonModule,
   SliderModule,

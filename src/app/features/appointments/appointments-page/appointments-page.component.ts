@@ -18,13 +18,14 @@ import { FiltersInlineComponent } from '../../../shared/components/filters-inlin
 import { FloatingButtonComponent } from '../../../shared/components/floating-button/floating-button.component';
 import { AppointmentStatusBadgeComponent } from '../../../shared/components/appointment-status-badge';
 import { AppointmentsStatsComponent, AppointmentStats } from '../components/appointments-stats/appointments-stats.component';
-import { AppointmentsListComponent, Appointment } from '../components/appointments-list/appointments-list.component';
+import { AppointmentsListComponent } from '../components/appointments-list/appointments-list.component';
 import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { isFutureAppointment } from '../../../shared/services';
+import { BookingService, Booking } from '../../../core/services/booking.service';
+import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -55,9 +56,10 @@ export class AppointmentsPageComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly appointmentService = inject(BookingService);
 
-  // Core data signals
-  private readonly appointmentsSignal = signal<any[]>([]);
+  // Core data signals - now using Firebase
+  readonly appointments = this.appointmentService.bookings;
   private readonly viewModeSignal = signal<'list' | 'calendar'>('list');
   private readonly selectedDateSignal = signal<Date | null>(null);
 
@@ -67,8 +69,7 @@ export class AppointmentsPageComponent {
   private readonly filterServiceSignal = signal<string>('');
   private readonly quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'mine'>('all');
 
-  // Public computed signals
-  readonly appointments = computed(() => this.appointmentsSignal());
+  // Public computed signals - now using Firebase
   readonly viewMode = computed(() => this.viewModeSignal());
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly filterDate = computed(() => this.filterDateSignal());
@@ -115,7 +116,7 @@ export class AppointmentsPageComponent {
         break;
       case 'mine':
         const currentUserId = this.getCurrentUserId();
-        filtered = filtered.filter(appointment => appointment.userId === currentUserId);
+        filtered = filtered.filter(appointment => appointment.uid === currentUserId);
         break;
       default:
         break;
@@ -131,7 +132,7 @@ export class AppointmentsPageComponent {
     if (this.filterClient()) {
       const searchTerm = this.filterClient().toLowerCase();
       filtered = filtered.filter(appointment =>
-        appointment.nom.toLowerCase().includes(searchTerm)
+        (appointment.nom || '').toLowerCase().includes(searchTerm)
       );
     }
 
@@ -139,7 +140,7 @@ export class AppointmentsPageComponent {
     if (this.filterService()) {
       const serviceFilter = this.filterService();
       filtered = filtered.filter(appointment => {
-        const serviceName = appointment.serviceName || appointment.servei || '';
+        const serviceName = appointment.serviceName || '';
         const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
         return serviceColor.id === serviceFilter;
       });
@@ -155,8 +156,8 @@ export class AppointmentsPageComponent {
         return date;
       };
 
-      const dateA = createLocalDateTime(a.data, a.hora || '00:00');
-      const dateB = createLocalDateTime(b.data, b.hora || '00:00');
+      const dateA = createLocalDateTime(a.data || '', a.hora || '00:00');
+      const dateB = createLocalDateTime(b.data || '', b.hora || '00:00');
       return dateA.getTime() - dateB.getTime();
     });
   });
@@ -164,11 +165,11 @@ export class AppointmentsPageComponent {
   // Computed calendar events
   readonly calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({
-      title: appointment.nom,
-      start: appointment.data + (appointment.hora ? 'T' + appointment.hora : 'T00:00'),
+      title: appointment.nom || 'Client',
+      start: (appointment.data || '') + (appointment.hora ? 'T' + appointment.hora : 'T00:00'),
       duration: appointment.duration || 60,
-      serviceName: appointment.serviceName,
-      clientName: appointment.nom
+      serviceName: appointment.serviceName || '',
+      clientName: appointment.nom || 'Client'
     }));
   });
 
@@ -183,14 +184,14 @@ export class AppointmentsPageComponent {
     return this.appointments().filter(appointment => {
       // Create date in local timezone to avoid UTC conversion issues
       const [hours, minutes] = (appointment.hora || '23:59').split(':').map(Number);
-      const appointmentDateTime = new Date(appointment.data);
+      const appointmentDateTime = new Date(appointment.data || '');
       appointmentDateTime.setHours(hours, minutes, 0, 0);
       return appointmentDateTime > now;
     }).length;
   });
   readonly myAppointments = computed(() => {
     const currentUserId = this.getCurrentUserId();
-    return this.appointments().filter(appointment => appointment.userId === currentUserId).length;
+          return this.appointments().filter(appointment => appointment.uid === currentUserId).length;
   });
 
   readonly hasActiveFilters = computed(() =>
@@ -217,15 +218,7 @@ export class AppointmentsPageComponent {
   }
 
   constructor(private serviceColorsService: ServiceColorsService) {
-    this.loadAppointments();
-
-    // Reload appointments when user changes
-    effect(() => {
-      const user = this.authService.user();
-      if (user) {
-        this.loadAppointments();
-      }
-    }, { allowSignalWrites: true });
+    // Removed localStorage loading - now using Firebase
   }
 
   // Public methods for template binding
@@ -247,45 +240,21 @@ export class AppointmentsPageComponent {
     this.quickFilterSignal.set('all');
   };
 
-  // Utility methods
-  private loadAppointments(): void {
-    const data = localStorage.getItem('cites');
-    if (data) {
-      const parsedData = JSON.parse(data);
+  // Removed localStorage loading - now using Firebase
 
-      // Only add IDs to appointments that don't have them (no migration of userId)
-      const appointmentsWithIds = parsedData.map((appointment: any) => {
-        if (!appointment.id) {
-          return { ...appointment, id: uuidv4() };
-        }
-        return appointment;
-      });
-
-      this.appointmentsSignal.set(appointmentsWithIds);
-
-      // Save migrated data back to localStorage if there were changes
-      if (appointmentsWithIds.some((appointment: any, index: number) =>
-        appointment.id !== parsedData[index]?.id
-      )) {
-        localStorage.setItem('cites', JSON.stringify(appointmentsWithIds));
-      }
-    }
-  }
-
-  deleteAppointment(appointment: any): void {
+  async deleteAppointment(appointment: any): Promise<void> {
     if (!isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
       this.toastService.showError('No es pot eliminar una cita passada');
       return;
     }
 
-    this.appointmentsSignal.update(appointments =>
-      appointments.filter(a => a.id !== appointment.id)
-    );
-    this.saveAppointments();
+          const success = await this.appointmentService.deleteBooking(appointment.id);
 
-    // Show success message with better fallback for client name
-    const clientName = appointment.nom || appointment.title || appointment.clientName || 'Client';
-    this.toastService.showAppointmentDeleted(clientName);
+    if (success) {
+      // Show success message with better fallback for client name
+      const clientName = appointment.nom || appointment.title || appointment.clientName || 'Client';
+      this.toastService.showAppointmentDeleted(clientName);
+    }
   }
 
   editAppointment(appointment: any): void {
@@ -303,9 +272,7 @@ export class AppointmentsPageComponent {
     this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
   }
 
-  private saveAppointments(): void {
-    localStorage.setItem('cites', JSON.stringify(this.appointments()));
-  }
+  // Removed localStorage saving - now using Firebase
 
   formatDate(dateString: string): string {
     try {

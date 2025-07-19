@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
+import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ServicesService, Service } from '../../../core/services/services.service';
@@ -30,7 +31,8 @@ import { ToastService } from '../../../shared/services/toast.service';
     TooltipModule,
     TranslateModule,
     CalendarComponent,
-    BookingPopupComponent
+    BookingPopupComponent,
+    ServiceSelectionPopupComponent
   ],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss']
@@ -47,13 +49,17 @@ export class BookingPageComponent {
   private readonly toastService = inject(ToastService);
 
   // Signals
+  readonly showServiceSelectionPopupSignal = signal(false);
   readonly showBookingPopupSignal = signal(false);
+  readonly serviceSelectionDetailsSignal = signal<ServiceSelectionDetails>({date: '', time: '', clientName: '', email: ''});
   readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
   readonly availableServicesSignal = signal<Service[]>([]);
   readonly showLoginPromptSignal = signal(false);
 
   // Computed properties
+  readonly showServiceSelectionPopup = computed(() => this.showServiceSelectionPopupSignal());
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
+  readonly serviceSelectionDetails = computed(() => this.serviceSelectionDetailsSignal());
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly availableServices = computed(() => this.availableServicesSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
@@ -93,15 +99,16 @@ export class BookingPageComponent {
   }
 
   onTimeSlotSelected(event: {date: string, time: string}) {
-    const details: BookingDetails = {
+    // Show service selection popup first
+    const details: ServiceSelectionDetails = {
       date: event.date,
       time: event.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : ''
     };
 
-    this.bookingDetailsSignal.set(details);
-    this.showBookingPopupSignal.set(true);
+    this.serviceSelectionDetailsSignal.set(details);
+    this.showServiceSelectionPopupSignal.set(true);
   }
 
   onEditAppointment(event: AppointmentEvent) {
@@ -116,15 +123,27 @@ export class BookingPageComponent {
     console.log('Delete appointment:', event);
   }
 
-  async onBookingConfirmed(details: BookingDetails) {
+    async onBookingConfirmed(details: BookingDetails) {
     try {
-      // Create booking using the new service
-      const booking = await this.bookingService.createBooking(details);
+      // Create booking using the booking service
+      const bookingData = {
+        nom: details.clientName,
+        email: details.email,
+        data: details.date,
+        hora: details.time,
+        serviceName: details.service?.name || '',
+        serviceId: details.service?.id || '',
+        duration: details.service?.duration || 60,
+        price: details.service?.price || 0,
+        notes: '',
+        status: 'confirmed' as const,
+        editToken: '', // Will be generated automatically
+        uid: this.authService.user()?.uid || null
+      };
+
+      const booking = await this.bookingService.createBooking(bookingData);
 
       if (booking) {
-        // Show success message
-        this.toastService.showAppointmentCreated(details.clientName, booking.id || '');
-
         // Show login prompt for anonymous users
         if (!this.isAuthenticated()) {
           this.showLoginPromptSignal.set(true);
@@ -137,6 +156,28 @@ export class BookingPageComponent {
       console.error('Error creating booking:', error);
       this.toastService.showGenericError('Error creating booking');
     }
+  }
+
+  onServiceSelected(event: {details: ServiceSelectionDetails, service: Service}) {
+    // Close service selection popup
+    this.showServiceSelectionPopupSignal.set(false);
+
+    // Show booking confirmation popup with selected service
+    const bookingDetails: BookingDetails = {
+      date: event.details.date,
+      time: event.details.time,
+      clientName: event.details.clientName,
+      email: event.details.email,
+      service: event.service
+    };
+
+    this.bookingDetailsSignal.set(bookingDetails);
+    this.showBookingPopupSignal.set(true);
+  }
+
+  onServiceSelectionCancelled() {
+    this.showServiceSelectionPopupSignal.set(false);
+    this.serviceSelectionDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
   }
 
   onBookingCancelled() {
@@ -161,4 +202,6 @@ export class BookingPageComponent {
     this.showLoginPromptSignal.set(false);
     this.router.navigate(['/login']);
   }
+
+  // Removed test method
 }

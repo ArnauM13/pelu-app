@@ -81,6 +81,8 @@
       "SELECT_DATE": "اختر التاريخ",
       "SELECT_DAY": "اختر اليوم",
       "SELECT_SERVICE": "اختر الخدمة",
+      "CHOOSE_SERVICE": "اختر خدمة",
+      "SELECTED_SERVICE": "الخدمة المختارة",
       "PLEASE_SELECT_SERVICE": "يرجى اختيار خدمة"
     },
     "SEARCH": {
@@ -104,6 +106,10 @@
         "TIME_SLOT_BUSY": "الوقت مشغول"
       }
     },
+    "LIST_VIEW": "عرض القائمة",
+    "LIST_VIEW_LABEL": "عرض المواعيد بتنسيق القائمة",
+    "CALENDAR_VIEW": "عرض التقويم",
+    "CALENDAR_VIEW_LABEL": "عرض المواعيد بتنسيق التقويم",
     "FILTERS": {
       "FILTERS": "الفلاتر",
       "OPEN_FILTERS": "فتح الفلاتر",
@@ -128,7 +134,34 @@
     "MISSING_CLIENT_NAME": "يرجى إدخال اسم العميل",
     "MISSING_SERVICE": "يرجى اختيار خدمة",
     "TOTAL": "المجموع",
-    "NO_DATA": "لا توجد بيانات"
+    "NO_DATA": "لا توجد بيانات",
+    "LOADING": "جاري التحميل...",
+    "ERROR": "خطأ",
+    "EMAIL": "البريد الإلكتروني",
+    "ENTER_EMAIL": "أدخل بريدك الإلكتروني",
+    "NOTES": "ملاحظات",
+    "ENTER_NOTES": "أدخل ملاحظات (اختياري)",
+    "SHARE": "مشاركة",
+    "SHARE_WHATSAPP": "مشاركة عبر واتساب",
+    "DANGER_ZONE": "منطقة الخطر",
+    "BOOKING_DETAILS": "تفاصيل الحجز",
+    "CLIENT_INFORMATION": "معلومات العميل",
+    "BOOKING_INFORMATION": "معلومات الحجز",
+    "NAME": "الاسم",
+    "TIME": "الوقت",
+    "STATUS": "الحالة",
+    "DURATION": "المدة",
+    "PRICE": "السعر",
+    "ERROR_LOADING_BOOKING": "خطأ في تحميل الحجز",
+    "BOOKING_NOT_FOUND": "لم يتم العثور على الحجز",
+    "BOOKING_NOT_FOUND_MESSAGE": "تعذر العثور على الحجز الذي تبحث عنه",
+    "VALIDATION": {
+      "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح"
+    },
+    "MIGRATION": {
+      "COMPLETED": "اكتمل الترحيل",
+      "MESSAGE": "تم ترحيل {{count}} موعد قديم إلى حسابك. يمكنك الآن عرض تفاصيل جميع مواعيدك."
+    }
   },
   "AUTH": {
     "EMAIL": "البريد الإلكتروني",
@@ -176,7 +209,7 @@
     "ADMIN_SETTINGS": "الإعدادات"
   },
   "LANDING": {
-    "HERO_TITLE": "Barberia Soca",
+    "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "احجز لحظتك. سريع وسهل وبدون مكالمات.",
     "BOOK_NOW": "احجز الآن",
     "APPOINTMENTS": "المواعيد",

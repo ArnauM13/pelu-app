@@ -81,6 +81,8 @@
       "SELECT_DATE": "Seleccionar fecha",
       "SELECT_DAY": "Seleccionar día",
       "SELECT_SERVICE": "Seleccionar servicio",
+      "CHOOSE_SERVICE": "Elige un servicio",
+      "SELECTED_SERVICE": "Servicio seleccionado",
       "PLEASE_SELECT_SERVICE": "Por favor, selecciona un servicio"
     },
     "SEARCH": {
@@ -104,6 +106,10 @@
         "TIME_SLOT_BUSY": "Horario ocupado"
       }
     },
+    "LIST_VIEW": "Vista de lista",
+    "LIST_VIEW_LABEL": "Visualiza las citas en formato lista",
+    "CALENDAR_VIEW": "Vista de calendario",
+    "CALENDAR_VIEW_LABEL": "Visualiza las citas en formato calendario",
     "FILTERS": {
       "FILTERS": "Filtros",
       "OPEN_FILTERS": "Abrir filtros",
@@ -128,7 +134,34 @@
     "MISSING_CLIENT_NAME": "Por favor, introduce el nombre del cliente",
     "MISSING_SERVICE": "Por favor, selecciona un servicio",
     "TOTAL": "Total",
-    "NO_DATA": "No hay datos"
+    "NO_DATA": "No hay datos",
+    "LOADING": "Cargando...",
+    "ERROR": "Error",
+    "EMAIL": "Email",
+    "ENTER_EMAIL": "Introduce tu email",
+    "NOTES": "Notas",
+    "ENTER_NOTES": "Introduce notas (opcional)",
+    "SHARE": "Compartir",
+    "SHARE_WHATSAPP": "Compartir por WhatsApp",
+    "DANGER_ZONE": "Zona de peligro",
+    "BOOKING_DETAILS": "Detalles de la reserva",
+    "CLIENT_INFORMATION": "Información del cliente",
+    "BOOKING_INFORMATION": "Información de la reserva",
+    "NAME": "Nombre",
+    "TIME": "Hora",
+    "STATUS": "Estado",
+    "DURATION": "Duración",
+    "PRICE": "Precio",
+    "ERROR_LOADING_BOOKING": "Error al cargar la reserva",
+    "BOOKING_NOT_FOUND": "Reserva no encontrada",
+    "BOOKING_NOT_FOUND_MESSAGE": "No se pudo encontrar la reserva que buscas",
+    "VALIDATION": {
+      "INVALID_EMAIL": "Por favor, introduce un email válido"
+    },
+    "MIGRATION": {
+      "COMPLETED": "Migración completada",
+      "MESSAGE": "Se han migrado {{count}} citas antiguas a tu cuenta. Ahora puedes ver los detalles de todas tus citas."
+    }
   },
   "AUTH": {
     "EMAIL": "Correo electrónico",
@@ -176,7 +209,7 @@
     "ADMIN_SETTINGS": "Configuración"
   },
   "LANDING": {
-    "HERO_TITLE": "Barberia Soca",
+    "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva tu momento. Rápido, fácil y sin llamadas.",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Citas",

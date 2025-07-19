@@ -5,18 +5,22 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
+import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
+import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { ServicesService, Service } from '../../../core/services/services.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ResponsiveService } from '../../../core/services/responsive.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 
 interface TimeSlot {
   time: string;
@@ -39,10 +43,11 @@ interface DaySlot {
     CardModule,
     InputTextModule,
     ButtonModule,
-    DropdownModule,
+    SelectModule,
     TranslateModule,
     CardComponent,
     BookingPopupComponent,
+    ServiceSelectionPopupComponent,
     CurrencyPipe,
   ],
   templateUrl: './booking-mobile-page.component.html',
@@ -60,7 +65,9 @@ export class BookingMobilePageComponent {
   private readonly selectedDateSignal = signal<Date>(new Date());
   private readonly selectedServiceSignal = signal<Service | null>(null);
   private readonly appointmentsSignal = signal<any[]>([]);
+  private readonly showServiceSelectionPopupSignal = signal<boolean>(false);
   private readonly showBookingPopupSignal = signal<boolean>(false);
+  private readonly serviceSelectionDetailsSignal = signal<ServiceSelectionDetails>({date: '', time: '', clientName: '', email: ''});
   private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
   private readonly showLoginPromptSignal = signal<boolean>(false);
 
@@ -68,7 +75,9 @@ export class BookingMobilePageComponent {
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
+  readonly showServiceSelectionPopup = computed(() => this.showServiceSelectionPopupSignal());
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
+  readonly serviceSelectionDetails = computed(() => this.serviceSelectionDetailsSignal());
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
@@ -186,34 +195,46 @@ export class BookingMobilePageComponent {
     this.selectedDateSignal.set(date);
   }
 
-  onServiceSelected(service: Service) {
+  selectServiceFromList(service: Service) {
     this.selectedServiceSignal.set(service);
   }
 
   onTimeSlotSelected(timeSlot: TimeSlot, daySlot: DaySlot) {
     if (!timeSlot.available) return;
 
-    const details: BookingDetails = {
+    // Show service selection popup first
+    const details: ServiceSelectionDetails = {
       date: format(daySlot.date, 'yyyy-MM-dd'),
       time: timeSlot.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
-      email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
-      service: this.selectedService()
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : ''
     };
 
-    this.bookingDetailsSignal.set(details);
-    this.showBookingPopupSignal.set(true);
+    this.serviceSelectionDetailsSignal.set(details);
+    this.showServiceSelectionPopupSignal.set(true);
   }
 
   async onBookingConfirmed(details: BookingDetails) {
     try {
-      // Create booking using the new service
-      const booking = await this.bookingService.createBooking(details);
+      // Create booking using the booking service
+      const bookingData = {
+        nom: details.clientName,
+        email: details.email,
+        data: details.date,
+        hora: details.time,
+        serviceName: details.service?.name || '',
+        serviceId: details.service?.id || '',
+        duration: details.service?.duration || 60,
+        price: details.service?.price || 0,
+        notes: '',
+        status: 'confirmed' as const,
+        editToken: '', // Will be generated automatically
+        uid: this.authService.user()?.uid || null
+      };
+
+      const booking = await this.bookingService.createBooking(bookingData);
 
       if (booking) {
-        // Show success message
-        this.toastService.showAppointmentCreated(details.clientName, booking.id || '');
-
         // Show login prompt for anonymous users
         if (!this.isAuthenticated()) {
           this.showLoginPromptSignal.set(true);
@@ -226,6 +247,28 @@ export class BookingMobilePageComponent {
       console.error('Error creating booking:', error);
       this.toastService.showGenericError('Error creating booking');
     }
+  }
+
+  onServiceSelected(event: {details: ServiceSelectionDetails, service: Service}) {
+    // Close service selection popup
+    this.showServiceSelectionPopupSignal.set(false);
+
+    // Show booking confirmation popup with selected service
+    const bookingDetails: BookingDetails = {
+      date: event.details.date,
+      time: event.details.time,
+      clientName: event.details.clientName,
+      email: event.details.email,
+      service: event.service
+    };
+
+    this.bookingDetailsSignal.set(bookingDetails);
+    this.showBookingPopupSignal.set(true);
+  }
+
+  onServiceSelectionCancelled() {
+    this.showServiceSelectionPopupSignal.set(false);
+    this.serviceSelectionDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
   }
 
   onBookingCancelled() {
@@ -280,7 +323,7 @@ export class BookingMobilePageComponent {
   }
 
   selectService(service: Service) {
-    this.onServiceSelected(service);
+    this.selectServiceFromList(service);
   }
 
   selectTimeSlot(timeSlot: TimeSlot) {

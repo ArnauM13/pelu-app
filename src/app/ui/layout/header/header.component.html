@@ -2,7 +2,17 @@
   <div class="header-content">
     <div class="left-section">
       <div class="logo-section" (click)="navigateToHome($event)">
-        <img src="assets/images/cabj.png" alt="Logo Perruqueria" class="logo-image" />
+        <picture>
+          <source
+            srcset="assets/images/responsive/cabj@1x.webp 1x, assets/images/responsive/cabj@2x.webp 2x, assets/images/responsive/cabj@3x.webp 3x"
+            type="image/webp">
+          <img
+            src="assets/images/responsive/cabj@1x.png"
+            srcset="assets/images/responsive/cabj@1x.png 1x, assets/images/responsive/cabj@2x.png 2x, assets/images/responsive/cabj@3x.png 3x"
+            alt="Logo Perruqueria"
+            class="logo-image"
+            loading="lazy" />
+        </picture>
       </div>
       <nav class="nav">
         <a routerLink="/booking" class="nav-link" routerLinkActive="active">
