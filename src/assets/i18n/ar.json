@@ -305,7 +305,9 @@
       "QUICK_BOOKING": "حجز سريع",
       "QUICK_BOOKING_LABEL": "إضافة موعد جديد بسرعة",
       "BOOKING_CONFIRMATION": "تأكيد الحجز"
-    }
+    },
+    "EDIT_APPOINTMENT_DESCRIPTION": "تعديل تفاصيل الموعد",
+    "DELETE_APPOINTMENT_DESCRIPTION": "حذف الموعد نهائياً"
   },
   "BOOKING": {
     "SELECT_SERVICE": "حجز جديد",

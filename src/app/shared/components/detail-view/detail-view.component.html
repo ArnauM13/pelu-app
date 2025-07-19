@@ -65,36 +65,57 @@
     <div class="content-grid" [class.editing-mode]="isEditing" [class.full-width]="!hasAvailableActions">
       <!-- Left Column - Information Sections -->
       <div class="info-column">
-        <!-- Status Badge and Action Buttons (for appointments) -->
+        <!-- Status Badge (for appointments) -->
         @if (type === 'appointment' && appointment) {
         <div class="info-section status-section-mobile">
           <div class="status-header">
             <h2>{{ 'APPOINTMENTS.STATUS' | translate }}</h2>
-            @if (!isEditing && canEditAppointment()) {
-            <div class="appointment-actions">
-              @if (canEditAppointment()) {
-              <button
-                class="action-btn-small edit-btn"
-                (click)="onEdit()"
-                [title]="'COMMON.ACTIONS.EDIT' | translate">
-                ✏️
-              </button>
-              }
-              @if (canDeleteAppointment()) {
-              <button
-                class="action-btn-small delete-btn"
-                (click)="onDelete()"
-                [title]="'COMMON.ACTIONS.DELETE' | translate">
-                🗑️
-              </button>
-              }
-            </div>
-            }
           </div>
           <pelu-appointment-status-badge
             [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
             [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }">
           </pelu-appointment-status-badge>
+        </div>
+        }
+
+        <!-- Action Buttons Section (for appointments) - only show if editable -->
+        @if (type === 'appointment' && appointment && !isEditing && (canEditAppointment() || canDeleteAppointment())) {
+        <div class="info-section actions-section">
+          <div class="section-header">
+            <h2>{{ 'COMMON.ACTIONS' | translate }}</h2>
+          </div>
+          <div class="actions-grid">
+            @if (canEditAppointment()) {
+            <div class="action-item edit-action">
+              <div class="action-icon">✏️</div>
+              <div class="action-content">
+                <h3>{{ 'COMMON.ACTIONS.EDIT' | translate }}</h3>
+                <p>{{ 'APPOINTMENTS.EDIT_APPOINTMENT_DESCRIPTION' | translate }}</p>
+              </div>
+              <button
+                class="action-btn-small edit-btn"
+                (click)="onEdit()"
+                [title]="'COMMON.ACTIONS.EDIT' | translate">
+                →
+              </button>
+            </div>
+            }
+            @if (canDeleteAppointment()) {
+            <div class="action-item delete-action">
+              <div class="action-icon">🗑️</div>
+              <div class="action-content">
+                <h3>{{ 'COMMON.ACTIONS.DELETE' | translate }}</h3>
+                <p>{{ 'APPOINTMENTS.DELETE_APPOINTMENT_DESCRIPTION' | translate }}</p>
+              </div>
+              <button
+                class="action-btn-small delete-btn"
+                (click)="onDelete()"
+                [title]="'COMMON.ACTIONS.DELETE' | translate">
+                →
+              </button>
+            </div>
+            }
+          </div>
         </div>
         }
 

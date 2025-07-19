@@ -297,7 +297,9 @@
       "MANUAL_BOOKING": "Afegir Reserva Manual",
       "QUICK_BOOKING": "Reserva Ràpida",
       "QUICK_BOOKING_LABEL": "Afegir nova cita ràpidament"
-    }
+    },
+    "EDIT_APPOINTMENT_DESCRIPTION": "Modifica els detalls de la cita",
+    "DELETE_APPOINTMENT_DESCRIPTION": "Elimina permanentment la cita"
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nova reserva",
