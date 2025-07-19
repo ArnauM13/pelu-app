@@ -16,6 +16,7 @@ import { BookingPopupComponent, BookingDetails } from '../../../shared/component
 import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { ServicesService, Service } from '../../../core/services/services.service';
 import { BookingService } from '../../../core/services/booking.service';
+import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
@@ -27,6 +28,10 @@ interface TimeSlot {
   available: boolean;
   isSelected: boolean;
   clientName?: string;
+  serviceName?: string;
+  serviceIcon?: string;
+  bookingId?: string;
+  notes?: string;
 }
 
 interface DaySlot {
@@ -58,6 +63,7 @@ export class BookingMobilePageComponent {
   public readonly authService = inject(AuthService);
   public readonly servicesService = inject(ServicesService);
   public readonly bookingService = inject(BookingService);
+  private readonly roleService = inject(RoleService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
 
@@ -81,6 +87,7 @@ export class BookingMobilePageComponent {
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
+  readonly isAdmin = computed(() => this.roleService.isAdmin());
 
   // Business configuration
   readonly businessHours = { start: '08:00', end: '20:00' };
@@ -172,10 +179,18 @@ export class BookingMobilePageComponent {
         // Check if slot is available (not in the past and not booked)
         const isAvailable = slotDate > new Date() && !this.isSlotBooked(slotDate);
 
+        // Get booking details if slot is occupied
+        const booking = this.getBookingForSlot(date, timeString);
+
         slots.push({
           time: timeString,
           available: isAvailable,
-          isSelected: false
+          isSelected: false,
+          clientName: booking?.nom || booking?.clientName,
+          serviceName: booking?.serviceName || booking?.servei,
+          serviceIcon: this.getServiceIcon(booking?.serviceId),
+          bookingId: booking?.id,
+          notes: booking?.notes
         });
       }
     }
@@ -189,6 +204,18 @@ export class BookingMobilePageComponent {
       const appointmentDate = new Date(appointment.date);
       return isSameDay(appointmentDate, date) && appointment.time === format(date, 'HH:mm');
     });
+  }
+
+  private getBookingForSlot(date: Date, time: string): any {
+    const dateString = format(date, 'yyyy-MM-dd');
+    const bookings = this.bookingService.getBookingsForDate(dateString);
+    return bookings.find(booking => booking.hora === time);
+  }
+
+  private getServiceIcon(serviceId?: string): string {
+    if (!serviceId) return '🔧';
+    const service = this.servicesService.getServiceById(serviceId);
+    return service?.icon || '🔧';
   }
 
   onDateSelected(date: Date) {

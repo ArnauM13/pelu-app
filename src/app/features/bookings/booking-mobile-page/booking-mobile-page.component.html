@@ -77,26 +77,84 @@
 
       @for (daySlot of daySlots(); track daySlot.date) {
         @if (isSelected(daySlot.date)) {
-          <div class="time-slots-grid">
-            @for (timeSlot of daySlot.timeSlots; track timeSlot.time) {
-              <div
-                class="time-slot"
-                [class.available]="timeSlot.available"
-                [class.occupied]="!timeSlot.available"
-                [class.lunch-break]="timeSlot.time >= '13:00' && timeSlot.time < '14:00'"
-                (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
-                <div class="time">{{ formatTime(timeSlot.time) }}</div>
-                @if (!timeSlot.available && timeSlot.clientName) {
-                  <div class="occupied-info">
-                    <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
-                    <span class="client-name">{{ timeSlot.clientName }}</span>
+          <!-- Morning Time Slots -->
+          <div class="time-section">
+            <h4 class="time-section-title">🌅 {{ 'COMMON.TIME.MORNING' | translate }}</h4>
+            <div class="time-slots-grid">
+              @for (timeSlot of daySlot.timeSlots; track timeSlot.time) {
+                @if (timeSlot.time < '13:00') {
+                  <div
+                    class="time-slot"
+                    [class.available]="timeSlot.available"
+                    [class.occupied]="!timeSlot.available"
+                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
+                    <div class="slot-content">
+                      <div class="time">{{ formatTime(timeSlot.time) }}</div>
+                      @if (!timeSlot.available) {
+                        @if (isAdmin()) {
+                          <div class="occupied-details">
+                            <div class="client-info">
+                              <span class="service-icon">{{ timeSlot.serviceIcon }}</span>
+                              <span class="client-name">{{ timeSlot.clientName }}</span>
+                            </div>
+                            <div class="service-name">{{ timeSlot.serviceName }}</div>
+                            @if (timeSlot.notes) {
+                              <div class="notes">{{ timeSlot.notes }}</div>
+                            }
+                          </div>
+                        } @else {
+                          <div class="occupied-simple">
+                            <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <div class="available-label">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
+                      }
+                    </div>
                   </div>
                 }
-                @if (timeSlot.time >= '13:00' && timeSlot.time < '14:00') {
-                  <div class="lunch-label">{{ 'COMMON.TIME.LUNCH_BREAK' | translate }}</div>
+              }
+            </div>
+          </div>
+
+          <!-- Afternoon Time Slots -->
+          <div class="time-section">
+            <h4 class="time-section-title">🌆 {{ 'COMMON.TIME.AFTERNOON' | translate }}</h4>
+            <div class="time-slots-grid">
+              @for (timeSlot of daySlot.timeSlots; track timeSlot.time) {
+                @if (timeSlot.time >= '14:00') {
+                  <div
+                    class="time-slot"
+                    [class.available]="timeSlot.available"
+                    [class.occupied]="!timeSlot.available"
+                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
+                    <div class="slot-content">
+                      <div class="time">{{ formatTime(timeSlot.time) }}</div>
+                      @if (!timeSlot.available) {
+                        @if (isAdmin()) {
+                          <div class="occupied-details">
+                            <div class="client-info">
+                              <span class="service-icon">{{ timeSlot.serviceIcon }}</span>
+                              <span class="client-name">{{ timeSlot.clientName }}</span>
+                            </div>
+                            <div class="service-name">{{ timeSlot.serviceName }}</div>
+                            @if (timeSlot.notes) {
+                              <div class="notes">{{ timeSlot.notes }}</div>
+                            }
+                          </div>
+                        } @else {
+                          <div class="occupied-simple">
+                            <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <div class="available-label">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
+                      }
+                    </div>
+                  </div>
                 }
-              </div>
-            }
+              }
+            </div>
           </div>
         }
       }
