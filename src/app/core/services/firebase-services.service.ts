@@ -138,7 +138,7 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error loading services';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_LOADING_SERVICES');
+      // Don't show toast for loading errors - they're not user-initiated actions
     } finally {
       this._isLoading.set(false);
     }

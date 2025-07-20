@@ -64,14 +64,29 @@ export class BookingService {
   private readonly bookingsSignal = signal<Booking[]>([]);
   private readonly isLoadingSignal = signal<boolean>(false);
   private readonly errorSignal = signal<string | null>(null);
+  private readonly isInitializedSignal = signal<boolean>(false);
+  private readonly lastCacheTimeSignal = signal<number>(0);
 
   // Computed properties
   readonly bookings = computed(() => this.bookingsSignal());
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly error = computed(() => this.errorSignal());
+  readonly isInitialized = computed(() => this.isInitializedSignal());
+  readonly hasCachedData = computed(() => this.bookingsSignal().length > 0 && this.isInitializedSignal());
 
   constructor() {
-    this.loadBookings();
+    // Only load bookings if we don't have cached data
+    if (!this.hasCachedData()) {
+      this.loadBookings();
+    }
+
+    // Set up a periodic check for auth state changes to clear cache on logout
+    setInterval(() => {
+      if (!this.authService.isAuthenticated() && this.hasCachedData()) {
+        // User logged out, clear cache
+        this.clearCache();
+      }
+    }, 1000); // Check every second
   }
 
 
@@ -206,7 +221,6 @@ export class BookingService {
         )
       );
 
-      this.toastService.showSuccess('Booking updated successfully');
       return true;
     } catch (error) {
       const currentUser = this.authService.user();
@@ -262,6 +276,10 @@ export class BookingService {
         // Invited User: Load only public booking info
         await this.loadPublicBookingsOnly();
       }
+
+      // Mark as initialized and update cache time
+      this.isInitializedSignal.set(true);
+      this.lastCacheTimeSignal.set(Date.now());
     } catch (error) {
       const currentUser = this.authService.user();
 
@@ -273,7 +291,7 @@ export class BookingService {
       });
 
       this.errorSignal.set(error instanceof Error ? error.message : 'Error loading bookings');
-      this.toastService.showGenericError('Error loading bookings');
+      // Don't show toast for loading errors - they're not user-initiated actions
     } finally {
       this.isLoadingSignal.set(false);
     }
@@ -579,7 +597,7 @@ export class BookingService {
       });
 
       this.errorSignal.set(error instanceof Error ? error.message : 'Error deleting booking');
-      this.toastService.showGenericError('Error deleting booking');
+      // Don't show toast here - let the component handle it
       return false;
     } finally {
       this.isLoadingSignal.set(false);
@@ -673,5 +691,80 @@ export class BookingService {
    */
   async refreshBookings(): Promise<void> {
     await this.loadBookings();
+  }
+
+  /**
+   * Silently refresh bookings without showing loader
+   */
+  async silentRefreshBookings(): Promise<void> {
+    try {
+      // Don't set loading state for silent refresh
+      const currentUser = this.authService.user();
+      const isAdmin = this.roleService.isAdmin();
+
+      if (isAdmin) {
+        // Super Admin: Load all bookings with full details
+        await this.loadAllBookingsForAdmin();
+      } else if (currentUser?.uid) {
+        // Authenticated User: Load own bookings
+        await this.loadUserBookings(currentUser.uid);
+      } else {
+        // Invited User: Load only public booking info
+        await this.loadPublicBookingsOnly();
+      }
+
+      // Update cache time
+      this.lastCacheTimeSignal.set(Date.now());
+    } catch (error) {
+      const currentUser = this.authService.user();
+
+      // Log detallat de l'error
+      this.logger.firebaseError(error, 'silentRefreshBookings', {
+        component: 'BookingService',
+        method: 'silentRefreshBookings',
+        userId: currentUser?.uid
+      });
+
+      this.errorSignal.set(error instanceof Error ? error.message : 'Error loading bookings');
+      // Don't show toast for silent refresh errors
+    }
+  }
+
+  /**
+   * Check if we need to refresh data based on cache age
+   */
+  private shouldRefreshCache(): boolean {
+    const cacheAge = Date.now() - this.lastCacheTimeSignal();
+    const maxCacheAge = 5 * 60 * 1000; // 5 minutes
+    return cacheAge > maxCacheAge;
+  }
+
+  /**
+   * Get bookings with cache support
+   */
+  async getBookingsWithCache(): Promise<Booking[]> {
+    // If we have cached data and it's fresh, return it immediately
+    if (this.hasCachedData() && !this.shouldRefreshCache()) {
+      return this.bookings();
+    }
+
+    // If we need to refresh, do it silently
+    if (this.hasCachedData()) {
+      await this.silentRefreshBookings();
+    } else {
+      // First time loading
+      await this.loadBookings();
+    }
+
+    return this.bookings();
+  }
+
+  /**
+   * Clear cache when user logs out
+   */
+  clearCache(): void {
+    this.bookingsSignal.set([]);
+    this.isInitializedSignal.set(false);
+    this.lastCacheTimeSignal.set(0);
   }
 }
