@@ -1,9 +1,8 @@
 import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppointmentEvent } from './calendar.component';
-import { CalendarPositionService } from './calendar-position.service';
+import { CalendarCoreService } from './calendar-core.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
-import { CalendarDragDropService } from './calendar-drag-drop.service';
 
 export interface AppointmentSlotData {
   appointment: AppointmentEvent;
@@ -60,9 +59,8 @@ export class AppointmentSlotComponent {
   readonly clicked = output<AppointmentEvent>();
 
   // Inject services
-  private readonly positionService = inject(CalendarPositionService);
+  private readonly calendarCoreService = inject(CalendarCoreService);
   private readonly serviceColorsService = inject(ServiceColorsService);
-  private readonly dragDropService = inject(CalendarDragDropService);
   private readonly elementRef = inject(ElementRef);
 
   // Local state to track drag operations
@@ -80,7 +78,7 @@ export class AppointmentSlotComponent {
   // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly position = computed(() => {
     if (!this.data() || !this.data()!.appointment) return { top: 0, height: 0 };
-    return this.positionService.getAppointmentPosition(this.data()!.appointment!);
+    return this.calendarCoreService.calculateAppointmentPosition(this.data()!.appointment!);
   });
 
   // Computed service color
@@ -121,7 +119,7 @@ export class AppointmentSlotComponent {
   // Computed if this appointment is being dragged
   readonly isBeingDragged = computed(() => {
     if (!this.data() || !this.data()!.appointment) return false;
-    const draggedAppointment = this.dragDropService.draggedAppointment();
+    const draggedAppointment = this.calendarCoreService.draggedAppointment();
     return draggedAppointment?.id === this.data()!.appointment!.id;
   });
 
@@ -131,7 +129,7 @@ export class AppointmentSlotComponent {
 
     // Only emit click if not currently dragging and no drag has started
     // and if the appointment can be viewed
-    if (!this.dragDropService.isDragging() && !this.hasDragStarted() && !this.isDragging &&
+    if (!this.calendarCoreService.isDragging() && !this.hasDragStarted() && !this.isDragging &&
         this.data() && this.data()!.appointment && this.data()!.appointment!.canViewDetails) {
       this.clicked.emit(this.data()!.appointment!);
     }
@@ -140,6 +138,9 @@ export class AppointmentSlotComponent {
   onMouseDown(event: MouseEvent) {
     // Only start drag on left mouse button
     if (event.button !== 0) return;
+
+    console.log('Mouse down on appointment:', this.data()?.appointment);
+    console.log('Can drag:', this.data()?.appointment?.canDrag);
 
     // Check if this appointment can be dragged
     if (!this.data()?.appointment?.canDrag) {
@@ -208,7 +209,7 @@ export class AppointmentSlotComponent {
     };
 
     // Pass the original date for cross-day dragging support
-    this.dragDropService.startDrag(appointment, originalPosition, this.data()!.date);
+    this.calendarCoreService.startDrag(appointment, originalPosition, this.data()!.date);
 
     // Add global mouse event listeners for cross-day dragging
     document.addEventListener('mousemove', this.onGlobalMouseMove);
@@ -224,20 +225,20 @@ export class AppointmentSlotComponent {
   }
 
   private onGlobalMouseMove = (event: MouseEvent) => {
-    if (this.dragDropService.isDragging()) {
-      this.dragDropService.updateDragPosition({
+    if (this.calendarCoreService.isDragging()) {
+      this.calendarCoreService.updateDragPosition({
         top: event.clientY,
         left: event.clientX
       });
     }
   };
 
-  private onGlobalMouseUp = (event: MouseEvent) => {
+  private onGlobalMouseUp = async (event: MouseEvent) => {
     // Remove global event listeners
     document.removeEventListener('mousemove', this.onGlobalMouseMove);
     document.removeEventListener('mouseup', this.onGlobalMouseUp);
 
-    const success = this.dragDropService.endDrag();
+    const success = await this.calendarCoreService.endDrag();
 
     if (!success) {
       // If the drop was invalid, the appointment will return to its original position

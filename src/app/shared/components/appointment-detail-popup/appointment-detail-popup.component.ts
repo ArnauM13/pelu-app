@@ -132,9 +132,18 @@ export class AppointmentDetailPopupComponent implements OnInit {
     if (this.isClosing()) return;
 
     this.isClosing.set(true);
+
+    // Close confirmation popup if open
+    this.showConfirmationPopup.set(false);
+    this.confirmationData.set(null);
+
     // Emit immediately to avoid timing issues
     this.closed.emit();
-    this.isClosing.set(false);
+
+    // Reset closing state after a short delay
+    setTimeout(() => {
+      this.isClosing.set(false);
+    }, 100);
   }
 
   onEdit(): void {
@@ -182,23 +191,26 @@ export class AppointmentDetailPopupComponent implements OnInit {
         const success = await this.bookingService.deleteBooking(booking.id);
 
         if (success) {
+          // Show success message
           this.toastService.showSuccess(
             this.translateService.instant('COMMON.DELETE_SUCCESS', {
               name: booking.nom
             })
           );
 
-          // Emit the deleted event immediately
-          this.deleted.emit(booking);
-
           // Close the confirmation popup first
           this.showConfirmationPopup.set(false);
           this.confirmationData.set(null);
 
-          // Close the main popup immediately without delay
+          // Emit the deleted event immediately
+          this.deleted.emit(booking);
+
+          // Close the main popup immediately
           this.onClose();
         } else {
+          // Show error message
           this.toastService.showGenericError('Error deleting booking');
+
           // Close the confirmation popup on error
           this.showConfirmationPopup.set(false);
           this.confirmationData.set(null);

@@ -94,7 +94,7 @@ export class BookingPageComponent {
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
-      this.toastService.showGenericError('Error loading services');
+      // Don't show toast for loading errors - they're not user-initiated actions
     }
   }
 
@@ -154,7 +154,7 @@ export class BookingPageComponent {
       this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
     } catch (error) {
       console.error('Error creating booking:', error);
-      this.toastService.showGenericError('Error creating booking');
+      // Don't show toast - the booking service already handles success/error toasts
     }
   }
 

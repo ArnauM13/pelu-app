@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, input, output, computed, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
@@ -13,10 +13,9 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
 import { AuthService } from '../../core/auth/auth.service';
 import { BookingService, Booking } from '../../core/services/booking.service';
 import { RoleService } from '../../core/services/role.service';
-import { CalendarPositionService } from './calendar-position.service';
+import { CalendarCoreService } from './calendar-core.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
-import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
 import { Router } from '@angular/router';
@@ -60,10 +59,9 @@ export class CalendarComponent {
   private readonly roleService = inject(RoleService);
   private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
-  private readonly positionService = inject(CalendarPositionService);
+  readonly calendarCoreService = inject(CalendarCoreService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
-  readonly dragDropService = inject(CalendarDragDropService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   // Input signals
@@ -82,16 +80,22 @@ export class CalendarComponent {
   readonly selectedAppointment = this.stateService.selectedAppointment;
   readonly appointments = this.appointmentService.bookings;
   readonly isLoading = this.appointmentService.isLoading;
-  readonly isBookingsLoaded = computed(() => !this.isLoading());
+  private readonly isInitializedSignal = signal<boolean>(false);
+  private readonly calendarMountedSignal = signal<boolean>(false);
+  readonly isBookingsLoaded = computed(() =>
+    (this.appointmentService.hasCachedData() || !this.isLoading()) &&
+    this.isInitializedSignal() &&
+    this.calendarMountedSignal()
+  );
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
   readonly businessHours = this.businessService.getBusinessConfig().hours;
   readonly lunchBreak = this.businessService.getBusinessConfig().lunchBreak;
   readonly businessDays = this.businessService.getBusinessConfig().days;
-  readonly SLOT_DURATION_MINUTES = this.positionService.getSlotDurationMinutes();
-  readonly PIXELS_PER_MINUTE = this.positionService.getPixelsPerMinute();
-  readonly SLOT_HEIGHT_PX = this.positionService.getSlotHeightPx();
+  readonly SLOT_DURATION_MINUTES = this.calendarCoreService.gridConfiguration().slotDurationMinutes;
+  readonly PIXELS_PER_MINUTE = this.calendarCoreService.gridConfiguration().pixelsPerMinute;
+  readonly SLOT_HEIGHT_PX = this.calendarCoreService.gridConfiguration().slotHeightPx;
 
   // Computed events that combines input events with Firebase bookings
   readonly allEvents = computed((): AppointmentEvent[] => {
@@ -204,30 +208,38 @@ export class CalendarComponent {
   // Computed appointment positions - this is now stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly appointmentPositions = computed(() => {
     const appointments = this.allEvents();
-    return this.positionService.getAppointmentPositions(appointments);
+    return this.calendarCoreService.getAppointmentPositions(appointments);
   });
 
   constructor(private serviceColorsService: ServiceColorsService) {
-    // Load bookings when component initializes
-    this.appointmentService.loadBookings();
+    // Initialize coordinate service with business configuration
+    this.initializeCoordinateService();
 
-    // Listen for custom appointment update events
+    // Load bookings when component initializes (with cache support)
+    this.loadBookingsWithLoader();
+
+    // Listen for custom appointment update events - silent refresh
     window.addEventListener('appointmentUpdated', () => {
-      this.appointmentService.refreshBookings();
-      this.cdr.detectChanges();
+      this.appointmentService.silentRefreshBookings();
     });
 
-    // Listen for custom appointment delete events
+    // Listen for custom appointment delete events - silent refresh
     window.addEventListener('appointmentDeleted', () => {
-      this.appointmentService.refreshBookings();
-      this.cdr.detectChanges();
+      this.appointmentService.silentRefreshBookings();
     });
 
-    // Listen for custom appointment created events
+    // Listen for custom appointment created events - silent refresh
     window.addEventListener('appointmentCreated', () => {
       this.reloadAppointments();
-      this.cdr.detectChanges();
     });
+
+    // Mark calendar as mounted after a delay to ensure complete rendering
+    setTimeout(() => {
+      if (this.isInitializedSignal()) {
+        this.calendarMountedSignal.set(true);
+        this.cdr.detectChanges();
+      }
+    }, 800);
 
     // Set up a periodic check for localStorage changes (fallback)
     // Removed localStorage checking - now using Firebase
@@ -237,7 +249,7 @@ export class CalendarComponent {
 
   // Methods that delegate to services
   isTimeSlotAvailable(date: Date, time: string, requestedDuration: number = this.SLOT_DURATION_MINUTES): boolean {
-    return this.positionService.isTimeSlotAvailable(date, time, this.allEvents(), requestedDuration);
+    return this.calendarCoreService.isTimeSlotAvailable(date, time, this.allEvents(), requestedDuration);
   }
 
   getEventsForDay(date: Date) {
@@ -290,7 +302,7 @@ export class CalendarComponent {
   // Removed localStorage saving - now using Firebase
 
   isLunchBreak(time: string): boolean {
-    return this.businessService.isLunchBreak(time);
+    return this.calendarCoreService.isLunchBreak(time);
   }
 
   /**
@@ -515,19 +527,20 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
   }
 
-      onAppointmentDeleted(appointment: any) {
-    // Don't emit the delete event to parent since the popup already handles the toast
-    // this.onDeleteAppointment.emit(appointment);
+  onAppointmentDeleted(appointment: any) {
+    console.log('Appointment deleted:', appointment);
 
     // Remove the appointment from the state
     this.stateService.removeAppointment(appointment.id);
 
-    // Force reload appointments to update the view immediately
-    this.appointmentService.refreshBookings();
-    this.cdr.detectChanges();
+    // Close the popup immediately
+    this.stateService.closeAppointmentDetail();
 
-    // The popup will close itself after emitting the event
-    // No need to manually close it here
+    // Silently refresh appointments without showing loader
+    this.appointmentService.silentRefreshBookings();
+
+    // Emit the delete event to parent if needed
+    this.onDeleteAppointment.emit(appointment);
   }
 
     onAppointmentEditRequested(appointment: any) {
@@ -561,7 +574,46 @@ export class CalendarComponent {
   }
 
   reloadAppointments() {
-    this.appointmentService.refreshBookings();
+    // Silently refresh appointments without showing loader
+    this.appointmentService.silentRefreshBookings();
+  }
+
+  private async loadBookingsWithLoader(): Promise<void> {
+    try {
+      // Check if we have cached data
+      if (this.appointmentService.hasCachedData()) {
+        // Use cached data - no loader needed
+        this.isInitializedSignal.set(true);
+        this.calendarMountedSignal.set(true);
+        return;
+      }
+
+      // Ensure loader is shown only for first load
+      this.isInitializedSignal.set(false);
+      this.calendarMountedSignal.set(false);
+
+      // Load bookings with cache support
+      await this.appointmentService.getBookingsWithCache();
+
+      // Mark as initialized after a small delay to ensure smooth transition
+      setTimeout(() => {
+        this.isInitializedSignal.set(true);
+
+        // Wait for the next tick to ensure the calendar is rendered
+        setTimeout(() => {
+          this.calendarMountedSignal.set(true);
+          this.cdr.detectChanges();
+        }, 100);
+
+        this.cdr.detectChanges();
+      }, 500);
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+      // Still mark as initialized to show the calendar even if there's an error
+      this.isInitializedSignal.set(true);
+      this.calendarMountedSignal.set(true);
+      this.cdr.detectChanges();
+    }
   }
 
   // Removed localStorage change checking - now using Firebase
@@ -572,41 +624,38 @@ export class CalendarComponent {
 
   // Drag & Drop methods
   onDropZoneMouseEnter(event: MouseEvent, day: Date) {
-    if (this.dragDropService.isDragging()) {
+    console.log('onDropZoneMouseEnter:', { isDragging: this.calendarCoreService.isDragging() });
+    if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+      console.log('Mouse enter - relativeY:', relativeY);
+      this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
   }
 
   onDropZoneMouseMove(event: MouseEvent, day: Date) {
-    if (this.dragDropService.isDragging()) {
+    if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+      this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
   }
 
-  onDropZoneDrop(event: DragEvent, day: Date) {
+  async onDropZoneDrop(event: DragEvent, day: Date) {
     event.preventDefault();
 
     // Update the target date and time one final time before ending drag
-    if (this.dragDropService.isDragging()) {
+    if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+      this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
 
-    const success = this.dragDropService.endDrag();
+    const success = await this.calendarCoreService.endDrag();
 
     if (success) {
-      // Appointment was successfully moved
+      // Appointment was successfully moved - silent refresh
       this.reloadAppointments();
-
-      // Force a change detection cycle to update the view
-      setTimeout(() => {
-        this.reloadAppointments();
-      }, 100);
     }
   }
 
@@ -654,5 +703,26 @@ export class CalendarComponent {
     } else {
       return appointment;
     }
+  }
+
+      /**
+   * Initialize the calendar core service with business configuration
+   */
+  private initializeCoordinateService(): void {
+    console.log('Initializing calendar core service...');
+    const businessConfig = this.businessService.getBusinessConfig();
+    console.log('Business config:', businessConfig);
+
+    this.calendarCoreService.updateGridConfiguration({
+      slotHeightPx: 30,
+      pixelsPerMinute: 1,
+      slotDurationMinutes: 30,
+      businessStartHour: businessConfig.hours.start,
+      businessEndHour: businessConfig.hours.end,
+      lunchBreakStart: businessConfig.lunchBreak.start,
+      lunchBreakEnd: businessConfig.lunchBreak.end
+    });
+
+    console.log('Calendar core service initialized with config:', this.calendarCoreService.gridConfiguration());
   }
 }
