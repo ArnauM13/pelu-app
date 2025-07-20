@@ -19,13 +19,13 @@ export interface Service {
   description: string;
   price: number;
   duration: number; // in minutes
-  category: 'haircut' | 'beard' | 'treatment' | 'styling';
+  category: 'haircut' | 'beard' | 'treatment' | 'styling' | 'coloring' | 'special' | 'kids' | 'default';
   icon: string;
   popular?: boolean;
 }
 
 export interface ServiceCategory {
-  id: 'haircut' | 'beard' | 'treatment' | 'styling';
+  id: 'haircut' | 'beard' | 'treatment' | 'styling' | 'coloring' | 'special' | 'kids' | 'default';
   name: string;
   icon: string;
 }
@@ -177,7 +177,11 @@ export class ServicesService {
     { id: 'haircut', name: 'SERVICES.CATEGORIES.HAIRCUT', icon: '✂️' },
     { id: 'beard', name: 'SERVICES.CATEGORIES.BEARD', icon: '🧔' },
     { id: 'treatment', name: 'SERVICES.CATEGORIES.TREATMENT', icon: '💆' },
-    { id: 'styling', name: 'SERVICES.CATEGORIES.STYLING', icon: '💇' }
+    { id: 'styling', name: 'SERVICES.CATEGORIES.STYLING', icon: '💇' },
+    { id: 'coloring', name: 'SERVICES.CATEGORIES.COLORING', icon: '🎨' },
+    { id: 'special', name: 'SERVICES.CATEGORIES.SPECIAL', icon: '⭐' },
+    { id: 'kids', name: 'SERVICES.CATEGORIES.KIDS', icon: '👶' },
+    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' }
   ];
 
   // All services - single source of truth

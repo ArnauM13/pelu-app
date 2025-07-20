@@ -14,12 +14,14 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { UserService } from '../../../core/services/user.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
@@ -41,6 +43,7 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     TranslateModule,
     CardComponent,
     LoadingStateComponent,
+    AlertPopupComponent,
     CurrencyPipe
   ],
   providers: [ConfirmationService, MessageService],
@@ -55,13 +58,17 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly translateService = inject(TranslateService);
 
-  // Core signals
-  private readonly _services = signal<FirebaseService[]>([]);
-  private readonly _isLoading = signal<boolean>(false);
+  // Core signals - Use Firebase service directly for all data
   private readonly _showCreateDialog = signal<boolean>(false);
   private readonly _showEditDialog = signal<boolean>(false);
   private readonly _selectedService = signal<FirebaseService | null>(null);
+  private readonly _showCreateCategoryDialog = signal<boolean>(false);
+  private readonly _showEditCategoryDialog = signal<boolean>(false);
+  private readonly _selectedCategory = signal<any>(null);
+  private readonly _showAlertDialog = signal<boolean>(false);
+  private readonly _alertData = signal<AlertData | null>(null);
 
   // Form signals
   private readonly _formData = signal<Partial<FirebaseService>>({
@@ -74,25 +81,38 @@ export class AdminServicesPageComponent implements OnInit {
     popular: false
   });
 
-  // Public computed signals
-  readonly services = computed(() => this._services());
-  readonly isLoading = computed(() => this._isLoading());
+  // Category form signals
+  private readonly _categoryFormData = signal<{ name: string; icon: string; id: string }>({
+    name: '',
+    icon: '🔧',
+    id: ''
+  });
+
+  // Public computed signals - Use Firebase service directly
+  readonly services = computed(() => this.firebaseServicesService.services());
+  readonly isLoading = computed(() => this.firebaseServicesService.isLoading());
   readonly showCreateDialog = computed(() => this._showCreateDialog());
   readonly showEditDialog = computed(() => this._showEditDialog());
   readonly selectedService = computed(() => this._selectedService());
   readonly formData = computed(() => this._formData());
+  readonly showCreateCategoryDialog = computed(() => this._showCreateCategoryDialog());
+  readonly showEditCategoryDialog = computed(() => this._showEditCategoryDialog());
+  readonly selectedCategory = computed(() => this._selectedCategory());
+  readonly categoryFormData = computed(() => this._categoryFormData());
+  readonly showAlertDialog = computed(() => this._showAlertDialog());
+  readonly alertData = computed(() => this._alertData());
 
   // Admin access computed
   readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
 
   // Service categories computed
-  readonly serviceCategories = computed(() => this.firebaseServicesService.serviceCategories);
+  readonly serviceCategories = computed(() => this.firebaseServicesService.serviceCategories());
 
   // Category options for dropdown
   readonly categoryOptions = computed(() =>
     this.serviceCategories().map(category => ({
-      label: category.name,
+      label: category.custom ? category.name : this.translateService.instant(`SERVICES.CATEGORIES.${category.id.toUpperCase()}`),
       value: category.id,
       icon: category.icon
     }))
@@ -110,13 +130,8 @@ export class AdminServicesPageComponent implements OnInit {
     { label: '🔧 General', value: '🔧' }
   ];
 
-  // Services by category computed
-  readonly servicesByCategory = computed(() =>
-    this.serviceCategories().map(category => ({
-      ...category,
-      services: this.getServicesByCategory(category.id)
-    }))
-  );
+  // Services by category computed - Use Firebase service directly
+  readonly servicesByCategory = computed(() => this.firebaseServicesService.servicesByCategory());
 
   constructor() {
     // Check admin access
@@ -134,15 +149,10 @@ export class AdminServicesPageComponent implements OnInit {
    * Load services from Firebase
    */
   async loadServices(): Promise<void> {
-    this._isLoading.set(true);
-
     try {
       await this.firebaseServicesService.loadServices();
-      this._services.set(this.firebaseServicesService.services());
     } catch (error) {
       console.error('Error loading services:', error);
-    } finally {
-      this._isLoading.set(false);
     }
   }
 
@@ -183,13 +193,12 @@ export class AdminServicesPageComponent implements OnInit {
     const newService = await this.firebaseServicesService.createService(serviceData as Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>);
 
     if (newService) {
-      this._services.set(this.firebaseServicesService.services());
       this._showCreateDialog.set(false);
       this.resetForm();
       this.messageService.add({
         severity: 'success',
-        summary: 'Servei creat',
-        detail: 'El servei s\'ha creat correctament'
+        summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_CREATED'),
+        detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_CREATED_MESSAGE')
       });
     }
   }
@@ -206,38 +215,84 @@ export class AdminServicesPageComponent implements OnInit {
     const success = await this.firebaseServicesService.updateService(this.selectedService()!.id!, serviceData);
 
     if (success) {
-      this._services.set(this.firebaseServicesService.services());
       this._showEditDialog.set(false);
       this.resetForm();
       this._selectedService.set(null);
       this.messageService.add({
         severity: 'success',
-        summary: 'Servei actualitzat',
-        detail: 'El servei s\'ha actualitzat correctament'
+        summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_UPDATED'),
+        detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_UPDATED_MESSAGE')
+      });
+    }
+  }
+
+    /**
+   * Delete service
+   */
+  deleteService(service: FirebaseService): void {
+    const alertData: AlertData = {
+      title: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION'),
+      message: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
+      emoji: '⚠️',
+      severity: 'danger',
+      confirmText: this.translateService.instant('COMMON.ACTIONS.YES'),
+      cancelText: this.translateService.instant('COMMON.ACTIONS.NO')
+    };
+
+    this._alertData.set(alertData);
+    this._showAlertDialog.set(true);
+  }
+
+  /**
+   * Handle alert confirmation
+   */
+  onAlertConfirmed(): void {
+    const service = this.selectedService();
+    const category = this.selectedCategory();
+
+    if (service) {
+      this.deleteServiceConfirmed(service);
+    } else if (category) {
+      this.deleteCategoryConfirmed(category);
+    }
+
+    this._showAlertDialog.set(false);
+  }
+
+  /**
+   * Handle alert cancellation
+   */
+  onAlertCancelled(): void {
+    this._showAlertDialog.set(false);
+    this._selectedService.set(null);
+  }
+
+  /**
+   * Delete service confirmed
+   */
+  private async deleteServiceConfirmed(service: FirebaseService): Promise<void> {
+    const success = await this.firebaseServicesService.deleteService(service.id!);
+    if (success) {
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED'),
+        detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED_MESSAGE')
       });
     }
   }
 
   /**
-   * Delete service
+   * Delete category confirmed
    */
-  deleteService(service: FirebaseService): void {
-    this.confirmationService.confirm({
-      message: `Estàs segur que vols eliminar el servei "${service.name}"?`,
-      header: 'Confirmar eliminació',
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        const success = await this.firebaseServicesService.deleteService(service.id!);
-        if (success) {
-          this._services.set(this.firebaseServicesService.services());
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Servei eliminat',
-            detail: 'El servei s\'ha eliminat correctament'
-          });
-        }
-      }
-    });
+  private async deleteCategoryConfirmed(category: any): Promise<void> {
+    const success = await this.firebaseServicesService.deleteCategory(category.id);
+    if (success) {
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED_MESSAGE')
+      });
+    }
   }
 
   /**
@@ -288,8 +343,8 @@ export class AdminServicesPageComponent implements OnInit {
     if (!formData.name || formData.name.trim() === '') {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error de validació',
-        detail: 'El nom del servei és obligatori'
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.NAME_REQUIRED')
       });
       return false;
     }
@@ -297,8 +352,17 @@ export class AdminServicesPageComponent implements OnInit {
     if (!formData.description || formData.description.trim() === '') {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error de validació',
-        detail: 'La descripció del servei és obligatòria'
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DESCRIPTION_REQUIRED')
+      });
+      return false;
+    }
+
+    if (!formData.category) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.CATEGORY_REQUIRED')
       });
       return false;
     }
@@ -306,17 +370,26 @@ export class AdminServicesPageComponent implements OnInit {
     if (!formData.price || formData.price <= 0) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error de validació',
-        detail: 'El preu ha de ser major que 0'
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.PRICE_MIN')
       });
       return false;
     }
 
-    if (!formData.duration || formData.duration <= 0) {
+    if (!formData.duration || formData.duration < 5) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error de validació',
-        detail: 'La durada ha de ser major que 0'
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MIN')
+      });
+      return false;
+    }
+
+    if (formData.duration > 480) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MAX')
       });
       return false;
     }
@@ -328,7 +401,7 @@ export class AdminServicesPageComponent implements OnInit {
    * Get services by category
    */
   getServicesByCategory(category: FirebaseService['category']): FirebaseService[] {
-    return this.services().filter(service => service.category === category);
+    return this.firebaseServicesService.getServicesByCategory(category);
   }
 
   /**
@@ -350,7 +423,6 @@ export class AdminServicesPageComponent implements OnInit {
    */
   async refreshServices(): Promise<void> {
     await this.firebaseServicesService.refreshServices();
-    this._services.set(this.firebaseServicesService.services());
   }
 
   /**
@@ -362,7 +434,7 @@ export class AdminServicesPageComponent implements OnInit {
     if (!needsMigration) {
       this.messageService.add({
         severity: 'info',
-        summary: 'Migració no necessària',
+        summary: this.translateService.instant('COMMON.STATUS.STATUS_INFO'),
         detail: 'Els serveis ja estan migrats a Firebase'
       });
       return;
@@ -370,7 +442,7 @@ export class AdminServicesPageComponent implements OnInit {
 
     this.confirmationService.confirm({
       message: 'Vols migrar els serveis actuals a Firebase? Aquesta acció no es pot desfer.',
-      header: 'Confirmar migració',
+      header: this.translateService.instant('ADMIN.SERVICES.MIGRATE_SERVICES'),
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         const success = await this.servicesMigrationService.migrateServicesToFirebase();
@@ -388,7 +460,7 @@ export class AdminServicesPageComponent implements OnInit {
   async createSampleServices(): Promise<void> {
     this.confirmationService.confirm({
       message: 'Vols crear serveis d\'exemple? Això afegirà serveis de prova a Firebase.',
-      header: 'Crear Serveis d\'Exemple',
+      header: this.translateService.instant('ADMIN.SERVICES.CREATE_SAMPLE_SERVICES'),
       icon: 'pi pi-plus-circle',
       accept: async () => {
         const success = await this.firebaseServicesService.createSampleServices();
@@ -410,5 +482,183 @@ export class AdminServicesPageComponent implements OnInit {
       showMessage: true,
       fullHeight: false
     };
+  }
+
+  // ===== CATEGORY MANAGEMENT =====
+
+  /**
+   * Show create category dialog
+   */
+  showCreateCategory(): void {
+    this.resetCategoryForm();
+    this._showCreateCategoryDialog.set(true);
+  }
+
+  /**
+   * Show edit category dialog
+   */
+  showEditCategory(category: any): void {
+    this._selectedCategory.set(category);
+    this._categoryFormData.set({
+      name: category.name,
+      icon: category.icon,
+      id: category.id
+    });
+    this._showEditCategoryDialog.set(true);
+  }
+
+  /**
+   * Update existing category
+   */
+  async updateCategory(): Promise<void> {
+    if (!this.validateCategoryForm() || !this.selectedCategory()) {
+      return;
+    }
+
+    const categoryData = this.categoryFormData();
+    const success = await this.firebaseServicesService.updateCategory(this.selectedCategory()!.id, {
+      name: categoryData.name,
+      icon: categoryData.icon
+    });
+
+    if (success) {
+      this._showEditCategoryDialog.set(false);
+      this.resetCategoryForm();
+      this._selectedCategory.set(null);
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_UPDATED'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_UPDATED_MESSAGE')
+      });
+    }
+  }
+
+  /**
+   * Create new category
+   */
+  async createCategory(): Promise<void> {
+    if (!this.validateCategoryForm()) {
+      return;
+    }
+
+    const categoryData = this.categoryFormData();
+    const newCategory = await this.firebaseServicesService.createCategory(categoryData);
+
+    if (newCategory) {
+      this._showCreateCategoryDialog.set(false);
+      this.resetCategoryForm();
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_CREATED'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_CREATED_MESSAGE')
+      });
+    }
+  }
+
+  /**
+   * Delete category
+   */
+  deleteCategory(category: any): void {
+    const alertData: AlertData = {
+      title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
+      message: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
+      emoji: '⚠️',
+      severity: 'danger',
+      confirmText: this.translateService.instant('COMMON.ACTIONS.YES'),
+      cancelText: this.translateService.instant('COMMON.ACTIONS.NO')
+    };
+
+    this._alertData.set(alertData);
+    this._showAlertDialog.set(true);
+    this._selectedCategory.set(category);
+  }
+
+  /**
+   * Cancel category dialog
+   */
+  cancelCategoryDialog(): void {
+    this._showCreateCategoryDialog.set(false);
+    this._showEditCategoryDialog.set(false);
+    this.resetCategoryForm();
+    this._selectedCategory.set(null);
+  }
+
+  /**
+   * Handle create category dialog visibility change
+   */
+  onCreateCategoryDialogVisibilityChange(visible: boolean): void {
+    this._showCreateCategoryDialog.set(visible);
+  }
+
+  /**
+   * Handle edit category dialog visibility change
+   */
+  onEditCategoryDialogVisibilityChange(visible: boolean): void {
+    this._showEditCategoryDialog.set(visible);
+  }
+
+  /**
+   * Reset category form data
+   */
+  private resetCategoryForm(): void {
+    this._categoryFormData.set({
+      name: '',
+      icon: '🔧',
+      id: ''
+    });
+  }
+
+  /**
+   * Validate category form data
+   */
+  private validateCategoryForm(): boolean {
+    const formData = this.categoryFormData();
+
+    if (!formData.name || formData.name.trim() === '') {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
+      });
+      return false;
+    }
+
+    if (!formData.id || formData.id.trim() === '') {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_REQUIRED')
+      });
+      return false;
+    }
+
+    if (formData.id.length < 3) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_MIN_LENGTH')
+      });
+      return false;
+    }
+
+    if (!/^[a-z0-9-]+$/.test(formData.id)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_FORMAT')
+      });
+      return false;
+    }
+
+    if (!formData.icon || formData.icon.trim() === '') {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ICON_REQUIRED')
+      });
+      return false;
+    }
+
+    return true;
   }
 }
