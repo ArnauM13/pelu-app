@@ -193,14 +193,14 @@ export class CalendarComponent {
       const endDate = event.end ? new Date(event.end) : addMinutes(startDate, event.duration || 60);
 
       return {
-        title: event.title,
+      title: event.title,
         start: startDate,
         end: endDate,
-        color: {
-          primary: '#3b82f6',
-          secondary: '#dbeafe'
-        },
-        meta: event
+      color: {
+        primary: '#3b82f6',
+        secondary: '#dbeafe'
+      },
+      meta: event
       };
     });
   });
@@ -249,7 +249,8 @@ export class CalendarComponent {
 
   // Methods that delegate to services
   isTimeSlotAvailable(date: Date, time: string, requestedDuration: number = this.SLOT_DURATION_MINUTES): boolean {
-    return this.calendarCoreService.isTimeSlotAvailable(date, time, this.allEvents(), requestedDuration);
+    const events = this.allEvents();
+    return this.calendarCoreService.isTimeSlotAvailable(date, time, events, requestedDuration);
   }
 
   getEventsForDay(date: Date) {
@@ -305,9 +306,6 @@ export class CalendarComponent {
     return this.calendarCoreService.isLunchBreak(time);
   }
 
-  /**
-   * Check if a time slot should be shown as lunch break (blocked)
-   */
   isTimeSlotBlocked(time: string): boolean {
     return this.businessService.isLunchBreak(time) || !this.businessService.isTimeSlotBookable(time);
   }
@@ -428,6 +426,27 @@ export class CalendarComponent {
     this.dateSelected.emit({ date: dateString, time: time });
   }
 
+      onTimeSlotClick(date: Date, time: string) {
+    // Prevent selection of past dates and time slots
+    if (this.isPastDate(date) || this.isPastTimeSlot(date, time)) {
+      return;
+    }
+
+    // Prevent selection of blocked time slots
+    if (this.isTimeSlotBlocked(time)) {
+      return;
+    }
+
+    // Check if slot is available
+    if (!this.isTimeSlotAvailable(date, time)) {
+      return;
+    }
+
+    // Emit the selection
+    const dateString = dateFnsFormat(date, 'yyyy-MM-dd');
+    this.dateSelected.emit({ date: dateString, time: time });
+  }
+
   isDaySelected(date: Date): boolean {
     const selectedDay = this.selectedDay();
     return selectedDay ? isSameDay(date, selectedDay) : false;
@@ -543,7 +562,7 @@ export class CalendarComponent {
     this.onDeleteAppointment.emit(appointment);
   }
 
-    onAppointmentEditRequested(appointment: any) {
+  onAppointmentEditRequested(appointment: any) {
     const currentUser = this.authService.user();
     if (!currentUser?.uid) {
       console.warn('No user found');

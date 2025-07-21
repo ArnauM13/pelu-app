@@ -4,7 +4,8 @@
     <pelu-calendar-component
       #calendarComponent
       [mini]="false"
-      [events]="[]">
+      [events]="[]"
+      (dateSelected)="onTimeSlotSelected($event)">
     </pelu-calendar-component>
   </div>
 </div>

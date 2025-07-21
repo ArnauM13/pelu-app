@@ -104,7 +104,7 @@ export class BookingPageComponent {
     }
   }
 
-  onTimeSlotSelected(event: {date: string, time: string}) {
+    onTimeSlotSelected(event: {date: string, time: string}) {
     // Show service selection popup first
     const details: ServiceSelectionDetails = {
       date: event.date,
