@@ -117,14 +117,14 @@ export class BookingPageComponent {
     this.showServiceSelectionPopupSignal.set(true);
   }
 
-  onEditAppointment(event: AppointmentEvent) {
+  onEditAppointment(event: any) {
     // Navigate to appointment detail or edit page
-    if (event.id) {
+    if (event && event.id) {
       this.router.navigate(['/appointments', event.id]);
     }
   }
 
-  onDeleteAppointment(event: AppointmentEvent) {
+  onDeleteAppointment(event: any) {
     // Handle appointment deletion
     console.log('Delete appointment:', event);
   }

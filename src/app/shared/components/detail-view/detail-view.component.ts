@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { RouterModule } from '@angular/router';
 
 import { AvatarComponent } from '../avatar/avatar.component';
@@ -14,8 +15,10 @@ import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
 import { InputNumberComponent } from '../inputs/input-number/input-number.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
+import { ActionsButtonsComponent } from '../actions-buttons';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
+import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 
 
 export interface DetailAction {
@@ -57,6 +60,7 @@ export interface DetailViewConfig {
     CommonModule,
     TranslateModule,
     InputTextModule,
+    TooltipModule,
     AvatarComponent,
     InfoItemComponent,
     AppointmentStatusBadgeComponent,
@@ -66,7 +70,8 @@ export interface DetailViewConfig {
     InputTextComponent,
     InputTextareaComponent,
     InputNumberComponent,
-    InputDateComponent
+    InputDateComponent,
+    ActionsButtonsComponent
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss']
@@ -83,7 +88,8 @@ export class DetailViewComponent implements OnChanges {
     constructor(
     private router: Router,
     private serviceColorsService: ServiceColorsService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private actionsService: ActionsService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -137,6 +143,25 @@ export class DetailViewComponent implements OnChanges {
   get isEditing() { return this.config?.isEditing; }
   get hasChanges() { return this.config?.hasChanges; }
   get canSave() { return this.config?.canSave; }
+
+  // Action context for the actions service
+  get actionContext(): ActionContext | null {
+    if (this.type === 'appointment' && this.appointment) {
+      return {
+        type: 'appointment',
+        item: this.appointment,
+        permissions: {
+          canEdit: this.canEditAppointment(),
+          canDelete: this.canDeleteAppointment(),
+          canView: false // Disable view action in detail view
+        },
+        onEdit: () => this.onEdit(),
+        onDelete: () => this.onDelete(),
+        onView: () => this.onBack()
+      };
+    }
+    return null;
+  }
 
   // Profile specific
   get avatarData() {

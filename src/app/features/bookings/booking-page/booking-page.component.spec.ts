@@ -109,7 +109,7 @@ describe('BookingPageComponent', () => {
   describe('Component Behavior', () => {
     it('should initialize with default values', () => {
       expect(component.showBookingPopup()).toBeFalse();
-      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '' });
+      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '', email: '' });
       expect(component.availableServices()).toEqual([]);
     });
   });
@@ -130,7 +130,8 @@ describe('BookingPageComponent', () => {
       const bookingDetails = {
         date: '2024-01-01',
         time: '10:00',
-        clientName: 'Test User'
+        clientName: 'Test User',
+        email: 'test@example.com'
       };
 
       expect(() => component.onBookingConfirmed(bookingDetails)).not.toThrow();
@@ -147,7 +148,8 @@ describe('BookingPageComponent', () => {
       const bookingDetails = {
         date: '2024-01-01',
         time: '10:00',
-        clientName: 'Test User'
+        clientName: 'Test User',
+        email: 'test@example.com'
       };
 
       component.onBookingConfirmed(bookingDetails);
@@ -170,7 +172,8 @@ describe('BookingPageComponent', () => {
       const bookingDetails = {
         date: '2024-01-01',
         time: '10:00',
-        clientName: 'Test User'
+        clientName: 'Test User',
+        email: 'test@example.com'
       };
 
       component.onBookingConfirmed(bookingDetails);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslationService } from './translation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
@@ -34,6 +34,9 @@ export interface ServiceCategory {
   providedIn: 'root'
 })
 export class ServicesService {
+  // Inject services
+  #translationService = inject(TranslationService);
+  #translateService = inject(TranslateService);
 
   // Service colors configuration
   private readonly serviceColors: ServiceColor[] = [
@@ -264,10 +267,7 @@ export class ServicesService {
     }
   ];
 
-  constructor(
-    private translationService: TranslationService,
-    private translateService: TranslateService
-  ) {
+  constructor() {
     // Initialize service colors map
     this.serviceColors.forEach(color => {
       this.serviceColorMap.set(color.id, color);
@@ -337,7 +337,7 @@ export class ServicesService {
           return category.name;
         }
 
-        const translated = this.translateService.instant(category.name);
+        const translated = this.#translateService.instant(category.name);
         return translated;
       } catch (error) {
         return category.name;
@@ -362,7 +362,7 @@ export class ServicesService {
   private isTranslationReady(): boolean {
     try {
       // Try to get a known translation key
-      const testTranslation = this.translateService.instant('SERVICES.NAMES.MALE_HAIRCUT');
+      const testTranslation = this.#translateService.instant('SERVICES.NAMES.MALE_HAIRCUT');
       return testTranslation !== 'SERVICES.NAMES.MALE_HAIRCUT';
     } catch (error) {
       return false;
@@ -382,7 +382,7 @@ export class ServicesService {
         }
 
         // Try using TranslateService directly
-        const translated = this.translateService.instant(service.name);
+        const translated = this.#translateService.instant(service.name);
 
         // If the translation returns the same key, it means the translation failed
         if (translated === service.name) {
@@ -413,7 +413,7 @@ export class ServicesService {
    * Get services with translated names using observable
    */
   getServicesWithTranslatedNamesAsync(): Observable<Service[]> {
-    return this.translateService.get('SERVICES.NAMES.MALE_HAIRCUT').pipe(
+    return this.#translateService.get('SERVICES.NAMES.MALE_HAIRCUT').pipe(
       map(() => {
         // If we can get a translation, the service is ready
         return this.allServices.map(service => ({
@@ -466,7 +466,7 @@ export class ServicesService {
    */
   translateServiceName(serviceName: string): string {
     if (!serviceName) {
-      return this.translationService.get('SERVICES.NAMES.GENERAL_SERVICE');
+      return this.#translationService.get('SERVICES.NAMES.GENERAL_SERVICE');
     }
 
     const serviceNameLower = serviceName.toLowerCase().trim();
@@ -474,13 +474,13 @@ export class ServicesService {
     // Try to find an exact match first
     const translationKey = this.serviceNameMap.get(serviceNameLower);
     if (translationKey) {
-      return this.translationService.get(translationKey);
+      return this.#translationService.get(translationKey);
     }
 
     // Try to find a partial match
     for (const [key, value] of this.serviceNameMap.entries()) {
       if (serviceNameLower.includes(key) || key.includes(serviceNameLower)) {
-        return this.translationService.get(value);
+        return this.#translationService.get(value);
       }
     }
 
@@ -559,7 +559,7 @@ export class ServicesService {
    * Obté el nom traduït d'un color de servei
    */
   getServiceColorName(serviceColor: ServiceColor): string {
-    return this.translationService.get(serviceColor.translationKey);
+    return this.#translationService.get(serviceColor.translationKey);
   }
 
   /**

@@ -33,3 +33,7 @@ export * from './inputs';
 export { ServiceCardComponent } from './service-card/service-card.component';
 export type { ServiceCardConfig } from './service-card/service-card.component';
 
+// Actions buttons component
+export { ActionsButtonsComponent } from './actions-buttons';
+export type { ActionConfig, ActionContext } from '../../core/services/actions.service';
+

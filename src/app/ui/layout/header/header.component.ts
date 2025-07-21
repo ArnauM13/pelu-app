@@ -14,23 +14,22 @@ import { UserService } from '../../../core/services/user.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+  // Inject services
+  #userService = inject(UserService);
+  #router = inject(Router);
+
   // Internal state
   private readonly isLoggingOutSignal = signal(false);
 
-  constructor(
-    private userService: UserService,
-    private router: Router
-  ) {}
-
   // Getter per accedir des del template
   get userServicePublic() {
-    return this.userService;
+    return this.#userService;
   }
 
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
-  readonly isLoading = computed(() => this.userService.isLoading());
-  readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
+  readonly isLoading = computed(() => this.#userService.isLoading());
+  readonly hasAdminAccess = computed(() => this.#userService.hasAdminAccess());
 
   readonly customDropdownItems = computed((): ProfileDropdownItem[] => {
     return [
@@ -47,15 +46,15 @@ export class HeaderComponent {
   navigateToHome(event: Event) {
     event.stopPropagation();
     // Only navigate if we're not already on the home page
-    if (this.router.url !== '/') {
-      this.router.navigate(['/']);
+    if (this.#router.url !== '/') {
+      this.#router.navigate(['/']);
     }
   }
 
   async onLogout() {
     try {
       this.isLoggingOutSignal.set(true);
-      await this.userService.logout();
+      await this.#userService.logout();
     } catch (error) {
       // Handle logout error silently
     } finally {

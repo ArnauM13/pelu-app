@@ -12,8 +12,9 @@ import { Auth, User } from '@angular/fire/auth';
   styleUrls: ['./admin-setup.component.scss']
 })
 export class AdminSetupComponent {
-  userService = inject(UserService);
-  private auth = inject(Auth);
+  // Inject services
+  #userService = inject(UserService);
+  #auth = inject(Auth);
 
   // Internal state
   private readonly isPromotingSignal = signal(false);
@@ -27,12 +28,12 @@ export class AdminSetupComponent {
 
   // Mostrar el component només en desenvolupament i si l'usuari està autenticat
   readonly showSetup = computed(() => {
-    return this.userService.isAuthenticated() &&
-           (this.userService.isAdmin() || this.userService.isClient());
+    return this.#userService.isAuthenticated() &&
+           (this.#userService.isAdmin() || this.#userService.isClient());
   });
 
   async promoteToAdmin() {
-    const currentUser = this.userService.currentUser();
+    const currentUser = this.#userService.currentUser();
     if (!currentUser) {
       this.showError('No hi ha usuari autenticat');
       return;
@@ -42,7 +43,7 @@ export class AdminSetupComponent {
     this.clearMessage();
 
     try {
-      await this.userService.promoteToAdmin(currentUser.uid, {
+      await this.#userService.promoteToAdmin(currentUser.uid, {
         canManageUsers: true,
         canViewAllAppointments: true,
         permissions: ['manage_users', 'view_all_appointments']
@@ -58,7 +59,7 @@ export class AdminSetupComponent {
   }
 
   async demoteToClient() {
-    const currentUser = this.userService.currentUser();
+    const currentUser = this.#userService.currentUser();
     if (!currentUser) {
       this.showError('No hi ha usuari autenticat');
       return;
@@ -68,7 +69,7 @@ export class AdminSetupComponent {
     this.clearMessage();
 
     try {
-      await this.userService.demoteToClient(currentUser.uid);
+      await this.#userService.demoteToClient(currentUser.uid);
       this.showSuccess('Usuari degradat a client amb èxit');
     } catch (error) {
       console.error('Error demoting to client:', error);

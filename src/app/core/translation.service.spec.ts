@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslationService } from './translation.service';
+import { TranslationService } from './services/translation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -19,6 +19,8 @@ const mockTranslateService = {
   use: jasmine.createSpy('use'),
   addLangs: jasmine.createSpy('addLangs').and.returnValue(undefined),
   getBrowserLang: jasmine.createSpy('getBrowserLang').and.returnValue('ca'),
+  setDefaultLang: jasmine.createSpy('setDefaultLang'),
+  getLangs: jasmine.createSpy('getLangs').and.returnValue(['ca', 'es', 'en']),
   reloadLang: jasmine.createSpy('reloadLang')
 };
 

@@ -15,26 +15,9 @@
     </div>
     @if (config.showActions) {
       <div class="service-actions">
-        <button
-          class="btn"
-          [class.btn-success]="service.popular"
-          [class.btn-outline]="!service.popular"
-          [pTooltip]="service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate"
-          (click)="onTogglePopularClick($event)">
-          {{ service.popular ? '⭐' : '☆' }}
-        </button>
-        <button
-          class="btn btn-secondary"
-          [pTooltip]="'ADMIN.SERVICES.EDIT_SERVICE' | translate"
-          (click)="onEditClick($event)">
-          ✏️
-        </button>
-        <button
-          class="btn btn-danger"
-          [pTooltip]="'COMMON.ACTIONS.DELETE' | translate"
-          (click)="onDeleteClick($event)">
-          🗑️
-        </button>
+        <pelu-actions-buttons
+          [context]="actionContext">
+        </pelu-actions-buttons>
       </div>
     }
   </div>

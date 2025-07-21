@@ -7,6 +7,8 @@ import { CardComponent } from '../../../../shared/components/card/card.component
 import { NotFoundStateComponent } from '../../../../shared/components/not-found-state/not-found-state.component';
 import { ServiceColorsService } from '../../../../core/services/service-colors.service';
 import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
+import { ActionsButtonsComponent } from '../../../../shared/components/actions-buttons';
+import { ActionsService, ActionContext } from '../../../../core/services/actions.service';
 import { isFutureAppointment } from '../../../../shared/services';
 import { Booking } from '../../../../core/services/booking.service';
 
@@ -19,7 +21,8 @@ import { Booking } from '../../../../core/services/booking.service';
     TooltipModule,
     AppointmentStatusBadgeComponent,
     CardComponent,
-    NotFoundStateComponent
+    NotFoundStateComponent,
+    ActionsButtonsComponent
   ],
   template: `
     @if (bookings().length === 0) {
@@ -88,29 +91,9 @@ import { Booking } from '../../../../core/services/booking.service';
               </div>
             </div>
             <div class="appointment-actions-container">
-              <button
-                class="btn btn-primary"
-                (click)="$event.stopPropagation(); onViewBooking.emit(booking)"
-                [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
-                pTooltipPosition="left">
-                👁️
-              </button>
-              @if (isFutureAppointment({ data: booking.data || '', hora: booking.hora || '' })) {
-                <button
-                  class="btn btn-secondary"
-                  (click)="$event.stopPropagation(); onEditBooking.emit(booking)"
-                  [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
-                  pTooltipPosition="left">
-                  ✏️
-                </button>
-                <button
-                  class="btn btn-danger"
-                  (click)="$event.stopPropagation(); onDeleteBooking.emit(booking)"
-                  [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-                  pTooltipPosition="left">
-                  🗑️
-                </button>
-              }
+              <pelu-actions-buttons
+                [context]="getActionContext(booking)">
+              </pelu-actions-buttons>
             </div>
           </div>
           }
@@ -386,7 +369,8 @@ export class AppointmentsListComponent {
 
   constructor(
     public serviceColorsService: ServiceColorsService,
-    private serviceTranslationService: ServiceTranslationService
+    private serviceTranslationService: ServiceTranslationService,
+    private actionsService: ActionsService
   ) {}
 
   isToday(dateString: string): boolean {
@@ -409,5 +393,15 @@ export class AppointmentsListComponent {
 
   getClientName(booking: Booking): string {
     return booking.nom || booking.title || booking.clientName || 'Client';
+  }
+
+  getActionContext(booking: Booking): ActionContext {
+    return {
+      type: 'appointment',
+      item: booking,
+      onEdit: () => this.onEditBooking.emit(booking),
+      onDelete: () => this.onDeleteBooking.emit(booking),
+      onView: () => this.onViewBooking.emit(booking)
+    };
   }
 }
