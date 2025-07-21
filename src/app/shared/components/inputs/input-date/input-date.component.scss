@@ -1,0 +1,148 @@
+.input-date-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-date-label {
+  font-weight: 600;
+  color: var(--text-color-light, #374151);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.2;
+  width: 100%;
+
+  &.required::after {
+    content: ' *';
+    color: #dc2626;
+    font-weight: bold;
+  }
+}
+
+.input-date-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 100%;
+  color: var(--input-icon-color, #6b7280);
+  pointer-events: none;
+  z-index: 1;
+
+  &.left {
+    left: 0;
+  }
+
+  &.right {
+    right: 0;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.input-date-loading {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.input-date-clear {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--input-icon-color, #6b7280);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 1;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+.input-date-help {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.input-date-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .error-icon {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .error-text {
+    flex: 1;
+  }
+}
+
+.input-date-success {
+  font-size: 0.8rem;
+  color: #16a34a;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .success-icon {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .success-text {
+    flex: 1;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .input-date-field {
+    font-size: 1rem; // Prevent zoom on iOS
+  }
+}
+
+

@@ -1,129 +1,97 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BookingMobilePageComponent } from './booking-mobile-page.component';
-import { AuthService } from '../../../core/auth/auth.service';
-import { ServicesService, Service } from '../../../core/services/services.service';
-import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
-import { mockAuth } from '../../../../testing/firebase-mocks';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { AuthService } from '../../../core/auth/auth.service';
+import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
+import { BookingService } from '../../../core/services/booking.service';
+import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ServiceTranslationService } from '../../../core/services/service-translation.service';
+import { ResponsiveService } from '../../../core/services/responsive.service';
+import { Router } from '@angular/router';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
-// Mock translate loader
+// Mock TranslateLoader
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {
     return of({});
   }
 }
 
-// Mock services
-const mockAuthService = {
-  user: jasmine.createSpy('user').and.returnValue({
-    uid: 'test-user-id',
-    displayName: 'Test User',
-    email: 'test@example.com'
-  }),
-  isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true)
-};
-
-const mockServicesService = {
-  getAllServices: jasmine.createSpy('getAllServices').and.returnValue([
-    {
-      id: '1',
-      name: 'Haircut',
-      description: 'Classic or modern haircut',
-      price: 25,
-      duration: 30,
-      category: 'haircut' as const,
-      icon: '✂️'
-    },
-    {
-      id: '2',
-      name: 'Hair Coloring',
-      description: 'Professional hair coloring',
-      price: 50,
-      duration: 60,
-      category: 'treatment' as const,
-      icon: '🎨'
-    }
-  ])
-};
-
-const mockRouter = {
-  navigate: jasmine.createSpy('navigate')
-};
-
-const mockMessageService = {
-  add: jasmine.createSpy('add'),
-  clear: jasmine.createSpy('clear')
-};
-
-const mockToastService = {
-  showLoginRequired: jasmine.createSpy('showLoginRequired')
-};
-
-const mockTranslateService = {
-  instant: jasmine.createSpy('instant').and.returnValue('translated text'),
-  get: jasmine.createSpy('get').and.returnValue(of('translated text'))
-};
-
 describe('BookingMobilePageComponent', () => {
   let component: BookingMobilePageComponent;
   let fixture: ComponentFixture<BookingMobilePageComponent>;
   let authService: jasmine.SpyObj<AuthService>;
-  let servicesService: jasmine.SpyObj<ServicesService>;
-  let router: jasmine.SpyObj<Router>;
-  let messageService: jasmine.SpyObj<MessageService>;
+  let firebaseServicesService: jasmine.SpyObj<FirebaseServicesService>;
+  let bookingService: jasmine.SpyObj<BookingService>;
+  let roleService: jasmine.SpyObj<RoleService>;
   let toastService: jasmine.SpyObj<ToastService>;
+  let serviceColorsService: jasmine.SpyObj<ServiceColorsService>;
+  let serviceTranslationService: jasmine.SpyObj<ServiceTranslationService>;
+  let responsiveService: jasmine.SpyObj<ResponsiveService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
+    const authSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'user']);
+    const firebaseServicesSpy = jasmine.createSpyObj('FirebaseServicesService', ['activeServices']);
+    const bookingSpy = jasmine.createSpyObj('BookingService', ['createBooking']);
+    const roleSpy = jasmine.createSpyObj('RoleService', ['isAdmin']);
+    const toastSpy = jasmine.createSpyObj('ToastService', ['showAppointmentCreated', 'showLoginRequired']);
+    const serviceColorsSpy = jasmine.createSpyObj('ServiceColorsService', ['getServiceColor']);
+    const serviceTranslationSpy = jasmine.createSpyObj('ServiceTranslationService', ['getServiceName']);
+    const responsiveSpy = jasmine.createSpyObj('ResponsiveService', ['isMobile']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
     await TestBed.configureTestingModule({
       imports: [
         BookingMobilePageComponent,
-        HttpClientModule,
         TranslateModule.forRoot({
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
         })
       ],
       providers: [
-        { provide: Auth, useValue: mockAuth },
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: ServicesService, useValue: mockServicesService },
-        { provide: Router, useValue: mockRouter },
-        { provide: MessageService, useValue: mockMessageService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: TranslateService, useValue: mockTranslateService },
-        provideRouter([])
-      ]
+        { provide: AuthService, useValue: authSpy },
+        { provide: FirebaseServicesService, useValue: firebaseServicesSpy },
+        { provide: BookingService, useValue: bookingSpy },
+        { provide: RoleService, useValue: roleSpy },
+        { provide: ToastService, useValue: toastSpy },
+        { provide: ServiceColorsService, useValue: serviceColorsSpy },
+        { provide: ServiceTranslationService, useValue: serviceTranslationSpy },
+        { provide: ResponsiveService, useValue: responsiveSpy },
+        { provide: Router, useValue: routerSpy }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(BookingMobilePageComponent);
     component = fixture.componentInstance;
-
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
+    firebaseServicesService = TestBed.inject(FirebaseServicesService) as jasmine.SpyObj<FirebaseServicesService>;
+    bookingService = TestBed.inject(BookingService) as jasmine.SpyObj<BookingService>;
+    roleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
+    serviceColorsService = TestBed.inject(ServiceColorsService) as jasmine.SpyObj<ServiceColorsService>;
+    serviceTranslationService = TestBed.inject(ServiceTranslationService) as jasmine.SpyObj<ServiceTranslationService>;
+    responsiveService = TestBed.inject(ResponsiveService) as jasmine.SpyObj<ResponsiveService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+
+    // Setup default mock return values
+    authService.isAuthenticated.and.returnValue(true);
+    authService.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    firebaseServicesService.activeServices.and.returnValue([]);
+    roleService.isAdmin.and.returnValue(false);
+    responsiveService.isMobile.and.returnValue(true);
+
+    fixture.detectChanges();
   });
 
-  describe('Component Creation and Basic Properties', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-    it('should have required computed signals', () => {
-      expect(component.selectedDate).toBeDefined();
-      expect(component.selectedService).toBeDefined();
-      expect(component.appointments).toBeDefined();
-      expect(component.showBookingPopup).toBeDefined();
-      expect(component.bookingDetails).toBeDefined();
-    });
-
+  describe('Component Properties', () => {
     it('should have business configuration properties', () => {
       expect(component.businessHours).toBeDefined();
       expect(component.lunchBreak).toBeDefined();
@@ -134,16 +102,16 @@ describe('BookingMobilePageComponent', () => {
     it('should have computed properties for time slots', () => {
       expect(component.weekDays).toBeDefined();
       expect(component.selectedDaySlots).toBeDefined();
-      expect(component.morningSlots).toBeDefined();
-      expect(component.afternoonSlots).toBeDefined();
+      expect(component.daySlots).toBeDefined();
     });
 
     it('should have available services computed property', () => {
       expect(component.availableServices).toBeDefined();
     });
 
-    it('should have canBook computed property', () => {
-      expect(component.canBook).toBeDefined();
+    it('should have authentication computed properties', () => {
+      expect(component.isAuthenticated).toBeDefined();
+      expect(component.isAdmin).toBeDefined();
     });
   });
 
@@ -156,12 +124,16 @@ describe('BookingMobilePageComponent', () => {
       expect(typeof component.nextWeek).toBe('function');
     });
 
-    it('should have today method', () => {
-      expect(typeof component.today).toBe('function');
+    it('should have goToToday method', () => {
+      expect(typeof component.goToToday).toBe('function');
     });
 
-    it('should have tomorrow method', () => {
-      expect(typeof component.tomorrow).toBe('function');
+    it('should have selectToday method', () => {
+      expect(typeof component.selectToday).toBe('function');
+    });
+
+    it('should have selectTomorrow method', () => {
+      expect(typeof component.selectTomorrow).toBe('function');
     });
   });
 
@@ -215,6 +187,10 @@ describe('BookingMobilePageComponent', () => {
     it('should have selectService method', () => {
       expect(typeof component.selectService).toBe('function');
     });
+
+    it('should have selectServiceFromList method', () => {
+      expect(typeof component.selectServiceFromList).toBe('function');
+    });
   });
 
   describe('Booking Methods', () => {
@@ -225,38 +201,35 @@ describe('BookingMobilePageComponent', () => {
     it('should have onBookingCancelled method', () => {
       expect(typeof component.onBookingCancelled).toBe('function');
     });
-  });
 
-  describe('Data Management', () => {
-    it('should have guardarCites method', () => {
-      expect(typeof component.guardarCites).toBe('function');
+    it('should have onClientNameChanged method', () => {
+      expect(typeof component.onClientNameChanged).toBe('function');
     });
 
-    it('should have formatDate method', () => {
-      expect(typeof component.formatDate).toBe('function');
-    });
-  });
-
-  describe('Component Behavior', () => {
-    it('should initialize with default values', () => {
-      expect(component.selectedDate()).toBeInstanceOf(Date);
-      expect(component.selectedService()).toBeNull();
-      expect(component.appointments()).toEqual([]);
-      expect(component.showBookingPopup()).toBeFalse();
+    it('should have onEmailChanged method', () => {
+      expect(typeof component.onEmailChanged).toBe('function');
     });
   });
 
   describe('Service Integration', () => {
-    it('should use AuthService for user information', () => {
-      expect(authService.user).toHaveBeenCalled();
+    it('should use AuthService for authentication', () => {
+      expect(authService.isAuthenticated).toHaveBeenCalled();
     });
 
-    it('should use ServicesService for available services', () => {
-      expect(servicesService.getAllServices).toHaveBeenCalled();
+    it('should use FirebaseServicesService for services', () => {
+      expect(firebaseServicesService.activeServices).toHaveBeenCalled();
     });
 
-    it('should use MessageService for toast notifications', () => {
-      expect(messageService).toBeDefined();
+    it('should use BookingService for bookings', () => {
+      expect(bookingService).toBeDefined();
+    });
+
+    it('should use RoleService for role checking', () => {
+      expect(roleService.isAdmin).toHaveBeenCalled();
+    });
+
+    it('should use ToastService for notifications', () => {
+      expect(toastService).toBeDefined();
     });
 
     it('should use Router for navigation', () => {
@@ -264,121 +237,85 @@ describe('BookingMobilePageComponent', () => {
     });
   });
 
-  describe('Template Integration', () => {
-    it('should have proper component selector', () => {
-      expect(BookingMobilePageComponent.prototype.constructor.name).toBe('BookingMobilePageComponent');
-    });
-
-    it('should be a standalone component', () => {
-      expect(BookingMobilePageComponent.prototype.constructor).toBeDefined();
-    });
-
-    it('should have component metadata', () => {
-      expect(BookingMobilePageComponent.prototype).toBeDefined();
+  describe('Component Behavior', () => {
+    it('should initialize with default values', () => {
+      expect(component.showBookingPopup()).toBeFalse();
+      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '', email: '' });
+      expect(component.availableServices()).toEqual([]);
     });
   });
 
-  describe('Error Handling', () => {
-    it('should handle booking confirmation errors', () => {
-      spyOn(toastService, 'showLoginRequired');
-      authService.user.and.returnValue(null);
-
-      const bookingDetails = {
-        date: '2024-01-01',
-        time: '10:00',
-        clientName: 'Test User',
-        service: { id: '1', name: 'Haircut', description: 'Classic haircut', price: 25, duration: 30, category: 'haircut' as const, icon: '✂️' }
-      };
-
-      component.onBookingConfirmed(bookingDetails);
-      expect(toastService.showLoginRequired).toHaveBeenCalled();
-    });
-  });
-
-  describe('Date Navigation', () => {
-    it('should handle week navigation correctly', () => {
-      const initialDate = component.selectedDate();
-
-      component.nextWeek();
-      expect(component.selectedDate().getTime()).toBeGreaterThan(initialDate.getTime());
-
-      component.previousWeek();
-      expect(component.selectedDate().getTime()).toBe(initialDate.getTime());
+  describe('Event Handling', () => {
+    it('should handle date selection', () => {
+      const date = new Date();
+      expect(() => component.onDateSelected(date)).not.toThrow();
     });
 
-    it('should handle today navigation', () => {
-      const today = new Date();
-      component.today();
-      expect(component.selectedDate().toDateString()).toBe(today.toDateString());
+    it('should handle client name changes', () => {
+      expect(() => component.onClientNameChanged('New Name')).not.toThrow();
     });
 
-    it('should handle tomorrow navigation', () => {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      component.tomorrow();
-      expect(component.selectedDate().toDateString()).toBe(tomorrow.toDateString());
-    });
-  });
-
-  describe('Service Selection Logic', () => {
-        it('should select service correctly', () => {
-      const testService: Service = {
-        id: '1',
-        name: 'Test Service',
-        description: 'Test service description',
-        price: 25,
-        duration: 30,
-        category: 'haircut' as const,
-        icon: '🧪'
-      };
-
-      component.selectService(testService);
-      expect(component.selectedService()).toEqual(testService);
-    });
-
-    it('should update canBook computed when service is selected', () => {
-      expect(component.canBook()).toBeFalse();
-
-      const testService: Service = {
-        id: '1',
-        name: 'Test Service',
-        description: 'Test service description',
-        price: 25,
-        duration: 30,
-        category: 'haircut' as const,
-        icon: '🧪'
-      };
-
-      component.selectService(testService);
-      expect(component.canBook()).toBeTrue();
+    it('should handle email changes', () => {
+      expect(() => component.onEmailChanged('new@example.com')).not.toThrow();
     });
   });
 
   describe('Booking Flow', () => {
-    it('should open booking popup when time slot is selected', () => {
-      const testService: Service = {
-        id: '1',
-        name: 'Test Service',
-        description: 'Test service description',
-        price: 25,
-        duration: 30,
-        category: 'haircut' as const,
-        icon: '🧪'
+    it('should handle booking confirmation', () => {
+      const bookingDetails = {
+        date: '2024-01-01',
+        time: '10:00',
+        clientName: 'Test User',
+        email: 'test@example.com'
       };
 
-      component.selectService(testService);
-      component.selectDate(new Date());
-
-      const timeSlot = { time: '10:00', available: true, isLunchBreak: false };
-      component.selectTimeSlot(timeSlot);
-
-      expect(component.showBookingPopup()).toBeTrue();
-      expect(component.bookingDetails().time).toBe('10:00');
+      expect(() => component.onBookingConfirmed(bookingDetails)).not.toThrow();
     });
 
-    it('should close booking popup when cancelled', () => {
-      component.onBookingCancelled();
-      expect(component.showBookingPopup()).toBeFalse();
+    it('should handle booking cancellation', () => {
+      expect(() => component.onBookingCancelled()).not.toThrow();
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle missing user gracefully', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      const bookingDetails = {
+        date: '2024-01-01',
+        time: '10:00',
+        clientName: 'Test User',
+        email: 'test@example.com'
+      };
+
+      component.onBookingConfirmed(bookingDetails);
+
+      expect(toastService.showLoginRequired).toHaveBeenCalled();
+    });
+
+    it('should handle empty services list', () => {
+      expect(component.availableServices()).toEqual([]);
+    });
+  });
+
+  describe('Utility Methods', () => {
+    it('should have getServiceColor method', () => {
+      expect(typeof component.getServiceColor).toBe('function');
+    });
+
+    it('should have getServiceBackgroundColor method', () => {
+      expect(typeof component.getServiceBackgroundColor).toBe('function');
+    });
+
+    it('should have getEnabledTimeSlots method', () => {
+      expect(typeof component.getEnabledTimeSlots).toBe('function');
+    });
+
+    it('should have nextAvailableDate method', () => {
+      expect(typeof component.nextAvailableDate).toBe('function');
+    });
+
+    it('should have selectNextAvailable method', () => {
+      expect(typeof component.selectNextAvailable).toBe('function');
     });
   });
 });

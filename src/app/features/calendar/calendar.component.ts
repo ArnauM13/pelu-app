@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, input, output, computed, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
@@ -6,16 +6,20 @@ import { startOfWeek, endOfWeek, format as dateFnsFormat, isSameDay, addMinutes 
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { AuthService } from '../../core/auth/auth.service';
-import { CalendarPositionService } from './calendar-position.service';
+import { BookingService, Booking } from '../../core/services/booking.service';
+import { RoleService } from '../../core/services/role.service';
+import { CalendarCoreService } from './calendar-core.service';
 import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
-import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
 import { Router } from '@angular/router';
+import { migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../shared/services';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -26,12 +30,16 @@ export interface AppointmentEvent {
   duration?: number; // in minutes, default 60 if not specified
   serviceName?: string;
   clientName?: string;
+  isPublicBooking?: boolean;
+  isOwnBooking?: boolean;
+  canDrag?: boolean;
+  canViewDetails?: boolean;
 }
 
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule, AppointmentDetailPopupComponent, AppointmentSlotComponent, CalendarHeaderComponent],
+  imports: [CommonModule, CalendarModule, FormsModule, TranslateModule, AppointmentDetailPopupComponent, AppointmentSlotComponent, CalendarHeaderComponent, LoaderComponent],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -47,11 +55,13 @@ export interface AppointmentEvent {
 export class CalendarComponent {
   // Inject services
   private readonly authService = inject(AuthService);
+  private readonly appointmentService = inject(BookingService);
+  private readonly roleService = inject(RoleService);
+  private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
-  private readonly positionService = inject(CalendarPositionService);
+  readonly calendarCoreService = inject(CalendarCoreService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
-  readonly dragDropService = inject(CalendarDragDropService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   // Input signals
@@ -68,18 +78,26 @@ export class CalendarComponent {
   readonly selectedDay = this.stateService.selectedDay;
   readonly showDetailPopup = this.stateService.showDetailPopup;
   readonly selectedAppointment = this.stateService.selectedAppointment;
-  readonly appointments = this.stateService.appointments;
+  readonly appointments = this.appointmentService.bookings;
+  readonly isLoading = this.appointmentService.isLoading;
+  private readonly isInitializedSignal = signal<boolean>(false);
+  private readonly calendarMountedSignal = signal<boolean>(false);
+  readonly isBookingsLoaded = computed(() =>
+    (this.appointmentService.hasCachedData() || !this.isLoading()) &&
+    this.isInitializedSignal() &&
+    this.calendarMountedSignal()
+  );
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
   readonly businessHours = this.businessService.getBusinessConfig().hours;
   readonly lunchBreak = this.businessService.getBusinessConfig().lunchBreak;
   readonly businessDays = this.businessService.getBusinessConfig().days;
-  readonly SLOT_DURATION_MINUTES = this.positionService.getSlotDurationMinutes();
-  readonly PIXELS_PER_MINUTE = this.positionService.getPixelsPerMinute();
-  readonly SLOT_HEIGHT_PX = this.positionService.getSlotHeightPx();
+  readonly SLOT_DURATION_MINUTES = this.calendarCoreService.gridConfiguration().slotDurationMinutes;
+  readonly PIXELS_PER_MINUTE = this.calendarCoreService.gridConfiguration().pixelsPerMinute;
+  readonly SLOT_HEIGHT_PX = this.calendarCoreService.gridConfiguration().slotHeightPx;
 
-  // Computed events that combines input events with localStorage appointments
+  // Computed events that combines input events with Firebase bookings
   readonly allEvents = computed((): AppointmentEvent[] => {
     // Use provided events or load from appointments signal
     const providedEvents = this.events();
@@ -93,6 +111,9 @@ export class CalendarComponent {
 
     // Use appointments from signal - ensure it's always an array
     const appointments = this.appointments() || [];
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+
     const events = appointments.map(c => {
       // Ensure proper date and time formatting
       const date = c.data || '';
@@ -118,18 +139,31 @@ export class CalendarComponent {
 
       const endString = formatLocalDateTime(endDate);
 
+      // Check if this is a public booking (not owned by current user)
+      const isOwnBooking = !!(currentUser?.uid && c.uid === currentUser.uid);
+      const isPublicBooking = !isAdmin && !isOwnBooking && c.nom === 'Ocupat';
+
       return {
         id: c.id || uuidv4(), // Generate unique ID if not exists
-        title: c.nom,
+        title: isPublicBooking ? this.translateService.instant('COMMON.STATUS.RESERVED') : (c.nom || 'Client'),
         start: startString,
         end: endString,
         duration: duration,
-        serviceName: c.serviceName,
-        clientName: c.nom
+        serviceName: c.serviceName || c.servei || '',
+        clientName: c.nom || 'Client',
+        isPublicBooking: isPublicBooking,
+        isOwnBooking: isOwnBooking,
+        canDrag: isAdmin || isOwnBooking,
+        canViewDetails: isAdmin || isOwnBooking
       };
     });
 
-    return events;
+    return events.map(event => ({
+      ...event,
+      title: event.title || 'Client',
+      serviceName: event.serviceName || '',
+      clientName: event.clientName || 'Client'
+    }));
   });
 
   // ✅ Generate 30-minute time slots from 08:00 to 20:00
@@ -159,14 +193,14 @@ export class CalendarComponent {
       const endDate = event.end ? new Date(event.end) : addMinutes(startDate, event.duration || 60);
 
       return {
-        title: event.title,
+      title: event.title,
         start: startDate,
         end: endDate,
-        color: {
-          primary: '#3b82f6',
-          secondary: '#dbeafe'
-        },
-        meta: event
+      color: {
+        primary: '#3b82f6',
+        secondary: '#dbeafe'
+      },
+      meta: event
       };
     });
   });
@@ -174,87 +208,49 @@ export class CalendarComponent {
   // Computed appointment positions - this is now stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
   readonly appointmentPositions = computed(() => {
     const appointments = this.allEvents();
-    return this.positionService.getAppointmentPositions(appointments);
+    return this.calendarCoreService.getAppointmentPositions(appointments);
   });
 
   constructor(private serviceColorsService: ServiceColorsService) {
-    this.loadAppointmentsFromStorage();
+    // Initialize coordinate service with business configuration
+    this.initializeCoordinateService();
 
-    // Listen for localStorage changes to update calendar in real-time
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'cites') {
-        this.reloadAppointments();
-        this.cdr.detectChanges();
-      }
-    });
+    // Load bookings when component initializes (with cache support)
+    this.loadBookingsWithLoader();
 
-    // Listen for custom appointment update events
+    // Listen for custom appointment update events - silent refresh
     window.addEventListener('appointmentUpdated', () => {
-      this.reloadAppointments();
-      this.cdr.detectChanges();
+      this.appointmentService.silentRefreshBookings();
     });
 
-    // Listen for custom appointment delete events
+    // Listen for custom appointment delete events - silent refresh
     window.addEventListener('appointmentDeleted', () => {
-      this.reloadAppointments();
-      this.cdr.detectChanges();
+      this.appointmentService.silentRefreshBookings();
     });
 
-    // Listen for custom appointment created events
+    // Listen for custom appointment created events - silent refresh
     window.addEventListener('appointmentCreated', () => {
       this.reloadAppointments();
-      this.cdr.detectChanges();
     });
 
+    // Mark calendar as mounted after a delay to ensure complete rendering
+    setTimeout(() => {
+      if (this.isInitializedSignal()) {
+        this.calendarMountedSignal.set(true);
+        this.cdr.detectChanges();
+      }
+    }, 800);
+
     // Set up a periodic check for localStorage changes (fallback)
-    setInterval(() => {
-      this.checkForStorageChanges();
-    }, 1000);
+    // Removed localStorage checking - now using Firebase
   }
 
-  // Load appointments from localStorage
-  private loadAppointmentsFromStorage(): void {
-    try {
-      // Carreguem les cites des de 'cites' (format original) i també des de 'appointments' si existeix
-      const citesStored = localStorage.getItem('cites');
-      const appointmentsStored = localStorage.getItem('appointments');
-
-      let appointments: any[] = [];
-
-      if (citesStored) {
-        const cites = JSON.parse(citesStored);
-        appointments = [...appointments, ...cites];
-      }
-
-      if (appointmentsStored) {
-        const appointmentsData = JSON.parse(appointmentsStored);
-        appointments = [...appointments, ...appointmentsData];
-      }
-
-      // Eliminem duplicats per ID
-      const uniqueAppointments = appointments.filter((appointment, index, self) =>
-        index === self.findIndex(a => a.id === appointment.id)
-      );
-
-      this.stateService.setAppointments(uniqueAppointments);
-    } catch (error) {
-      // Handle storage error silently
-    }
-  }
-
-  // Save appointments to localStorage
-  private saveAppointmentsToStorage(): void {
-    try {
-      const appointments = this.appointments();
-      localStorage.setItem('appointments', JSON.stringify(appointments));
-    } catch (error) {
-      // Handle storage error silently
-    }
-  }
+  // Removed localStorage methods - now using Firebase via AppointmentService
 
   // Methods that delegate to services
   isTimeSlotAvailable(date: Date, time: string, requestedDuration: number = this.SLOT_DURATION_MINUTES): boolean {
-    return this.positionService.isTimeSlotAvailable(date, time, this.allEvents(), requestedDuration);
+    const events = this.allEvents();
+    return this.calendarCoreService.isTimeSlotAvailable(date, time, events, requestedDuration);
   }
 
   getEventsForDay(date: Date) {
@@ -298,36 +294,18 @@ export class CalendarComponent {
         serviceId: ''
       };
 
-      // Save the converted appointment to localStorage so it can be found later
-      this.saveConvertedAppointmentToStorage(convertedAppointment);
+      // Removed localStorage saving - now using Firebase
 
       this.stateService.openAppointmentDetail(convertedAppointment);
     }
   }
 
-  /**
-   * Save a converted appointment to localStorage so it can be found by the detail page
-   */
-  private saveConvertedAppointmentToStorage(appointment: any): void {
-    try {
-      const appointments = this.appointments();
-      const updatedAppointments = [...appointments, appointment];
-      this.stateService.setAppointments(updatedAppointments);
-
-      // Also save to localStorage
-      localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
-    } catch (error) {
-      console.error('Error saving converted appointment:', error);
-    }
-  }
+  // Removed localStorage saving - now using Firebase
 
   isLunchBreak(time: string): boolean {
-    return this.businessService.isLunchBreak(time);
+    return this.calendarCoreService.isLunchBreak(time);
   }
 
-  /**
-   * Check if a time slot should be shown as lunch break (blocked)
-   */
   isTimeSlotBlocked(time: string): boolean {
     return this.businessService.isLunchBreak(time) || !this.businessService.isTimeSlotBookable(time);
   }
@@ -435,10 +413,36 @@ export class CalendarComponent {
   }
 
   selectTimeSlot(date: Date, time: string) {
+    // Prevent selection of past dates and time slots
+    if (this.isPastDate(date) || this.isPastTimeSlot(date, time)) {
+      return;
+    }
+
     if (!this.isTimeSlotAvailable(date, time)) {
       return;
     }
 
+    const dateString = dateFnsFormat(date, 'yyyy-MM-dd');
+    this.dateSelected.emit({ date: dateString, time: time });
+  }
+
+      onTimeSlotClick(date: Date, time: string) {
+    // Prevent selection of past dates and time slots
+    if (this.isPastDate(date) || this.isPastTimeSlot(date, time)) {
+      return;
+    }
+
+    // Prevent selection of blocked time slots
+    if (this.isTimeSlotBlocked(time)) {
+      return;
+    }
+
+    // Check if slot is available
+    if (!this.isTimeSlotAvailable(date, time)) {
+      return;
+    }
+
+    // Emit the selection
     const dateString = dateFnsFormat(date, 'yyyy-MM-dd');
     this.dateSelected.emit({ date: dateString, time: time });
   }
@@ -515,11 +519,11 @@ export class CalendarComponent {
 
   getTimeSlotTooltip(date: Date, time: string): string {
     if (this.isPastDate(date)) {
-      return 'Data passada';
+      return this.translateService.instant('COMMON.PAST_DATE');
     }
 
     if (this.isPastTimeSlot(date, time)) {
-      return 'Hora passada';
+      return this.translateService.instant('COMMON.PAST_TIME');
     }
 
     if (this.isTimeSlotBlocked(time)) {
@@ -542,34 +546,20 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
   }
 
-      onAppointmentDeleted(appointment: any) {
-    // Don't emit the delete event to parent since the popup already handles the toast
-    // this.onDeleteAppointment.emit(appointment);
+  onAppointmentDeleted(appointment: any) {
+    console.log('Appointment deleted:', appointment);
 
     // Remove the appointment from the state
     this.stateService.removeAppointment(appointment.id);
 
-    // Also remove from localStorage 'cites' to keep it in sync
-    try {
-      const cites = JSON.parse(localStorage.getItem('cites') || '[]');
-      const updatedCites = cites.filter((cita: any) => cita.id !== appointment.id);
-      localStorage.setItem('cites', JSON.stringify(updatedCites));
-    } catch (error) {
-      console.error('Error updating cites in localStorage:', error);
-    }
+    // Close the popup immediately
+    this.stateService.closeAppointmentDetail();
 
-    // Force reload appointments to update the view immediately
-    this.loadAppointmentsFromStorage();
-    this.cdr.detectChanges();
+    // Silently refresh appointments without showing loader
+    this.appointmentService.silentRefreshBookings();
 
-    // Also trigger a change detection cycle
-    setTimeout(() => {
-      this.loadAppointmentsFromStorage();
-      this.cdr.detectChanges();
-
-      // Force a change detection cycle by triggering a custom event
-      window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: appointment }));
-    }, 100);
+    // Emit the delete event to parent if needed
+    this.onDeleteAppointment.emit(appointment);
   }
 
   onAppointmentEditRequested(appointment: any) {
@@ -579,12 +569,20 @@ export class CalendarComponent {
       return;
     }
 
-    // Generate unique ID combining clientId and appointmentId (mateixa estratègia que la pàgina de cites)
-    const clientId = currentUser.uid;
-    const uniqueId = `${clientId}-${appointment.id}`;
-
-    // Navigate to the appointment detail page in edit mode
-    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    // All appointments are now bookings, so use the direct ID with token
+    if (appointment.editToken) {
+      this.router.navigate(['/appointments', appointment.id], {
+        queryParams: {
+          token: appointment.editToken,
+          edit: 'true'
+        }
+      });
+    } else {
+      // Fallback for appointments without editToken (shouldn't happen)
+      const clientId = currentUser.uid;
+      const uniqueId = `${clientId}-${appointment.id}`;
+      this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    }
 
     // Close the popup
     this.stateService.closeAppointmentDetail();
@@ -595,30 +593,49 @@ export class CalendarComponent {
   }
 
   reloadAppointments() {
-    this.loadAppointmentsFromStorage();
+    // Silently refresh appointments without showing loader
+    this.appointmentService.silentRefreshBookings();
   }
 
-  // Check for localStorage changes and update if needed
-  private checkForStorageChanges() {
+  private async loadBookingsWithLoader(): Promise<void> {
     try {
-      const currentCites = localStorage.getItem('cites');
-      const currentAppointments = this.appointments();
-
-      if (currentCites) {
-        const parsedCites = JSON.parse(currentCites);
-        const currentIds = currentAppointments.map(app => app.id).sort();
-        const newIds = parsedCites.map((app: any) => app.id).sort();
-
-        // Check if the IDs are different (indicating a change)
-        if (JSON.stringify(currentIds) !== JSON.stringify(newIds)) {
-          this.loadAppointmentsFromStorage();
-          this.cdr.detectChanges();
-        }
+      // Check if we have cached data
+      if (this.appointmentService.hasCachedData()) {
+        // Use cached data - no loader needed
+        this.isInitializedSignal.set(true);
+        this.calendarMountedSignal.set(true);
+        return;
       }
+
+      // Ensure loader is shown only for first load
+      this.isInitializedSignal.set(false);
+      this.calendarMountedSignal.set(false);
+
+      // Load bookings with cache support
+      await this.appointmentService.getBookingsWithCache();
+
+      // Mark as initialized after a small delay to ensure smooth transition
+      setTimeout(() => {
+        this.isInitializedSignal.set(true);
+
+        // Wait for the next tick to ensure the calendar is rendered
+        setTimeout(() => {
+          this.calendarMountedSignal.set(true);
+          this.cdr.detectChanges();
+        }, 100);
+
+        this.cdr.detectChanges();
+      }, 500);
     } catch (error) {
-      // Handle errors silently
+      console.error('Error loading bookings:', error);
+      // Still mark as initialized to show the calendar even if there's an error
+      this.isInitializedSignal.set(true);
+      this.calendarMountedSignal.set(true);
+      this.cdr.detectChanges();
     }
   }
+
+  // Removed localStorage change checking - now using Firebase
 
   onDateChange(dateString: string) {
     this.stateService.navigateToDate(dateString);
@@ -626,41 +643,38 @@ export class CalendarComponent {
 
   // Drag & Drop methods
   onDropZoneMouseEnter(event: MouseEvent, day: Date) {
-    if (this.dragDropService.isDragging()) {
+    console.log('onDropZoneMouseEnter:', { isDragging: this.calendarCoreService.isDragging() });
+    if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+      console.log('Mouse enter - relativeY:', relativeY);
+      this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
   }
 
   onDropZoneMouseMove(event: MouseEvent, day: Date) {
-    if (this.dragDropService.isDragging()) {
+    if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+      this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
   }
 
-  onDropZoneDrop(event: DragEvent, day: Date) {
+  async onDropZoneDrop(event: DragEvent, day: Date) {
     event.preventDefault();
 
     // Update the target date and time one final time before ending drag
-    if (this.dragDropService.isDragging()) {
+    if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      this.dragDropService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
+      this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
 
-    const success = this.dragDropService.endDrag();
+    const success = await this.calendarCoreService.endDrag();
 
     if (success) {
-      // Appointment was successfully moved
+      // Appointment was successfully moved - silent refresh
       this.reloadAppointments();
-
-      // Force a change detection cycle to update the view
-      setTimeout(() => {
-        this.reloadAppointments();
-      }, 100);
     }
   }
 
@@ -708,5 +722,26 @@ export class CalendarComponent {
     } else {
       return appointment;
     }
+  }
+
+      /**
+   * Initialize the calendar core service with business configuration
+   */
+  private initializeCoordinateService(): void {
+    console.log('Initializing calendar core service...');
+    const businessConfig = this.businessService.getBusinessConfig();
+    console.log('Business config:', businessConfig);
+
+    this.calendarCoreService.updateGridConfiguration({
+      slotHeightPx: 30,
+      pixelsPerMinute: 1,
+      slotDurationMinutes: 30,
+      businessStartHour: businessConfig.hours.start,
+      businessEndHour: businessConfig.hours.end,
+      lunchBreakStart: businessConfig.lunchBreak.start,
+      lunchBreakEnd: businessConfig.lunchBreak.end
+    });
+
+    console.log('Calendar core service initialized with config:', this.calendarCoreService.gridConfiguration());
   }
 }

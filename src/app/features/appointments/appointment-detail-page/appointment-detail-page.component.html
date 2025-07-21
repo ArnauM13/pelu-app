@@ -11,7 +11,15 @@
 <!-- Appointment Detail Popup (hidden from detail page) -->
 <pelu-appointment-detail-popup
   [open]="false"
-  [appointment]="null"
+  [booking]="null"
   [hideViewDetailButton]="true"
   (closed)="onPopupClosed()">
 </pelu-appointment-detail-popup>
+
+<!-- Delete Confirmation Alert -->
+<pelu-alert-popup
+  [isOpen]="showDeleteAlert()"
+  [data]="deleteAlertData()"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()">
+</pelu-alert-popup>

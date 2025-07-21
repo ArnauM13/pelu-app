@@ -4,20 +4,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { AppointmentStatusBadgeComponent } from '../../../../shared/components/appointment-status-badge';
 import { CardComponent } from '../../../../shared/components/card/card.component';
+import { NotFoundStateComponent } from '../../../../shared/components/not-found-state/not-found-state.component';
 import { ServiceColorsService } from '../../../../core/services/service-colors.service';
 import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
+import { ActionsButtonsComponent } from '../../../../shared/components/actions-buttons';
+import { ActionsService, ActionContext } from '../../../../core/services/actions.service';
 import { isFutureAppointment } from '../../../../shared/services';
-
-export interface Appointment {
-  id: string;
-  nom: string;
-  data: string;
-  hora?: string;
-  servei?: string;
-  serviceName?: string;
-  duration?: number;
-  userId?: string;
-}
+import { Booking } from '../../../../core/services/booking.service';
 
 @Component({
   selector: 'pelu-appointments-list',
@@ -27,27 +20,23 @@ export interface Appointment {
     TranslateModule,
     TooltipModule,
     AppointmentStatusBadgeComponent,
-    CardComponent
+    CardComponent,
+    NotFoundStateComponent,
+    ActionsButtonsComponent
   ],
   template: `
-    @if (appointments().length === 0) {
+    @if (bookings().length === 0) {
       <div class="full-screen-empty-state">
-        <div class="empty-state-content">
-          <div class="empty-icon">📅</div>
-          <h3>{{ 'COMMON.NO_APPOINTMENTS' | translate }}</h3>
-          <p>{{ hasActiveFilters() ? ('COMMON.NO_APPOINTMENTS_FILTERED' | translate) : ('COMMON.NO_APPOINTMENTS_SCHEDULED' | translate) }}</p>
-          @if (hasActiveFilters()) {
-            <button class="clear-filters-btn" (click)="onClearFilters.emit()">
-              {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
-            </button>
-          }
-        </div>
+        <pelu-not-found-state
+          [config]="notFoundConfig"
+          (onButtonClick)="onClearFilters.emit()">
+        </pelu-not-found-state>
       </div>
     } @else {
       <pelu-card>
         <div class="card-header">
           <div class="header-left">
-            <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} <span class="appointments-count">({{ appointments().length }})</span></h3>
+            <h3>{{ 'COMMON.APPOINTMENTS_LIST' | translate }} <span class="appointments-count">({{ bookings().length }})</span></h3>
           </div>
           <div class="header-right">
             <span class="list-subtitle" style="color:var(--text-color-light); font-size:0.95rem;">{{ 'COMMON.VIEW_APPOINTMENTS_LIST' | translate }}</span>
@@ -55,64 +44,56 @@ export interface Appointment {
         </div>
 
                 <div class="appointments-list">
-          @for (appointment of appointments(); track appointment.id) {
+          @for (booking of bookings(); track booking.id) {
           <!-- Service color functionality temporarily disabled - uncomment to restore colored appointments -->
-          <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((appointment.serviceName || appointment.servei || '') + '')" (click)="onViewAppointment.emit(appointment)"> -->
+          <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((booking.serviceName || booking.servei || '') + '')" (click)="onViewBooking.emit(booking)"> -->
           <div class="appointment-item"
-               (click)="onViewAppointment.emit(appointment)">
+               (click)="onViewBooking.emit(booking)">
             <div class="appointment-info">
               <div class="client-info">
                 <div class="client-name-row">
-                  <h4 class="client-name">{{ appointment.nom }}</h4>
+                  <h4 class="client-name">{{ getClientName(booking) }}</h4>
                   <pelu-appointment-status-badge
-                    [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+                    [appointmentData]="{ date: booking.data || '', time: booking.hora || '' }"
                     [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
                   </pelu-appointment-status-badge>
                 </div>
                 <div class="appointment-details">
+                  @if (booking.data && booking.hora) {
                   <div class="detail-item">
                     <span class="detail-icon">📅</span>
-                    <span class="detail-text">{{ appointment.hora ? formatTime(appointment.hora) : '' }} {{ formatDate(appointment.data) }}</span>
+                    <span class="detail-text">{{ formatTime(booking.hora || '') }} {{ formatDate(booking.data || '') }}</span>
                   </div>
-                  @if (appointment.duration) {
+                  } @else if (booking.data) {
                   <div class="detail-item">
-                    <span class="detail-icon">⏱️</span>
-                    <span class="detail-text">{{ appointment.duration }} min</span>
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ formatDate(booking.data || '') }}</span>
+                  </div>
+                  } @else {
+                  <div class="detail-item">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ 'COMMON.NO_DATE_SET' | translate }}</span>
                   </div>
                   }
-                  @if (appointment.serviceName || appointment.servei) {
+                  @if (booking.duration) {
+                  <div class="detail-item">
+                    <span class="detail-icon">⏱️</span>
+                    <span class="detail-text">{{ booking.duration }} min</span>
+                  </div>
+                  }
+                  @if (booking.serviceName || booking.servei) {
                   <div class="detail-item">
                     <span class="detail-icon">✂️</span>
-                    <span class="detail-text">{{ getTranslatedServiceName(appointment.serviceName || appointment.servei) }}</span>
+                    <span class="detail-text">{{ getTranslatedServiceName(booking.serviceName || booking.servei) }}</span>
                   </div>
                   }
                 </div>
               </div>
             </div>
             <div class="appointment-actions-container">
-              <button
-                class="btn btn-primary"
-                (click)="$event.stopPropagation(); onViewAppointment.emit(appointment)"
-                [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
-                pTooltipPosition="left">
-                👁️
-              </button>
-              @if (isFutureAppointment({ data: appointment.data, hora: appointment.hora || '' })) {
-                <button
-                  class="btn btn-secondary"
-                  (click)="$event.stopPropagation(); onEditAppointment.emit(appointment)"
-                  [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
-                  pTooltipPosition="left">
-                  ✏️
-                </button>
-                <button
-                  class="btn btn-danger"
-                  (click)="$event.stopPropagation(); onDeleteAppointment.emit(appointment)"
-                  [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-                  pTooltipPosition="left">
-                  🗑️
-                </button>
-              }
+              <pelu-actions-buttons
+                [context]="getActionContext(booking)">
+              </pelu-actions-buttons>
             </div>
           </div>
           }
@@ -133,55 +114,11 @@ export interface Appointment {
       margin: 2rem 0;
     }
 
-    .empty-state-content {
-      text-align: center;
-      padding: 4rem 2rem;
-      max-width: 500px;
-    }
-
-    .empty-icon {
-      font-size: 6rem;
-      margin-bottom: 2rem;
-      opacity: 0.6;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .empty-state-content h3 {
-      margin: 0 0 1rem 0;
-      color: var(--text-color);
-      font-size: 2rem;
-      font-weight: 600;
-    }
-
-    .empty-state-content p {
-      margin: 0 0 2rem 0;
-      color: var(--text-color-light);
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    .clear-filters-btn {
-      background: var(--gradient-primary);
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: var(--box-shadow);
-    }
-
-    .clear-filters-btn:hover {
-      background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
-      transform: translateY(-2px);
-      box-shadow: var(--box-shadow-hover);
+    @media (max-width: 768px) {
+      .full-screen-empty-state {
+        min-height: 50vh;
+        margin: 1rem 0;
+      }
     }
 
     .card-header {
@@ -410,19 +347,30 @@ export interface Appointment {
   `]
 })
 export class AppointmentsListComponent {
-  appointments = input.required<Appointment[]>();
+  bookings = input.required<Booking[]>();
   hasActiveFilters = input.required<boolean>();
 
-  onViewAppointment = output<Appointment>();
-  onEditAppointment = output<Appointment>();
-  onDeleteAppointment = output<Appointment>();
+  onViewBooking = output<Booking>();
+  onEditBooking = output<Booking>();
+  onDeleteBooking = output<Booking>();
   onClearFilters = output<void>();
 
   readonly isFutureAppointment = isFutureAppointment;
 
+  get notFoundConfig() {
+    return {
+      icon: '📅',
+      title: 'COMMON.NO_APPOINTMENTS',
+      message: this.hasActiveFilters() ? 'COMMON.NO_APPOINTMENTS_FILTERED' : 'COMMON.NO_APPOINTMENTS_SCHEDULED',
+      buttonText: this.hasActiveFilters() ? 'COMMON.CLEAR_FILTERS_BUTTON' : undefined,
+      showButton: this.hasActiveFilters()
+    };
+  }
+
   constructor(
     public serviceColorsService: ServiceColorsService,
-    private serviceTranslationService: ServiceTranslationService
+    private serviceTranslationService: ServiceTranslationService,
+    private actionsService: ActionsService
   ) {}
 
   isToday(dateString: string): boolean {
@@ -441,5 +389,19 @@ export class AppointmentsListComponent {
 
   getTranslatedServiceName(serviceName: string | undefined): string {
     return this.serviceTranslationService.translateServiceName(serviceName || '');
+  }
+
+  getClientName(booking: Booking): string {
+    return booking.nom || booking.title || booking.clientName || 'Client';
+  }
+
+  getActionContext(booking: Booking): ActionContext {
+    return {
+      type: 'appointment',
+      item: booking,
+      onEdit: () => this.onEditBooking.emit(booking),
+      onDelete: () => this.onDeleteBooking.emit(booking),
+      onView: () => this.onViewBooking.emit(booking)
+    };
   }
 }

@@ -18,9 +18,11 @@ import { InfoItemComponent, InfoItemData } from '../../../shared/components/info
 import { AuthService } from '../../../core/auth/auth.service';
 import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { isFutureAppointment } from '../../../shared/services';
+import { BookingService, Booking } from '../../../core/services/booking.service';
+import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
 
 interface AppointmentForm {
   nom: string;
@@ -48,7 +50,8 @@ interface AppointmentForm {
     CalendarModule,
     TranslateModule,
     DetailViewComponent,
-    AppointmentDetailPopupComponent
+    AppointmentDetailPopupComponent,
+    AlertPopupComponent
   ],
   providers: [MessageService],
   templateUrl: './appointment-detail-page.component.html',
@@ -63,6 +66,8 @@ export class AppointmentDetailPageComponent implements OnInit {
   #authService = inject(AuthService);
   #currencyService = inject(CurrencyService);
   #toastService = inject(ToastService);
+  #bookingService = inject(BookingService);
+  #appointmentService = inject(BookingService);
 
   // Core data signals
   #appointmentSignal = signal<any>(null);
@@ -80,12 +85,18 @@ export class AppointmentDetailPageComponent implements OnInit {
     preu: 0
   });
 
+  // Delete confirmation signals
+  #showDeleteAlertSignal = signal<boolean>(false);
+  #deleteAlertDataSignal = signal<AlertData | null>(null);
+
   // Public computed signals
   readonly appointment = computed(() => this.#appointmentSignal());
   readonly loading = computed(() => this.#loadingSignal());
   readonly notFound = computed(() => this.#notFoundSignal());
   readonly isEditing = computed(() => this.#isEditingSignal());
   readonly editForm = computed(() => this.#editFormSignal());
+  readonly showDeleteAlert = computed(() => this.#showDeleteAlertSignal());
+  readonly deleteAlertData = computed(() => this.#deleteAlertDataSignal());
 
   // Computed properties
   readonly appointmentInfoItems = computed(() => {
@@ -199,7 +210,44 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   readonly canEditOrDelete = computed(() => {
     const cita = this.appointment();
-    return !!cita && isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
+    if (!cita) return false;
+
+    // Verificar que l'usuari actual és el propietari
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) return false;
+
+    // Verificar propietat
+    const isOwner = cita.uid === currentUser.uid;
+    if (!isOwner) return false;
+
+    // Si és una reserva (té editToken), sempre es pot editar
+    if (cita.editToken) {
+      return true;
+    }
+
+    // Per a cites normals, verificar que és una cita futura
+    return isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
+  });
+
+  readonly canDelete = computed(() => {
+    const cita = this.appointment();
+    if (!cita) return false;
+
+    // Verificar que l'usuari actual és el propietari
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) return false;
+
+    // Verificar propietat
+    const isOwner = cita.uid === currentUser.uid;
+    if (!isOwner) return false;
+
+    // No permetem eliminar reserves des d'aquí
+    if (cita.editToken) {
+      return false;
+    }
+
+    // Per a cites normals, verificar que és una cita futura
+    return isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
   });
 
     // Detail page configuration
@@ -209,6 +257,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     const hasChanges = this.hasChanges();
     const canSave = this.canSave();
     const canEditOrDelete = this.canEditOrDelete();
+    const canDelete = this.canDelete();
 
     // Build actions reactively
     const actions: DetailAction[] = [
@@ -220,19 +269,23 @@ export class AppointmentDetailPageComponent implements OnInit {
       }
     ];
 
-    // Show edit/delete actions only when not editing
-    if (!isEditing && canEditOrDelete) {
+    // Add edit action if user can edit
+    if (canEditOrDelete && !isEditing) {
       actions.push({
         label: 'COMMON.ACTIONS.EDIT',
         icon: '✏️',
         type: 'primary',
         onClick: () => this.startEditing()
       });
+    }
+
+    // Add delete action if user can delete
+    if (canDelete && !isEditing) {
       actions.push({
         label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
         type: 'danger',
-        onClick: () => this.deleteAppointment()
+        onClick: () => this.showDeleteConfirmation()
       });
     }
 
@@ -264,14 +317,25 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     // Check if we should start in edit mode
     this.#route.queryParams.subscribe(params => {
-      if (params['edit'] === 'true' && this.appointment()) {
-        this.startEditing();
+      if (params['edit'] === 'true') {
+        // Wait for appointment to be loaded, then start editing
+        const checkAppointment = () => {
+          if (this.appointment()) {
+            this.startEditing();
+          } else {
+            // If appointment is not loaded yet, wait a bit and try again
+            setTimeout(checkAppointment, 100);
+          }
+        };
+        checkAppointment();
       }
     });
   }
 
-      private loadAppointment() {
+      private async loadAppointment() {
     const uniqueId = this.#route.snapshot.paramMap.get('id');
+    const token = this.#route.snapshot.queryParams['token'];
+    const editMode = this.#route.snapshot.queryParams['edit'] === 'true';
 
     if (!uniqueId) {
       this.#notFoundSignal.set(true);
@@ -279,58 +343,189 @@ export class AppointmentDetailPageComponent implements OnInit {
       return;
     }
 
-    const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
+    // Si hi ha un token, intentem carregar una reserva
+    if (token) {
+      await this.loadBookingByToken(token);
+      // Si estem en mode edició, iniciem l'edició automàticament
+      if (editMode) {
+        setTimeout(() => this.startEditing(), 100);
+      }
+      return;
+    }
 
-    // Parsegem l'ID únic: format "clientId-appointmentId"
-    const parts = uniqueId.split('-');
-
-    if (parts.length < 2) {
+    // Si l'ID comença amb "booking-", és una reserva sense token (no hauria de passar)
+    if (uniqueId.startsWith('booking-')) {
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
       return;
     }
 
-    const clientId = parts[0];
-    const appointmentId = parts.slice(1).join('-'); // En cas que l'appointmentId tingui guions
+    // Sinó, carreguem una cita normal
+    await this.loadAppointmentById(uniqueId);
 
-    // Verifiquem que l'usuari actual coincideix amb el clientId
-    const currentUser = this.#authService.user();
+    // Si estem en mode edició, iniciem l'edició automàticament
+    if (editMode) {
+      setTimeout(() => this.startEditing(), 100);
+    }
+  }
 
-    if (!currentUser || currentUser.uid !== clientId) {
+  private async loadBookingByToken(token: string) {
+    try {
+      const currentUser = this.#authService.user();
+
+      // If user is authenticated, try to load from their bookings first
+      if (currentUser?.uid) {
+        const userBookings = this.#bookingService.bookings();
+        const userBooking = userBookings.find(booking => booking.editToken === token);
+
+        if (userBooking) {
+          const appointment = this.convertBookingToAppointment(userBooking);
+          this.#appointmentSignal.set(appointment);
+          this.#editFormSignal.set({
+            nom: appointment.nom || '',
+            data: appointment.data || '',
+            hora: appointment.hora || '',
+            notes: appointment.notes || '',
+            servei: appointment.servei || '',
+            preu: appointment.preu || 0,
+            duration: appointment.duration || 0,
+            serviceName: appointment.serviceName || '',
+            serviceId: appointment.serviceId || ''
+          });
+          this.#loadingSignal.set(false);
+          return;
+        }
+      }
+
+      // Load booking by token for authenticated users
+      const booking = await this.#bookingService.getBookingById(token);
+      if (!booking) {
+        this.#notFoundSignal.set(true);
+        this.#loadingSignal.set(false);
+        return;
+      }
+
+      // Convertir la reserva al format de cita
+      const appointment = this.convertBookingToAppointment(booking);
+
+      if (appointment) {
+        this.#appointmentSignal.set(appointment);
+        this.#editFormSignal.set({
+          nom: appointment.nom || '',
+          data: appointment.data || '',
+          hora: appointment.hora || '',
+          notes: appointment.notes || '',
+          servei: appointment.servei || '',
+          preu: appointment.preu || 0,
+          duration: appointment.duration || 0,
+          serviceName: appointment.serviceName || '',
+          serviceId: appointment.serviceId || ''
+        });
+      }
+      this.#loadingSignal.set(false);
+    } catch (error) {
+      console.error('Error loading booking by token:', error);
       this.#notFoundSignal.set(true);
       this.#loadingSignal.set(false);
-      return;
     }
+  }
 
-    // Busquem la cita per l'ID
-    const appointment = appointments.find((cita: any) => cita.id === appointmentId);
+  private async loadAppointmentById(uniqueId: string) {
+    try {
+      // Check if it's the old format (clientId-appointmentId) for backward compatibility
+      if (uniqueId.includes('-') && !uniqueId.startsWith('booking-')) {
+        const parts = uniqueId.split('-');
+        if (parts.length === 2) {
+          const clientId = parts[0];
+          const appointmentId = parts[1];
 
-    if (!appointment) {
+          // Verify that the client ID matches the current user
+          const currentUser = this.#authService.user();
+          if (!currentUser?.uid || currentUser.uid !== clientId) {
+            throw new Error('Access denied');
+          }
+
+          // Load from Firebase using the appointment ID
+          const appointment = await this.#appointmentService.getBookingById(appointmentId);
+
+          if (!appointment) {
+            this.#notFoundSignal.set(true);
+            return;
+          }
+
+          this.#appointmentSignal.set(appointment);
+          this.#editFormSignal.set({
+            nom: appointment.nom || '',
+            data: appointment.data || '',
+            hora: appointment.hora || '',
+            notes: appointment.notes || '',
+            servei: appointment.servei || '',
+            preu: appointment.preu || 0,
+            duration: appointment.duration || 0,
+            serviceName: appointment.serviceName || '',
+            serviceId: appointment.serviceId || ''
+          });
+          return;
+        }
+      }
+
+      // If it's a direct ID (new format), try to load it directly
+      const currentUser = this.#authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      // Load from Firebase (bookings collection) - try booking service first
+      let appointment = await this.#bookingService.getBookingById(uniqueId);
+
+      if (!appointment) {
+        // Fallback to appointment service
+        appointment = await this.#appointmentService.getBookingById(uniqueId);
+      }
+
+      if (!appointment) {
+        this.#notFoundSignal.set(true);
+        return;
+      }
+
+      this.#appointmentSignal.set(appointment);
+      this.#editFormSignal.set({
+        nom: appointment.nom || '',
+        data: appointment.data || '',
+        hora: appointment.hora || '',
+        notes: appointment.notes || '',
+        servei: appointment.servei || '',
+        preu: appointment.preu || 0,
+        duration: appointment.duration || 0,
+        serviceName: appointment.serviceName || '',
+        serviceId: appointment.serviceId || ''
+      });
+    } catch (error) {
+      console.error('Error loading appointment:', error);
       this.#notFoundSignal.set(true);
+    } finally {
       this.#loadingSignal.set(false);
-      return;
     }
+  }
 
-    // Si la cita no té userId, l'afegim (migració automàtica)
-    if (!appointment.userId) {
-      appointment.userId = currentUser.uid;
-
-      // Actualitzem localStorage
-      const updatedAppointments = appointments.map((cita: any) =>
-        cita.id === appointmentId ? appointment : cita
-      );
-      localStorage.setItem('cites', JSON.stringify(updatedAppointments));
-    }
-
-    // Verifiquem que la cita pertany a l'usuari actual
-    if (appointment.userId !== currentUser.uid) {
-      this.#notFoundSignal.set(true);
-      this.#loadingSignal.set(false);
-      return;
-    }
-
-    this.#appointmentSignal.set(appointment);
-    this.#loadingSignal.set(false);
+  private convertBookingToAppointment(booking: any): any {
+    return {
+      id: booking.id,
+      nom: booking.nom || booking.title || booking.clientName || '',
+      data: booking.data || booking.start?.split('T')[0] || '',
+      hora: booking.hora || booking.start?.split('T')[1]?.substring(0, 5) || '',
+      notes: booking.notes || '',
+      servei: booking.serviceName || booking.servei || '',
+      serviceName: booking.serviceName || booking.servei || '',
+      serviceId: booking.serviceId || '',
+      preu: booking.price || booking.preu || 0,
+      duration: booking.duration || 60,
+      status: booking.status || 'confirmed',
+      userId: booking.uid || booking.userId || '',
+      editToken: booking.editToken,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt
+    };
   }
 
   startEditing() {
@@ -366,20 +561,71 @@ export class AppointmentDetailPageComponent implements OnInit {
     });
   }
 
-  saveAppointment() {
+  async saveAppointment() {
     const cita = this.appointment();
     const form = this.editForm();
 
     if (!cita || !this.canSave()) return;
 
+    // Si és una reserva (té editToken), desem via BookingService
+    if (cita.editToken) {
+      await this.saveBooking(cita, form);
+      return;
+    }
+
+    // Sinó, desem com a cita normal
+    await this.saveAppointmentToLocalStorage(cita, form);
+  }
+
+  private async saveBooking(cita: any, form: any) {
+    const currentUser = this.#authService.user();
+    const token = this.#route.snapshot.queryParams['token'];
+
+    if (!token) {
+      this.#toastService.showError('No s\'ha pogut guardar la reserva. Token invàlid.');
+      return;
+    }
+
+    const updates = {
+      nom: form.nom.trim(),
+      data: form.data,
+      hora: form.hora,
+      notes: form.notes?.trim() || '',
+      serviceName: form.serviceName?.trim() || '',
+      serviceId: form.serviceId || ''
+    };
+
+    // Only authenticated users can update bookings
+    if (!currentUser?.uid) {
+      this.#toastService.showError('No s\'ha pogut guardar la reserva. Si us plau, inicia sessió.');
+      return;
+    }
+
+    const success = await this.#bookingService.updateBooking(cita.id!, updates);
+
+    if (success) {
+      // Actualitzar l'estat local
+      const updatedAppointment = {
+        ...cita,
+        ...updates
+      };
+      this.#appointmentSignal.set(updatedAppointment);
+      this.#isEditingSignal.set(false);
+
+      // Show success message
+      const clientName = updatedAppointment.nom || 'Client';
+      this.#toastService.showAppointmentUpdated(clientName);
+    }
+  }
+
+  private async saveAppointmentToLocalStorage(cita: any, form: any) {
     const user = this.#authService.user();
     if (!user) {
       this.#toastService.showError('No s\'ha pogut guardar la cita. Si us plau, inicia sessió.');
       return;
     }
 
-    const updatedAppointment = {
-      ...cita,
+    const updates = {
       nom: form.nom.trim(),
       data: form.data,
       hora: form.hora,
@@ -388,47 +634,83 @@ export class AppointmentDetailPageComponent implements OnInit {
       preu: form.preu || 0,
       duration: form.duration || 60,
       serviceName: form.serviceName?.trim() || '',
-      serviceId: form.serviceId || '',
-      userId: user.uid
+      serviceId: form.serviceId || ''
     };
 
-    const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
-    const updatedAppointments = appointments.map((app: any) =>
-      app.id === cita.id ? updatedAppointment : app
-    );
+          const success = await this.#appointmentService.updateBooking(cita.id!, updates);
 
-    localStorage.setItem('cites', JSON.stringify(updatedAppointments));
-    this.#appointmentSignal.set(updatedAppointment);
-    this.#isEditingSignal.set(false);
+    if (success) {
+      // Update local state
+      const updatedAppointment = {
+        ...cita,
+        ...updates
+      };
+      this.#appointmentSignal.set(updatedAppointment);
+      this.#isEditingSignal.set(false);
 
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('appointmentUpdated', {
-      detail: { appointment: updatedAppointment }
-    }));
+      // Show success message
+      const clientName = updatedAppointment.nom || 'Client';
+      this.#toastService.showAppointmentUpdated(clientName);
 
-    // Show success message with better fallback for client name
-    const clientName = updatedAppointment.nom || updatedAppointment.title || updatedAppointment.clientName || 'Client';
-    this.#toastService.showAppointmentUpdated(clientName);
+      // Trigger custom event for calendar update
+      window.dispatchEvent(new CustomEvent('appointmentUpdated', { detail: updatedAppointment }));
+    }
   }
 
-  deleteAppointment() {
+  showDeleteConfirmation() {
     const cita = this.appointment();
     if (!cita) return;
 
-    const appointments = JSON.parse(localStorage.getItem('cites') || '[]');
-    const updatedAppointments = appointments.filter((app: any) => app.id !== cita.id);
-    localStorage.setItem('cites', JSON.stringify(updatedAppointments));
+    const clientName = cita.nom || 'Client';
+    const appointmentDate = this.formatDate(cita.data);
 
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('appointmentDeleted', {
-      detail: { appointment: cita }
-    }));
+    const alertData: AlertData = {
+      title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
+      message: `Estàs segur que vols eliminar la cita de ${clientName} del ${appointmentDate}? Aquesta acció no es pot desfer.`,
+      emoji: '⚠️',
+      severity: 'danger',
+      confirmText: 'COMMON.ACTIONS.DELETE',
+      cancelText: 'COMMON.ACTIONS.CANCEL',
+      showCancel: true
+    };
 
-    // Show success message with better fallback for client name
-    const clientName = cita.nom || cita.title || cita.clientName || 'Client';
-    this.#toastService.showAppointmentDeleted(clientName);
+    this.#deleteAlertDataSignal.set(alertData);
+    this.#showDeleteAlertSignal.set(true);
+  }
 
-    this.goBack();
+  onDeleteConfirmed() {
+    this.#showDeleteAlertSignal.set(false);
+    this.#deleteAlertDataSignal.set(null);
+    this.deleteAppointment();
+  }
+
+  onDeleteCancelled() {
+    this.#showDeleteAlertSignal.set(false);
+    this.#deleteAlertDataSignal.set(null);
+  }
+
+  async deleteAppointment() {
+    const cita = this.appointment();
+    if (!cita) return;
+
+    // Si és una reserva (té editToken), no permetem eliminar des d'aquí
+    if (cita.editToken) {
+      this.#toastService.showError('No es pot eliminar una reserva des d\'aquesta pàgina.');
+      return;
+    }
+
+    const success = await this.#appointmentService.deleteBooking(cita.id!);
+
+    if (success) {
+      // Show success message
+      const clientName = cita.nom || 'Client';
+      this.#toastService.showAppointmentDeleted(clientName);
+
+      // Trigger custom event for calendar update
+      window.dispatchEvent(new CustomEvent('appointmentDeleted', { detail: cita }));
+
+      this.goBack();
+    }
   }
 
   goBack() {

@@ -12,8 +12,9 @@ import { AuthService } from '../../../core/auth/auth.service';
   styleUrls: ['./language-selector.component.scss']
 })
 export class LanguageSelectorComponent implements OnInit, OnDestroy {
-  private translationService = inject(TranslationService);
-  private authService = inject(AuthService);
+  // Inject services
+  #translationService = inject(TranslationService);
+  #authService = inject(AuthService);
 
   // Internal state signals
   private readonly isDropdownOpenSignal = signal<boolean>(false);
@@ -22,11 +23,11 @@ export class LanguageSelectorComponent implements OnInit, OnDestroy {
   // Public computed signals
   readonly isDropdownOpen = computed(() => this.isDropdownOpenSignal());
   readonly currentLanguage = computed(() => this.currentLanguageSignal());
-  readonly availableLanguages = this.translationService.availableLanguages;
+  readonly availableLanguages = this.#translationService.availableLanguages;
 
   constructor() {
     // Initialize current language
-    this.currentLanguageSignal.set(this.translationService.getCurrentLanguageInfo());
+    this.currentLanguageSignal.set(this.#translationService.getCurrentLanguageInfo());
     // Initialize language effect
     this.#initLanguageEffect();
   }
@@ -44,7 +45,7 @@ export class LanguageSelectorComponent implements OnInit, OnDestroy {
 
   #initLanguageEffect() {
     effect(() => {
-      this.currentLanguageSignal.set(this.translationService.getCurrentLanguageInfo());
+      this.currentLanguageSignal.set(this.#translationService.getCurrentLanguageInfo());
     }, { allowSignalWrites: true });
   }
 
@@ -53,9 +54,9 @@ export class LanguageSelectorComponent implements OnInit, OnDestroy {
   }
 
   selectLanguage(langCode: string): void {
-    this.translationService.setLanguage(langCode);
+    this.#translationService.setLanguage(langCode);
     // Save user's language preference when they change it
-    this.authService.saveCurrentUserLanguage();
+    this.#authService.saveCurrentUserLanguage();
     this.isDropdownOpenSignal.set(false);
   }
 

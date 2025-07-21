@@ -6,50 +6,27 @@
     @if (form()) {
     <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-field">
-        <label class="form-label">{{ 'AUTH.EMAIL' | translate }}</label>
-        <input pInputText type="email" formControlName="email" [placeholder]="'AUTH.EMAIL' | translate" class="form-input" />
-        @if (form()!.get('email')?.invalid && form()!.get('email')?.touched) {
-          <div class="error-message">
-            @if (form()!.get('email')?.errors?.['required']) {
-              {{ 'AUTH.EMAIL_REQUIRED' | translate }}
-            } @else if (form()!.get('email')?.errors?.['email']) {
-              {{ 'AUTH.EMAIL_INVALID' | translate }}
-            }
-          </div>
-        }
+        <pelu-input-email
+          [config]="emailConfig"
+          formControlName="email">
+        </pelu-input-email>
       </div>
 
       <div class="form-field">
-        <label class="form-label">{{ 'AUTH.PASSWORD' | translate }}</label>
-        <input pInputText type="password" formControlName="password" [placeholder]="'AUTH.PASSWORD' | translate" class="form-input"
-               (input)="onPasswordChange($event)" />
-        @if (form()!.get('password')?.invalid && form()!.get('password')?.touched) {
-          <div class="error-message">
-            @if (form()!.get('password')?.errors?.['required']) {
-              {{ 'AUTH.PASSWORD_REQUIRED' | translate }}
-            } @else if (form()!.get('password')?.errors?.['minlength']) {
-              {{ 'AUTH.PASSWORD_MIN_LENGTH' | translate }}
-            }
-          </div>
-        }
+        <pelu-input-password
+          [config]="passwordConfig"
+          formControlName="password"
+          (input)="onPasswordChange($event)">
+        </pelu-input-password>
       </div>
 
       @if (hasRepeatPassword()) {
       <div class="form-field">
-        <label class="form-label">{{ 'AUTH.REPEAT_PASSWORD' | translate }}</label>
-        <input pInputText type="password" formControlName="repeatPassword" [placeholder]="'AUTH.PASSWORD' | translate" class="form-input"
-               (input)="onRepeatPasswordChange($event)" />
-        @if (isRepeatPasswordEnabled() && form()!.get('repeatPassword')?.touched) {
-          @if (form()!.get('repeatPassword')?.errors?.['passwordMismatch']) {
-            <div class="error-message">
-              {{ 'AUTH.PASSWORD_MISMATCH' | translate }}
-            </div>
-          } @else if (passwordsMatch()) {
-            <div class="success-message">
-              ✓ {{ 'AUTH.PASSWORDS_MATCH' | translate }}
-            </div>
-          }
-        }
+        <pelu-input-password
+          [config]="repeatPasswordConfig"
+          formControlName="repeatPassword"
+          (input)="onRepeatPasswordChange($event)">
+        </pelu-input-password>
       </div>
       }
 

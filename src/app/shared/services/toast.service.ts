@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { LoggerService } from './logger.service';
 
 export interface ToastData {
   appointmentId?: string;
@@ -18,6 +19,7 @@ export class ToastService {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly logger = inject(LoggerService);
 
   private readonly toastKey = 'pelu-toast';
 
@@ -76,35 +78,35 @@ export class ToastService {
   }
 
   showValidationError(field: string) {
-    this.showError('Error de validació', `El camp "${field}" és obligatori`);
+    this.showError('COMMON.ERRORS.VALIDATION_ERROR', `El camp "${field}" és obligatori`);
   }
 
   showNetworkError() {
-    this.showError('Error de connexió', 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.');
+    this.showError('COMMON.ERRORS.NETWORK_ERROR', 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.');
   }
 
   showUnauthorizedError() {
-    this.showError('Accés denegat', 'No tens permisos per realitzar aquesta acció.');
+    this.showError('COMMON.ERRORS.PERMISSION_ERROR', 'No tens permisos per realitzar aquesta acció.');
   }
 
   showLoginRequired() {
-    this.showWarning('Sessió requerida', 'Si us plau, inicia sessió per continuar.');
+    this.showWarning('AUTH.SESSION_REQUIRED', 'Si us plau, inicia sessió per continuar.');
   }
 
   showGenericSuccess(message: string) {
-    this.showSuccess('Èxit', message);
+    this.showSuccess('COMMON.STATUS.STATUS_SUCCESS', message);
   }
 
   showGenericError(message: string) {
-    this.showError('Error', message);
+    this.showError('COMMON.GENERAL_ERROR', message);
   }
 
   showGenericInfo(message: string) {
-    this.showInfo('Informació', message);
+    this.showInfo('COMMON.STATUS.STATUS_INFO', message);
   }
 
   showGenericWarning(message: string) {
-    this.showWarning('Advertència', message);
+    this.showWarning('COMMON.STATUS.STATUS_WARNING', message);
   }
 
   // Mètodes per gestionar toasts

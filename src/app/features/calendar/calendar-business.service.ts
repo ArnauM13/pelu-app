@@ -59,23 +59,17 @@ export class CalendarBusinessService {
   }
 
   /**
-   * Check if a time slot is bookable (allows reservations until 12:30 and from 15:00)
+   * Check if a time slot is bookable (allows reservations except during lunch break)
    */
   isTimeSlotBookable(time: string): boolean {
-    const [hour, minute] = time.split(':').map(Number);
-
-    // Allow bookings until 12:30
-    if (hour < 12 || (hour === 12 && minute <= 30)) {
-      return true;
+    // If it's lunch break time, it's not bookable
+    if (this.isLunchBreak(time)) {
+      return false;
     }
 
-    // Allow bookings from 15:00 onwards
-    if (hour >= 15) {
-      return true;
-    }
-
-    // Block 12:30-15:00 (lunch break period)
-    return false;
+    // All other times during business hours are bookable
+    const [hour] = time.split(':').map(Number);
+    return hour >= this.businessConfig.hours.start && hour < this.businessConfig.hours.end;
   }
 
   /**
@@ -102,22 +96,15 @@ export class CalendarBusinessService {
   }
 
   /**
-   * Generate time slots for business hours
+   * Generate time slots for business hours (including lunch break slots)
    */
   generateTimeSlots(): string[] {
     const slots: string[] = [];
     const startHour = this.businessConfig.hours.start;
     const endHour = this.businessConfig.hours.end;
-    const lunchStart = this.businessConfig.lunchBreak.start;
-    const lunchEnd = this.businessConfig.lunchBreak.end;
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minutes of [0, 30]) {
-        // Skip lunch break (13:00-15:00)
-        if (hour >= lunchStart && hour < lunchEnd) {
-          continue;
-        }
-
         const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         slots.push(timeString);
       }
