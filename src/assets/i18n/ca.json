@@ -14,6 +14,9 @@
     "HOURS": "Hora",
     "APPOINTMENTS_FOR_DATE": "Cites del",
     "NO_APPOINTMENTS_MESSAGE": "Per aquesta data no tens cites programades. Pots seleccionar una altra data o afegir noves cites.",
+    "NO_APPOINTMENTS": "No hi ha cites",
+    "NO_APPOINTMENTS_FILTERED": "No s'han trobat cites amb els filtres aplicats.",
+    "NO_APPOINTMENTS_SCHEDULED": "Encara no tens cites programades.",
     "CLICK_TO_VIEW": "Clica per veure",
     "DELETE_CONFIRMATION": "Eliminar cita",
     "CLEAR_FILTERS_BUTTON": "Netejar filtres",
@@ -169,7 +172,6 @@
       "CLIENT_ERROR": "Error en les dades enviades. Verifica la informació introduïda.",
       "UNKNOWN_ERROR": "Error desconegut. Si us plau, contacta amb el suport tècnic."
     },
-    "POPULAR": "Popular",
     "VALIDATION": {
       "INVALID_EMAIL": "Si us plau, introdueix un email vàlid"
     },
@@ -264,6 +266,10 @@
     "SERVICES": "Serveis"
   },
   "APPOINTMENTS": {
+    "TOTAL_APPOINTMENTS": "Total Cites",
+    "TODAY_APPOINTMENTS": "Cites avui",
+    "UPCOMING_APPOINTMENTS": "Pròximes Cites",
+    "MY_APPOINTMENTS": "Cites meves",
     "NEW_APPOINTMENT": "Nova cita",
     "APPOINTMENT_DETAILS": "Detalls de la cita",
     "APPOINTMENT_DETAIL": "Detall de la cita",
@@ -287,10 +293,6 @@
       "COMPLETED": "Completada"
     },
     "MESSAGES": {
-      "TOTAL_APPOINTMENTS": "Total Cites",
-      "TODAY_APPOINTMENTS": "Cites avui",
-      "UPCOMING_APPOINTMENTS": "Pròximes Cites",
-      "MY_APPOINTMENTS": "Cites meves",
       "APPOINTMENTS_CALENDAR": "Calendari de Cites",
       "APPOINTMENTS_LIST": "Cites",
       "VIEW_APPOINTMENTS": "Visualitza totes les teves cites en format calendari",
@@ -437,6 +439,12 @@
       "MARK_POPULAR": "Marcar com a popular",
       "UNMARK_POPULAR": "Desmarcar com a popular",
       "ERROR_TOGGLING_POPULAR": "Error al canviar l'estat popular del servei",
+      "UPDATING_SERVICE": "Actualitzant servei...",
+      "CREATING_SERVICE": "Creant servei...",
+      "SERVICE_UPDATED_SUCCESS": "Servei actualitzat correctament",
+      "SERVICE_CREATED_SUCCESS": "Servei creat correctament",
+      "ERROR_UPDATING_SERVICE": "Error al actualitzar el servei",
+      "ERROR_CREATING_SERVICE": "Error al crear el servei",
       "DELETE_CONFIRMATION": "Confirmar eliminació",
       "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar el servei \"{{name}}\"?",
       "MIGRATE_SERVICES": "Migrar Serveis",
@@ -444,7 +452,6 @@
       "REFRESH": "Actualitzar",
       "CATEGORY": "Categoria",
       "ICON": "Icona",
-      "POPULAR": "Popular",
       "ACTIVE": "Actiu",
       "INACTIVE": "Inactiu",
       "DURATION_MINUTES": "Durada (minuts)",
@@ -490,7 +497,13 @@
           "CATEGORY_ID_REQUIRED": "L'ID de la categoria és obligatori",
           "CATEGORY_ICON_REQUIRED": "La icona de la categoria és obligatòria",
                   "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
-        "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters"
+        "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters",
+        "UPDATING_CATEGORY": "Actualitzant categoria...",
+        "CREATING_CATEGORY": "Creant categoria...",
+        "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
+        "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
+        "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
+        "ERROR_CREATING_CATEGORY": "Error al crear la categoria"
       },
       "EXISTING_CATEGORIES": "Categories existents",
       "ADD_NEW_CATEGORY": "Afegir nova categoria",
@@ -517,7 +530,6 @@
       "CURRENCY_HELP": "La moneda s'aplicarà a tots els preus de l'aplicació",
       "SAVE_SETTINGS": "Desar configuració",
       "RESET_DEFAULTS": "Restaurar per defecte",
-      "CANCEL": "Cancel·lar",
       "LOADING": "Carregant configuració..."
     },
     "SERVICES_MANAGEMENT": "Gestió de Serveis",

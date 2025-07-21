@@ -25,10 +25,6 @@
     "CLEAR_FILTERS_BUTTON": "مسح الفلاتر",
     "APPOINTMENTS_LIST": "المواعيد",
     "VIEW_APPOINTMENTS_LIST": "عرض جميع مواعيدك بتنسيق القائمة",
-    "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
-    "TODAY_APPOINTMENTS": "مواعيد اليوم",
-    "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
-    "MY_APPOINTMENTS": "مواعيدي",
     "AVAILABLE_TIMES": "الأوقات المتاحة",
     "OR": "أو",
     "ACTIONS": {
@@ -177,7 +173,6 @@
       "CLIENT_ERROR": "خطأ في البيانات المرسلة. يرجى التحقق من المعلومات المدخلة.",
       "UNKNOWN_ERROR": "خطأ غير معروف. يرجى الاتصال بالدعم الفني."
     },
-    "POPULAR": "شائع",
     "VALIDATION": {
       "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح"
     },
@@ -253,6 +248,10 @@
     "SERVICES": "الخدمات"
   },
   "APPOINTMENTS": {
+    "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
+    "TODAY_APPOINTMENTS": "مواعيد اليوم",
+    "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
+    "MY_APPOINTMENTS": "مواعيدي",
     "NEW_APPOINTMENT": "موعد جديد",
     "APPOINTMENT_DETAILS": "تفاصيل الموعد",
     "APPOINTMENT_DETAIL": "تفصيل الموعد",
@@ -276,10 +275,6 @@
       "COMPLETED": "مكتمل"
     },
     "MESSAGES": {
-      "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
-      "TODAY_APPOINTMENTS": "مواعيد اليوم",
-      "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
-      "MY_APPOINTMENTS": "مواعيدي",
       "APPOINTMENTS_CALENDAR": "تقويم المواعيد",
       "APPOINTMENTS_LIST": "المواعيد",
       "VIEW_APPOINTMENTS": "عرض جميع مواعيدك بتنسيق التقويم",
@@ -419,7 +414,6 @@
       "CURRENCY_HELP": "سيتم تطبيق العملة على جميع الأسعار في التطبيق",
       "SAVE_SETTINGS": "حفظ الإعدادات",
       "RESET_DEFAULTS": "إعادة تعيين إلى الافتراضي",
-      "CANCEL": "إلغاء",
       "LOADING": "جاري تحميل الإعدادات..."
     },
     "SERVICES": {
@@ -445,6 +439,12 @@
       "MARK_POPULAR": "تحديد كشائع",
       "UNMARK_POPULAR": "إلغاء تحديد كشائع",
       "ERROR_TOGGLING_POPULAR": "خطأ في تغيير حالة الشعبية للخدمة",
+      "UPDATING_SERVICE": "جاري تحديث الخدمة...",
+      "CREATING_SERVICE": "جاري إنشاء الخدمة...",
+      "SERVICE_UPDATED_SUCCESS": "تم تحديث الخدمة بنجاح",
+      "SERVICE_CREATED_SUCCESS": "تم إنشاء الخدمة بنجاح",
+      "ERROR_UPDATING_SERVICE": "خطأ في تحديث الخدمة",
+      "ERROR_CREATING_SERVICE": "خطأ في إنشاء الخدمة",
       "DELETE_CONFIRMATION": "تأكيد الحذف",
       "DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من حذف الخدمة \"{{name}}\"؟",
       "MIGRATE_SERVICES": "ترحيل الخدمات",
@@ -452,7 +452,6 @@
       "REFRESH": "تحديث",
       "CATEGORY": "الفئة",
       "ICON": "الأيقونة",
-      "POPULAR": "شائع",
       "ACTIVE": "نشط",
       "INACTIVE": "غير نشط",
       "DURATION_MINUTES": "المدة (دقائق)",
@@ -496,7 +495,13 @@
           "CATEGORY_ID_REQUIRED": "معرف الفئة مطلوب",
           "CATEGORY_ICON_REQUIRED": "أيقونة الفئة مطلوبة",
           "CATEGORY_ID_FORMAT": "معرف الفئة يجب أن يحتوي على أحرف صغيرة وأرقام وشرطات فقط",
-          "CATEGORY_ID_MIN_LENGTH": "معرف الفئة يجب أن يكون 3 أحرف على الأقل"
+          "CATEGORY_ID_MIN_LENGTH": "معرف الفئة يجب أن يكون 3 أحرف على الأقل",
+          "UPDATING_CATEGORY": "جاري تحديث الفئة...",
+          "CREATING_CATEGORY": "جاري إنشاء الفئة...",
+          "CATEGORY_UPDATED_SUCCESS": "تم تحديث الفئة بنجاح",
+          "CATEGORY_CREATED_SUCCESS": "تم إنشاء الفئة بنجاح",
+          "ERROR_UPDATING_CATEGORY": "خطأ في تحديث الفئة",
+          "ERROR_CREATING_CATEGORY": "خطأ في إنشاء الفئة"
         },
         "EXISTING_CATEGORIES": "الفئات الموجودة",
         "ADD_NEW_CATEGORY": "إضافة فئة جديدة",
