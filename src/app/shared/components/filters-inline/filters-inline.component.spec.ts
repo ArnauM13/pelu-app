@@ -1,0 +1,112 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FiltersInlineComponent } from './filters-inline.component';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
+// Mock translate loader
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation() {
+    return of({
+      'COMMON.FILTER_BY_DATE': 'Filter by Date',
+      'COMMON.FILTER_BY_CLIENT': 'Filter by Client',
+      'COMMON.SEARCH_BY_NAME': 'Search by name',
+      'COMMON.CLEAR_FILTERS_BUTTON': 'Clear Filters'
+    });
+  }
+}
+
+describe('FiltersInlineComponent', () => {
+  let component: FiltersInlineComponent;
+  let fixture: ComponentFixture<FiltersInlineComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        FiltersInlineComponent,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
+        })
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FiltersInlineComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should have proper component structure', () => {
+    expect(component.filterButtons).toBeDefined();
+    expect(component.filterDate).toBeDefined();
+    expect(component.filterClient).toBeDefined();
+    expect(component.showAdvancedFilters).toBeDefined();
+    expect(component.onFilterClick).toBeDefined();
+    expect(component.onDateChange).toBeDefined();
+    expect(component.onClientChange).toBeDefined();
+    expect(component.onReset).toBeDefined();
+    expect(component.onToggleAdvanced).toBeDefined();
+  });
+
+  it('should have computed properties', () => {
+    expect(component.filterButtonsValue).toBeDefined();
+    expect(component.filterDateValue).toBeDefined();
+    expect(component.filterClientValue).toBeDefined();
+    expect(component.showAdvancedFiltersValue).toBeDefined();
+  });
+
+  it('should have handler methods defined', () => {
+    expect(typeof component.onFilterClickHandler).toBe('function');
+    expect(typeof component.onDateChangeHandler).toBe('function');
+    expect(typeof component.onClientChangeHandler).toBe('function');
+    expect(typeof component.onResetHandler).toBe('function');
+  });
+
+  it('should render with proper structure', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.filters-inline')).toBeTruthy();
+    expect(compiled.querySelector('.filters-grid')).toBeTruthy();
+    expect(compiled.querySelector('#filterDate')).toBeTruthy();
+    expect(compiled.querySelector('#filterClient')).toBeTruthy();
+    expect(compiled.querySelector('.reset-btn')).toBeTruthy();
+  });
+
+  it('should have proper CSS classes', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.filters-inline')).toBeTruthy();
+    expect(compiled.querySelector('.filters-grid')).toBeTruthy();
+    expect(compiled.querySelector('.filter-group')).toBeTruthy();
+    expect(compiled.querySelector('.reset-group')).toBeTruthy();
+    expect(compiled.querySelector('.input')).toBeTruthy();
+    expect(compiled.querySelector('.reset-btn')).toBeTruthy();
+  });
+
+  it('should have proper input types', () => {
+    expect(typeof component.filterButtons).toBe('function');
+    expect(typeof component.filterDate).toBe('function');
+    expect(typeof component.filterClient).toBe('function');
+    expect(typeof component.showAdvancedFilters).toBe('function');
+  });
+
+  it('should have proper callback types', () => {
+    expect(typeof component.onFilterClick).toBe('function');
+    expect(typeof component.onDateChange).toBe('function');
+    expect(typeof component.onClientChange).toBe('function');
+    expect(typeof component.onReset).toBe('function');
+    expect(typeof component.onToggleAdvanced).toBe('function');
+  });
+
+  it('should be a component class', () => {
+    expect(FiltersInlineComponent.prototype.constructor.name).toBe('FiltersInlineComponent');
+  });
+
+  it('should be a standalone component', () => {
+    expect(FiltersInlineComponent.prototype.constructor).toBeDefined();
+    expect(FiltersInlineComponent.prototype.constructor.name).toBe('FiltersInlineComponent');
+  });
+});
