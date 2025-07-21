@@ -59,7 +59,7 @@ async togglePopularStatus(service: FirebaseService): Promise<void> {
   [class.btn-outline]="!service.popular"
   [title]="service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate"
   (click)="togglePopularStatus(service)">
-  {{ service.popular ? '⭐' : '☆' }} {{ service.popular ? 'ADMIN.SERVICES.POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate }}
+  {{ service.popular ? '⭐' : '☆' }} {{ service.popular ? 'SERVICES.POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate }}
 </button>
 ```
 

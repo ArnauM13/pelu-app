@@ -1,17 +1,16 @@
 import { Component, input, output, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
-import { InputTextComponent, InputDateComponent, InputSelectComponent, type InputConfig } from '../inputs';
+import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 
 @Component({
   selector: 'pelu-filters-inline',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, SelectModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss']
 })
@@ -70,6 +69,7 @@ export class FiltersInlineComponent {
   };
 
   readonly serviceFilterConfig = computed(() => ({
+    type: 'select' as const,
     label: 'COMMON.FILTERS.FILTER_BY_SERVICE',
     placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
     options: this.serviceOptions(),

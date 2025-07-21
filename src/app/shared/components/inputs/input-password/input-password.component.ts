@@ -119,21 +119,18 @@ export class InputPasswordComponent implements ControlValueAccessor {
     return classes.join(' ');
   });
 
-  // ControlValueAccessor implementation
   private onChange = (value: any) => {};
   private onTouched = () => {};
 
   constructor() {
-    // Initialize internal value when external value changes
     effect(() => {
       const value = this.value();
       if (value !== undefined && value !== null) {
         this.internalValue.set(value);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
-  // Event handlers
   onInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     const value = target.value;
@@ -182,7 +179,6 @@ export class InputPasswordComponent implements ControlValueAccessor {
     this.showPassword.update(show => !show);
   }
 
-  // ControlValueAccessor methods
   writeValue(value: any): void {
     this.internalValue.set(value || '');
   }
@@ -196,6 +192,5 @@ export class InputPasswordComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    // This will be handled by the config input
   }
 }

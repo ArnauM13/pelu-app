@@ -12,7 +12,7 @@
           <h3>{{ 'COMMON.ERROR' | translate }}</h3>
           <p>{{ 'COMMON.ERROR_LOADING_BOOKING' | translate }}</p>
           <button class="btn btn-primary" (click)="onClose()">
-            {{ 'COMMON.CLOSE' | translate }}
+            {{ 'COMMON.ACTIONS.CLOSE' | translate }}
           </button>
         </div>
       } @else if (currentBooking()) {
@@ -107,7 +107,7 @@
           <h3>{{ 'COMMON.BOOKING_NOT_FOUND' | translate }}</h3>
           <p>{{ 'COMMON.BOOKING_NOT_FOUND_MESSAGE' | translate }}</p>
           <button class="btn btn-primary" (click)="onClose()">
-            {{ 'COMMON.CLOSE' | translate }}
+            {{ 'COMMON.ACTIONS.CLOSE' | translate }}
           </button>
         </div>
       }

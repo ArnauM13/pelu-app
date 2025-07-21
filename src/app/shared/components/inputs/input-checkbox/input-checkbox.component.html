@@ -3,7 +3,7 @@
     <!-- Checkbox input -->
     <input
       type="checkbox"
-      [id]="config().id || generateId()"
+      [id]="checkboxId()"
       [name]="config().name"
       [checked]="displayValue()"
       [disabled]="config().disabled"
@@ -27,7 +27,7 @@
     <!-- Label -->
     @if (showLabel()) {
         <label
-      [for]="config().id || generateId()"
+      [for]="checkboxId()"
       class="checkbox-label">
       {{ config().label || '' | translate }}
       @if (config().required) {

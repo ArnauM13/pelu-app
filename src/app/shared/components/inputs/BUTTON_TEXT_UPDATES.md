@@ -47,20 +47,20 @@ Actualitzar el text del botó principal de categories i millorar l'espaiat entre
 ```html
 <button>✏️ {{ 'COMMON.ACTIONS.EDIT' | translate }}</button>
 <button>🗑️ {{ 'COMMON.ACTIONS.DELETE' | translate }}</button>
-<button>{{ service.popular ? '⭐' : '☆' }} {{ service.popular ? 'ADMIN.SERVICES.POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate }}</button>
+<button>{{ service.popular ? '⭐' : '☆' }} {{ service.popular ? 'SERVICES.POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate }}</button>
 ```
 
 **Després - Amb espai (`&nbsp;`)**:
 ```html
 <button>✏️&nbsp;{{ 'COMMON.ACTIONS.EDIT' | translate }}</button>
 <button>🗑️&nbsp;{{ 'COMMON.ACTIONS.DELETE' | translate }}</button>
-<button>{{ service.popular ? '⭐' : '☆' }}&nbsp;{{ service.popular ? 'ADMIN.SERVICES.POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate }}</button>
+<button>{{ service.popular ? '⭐' : '☆' }}&nbsp;{{ service.popular ? 'SERVICES.POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate }}</button>
 ```
 
 ### **🎨 Botons Actualitzats**
 
 #### **1. Botons d'Acció de Serveis**
-- **Popular/Unpopular**: `⭐&nbsp;{{ 'ADMIN.SERVICES.POPULAR' | translate }}`
+- **Popular/Unpopular**: `⭐&nbsp;{{ 'SERVICES.POPULAR' | translate }}`
 - **Editar servei**: `✏️&nbsp;{{ 'COMMON.ACTIONS.EDIT' | translate }}`
 - **Eliminar servei**: `🗑️&nbsp;{{ 'COMMON.ACTIONS.DELETE' | translate }}`
 

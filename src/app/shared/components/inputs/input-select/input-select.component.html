@@ -1,8 +1,8 @@
-<div [class]="selectClasses()">
+<div [class]="selectClasses()" [attr.data-select-id]="elementId()">
   <!-- Label -->
   @if (showLabel()) {
   <label
-    [for]="config().id || generateId()"
+    [for]="elementId()"
     class="select-label">
     {{ config().label || '' | translate }}
     @if (config().required) {
@@ -15,7 +15,7 @@
   <div class="select-container">
     <!-- Native select for accessibility -->
     <select
-      [id]="config().id || generateId()"
+      [id]="elementId()"
       [name]="config().name"
       [disabled]="config().disabled"
       [required]="config().required"
@@ -76,7 +76,7 @@
 
     <!-- Dropdown options -->
     @if (isOpen()) {
-    <div class="select-dropdown">
+    <div class="select-dropdown" [ngStyle]="dropdownStyle()">
       <!-- Search input -->
       @if (isSearchable()) {
       <div class="search-container">

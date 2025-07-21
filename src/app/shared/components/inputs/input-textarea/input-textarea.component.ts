@@ -116,7 +116,7 @@ export class InputTextareaComponent implements ControlValueAccessor {
       if (value !== undefined && value !== null) {
         this.internalValue.set(value);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   // Event handlers
