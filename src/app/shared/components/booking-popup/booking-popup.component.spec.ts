@@ -116,9 +116,7 @@ describe('BookingPopupComponent', () => {
       expect(typeof component.updateClientName).toBe('function');
     });
 
-    it('should have onServiceChange method', () => {
-      expect(typeof component.onServiceChange).toBe('function');
-    });
+
 
     it('should have getServiceName method', () => {
       expect(typeof component.getServiceName).toBe('function');
@@ -128,7 +126,7 @@ describe('BookingPopupComponent', () => {
   describe('Component Behavior', () => {
     it('should initialize with default values', () => {
       expect(component.open()).toBeFalse();
-      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '' });
+      expect(component.bookingDetails()).toEqual({ date: '', time: '', clientName: '', email: '' });
       expect(component.availableServices()).toEqual([]);
     });
 
@@ -150,6 +148,7 @@ describe('BookingPopupComponent', () => {
       expect(typeof component.totalPrice()).toBe('number');
     });
 
+<<<<<<< HEAD
     it('should have isAuthenticated computed property', () => {
       expect(component.isAuthenticated).toBeDefined();
       expect(typeof component.isAuthenticated()).toBe('boolean');
