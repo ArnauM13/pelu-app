@@ -10,6 +10,10 @@ import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
+import { InputTextComponent } from '../inputs/input-text/input-text.component';
+import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
+import { InputNumberComponent } from '../inputs/input-number/input-number.component';
+import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -58,7 +62,11 @@ export interface DetailViewConfig {
     AppointmentStatusBadgeComponent,
     NotFoundStateComponent,
     LoadingStateComponent,
-    RouterModule
+    RouterModule,
+    InputTextComponent,
+    InputTextareaComponent,
+    InputNumberComponent,
+    InputDateComponent
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss']
@@ -98,10 +106,32 @@ export class DetailViewComponent implements OnChanges {
     );
   }
 
-  get hasAvailableActions() {
-    // Només mostrar accions si hi ha accions disponibles (excloent el botó de tornar)
-    // i si no estem en mode edició
-    return this.filteredActions.length > 0 && !this.isEditing;
+    get hasAvailableActions() {
+    // No mostrar accions si estem en mode edició
+    if (this.isEditing) return false;
+
+    // Comprovar si hi ha accions generals disponibles (excloent el botó de tornar)
+    const hasGeneralActions = this.filteredActions.length > 0;
+
+    // Comprovar si hi ha accions específiques de cites disponibles
+    const hasAppointmentActions = this.type === 'appointment' &&
+                                 this.appointment &&
+                                 (this.canEditAppointment() || this.canDeleteAppointment());
+
+    // Mostrar la columna d'accions només si hi ha accions generals O accions específiques de cites
+    return hasGeneralActions || hasAppointmentActions;
+  }
+
+  // Mètode per verificar si hi ha accions específiques de cites
+  get hasAppointmentActions(): boolean {
+    return this.type === 'appointment' &&
+           this.appointment &&
+           (this.canEditAppointment() || this.canDeleteAppointment());
+  }
+
+  // Mètode per verificar si hi ha accions generals
+  get hasGeneralActions(): boolean {
+    return this.filteredActions.length > 0;
   }
   get editForm() { return this.config?.editForm || {}; }
   get isEditing() { return this.config?.isEditing; }
