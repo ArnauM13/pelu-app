@@ -10,7 +10,7 @@
   .select-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #000000;
+    color: var(--text-color-light, #374151);
     margin-bottom: 0.25rem;
 
     .size-small & {
