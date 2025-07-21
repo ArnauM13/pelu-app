@@ -87,7 +87,10 @@
       "SELECT_SERVICE": "Seleccionar servicio",
       "CHOOSE_SERVICE": "Elige un servicio",
       "SELECTED_SERVICE": "Servicio seleccionado",
-      "PLEASE_SELECT_SERVICE": "Por favor, selecciona un servicio"
+      "PLEASE_SELECT_SERVICE": "Por favor, selecciona un servicio",
+      "NO_AVAILABLE_HOURS": "No hay horas disponibles para el día seleccionado",
+      "POPULAR_SERVICES": "Servicios Populares",
+      "OTHER_SERVICES": "Otros servicios"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Buscar por nombre",

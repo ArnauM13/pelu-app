@@ -19,39 +19,82 @@
         </div>
       </div>
 
-      <!-- Service Selection -->
-      <div class="service-selection-section">
-        <h4>{{ 'COMMON.SELECTION.CHOOSE_SERVICE' | translate }}</h4>
-        <div class="services-grid">
-          @for (service of availableServices(); track service.id) {
-            <div
-              class="service-card"
-              [class.selected]="selectedService()?.id === service.id"
-              (click)="selectService(service)">
-              <div class="service-header">
-                <div class="service-icon">{{ service.icon }}</div>
-                <div class="service-info">
-                  <div class="service-name">{{ getServiceName(service) }}</div>
-                  <div class="service-description">{{ formatDuration(service.duration) }}</div>
-                </div>
-                <div class="service-price">{{ formatPrice(service.price) }}</div>
-              </div>
-              <div class="service-details">
-                <div class="service-meta">
-                  <span class="service-duration">
-                    ⏱️ {{ formatDuration(service.duration) }}
-                  </span>
-                </div>
-                @if (selectedService()?.id === service.id) {
-                  <div class="selection-indicator">
-                    ✅ {{ 'COMMON.SELECTED' | translate }}
+      <!-- Popular Services Section -->
+      @if (popularServices().length > 0) {
+        <div class="service-selection-section">
+          <h4>⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
+          <div class="services-grid">
+            @for (service of popularServices(); track service.id) {
+              <div
+                class="service-card"
+                [class.selected]="selectedService()?.id === service.id"
+                (click)="selectService(service)">
+                <div class="service-header">
+                  <div class="service-icon">{{ service.icon }}</div>
+                  <div class="service-info">
+                    <div class="service-name">{{ getServiceName(service) }}</div>
+                    <div class="service-description">{{ formatDuration(service.duration) }}</div>
                   </div>
-                }
+                  <div class="service-price">{{ formatPrice(service.price) }}</div>
+                </div>
+                <div class="service-details">
+                  <div class="service-meta">
+                    <div class="service-info-left">
+                      <span class="service-duration">
+                        ⏱️ {{ formatDuration(service.duration) }}
+                      </span>
+                      <span class="service-popular">⭐ {{ 'COMMON.POPULAR' | translate }}</span>
+                    </div>
+                    @if (selectedService()?.id === service.id) {
+                      <span class="selection-indicator">
+                        ✅ {{ 'COMMON.SELECTION.SELECTED' | translate }}
+                      </span>
+                    }
+                  </div>
+                </div>
               </div>
-            </div>
-          }
+            }
+          </div>
         </div>
-      </div>
+      }
+
+      <!-- Other Services Section -->
+      @if (otherServices().length > 0) {
+        <div class="service-selection-section">
+          <h4>{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
+          <div class="services-grid">
+            @for (service of otherServices(); track service.id) {
+              <div
+                class="service-card"
+                [class.selected]="selectedService()?.id === service.id"
+                (click)="selectService(service)">
+                <div class="service-header">
+                  <div class="service-icon">{{ service.icon }}</div>
+                  <div class="service-info">
+                    <div class="service-name">{{ getServiceName(service) }}</div>
+                    <div class="service-description">{{ formatDuration(service.duration) }}</div>
+                  </div>
+                  <div class="service-price">{{ formatPrice(service.price) }}</div>
+                </div>
+                <div class="service-details">
+                  <div class="service-meta">
+                    <div class="service-info-left">
+                      <span class="service-duration">
+                        ⏱️ {{ formatDuration(service.duration) }}
+                      </span>
+                    </div>
+                    @if (selectedService()?.id === service.id) {
+                      <span class="selection-indicator">
+                        ✅ {{ 'COMMON.SELECTION.SELECTED' | translate }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </div>
 
     <div class="popup-footer">

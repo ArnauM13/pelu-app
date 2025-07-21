@@ -87,7 +87,10 @@
       "SELECT_SERVICE": "اختر الخدمة",
       "CHOOSE_SERVICE": "اختر خدمة",
       "SELECTED_SERVICE": "الخدمة المختارة",
-      "PLEASE_SELECT_SERVICE": "يرجى اختيار خدمة"
+      "PLEASE_SELECT_SERVICE": "يرجى اختيار خدمة",
+      "NO_AVAILABLE_HOURS": "لا توجد ساعات متاحة لليوم المختار",
+      "POPULAR_SERVICES": "الخدمات الشائعة",
+      "OTHER_SERVICES": "خدمات أخرى"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "البحث بالاسم",

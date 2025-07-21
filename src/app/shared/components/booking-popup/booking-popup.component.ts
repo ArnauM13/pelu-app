@@ -9,6 +9,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 
 export interface BookingDetails {
   date: string;
@@ -88,6 +89,7 @@ export class BookingPopupComponent {
   readonly currencyService = inject(CurrencyService);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly serviceTranslationService = inject(ServiceTranslationService);
 
   constructor() {
     // Initialize form with authenticated user data if available
@@ -116,8 +118,6 @@ export class BookingPopupComponent {
     this.emailChanged.emit(value);
   }
 
-
-
   // Format methods
   formatDate(date: string): string {
     if (!date) return '';
@@ -134,11 +134,20 @@ export class BookingPopupComponent {
   }
 
   formatDuration(duration: number): string {
-    return `${duration} ${this.translate.instant('COMMON.UNITS.MINUTES')}`;
+    if (duration < 60) {
+      return `${duration} min`;
+    }
+    const hours = Math.floor(duration / 60);
+    const remainingMinutes = duration % 60;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${remainingMinutes}min`;
   }
 
   getServiceName(service: FirebaseService): string {
-    return this.translate.instant(`SERVICES.${service.id?.toUpperCase()}.NAME`) || service.name;
+    // Use the service translation service to get the translated name
+    return this.serviceTranslationService.translateServiceName(service.name);
   }
 
   // Event handlers

@@ -69,6 +69,16 @@ export class ServiceSelectionPopupComponent {
   // Available services from centralized service
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
 
+  // Popular services (services with popular flag)
+  readonly popularServices = computed(() =>
+    this.availableServices().filter(service => service.popular === true)
+  );
+
+  // Other services (non-popular services)
+  readonly otherServices = computed(() =>
+    this.availableServices().filter(service => service.popular !== true)
+  );
+
   // Methods
   onServiceSelect(service: FirebaseService): void {
     this.selectedServiceSignal.set(service);

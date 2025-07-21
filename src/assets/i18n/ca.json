@@ -80,7 +80,9 @@
       "CHOOSE_SERVICE": "Tria un servei",
       "SELECTED_SERVICE": "Servei seleccionat",
       "PLEASE_SELECT_SERVICE": "Si us plau, selecciona un servei",
-      "NO_AVAILABLE_HOURS": "Cap hora disponible pel dia seleccionat"
+      "NO_AVAILABLE_HOURS": "Cap hora disponible pel dia seleccionat",
+      "POPULAR_SERVICES": "Serveis Populars",
+      "OTHER_SERVICES": "Altres serveis"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Cerca per nom",
