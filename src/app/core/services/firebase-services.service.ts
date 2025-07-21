@@ -166,7 +166,7 @@ export class FirebaseServicesService {
   /**
    * Create a new service (admin only)
    */
-  async createService(serviceData: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>): Promise<FirebaseService | null> {
+  async createService(serviceData: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>, showToast: boolean = true): Promise<FirebaseService | null> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -206,7 +206,9 @@ export class FirebaseServicesService {
       // Dispatch event to notify other components
       window.dispatchEvent(new CustomEvent('serviceUpdated'));
 
-      this.toastService.showSuccess('COMMON.SERVICE_CREATED_SUCCESS');
+      if (showToast) {
+        this.toastService.showSuccess('COMMON.SERVICE_CREATED_SUCCESS');
+      }
       this.logger.info('Service created', {
         component: 'FirebaseServicesService',
         method: 'createService',
@@ -223,7 +225,9 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating service';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_CREATING_SERVICE');
+      if (showToast) {
+        this.toastService.showGenericError('COMMON.ERROR_CREATING_SERVICE');
+      }
       return null;
     } finally {
       this._isLoading.set(false);
@@ -233,14 +237,16 @@ export class FirebaseServicesService {
   /**
    * Update an existing service (admin only)
    */
-  async updateService(serviceId: string, updates: Partial<FirebaseService>): Promise<boolean> {
+  async updateService(serviceId: string, updates: Partial<FirebaseService>, showToast: boolean = true, showLoader: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
         throw new Error('Access denied - admin required');
       }
 
-      this._isLoading.set(true);
+      if (showLoader) {
+        this._isLoading.set(true);
+      }
       this._error.set(null);
 
       const currentUser = this.authService.user();
@@ -272,7 +278,9 @@ export class FirebaseServicesService {
       window.dispatchEvent(new CustomEvent('serviceUpdated'));
       this.saveServicesToCache(this._services());
 
-      this.toastService.showSuccess('COMMON.SERVICE_UPDATED_SUCCESS');
+      if (showToast) {
+        this.toastService.showSuccess('COMMON.SERVICE_UPDATED_SUCCESS');
+      }
       this.logger.info('Service updated', {
         component: 'FirebaseServicesService',
         method: 'updateService',
@@ -289,17 +297,21 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating service';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_UPDATING_SERVICE');
+      if (showToast) {
+        this.toastService.showGenericError('COMMON.ERROR_UPDATING_SERVICE');
+      }
       return false;
     } finally {
-      this._isLoading.set(false);
+      if (showLoader) {
+        this._isLoading.set(false);
+      }
     }
   }
 
   /**
    * Delete a service (admin only) - soft delete by setting active to false
    */
-  async deleteService(serviceId: string): Promise<boolean> {
+  async deleteService(serviceId: string, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -331,7 +343,9 @@ export class FirebaseServicesService {
       // Dispatch event to notify other components
       window.dispatchEvent(new CustomEvent('serviceUpdated'));
 
-      this.toastService.showSuccess('COMMON.SERVICE_DELETED_SUCCESS');
+      if (showToast) {
+        this.toastService.showSuccess('COMMON.SERVICE_DELETED_SUCCESS');
+      }
       this.logger.info('Service deleted', {
         component: 'FirebaseServicesService',
         method: 'deleteService',
@@ -348,7 +362,9 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting service';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_DELETING_SERVICE');
+      if (showToast) {
+        this.toastService.showGenericError('COMMON.ERROR_DELETING_SERVICE');
+      }
       return false;
     } finally {
       this._isLoading.set(false);
@@ -687,7 +703,7 @@ export class FirebaseServicesService {
   /**
    * Create a new custom category (admin only)
    */
-  async createCategory(categoryData: { name: string; icon: string; id: string }): Promise<ServiceCategory | null> {
+  async createCategory(categoryData: { name: string; icon: string; id: string }, showToast: boolean = true): Promise<ServiceCategory | null> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -728,7 +744,9 @@ export class FirebaseServicesService {
       // Update local categories
       this._customCategories.update(categories => [...categories, newCategory]);
 
-      this.toastService.showSuccess('COMMON.CATEGORY_CREATED_SUCCESS');
+      if (showToast) {
+        this.toastService.showSuccess('COMMON.CATEGORY_CREATED_SUCCESS');
+      }
       this.logger.info('Category created', {
         component: 'FirebaseServicesService',
         method: 'createCategory',
@@ -745,7 +763,9 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating category';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_CREATING_CATEGORY');
+      if (showToast) {
+        this.toastService.showGenericError('COMMON.ERROR_CREATING_CATEGORY');
+      }
       return null;
     } finally {
       this._isLoading.set(false);
@@ -755,7 +775,7 @@ export class FirebaseServicesService {
   /**
    * Update a custom category (admin only)
    */
-  async updateCategory(categoryId: string, updates: Partial<ServiceCategory>): Promise<boolean> {
+  async updateCategory(categoryId: string, updates: Partial<ServiceCategory>, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -786,7 +806,9 @@ export class FirebaseServicesService {
         )
       );
 
-      this.toastService.showSuccess('COMMON.CATEGORY_UPDATED_SUCCESS');
+      if (showToast) {
+        this.toastService.showSuccess('COMMON.CATEGORY_UPDATED_SUCCESS');
+      }
       this.logger.info('Category updated', {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
@@ -805,7 +827,9 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating category';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_UPDATING_CATEGORY');
+      if (showToast) {
+        this.toastService.showGenericError('COMMON.ERROR_UPDATING_CATEGORY');
+      }
       return false;
     } finally {
       this._isLoading.set(false);
@@ -815,7 +839,7 @@ export class FirebaseServicesService {
   /**
    * Delete a custom category (admin only)
    */
-  async deleteCategory(categoryId: string): Promise<boolean> {
+  async deleteCategory(categoryId: string, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -844,7 +868,9 @@ export class FirebaseServicesService {
         categories.filter(cat => cat.id !== categoryId)
       );
 
-      this.toastService.showSuccess('COMMON.CATEGORY_DELETED_SUCCESS');
+      if (showToast) {
+        this.toastService.showSuccess('COMMON.CATEGORY_DELETED_SUCCESS');
+      }
       this.logger.info('Category deleted', {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
@@ -863,7 +889,9 @@ export class FirebaseServicesService {
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting category';
       this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_DELETING_CATEGORY');
+      if (showToast) {
+        this.toastService.showGenericError('COMMON.ERROR_DELETING_CATEGORY');
+      }
       return false;
     } finally {
       this._isLoading.set(false);

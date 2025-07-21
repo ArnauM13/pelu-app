@@ -49,6 +49,8 @@
       font-size: 1rem;
       line-height: 1.5;
     }
+
+
   }
 
   .header-actions {
@@ -244,6 +246,8 @@
   display: flex;
   flex-direction: column;
   animation: slideIn 0.3s ease-out;
+  position: relative;
+  z-index: 1000;
 
   @media (max-width: 768px) {
     width: 95vw;
@@ -312,6 +316,8 @@
   padding: 1.5rem;
   border-top: 1px solid var(--border-color, #e5e7eb);
   background: var(--background-color-light, #f9fafb);
+  border-bottom-left-radius: var(--border-radius-lg, 16px);
+  border-bottom-right-radius: var(--border-radius-lg, 16px);
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -324,6 +330,14 @@
 
 // Form styles
 .service-form, .category-form {
+  // Ensure select dropdowns appear above popup actions
+  ::ng-deep .p-dropdown-panel {
+    z-index: 1001 !important;
+  }
+
+  ::ng-deep .p-dropdown-items-wrapper {
+    z-index: 1001 !important;
+  }
   .form-section {
     margin-bottom: 2rem;
 
@@ -575,6 +589,62 @@
     transform: none;
     box-shadow: none;
   }
+}
+
+/* ===== ANIMACIONS ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== TOOLTIP STYLES ===== */
+// Tooltip Styles - Ensure tooltips appear above filters and don't get cut off
+::ng-deep .p-tooltip {
+  z-index: var(--z-notification) !important; /* Higher than popups */
+}
+
+::ng-deep .p-tooltip .p-tooltip-text {
+  background: var(--text-color) !important;
+  color: white !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 6px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  max-width: 120px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-bottom .p-tooltip-arrow {
+  border-bottom-color: var(--text-color) !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-top .p-tooltip-arrow {
+  border-top-color: var(--text-color) !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-left .p-tooltip-arrow {
+  border-left-color: var(--text-color) !important;
+}
+
+::ng-deep .p-tooltip.p-tooltip-right .p-tooltip-arrow {
+  border-right-color: var(--text-color) !important;
+}
+
+// Ensure tooltips don't get cut off by viewport
+::ng-deep .p-tooltip {
+  position: fixed !important;
+  pointer-events: none !important;
 }
 
 

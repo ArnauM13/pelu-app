@@ -23,6 +23,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
+import { PopularBadgeComponent } from '../../../shared/components/popular-badge/popular-badge.component';
 import {
   InputTextareaComponent,
   InputSelectComponent,
@@ -52,6 +53,7 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     LoadingStateComponent,
     AlertPopupComponent,
     ServiceCardComponent,
+    PopularBadgeComponent,
     InputTextareaComponent,
     InputSelectComponent,
     InputNumberComponent,
@@ -82,6 +84,7 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly _selectedCategory = signal<any>(null);
   private readonly _showAlertDialog = signal<boolean>(false);
   private readonly _alertData = signal<AlertData | null>(null);
+
 
   // Form signals
   private readonly _formData = signal<Partial<FirebaseService>>({
@@ -115,6 +118,7 @@ export class AdminServicesPageComponent implements OnInit {
   readonly categoryFormData = computed(() => this._categoryFormData());
   readonly showAlertDialog = computed(() => this._showAlertDialog());
   readonly alertData = computed(() => this._alertData());
+
 
   // Admin access computed
   readonly isAdmin = computed(() => this.userService.isAdmin());
@@ -204,16 +208,11 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     const serviceData = this.formData();
-    const newService = await this.firebaseServicesService.createService(serviceData as Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>);
+    const newService = await this.firebaseServicesService.createService(serviceData as Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>, false);
 
     if (newService) {
       this._showCreateDialog.set(false);
       this.resetForm();
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_CREATED'),
-        detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_CREATED_MESSAGE')
-      });
     }
   }
 
@@ -226,17 +225,12 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     const serviceData = this.formData();
-    const success = await this.firebaseServicesService.updateService(this.selectedService()!.id!, serviceData);
+    const success = await this.firebaseServicesService.updateService(this.selectedService()!.id!, serviceData, false);
 
     if (success) {
       this._showEditDialog.set(false);
       this.resetForm();
       this._selectedService.set(null);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_UPDATED'),
-        detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_UPDATED_MESSAGE')
-      });
     }
   }
 
@@ -285,13 +279,16 @@ export class AdminServicesPageComponent implements OnInit {
    * Delete service confirmed
    */
   private async deleteServiceConfirmed(service: FirebaseService): Promise<void> {
-    const success = await this.firebaseServicesService.deleteService(service.id!);
+    const success = await this.firebaseServicesService.deleteService(service.id!, false);
     if (success) {
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED'),
-        detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED_MESSAGE')
-      });
+      // Show success message after a short delay
+      setTimeout(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED'),
+          detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED_MESSAGE')
+        });
+      }, 300);
     }
   }
 
@@ -299,13 +296,16 @@ export class AdminServicesPageComponent implements OnInit {
    * Delete category confirmed
    */
   private async deleteCategoryConfirmed(category: any): Promise<void> {
-    const success = await this.firebaseServicesService.deleteCategory(category.id);
+    const success = await this.firebaseServicesService.deleteCategory(category.id, false);
     if (success) {
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED_MESSAGE')
-      });
+      // Show success message after a short delay
+      setTimeout(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED'),
+          detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED_MESSAGE')
+        });
+      }, 300);
     }
   }
 
@@ -522,17 +522,12 @@ export class AdminServicesPageComponent implements OnInit {
     const success = await this.firebaseServicesService.updateCategory(this.selectedCategory()!.id, {
       name: categoryData.name,
       icon: categoryData.icon
-    });
+    }, false);
 
     if (success) {
       this._showEditCategoryDialog.set(false);
       this.resetCategoryForm();
       this._selectedCategory.set(null);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_UPDATED'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_UPDATED_MESSAGE')
-      });
     }
   }
 
@@ -545,16 +540,11 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     const categoryData = this.categoryFormData();
-    const newCategory = await this.firebaseServicesService.createCategory(categoryData);
+    const newCategory = await this.firebaseServicesService.createCategory(categoryData, false);
 
     if (newCategory) {
       this._showCreateCategoryDialog.set(false);
       this.resetCategoryForm();
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_CREATED'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_CREATED_MESSAGE')
-      });
     }
   }
 
@@ -677,29 +667,9 @@ export class AdminServicesPageComponent implements OnInit {
    * Toggle popular status of a service
    */
   async togglePopularStatus(service: FirebaseService): Promise<void> {
-    try {
-      const newPopularStatus = !service.popular;
-
-      const success = await this.firebaseServicesService.updateService(service.id!, {
-        popular: newPopularStatus
-      });
-
-      if (success) {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_UPDATED'),
-          detail: newPopularStatus
-            ? this.translateService.instant('ADMIN.SERVICES.SERVICE_MARKED_POPULAR', { name: service.name })
-            : this.translateService.instant('ADMIN.SERVICES.SERVICE_UNMARKED_POPULAR', { name: service.name })
-        });
-      }
-    } catch (error) {
-      console.error('Error toggling popular status:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.ERROR_TOGGLING_POPULAR')
-      });
-    }
+    const newPopularStatus = !service.popular;
+    await this.firebaseServicesService.updateService(service.id!, {
+      popular: newPopularStatus
+    }, false, false);
   }
 }

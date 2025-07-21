@@ -4,6 +4,7 @@
     <div class="header-content">
       <h1>🛠️ {{ 'ADMIN.SERVICES.TITLE' | translate }}</h1>
       <p>{{ 'ADMIN.SERVICES.SUBTITLE' | translate }}</p>
+
     </div>
     <div class="header-actions">
       <button
@@ -14,22 +15,22 @@
         class="p-button-primary"
         (click)="showCreateService()">
       </button>
-      <button
+      <!-- <button
         pButton
         type="button"
         label="{{ 'ADMIN.SERVICES.REFRESH' | translate }}"
         icon="pi pi-refresh"
         class="p-button-secondary"
         (click)="refreshServices()">
-      </button>
-      <button
+      </button> -->
+      <!-- <button
         pButton
         type="button"
         label="{{ 'ADMIN.SERVICES.MIGRATE_SERVICES' | translate }}"
         icon="pi pi-download"
         class="p-button-warning"
         (click)="migrateServices()">
-      </button>
+      </button> -->
       <button
         pButton
         type="button"
@@ -220,7 +221,7 @@
           <button
             class="btn btn-secondary"
             (click)="cancelDialog()">
-            {{ 'COMMON.CANCEL' | translate }}
+            {{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
           <button
             class="btn btn-primary"
@@ -339,20 +340,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="form-section">
-              <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
-              <div class="form-field">
-                <pelu-input-checkbox
-                  [config]="{
-                    label: 'ADMIN.SERVICES.MARK_AS_POPULAR',
-                    showLabel: true
-                  }"
-                  [value]="formData().popular || false"
-                  (valueChange)="formData().popular = $event">
-                </pelu-input-checkbox>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -360,12 +347,12 @@
           <button
             class="btn btn-secondary"
             (click)="cancelDialog()">
-            {{ 'COMMON.CANCEL' | translate }}
+            ❌&nbsp;{{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
           <button
             class="btn btn-primary"
             (click)="updateService()">
-            ✏️&nbsp;{{ 'ADMIN.SERVICES.EDIT_SERVICE' | translate }}
+            💾&nbsp;{{ 'COMMON.ACTIONS.SAVE' | translate }}
           </button>
         </div>
       </div>
@@ -442,7 +429,7 @@
           <button
             class="btn btn-secondary"
             (click)="closeCategoriesManager()">
-            {{ 'COMMON.CLOSE' | translate }}
+            {{ 'COMMON.ACTIONS.CLOSE' | translate }}
           </button>
         </div>
       </div>
