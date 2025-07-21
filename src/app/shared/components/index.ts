@@ -37,3 +37,7 @@ export type { ServiceCardConfig } from './service-card/service-card.component';
 export { ActionsButtonsComponent } from './actions-buttons';
 export type { ActionConfig, ActionContext } from '../../core/services/actions.service';
 
+// Popular badge component
+export { PopularBadgeComponent } from './popular-badge/popular-badge.component';
+export type { PopularBadgeConfig } from './popular-badge/popular-badge.component';
+
