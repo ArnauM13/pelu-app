@@ -14,7 +14,7 @@ import { BookingPopupComponent, BookingDetails } from '../../../shared/component
 import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
-import { ServicesService, Service } from '../../../core/services/services.service';
+import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -43,7 +43,7 @@ export class BookingPageComponent {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
-  private readonly servicesService = inject(ServicesService);
+  private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly toastService = inject(ToastService);
@@ -53,7 +53,7 @@ export class BookingPageComponent {
   readonly showBookingPopupSignal = signal(false);
   readonly serviceSelectionDetailsSignal = signal<ServiceSelectionDetails>({date: '', time: '', clientName: '', email: ''});
   readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
-  readonly availableServicesSignal = signal<Service[]>([]);
+  readonly availableServicesSignal = signal<FirebaseService[]>([]);
   readonly showLoginPromptSignal = signal(false);
 
   // Computed properties
@@ -86,11 +86,17 @@ export class BookingPageComponent {
 
   constructor() {
     this.loadServices();
+
+    // Listen for service updates to refresh services
+    window.addEventListener('serviceUpdated', () => {
+      this.loadServices();
+    });
   }
 
   private async loadServices() {
     try {
-      const services = this.servicesService.getAllServices();
+      await this.firebaseServicesService.loadServices();
+      const services = this.firebaseServicesService.activeServices();
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
@@ -158,7 +164,7 @@ export class BookingPageComponent {
     }
   }
 
-  onServiceSelected(event: {details: ServiceSelectionDetails, service: Service}) {
+  onServiceSelected(event: {details: ServiceSelectionDetails, service: FirebaseService}) {
     // Close service selection popup
     this.showServiceSelectionPopupSignal.set(false);
 
