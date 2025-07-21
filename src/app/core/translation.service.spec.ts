@@ -17,7 +17,7 @@ const mockTranslateService = {
   instant: jasmine.createSpy('instant').and.returnValue('translated text'),
   get: jasmine.createSpy('get').and.returnValue(of('translated text')),
   use: jasmine.createSpy('use'),
-  addLangs: jasmine.createSpy('addLangs'),
+  addLangs: jasmine.createSpy('addLangs').and.returnValue(undefined),
   getBrowserLang: jasmine.createSpy('getBrowserLang').and.returnValue('ca'),
   reloadLang: jasmine.createSpy('reloadLang')
 };
@@ -186,7 +186,7 @@ describe('TranslationService', () => {
 
   it('should restore user language preference', () => {
     spyOn(localStorage, 'getItem').and.returnValue('es');
-    spyOn(service, 'setLanguage');
+    spyOn(service, 'setLanguage' as any);
     service.restoreUserLanguagePreference('user123');
     expect(service.setLanguage).toHaveBeenCalledWith('es');
   });
