@@ -5,6 +5,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { CurrencyPipe } from '../../pipes/currency.pipe';
 import { ActionsButtonsComponent } from '../actions-buttons';
+import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 
 export interface ServiceCardConfig {
@@ -27,7 +28,8 @@ export interface ServiceCardConfig {
     TranslateModule,
     TooltipModule,
     CurrencyPipe,
-    ActionsButtonsComponent
+    ActionsButtonsComponent,
+    PopularBadgeComponent
   ],
   templateUrl: './service-card.component.html',
   styleUrls: ['./service-card.component.scss']

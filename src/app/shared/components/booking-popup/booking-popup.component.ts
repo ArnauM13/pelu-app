@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextComponent, InputEmailComponent } from '../inputs';
+import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -22,7 +23,7 @@ export interface BookingDetails {
 @Component({
   selector: 'pelu-booking-popup',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule, InputTextComponent, InputEmailComponent],
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule, InputTextComponent, InputEmailComponent, PopularBadgeComponent],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss']
 })

@@ -38,7 +38,15 @@
                   ⏱️ {{ formatDuration(bookingDetails().service!.duration) }}
                 </span>
                 @if (bookingDetails().service!.popular) {
-                  <span class="service-popular">⭐ {{ 'COMMON.POPULAR' | translate }}</span>
+                  <pelu-popular-badge
+                    [config]="{
+                      size: 'small',
+                      variant: 'default',
+                      showIcon: true,
+                      showText: true,
+                      text: 'COMMON.POPULAR'
+                    }">
+                  </pelu-popular-badge>
                 }
               </div>
 

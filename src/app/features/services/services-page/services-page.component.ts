@@ -7,12 +7,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TagModule } from 'primeng/tag';
 import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
+import { PopularBadgeComponent } from '../../../shared/components/popular-badge/popular-badge.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'pelu-services-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule, TagModule, CurrencyPipe],
+  imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule, TagModule, PopularBadgeComponent, CurrencyPipe],
   templateUrl: './services-page.component.html',
   styleUrls: ['./services-page.component.scss']
 })
@@ -26,12 +27,14 @@ export class ServicesPageComponent implements OnInit {
   readonly isLoading = computed(() => this.firebaseServicesService.isLoading());
   readonly year = computed(() => new Date().getFullYear());
 
-  // Services by category computed
+  // Services by category computed - only show categories with services
   readonly servicesByCategory = computed(() =>
-    this.firebaseServicesService.serviceCategories().map((category: any) => ({
-      ...category,
-      services: this.getServicesByCategory(category.id)
-    }))
+    this.firebaseServicesService.serviceCategories()
+      .map((category: any) => ({
+        ...category,
+        services: this.getServicesByCategory(category.id)
+      }))
+      .filter(category => category.services.length > 0) // Only show categories with services
   );
 
   // Popular services computed
