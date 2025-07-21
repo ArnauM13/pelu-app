@@ -14,23 +14,26 @@
   <div class="advanced-filters-section">
     <div class="filters-grid">
       <div class="filter-group">
-        <label for="filterDate">{{ 'COMMON.FILTERS.FILTER_BY_DATE' | translate }}</label>
-        <input
-          type="date"
-          id="filterDate"
+        <pelu-input-date
+          [config]="{
+            label: 'COMMON.FILTERS.FILTER_BY_DATE',
+            showLabel: true
+          }"
           [value]="filterDateValue()"
-          (input)="onDateChangeHandler($any($event.target).value)"
-          class="input">
+          (valueChange)="onDateChangeHandler($event)">
+        </pelu-input-date>
       </div>
       <div class="filter-group">
-        <label for="filterClient">{{ 'COMMON.FILTERS.FILTER_BY_CLIENT' | translate }}</label>
-        <input
-          type="text"
-          id="filterClient"
-          [value]="filterClientValue()"
-          (input)="onClientChangeHandler($any($event.target).value)"
-          [placeholder]="'COMMON.SEARCH.SEARCH_BY_NAME' | translate"
-          class="input">
+        <pelu-input-text
+          [config]="{
+            type: 'text',
+            label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
+            placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
+            showLabel: true
+          }"
+          [value]="filterClientValue() || ''"
+          (valueChange)="onClientChangeHandler($event)">
+        </pelu-input-text>
       </div>
     </div>
     <div class="reset-section">

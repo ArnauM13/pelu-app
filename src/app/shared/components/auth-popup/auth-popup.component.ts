@@ -2,9 +2,9 @@ import { Component, input, output, signal, computed, effect, OnDestroy, inject }
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, AbstractControl, ValidationErrors } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
+import { InputEmailComponent, InputPasswordComponent } from '../inputs';
 
 export interface AuthPopupConfig {
   mode: 'login' | 'register';
@@ -24,9 +24,10 @@ export interface AuthPopupConfig {
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    InputTextModule,
     ButtonModule,
-    TranslateModule
+    TranslateModule,
+    InputEmailComponent,
+    InputPasswordComponent
   ],
   templateUrl: './auth-popup.component.html',
   styleUrls: ['./auth-popup.component.scss']
@@ -73,6 +74,38 @@ export class AuthPopupComponent implements OnDestroy {
   });
 
   readonly isRepeatPasswordEnabled = computed(() => this.isFirstPasswordValid());
+
+  // Input configurations
+  readonly emailConfig = {
+    label: 'AUTH.EMAIL',
+    placeholder: 'AUTH.EMAIL',
+    required: true,
+    icon: 'pi pi-envelope',
+    iconPosition: 'left' as const,
+    autocomplete: 'email'
+  };
+
+  readonly passwordConfig = {
+    label: 'AUTH.PASSWORD',
+    placeholder: 'AUTH.PASSWORD',
+    required: true,
+    icon: 'pi pi-lock',
+    iconPosition: 'left' as const,
+    minlength: 6,
+    autocomplete: 'current-password',
+    showToggle: true
+  };
+
+  readonly repeatPasswordConfig = {
+    label: 'AUTH.REPEAT_PASSWORD',
+    placeholder: 'AUTH.PASSWORD',
+    required: true,
+    icon: 'pi pi-lock',
+    iconPosition: 'left' as const,
+    minlength: 6,
+    autocomplete: 'new-password',
+    showToggle: true
+  };
 
   constructor() {
     this.#initConfigEffect();

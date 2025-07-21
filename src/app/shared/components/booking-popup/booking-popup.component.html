@@ -40,35 +40,27 @@
 
       <!-- Client Name Input -->
       <div class="form-group">
-        <label>{{ 'COMMON.CLIENT_NAME' | translate }}:</label>
         @if (isAuthenticated()) {
           <div class="readonly-field">{{ currentUserName() }}</div>
         } @else {
-          <input
-            type="text"
-            class="form-input"
+          <pelu-input-text
+            [config]="clientNameConfig"
             [value]="clientName() || bookingDetails().clientName"
-            (input)="updateClientName($any($event.target).value)"
-            [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate">
+            (valueChange)="updateClientName($event.toString())">
+          </pelu-input-text>
         }
       </div>
 
       <!-- Email Input (Always required) -->
       <div class="form-group">
-        <label>{{ 'COMMON.EMAIL' | translate }}: <span class="required">*</span></label>
         @if (isAuthenticated()) {
           <div class="readonly-field">{{ currentUserEmail() }}</div>
         } @else {
-          <input
-            type="email"
-            class="form-input"
+          <pelu-input-email
+            [config]="emailConfig"
             [value]="email() || bookingDetails().email"
-            (input)="updateEmail($any($event.target).value)"
-            [placeholder]="'COMMON.ENTER_EMAIL' | translate"
-            [class.invalid]="email() && !isValidEmail(email())">
-          @if (email() && !isValidEmail(email())) {
-            <div class="error-message">{{ 'COMMON.VALIDATION.INVALID_EMAIL' | translate }}</div>
-          }
+            (valueChange)="updateEmail($event.toString())">
+          </pelu-input-email>
         }
       </div>
 

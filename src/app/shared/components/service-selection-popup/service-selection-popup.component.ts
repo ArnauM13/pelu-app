@@ -8,7 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
-import { Service, ServicesService } from '../../../core/services/services.service';
+import { FirebaseService, FirebaseServicesService } from '../../../core/services/firebase-services.service';
 
 export interface ServiceSelectionDetails {
   date: string;
@@ -37,7 +37,7 @@ export interface ServiceSelectionDetails {
 export class ServiceSelectionPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly serviceTranslationService = inject(ServiceTranslationService);
-  private readonly servicesService = inject(ServicesService);
+  private readonly firebaseServicesService = inject(FirebaseServicesService);
 
   // Input signals
   @Input() set open(value: boolean) {
@@ -48,7 +48,7 @@ export class ServiceSelectionPopupComponent {
   }
 
   // Output events
-  @Output() serviceSelected = new EventEmitter<{details: ServiceSelectionDetails, service: Service}>();
+  @Output() serviceSelected = new EventEmitter<{details: ServiceSelectionDetails, service: FirebaseService}>();
   @Output() cancelled = new EventEmitter<void>();
 
   // Internal signals
@@ -59,7 +59,7 @@ export class ServiceSelectionPopupComponent {
     clientName: '',
     email: ''
   });
-  private readonly selectedServiceSignal = signal<Service | null>(null);
+  private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
 
   // Computed signals
   readonly isOpen = computed(() => this.isOpenSignal());
@@ -67,14 +67,14 @@ export class ServiceSelectionPopupComponent {
   readonly selectedService = computed(() => this.selectedServiceSignal());
 
   // Available services from centralized service
-  readonly availableServices = computed(() => this.servicesService.getAllServices());
+  readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
 
   // Methods
-  onServiceSelect(service: Service): void {
+  onServiceSelect(service: FirebaseService): void {
     this.selectedServiceSignal.set(service);
   }
 
-  selectService(service: Service): void {
+  selectService(service: FirebaseService): void {
     this.selectedServiceSignal.set(service);
   }
 
@@ -112,7 +112,7 @@ export class ServiceSelectionPopupComponent {
   }
 
   // Helper methods
-  getServiceName(service: Service): string {
+  getServiceName(service: FirebaseService): string {
     // Use the service translation service to get the translated name
     return this.serviceTranslationService.translateServiceName(service.name);
   }
