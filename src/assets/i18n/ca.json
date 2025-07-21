@@ -317,6 +317,8 @@
       "QUICK_BOOKING": "Reserva Ràpida",
       "QUICK_BOOKING_LABEL": "Afegir nova cita ràpidament"
     },
+    "DELETE_CONFIRMATION_TITLE": "Eliminar cita",
+    "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la cita de {{clientName}} del {{date}}? Aquesta acció no es pot desfer.",
     "EDIT_APPOINTMENT_DESCRIPTION": "Modifica els detalls de la cita",
     "DELETE_APPOINTMENT_DESCRIPTION": "Elimina permanentment la cita"
   },
@@ -352,6 +354,16 @@
     "NOT_FOUND": {
       "TITLE": "Cita no trobada",
       "MESSAGE": "No s'ha pogut trobar la cita que busques. És possible que l'enllaç sigui incorrecte o que la cita hagi estat eliminada."
+    },
+    "FULLY_BOOKED_TITLE": "Dia completament ocupat",
+    "FULLY_BOOKED_MESSAGE": "Aquest dia té totes les hores ocupades. Si us plau, selecciona una altra data o prova amb una altra setmana.",
+    "SELECTION_REQUIRED": "Selecció requerida",
+    "SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
+    "SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",
+    "QUICK_SELECTION": {
+      "TODAY": "Avui",
+      "TOMORROW": "Demà",
+      "NEXT_AVAILABLE": "Pròxim disponible"
     }
   },
   "PROFILE": {
@@ -418,6 +430,11 @@
       "SERVICE_UPDATED_MESSAGE": "El servei s'ha actualitzat correctament",
       "SERVICE_DELETED": "Servei eliminat",
       "SERVICE_DELETED_MESSAGE": "El servei s'ha eliminat correctament",
+      "SERVICE_MARKED_POPULAR": "Servei marcat com a popular",
+      "SERVICE_UNMARKED_POPULAR": "Servei desmarcat com a popular",
+      "MARK_POPULAR": "Marcar com a popular",
+      "UNMARK_POPULAR": "Desmarcar com a popular",
+      "ERROR_TOGGLING_POPULAR": "Error al canviar l'estat popular del servei",
       "DELETE_CONFIRMATION": "Confirmar eliminació",
       "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar el servei \"{{name}}\"?",
       "MIGRATE_SERVICES": "Migrar Serveis",
@@ -442,6 +459,7 @@
       },
       "CATEGORIES": {
         "MANAGE_CATEGORIES": "Gestionar Categories",
+        "CREATE_NEW_CATEGORY": "Crear Nova Categoria",
         "CREATE_CATEGORY": "Crear Categoria",
         "EDIT_CATEGORY": "Editar Categoria",
         "DELETE_CATEGORY": "Eliminar Categoria",
@@ -450,7 +468,7 @@
         "CATEGORY_ICON": "Icona de la categoria",
         "CATEGORY_NAME_PLACEHOLDER": "Nom de la categoria",
         "CATEGORY_ID_PLACEHOLDER": "id-categoria",
-        "CATEGORY_ICON_PLACEHOLDER": "Seleccionar icona",
+        "CATEGORY_ICON_PLACEHOLDER": "Introdueix un emoji (ex: ✂️)",
               "CATEGORY_CREATED": "Categoria creada",
       "CATEGORY_CREATED_MESSAGE": "La categoria s'ha creat correctament",
       "CATEGORY_UPDATED": "Categoria actualitzada",
@@ -469,9 +487,16 @@
           "CATEGORY_NAME_REQUIRED": "El nom de la categoria és obligatori",
           "CATEGORY_ID_REQUIRED": "L'ID de la categoria és obligatori",
           "CATEGORY_ICON_REQUIRED": "La icona de la categoria és obligatòria",
-          "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
-          "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters"
-        }
+                  "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
+        "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters"
+      },
+      "EXISTING_CATEGORIES": "Categories existents",
+      "ADD_NEW_CATEGORY": "Afegir nova categoria",
+      "STATIC_CATEGORY": "Categoria estàtica",
+              "CANNOT_EDIT_STATIC": "No es pot editar (categoria estàtica)",
+        "NO_CATEGORIES": "No hi ha categories disponibles",
+        "ICON_HELP": "Introdueix un emoji directament amb el teclat. Pots utilitzar qualsevol emoji disponible al teu sistema.",
+        "ICON_EXAMPLES": "Exemples d'emojis"
       }
     },
     "SETTINGS_PAGE": {
