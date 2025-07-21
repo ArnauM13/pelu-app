@@ -19,7 +19,7 @@ export interface AppointmentStats {
         <div class="stat-icon">📅</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().total }}</div>
-          <div class="stat-label">{{ 'COMMON.TOTAL_APPOINTMENTS' | translate }}</div>
+          <div class="stat-label">{{ 'APPOINTMENTS.TOTAL_APPOINTMENTS' | translate }}</div>
         </div>
       </div>
 
@@ -27,7 +27,7 @@ export interface AppointmentStats {
         <div class="stat-icon">🎯</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().today }}</div>
-          <div class="stat-label">{{ 'COMMON.TODAY_APPOINTMENTS' | translate }}</div>
+          <div class="stat-label">{{ 'APPOINTMENTS.TODAY_APPOINTMENTS' | translate }}</div>
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export interface AppointmentStats {
         <div class="stat-icon">⏰</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().upcoming }}</div>
-          <div class="stat-label">{{ 'COMMON.UPCOMING_APPOINTMENTS' | translate }}</div>
+          <div class="stat-label">{{ 'APPOINTMENTS.UPCOMING_APPOINTMENTS' | translate }}</div>
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export interface AppointmentStats {
         <div class="stat-icon">👨</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().mine }}</div>
-          <div class="stat-label">{{ 'COMMON.MY_APPOINTMENTS' | translate }}</div>
+          <div class="stat-label">{{ 'APPOINTMENTS.MY_APPOINTMENTS' | translate }}</div>
         </div>
       </div>
     </div>

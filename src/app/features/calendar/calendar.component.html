@@ -74,7 +74,7 @@
                    [class.clickable]="isTimeSlotAvailable(day, time)"
                    [class.disabled]="isPastDate(day) || isPastTimeSlot(day, time) || isTimeSlotBlocked(time)"
                    [title]="getTimeSlotTooltip(day, time)"
-                   (click)="!isPastDate(day) && !isPastTimeSlot(day, time) && !isTimeSlotBlocked(time) && selectTimeSlot(day, time)">
+                   (click)="onTimeSlotClick(day, time)">
               </div>
             }
 

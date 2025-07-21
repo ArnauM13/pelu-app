@@ -59,23 +59,17 @@ export class CalendarBusinessService {
   }
 
   /**
-   * Check if a time slot is bookable (allows reservations until 12:30 and from 15:00)
+   * Check if a time slot is bookable (allows reservations except during lunch break)
    */
   isTimeSlotBookable(time: string): boolean {
-    const [hour, minute] = time.split(':').map(Number);
-
-    // Allow bookings until 12:30
-    if (hour < 12 || (hour === 12 && minute <= 30)) {
-      return true;
+    // If it's lunch break time, it's not bookable
+    if (this.isLunchBreak(time)) {
+      return false;
     }
 
-    // Allow bookings from 15:00 onwards
-    if (hour >= 15) {
-      return true;
-    }
-
-    // Block 12:30-15:00 (lunch break period)
-    return false;
+    // All other times during business hours are bookable
+    const [hour] = time.split(':').map(Number);
+    return hour >= this.businessConfig.hours.start && hour < this.businessConfig.hours.end;
   }
 
   /**
