@@ -28,7 +28,7 @@ export class ServicesPageComponent implements OnInit {
 
   // Services by category computed
   readonly servicesByCategory = computed(() =>
-    this.firebaseServicesService.serviceCategories().map(category => ({
+    this.firebaseServicesService.serviceCategories().map((category: any) => ({
       ...category,
       services: this.getServicesByCategory(category.id)
     }))
@@ -59,7 +59,7 @@ export class ServicesPageComponent implements OnInit {
   }
 
   get allServiceCategories(): any[] {
-    return this.firebaseServicesService.serviceCategories();
+    return this.firebaseServicesService.serviceCategories() || [];
   }
 
   getServicesByCategory(category: FirebaseService['category']): FirebaseService[] {

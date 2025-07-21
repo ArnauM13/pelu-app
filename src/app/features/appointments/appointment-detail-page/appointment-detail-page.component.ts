@@ -18,6 +18,7 @@ import { InfoItemComponent, InfoItemData } from '../../../shared/components/info
 import { AuthService } from '../../../core/auth/auth.service';
 import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
@@ -49,7 +50,8 @@ interface AppointmentForm {
     CalendarModule,
     TranslateModule,
     DetailViewComponent,
-    AppointmentDetailPopupComponent
+    AppointmentDetailPopupComponent,
+    AlertPopupComponent
   ],
   providers: [MessageService],
   templateUrl: './appointment-detail-page.component.html',
@@ -83,12 +85,18 @@ export class AppointmentDetailPageComponent implements OnInit {
     preu: 0
   });
 
+  // Delete confirmation signals
+  #showDeleteAlertSignal = signal<boolean>(false);
+  #deleteAlertDataSignal = signal<AlertData | null>(null);
+
   // Public computed signals
   readonly appointment = computed(() => this.#appointmentSignal());
   readonly loading = computed(() => this.#loadingSignal());
   readonly notFound = computed(() => this.#notFoundSignal());
   readonly isEditing = computed(() => this.#isEditingSignal());
   readonly editForm = computed(() => this.#editFormSignal());
+  readonly showDeleteAlert = computed(() => this.#showDeleteAlertSignal());
+  readonly deleteAlertData = computed(() => this.#deleteAlertDataSignal());
 
   // Computed properties
   readonly appointmentInfoItems = computed(() => {
@@ -249,8 +257,9 @@ export class AppointmentDetailPageComponent implements OnInit {
     const hasChanges = this.hasChanges();
     const canSave = this.canSave();
     const canEditOrDelete = this.canEditOrDelete();
+    const canDelete = this.canDelete();
 
-    // Build actions reactively - només el botó de tornar
+    // Build actions reactively
     const actions: DetailAction[] = [
       {
         label: 'COMMON.ACTIONS.BACK',
@@ -259,6 +268,26 @@ export class AppointmentDetailPageComponent implements OnInit {
         onClick: () => this.goBack()
       }
     ];
+
+    // Add edit action if user can edit
+    if (canEditOrDelete && !isEditing) {
+      actions.push({
+        label: 'COMMON.ACTIONS.EDIT',
+        icon: '✏️',
+        type: 'primary',
+        onClick: () => this.startEditing()
+      });
+    }
+
+    // Add delete action if user can delete
+    if (canDelete && !isEditing) {
+      actions.push({
+        label: 'COMMON.ACTIONS.DELETE',
+        icon: '🗑️',
+        type: 'danger',
+        onClick: () => this.showDeleteConfirmation()
+      });
+    }
 
     return {
       type: 'appointment',
@@ -288,8 +317,17 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     // Check if we should start in edit mode
     this.#route.queryParams.subscribe(params => {
-      if (params['edit'] === 'true' && this.appointment()) {
-        this.startEditing();
+      if (params['edit'] === 'true') {
+        // Wait for appointment to be loaded, then start editing
+        const checkAppointment = () => {
+          if (this.appointment()) {
+            this.startEditing();
+          } else {
+            // If appointment is not loaded yet, wait a bit and try again
+            setTimeout(checkAppointment, 100);
+          }
+        };
+        checkAppointment();
       }
     });
   }
@@ -324,6 +362,11 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     // Sinó, carreguem una cita normal
     await this.loadAppointmentById(uniqueId);
+
+    // Si estem en mode edició, iniciem l'edició automàticament
+    if (editMode) {
+      setTimeout(() => this.startEditing(), 100);
+    }
   }
 
   private async loadBookingByToken(token: string) {
@@ -614,6 +657,38 @@ export class AppointmentDetailPageComponent implements OnInit {
     }
   }
 
+  showDeleteConfirmation() {
+    const cita = this.appointment();
+    if (!cita) return;
+
+    const clientName = cita.nom || 'Client';
+    const appointmentDate = this.formatDate(cita.data);
+
+    const alertData: AlertData = {
+      title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
+      message: `Estàs segur que vols eliminar la cita de ${clientName} del ${appointmentDate}? Aquesta acció no es pot desfer.`,
+      emoji: '⚠️',
+      severity: 'danger',
+      confirmText: 'COMMON.ACTIONS.DELETE',
+      cancelText: 'COMMON.ACTIONS.CANCEL',
+      showCancel: true
+    };
+
+    this.#deleteAlertDataSignal.set(alertData);
+    this.#showDeleteAlertSignal.set(true);
+  }
+
+  onDeleteConfirmed() {
+    this.#showDeleteAlertSignal.set(false);
+    this.#deleteAlertDataSignal.set(null);
+    this.deleteAppointment();
+  }
+
+  onDeleteCancelled() {
+    this.#showDeleteAlertSignal.set(false);
+    this.#deleteAlertDataSignal.set(null);
+  }
+
   async deleteAppointment() {
     const cita = this.appointment();
     if (!cita) return;
@@ -624,7 +699,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       return;
     }
 
-          const success = await this.#appointmentService.deleteBooking(cita.id!);
+    const success = await this.#appointmentService.deleteBooking(cita.id!);
 
     if (success) {
       // Show success message
