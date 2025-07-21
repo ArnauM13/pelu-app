@@ -4,6 +4,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { CurrencyPipe } from '../../pipes/currency.pipe';
+import { ActionsButtonsComponent } from '../actions-buttons';
+import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 
 export interface ServiceCardConfig {
   showActions?: boolean;
@@ -24,7 +26,8 @@ export interface ServiceCardConfig {
     CommonModule,
     TranslateModule,
     TooltipModule,
-    CurrencyPipe
+    CurrencyPipe,
+    ActionsButtonsComponent
   ],
   templateUrl: './service-card.component.html',
   styleUrls: ['./service-card.component.scss']
@@ -47,6 +50,8 @@ export class ServiceCardComponent {
   @Output() editClick = new EventEmitter<FirebaseService>();
   @Output() deleteClick = new EventEmitter<FirebaseService>();
   @Output() togglePopularClick = new EventEmitter<FirebaseService>();
+
+  constructor(private actionsService: ActionsService) {}
 
   readonly isClickable = computed(() => this.config.clickable);
   readonly isSelected = computed(() => this.config.selected);
@@ -85,5 +90,15 @@ export class ServiceCardComponent {
       'general': 'SERVICES.CATEGORIES.GENERAL'
     };
     return categoryMap[category] || category;
+  }
+
+  get actionContext(): ActionContext {
+    return {
+      type: 'service',
+      item: this.service,
+      onEdit: () => this.editClick.emit(this.service),
+      onDelete: () => this.deleteClick.emit(this.service),
+      onTogglePopular: () => this.togglePopularClick.emit(this.service)
+    };
   }
 }

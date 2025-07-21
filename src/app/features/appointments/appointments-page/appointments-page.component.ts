@@ -22,6 +22,8 @@ import { AppointmentsListComponent } from '../components/appointments-list/appoi
 import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { ActionsButtonsComponent } from '../../../shared/components/actions-buttons';
+import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
@@ -46,7 +48,8 @@ import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigrat
     AppointmentsListComponent,
     AppointmentsViewControlsComponent,
     NextAppointmentComponent,
-    LoadingStateComponent
+    LoadingStateComponent,
+    ActionsButtonsComponent
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss']
@@ -57,6 +60,7 @@ export class AppointmentsPageComponent {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly appointmentService = inject(BookingService);
+  private readonly actionsService = inject(ActionsService);
 
     // Core data signals - now using Firebase
   readonly appointments = this.appointmentService.bookings;
@@ -165,6 +169,7 @@ export class AppointmentsPageComponent {
   // Computed calendar events
   readonly calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({
+      id: appointment.id || `appointment-${Date.now()}-${Math.random()}`,
       title: appointment.nom || 'Client',
       start: (appointment.data || '') + (appointment.hora ? 'T' + appointment.hora : 'T00:00'),
       duration: appointment.duration || 60,
@@ -391,6 +396,16 @@ export class AppointmentsPageComponent {
     const uniqueId = `${clientId}-${appointmentId}`;
 
     this.router.navigate(['/appointments', uniqueId]);
+  }
+
+  getActionContext(appointment: Booking): ActionContext {
+    return {
+      type: 'appointment',
+      item: appointment,
+      onEdit: () => this.editAppointment(appointment),
+      onDelete: () => this.deleteAppointment(appointment),
+      onView: () => this.viewAppointmentDetail(appointment)
+    };
   }
 }
 

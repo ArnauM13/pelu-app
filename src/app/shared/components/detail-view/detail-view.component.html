@@ -61,10 +61,8 @@
       }
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="content-grid" [class.editing-mode]="isEditing" [class.full-width]="!hasAvailableActions">
-      <!-- Left Column - Information Sections -->
-      <div class="info-column">
+      <!-- Card Content -->
+      <div class="card-content">
         <!-- Mobile Back Button -->
         @if (type === 'appointment' && appointment) {
         <div class="mobile-back-section">
@@ -234,10 +232,10 @@
           <div class="info-section">
             <div class="section-header">
               <h2>{{ section.title | translate }}</h2>
-              @if (section.onEdit && !section.isEditing) {
-                <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.ACTIONS.EDIT' | translate">
-                  <i class="edit-icon">✏️</i>
-                </button>
+              @if (i === 0 && hasAvailableActions && !isEditing && actionContext) {
+                <pelu-actions-buttons
+                  [context]="actionContext">
+                </pelu-actions-buttons>
               }
             </div>
 
@@ -288,76 +286,6 @@
           }
         }
       </div>
-
-      <!-- Right Column - Actions -->
-      @if (hasAvailableActions) {
-      <div class="actions-column">
-        <div class="actions-section">
-          <h2>{{ 'COMMON.ACTIONS.ACTIONS' | translate }}</h2>
-
-          <!-- Action Buttons Section (for appointments) -->
-          @if (hasAppointmentActions) {
-          <div class="appointment-actions-section">
-            @if (canEditAppointment()) {
-            <div class="action-item edit-action">
-              <div class="action-icon">✏️</div>
-              <div class="action-content">
-                <h3>{{ 'COMMON.ACTIONS.EDIT' | translate }}</h3>
-                <p>{{ 'APPOINTMENTS.EDIT_APPOINTMENT_DESCRIPTION' | translate }}</p>
-              </div>
-              <button
-                class="action-btn-small edit-btn"
-                (click)="onEdit()"
-                [title]="'COMMON.ACTIONS.EDIT' | translate">
-                →
-              </button>
-            </div>
-            }
-            @if (canDeleteAppointment()) {
-            <div class="action-item delete-action">
-              <div class="action-icon">🗑️</div>
-              <div class="action-content">
-                <h3>{{ 'COMMON.ACTIONS.DELETE' | translate }}</h3>
-                <p>{{ 'APPOINTMENTS.DELETE_APPOINTMENT_DESCRIPTION' | translate }}</p>
-              </div>
-              <button
-                class="action-btn-small delete-btn"
-                (click)="onDelete()"
-                [title]="'COMMON.ACTIONS.DELETE' | translate">
-                →
-              </button>
-            </div>
-            }
-          </div>
-          }
-
-          <!-- General Actions Grid -->
-          @if (hasGeneralActions) {
-          <div class="actions-grid">
-            @for (action of filteredActions; track action.label; let k = $index) {
-            @if (action.label !== 'COMMON.ACTIONS.EDIT' && action.label !== 'COMMON.ACTIONS.DELETE') {
-            <button
-              class="action-btn"
-              [class]="action.type || 'secondary'"
-              (click)="action.onClick()"
-              [disabled]="action.disabled"
-              *ngIf="!action.routerLink"
-            >
-              <i class="action-icon">{{ action.icon }}</i>
-              {{ action.label | translate }}
-            </button>
-            <a *ngIf="action.routerLink" [routerLink]="action.routerLink" class="action-btn" [class]="action.type || 'secondary'">
-              <i class="action-icon">{{ action.icon }}</i>
-              {{ action.label | translate }}
-            </a>
-            }
-            }
-          </div>
-          }
-        </div>
-      </div>
-      }
     </div>
-  </div>
   }
 </div>

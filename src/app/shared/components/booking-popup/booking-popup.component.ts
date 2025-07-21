@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject, effect } from '@angular/core';
+import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -27,6 +27,13 @@ export interface BookingDetails {
   styleUrls: ['./booking-popup.component.scss']
 })
 export class BookingPopupComponent {
+  // Inject services
+  #translate = inject(TranslateService);
+  #currencyService = inject(CurrencyService);
+  #authService = inject(AuthService);
+  #toastService = inject(ToastService);
+  #serviceTranslationService = inject(ServiceTranslationService);
+
   // Input signals
   readonly open = input<boolean>(false);
   readonly bookingDetails = input<BookingDetails>({date: '', time: '', clientName: '', email: ''});
@@ -38,14 +45,14 @@ export class BookingPopupComponent {
   readonly clientNameChanged = output<string>();
   readonly emailChanged = output<string>();
 
-  // Internal state
+  // Internal state signals
   readonly clientName = signal<string>('');
   readonly email = signal<string>('');
 
   // Computed properties
-  readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
-  readonly currentUserName = computed(() => this.authService.userDisplayName());
-  readonly currentUserEmail = computed(() => this.authService.user()?.email || '');
+  readonly isAuthenticated = computed(() => this.#authService.isAuthenticated());
+  readonly currentUserName = computed(() => this.#authService.userDisplayName());
+  readonly currentUserEmail = computed(() => this.#authService.user()?.email || '');
 
   readonly canConfirm = computed(() => {
     const details = this.bookingDetails();
@@ -83,13 +90,6 @@ export class BookingPopupComponent {
     iconPosition: 'left' as const,
     autocomplete: 'email'
   };
-
-  // Services
-  private readonly translate = inject(TranslateService);
-  readonly currencyService = inject(CurrencyService);
-  private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
-  private readonly serviceTranslationService = inject(ServiceTranslationService);
 
   constructor() {
     // Initialize form with authenticated user data if available
@@ -130,7 +130,7 @@ export class BookingPopupComponent {
   }
 
   formatPrice(price: number): string {
-    return this.currencyService.formatPrice(price);
+    return this.#currencyService.formatPrice(price);
   }
 
   formatDuration(duration: number): string {
@@ -147,7 +147,7 @@ export class BookingPopupComponent {
 
   getServiceName(service: FirebaseService): string {
     // Use the service translation service to get the translated name
-    return this.serviceTranslationService.translateServiceName(service.name);
+    return this.#serviceTranslationService.translateServiceName(service.name);
   }
 
   // Event handlers
@@ -168,22 +168,22 @@ export class BookingPopupComponent {
     const email = this.email() || details.email;
 
     if (!clientName.trim()) {
-      this.toastService.showValidationError('nom del client');
+      this.#toastService.showValidationError('nom del client');
       return;
     }
 
     if (!email.trim()) {
-      this.toastService.showValidationError('email');
+      this.#toastService.showValidationError('email');
       return;
     }
 
     if (!this.isValidEmail(email)) {
-      this.toastService.showValidationError('email vàlid');
+      this.#toastService.showValidationError('email vàlid');
       return;
     }
 
     if (!service) {
-      this.toastService.showValidationError('servei');
+      this.#toastService.showValidationError('servei');
       return;
     }
 
