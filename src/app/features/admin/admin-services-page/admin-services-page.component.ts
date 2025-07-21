@@ -22,6 +22,13 @@ import { UserService } from '../../../core/services/user.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
+import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
+import {
+  InputTextareaComponent,
+  InputSelectComponent,
+  InputNumberComponent,
+  InputCheckboxComponent
+} from '../../../shared/components/inputs';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
@@ -44,6 +51,11 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     CardComponent,
     LoadingStateComponent,
     AlertPopupComponent,
+    ServiceCardComponent,
+    InputTextareaComponent,
+    InputSelectComponent,
+    InputNumberComponent,
+    InputCheckboxComponent,
     CurrencyPipe
   ],
   providers: [ConfirmationService, MessageService],
@@ -66,6 +78,7 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly _selectedService = signal<FirebaseService | null>(null);
   private readonly _showCreateCategoryDialog = signal<boolean>(false);
   private readonly _showEditCategoryDialog = signal<boolean>(false);
+  private readonly _showCategoriesManagerDialog = signal<boolean>(false);
   private readonly _selectedCategory = signal<any>(null);
   private readonly _showAlertDialog = signal<boolean>(false);
   private readonly _alertData = signal<AlertData | null>(null);
@@ -97,6 +110,7 @@ export class AdminServicesPageComponent implements OnInit {
   readonly formData = computed(() => this._formData());
   readonly showCreateCategoryDialog = computed(() => this._showCreateCategoryDialog());
   readonly showEditCategoryDialog = computed(() => this._showEditCategoryDialog());
+  readonly showCategoriesManagerDialog = computed(() => this._showCategoriesManagerDialog());
   readonly selectedCategory = computed(() => this._selectedCategory());
   readonly categoryFormData = computed(() => this._categoryFormData());
   readonly showAlertDialog = computed(() => this._showAlertDialog());
@@ -455,21 +469,10 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   /**
-   * Create sample services for development
+   * Show categories manager dialog
    */
-  async createSampleServices(): Promise<void> {
-    this.confirmationService.confirm({
-      message: 'Vols crear serveis d\'exemple? Això afegirà serveis de prova a Firebase.',
-      header: this.translateService.instant('ADMIN.SERVICES.CREATE_SAMPLE_SERVICES'),
-      icon: 'pi pi-plus-circle',
-      accept: async () => {
-        const success = await this.firebaseServicesService.createSampleServices();
-        if (success) {
-          // Refresh services after creation
-          await this.refreshServices();
-        }
-      }
-    });
+  showCategoriesManager(): void {
+    this._showCategoriesManagerDialog.set(true);
   }
 
   /**
@@ -579,8 +582,16 @@ export class AdminServicesPageComponent implements OnInit {
   cancelCategoryDialog(): void {
     this._showCreateCategoryDialog.set(false);
     this._showEditCategoryDialog.set(false);
+    this._showCategoriesManagerDialog.set(false);
     this.resetCategoryForm();
     this._selectedCategory.set(null);
+  }
+
+  /**
+   * Close categories manager dialog
+   */
+  closeCategoriesManager(): void {
+    this._showCategoriesManagerDialog.set(false);
   }
 
   /**
@@ -660,5 +671,35 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     return true;
+  }
+
+  /**
+   * Toggle popular status of a service
+   */
+  async togglePopularStatus(service: FirebaseService): Promise<void> {
+    try {
+      const newPopularStatus = !service.popular;
+
+      const success = await this.firebaseServicesService.updateService(service.id!, {
+        popular: newPopularStatus
+      });
+
+      if (success) {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_UPDATED'),
+          detail: newPopularStatus
+            ? this.translateService.instant('ADMIN.SERVICES.SERVICE_MARKED_POPULAR', { name: service.name })
+            : this.translateService.instant('ADMIN.SERVICES.SERVICE_UNMARKED_POPULAR', { name: service.name })
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling popular status:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('COMMON.ERRORS.ERROR'),
+        detail: this.translateService.instant('ADMIN.SERVICES.ERROR_TOGGLING_POPULAR')
+      });
+    }
   }
 }
