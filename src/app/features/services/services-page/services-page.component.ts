@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { TagModule } from 'primeng/tag';
 import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -18,19 +19,16 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 export class ServicesPageComponent implements OnInit {
   // Inject services
   private readonly firebaseServicesService = inject(FirebaseServicesService);
+  private readonly translateService = inject(TranslateService);
 
-  // Core signals
-  private readonly _services = signal<FirebaseService[]>([]);
-  private readonly _isLoading = signal<boolean>(false);
-
-  // Public computed signals
-  readonly services = computed(() => this._services());
-  readonly isLoading = computed(() => this._isLoading());
+  // Public computed signals - Use Firebase service directly
+  readonly services = computed(() => this.firebaseServicesService.services());
+  readonly isLoading = computed(() => this.firebaseServicesService.isLoading());
   readonly year = computed(() => new Date().getFullYear());
 
   // Services by category computed
   readonly servicesByCategory = computed(() =>
-    this.firebaseServicesService.serviceCategories.map(category => ({
+    this.firebaseServicesService.serviceCategories().map((category: any) => ({
       ...category,
       services: this.getServicesByCategory(category.id)
     }))
@@ -48,28 +46,24 @@ export class ServicesPageComponent implements OnInit {
   }
 
   async loadServices() {
-    this._isLoading.set(true);
     try {
       await this.firebaseServicesService.loadServices();
-      this._services.set(this.firebaseServicesService.services());
     } catch (error) {
       console.error('Error loading services:', error);
-    } finally {
-      this._isLoading.set(false);
     }
   }
 
   // Get services and categories from the centralized service
   get allServices(): FirebaseService[] {
-    return this.services();
+    return this.firebaseServicesService.services();
   }
 
   get allServiceCategories(): any[] {
-    return this.firebaseServicesService.serviceCategories;
+    return this.firebaseServicesService.serviceCategories() || [];
   }
 
   getServicesByCategory(category: FirebaseService['category']): FirebaseService[] {
-    return this.services().filter(service => service.category === category);
+    return this.firebaseServicesService.getServicesByCategory(category);
   }
 
   getCategoryName(category: FirebaseService['category']): string {

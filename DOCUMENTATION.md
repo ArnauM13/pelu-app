@@ -1,45 +1,62 @@
-# 📚 PeluApp - Documentació Completa
+# 📚 PeluApp - Documentació Unificada
 
 ## 📋 Taula de Continguts
 
-1. [Descripció General](#descripció-general)
-2. [Instal·lació i Configuració](#instal·lació-i-configuració)
-3. [Arquitectura del Projecte](#arquitectura-del-projecte)
-4. [Stack Tecnològic](#stack-tecnològic)
-5. [Funcionalitats Principals](#funcionalitats-principals)
-6. [Components Compartits](#components-compartits)
-7. [Sistema de Traduccions](#sistema-de-traduccions)
-8. [Sistema de Permisos](#sistema-de-permisos)
-9. [Calendari i Reserves](#calendari-i-reserves)
-10. [Testing](#testing)
-11. [Desplegament](#desplegament)
-12. [Troubleshooting](#troubleshooting)
+### 🚀 [Inici Ràpid](#inici-ràpid)
+- [Descripció General](#descripció-general)
+- [Instal·lació i Configuració](#instal·lació-i-configuració)
+- [Comandaments de Desenvolupament](#comandaments-de-desenvolupament)
+
+### 🏗️ [Arquitectura](#arquitectura)
+- [Estructura del Projecte](#estructura-del-projecte)
+- [Stack Tecnològic](#stack-tecnològic)
+- [Patrons de Disseny](#patrons-de-disseny)
+
+### ⚡ [Funcionalitats Principals](#funcionalitats-principals)
+- [Sistema de Reserves](#sistema-de-reserves)
+- [Calendari Interactiu](#calendari-interactiu)
+- [Sistema de Permisos](#sistema-de-permisos)
+- [Multiidioma](#multiidioma)
+
+### 🧩 [Components Compartits](#components-compartits)
+- [Sistema d'Inputs Unificats](#sistema-dinputs-unificats)
+- [Components UI](#components-ui)
+- [Popups i Modals](#popups-i-modals)
+
+### 🔧 [Desenvolupament](#desenvolupament)
+- [Guies de Desenvolupament](#guies-de-desenvolupament)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+
+### 🚀 [Desplegament](#desplegament)
+- [Configuració de Firebase](#configuració-de-firebase)
+- [Desplegament a Producció](#desplegament-a-producció)
 
 ---
 
-## 🎯 Descripció General
+## 🚀 Inici Ràpid
+
+### Descripció General
 
 **PeluApp** és una aplicació web per a la gestió de reserves de perruqueria desenvolupada amb Angular 18. L'aplicació permet als usuaris veure horaris disponibles, fer reserves i als administradors gestionar cites i serveis.
 
 ### Característiques Principals
 - ✅ **Sistema de Reserves**: Creació i gestió de cites
-- ✅ **Calendari Interactiu**: Visualització en temps real
+- ✅ **Calendari Interactiu**: Visualització en temps real amb drag & drop
 - ✅ **Sistema de Permisos**: Rol-based access control
 - ✅ **Multiidioma**: Suport per català, castellà, anglès i àrab
 - ✅ **Responsive Design**: Optimitzat per mòbil i desktop
-- ✅ **Drag & Drop**: Reorganització de cites al calendari
 - ✅ **Notificacions**: Sistema de toast integrat
+- ✅ **Loader Global**: Indicador de càrrega consistent
 
----
+### Instal·lació i Configuració
 
-## 🚀 Instal·lació i Configuració
-
-### Prerequisits
+#### Prerequisits
 - Node.js 18.x LTS
 - npm o yarn
 - Angular CLI 18.2.0+
 
-### Instal·lació
+#### Instal·lació
 
 ```bash
 # Clonar el repositori
@@ -75,11 +92,16 @@ ng test
 npm run e2e
 # o
 ng e2e
+
+# Desplegament
+firebase deploy
 ```
 
 ---
 
-## 🏗️ Arquitectura del Projecte
+## 🏗️ Arquitectura
+
+### Estructura del Projecte
 
 ```
 src/
@@ -99,468 +121,483 @@ src/
 │   │   ├── profile/         # Gestió de perfil
 │   │   └── services/        # Gestió de serveis
 │   ├── shared/              # Components compartits
-│   │   ├── components/      # Components reutilitzables
-│   │   ├── directives/      # Directives personalitzades
-│   │   ├── pipes/           # Pipes personalitzades
+│   │   ├── components/      # Components UI
+│   │   ├── pipes/           # Pipes personalitzats
 │   │   └── services/        # Serveis compartits
-│   └── ui/                  # Components d'interfície
-│       └── layout/          # Components de layout
+│   └── ui/                  # Layout i navegació
 ├── assets/                  # Recursos estàtics
-│   ├── i18n/               # Fitxers de traducció
-│   ├── images/             # Imatges
-│   └── themes/             # Temes CSS
-└── environments/           # Configuracions per entorn
+│   ├── i18n/               # Traduccions
+│   └── images/             # Imatges
+└── environments/           # Configuracions d'entorn
 ```
 
----
+### Stack Tecnològic
 
-## 🛠️ Stack Tecnològic
+- **Frontend**: Angular 18
+- **UI Framework**: PrimeNG + PrimeFlex
+- **Backend**: Firebase (Firestore, Auth, Hosting)
+- **Estil**: SCSS + CSS Variables
+- **Testing**: Jasmine + Karma
+- **Build**: Angular CLI + Vite
+- **Deployment**: Firebase Hosting
 
-### Frontend Stack
+### Patrons de Disseny
 
-| Paquet                | Versió Recomanada | Notes                                    |
-| --------------------- | ----------------- | ---------------------------------------- |
-| `@angular/core`       | `^18.2.0`         | El nucli d'Angular 18 estable            |
-| `@angular/cli`        | `^18.2.0`         | Per generar, servir i compilar           |
-| `@angular/animations` | `^18.2.0`         | Necessari per components com `Dialog`    |
-| `primeng`             | `18`              | Compatible amb Angular 18                |
-| `primeicons`          | `^6.1.1`          | Icons per botons, menús, etc.            |
-| `primeflex`           | `^3.3.1`          | Utilitats CSS per layout i estil ràpid   |
-| `rxjs`                | `^7.8.1`          | Ja ve amb Angular, versió 7.x estable    |
-| `typescript`          | `~5.4.5`          | Compatible amb Angular 18                |
-| `@ngx-translate/core` | `^16.0.0`         | Sistema de traduccions                   |
-| `date-fns`            | `^3.0.0`          | Manipulació de dates                     |
-| `uuid`                | `^10.0.0`         | Generació d'IDs únics                    |
-
-### Backend Stack
-
-| Paquet        | Versió Recomanada    | Notes                                      |
-| ------------- | -------------------- | ------------------------------------------ |
-| `firebase`    | `^10.0.0`            | Backend as a Service                       |
-| `firestore`   | `^4.0.0`             | Base de dades NoSQL                        |
-| `firebase/auth` | `^1.0.0`           | Autenticació                               |
-| `node`        | `18.x` LTS           | Estable, compatible amb la majoria de dep. |
-
-### Testing Stack
-
-| Eina       | Ús                                        |
-| ---------- | ----------------------------------------- |
-| `Jest`     | Testing d'unitat (millor que Karma)       |
-| `Cypress`  | Testing e2e si vols testar fluxos sencers |
-| `ESLint`   | Bona pràctica per mantenir el codi net    |
-| `Prettier` | Formatador automàtic                      |
+- **Feature-based Architecture**: Organització per funcionalitats
+- **Signal-based State Management**: Angular Signals per estat reactiu
+- **Component Composition**: Components reutilitzables
+- **Service Layer Pattern**: Lògica de negoci en serveis
+- **Guard Pattern**: Protecció de rutes
 
 ---
 
 ## ⚡ Funcionalitats Principals
 
 ### Sistema de Reserves
-- **Creació de Reserves**: Interfície intuïtiva per crear noves cites
-- **Gestió de Citas**: Edició, eliminació i reorganització
-- **Validació**: Comprovació d'horaris disponibles
-- **Notificacions**: Confirmacions per email
+
+El sistema de reserves permet als usuaris crear i gestionar cites de perruqueria.
+
+#### Flux de Booking
+
+**Flux Mòbil Optimitzat**:
+```
+1. Usuari selecciona data
+   ↓
+2. Usuari selecciona servei
+   ↓
+3. Usuari selecciona hora
+   ↓
+4. Es mostra directament el popup de confirmació
+```
+
+**Flux Desktop**:
+```
+1. Usuari selecciona data
+   ↓
+2. Usuari selecciona hora
+   ↓
+3. Es mostra popup de selecció de serveis
+   ↓
+4. Usuari selecciona servei al popup
+   ↓
+5. Es mostra popup de confirmació
+```
+
+#### Característiques del Sistema
+
+- ✅ **Selecció de Data**: Calendari interactiu amb navegació per setmanes
+- ✅ **Selecció de Servei**: Llista de serveis disponibles amb preus
+- ✅ **Selecció d'Hora**: Horaris disponibles en temps real
+- ✅ **Confirmació**: Popup de confirmació amb tots els detalls
+- ✅ **Validacions**: Verificació de disponibilitat i dades requerides
+- ✅ **Notificacions**: Feedback immediat per accions d'usuari
+
+#### Sincronització de Serveis
+
+El sistema manté sincronitzats els serveis entre totes les pàgines:
+
+```typescript
+// Event system per sincronització
+window.dispatchEvent(new CustomEvent('serviceUpdated'));
+
+// Listener en components
+window.addEventListener('serviceUpdated', () => {
+  this.loadServices();
+});
+```
+
+**Cache Management**:
+- Durada: 5 minuts
+- Clau: `pelu-services-cache`
+- Timestamp: `pelu-services-cache-timestamp`
 
 ### Calendari Interactiu
-- **Vista Setmanal**: Visualització per setmanes
-- **Drag & Drop**: Reorganització de cites
-- **Reserves Públiques**: Visualització diferent per reserves d'altres usuaris
-- **Loader**: Indicador de càrrega fins que les dades estan disponibles
+
+El calendari proporciona una visualització interactiva de les cites i horaris.
+
+#### Característiques
+
+- ✅ **Vista Setmanal**: Navegació per setmanes
+- ✅ **Drag & Drop**: Reorganització de cites
+- ✅ **Estats Visuals**: Diferents colors per tipus de cita
+- ✅ **Responsive**: Adaptació a mòbil i desktop
+- ✅ **Temps Real**: Actualització automàtica
+
+#### Estats de Cita
+
+- **🟢 Disponible**: Hora lliure
+- **🔴 Ocupada**: Cita confirmada
+- **🟡 Pendent**: Cita pendent de confirmació
+- **⚫ Bloquejada**: Hora no disponible
 
 ### Sistema de Permisos
-- **Super Admin**: Accés complet a totes les reserves
-- **Usuaris Autenticats**: Veuen només les seves reserves
-- **Usuaris Convidats**: Veuen només reserves públiques
+
+Sistema de control d'accés basat en rols.
+
+#### Rols Disponibles
+
+- **👤 Usuari**: Crear i veure les seves cites
+- **👨‍💼 Admin**: Gestió completa de cites i serveis
+- **🔒 Anònim**: Només veure horaris disponibles
+
+#### Guards de Ruta
+
+```typescript
+// Auth Guard - Requereix autenticació
+@Injectable()
+export class AuthGuard {
+  canActivate(): boolean {
+    return this.authService.isAuthenticated();
+  }
+}
+
+// Admin Guard - Requereix rol d'admin
+@Injectable()
+export class AdminGuard {
+  canActivate(): boolean {
+    return this.authService.isAdmin();
+  }
+}
+```
+
+### Multiidioma
+
+Sistema de traduccions amb suport per múltiples idiomes.
+
+#### Idiomes Suportats
+
+- 🇪🇸 **Català** (ca) - Idioma principal
+- 🇪🇸 **Castellà** (es)
+- 🇬🇧 **Anglès** (en)
+- 🇸🇦 **Àrab** (ar)
+
+#### Estructura de Traduccions
+
+```
+assets/i18n/
+├── ca.json      # Català
+├── es.json      # Castellà
+├── en.json      # Anglès
+└── ar.json      # Àrab
+```
+
+#### Ús en Components
+
+```typescript
+// Injecció del servei
+private readonly translateService = inject(TranslateService);
+
+// Canvi d'idioma
+this.translateService.use('en');
+
+// Traducció en template
+{{ 'COMMON.SAVE' | translate }}
+```
 
 ---
 
 ## 🧩 Components Compartits
 
-### Profile Dropdown Component
+### Sistema d'Inputs Unificats
 
-Component reutilitzable que proporciona un menú d'usuari consistent a tota l'aplicació.
+Sistema complet d'inputs amb mides i estils consistents.
 
-#### Característiques
-- ✅ **User Avatar Display**: Mostra avatar d'usuari amb fallback a inicials
-- ✅ **User Information**: Mostra nom i email d'usuari
-- ✅ **Admin Access Control**: Mostra automàticament elements d'admin per usuaris admin
-- ✅ **Customizable Items**: Suport per elements de menú personalitzats
-- ✅ **Responsive Design**: Funciona a mòbil i desktop
-- ✅ **Accessibility**: Etiquetes ARIA i navegació per teclat
-- ✅ **Internationalization**: Suport per claus de traducció
+#### Components Disponibles
 
-#### Ús Bàsic
+##### 1. **Input Text** (`pelu-input-text`)
+Per a entrades de text d'una sola línia.
 
 ```typescript
-import { ProfileDropdownComponent } from '@shared/components/profile-dropdown';
+<pelu-input-text
+  [config]="{
+    type: 'text',
+    label: 'Nom',
+    placeholder: 'Introdueix el teu nom',
+    required: true,
+    showLabel: true
+  }"
+  [value]="formData.name"
+  (valueChange)="onNameChange($event)">
+</pelu-input-text>
+```
+
+**Mida unificada**: 44px d'alçada
+
+##### 2. **Input Textarea** (`pelu-input-textarea`)
+Per a entrades de text llarg amb múltiples línies.
+
+```typescript
+<pelu-input-textarea
+  [config]="{
+    label: 'Descripció',
+    placeholder: 'Introdueix una descripció...',
+    rows: 4,
+    autoResize: true,
+    showLabel: true
+  }"
+  [value]="formData.description"
+  (valueChange)="onDescriptionChange($event)">
+</pelu-input-textarea>
+```
+
+**Mida unificada**: 80px d'alçada mínima (mòbil: 88px)
+
+##### 3. **Input Email** (`pelu-input-email`)
+Per a entrades d'email amb validació.
+
+##### 4. **Input Password** (`pelu-input-password`)
+Per a contrasenyes amb opció de mostrar/amagar.
+
+##### 5. **Input Number** (`pelu-input-number`)
+Per a entrades numèriques.
+
+##### 6. **Input Date** (`pelu-input-date`)
+Per a selecció de dates.
+
+##### 7. **Input Select** (`pelu-input-select`)
+Per a selecció d'opcions amb suport per colors.
+
+##### 8. **Input Checkbox** (`pelu-input-checkbox`)
+Per a caselles de selecció.
+
+#### Característiques Unificades
+
+##### **Mides Consistents**
+- **Inputs de text**: 44px d'alçada
+- **Textareas**: 80px d'alçada mínima (mòbil: 88px)
+- **Bordes**: 2px amb border-radius de 8px
+- **Padding**: 0.75rem
+
+##### **Estats Visuals**
+- **Normal**: Border gris clar (#e5e7eb)
+- **Focus**: Border blau (#1e40af) amb shadow
+- **Error**: Border vermell (#dc2626) amb shadow
+- **Success**: Border verd (#16a34a) amb shadow
+- **Disabled**: Opacitat 0.6, cursor not-allowed
+
+##### **Funcionalitats Comunes**
+- ✅ ControlValueAccessor implementat
+- ✅ Suport per traduccions
+- ✅ Estats d'error, ajuda i èxit
+- ✅ Responsive design
+- ✅ Dark mode support
+- ✅ Accessibilitat
+
+#### Ús Ràpid
+
+```typescript
+import { InputTextComponent, InputTextareaComponent } from '@shared/components/inputs';
 
 @Component({
-  imports: [ProfileDropdownComponent],
-  template: `
-    <pelu-profile-dropdown></pelu-profile-dropdown>
-  `
-})
-export class MyComponent {}
-```
-
-#### Amb Elements Personalitzats
-
-```typescript
-import { ProfileDropdownComponent, ProfileDropdownItem } from '@shared/components/profile-dropdown';
-
-@Component({
-  imports: [ProfileDropdownComponent],
-  template: `
-    <pelu-profile-dropdown 
-      [customItems]="customItems()"
-      (itemClicked)="onItemClicked($event)">
-    </pelu-profile-dropdown>
-  `
+  imports: [InputTextComponent, InputTextareaComponent]
 })
 export class MyComponent {
-  readonly customItems = computed((): ProfileDropdownItem[] => [
-    {
-      label: 'HELP.MENU',
-      icon: 'pi pi-question-circle',
-      onClick: () => this.showHelp()
-    },
-    {
-      label: 'SETTINGS.MENU',
-      icon: 'pi pi-cog',
-      routerLink: '/settings'
-    },
-    { type: 'divider' },
-    {
-      label: 'CUSTOM.LOGOUT',
-      icon: 'pi pi-sign-out',
-      type: 'danger',
-      onClick: () => this.customLogout()
-    }
-  ]);
-
-  onItemClicked(item: ProfileDropdownItem) {
-    console.log('Item clicked:', item);
-  }
-}
-```
-
-#### Propietats d'Entrada
-
-| Propietat | Tipus | Per Defecte | Descripció |
-|-----------|-------|-------------|------------|
-| `customItems` | `ProfileDropdownItem[]` | `[]` | Elements de menú personalitzats |
-| `showAdminItems` | `boolean` | `true` | Si mostrar elements de menú d'admin |
-
-#### Events de Sortida
-
-| Event | Tipus | Descripció |
-|-------|-------|------------|
-| `itemClicked` | `ProfileDropdownItem` | Emès quan es clica un element del menú |
-
-#### Interfície ProfileDropdownItem
-
-```typescript
-interface ProfileDropdownItem {
-  label?: string;           // Clau de traducció per l'etiqueta
-  icon?: string;            // Classe CSS per la icona (e.g., 'pi pi-user')
-  routerLink?: string;      // Enllaç del router per navegació
-  onClick?: () => void;     // Funció manejadora del clic
-  disabled?: boolean;       // Si l'element està deshabilitat
-  type?: 'default' | 'danger' | 'divider'; // Tipus d'element
-}
-```
-
-### Loader Component
-
-Component de loader global que proporciona una experiència de càrrega consistent a tota l'aplicació.
-
-#### Característiques
-- ✅ **Loader Global**: Ocupa sempre el 100% de la pantalla
-- ✅ **Servei Centralitzat**: Es gestiona des d'un servei
-- ✅ **Configuració Flexible**: Missatges personalitzats, amb/sense spinner
-- ✅ **Fons Consistent**: Mateix gradient que la resta de l'app
-- ✅ **Responsive**: Funciona perfectament a mòbil i desktop
-- ✅ **Z-index Alt**: Sempre apareix per sobre de tot
-
-#### Ús Bàsic
-
-```typescript
-import { LoaderService } from '@shared/components/loader';
-
-export class MyComponent {
-  constructor(private loaderService: LoaderService) {}
-
-  async loadData(): Promise<void> {
-    this.loaderService.showWithMessage('Carregant dades...');
-    
-    try {
-      await this.dataService.load();
-    } finally {
-      this.loaderService.hide();
-    }
-  }
-}
-```
-
-#### Mètodes Disponibles
-
-| Mètode | Descripció |
-|--------|------------|
-| `show(config?: LoaderConfig)` | Mostra el loader amb configuració opcional |
-| `hide()` | Amaga el loader |
-| `showWithMessage(message: string)` | Mostra el loader amb missatge personalitzat |
-| `showInline(config?: LoaderConfig)` | Mostra el loader sense overlay |
-| `showMessageOnly(message: string)` | Mostra només el missatge sense spinner |
-
-#### Configuració
-
-```typescript
-interface LoaderConfig {
-  message?: string;        // Missatge a mostrar
-  showSpinner?: boolean;   // Si mostrar el spinner (per defecte: true)
-  overlay?: boolean;       // Si mostrar overlay (per defecte: true)
-}
-```
-
----
-
-## 🌐 Sistema de Traduccions
-
-L'aplicació utilitza `@ngx-translate/core` per gestionar les traduccions.
-
-### Idiomes Suportats
-- **Català** (`ca`) - Idioma per defecte
-- **Castellà** (`es`)
-- **Anglès** (`en`)
-- **Àrab** (`ar`)
-
-### Estructura de Fitxers
-
-```
-src/assets/i18n/
-├── ca.json          # Traduccions en català
-├── es.json          # Traduccions en castellà
-├── en.json          # Traduccions en anglès
-└── ar.json          # Traduccions en àrab
-```
-
-### Ús en Components
-
-```typescript
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-
-@Component({
-  imports: [TranslateModule],
-  template: `
-    <h1>{{ 'COMMON.TITLE' | translate }}</h1>
-    <p>{{ 'COMMON.DESCRIPTION' | translate: { name: userName } }}</p>
-  `
-})
-export class MyComponent {
-  constructor(private translateService: TranslateService) {}
-
-  changeLanguage(lang: string) {
-    this.translateService.use(lang);
-  }
-}
-```
-
-### Estructura de Claus
-
-```json
-{
-  "COMMON": {
-    "TITLE": "Títol",
-    "DESCRIPTION": "Descripció",
-    "ACTIONS": {
-      "SAVE": "Desar",
-      "CANCEL": "Cancel·lar"
-    },
-    "STATUS": {
-      "LOADING": "Carregant...",
-      "SUCCESS": "Èxit",
-      "ERROR": "Error"
-    }
-  }
-}
-```
-
----
-
-## 🔐 Sistema de Permisos
-
-### Rols Disponibles
-
-1. **Super Admin**: Accés complet a totes les funcionalitats
-2. **Usuari Autenticat**: Accés a les seves pròpies reserves
-3. **Usuari Convidat**: Accés limitat a reserves públiques
-
-### Implementació
-
-```typescript
-import { RoleService } from '@core/services/role.service';
-
-export class MyComponent {
-  constructor(private roleService: RoleService) {}
-
-  canEditBooking(): boolean {
-    return this.roleService.isAdmin() || this.isOwnBooking();
-  }
-
-  canViewAllBookings(): boolean {
-    return this.roleService.isAdmin();
-  }
-}
-```
-
-### Guards de Ruta
-
-```typescript
-import { AdminGuard } from '@core/guards/admin.guard';
-import { AuthGuard } from '@core/guards/auth.guard';
-
-const routes: Routes = [
-  {
-    path: 'admin',
-    canActivate: [AdminGuard],
-    children: [
-      { path: 'dashboard', component: AdminDashboardComponent },
-      { path: 'settings', component: AdminSettingsComponent }
-    ]
-  },
-  {
-    path: 'profile',
-    canActivate: [AuthGuard],
-    component: ProfileComponent
-  }
-];
-```
-
----
-
-## 📅 Calendari i Reserves
-
-### Característiques del Calendari
-
-- **Vista Setmanal**: Visualització per setmanes amb horaris de treball
-- **Drag & Drop**: Reorganització de cites amb feedback visual
-- **Reserves Públiques**: Visualització diferent per reserves d'altres usuaris
-- **Loader**: Indicador de càrrega fins que les dades estan disponibles
-
-### Visualització de Reserves
-
-#### Reserves Pròpies
-- Colors segons el servei
-- Mostra nom del client, servei i durada
-- Permet drag & drop
-- Permet veure detalls
-
-#### Reserves Públiques
-- Color vermell (#dc3545)
-- Text "Reservada" (traduït)
-- No mostra servei ni durada
-- No permet drag & drop
-- No permet veure detalls
-
-### Implementació
-
-```typescript
-// En calendar.component.ts
-readonly allEvents = computed((): AppointmentEvent[] => {
-  const appointments = this.appointments() || [];
-  const currentUser = this.authService.user();
-  const isAdmin = this.roleService.isAdmin();
-  
-  return appointments.map(c => {
-    const isOwnBooking = !!(currentUser?.uid && c.uid === currentUser.uid);
-    const isPublicBooking = !isAdmin && !isOwnBooking && c.nom === 'Ocupat';
-
-    return {
-      id: c.id || uuidv4(),
-      title: isPublicBooking ? this.translateService.instant('COMMON.STATUS.RESERVED') : (c.nom || 'Client'),
-      start: startString,
-      end: endString,
-      duration: duration,
-      serviceName: c.serviceName || c.servei || '',
-      clientName: c.nom || 'Client',
-      isPublicBooking: isPublicBooking,
-      isOwnBooking: isOwnBooking,
-      canDrag: isAdmin || isOwnBooking,
-      canViewDetails: isAdmin || isOwnBooking
-    };
+  formData = signal({
+    name: '',
+    description: ''
   });
-});
+
+  updateField(field: string, value: any) {
+    this.formData.update(data => ({ ...data, [field]: value }));
+  }
+}
 ```
 
-### Estils CSS
+```html
+<!-- Input de text (una línia) -->
+<pelu-input-text
+  [config]="{ label: 'Nom', placeholder: 'Nom complet', showLabel: true }"
+  [value]="formData().name"
+  (valueChange)="updateField('name', $event)">
+</pelu-input-text>
 
-```scss
-/* Public Booking Styles */
-.appointment.public-booking {
-  background-color: #dc3545 !important;
-  border-color: #c82333 !important;
-  color: white !important;
-  cursor: default !important;
-}
+<!-- Input textarea (text llarg) -->
+<pelu-input-textarea
+  [config]="{ label: 'Descripció', placeholder: 'Descripció detallada...', rows: 4, showLabel: true }"
+  [value]="formData().description"
+  (valueChange)="updateField('description', $event)">
+</pelu-input-textarea>
+```
 
-.appointment.public-booking:hover {
-  background-color: #c82333 !important;
-  border-color: #bd2130 !important;
-  transform: none !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
-}
+### Components UI
 
-.appointment.no-drag {
-  cursor: default !important;
-}
+#### Card Component (`pelu-card`)
+Component base per contenidors amb estil consistent.
 
-.appointment.no-drag .drag-handle {
-  display: none !important;
-}
+```html
+<pelu-card>
+  <h2>Títol del Card</h2>
+  <p>Contingut del card...</p>
+</pelu-card>
+```
+
+#### Toast Component (`pelu-toast`)
+Sistema de notificacions unificat.
+
+```typescript
+// Injecció del servei
+private readonly toastService = inject(ToastService);
+
+// Mostrar notificació
+this.toastService.showSuccess('Operació completada amb èxit');
+this.toastService.showError('Hi ha hagut un error');
+this.toastService.showInfo('Informació important');
+this.toastService.showWarning('Advertència');
+```
+
+#### Loader Component (`pelu-loader`)
+Indicador de càrrega global.
+
+```html
+<pelu-loader [loading]="isLoading()" [message]="'Carregant...'">
+  <!-- Contingut que es mostra quan no carrega -->
+</pelu-loader>
+```
+
+#### Not Found State (`pelu-not-found-state`)
+Component per mostrar estats de "no trobat".
+
+```html
+<pelu-not-found-state
+  [title]="'No s\'han trobat resultats'"
+  [message]="'Prova amb altres filtres'"
+  [actionText]="'Tornar'"
+  (actionClick)="goBack()">
+</pelu-not-found-state>
+```
+
+### Popups i Modals
+
+#### Booking Popup (`pelu-booking-popup`)
+Popup de confirmació de reserves.
+
+```html
+<pelu-booking-popup
+  [open]="showBookingPopup()"
+  [bookingDetails]="bookingDetails()"
+  (confirmed)="onBookingConfirmed($event)"
+  (cancelled)="onBookingCancelled()">
+</pelu-booking-popup>
+```
+
+#### Auth Popup (`pelu-auth-popup`)
+Popup d'autenticació.
+
+```html
+<pelu-auth-popup
+  [open]="showAuthPopup()"
+  [mode]="'login'"
+  (authenticated)="onAuthenticated($event)"
+  (cancelled)="onAuthCancelled()">
+</pelu-auth-popup>
+```
+
+#### Confirmation Popup (`pelu-confirmation-popup`)
+Popup de confirmació genèric.
+
+```html
+<pelu-confirmation-popup
+  [open]="showConfirmPopup()"
+  [title]="'Confirmar acció'"
+  [message]="'Estàs segur que vols continuar?'"
+  [confirmText]="'Confirmar'"
+  [cancelText]="'Cancel·lar'"
+  (confirmed)="onConfirmed()"
+  (cancelled)="onCancelled()">
+</pelu-confirmation-popup>
 ```
 
 ---
 
-## 🧪 Testing
+## 🔧 Desenvolupament
 
-### Testing d'Unitat
+### Guies de Desenvolupament
 
-```bash
-# Executar tests unitaris
-npm test
+#### Creació de Components
 
-# Executar tests amb cobertura
-npm run test:coverage
-
-# Executar tests en mode watch
-npm run test:watch
+1. **Estructura de Carpetes**:
+```
+feature-name/
+├── component-name/
+│   ├── component-name.component.html
+│   ├── component-name.component.scss
+│   ├── component-name.component.ts
+│   └── component-name.component.spec.ts
 ```
 
-### Testing e2e
+2. **Template del Component**:
+```typescript
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-```bash
-# Executar tests e2e
-npm run e2e
-
-# Executar tests e2e en mode headless
-npm run e2e:headless
+@Component({
+  selector: 'pelu-component-name',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './component-name.component.html',
+  styleUrls: ['./component-name.component.scss']
+})
+export class ComponentNameComponent {
+  // Lògica del component
+}
 ```
 
-### Estructura de Tests
+#### Gestió d'Estat amb Signals
 
-```
-src/
-├── app/
-│   └── **/*.spec.ts        # Tests unitaris
-└── testing/
-    ├── firebase-mocks.ts   # Mocks de Firebase
-    └── translation-mocks.ts # Mocks de traduccions
+```typescript
+export class MyComponent {
+  // Signals per estat reactiu
+  private readonly dataSignal = signal<any[]>([]);
+  private readonly loadingSignal = signal<boolean>(false);
+  private readonly errorSignal = signal<string | null>(null);
+
+  // Computed values
+  readonly hasData = computed(() => this.dataSignal().length > 0);
+  readonly isEmpty = computed(() => !this.loadingSignal() && this.dataSignal().length === 0);
+
+  // Mètodes per actualitzar estat
+  updateData(newData: any[]) {
+    this.dataSignal.set(newData);
+  }
+
+  setLoading(loading: boolean) {
+    this.loadingSignal.set(loading);
+  }
+
+  setError(error: string | null) {
+    this.errorSignal.set(error);
+  }
+}
 ```
 
-### Exemple de Test
+#### Serveis amb Dependency Injection
+
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MyService {
+  private readonly http = inject(HttpClient);
+
+  getData() {
+    return this.http.get<any[]>('/api/data');
+  }
+
+  createData(data: any) {
+    return this.http.post<any>('/api/data', data);
+  }
+}
+```
+
+### Testing
+
+#### Tests Unitaris
 
 ```typescript
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { MyComponent } from './my.component';
 
 describe('MyComponent', () => {
@@ -569,10 +606,7 @@ describe('MyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        MyComponent,
-        TranslateModule.forRoot()
-      ]
+      imports: [MyComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyComponent);
@@ -583,36 +617,141 @@ describe('MyComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should display correct title', () => {
+    const titleElement = fixture.nativeElement.querySelector('h1');
+    expect(titleElement.textContent).toContain('Expected Title');
+  });
 });
 ```
+
+#### Tests d'Integració
+
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MyComponent } from './my.component';
+
+describe('MyComponent Integration', () => {
+  let component: MyComponent;
+  let fixture: ComponentFixture<MyComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MyComponent, HttpClientTestingModule]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MyComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should load data from service', async () => {
+    // Test d'integració amb serveis
+  });
+});
+```
+
+### Troubleshooting
+
+#### Problemes Comuns
+
+##### 1. **Error de Compilació TypeScript**
+```bash
+# Verificar tipus
+npm run type-check
+
+# Limpiar cache
+npm run clean
+```
+
+##### 2. **Error de Dependències**
+```bash
+# Eliminar node_modules i reinstal·lar
+rm -rf node_modules package-lock.json
+npm install
+```
+
+##### 3. **Error de Firebase**
+```bash
+# Verificar configuració
+firebase projects:list
+
+# Reinicialitzar Firebase
+firebase init
+```
+
+##### 4. **Error de Build**
+```bash
+# Build amb més detalls
+ng build --verbose
+
+# Build de producció
+ng build --configuration production
+```
+
+#### Debugging
+
+##### 1. **Console Logging**
+```typescript
+// Logging amb nivells
+console.log('Info:', data);
+console.warn('Warning:', warning);
+console.error('Error:', error);
+```
+
+##### 2. **Angular DevTools**
+- Instal·lar Angular DevTools extension
+- Inspeccionar components i serveis
+- Debuggar signals i estat
+
+##### 3. **Network Tab**
+- Verificar crides HTTP
+- Comprovar headers i responses
+- Debuggar errors de xarxa
 
 ---
 
 ## 🚀 Desplegament
 
-### Firebase Hosting
-
-```bash
-# Build de producció
-npm run build
-
-# Desplegar a Firebase
-firebase deploy
-
-# Desplegar només hosting
-firebase deploy --only hosting
-
-# Desplegar només Firestore rules
-firebase deploy --only firestore:rules
-```
-
 ### Configuració de Firebase
 
+#### 1. **Instal·lació de Firebase CLI**
+```bash
+npm install -g firebase-tools
+```
+
+#### 2. **Inicialització del Projecte**
+```bash
+firebase login
+firebase init
+```
+
+#### 3. **Configuració de Firestore**
+```javascript
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regles de seguretat
+    match /appointments/{appointmentId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+  }
+}
+```
+
+#### 4. **Configuració d'Hosting**
 ```json
 // firebase.json
 {
   "hosting": {
-    "public": "dist/pelu-app",
+    "public": "dist/pelu-app/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -624,119 +763,144 @@ firebase deploy --only firestore:rules
         "destination": "/index.html"
       }
     ]
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
   }
 }
 ```
 
-### Variables d'Entorn
+### Desplegament a Producció
 
-```typescript
-// environments/environment.ts
-export const environment = {
-  production: false,
-  firebase: {
-    apiKey: 'your-api-key',
-    authDomain: 'your-project.firebaseapp.com',
-    projectId: 'your-project-id',
-    storageBucket: 'your-project.appspot.com',
-    messagingSenderId: '123456789',
-    appId: 'your-app-id'
-  }
-};
+#### 1. **Build de Producció**
+```bash
+# Build optimitzat
+npm run build
+
+# Verificar build
+npm run build:analyze
+```
+
+#### 2. **Desplegament**
+```bash
+# Desplegament complet
+firebase deploy
+
+# Desplegament només hosting
+firebase deploy --only hosting
+
+# Desplegament només firestore
+firebase deploy --only firestore
+```
+
+#### 3. **Verificació Post-Desplegament**
+```bash
+# Verificar URL de desplegament
+firebase hosting:channel:list
+
+# Verificar regles de Firestore
+firebase firestore:rules:get
+```
+
+#### 4. **Monitoring**
+```bash
+# Veure logs
+firebase functions:log
+
+# Veure estadístiques
+firebase hosting:channel:list
 ```
 
 ---
 
-## 🔧 Troubleshooting
+## 📚 Recursos Addicionals
 
-### Problemes Comuns
+### Documentació Externa
+- [Angular Documentation](https://angular.dev/)
+- [PrimeNG Documentation](https://primeng.org/)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 
-#### El loader no apareix
-1. Verifica que el `LoaderComponent` està importat a `app.component.ts`
-2. Comprova que el servei està injectat correctament
-3. Verifica que no hi ha errors a la consola
+### Comandaments Útils
+```bash
+# Generar component
+ng generate component feature-name/component-name
 
-#### El loader no ocupa tota la pantalla
-1. El component ja està configurat amb `position: fixed` i `inset: 0`
-2. Si hi ha problemes, verifica que no hi ha CSS que sobreescrigui aquests estils
+# Generar servei
+ng generate service core/services/service-name
 
-#### El loader no s'amaga
-1. Assegura't que sempre crides `hide()` en el bloc `finally`
-2. Verifica que no hi ha múltiples crides a `show()` sense `hide()`
+# Generar pipe
+ng generate pipe shared/pipes/pipe-name
 
-#### Errors de Firebase
-1. Verifica que les regles de Firestore són correctes
-2. Comprova que l'usuari té els permisos adequats
-3. Verifica la configuració de Firebase
+# Linting
+npm run lint
 
-#### Problemes de Traducció
-1. Verifica que les claus existeixen als fitxers de traducció
-2. Comprova que el servei de traducció està configurat correctament
-3. Verifica que l'idioma està establert correctament
+# Format code
+npm run format
 
-### Logs de Debug
+# Test coverage
+npm run test:coverage
+```
 
-```typescript
-// Habilitar logs de debug
-console.log('Debug info:', data);
+### Estructura de Fitxers de Documentació
 
-// Logs específics per Firebase
-console.log('Firebase user:', this.authService.user());
-console.log('User role:', this.roleService.getUserRole());
+```
+📁 Documentació Unificada
+├── 📄 README.md                    # Documentació principal
+├── 📄 DOCUMENTATION.md             # Documentació completa (aquest fitxer)
+├── 📁 src/app/
+│   ├── 📁 core/services/
+│   │   └── 📄 SERVICES_SYNC.md     # Sincronització de serveis
+│   ├── 📁 features/
+│   │   ├── 📁 appointments/
+│   │   │   └── 📄 DIRECT_EDIT_MODE.md
+│   │   └── 📁 bookings/
+│   │       └── 📁 booking-mobile-page/
+│   │           ├── 📄 BOOKINGS_SYNC.md
+│   │           ├── 📄 MOBILE_BOOKING_FLOW.md
+│   │           └── 📄 TIME_SLOTS_FILTERING.md
+│   └── 📁 shared/components/
+│       ├── 📁 inputs/
+│       │   ├── 📄 README.md        # Documentació d'inputs
+│       │   └── 📄 GLOBAL_STYLES.md
+│       └── 📁 detail-view/
+│           └── 📄 ACTIONS_VISIBILITY.md
 ```
 
 ---
 
-## 📝 Notes de Desenvolupament
+## 🎯 Contribució
 
-### Convencions de Codi
+### Guies de Contribució
+1. **Fork del repositori**
+2. **Crear branch per feature**: `git checkout -b feature/nova-funcionalitat`
+3. **Fer commits descriptius**: `git commit -m "feat: afegir nova funcionalitat"`
+4. **Push al branch**: `git push origin feature/nova-funcionalitat`
+5. **Crear Pull Request**
 
-- **Components**: PascalCase (e.g., `MyComponent`)
-- **Serveis**: PascalCase amb sufix Service (e.g., `BookingService`)
-- **Interfícies**: PascalCase amb prefix I (e.g., `IBooking`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_BOOKINGS`)
-- **Variables**: camelCase (e.g., `userName`)
+### Estàndards de Codi
+- **TypeScript**: Configuració estricta
+- **ESLint**: Regles de linting
+- **Prettier**: Format de codi
+- **Conventional Commits**: Format de commits
 
-### Estructura de Commits
-
-```
-feat: afegir nova funcionalitat
-fix: corregir bug
-docs: actualitzar documentació
-style: canvis de format
-refactor: refactoritzar codi
-test: afegir o modificar tests
-chore: tasques de manteniment
-```
-
-### Millores Futures
-
-- [ ] Animacions d'entrada/sortida per loader
-- [ ] Múltiples loaders simultanis
-- [ ] Progress bar per operacions llargues
-- [ ] Temes personalitzables
-- [ ] Integració amb HTTP interceptors
-- [ ] PWA (Progressive Web App)
-- [ ] Notificacions push
-- [ ] Exportació de dades
-- [ ] Backup automàtic
+### Testing
+- **Coverage mínim**: 80%
+- **Tests unitaris**: Per a tots els components
+- **Tests d'integració**: Per a fluxos crítics
+- **Tests e2e**: Per a funcionalitats principals
 
 ---
 
 ## 📞 Suport
 
-Per a suport tècnic o preguntes sobre el projecte:
+### Contacte
+- **Email**: suport@peluapp.com
+- **Issues**: [GitHub Issues](https://github.com/peluapp/issues)
+- **Documentació**: [Documentació Completa](DOCUMENTATION.md)
 
-1. **Issues**: Obre un issue al repositori
-2. **Documentació**: Consulta aquesta documentació
-3. **Comunitat**: Participa en les discussions del projecte
+### Recursos
+- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
+- **API Reference**: [API.md](API.md)
+- **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ---
 
-**Última actualització**: Desembre 2024  
-**Versió**: 1.0.0  
-**Autor**: Equip de Desenvolupament PeluApp 
+*Última actualització: Gener 2025* 

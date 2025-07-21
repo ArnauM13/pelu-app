@@ -1,0 +1,61 @@
+<div class="input-textarea-container">
+  <!-- Label -->
+  @if (showLabel()) {
+    <label
+      [for]="config().id || config().name"
+      class="input-textarea-label"
+      [class.required]="config().required">
+      {{ config().label || '' | translate }}
+    </label>
+  }
+
+  <!-- Textarea wrapper -->
+  <div class="input-textarea-wrapper" [class]="textareaClasses()">
+    <!-- Main textarea -->
+    <textarea
+      [id]="config().id || config().name"
+      [name]="config().name"
+      [placeholder]="(config().placeholder || '') | translate"
+      [required]="config().required"
+      [disabled]="config().disabled"
+      [readonly]="config().readonly"
+      [rows]="config().rows || 3"
+      [cols]="config().cols"
+      [attr.maxlength]="config().maxlength"
+      [attr.minlength]="config().minlength"
+      [spellcheck]="config().spellcheck"
+      [tabindex]="config().tabindex"
+      [style]="config().style"
+      [value]="displayValue()"
+      (input)="onInput($event)"
+      (change)="onChangeHandler($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)"
+      (keydown)="onKeydown($event)"
+      (keyup)="onKeyup($event)"
+      (keypress)="onKeypress($event)"
+      class="input-textarea-field">
+    </textarea>
+  </div>
+
+  <!-- Help text -->
+  @if (showHelpText()) {
+    <div class="input-textarea-help">
+      {{ (config().helpText || '') | translate }}
+    </div>
+  }
+
+  <!-- Error text -->
+  @if (showErrorText()) {
+    <div class="input-textarea-error">
+      {{ (config().errorText || '') | translate }}
+    </div>
+  }
+
+  <!-- Success text -->
+  @if (showSuccessText()) {
+    <div class="input-textarea-success">
+      {{ (config().successText || '') | translate }}
+    </div>
+  }
+</div>

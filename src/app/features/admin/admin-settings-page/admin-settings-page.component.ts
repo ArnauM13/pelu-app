@@ -15,6 +15,10 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { BusinessSettingsService, BusinessSettings } from '../../../core/services/business-settings.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
+import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
+import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
+import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 
 
 
@@ -32,7 +36,11 @@ import { ToastModule } from 'primeng/toast';
     SelectModule,
     CheckboxModule,
     ProgressSpinnerModule,
-    ToastModule
+    ToastModule,
+    InputTextComponent,
+    InputNumberComponent,
+    InputCheckboxComponent,
+    InputSelectComponent
   ],
   providers: [MessageService],
   templateUrl: './admin-settings-page.component.html',

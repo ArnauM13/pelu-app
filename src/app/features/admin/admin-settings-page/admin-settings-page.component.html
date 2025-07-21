@@ -83,44 +83,106 @@
       <div class="settings-grid">
         <!-- Business Info -->
         <div class="settings-group">
-          <label for="businessName">{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate }}</label>
-          <input id="businessName" type="text" pInputText formControlName="businessName" [placeholder]="'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate">
+          <pelu-input-text
+            [config]="{
+              type: 'text',
+              label: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
+              placeholder: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
+              showLabel: true
+            }"
+            [value]="settingsForm.get('businessName')?.value"
+            (valueChange)="settingsForm.get('businessName')?.setValue($event)">
+          </pelu-input-text>
         </div>
         <!-- Appointment Duration -->
         <div class="settings-group">
-          <label for="appointmentDuration">{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION' | translate }}</label>
-          <p-inputNumber id="appointmentDuration" formControlName="appointmentDuration" [min]="15" [max]="480" [step]="15" suffix=" min"></p-inputNumber>
+          <pelu-input-number
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION',
+              min: 15,
+              max: 480,
+              step: 15,
+              suffix: ' min',
+              showLabel: true
+            }"
+            [value]="settingsForm.get('appointmentDuration')?.value"
+            (valueChange)="settingsForm.get('appointmentDuration')?.setValue($event)">
+          </pelu-input-number>
         </div>
         <!-- Max Appointments -->
         <div class="settings-group">
-          <label for="maxAppointments">{{ 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS' | translate }}</label>
-          <p-inputNumber id="maxAppointments" formControlName="maxAppointments" [min]="1" [max]="100"></p-inputNumber>
+          <pelu-input-number
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS',
+              min: 1,
+              max: 100,
+              showLabel: true
+            }"
+            [value]="settingsForm.get('maxAppointments')?.value"
+            (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)">
+          </pelu-input-number>
         </div>
         <!-- Auto Confirm -->
-        <div class="settings-group checkbox-group">
-          <p-checkbox formControlName="autoConfirm" [binary]="true" [inputId]="'autoConfirm'"></p-checkbox>
-          <label for="autoConfirm">{{ 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM' | translate }}</label>
+        <div class="settings-group">
+          <pelu-input-checkbox
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM',
+              showLabel: true
+            }"
+            [value]="settingsForm.get('autoConfirm')?.value"
+            (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)">
+          </pelu-input-checkbox>
         </div>
         <!-- Notifications -->
-        <div class="settings-group checkbox-group">
-          <p-checkbox formControlName="sendNotifications" [binary]="true" [inputId]="'sendNotifications'"></p-checkbox>
-          <label for="sendNotifications">{{ 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS' | translate }}</label>
+        <div class="settings-group">
+          <pelu-input-checkbox
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS',
+              showLabel: true
+            }"
+            [value]="settingsForm.get('sendNotifications')?.value"
+            (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)">
+          </pelu-input-checkbox>
         </div>
         <!-- Maintenance Mode -->
-        <div class="settings-group checkbox-group">
-          <p-checkbox formControlName="maintenanceMode" [binary]="true" [inputId]="'maintenanceMode'"></p-checkbox>
-          <label for="maintenanceMode">{{ 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE' | translate }}</label>
+        <div class="settings-group">
+          <pelu-input-checkbox
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE',
+              showLabel: true
+            }"
+            [value]="settingsForm.get('maintenanceMode')?.value"
+            (valueChange)="settingsForm.get('maintenanceMode')?.setValue($event)">
+          </pelu-input-checkbox>
         </div>
         <!-- Language -->
         <div class="settings-group">
-          <label for="defaultLanguage">{{ 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate }}</label>
-          <p-select id="defaultLanguage" formControlName="defaultLanguage" [options]="languageOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate"></p-select>
+          <pelu-input-select
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
+              placeholder: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
+              options: languageOptions,
+              showLabel: true,
+              clearable: true
+            }"
+            [value]="settingsForm.get('defaultLanguage')?.value"
+            (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)">
+          </pelu-input-select>
         </div>
         <!-- Currency -->
         <div class="settings-group">
-          <label for="currency">{{ 'ADMIN.SETTINGS_PAGE.CURRENCY' | translate }}</label>
-          <p-select id="currency" formControlName="currency" [options]="currencyOptions" optionLabel="label" optionValue="value" [placeholder]="'ADMIN.SETTINGS_PAGE.CURRENCY' | translate"></p-select>
-          <small class="form-help">{{ 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP' | translate }}</small>
+          <pelu-input-select
+            [config]="{
+              label: 'ADMIN.SETTINGS_PAGE.CURRENCY',
+              placeholder: 'ADMIN.SETTINGS_PAGE.CURRENCY',
+              options: currencyOptions,
+              showLabel: true,
+              clearable: true,
+              helpText: 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP'
+            }"
+            [value]="settingsForm.get('currency')?.value"
+            (valueChange)="settingsForm.get('currency')?.setValue($event)">
+          </pelu-input-select>
         </div>
       </div>
       <div class="settings-actions">

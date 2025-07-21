@@ -42,6 +42,13 @@
   z-index: var(--z-interactive);
 }
 
+// Desktop only elements
+.desktop-only {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
 // Profile Header
 .profile-header {
   background: var(--gradient-header-lila);
@@ -106,6 +113,11 @@
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--border-color-light);
+
+  // Mobile responsive - hide on mobile
+  @media (max-width: 768px) {
+    display: none;
+  }
 
   .back-btn-emoji {
     background: rgba(255, 255, 255, 0.9);
@@ -206,6 +218,12 @@
   &.full-width {
     grid-template-columns: 1fr;
   }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 // Info Column
@@ -216,6 +234,44 @@
   flex-direction: column;
   min-height: 0; // Important for flex child
   overflow-y: auto; // Allow scroll for content
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+
+  // Mobile back button
+  .mobile-back-section {
+    display: none;
+
+    @media (max-width: 768px) {
+      display: block;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .mobile-back-btn {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
+
+    &:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
 
   .info-section {
     background: white;
@@ -250,6 +306,12 @@
 
   .status-section-mobile {
     display: none;
+
+    // Show on mobile when header is hidden
+    @media (max-width: 768px) {
+      display: block;
+      margin-top: 0;
+    }
   }
 
   .info-grid {
@@ -338,6 +400,13 @@
   min-height: 0; // Important for flex child
   overflow-y: auto; // Allow scroll for content
 
+  // Mobile responsive
+  @media (max-width: 768px) {
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem;
+  }
+
   .actions-section {
     flex: 1; // Take remaining space
     display: flex;
@@ -363,6 +432,15 @@
         border-radius: 2px;
       }
     }
+  }
+
+  .appointment-actions-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; // Espai natural entre les opcions d'accions
   }
 
   .actions-grid {
@@ -884,6 +962,10 @@
 
 // Actions Section Styles
 .actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; // Espai entre seccions d'accions
+
   .actions-grid {
     display: flex;
     flex-direction: column;
@@ -983,6 +1065,36 @@
           background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
         }
       }
+    }
+  }
+}
+
+// Actions Column specific styles
+.actions-column {
+  .action-item {
+    // Adjust for sidebar layout
+    padding: 0.75rem;
+
+    .action-content {
+      h3 {
+        font-size: 0.9rem;
+      }
+
+      p {
+        font-size: 0.8rem;
+      }
+    }
+
+    .action-icon {
+      width: 35px;
+      height: 35px;
+      font-size: 1.2rem;
+    }
+
+    .action-btn-small {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
     }
   }
 }
