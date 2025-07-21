@@ -268,12 +268,22 @@ export class AppointmentsPageComponent {
       return;
     }
 
-    // Generem un ID únic combinant clientId i appointmentId
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointment.id}`;
+    // Si l'appointment té editToken, l'usem directament
+    if (appointment.editToken) {
+      this.router.navigate(['/appointments', appointment.id], {
+        queryParams: {
+          token: appointment.editToken,
+          edit: 'true'
+        }
+      });
+    } else {
+      // Fallback: generem un ID únic combinant clientId i appointmentId
+      const clientId = user.uid;
+      const uniqueId = `${clientId}-${appointment.id}`;
 
-    // Naveguem a la pàgina de detall en mode edició
-    this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+      // Naveguem a la pàgina de detall en mode edició
+      this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
+    }
   }
 
   // Removed localStorage saving - now using Firebase
