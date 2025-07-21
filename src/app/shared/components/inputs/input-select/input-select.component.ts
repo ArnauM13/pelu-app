@@ -79,6 +79,8 @@ export class InputSelectComponent implements ControlValueAccessor {
   private readonly isTouched = signal<boolean>(false);
   readonly isOpen = signal<boolean>(false);
   readonly searchTerm = signal<string>('');
+  private readonly componentId = signal<string>('select-' + Math.random().toString(36).substr(2, 9));
+  private readonly dropdownPosition = signal<{top: number, left: number, width: number}>({top: 0, left: 0, width: 0});
 
   // Computed properties
   readonly displayValue = computed(() => this.value() ?? this.internalValue());
@@ -93,6 +95,18 @@ export class InputSelectComponent implements ControlValueAccessor {
   readonly isClearable = computed(() => this.config().clearable && !!this.displayValue() && !this.config().disabled);
   readonly isSearchable = computed(() => this.config().searchable || false);
   readonly isMultiple = computed(() => this.config().multiple || false);
+  readonly elementId = computed(() => this.config().id || this.componentId());
+
+  readonly dropdownStyle = computed(() => {
+    const pos = this.dropdownPosition();
+    return {
+      position: 'fixed' as const,
+      top: `${pos.top}px`,
+      left: `${pos.left}px`,
+      width: `${pos.width}px`,
+      zIndex: 99999
+    };
+  });
 
   readonly selectClasses = computed(() => {
     const classes = ['input-select'];
@@ -168,26 +182,40 @@ export class InputSelectComponent implements ControlValueAccessor {
     }
   });
 
-  // ControlValueAccessor implementation
   private onChange = (value: any) => {};
   private onTouched = () => {};
 
   constructor() {
-    // Initialize internal value when external value changes
     effect(() => {
       const value = this.value();
       if (value !== undefined && value !== null) {
         this.internalValue.set(value);
       }
+    }, { allowSignalWrites: true });
+
+        // Tancar el dropdown quan es clica fora
+    effect(() => {
+      if (this.isOpen()) {
+        const handleClickOutside = (event: MouseEvent) => {
+          const target = event.target as HTMLElement;
+          const container = document.querySelector(`[data-select-id="${this.elementId()}"]`);
+          if (container && !container.contains(target)) {
+            this.isOpen.set(false);
+          }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+
+        return () => {
+          document.removeEventListener('click', handleClickOutside);
+        };
+      }
+      return undefined;
     });
   }
 
-  // Helper method to generate unique ID
-  generateId(): string {
-    return 'select-' + Math.random().toString(36).substr(2, 9);
-  }
 
-  // Event handlers
+
   onSelectChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const value = this.isMultiple() ?
@@ -212,9 +240,44 @@ export class InputSelectComponent implements ControlValueAccessor {
     this.blur.emit(event);
   }
 
-  onToggleOpen(): void {
+      onToggleOpen(): void {
     if (this.config().disabled) return;
-    this.isOpen.set(!this.isOpen());
+
+    const newOpenState = !this.isOpen();
+    this.isOpen.set(newOpenState);
+
+    if (newOpenState) {
+      // Calcular la posició del dropdown
+      setTimeout(() => {
+        // Buscar el container del select en lloc del select natiu
+        const container = document.querySelector(`[data-select-id="${this.elementId()}"]`);
+        if (container) {
+          const rect = container.getBoundingClientRect();
+          const dropdownHeight = 200; // Altura aproximada del dropdown
+          const windowHeight = window.innerHeight;
+
+          // Determinar si el dropdown ha d-anar cap avall o cap amunt
+          const spaceBelow = windowHeight - rect.bottom;
+          const spaceAbove = rect.top;
+
+          let top: number;
+          if (spaceBelow >= dropdownHeight || spaceBelow > spaceAbove) {
+            // Posar el dropdown sota l'element
+            top = rect.bottom + 4;
+          } else {
+            // Posar el dropdown sobre l'element
+            top = rect.top - dropdownHeight - 4;
+          }
+
+          const position = {
+            top: Math.max(0, top),
+            left: rect.left,
+            width: rect.width
+          };
+          this.dropdownPosition.set(position);
+        }
+      }, 0);
+    }
   }
 
   onSearchInput(event: Event): void {
@@ -248,7 +311,6 @@ export class InputSelectComponent implements ControlValueAccessor {
     }
   }
 
-  // ControlValueAccessor methods
   writeValue(value: any): void {
     this.internalValue.set(value);
   }
@@ -262,6 +324,5 @@ export class InputSelectComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    // This will be handled by the config input
   }
 }

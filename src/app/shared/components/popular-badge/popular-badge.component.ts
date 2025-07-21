@@ -18,7 +18,7 @@ export interface PopularBadgeConfig {
     <span
       class="popular-badge"
       [class]="cssClasses()"
-      [title]="config.text || ('COMMON.POPULAR' | translate)">
+      [title]="config.text || ('SERVICES.POPULAR' | translate)">
       @if (config.showIcon !== false) {
         <span class="popular-icon">⭐</span>
       }

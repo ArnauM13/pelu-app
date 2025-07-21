@@ -58,6 +58,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   private readonly internalValue = signal<boolean>(false);
   private readonly isFocused = signal<boolean>(false);
   private readonly isTouched = signal<boolean>(false);
+  private readonly uniqueId = signal<string>('');
 
   // Computed properties
   readonly displayValue = computed(() => this.value() ?? this.internalValue());
@@ -101,11 +102,17 @@ export class InputCheckboxComponent implements ControlValueAccessor {
     return classes.join(' ');
   });
 
+  // Computed ID that uses config ID or falls back to stable unique ID
+  readonly checkboxId = computed(() => this.config().id || this.uniqueId());
+
   // ControlValueAccessor implementation
   private onChange = (value: any) => {};
   private onTouched = () => {};
 
   constructor() {
+    // Generate a stable unique ID once during component initialization
+    this.uniqueId.set('checkbox-' + Math.random().toString(36).substr(2, 9));
+
     // Initialize internal value when external value changes
     effect(() => {
       const value = this.value();
@@ -113,11 +120,6 @@ export class InputCheckboxComponent implements ControlValueAccessor {
         this.internalValue.set(value);
       }
     });
-  }
-
-  // Helper method to generate unique ID
-  generateId(): string {
-    return 'checkbox-' + Math.random().toString(36).substr(2, 9);
   }
 
   // Event handlers
