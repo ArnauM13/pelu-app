@@ -195,6 +195,13 @@
       gap: 12px;
       align-items: center;
       margin-bottom: 8px;
+      justify-content: space-between;
+
+      .service-info-left {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
 
       .service-duration {
         color: #6b7280;
@@ -212,15 +219,19 @@
         font-size: 0.75rem;
         font-weight: 500;
       }
-    }
 
-    .selection-indicator {
-      color: #059669;
-      font-weight: 600;
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      .selection-indicator {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: auto;
+      }
     }
   }
 }

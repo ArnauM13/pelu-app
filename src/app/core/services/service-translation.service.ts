@@ -59,8 +59,19 @@ export class ServiceTranslationService {
     ['تجميل شعر كامل', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
     ['خدمة تجريبية', 'SERVICES.NAMES.TEST_SERVICE'],
 
-    // Common variations
+    // Firebase sample service names (Catalan) - Exact matches
+    ['tall masculí', 'SERVICES.NAMES.MALE_HAIRCUT'],
+    ['tall + afaitat', 'SERVICES.NAMES.HAIRCUT_BEARD'],
+    ['afaitat de barba', 'SERVICES.NAMES.BEARD_SHAVE'],
+    ['arreglada de barba', 'SERVICES.NAMES.BEARD_TRIM'],
+    ['lavada i tractament', 'SERVICES.NAMES.WASH_TREATMENT'],
+    ['coloració', 'SERVICES.NAMES.COLORING'],
+    ['pentinat especial', 'SERVICES.NAMES.SPECIAL_STYLING'],
+    ['tall infantil', 'SERVICES.NAMES.KIDS_HAIRCUT'],
+
+    // Common variations and partial matches
     ['tall de cabell', 'SERVICES.NAMES.MALE_HAIRCUT'],
+    ['tall', 'SERVICES.NAMES.MALE_HAIRCUT'],
     ['corte', 'SERVICES.NAMES.MALE_HAIRCUT'],
     ['haircut', 'SERVICES.NAMES.MALE_HAIRCUT'],
     ['afaitat', 'SERVICES.NAMES.BEARD_SHAVE'],
@@ -88,6 +99,20 @@ export class ServiceTranslationService {
   translateServiceName(serviceName: string): string {
     if (!serviceName) {
       return this.translationService.get('SERVICES.NAMES.GENERAL_SERVICE');
+    }
+
+    // If the service name is already a translation key, translate it directly
+    if (serviceName.startsWith('SERVICES.NAMES.')) {
+      try {
+        const translated = this.translationService.get(serviceName);
+        // If the translation returns the same key, it means the translation failed
+        if (translated === serviceName) {
+          return serviceName;
+        }
+        return translated;
+      } catch (error) {
+        return serviceName;
+      }
     }
 
     const serviceNameLower = serviceName.toLowerCase().trim();
