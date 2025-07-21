@@ -285,11 +285,11 @@ export class AppointmentDetailPopupComponent implements OnInit {
   getStatusText(status: string): string {
     switch (status) {
       case 'confirmed':
-        return this.#translateService.instant('COMMON.STATUS.CONFIRMED');
+        return this.#translateService.instant('APPOINTMENTS.STATUSES.CONFIRMED');
       case 'cancelled':
-        return this.#translateService.instant('COMMON.STATUS.CANCELLED');
+        return this.#translateService.instant('APPOINTMENTS.STATUSES.CANCELLED');
       case 'completed':
-        return this.#translateService.instant('COMMON.STATUS.COMPLETED');
+        return this.#translateService.instant('APPOINTMENTS.STATUSES.COMPLETED');
       default:
         return status;
     }

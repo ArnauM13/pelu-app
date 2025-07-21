@@ -23,7 +23,7 @@ export interface PopularBadgeConfig {
         <span class="popular-icon">⭐</span>
       }
       @if (config.showText !== false && config.text) {
-        <span class="popular-text">{{ config.text }}</span>
+        <span class="popular-text">{{ config.text | translate }}</span>
       }
     </span>
   `,
