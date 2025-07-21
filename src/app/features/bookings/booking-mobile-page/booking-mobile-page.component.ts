@@ -13,8 +13,8 @@ import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
-import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
-import { ServicesService, Service } from '../../../core/services/services.service';
+
+import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -52,7 +52,6 @@ interface DaySlot {
     TranslateModule,
     CardComponent,
     BookingPopupComponent,
-    ServiceSelectionPopupComponent,
     CurrencyPipe,
   ],
   templateUrl: './booking-mobile-page.component.html',
@@ -61,19 +60,20 @@ interface DaySlot {
 export class BookingMobilePageComponent {
   // Inject services
   public readonly authService = inject(AuthService);
-  public readonly servicesService = inject(ServicesService);
+  public readonly firebaseServicesService = inject(FirebaseServicesService);
   public readonly bookingService = inject(BookingService);
   private readonly roleService = inject(RoleService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
+  private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date>(new Date());
-  private readonly selectedServiceSignal = signal<Service | null>(null);
+  private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
   private readonly appointmentsSignal = signal<any[]>([]);
-  private readonly showServiceSelectionPopupSignal = signal<boolean>(false);
+
   private readonly showBookingPopupSignal = signal<boolean>(false);
-  private readonly serviceSelectionDetailsSignal = signal<ServiceSelectionDetails>({date: '', time: '', clientName: '', email: ''});
+
   private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
   private readonly showLoginPromptSignal = signal<boolean>(false);
 
@@ -81,9 +81,9 @@ export class BookingMobilePageComponent {
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
-  readonly showServiceSelectionPopup = computed(() => this.showServiceSelectionPopupSignal());
+
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
-  readonly serviceSelectionDetails = computed(() => this.serviceSelectionDetailsSignal());
+
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
@@ -96,7 +96,7 @@ export class BookingMobilePageComponent {
   readonly slotDuration = 30;
 
   // Available services
-  readonly availableServices = computed(() => this.servicesService.getAllServices());
+  readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
 
   // Week days computation
   readonly weekDays = computed(() => {
@@ -113,14 +113,39 @@ export class BookingMobilePageComponent {
     }));
   });
 
-  constructor() {
+  readonly selectedDaySlots = computed(() => {
+    if (!this.selectedDate()) return null;
+    return this.daySlots().find(daySlot => isSameDay(daySlot.date, this.selectedDate()));
+  });
+
+  readonly isSelectedDayFullyBooked = computed(() => {
+    const daySlots = this.selectedDaySlots();
+    if (!daySlots) return false;
+
+    // Check if all time slots are occupied
+    const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
+    return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
+  });
+
+    constructor() {
     this.loadServices();
     this.loadAppointments();
+
+    // Listen for service updates to refresh services
+    window.addEventListener('serviceUpdated', () => {
+      this.loadServices();
+    });
+
+    // Listen for booking updates to refresh appointments
+    window.addEventListener('bookingUpdated', () => {
+      this.loadAppointments();
+    });
   }
 
   private async loadServices() {
     try {
-      const services = this.servicesService.getAllServices();
+      await this.firebaseServicesService.loadServices();
+      const services = this.firebaseServicesService.activeServices();
       // Set first service as default if available
       if (services.length > 0) {
         this.selectedServiceSignal.set(services[0]);
@@ -133,21 +158,12 @@ export class BookingMobilePageComponent {
 
   private async loadAppointments() {
     try {
-      // Load appointments from localStorage for now
-      const appointments = this.loadAppointmentsFromStorage();
-      this.appointmentsSignal.set(appointments);
+      // Load appointments from BookingService (Firebase)
+      await this.bookingService.loadBookings();
+      const bookings = this.bookingService.bookings();
+      this.appointmentsSignal.set(bookings);
     } catch (error) {
       console.error('Error loading appointments:', error);
-    }
-  }
-
-  private loadAppointmentsFromStorage(): any[] {
-    try {
-      const appointments = localStorage.getItem('cites');
-      return appointments ? JSON.parse(appointments) : [];
-    } catch (error) {
-      console.error('Error loading appointments from storage:', error);
-      return [];
     }
   }
 
@@ -164,20 +180,27 @@ export class BookingMobilePageComponent {
     const endHour = parseInt(this.businessHours.end.split(':')[0]);
     const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
     const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+    const now = new Date();
+    const isToday = isSameDay(date, now);
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += this.slotDuration) {
-        // Skip lunch break
-        if (hour >= lunchStart && hour < lunchEnd) {
-          continue;
-        }
-
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const slotDate = new Date(date);
         slotDate.setHours(hour, minute, 0, 0);
 
-        // Check if slot is available (not in the past and not booked)
-        const isAvailable = slotDate > new Date() && !this.isSlotBooked(slotDate);
+        // Skip disabled time slots (lunch break, etc.)
+        if (!this.isTimeSlotEnabled(hour, minute)) {
+          continue;
+        }
+
+        // Skip past hours (only for today)
+        if (isToday && slotDate <= now) {
+          continue;
+        }
+
+        // Check if slot is available (not booked)
+        const isAvailable = !this.isSlotBooked(slotDate);
 
         // Get booking details if slot is occupied
         const booking = this.getBookingForSlot(date, timeString);
@@ -199,47 +222,88 @@ export class BookingMobilePageComponent {
   }
 
   private isSlotBooked(date: Date): boolean {
-    const appointments = this.appointments();
-    return appointments.some(appointment => {
-      const appointmentDate = new Date(appointment.date);
-      return isSameDay(appointmentDate, date) && appointment.time === format(date, 'HH:mm');
+    const bookings = this.bookingService.bookings();
+    const timeString = format(date, 'HH:mm');
+    const dateString = format(date, 'yyyy-MM-dd');
+
+    return bookings.some(booking => {
+      // Check if booking is confirmed and matches the date and time
+      return booking.status === 'confirmed' &&
+             booking.data === dateString &&
+             booking.hora === timeString;
     });
   }
 
   private getBookingForSlot(date: Date, time: string): any {
     const dateString = format(date, 'yyyy-MM-dd');
-    const bookings = this.bookingService.getBookingsForDate(dateString);
-    return bookings.find(booking => booking.hora === time);
+    const bookings = this.bookingService.bookings();
+
+    return bookings.find(booking => {
+      // Check if booking is confirmed and matches the date and time
+      return booking.status === 'confirmed' &&
+             booking.data === dateString &&
+             booking.hora === time;
+    });
   }
 
   private getServiceIcon(serviceId?: string): string {
     if (!serviceId) return '🔧';
-    const service = this.servicesService.getServiceById(serviceId);
+    const service = this.firebaseServicesService.services().find(s => s.id === serviceId);
     return service?.icon || '🔧';
+  }
+
+    private isTimeSlotEnabled(hour: number, minute: number): boolean {
+    // Check lunch break
+    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
+    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+
+    if (hour >= lunchStart && hour < lunchEnd) {
+      return false;
+    }
+
+    // Add more disabled time slots here if needed
+    // Example: if (hour === 12 && minute === 0) return false; // Disable 12:00
+
+    return true;
+  }
+
+  /**
+   * Get enabled time slots for a given date
+   * Used for documentation and testing purposes
+   */
+  getEnabledTimeSlots(date: Date): string[] {
+    const slots: string[] = [];
+    const dayOfWeek = date.getDay();
+
+    // Check if it's a business day
+    if (!this.businessDays.includes(dayOfWeek)) {
+      return slots;
+    }
+
+    const startHour = parseInt(this.businessHours.start.split(':')[0]);
+    const endHour = parseInt(this.businessHours.end.split(':')[0]);
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += this.slotDuration) {
+        if (this.isTimeSlotEnabled(hour, minute)) {
+          const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+          slots.push(timeString);
+        }
+      }
+    }
+
+    return slots;
   }
 
   onDateSelected(date: Date) {
     this.selectedDateSignal.set(date);
   }
 
-  selectServiceFromList(service: Service) {
+  selectServiceFromList(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
   }
 
-  onTimeSlotSelected(timeSlot: TimeSlot, daySlot: DaySlot) {
-    if (!timeSlot.available) return;
 
-    // Show service selection popup first
-    const details: ServiceSelectionDetails = {
-      date: format(daySlot.date, 'yyyy-MM-dd'),
-      time: timeSlot.time,
-      clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
-      email: this.isAuthenticated() ? this.authService.user()?.email || '' : ''
-    };
-
-    this.serviceSelectionDetailsSignal.set(details);
-    this.showServiceSelectionPopupSignal.set(true);
-  }
 
   async onBookingConfirmed(details: BookingDetails) {
     try {
@@ -266,6 +330,12 @@ export class BookingMobilePageComponent {
         if (!this.isAuthenticated()) {
           this.showLoginPromptSignal.set(true);
         }
+
+        // Refresh appointments to show the new booking
+        await this.loadAppointments();
+
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('bookingUpdated'));
       }
 
       this.showBookingPopupSignal.set(false);
@@ -276,27 +346,7 @@ export class BookingMobilePageComponent {
     }
   }
 
-  onServiceSelected(event: {details: ServiceSelectionDetails, service: Service}) {
-    // Close service selection popup
-    this.showServiceSelectionPopupSignal.set(false);
 
-    // Show booking confirmation popup with selected service
-    const bookingDetails: BookingDetails = {
-      date: event.details.date,
-      time: event.details.time,
-      clientName: event.details.clientName,
-      email: event.details.email,
-      service: event.service
-    };
-
-    this.bookingDetailsSignal.set(bookingDetails);
-    this.showBookingPopupSignal.set(true);
-  }
-
-  onServiceSelectionCancelled() {
-    this.showServiceSelectionPopupSignal.set(false);
-    this.serviceSelectionDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
-  }
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
@@ -349,17 +399,34 @@ export class BookingMobilePageComponent {
     this.onDateSelected(date);
   }
 
-  selectService(service: Service) {
+  selectService(service: FirebaseService) {
     this.selectServiceFromList(service);
   }
 
   selectTimeSlot(timeSlot: TimeSlot) {
-    const daySlot = this.daySlots().find(slot =>
-      slot.timeSlots.some(ts => ts.time === timeSlot.time)
-    );
-    if (daySlot) {
-      this.onTimeSlotSelected(timeSlot, daySlot);
+    // Check if service is selected
+    if (!this.selectedService()) {
+      this.toastService.showError('Si us plau, selecciona un servei primer');
+      return;
     }
+
+    // Check if date is selected
+    if (!this.selectedDate()) {
+      this.toastService.showError('Si us plau, selecciona una data primer');
+      return;
+    }
+
+    // Go directly to booking confirmation popup
+    const bookingDetails: BookingDetails = {
+      date: format(this.selectedDate(), 'yyyy-MM-dd'),
+      time: timeSlot.time,
+      clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
+      service: this.selectedService() || undefined
+    };
+
+    this.bookingDetailsSignal.set(bookingDetails);
+    this.showBookingPopupSignal.set(true);
   }
 
   // Format methods
@@ -394,5 +461,60 @@ export class BookingMobilePageComponent {
 
   canSelectDate(date: Date): boolean {
     return !this.isPastDate(date) && this.isBusinessDay(date);
+  }
+
+  // Quick date selection methods
+  getToday(): Date {
+    return new Date();
+  }
+
+  getTomorrow(): Date {
+    return addDays(new Date(), 1);
+  }
+
+  selectToday() {
+    const today = new Date();
+    if (this.canSelectDate(today)) {
+      this.selectedDateSignal.set(today);
+    }
+  }
+
+  selectTomorrow() {
+    const tomorrow = this.getTomorrow();
+    if (this.canSelectDate(tomorrow)) {
+      this.selectedDateSignal.set(tomorrow);
+    }
+  }
+
+  nextAvailableDate(): Date | null {
+    // Check next 30 days for available dates
+    for (let i = 0; i < 30; i++) {
+      const date = addDays(new Date(), i);
+      if (this.canSelectDate(date)) {
+        // Check if the date has available time slots
+        const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
+        if (daySlots && daySlots.timeSlots.some(slot => slot.available)) {
+          return date;
+        }
+      }
+    }
+    return null;
+  }
+
+  selectNextAvailable() {
+    const nextAvailable = this.nextAvailableDate();
+    if (nextAvailable) {
+      this.selectedDateSignal.set(nextAvailable);
+    }
+  }
+
+  getServiceColor(serviceName: string): string {
+    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+    return serviceColor.color;
+  }
+
+  getServiceBackgroundColor(serviceName: string): string {
+    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+    return serviceColor.backgroundColor;
   }
 }

@@ -6,11 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
+import { InputTextComponent, InputDateComponent, InputSelectComponent, type InputConfig } from '../inputs';
 
 @Component({
   selector: 'pelu-filters-inline',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, SelectModule, FloatingButtonComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, SelectModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss']
 })
@@ -53,6 +54,28 @@ export class FiltersInlineComponent {
       }))
     ];
   });
+
+  // Input configurations for specific inputs
+  readonly dateFilterConfig = {
+    type: 'date' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_DATE',
+    showLabel: true
+  };
+
+  readonly clientFilterConfig = {
+    type: 'text' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
+    placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
+    showLabel: true
+  };
+
+  readonly serviceFilterConfig = computed(() => ({
+    label: 'COMMON.FILTERS.FILTER_BY_SERVICE',
+    placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
+    options: this.serviceOptions(),
+    showLabel: true,
+    clearable: true
+  }));
 
   constructor(
     private serviceColorsService: ServiceColorsService,

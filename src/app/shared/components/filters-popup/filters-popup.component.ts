@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
+import { InputTextComponent } from '../inputs/input-text/input-text.component';
+import { InputDateComponent } from '../inputs/input-date/input-date.component';
 
 @Component({
   selector: 'pelu-filters-popup',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent],
   templateUrl: './filters-popup.component.html',
   styleUrls: ['./filters-popup.component.scss']
 })
@@ -59,8 +61,8 @@ export class FiltersPopupComponent {
     this.onDateChange()?.(value);
   }
 
-  onClientChangeHandler(value: string) {
-    this.onClientChange()?.(value);
+  onClientChangeHandler(value: string | number) {
+    this.onClientChange()?.(String(value));
   }
 
   onResetHandler() {

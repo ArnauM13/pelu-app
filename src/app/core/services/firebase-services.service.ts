@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { Firestore, collection, addDoc, doc, getDoc, updateDoc, deleteDoc, getDocs, serverTimestamp, query, orderBy } from '@angular/fire/firestore';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
@@ -12,7 +13,7 @@ export interface FirebaseService {
   description: string;
   price: number;
   duration: number; // in minutes
-  category: 'haircut' | 'beard' | 'treatment' | 'styling';
+  category: string; // Now supports any string category
   icon: string;
   popular?: boolean;
   active?: boolean;
@@ -22,9 +23,12 @@ export interface FirebaseService {
 }
 
 export interface ServiceCategory {
-  id: 'haircut' | 'beard' | 'treatment' | 'styling';
+  id: string; // Now supports any string ID
   name: string;
   icon: string;
+  custom?: boolean; // Flag to identify custom categories
+  createdAt?: any;
+  createdBy?: string;
 }
 
 @Injectable({
@@ -36,6 +40,7 @@ export class FirebaseServicesService {
   private readonly roleService = inject(RoleService);
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
+  private readonly translateService = inject(TranslateService);
 
   // Core signals
   private readonly _services = signal<FirebaseService[]>([]);
@@ -55,12 +60,25 @@ export class FirebaseServicesService {
   readonly lastSync = computed(() => this._lastSync());
 
   // Service categories - static configuration
-  readonly serviceCategories: ServiceCategory[] = [
+  private readonly _staticCategories: ServiceCategory[] = [
     { id: 'haircut', name: 'SERVICES.CATEGORIES.HAIRCUT', icon: '✂️' },
     { id: 'beard', name: 'SERVICES.CATEGORIES.BEARD', icon: '🧔' },
     { id: 'treatment', name: 'SERVICES.CATEGORIES.TREATMENT', icon: '💆' },
-    { id: 'styling', name: 'SERVICES.CATEGORIES.STYLING', icon: '💇' }
+    { id: 'styling', name: 'SERVICES.CATEGORIES.STYLING', icon: '💇' },
+    { id: 'coloring', name: 'SERVICES.CATEGORIES.COLORING', icon: '🎨' },
+    { id: 'special', name: 'SERVICES.CATEGORIES.SPECIAL', icon: '⭐' },
+    { id: 'kids', name: 'SERVICES.CATEGORIES.KIDS', icon: '👶' },
+    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' }
   ];
+
+  // Dynamic categories signal
+  private readonly _customCategories = signal<ServiceCategory[]>([]);
+
+  // Combined categories computed
+  readonly serviceCategories = computed(() => [
+    ...this._staticCategories,
+    ...this._customCategories()
+  ]);
 
   // Computed signals for filtered services
   readonly activeServices = computed(() =>
@@ -73,7 +91,7 @@ export class FirebaseServicesService {
 
   readonly servicesByCategory = computed(() => {
     const services = this.activeServices();
-    const categories = this.serviceCategories;
+    const categories = this.serviceCategories();
 
     return categories.map(category => ({
       ...category,
@@ -94,6 +112,7 @@ export class FirebaseServicesService {
   private initializeServices(): void {
     this.loadServicesFromCache();
     this.loadServices();
+    this.loadCustomCategories();
   }
 
   /**
@@ -184,6 +203,9 @@ export class FirebaseServicesService {
       this._lastSync.set(Date.now());
       this.saveServicesToCache(this._services());
 
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('serviceUpdated'));
+
       this.toastService.showSuccess('COMMON.SERVICE_CREATED_SUCCESS');
       this.logger.info('Service created', {
         component: 'FirebaseServicesService',
@@ -245,6 +267,9 @@ export class FirebaseServicesService {
         )
       );
       this._lastSync.set(Date.now());
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('serviceUpdated'));
       this.saveServicesToCache(this._services());
 
       this.toastService.showSuccess('COMMON.SERVICE_UPDATED_SUCCESS');
@@ -302,6 +327,9 @@ export class FirebaseServicesService {
       );
       this._lastSync.set(Date.now());
       this.saveServicesToCache(this._services());
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('serviceUpdated'));
 
       this.toastService.showSuccess('COMMON.SERVICE_DELETED_SUCCESS');
       this.logger.info('Service deleted', {
@@ -368,15 +396,21 @@ export class FirebaseServicesService {
    * Get category name
    */
   getCategoryName(category: FirebaseService['category']): string {
-    const categoryConfig = this.serviceCategories.find(cat => cat.id === category);
-    return categoryConfig?.name || 'SERVICES.CATEGORIES.UNKNOWN';
+    const categoryConfig = this.serviceCategories().find(cat => cat.id === category);
+    const categoryKey = categoryConfig?.name || 'SERVICES.CATEGORIES.DEFAULT';
+
+    try {
+      return this.translateService.instant(categoryKey);
+    } catch (error) {
+      return categoryKey;
+    }
   }
 
   /**
    * Get category icon
    */
   getCategoryIcon(category: FirebaseService['category']): string {
-    const categoryConfig = this.serviceCategories.find(cat => cat.id === category);
+    const categoryConfig = this.serviceCategories().find(cat => cat.id === category);
     return categoryConfig?.icon || '✂️';
   }
 
@@ -593,6 +627,246 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'clearCache'
       });
+    }
+  }
+
+  // ===== CATEGORY MANAGEMENT =====
+
+  /**
+   * Load custom categories from Firebase
+   */
+  private async loadCustomCategories(): Promise<void> {
+    try {
+      const categoriesRef = collection(this.firestore, 'serviceCategories');
+      const querySnapshot = await getDocs(categoriesRef);
+
+      const customCategories: ServiceCategory[] = [];
+      querySnapshot.forEach((doc) => {
+        const category = { id: doc.id, ...doc.data() } as ServiceCategory;
+        customCategories.push(category);
+      });
+
+      this._customCategories.set(customCategories);
+    } catch (error) {
+      this.logger.firebaseError(error, 'loadCustomCategories', {
+        component: 'FirebaseServicesService',
+        method: 'loadCustomCategories'
+      });
+      // Set empty array if there's an error
+      this._customCategories.set([]);
+    }
+  }
+
+  /**
+   * Get all categories (static + custom from Firebase)
+   */
+  async getAllCategories(): Promise<ServiceCategory[]> {
+    try {
+      // Get custom categories from Firebase
+      const categoriesRef = collection(this.firestore, 'serviceCategories');
+      const querySnapshot = await getDocs(categoriesRef);
+
+      const customCategories: ServiceCategory[] = [];
+      querySnapshot.forEach((doc) => {
+        const category = { id: doc.id, ...doc.data() } as ServiceCategory;
+        customCategories.push(category);
+      });
+
+      // Combine static and custom categories
+      return [...this._staticCategories, ...customCategories];
+    } catch (error) {
+      this.logger.firebaseError(error, 'getAllCategories', {
+        component: 'FirebaseServicesService',
+        method: 'getAllCategories'
+      });
+      // Return only static categories if there's an error
+      return this._staticCategories;
+    }
+  }
+
+  /**
+   * Create a new custom category (admin only)
+   */
+  async createCategory(categoryData: { name: string; icon: string; id: string }): Promise<ServiceCategory | null> {
+    try {
+      // Check admin permissions
+      if (!this.hasAdminAccess()) {
+        throw new Error('Access denied - admin required');
+      }
+
+      this._isLoading.set(true);
+      this._error.set(null);
+
+      const currentUser = this.authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      // Check if category ID already exists
+      const existingCategories = await this.getAllCategories();
+      const categoryExists = existingCategories.some(cat => cat.id === categoryData.id);
+      if (categoryExists) {
+        throw new Error('Category ID already exists');
+      }
+
+      const category = {
+        ...categoryData,
+        custom: true,
+        createdAt: serverTimestamp(),
+        createdBy: currentUser.uid
+      };
+
+      // Save to Firestore
+      const docRef = await addDoc(collection(this.firestore, 'serviceCategories'), category);
+
+      // Create new category with ID
+      const newCategory: ServiceCategory = {
+        ...category,
+        id: docRef.id
+      };
+
+      // Update local categories
+      this._customCategories.update(categories => [...categories, newCategory]);
+
+      this.toastService.showSuccess('COMMON.CATEGORY_CREATED_SUCCESS');
+      this.logger.info('Category created', {
+        component: 'FirebaseServicesService',
+        method: 'createCategory',
+        userId: currentUser.uid
+      });
+
+      return newCategory;
+    } catch (error) {
+      this.logger.firebaseError(error, 'createCategory', {
+        component: 'FirebaseServicesService',
+        method: 'createCategory',
+        userId: this.authService.user()?.uid
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Error creating category';
+      this._error.set(errorMessage);
+      this.toastService.showGenericError('COMMON.ERROR_CREATING_CATEGORY');
+      return null;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Update a custom category (admin only)
+   */
+  async updateCategory(categoryId: string, updates: Partial<ServiceCategory>): Promise<boolean> {
+    try {
+      // Check admin permissions
+      if (!this.hasAdminAccess()) {
+        throw new Error('Access denied - admin required');
+      }
+
+      this._isLoading.set(true);
+      this._error.set(null);
+
+      const currentUser = this.authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      // Update in Firestore
+      const docRef = doc(this.firestore, 'serviceCategories', categoryId);
+      await updateDoc(docRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+
+      // Update local categories
+      this._customCategories.update(categories =>
+        categories.map(category =>
+          category.id === categoryId
+            ? { ...category, ...updates }
+            : category
+        )
+      );
+
+      this.toastService.showSuccess('COMMON.CATEGORY_UPDATED_SUCCESS');
+      this.logger.info('Category updated', {
+        component: 'FirebaseServicesService',
+        method: 'updateCategory',
+        userId: currentUser.uid,
+        data: { categoryId }
+      });
+
+      return true;
+    } catch (error) {
+      this.logger.firebaseError(error, 'updateCategory', {
+        component: 'FirebaseServicesService',
+        method: 'updateCategory',
+        userId: this.authService.user()?.uid,
+        data: { categoryId }
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Error updating category';
+      this._error.set(errorMessage);
+      this.toastService.showGenericError('COMMON.ERROR_UPDATING_CATEGORY');
+      return false;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Delete a custom category (admin only)
+   */
+  async deleteCategory(categoryId: string): Promise<boolean> {
+    try {
+      // Check admin permissions
+      if (!this.hasAdminAccess()) {
+        throw new Error('Access denied - admin required');
+      }
+
+      this._isLoading.set(true);
+      this._error.set(null);
+
+      const currentUser = this.authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      // Check if category is being used by any services
+      const servicesUsingCategory = this.services().filter(service => service.category === categoryId);
+      if (servicesUsingCategory.length > 0) {
+        throw new Error(`Cannot delete category: ${servicesUsingCategory.length} services are using it`);
+      }
+
+      // Delete from Firestore
+      await deleteDoc(doc(this.firestore, 'serviceCategories', categoryId));
+
+      // Update local categories
+      this._customCategories.update(categories =>
+        categories.filter(cat => cat.id !== categoryId)
+      );
+
+      this.toastService.showSuccess('COMMON.CATEGORY_DELETED_SUCCESS');
+      this.logger.info('Category deleted', {
+        component: 'FirebaseServicesService',
+        method: 'deleteCategory',
+        userId: currentUser.uid,
+        data: { categoryId }
+      });
+
+      return true;
+    } catch (error) {
+      this.logger.firebaseError(error, 'deleteCategory', {
+        component: 'FirebaseServicesService',
+        method: 'deleteCategory',
+        userId: this.authService.user()?.uid,
+        data: { categoryId }
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Error deleting category';
+      this._error.set(errorMessage);
+      this.toastService.showGenericError('COMMON.ERROR_DELETING_CATEGORY');
+      return false;
+    } finally {
+      this._isLoading.set(false);
     }
   }
 }

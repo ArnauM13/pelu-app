@@ -1,0 +1,302 @@
+.input-number-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-number-label {
+  font-weight: 600;
+  color: #000000;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.2;
+  width: 100%;
+
+  &.required::after {
+    content: ' *';
+    color: #dc2626;
+    font-weight: bold;
+  }
+}
+
+.input-number-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &.focused {
+    border-color: #1e40af;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+  }
+
+  &.error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  }
+
+  &.success {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+  }
+
+  &.disabled {
+    background-color: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &.icon-left .input-number-field {
+    padding-left: 2.5rem;
+  }
+
+  &.icon-right .input-number-field {
+    padding-right: 2.5rem;
+  }
+
+  &.has-prefix .input-number-field {
+    padding-left: 3rem;
+  }
+
+  &.has-suffix .input-number-field {
+    padding-right: 3rem;
+  }
+}
+
+.input-number-field {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  border: none;
+  background: transparent;
+  color: #000000;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:read-only {
+    cursor: default;
+  }
+
+  // Remove spinner buttons for webkit browsers
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  // Remove spinner buttons for Firefox
+  &[type=number] {
+    -moz-appearance: textfield;
+  }
+}
+
+.input-number-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 100%;
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 1;
+
+  &.left {
+    left: 0;
+  }
+
+  &.right {
+    right: 0;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.input-number-prefix,
+.input-number-suffix {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 1;
+  padding: 0 0.75rem;
+  background-color: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.input-number-prefix {
+  left: 0;
+  border-right: 1px solid #e5e7eb;
+  border-radius: 8px 0 0 8px;
+}
+
+.input-number-suffix {
+  right: 0;
+  border-left: 1px solid #e5e7eb;
+  border-radius: 0 8px 8px 0;
+}
+
+.input-number-loading {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.input-number-clear {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 1;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+.input-number-help {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.input-number-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &::before {
+    content: '⚠';
+    font-size: 0.75rem;
+  }
+}
+
+.input-number-success {
+  font-size: 0.8rem;
+  color: #16a34a;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &::before {
+    content: '✓';
+    font-size: 0.75rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .input-number-wrapper {
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .input-number-field {
+    font-size: 1rem; // Prevent zoom on iOS
+  }
+}
+
+// Dark mode support (if needed)
+@media (prefers-color-scheme: dark) {
+  .input-number-wrapper {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .input-number-field {
+    color: #f9fafb;
+
+    &::placeholder {
+      color: #6b7280;
+    }
+  }
+
+  .input-number-label {
+    color: #f9fafb;
+  }
+
+  .input-number-icon {
+    color: #9ca3af;
+  }
+
+  .input-number-prefix,
+  .input-number-suffix {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #9ca3af;
+  }
+
+  .input-number-clear {
+    color: #9ca3af;
+
+    &:hover {
+      background-color: #374151;
+      color: #f9fafb;
+    }
+  }
+}

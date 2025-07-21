@@ -1,0 +1,68 @@
+<div
+  class="service-card"
+  [class.clickable]="isClickable()"
+  [class.selected]="isSelected()"
+  [class.compact]="isCompact()"
+  (click)="onCardClick()">
+
+  <div class="service-header">
+    <div class="service-icon">{{ service.icon }}</div>
+    <div class="service-info">
+      <h3 class="service-name">{{ service.name }}</h3>
+      @if (config.showPopularBadge && service.popular) {
+        <span class="popular-badge">⭐</span>
+      }
+    </div>
+    @if (config.showActions) {
+      <div class="service-actions">
+        <button
+          class="btn"
+          [class.btn-success]="service.popular"
+          [class.btn-outline]="!service.popular"
+          [pTooltip]="service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR' | translate"
+          (click)="onTogglePopularClick($event)">
+          {{ service.popular ? '⭐' : '☆' }}
+        </button>
+        <button
+          class="btn btn-secondary"
+          [pTooltip]="'ADMIN.SERVICES.EDIT_SERVICE' | translate"
+          (click)="onEditClick($event)">
+          ✏️
+        </button>
+        <button
+          class="btn btn-danger"
+          [pTooltip]="'COMMON.ACTIONS.DELETE' | translate"
+          (click)="onDeleteClick($event)">
+          🗑️
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (config.showDescription && service.description) {
+    <div class="service-description">
+      <p>{{ service.description }}</p>
+    </div>
+  }
+
+  <div class="service-meta">
+    @if (config.showDuration) {
+      <div class="meta-item">
+        <span class="meta-label">⏱️&nbsp;{{ 'ADMIN.SERVICES.DURATION_MINUTES' | translate }}:</span>
+        <span class="meta-value">{{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+      </div>
+    }
+    @if (config.showPrice) {
+      <div class="meta-item">
+        <span class="meta-label">💰&nbsp;{{ 'ADMIN.SERVICES.PRICE_EURO' | translate }}:</span>
+        <span class="meta-value">{{ service.price | currency }}</span>
+      </div>
+    }
+    @if (config.showCategory) {
+      <div class="meta-item">
+        <span class="meta-label">📂&nbsp;{{ 'ADMIN.SERVICES.CATEGORY' | translate }}:</span>
+        <span class="meta-value">{{ getCategoryName(service.category) | translate }}</span>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div [class]="checkboxClasses()">
+  <div class="checkbox-container">
+    <!-- Checkbox input -->
+    <input
+      type="checkbox"
+      [id]="config().id || generateId()"
+      [name]="config().name"
+      [checked]="displayValue()"
+      [disabled]="config().disabled"
+      [readonly]="config().readonly"
+      [required]="config().required"
+      [autofocus]="config().autofocus"
+      [tabindex]="config().tabindex"
+      [indeterminate]="isIndeterminate()"
+      (change)="onCheckboxChange($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)"
+      class="checkbox-input">
+
+    <!-- Custom checkbox styling -->
+    <div class="checkbox-custom">
+      <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+      </svg>
+    </div>
+
+    <!-- Label -->
+    @if (showLabel()) {
+        <label
+      [for]="config().id || generateId()"
+      class="checkbox-label">
+      {{ config().label || '' | translate }}
+      @if (config().required) {
+        <span class="required-indicator">*</span>
+      }
+    </label>
+    }
+  </div>
+
+  <!-- Help text -->
+  @if (showHelpText()) {
+  <div class="help-text">
+    {{ config().helpText || '' | translate }}
+  </div>
+  }
+
+  <!-- Error text -->
+  @if (showErrorText()) {
+  <div class="error-text">
+    {{ config().errorText || '' | translate }}
+  </div>
+  }
+
+  <!-- Success text -->
+  @if (showSuccessText()) {
+  <div class="success-text">
+    {{ config().successText || '' | translate }}
+  </div>
+  }
+
+  <!-- Loading indicator -->
+  @if (config().loading) {
+  <div class="loading-indicator">
+    <div class="spinner"></div>
+  </div>
+  }
+</div>

@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { InputTextComponent, InputEmailComponent } from '../inputs';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { ServicesService, Service } from '../../../core/services/services.service';
+import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -21,7 +21,7 @@ export interface BookingDetails {
 @Component({
   selector: 'pelu-booking-popup',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule, InputTextComponent, InputEmailComponent],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss']
 })
@@ -29,7 +29,7 @@ export class BookingPopupComponent {
   // Input signals
   readonly open = input<boolean>(false);
   readonly bookingDetails = input<BookingDetails>({date: '', time: '', clientName: '', email: ''});
-  readonly availableServices = input<Service[]>([]);
+  readonly availableServices = input<FirebaseService[]>([]);
 
   // Output signals
   readonly confirmed = output<BookingDetails>();
@@ -62,6 +62,26 @@ export class BookingPopupComponent {
     const service = this.bookingDetails().service;
     return service ? service.price : 0;
   });
+
+  // Input configurations
+  readonly clientNameConfig = {
+    type: 'text' as const,
+    label: 'COMMON.CLIENT_NAME',
+    placeholder: 'COMMON.ENTER_CLIENT_NAME',
+    required: true,
+    icon: 'pi pi-user',
+    iconPosition: 'left' as const
+  };
+
+  readonly emailConfig = {
+    type: 'email' as const,
+    label: 'COMMON.EMAIL',
+    placeholder: 'COMMON.ENTER_EMAIL',
+    required: true,
+    icon: 'pi pi-envelope',
+    iconPosition: 'left' as const,
+    autocomplete: 'email'
+  };
 
   // Services
   private readonly translate = inject(TranslateService);
@@ -117,8 +137,8 @@ export class BookingPopupComponent {
     return `${duration} ${this.translate.instant('COMMON.UNITS.MINUTES')}`;
   }
 
-  getServiceName(service: Service): string {
-    return this.translate.instant(`SERVICES.${service.id.toUpperCase()}.NAME`) || service.name;
+  getServiceName(service: FirebaseService): string {
+    return this.translate.instant(`SERVICES.${service.id?.toUpperCase()}.NAME`) || service.name;
   }
 
   // Event handlers

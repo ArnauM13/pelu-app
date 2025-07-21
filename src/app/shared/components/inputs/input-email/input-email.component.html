@@ -1,0 +1,90 @@
+<div class="input-email-container">
+  <!-- Label -->
+  @if (showLabel()) {
+    <label
+      [for]="config().id || config().name"
+      class="input-email-label"
+      [class.required]="config().required">
+      {{ (config().label || '') | translate }}
+    </label>
+  }
+
+  <!-- Input wrapper -->
+  <div class="input-email-wrapper" [class]="inputClasses()">
+    <!-- Left icon -->
+    @if (hasIcon() && config().iconPosition !== 'right') {
+      <div class="input-email-icon left">
+        <i [class]="config().icon"></i>
+      </div>
+    }
+
+    <!-- Loading spinner -->
+    @if (config().loading) {
+      <div class="input-email-loading">
+        <div class="spinner"></div>
+      </div>
+    }
+
+    <!-- Main input -->
+    <input
+      type="email"
+      [id]="config().id || config().name"
+      [name]="config().name"
+      [placeholder]="(config().placeholder || '') | translate"
+      [required]="config().required"
+      [disabled]="config().disabled"
+      [readonly]="config().readonly"
+      [autocomplete]="config().autocomplete || 'email'"
+      [autofocus]="config().autofocus"
+      [attr.maxlength]="config().maxlength"
+      [attr.minlength]="config().minlength"
+      [spellcheck]="config().spellcheck"
+      [tabindex]="config().tabindex"
+      [style]="config().style"
+      [value]="displayValue()"
+      (input)="onInput($event)"
+      (change)="onChangeHandler($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)"
+      (keydown)="onKeydown($event)"
+      (keyup)="onKeyup($event)"
+      (keypress)="onKeypress($event)"
+      class="input-email-field">
+
+    <!-- Right icon or clear button -->
+    @if (hasIcon() && config().iconPosition === 'right') {
+      <div class="input-email-icon right">
+        <i [class]="config().icon"></i>
+      </div>
+    } @else if (isClearable()) {
+      <button
+        type="button"
+        class="input-email-clear"
+        (click)="onClear()"
+        [title]="'COMMON.CLEAR' | translate">
+        <i class="pi pi-times"></i>
+      </button>
+    }
+  </div>
+
+  <!-- Help text -->
+  @if (showHelpText()) {
+    <div class="input-email-help">
+      {{ (config().helpText || '') | translate }}
+    </div>
+  }
+
+  <!-- Error text -->
+  @if (showErrorText()) {
+    <div class="input-email-error">
+      {{ (config().errorText || '') | translate }}
+    </div>
+  }
+
+  <!-- Success text -->
+  @if (showSuccessText()) {
+    <div class="input-email-success">
+      {{ (config().successText || '') | translate }}
+    </div>
+  }
+</div>
