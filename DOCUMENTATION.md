@@ -291,7 +291,7 @@ private readonly translateService = inject(TranslateService);
 this.translateService.use('en');
 
 // Traducció en template
-{{ 'COMMON.SAVE' | translate }}
+{{ 'COMMON.ACTIONS.SAVE' | translate }}
 ```
 
 ---

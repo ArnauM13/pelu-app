@@ -2370,7 +2370,7 @@ input[type="week"],
 
 .input-select .select-label {
   display: block !important;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0 !important;
   font-weight: 600 !important;
   color: var(--text-color-light, #374151) !important;
   font-size: 0.95rem !important;
@@ -3314,14 +3314,14 @@ input[type="time"],
 input[type="datetime-local"],
 input[type="month"],
 input[type="week"],
+input[type="date"],
 textarea,
 select {
   padding: 0.75rem 1rem !important;
 }
 
 input[type="email"],
-input[type="search"],
-input[type="date"] {
+input[type="search"] {
   padding: 0.75rem 0.75rem 0.75rem 2.5rem !important;
 }
 

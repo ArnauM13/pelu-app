@@ -25,10 +25,6 @@
     "CLEAR_FILTERS_BUTTON": "Clear filters",
     "APPOINTMENTS_LIST": "Appointments",
     "VIEW_APPOINTMENTS_LIST": "View all your appointments in list format",
-    "TOTAL_APPOINTMENTS": "Total Appointments",
-    "TODAY_APPOINTMENTS": "Today's Appointments",
-    "UPCOMING_APPOINTMENTS": "Upcoming Appointments",
-    "MY_APPOINTMENTS": "My Appointments",
     "AVAILABLE_TIMES": "Available times",
     "OR": "or",
     "ACTIONS": {
@@ -178,7 +174,6 @@
       "CLIENT_ERROR": "Error in sent data. Please verify the entered information.",
       "UNKNOWN_ERROR": "Unknown error. Please contact technical support."
     },
-    "POPULAR": "Popular",
     "VALIDATION": {
       "INVALID_EMAIL": "Please enter a valid email"
     },
@@ -254,6 +249,10 @@
     "SERVICES": "Services"
   },
   "APPOINTMENTS": {
+    "TOTAL_APPOINTMENTS": "Total Appointments",
+    "TODAY_APPOINTMENTS": "Today's Appointments",
+    "UPCOMING_APPOINTMENTS": "Upcoming Appointments",
+    "MY_APPOINTMENTS": "My Appointments",
     "NEW_APPOINTMENT": "New appointment",
     "APPOINTMENT_DETAILS": "Appointment details",
     "APPOINTMENT_DETAIL": "Appointment detail",
@@ -277,10 +276,6 @@
       "COMPLETED": "Completed"
     },
     "MESSAGES": {
-      "TOTAL_APPOINTMENTS": "Total Appointments",
-      "TODAY_APPOINTMENTS": "Today's Appointments",
-      "UPCOMING_APPOINTMENTS": "Upcoming Appointments",
-      "MY_APPOINTMENTS": "My Appointments",
       "APPOINTMENTS_CALENDAR": "Appointments Calendar",
       "APPOINTMENTS_LIST": "Appointments",
       "VIEW_APPOINTMENTS": "View all your appointments in calendar format",
@@ -427,6 +422,12 @@
       "MARK_POPULAR": "Mark as popular",
       "UNMARK_POPULAR": "Unmark as popular",
       "ERROR_TOGGLING_POPULAR": "Error toggling popular status of service",
+      "UPDATING_SERVICE": "Updating service...",
+      "CREATING_SERVICE": "Creating service...",
+      "SERVICE_UPDATED_SUCCESS": "Service updated successfully",
+      "SERVICE_CREATED_SUCCESS": "Service created successfully",
+      "ERROR_UPDATING_SERVICE": "Error updating service",
+      "ERROR_CREATING_SERVICE": "Error creating service",
       "DELETE_CONFIRMATION": "Confirm deletion",
       "DELETE_CONFIRMATION_MESSAGE": "Are you sure you want to delete the service \"{{name}}\"?",
       "MIGRATE_SERVICES": "Migrate Services",
@@ -434,7 +435,6 @@
       "REFRESH": "Refresh",
       "CATEGORY": "Category",
       "ICON": "Icon",
-      "POPULAR": "Popular",
       "ACTIVE": "Active",
       "INACTIVE": "Inactive",
       "DURATION_MINUTES": "Duration (minutes)",
@@ -478,7 +478,13 @@
           "CATEGORY_ID_REQUIRED": "Category ID is required",
           "CATEGORY_ICON_REQUIRED": "Category icon is required",
           "CATEGORY_ID_FORMAT": "Category ID must contain only lowercase letters, numbers and hyphens",
-          "CATEGORY_ID_MIN_LENGTH": "Category ID must be at least 3 characters long"
+          "CATEGORY_ID_MIN_LENGTH": "Category ID must be at least 3 characters long",
+          "UPDATING_CATEGORY": "Updating category...",
+          "CREATING_CATEGORY": "Creating category...",
+          "CATEGORY_UPDATED_SUCCESS": "Category updated successfully",
+          "CATEGORY_CREATED_SUCCESS": "Category created successfully",
+          "ERROR_UPDATING_CATEGORY": "Error updating category",
+          "ERROR_CREATING_CATEGORY": "Error creating category"
         },
         "EXISTING_CATEGORIES": "Existing categories",
         "ADD_NEW_CATEGORY": "Add new category",
@@ -505,7 +511,6 @@
       "CURRENCY_HELP": "Currency will be applied to all application prices",
       "SAVE_SETTINGS": "Save settings",
       "RESET_DEFAULTS": "Reset defaults",
-      "CANCEL": "Cancel",
       "LOADING": "Loading settings..."
     },
     "SERVICES": {
@@ -538,7 +543,6 @@
       "REFRESH": "Refresh",
       "CATEGORY": "Category",
       "ICON": "Icon",
-      "POPULAR": "Popular",
       "ACTIVE": "Active",
       "INACTIVE": "Inactive",
       "DURATION_MINUTES": "Duration (minutes)",
