@@ -34,6 +34,9 @@ describe('BookingPageComponent', () => {
   let messageService: jasmine.SpyObj<MessageService>;
 
   beforeEach(async () => {
+    // Clear localStorage before each test
+    localStorage.clear();
+
     const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add']);
 
     await TestBed.configureTestingModule({

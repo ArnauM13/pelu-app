@@ -100,6 +100,8 @@ describe('HeaderComponent', () => {
   it('should render with proper structure', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.innerHTML).toContain('pelu-header');
+    expect(compiled.querySelector('.header')).toBeTruthy();
+    expect(compiled.querySelector('.header-content')).toBeTruthy();
+    expect(compiled.querySelector('.nav')).toBeTruthy();
   });
 });

@@ -15,6 +15,11 @@ describe('PopupStackComponent', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    // Clean up any pending timers
+    jasmine.clock().uninstall();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -136,7 +141,7 @@ describe('PopupStackComponent', () => {
     expect(inputs.onToggleAdvanced).toBe(mockOnToggleAdvanced);
   });
 
-  it('should emit popup closed event', () => {
+  it('should emit popup closed event', (done) => {
     spyOn(component.popupClosed, 'emit');
     const popupId = 'test-popup';
 
@@ -145,6 +150,7 @@ describe('PopupStackComponent', () => {
     // The emit happens after a timeout, so we need to wait
     setTimeout(() => {
       expect(component.popupClosed.emit).toHaveBeenCalledWith(popupId);
+      done();
     }, 350);
   });
 

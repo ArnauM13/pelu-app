@@ -110,6 +110,7 @@ describe('AppointmentsPageComponent', () => {
   it('should render with proper structure', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.innerHTML).toContain('pelu-appointments-page');
+    expect(compiled.querySelector('.container')).toBeTruthy();
+    expect(compiled.querySelector('.stats-grid')).toBeTruthy();
   });
 });
