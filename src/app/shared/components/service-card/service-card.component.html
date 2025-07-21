@@ -10,7 +10,14 @@
     <div class="service-info">
       <h3 class="service-name">{{ service.name }}</h3>
       @if (config.showPopularBadge && service.popular) {
-        <span class="popular-badge">⭐</span>
+        <pelu-popular-badge
+          [config]="{
+            size: 'small',
+            variant: 'default',
+            showIcon: true,
+            showText: false
+          }">
+        </pelu-popular-badge>
       }
     </div>
     @if (config.showActions) {

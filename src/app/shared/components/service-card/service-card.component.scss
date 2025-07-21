@@ -58,16 +58,7 @@
         line-height: 1.4;
       }
 
-      .popular-badge {
-        display: inline-block;
-        background: var(--success-color-light, #ecfdf5);
-        color: var(--success-color, #059669);
-        padding: var(--spacing-xs, 2px) var(--spacing-xs, 4px);
-        border-radius: var(--border-radius-sm, 4px);
-        font-size: 0.75rem;
-        font-weight: 500;
-        border: 1px solid var(--success-color-light, #d1fae5);
-      }
+
     }
 
     .service-actions {

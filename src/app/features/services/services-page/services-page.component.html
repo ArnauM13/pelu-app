@@ -21,7 +21,15 @@
                   <div class="service-card-header">
                     <h3>{{ service.name }}</h3>
                     @if (service.popular) {
-                      <p-tag [value]="'SERVICES.POPULAR' | translate" severity="success"></p-tag>
+                      <pelu-popular-badge
+                        [config]="{
+                          size: 'medium',
+                          variant: 'filled',
+                          showIcon: true,
+                          showText: true,
+                          text: 'SERVICES.POPULAR'
+                        }">
+                      </pelu-popular-badge>
                     }
                   </div>
                 </ng-template>
