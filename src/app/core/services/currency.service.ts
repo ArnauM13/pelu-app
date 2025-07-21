@@ -1,10 +1,11 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-export interface CurrencyInfo {
+export interface Currency {
   code: string;
   symbol: string;
   name: string;
+  translationKey: string;
   position: 'before' | 'after';
   decimalPlaces: number;
 }
@@ -13,29 +14,32 @@ export interface CurrencyInfo {
   providedIn: 'root'
 })
 export class CurrencyService {
+  // Inject services
+  #translateService = inject(TranslateService);
+
   private currentCurrency = signal<string>('EUR');
 
   // Currency information mapping
-  private readonly currencies: Record<string, CurrencyInfo> = {
-    'EUR': { code: 'EUR', symbol: '€', name: 'Euro', position: 'after', decimalPlaces: 2 },
-    'USD': { code: 'USD', symbol: '$', name: 'US Dollar', position: 'before', decimalPlaces: 2 },
-    'GBP': { code: 'GBP', symbol: '£', name: 'British Pound', position: 'before', decimalPlaces: 2 },
-    'CHF': { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc', position: 'before', decimalPlaces: 2 },
-    'SEK': { code: 'SEK', symbol: 'SEK', name: 'Swedish Krona', position: 'after', decimalPlaces: 2 },
-    'NOK': { code: 'NOK', symbol: 'NOK', name: 'Norwegian Krone', position: 'after', decimalPlaces: 2 },
-    'DKK': { code: 'DKK', symbol: 'DKK', name: 'Danish Krone', position: 'after', decimalPlaces: 2 },
-    'PLN': { code: 'PLN', symbol: 'PLN', name: 'Polish Złoty', position: 'after', decimalPlaces: 2 },
-    'HUF': { code: 'HUF', symbol: 'HUF', name: 'Hungarian Forint', position: 'after', decimalPlaces: 0 },
-    'RON': { code: 'RON', symbol: 'RON', name: 'Romanian Leu', position: 'after', decimalPlaces: 2 },
-    'BGN': { code: 'BGN', symbol: 'BGN', name: 'Bulgarian Lev', position: 'after', decimalPlaces: 2 },
-    'HRK': { code: 'HRK', symbol: 'HRK', name: 'Croatian Kuna', position: 'after', decimalPlaces: 2 },
-    'MAD': { code: 'MAD', symbol: 'MAD', name: 'Moroccan Dirham', position: 'after', decimalPlaces: 2 },
-    'DZD': { code: 'DZD', symbol: 'DZD', name: 'Algerian Dinar', position: 'after', decimalPlaces: 2 },
-    'TND': { code: 'TND', symbol: 'TND', name: 'Tunisian Dinar', position: 'after', decimalPlaces: 3 },
-    'EGP': { code: 'EGP', symbol: 'EGP', name: 'Egyptian Pound', position: 'after', decimalPlaces: 2 }
+  private readonly currencies: Record<string, Currency> = {
+    'EUR': { code: 'EUR', symbol: '€', name: 'Euro', translationKey: 'currency.eur', position: 'after', decimalPlaces: 2 },
+    'USD': { code: 'USD', symbol: '$', name: 'US Dollar', translationKey: 'currency.usd', position: 'before', decimalPlaces: 2 },
+    'GBP': { code: 'GBP', symbol: '£', name: 'British Pound', translationKey: 'currency.gbp', position: 'before', decimalPlaces: 2 },
+    'CHF': { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc', translationKey: 'currency.chf', position: 'before', decimalPlaces: 2 },
+    'SEK': { code: 'SEK', symbol: 'SEK', name: 'Swedish Krona', translationKey: 'currency.sek', position: 'after', decimalPlaces: 2 },
+    'NOK': { code: 'NOK', symbol: 'NOK', name: 'Norwegian Krone', translationKey: 'currency.nok', position: 'after', decimalPlaces: 2 },
+    'DKK': { code: 'DKK', symbol: 'DKK', name: 'Danish Krone', translationKey: 'currency.dkk', position: 'after', decimalPlaces: 2 },
+    'PLN': { code: 'PLN', symbol: 'PLN', name: 'Polish Złoty', translationKey: 'currency.pln', position: 'after', decimalPlaces: 2 },
+    'HUF': { code: 'HUF', symbol: 'HUF', name: 'Hungarian Forint', translationKey: 'currency.huf', position: 'after', decimalPlaces: 0 },
+    'RON': { code: 'RON', symbol: 'RON', name: 'Romanian Leu', translationKey: 'currency.ron', position: 'after', decimalPlaces: 2 },
+    'BGN': { code: 'BGN', symbol: 'BGN', name: 'Bulgarian Lev', translationKey: 'currency.bgn', position: 'after', decimalPlaces: 2 },
+    'HRK': { code: 'HRK', symbol: 'HRK', name: 'Croatian Kuna', translationKey: 'currency.hrk', position: 'after', decimalPlaces: 2 },
+    'MAD': { code: 'MAD', symbol: 'MAD', name: 'Moroccan Dirham', translationKey: 'currency.mad', position: 'after', decimalPlaces: 2 },
+    'DZD': { code: 'DZD', symbol: 'DZD', name: 'Algerian Dinar', translationKey: 'currency.dzd', position: 'after', decimalPlaces: 2 },
+    'TND': { code: 'TND', symbol: 'TND', name: 'Tunisian Dinar', translationKey: 'currency.tnd', position: 'after', decimalPlaces: 3 },
+    'EGP': { code: 'EGP', symbol: 'EGP', name: 'Egyptian Pound', translationKey: 'currency.egp', position: 'after', decimalPlaces: 2 }
   };
 
-  constructor(private translateService: TranslateService) {
+  constructor() {
     // Load currency from localStorage or use default
     const savedCurrency = localStorage.getItem('app_currency');
     if (savedCurrency && this.currencies[savedCurrency]) {
@@ -62,7 +66,7 @@ export class CurrencyService {
   }
 
   // Get currency info by code
-  getCurrencyInfo(currencyCode: string): CurrencyInfo | null {
+  getCurrencyInfo(currencyCode: string): Currency | null {
     return this.currencies[currencyCode] || null;
   }
 

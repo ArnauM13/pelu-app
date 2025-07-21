@@ -12,7 +12,7 @@ describe('AppointmentDetailPopupComponent', () => {
     data: '2024-01-15',
     hora: '10:00',
     servei: 'Corte de pelo',
-    serviceName: 'Haircut',
+    serviceName: 'SERVICES.NAMES.MALE_HAIRCUT',
     duration: 60,
     userId: 'user1'
   };

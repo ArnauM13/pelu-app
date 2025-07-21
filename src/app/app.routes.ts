@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { LandingPageComponent } from './features/landing-page/landing-page.component';
+import { LandingComponent } from './features/landing/landing.component';
 import { LoginPageComponent } from './features/auth/login-page/login-page.component';
 import { RegisterPageComponent } from './features/auth/register-page/register-page.component';
 import { PerfilPageComponent } from './features/profile/perfil-page/perfil-page.component';
@@ -10,6 +10,7 @@ import { AppointmentsPageComponent } from './features/appointments/appointments-
 import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
 import { ServicesPageComponent } from './features/services/services-page/services-page.component';
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
+import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
 
 export const routes: Routes = [
@@ -27,17 +28,18 @@ export const routes: Routes = [
     data: { viewTransitionName: 'register' }
   },
 
+
+
   // All authenticated routes - accessible to all roles
   {
     path: '',
-    component: LandingPageComponent,
+    component: LandingComponent,
     canActivate: [authGuard],
     data: { viewTransitionName: 'landing' }
   },
   {
     path: 'booking',
     component: BookingWrapperComponent,
-    canActivate: [authGuard],
     data: { viewTransitionName: 'booking' }
   },
   {
@@ -49,7 +51,6 @@ export const routes: Routes = [
   {
     path: 'appointments/:id',
     component: AppointmentDetailPageComponent,
-    canActivate: [authGuard],
     data: { viewTransitionName: 'appointment-detail' }
   },
   {
@@ -76,6 +77,12 @@ export const routes: Routes = [
         component: AdminDashboardPageComponent,
         canActivate: [adminGuard],
         data: { viewTransitionName: 'admin-dashboard' }
+      },
+      {
+        path: 'services',
+        component: AdminServicesPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-services' }
       },
       {
         path: 'settings',

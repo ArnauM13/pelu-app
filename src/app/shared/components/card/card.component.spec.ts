@@ -8,53 +8,31 @@ describe('CardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CardComponent]
-    }).compileComponents();
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(CardComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
-  describe('Component Creation and Basic Properties', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
-    it('should have default variant', () => {
-      expect(component.variant()).toBe('default');
-    });
-
-    it('should have variant input property', () => {
-      expect(component.variant).toBeDefined();
-      expect(typeof component.variant).toBe('function');
-    });
-
-    it('should return correct variant value', () => {
-      const variant = component.variant();
-      expect(variant).toBe('default');
-      expect(typeof variant).toBe('string');
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  describe('Component Structure', () => {
-    it('should be a component class', () => {
-      expect(CardComponent.prototype.constructor.name).toBe('CardComponent');
-    });
+  it('should have default variant', () => {
+    expect(component.variant()).toBe('default');
+  });
 
-    it('should have proper component structure', () => {
-      const componentClass = CardComponent;
-      expect(componentClass.name).toBe('CardComponent');
-      expect(typeof componentClass).toBe('function');
-    });
+  it('should have cardClasses computed signal', () => {
+    expect(component.cardClasses).toBeDefined();
+    expect(typeof component.cardClasses).toBe('function');
+  });
 
-    it('should be a standalone component', () => {
-      expect(CardComponent.prototype.constructor).toBeDefined();
-      expect(CardComponent.prototype.constructor.name).toBe('CardComponent');
-    });
-
-    it('should have component metadata', () => {
-      expect(CardComponent.prototype).toBeDefined();
-      expect(CardComponent.prototype.constructor).toBeDefined();
-    });
+  it('should return correct card classes for default variant', () => {
+    const classes = component.cardClasses();
+    expect(classes['pelu-card']).toBe(true);
+    expect(classes['pelu-card--default']).toBe(true);
   });
 
   describe('Template Rendering', () => {
@@ -141,48 +119,14 @@ describe('CardComponent', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('should have proper semantic structure', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const cardElement = compiled.querySelector('.pelu-card');
-      expect(cardElement).toBeTruthy();
+  describe('Component Structure', () => {
+    it('should be a standalone component', () => {
+      expect(CardComponent.prototype.constructor).toBeDefined();
     });
 
-    it('should be focusable if needed', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const cardElement = compiled.querySelector('.pelu-card');
-      expect(cardElement).toBeTruthy();
-    });
-  });
-
-  describe('Styling', () => {
-    it('should apply default styling', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const cardElement = compiled.querySelector('.pelu-card');
-      expect(cardElement).toBeTruthy();
-    });
-
-    it('should have consistent visual appearance', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.innerHTML).toContain('pelu-card');
-    });
-  });
-
-  describe('Integration', () => {
-    it('should work with other components', () => {
-      // Test that the component can be used in other components
-      expect(component).toBeTruthy();
-    });
-
-    it('should support content projection', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const cardElement = compiled.querySelector('.pelu-card');
-      expect(cardElement).toBeTruthy();
+    it('should have component metadata', () => {
+      expect(CardComponent.prototype).toBeDefined();
+      expect(CardComponent.prototype.constructor).toBeDefined();
     });
   });
 });

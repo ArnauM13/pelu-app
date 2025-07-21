@@ -2,8 +2,6 @@ import { Injectable, signal } from '@angular/core';
 
 export interface LoaderConfig {
   message?: string;
-  showSpinner?: boolean;
-  overlay?: boolean;
 }
 
 @Injectable({
@@ -12,9 +10,7 @@ export interface LoaderConfig {
 export class LoaderService {
   private readonly isLoadingSignal = signal<boolean>(false);
   private readonly configSignal = signal<LoaderConfig>({
-    message: 'COMMON.STATUS.LOADING',
-    showSpinner: true,
-    overlay: true
+    message: 'COMMON.STATUS.LOADING'
   });
 
   // Public signals
@@ -28,8 +24,6 @@ export class LoaderService {
     if (config) {
       this.configSignal.set({
         message: 'COMMON.STATUS.LOADING',
-        showSpinner: true,
-        overlay: true,
         ...config
       });
     }
@@ -48,19 +42,5 @@ export class LoaderService {
    */
   showWithMessage(message: string): void {
     this.show({ message });
-  }
-
-  /**
-   * Show loader without overlay (for inline loading)
-   */
-  showInline(config?: LoaderConfig): void {
-    this.show({ ...config, overlay: false });
-  }
-
-  /**
-   * Show loader without spinner (just message)
-   */
-  showMessageOnly(message: string): void {
-    this.show({ message, showSpinner: false });
   }
 }

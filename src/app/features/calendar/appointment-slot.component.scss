@@ -156,6 +156,37 @@
 
 /* ===== ESTILS ESPECÍFICS PER COLORS DE SERVEIS ===== */
 
+/* Public Booking Styles */
+.appointment.public-booking {
+  background-color: #dc3545 !important;
+  border-color: #c82333 !important;
+  color: white !important;
+  cursor: default !important;
+}
+
+.appointment.public-booking:hover {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.appointment.public-booking .appointment-title {
+  color: white !important;
+}
+
+.appointment.public-booking-text {
+  color: white !important;
+}
+
+.appointment.no-drag {
+  cursor: default !important;
+}
+
+.appointment.no-drag .drag-handle {
+  display: none !important;
+}
+
 /* Tall (Haircut) */
 .appointment.service-color-haircut {
   background-color: var(--service-haircut-bg) !important;

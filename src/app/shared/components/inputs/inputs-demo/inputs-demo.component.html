@@ -1,0 +1,150 @@
+<div class="inputs-demo-container">
+  <div class="demo-header">
+    <h1>Components d'Input Unificats</h1>
+    <p>Demostració dels components d'input amb mides unificades</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- Input Text -->
+    <div class="demo-section">
+      <h2>Input Text (Una línia)</h2>
+      <pelu-input-text
+        [config]="{
+          type: 'text',
+          label: 'Nom',
+          placeholder: 'Introdueix el teu nom',
+          required: true,
+          showLabel: true
+        }"
+        [value]="formData().name"
+        (valueChange)="updateField('name', $event)">
+      </pelu-input-text>
+    </div>
+
+    <!-- Input Email -->
+    <div class="demo-section">
+      <h2>Input Email</h2>
+      <pelu-input-email
+        [config]="{
+          label: 'Email',
+          placeholder: 'exemple@email.com',
+          required: true,
+          showLabel: true
+        }"
+        [value]="formData().email"
+        (valueChange)="updateField('email', $event)">
+      </pelu-input-email>
+    </div>
+
+    <!-- Input Password -->
+    <div class="demo-section">
+      <h2>Input Password</h2>
+      <pelu-input-password
+        [config]="{
+          label: 'Contrasenya',
+          placeholder: 'Introdueix la contrasenya',
+          required: true,
+          showLabel: true
+        }"
+        [value]="formData().password"
+        (valueChange)="updateField('password', $event)">
+      </pelu-input-password>
+    </div>
+
+    <!-- Input Number -->
+    <div class="demo-section">
+      <h2>Input Number</h2>
+      <pelu-input-number
+        [config]="{
+          label: 'Edat',
+          placeholder: '25',
+          min: 0,
+          max: 120,
+          showLabel: true
+        }"
+        [value]="formData().age"
+        (valueChange)="updateField('age', $event)">
+      </pelu-input-number>
+    </div>
+
+    <!-- Input Date -->
+    <div class="demo-section">
+      <h2>Input Date</h2>
+      <pelu-input-date
+        [config]="{
+          label: 'Data de naixement',
+          placeholder: 'Selecciona una data',
+          showLabel: true
+        }"
+        [value]="formData().birthDate"
+        (valueChange)="updateField('birthDate', $event)">
+      </pelu-input-date>
+    </div>
+
+    <!-- Input Select -->
+    <div class="demo-section">
+      <h2>Input Select</h2>
+      <pelu-input-select
+        [config]="{
+          label: 'Categoria',
+          placeholder: 'Selecciona una categoria',
+          options: categoryOptions,
+          showLabel: true
+        }"
+        [value]="formData().category"
+        (valueChange)="updateField('category', $event)">
+      </pelu-input-select>
+    </div>
+
+    <!-- Input Textarea -->
+    <div class="demo-section full-width">
+      <h2>Input Textarea (Text llarg)</h2>
+      <pelu-input-textarea
+        [config]="{
+          label: 'Descripció',
+          placeholder: 'Introdueix una descripció detallada...',
+          rows: 4,
+          showLabel: true
+        }"
+        [value]="formData().description"
+        (valueChange)="updateField('description', $event)">
+      </pelu-input-textarea>
+    </div>
+
+    <!-- Input Textarea amb auto-resize -->
+    <div class="demo-section full-width">
+      <h2>Input Textarea amb Auto-resize</h2>
+      <pelu-input-textarea
+        [config]="{
+          label: 'Notes',
+          placeholder: 'Aquest textarea es redimensiona automàticament...',
+          rows: 2,
+          autoResize: true,
+          showLabel: true
+        }"
+        [value]="formData().notes"
+        (valueChange)="updateField('notes', $event)">
+      </pelu-input-textarea>
+    </div>
+
+    <!-- Input Checkbox -->
+    <div class="demo-section">
+      <h2>Input Checkbox</h2>
+      <pelu-input-checkbox
+        [config]="{
+          label: 'Accepto els termes i condicions',
+          required: true,
+          showLabel: true
+        }"
+        [value]="formData().terms"
+        (valueChange)="updateField('terms', $event)">
+      </pelu-input-checkbox>
+    </div>
+  </div>
+
+  <!-- Form Data Display -->
+  <div class="form-data-display">
+    <h3>Dades del formulari:</h3>
+    <pre>{{ formData() | json }}</pre>
+  </div>
+</div>

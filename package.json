@@ -1,6 +1,7 @@
 {
   "name": "pelu-app",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -9,7 +10,8 @@
     "test": "ng test",
     "lint": "eslint . --ext .ts,.html",
     "format": "prettier --write .",
-    "prettier": "prettier --check ."
+    "prettier": "prettier --check .",
+    "optimize-assets": "node scripts/optimize-assets.js"
   },
   "private": true,
   "dependencies": {
@@ -30,6 +32,7 @@
     "angular-calendar": "^0.31.1",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
+    "nanoid": "^5.1.5",
     "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",
     "primeng": "^18.0.2",
@@ -49,12 +52,15 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsdoc": "^48.1.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
+    "imagemin": "^9.0.1",
+    "imagemin-pngquant": "^10.0.0",
     "jasmine-core": "^5.8.0",
     "karma-chrome-launcher": "^3.2.0",
     "karma-coverage": "^2.2.1",
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
     "prettier": "^3.2.5",
+    "sharp": "^0.34.3",
     "typescript": "~5.4.5"
   }
 }

@@ -1,108 +1,15 @@
-// Mocks comuns per a tests Angular amb Firebase
+import { of } from 'rxjs';
+import { signal, computed } from '@angular/core';
 import { Auth, User } from '@angular/fire/auth';
 import { Firestore } from '@angular/fire/firestore';
 import { AuthService } from '../app/core/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
-import { signal, computed } from '@angular/core';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
 import { TranslationService } from '../app/core/services/translation.service';
-import {
-  mockTranslateService,
-  mockTranslateStore,
-  mockTranslationService
-} from './translation-mocks';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { CalendarModule } from 'primeng/calendar';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { CheckboxModule } from 'primeng/checkbox';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { SliderModule } from 'primeng/slider';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { TableModule } from 'primeng/table';
-import { PaginatorModule } from 'primeng/paginator';
-import { DialogModule } from 'primeng/dialog';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { MenuModule } from 'primeng/menu';
-import { SidebarModule } from 'primeng/sidebar';
-import { TabViewModule } from 'primeng/tabview';
-import { AccordionModule } from 'primeng/accordion';
-import { PanelModule } from 'primeng/panel';
-import { FieldsetModule } from 'primeng/fieldset';
-import { DividerModule } from 'primeng/divider';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SkeletonModule } from 'primeng/skeleton';
-import { AvatarModule } from 'primeng/avatar';
-import { AvatarGroupModule } from 'primeng/avatargroup';
-import { BadgeModule } from 'primeng/badge';
-import { ChipModule } from 'primeng/chip';
-import { TagModule } from 'primeng/tag';
-import { RatingModule } from 'primeng/rating';
-import { ToggleButtonModule } from 'primeng/togglebutton';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputMaskModule } from 'primeng/inputmask';
-import { PasswordModule } from 'primeng/password';
-import { TextareaModule } from 'primeng/textarea';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { FileUploadModule } from 'primeng/fileupload';
-import { GalleriaModule } from 'primeng/galleria';
-import { ImageModule } from 'primeng/image';
-import { CarouselModule } from 'primeng/carousel';
-import { TimelineModule } from 'primeng/timeline';
-import { OrderListModule } from 'primeng/orderlist';
-import { PickListModule } from 'primeng/picklist';
-import { TreeModule } from 'primeng/tree';
-import { TreeTableModule } from 'primeng/treetable';
-import { OrganizationChartModule } from 'primeng/organizationchart';
-import { KnobModule } from 'primeng/knob';
-import { ColorPickerModule } from 'primeng/colorpicker';
-import { InputOtpModule } from 'primeng/inputotp';
-import { TerminalModule } from 'primeng/terminal';
-import { BlockUIModule } from 'primeng/blockui';
-import { InplaceModule } from 'primeng/inplace';
-import { ScrollTopModule } from 'primeng/scrolltop';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { RippleModule } from 'primeng/ripple';
-import { AnimateOnScrollModule } from 'primeng/animateonscroll';
-import { FocusTrapModule } from 'primeng/focustrap';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { DeferModule } from 'primeng/defer';
-import { StyleClassModule } from 'primeng/styleclass';
-import { ContextMenuModule } from 'primeng/contextmenu';
-import { MegaMenuModule } from 'primeng/megamenu';
-import { PanelMenuModule } from 'primeng/panelmenu';
-import { StepsModule } from 'primeng/steps';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { TieredMenuModule } from 'primeng/tieredmenu';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { DockModule } from 'primeng/dock';
-import { MenubarModule } from 'primeng/menubar';
-import { Component, Input, EventEmitter, Output } from '@angular/core';
 
-// Mock Toast component to prevent initialization issues in tests
-@Component({
-  selector: 'p-toast',
-  template: '<div class="mock-toast"></div>',
-  standalone: true
-})
-export class MockToastComponent {
-  @Input() key: string = '';
-  @Input() position: string = 'top-right';
-  @Input() baseZIndex: number = 9999;
-  @Output() onClick = new EventEmitter<any>();
-}
-
-// Mock user object with only essential properties
+// Mock user object
 export const mockUser: any = {
   uid: 'test-uid-123',
   email: 'test@example.com',
@@ -121,70 +28,183 @@ export const mockUser: any = {
   tenantId: null
 };
 
-// Mock Firestore service
-export const mockFirestore: jasmine.SpyObj<Firestore> = jasmine.createSpyObj('Firestore', [
-  'collection',
-  'doc',
-  'collectionGroup',
-  'runTransaction',
-  'batch',
-  'writeBatch',
-  'settings',
-  'enableNetwork',
-  'disableNetwork',
-  'clearPersistence',
-  'waitForPendingWrites',
-  'terminate',
-  'app'
-], {
-  app: { name: 'test-app' }
-});
+// Mock for Firestore
+export const firestoreMock = {
+  collection: jasmine.createSpy('collection').and.returnValue({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
+    doc: jasmine.createSpy('doc').and.returnValue({
+      valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+      set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+      update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+      delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+      get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+        data: () => ({}),
+        exists: true
+      }))
+    }),
+    add: jasmine.createSpy('add').and.returnValue(Promise.resolve({ id: 'mock-id' })),
+    where: jasmine.createSpy('where').and.returnValue({
+      orderBy: jasmine.createSpy('orderBy').and.returnValue({
+        limit: jasmine.createSpy('limit').and.returnValue({
+          get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+            docs: [],
+            empty: true
+          }))
+        })
+      })
+    }),
+    orderBy: jasmine.createSpy('orderBy').and.returnValue({
+      limit: jasmine.createSpy('limit').and.returnValue({
+        get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+          docs: [],
+          empty: true
+        }))
+      })
+    }),
+    limit: jasmine.createSpy('limit').and.returnValue({
+      get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+        docs: [],
+        empty: true
+      }))
+    }),
+    get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+      docs: [],
+      empty: true
+    }))
+  }),
+  doc: jasmine.createSpy('doc').and.returnValue({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+    set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+    update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+    delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+    get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+      data: () => ({}),
+      exists: true
+    }))
+  })
+};
 
-// Mock Auth service with ALL Firebase methods including onAuthStateChanged
-export const mockAuth: jasmine.SpyObj<Auth> = jasmine.createSpyObj('Auth', [
-  'signInWithEmailAndPassword',
-  'createUserWithEmailAndPassword',
-  'signOut',
-  'signInWithPopup',
-  'onAuthStateChanged'
-], {
-  currentUser: mockUser,
+// Mock for Firebase Auth
+export const authMock = {
+  currentUser: Promise.resolve({
+    uid: 'mock-user-id',
+    email: 'mock@example.com',
+    displayName: 'Mock User'
+  }),
+  signInWithEmailAndPassword: jasmine.createSpy('signInWithEmailAndPassword').and.returnValue(Promise.resolve({
+    user: { uid: 'mock-user-id', email: 'mock@example.com' }
+  })),
   signOut: jasmine.createSpy('signOut').and.returnValue(Promise.resolve()),
-  onAuthStateChanged: jasmine.createSpy('onAuthStateChanged').and.callFake((callback: (user: User | null) => void) => {
-    // Simulate authenticated user immediately
-    callback(mockUser);
+  onAuthStateChanged: jasmine.createSpy('onAuthStateChanged').and.callFake((callback: any) => {
+    callback({ uid: 'mock-user-id', email: 'mock@example.com' });
     return () => {}; // Return unsubscribe function
+  }),
+  createUserWithEmailAndPassword: jasmine.createSpy('createUserWithEmailAndPassword').and.returnValue(Promise.resolve({
+    user: { uid: 'mock-user-id', email: 'mock@example.com' }
+  }))
+};
+
+// Mock for Firebase Functions
+export const functionsMock = {
+  httpsCallable: jasmine.createSpy('httpsCallable').and.returnValue(
+    jasmine.createSpy('callable').and.returnValue(Promise.resolve({ data: {} }))
+  )
+};
+
+// Mock for Firebase Storage
+export const storageMock = {
+  ref: jasmine.createSpy('ref').and.returnValue({
+    put: jasmine.createSpy('put').and.returnValue(Promise.resolve({
+      ref: {
+        getDownloadURL: jasmine.createSpy('getDownloadURL').and.returnValue(Promise.resolve('mock-url'))
+      }
+    })),
+    getDownloadURL: jasmine.createSpy('getDownloadURL').and.returnValue(Promise.resolve('mock-url'))
+  })
+};
+
+// Mock for serverTimestamp
+export const serverTimestampMock = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
+
+// Mock for collection and collectionData functions
+export const collectionMock = jasmine.createSpy('collection').and.returnValue({
+  valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
+  doc: jasmine.createSpy('doc').and.returnValue({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+    set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+    update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+    delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve())
   })
 });
 
-// Mock Firebase Auth functions
-export const mockSignInWithEmailAndPassword = jasmine.createSpy('signInWithEmailAndPassword').and.returnValue(Promise.resolve({ user: mockUser }));
-export const mockCreateUserWithEmailAndPassword = jasmine.createSpy('createUserWithEmailAndPassword').and.returnValue(Promise.resolve({ user: mockUser }));
-export const mockSignOut = jasmine.createSpy('signOut').and.returnValue(Promise.resolve());
-export const mockSignInWithPopup = jasmine.createSpy('signInWithPopup').and.returnValue(Promise.resolve({ user: mockUser }));
-export const mockOnAuthStateChanged = jasmine.createSpy('onAuthStateChanged').and.callFake((auth: any, callback: (user: User | null) => void) => {
-  // Simulate authenticated user immediately
-  callback(mockUser);
-  return () => {}; // Return unsubscribe function
+export const collectionDataMock = jasmine.createSpy('collectionData').and.returnValue(of([]));
+
+// Mock for addDoc
+export const addDocMock = jasmine.createSpy('addDoc').and.returnValue(Promise.resolve({ id: 'mock-doc-id' }));
+
+// Mock for updateDoc
+export const updateDocMock = jasmine.createSpy('updateDoc').and.returnValue(Promise.resolve());
+
+// Mock for deleteDoc
+export const deleteDocMock = jasmine.createSpy('deleteDoc').and.returnValue(Promise.resolve());
+
+// Mock for doc
+export const docMock = jasmine.createSpy('doc').and.returnValue({
+  valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+  set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+  update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+  delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve())
 });
 
-// Mock GoogleAuthProvider
-export const mockGoogleAuthProvider = {
-  setCustomParameters: jasmine.createSpy('setCustomParameters').and.returnValue({})
-};
+// Mock for query
+export const queryMock = jasmine.createSpy('query').and.returnValue({
+  get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+    docs: [],
+    empty: true
+  }))
+});
 
-// Mock Firebase app configuration for tests
-export const mockFirebaseConfig = {
-  apiKey: 'test-api-key',
-  authDomain: 'test.firebaseapp.com',
-  projectId: 'test-project',
-  storageBucket: 'test.appspot.com',
-  messagingSenderId: '123456789',
-  appId: 'test-app-id'
-};
+// Mock for where
+export const whereMock = jasmine.createSpy('where').and.returnValue({
+  orderBy: jasmine.createSpy('orderBy').and.returnValue({
+    limit: jasmine.createSpy('limit').and.returnValue({
+      get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+        docs: [],
+        empty: true
+      }))
+    })
+  })
+});
 
-// Re-export translation mocks
-export { mockTranslateService, mockTranslateStore, mockTranslationService };
+// Mock for orderBy
+export const orderByMock = jasmine.createSpy('orderBy').and.returnValue({
+  limit: jasmine.createSpy('limit').and.returnValue({
+    get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+      docs: [],
+      empty: true
+    }))
+  })
+});
+
+// Mock for limit
+export const limitMock = jasmine.createSpy('limit').and.returnValue({
+  get: jasmine.createSpy('get').and.returnValue(Promise.resolve({
+    docs: [],
+    empty: true
+  }))
+});
+
+// Mock for getDocs
+export const getDocsMock = jasmine.createSpy('getDocs').and.returnValue(Promise.resolve({
+  docs: [],
+  empty: true
+}));
+
+// Mock for getDoc
+export const getDocMock = jasmine.createSpy('getDoc').and.returnValue(Promise.resolve({
+  data: () => ({}),
+  exists: true
+}));
 
 // Mock AuthService with signals
 export const mockAuthService: jasmine.SpyObj<AuthService> = jasmine.createSpyObj('AuthService', [
@@ -225,51 +245,7 @@ export const mockMessageService: jasmine.SpyObj<MessageService> = jasmine.create
   'update'
 ], {
   messages: of([]),
-  onMessage: of(),
-  // Add missing properties that Toast component expects
-  messageObserver: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  messageObserver$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onClear: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onClear$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onAdd: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onAdd$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onRemove: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onRemove$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onReplace: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onReplace$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onUpdate: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onUpdate$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  // Ensure all observable properties have subscribe method
-  messages$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  },
-  onMessage$: {
-    subscribe: jasmine.createSpy('subscribe').and.returnValue({ unsubscribe: jasmine.createSpy('unsubscribe') })
-  }
+  onMessage: of()
 });
 
 export const mockConfirmationService: jasmine.SpyObj<ConfirmationService> = jasmine.createSpyObj('ConfirmationService', [
@@ -301,127 +277,79 @@ export const mockActivatedRoute: jasmine.SpyObj<ActivatedRoute> = jasmine.create
   }
 });
 
-// Common test data
-export const mockAppointments = [
-  {
-    id: '1',
-    nom: 'Joan Garcia',
-    data: '2024-01-15',
-    hora: '10:00',
-    servei: 'Tall de cabell',
-    serviceName: 'Tall de cabell',
-    duration: 30,
-    clientId: 'client-1'
-  },
-  {
-    id: '2',
-    nom: 'Maria Lopez',
-    data: '2024-01-15',
-    hora: '11:00',
-    servei: 'Coloració',
-    serviceName: 'Coloració',
-    duration: 60,
-    clientId: 'client-2'
-  },
-  {
-    id: '3',
-    nom: 'Pere Rodriguez',
-    data: '2024-01-16',
-    hora: '09:00',
-    servei: 'Perruqueria completa',
-    serviceName: 'Perruqueria completa',
-    duration: 90,
-    clientId: 'client-3'
-  }
-];
+// Mock Translation services
+export const mockTranslateService: jasmine.SpyObj<TranslateService> = jasmine.createSpyObj('TranslateService', [
+  'get',
+  'instant',
+  'setDefaultLang',
+  'use',
+  'addLangs',
+  'getLangs',
+  'getBrowserLang',
+  'getBrowserCultureLang',
+  'onLangChange',
+  'onTranslationChange',
+  'onDefaultLangChange',
+  'store',
+  'currentLoader',
+  'isolate',
+  'getTranslation',
+  'setTranslation',
+  'addLangs',
+  'getLangs',
+  'getBrowserLang',
+  'getBrowserCultureLang',
+  'onLangChange',
+  'onTranslationChange',
+  'onDefaultLangChange',
+  'store',
+  'currentLoader',
+  'isolate',
+  'getTranslation',
+  'setTranslation'
+], {
+  get: jasmine.createSpy('get').and.returnValue(of('translated text')),
+  instant: jasmine.createSpy('instant').and.returnValue('translated text'),
+  onLangChange: of({ lang: 'en', translations: {} }),
+  onTranslationChange: of({ lang: 'en', translations: {} }),
+  onDefaultLangChange: of({ lang: 'en', translations: {} })
+});
 
-export const mockServices = [
-  {
-    id: '1',
-    name: 'Tall de cabell',
-    duration: 30,
-    price: 25,
-    description: 'Tall de cabell bàsic'
-  },
-  {
-    id: '2',
-    name: 'Coloració',
-    duration: 60,
-    price: 45,
-    description: 'Coloració completa'
-  },
-  {
-    id: '3',
-    name: 'Perruqueria completa',
-    duration: 90,
-    price: 65,
-    description: 'Tall, rentat i estilitzat'
-  }
-];
+export const mockTranslateStore: jasmine.SpyObj<TranslateStore> = jasmine.createSpyObj('TranslateStore', [
+  'onLangChange',
+  'onTranslationChange',
+  'onDefaultLangChange'
+], {
+  onLangChange: of({ lang: 'en', translations: {} }),
+  onTranslationChange: of({ lang: 'en', translations: {} }),
+  onDefaultLangChange: of({ lang: 'en', translations: {} })
+});
 
-export const mockClients = [
-  {
-    id: 'client-1',
-    name: 'Joan Garcia',
-    email: 'joan@example.com',
-    phone: '123456789'
-  },
-  {
-    id: 'client-2',
-    name: 'Maria Lopez',
-    email: 'maria@example.com',
-    phone: '987654321'
-  },
-  {
-    id: 'client-3',
-    name: 'Pere Rodriguez',
-    email: 'pere@example.com',
-    phone: '555666777'
-  }
-];
-
-// DOM utilities for testing
-export const createMockEvent = (type: string = 'click', target?: any, currentTarget?: any): Event => {
-  const event = new Event(type);
-  if (target) {
-    Object.defineProperty(event, 'target', { value: target });
-  }
-  if (currentTarget) {
-    Object.defineProperty(event, 'currentTarget', { value: currentTarget });
-  }
-  return event;
-};
-
-export const createMockElement = (tagName: string = 'div', className?: string): HTMLElement => {
-  const element = document.createElement(tagName);
-  if (className) {
-    element.className = className;
-  }
-  return element;
-};
-
-export const createMockBackdropEvent = (): Event => {
-  const event = new Event('click');
-  const backdrop = createMockElement('div', 'popup-stack-overlay');
-  Object.defineProperty(event, 'target', { value: backdrop });
-  Object.defineProperty(event, 'currentTarget', { value: backdrop });
-  return event;
-};
-
-export const createMockNonBackdropEvent = (): Event => {
-  const event = new Event('click');
-  const backdrop = createMockElement('div', 'popup-stack-overlay');
-  const content = createMockElement('div', 'popup-content');
-  Object.defineProperty(event, 'target', { value: content });
-  Object.defineProperty(event, 'currentTarget', { value: backdrop });
-  return event;
-};
+export const mockTranslationService: jasmine.SpyObj<TranslationService> = jasmine.createSpyObj('TranslationService', [
+  'getCurrentLang',
+  'setLanguage',
+  'getAvailableLanguages',
+  'translate',
+  'translateInstant'
+], {
+  getCurrentLang: jasmine.createSpy('getCurrentLang').and.returnValue('en'),
+  translate: jasmine.createSpy('translate').and.returnValue(of('translated text')),
+  translateInstant: jasmine.createSpy('translateInstant').and.returnValue('translated text')
+});
 
 // Mock Firebase providers for tests
 export const provideMockFirebase = () => [
   {
+    provide: Firestore,
+    useValue: firestoreMock
+  },
+  {
     provide: Auth,
-    useValue: mockAuth
+    useValue: authMock
+  },
+  {
+    provide: AuthService,
+    useValue: mockAuthService
   },
   {
     provide: TranslateService,
@@ -436,93 +364,21 @@ export const provideMockFirebase = () => [
     useValue: mockTranslationService
   },
   {
-    provide: AuthService,
-    useValue: mockAuthService
-  },
-  {
     provide: MessageService,
     useValue: mockMessageService
   },
   {
     provide: ConfirmationService,
     useValue: mockConfirmationService
+  },
+  {
+    provide: Router,
+    useValue: mockRouter
+  },
+  {
+    provide: ActivatedRoute,
+    useValue: mockActivatedRoute
   }
-];
-
-// Common PrimeNG modules for testing
-export const commonPrimeNGModules = [
-  TooltipModule,
-  ConfirmDialogModule,
-  ButtonModule,
-  CardModule,
-  CalendarModule,
-  InputTextModule,
-  DropdownModule,
-  CheckboxModule,
-  RadioButtonModule,
-  SliderModule,
-  MultiSelectModule,
-  TableModule,
-  PaginatorModule,
-  DialogModule,
-  OverlayPanelModule,
-  MenuModule,
-  SidebarModule,
-  TabViewModule,
-  AccordionModule,
-  PanelModule,
-  FieldsetModule,
-  DividerModule,
-  ProgressBarModule,
-  ProgressSpinnerModule,
-  SkeletonModule,
-  AvatarModule,
-  AvatarGroupModule,
-  BadgeModule,
-  ChipModule,
-  TagModule,
-  RatingModule,
-  ToggleButtonModule,
-  SelectButtonModule,
-  InputSwitchModule,
-  InputNumberModule,
-  InputMaskModule,
-  PasswordModule,
-  TextareaModule,
-  AutoCompleteModule,
-  FileUploadModule,
-  GalleriaModule,
-  ImageModule,
-  CarouselModule,
-  TimelineModule,
-  OrderListModule,
-  PickListModule,
-  TreeModule,
-  TreeTableModule,
-  OrganizationChartModule,
-  KnobModule,
-  ColorPickerModule,
-  InputOtpModule,
-  TerminalModule,
-  BlockUIModule,
-  InplaceModule,
-  ScrollTopModule,
-  ScrollPanelModule,
-  RippleModule,
-  AnimateOnScrollModule,
-  FocusTrapModule,
-  KeyFilterModule,
-  DeferModule,
-  StyleClassModule,
-  ContextMenuModule,
-  MegaMenuModule,
-  PanelMenuModule,
-  StepsModule,
-  TabMenuModule,
-  TieredMenuModule,
-  BreadcrumbModule,
-  DockModule,
-  MenubarModule
 ];
 
 // Test utilities
@@ -536,25 +392,4 @@ export const createTestSignal = <T>(initialValue: T) => {
 
 export const createTestComputed = <T>(fn: () => T) => {
   return computed(fn);
-};
-
-// Mock for testing signals
-export const mockSignal = <T>(value: T) => {
-  const signalFn = jasmine.createSpy('signal').and.returnValue(value);
-  (signalFn as any).set = jasmine.createSpy('signal.set');
-  (signalFn as any).update = jasmine.createSpy('signal.update');
-  (signalFn as any).mutate = jasmine.createSpy('signal.mutate');
-  return signalFn;
-};
-
-// Mock for testing computed signals
-export const mockComputed = <T>(value: T) => {
-  return jasmine.createSpy('computed').and.returnValue(value);
-};
-
-// Mock for testing output signals
-export const mockOutput = <T>() => {
-  const output = jasmine.createSpy('output');
-  (output as any).emit = jasmine.createSpy('output.emit');
-  return output;
 };

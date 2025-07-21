@@ -3,14 +3,23 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { RouterModule } from '@angular/router';
 
 import { AvatarComponent } from '../avatar/avatar.component';
 import { InfoItemComponent } from '../info-item/info-item.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
+import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
+import { InputTextComponent } from '../inputs/input-text/input-text.component';
+import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
+import { InputNumberComponent } from '../inputs/input-number/input-number.component';
+import { InputDateComponent } from '../inputs/input-date/input-date.component';
+import { ActionsButtonsComponent } from '../actions-buttons';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
-import { LoaderService } from '../../services/loader.service';
+import { ActionsService, ActionContext } from '../../../core/services/actions.service';
+
 
 export interface DetailAction {
   label: string;
@@ -51,10 +60,18 @@ export interface DetailViewConfig {
     CommonModule,
     TranslateModule,
     InputTextModule,
+    TooltipModule,
     AvatarComponent,
     InfoItemComponent,
     AppointmentStatusBadgeComponent,
-    RouterModule
+    NotFoundStateComponent,
+    LoadingStateComponent,
+    RouterModule,
+    InputTextComponent,
+    InputTextareaComponent,
+    InputNumberComponent,
+    InputDateComponent,
+    ActionsButtonsComponent
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss']
@@ -72,18 +89,11 @@ export class DetailViewComponent implements OnChanges {
     private router: Router,
     private serviceColorsService: ServiceColorsService,
     private toastService: ToastService,
-    private loaderService: LoaderService
+    private actionsService: ActionsService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    // Handle loading state with global loader service
-    if (changes['config']) {
-      if (this.config?.loading) {
-        this.loaderService.show();
-      } else {
-        this.loaderService.hide();
-      }
-    }
+    // Loading state now handled by LoadingStateComponent in template
   }
 
   // Helper getters for template
@@ -102,13 +112,56 @@ export class DetailViewComponent implements OnChanges {
     );
   }
 
-  get hasAvailableActions() {
+    get hasAvailableActions() {
+    // No mostrar accions si estem en mode edició
+    if (this.isEditing) return false;
+
+    // Comprovar si hi ha accions generals disponibles (excloent el botó de tornar)
+    const hasGeneralActions = this.filteredActions.length > 0;
+
+    // Comprovar si hi ha accions específiques de cites disponibles
+    const hasAppointmentActions = this.type === 'appointment' &&
+                                 this.appointment &&
+                                 (this.canEditAppointment() || this.canDeleteAppointment());
+
+    // Mostrar la columna d'accions només si hi ha accions generals O accions específiques de cites
+    return hasGeneralActions || hasAppointmentActions;
+  }
+
+  // Mètode per verificar si hi ha accions específiques de cites
+  get hasAppointmentActions(): boolean {
+    return this.type === 'appointment' &&
+           this.appointment &&
+           (this.canEditAppointment() || this.canDeleteAppointment());
+  }
+
+  // Mètode per verificar si hi ha accions generals
+  get hasGeneralActions(): boolean {
     return this.filteredActions.length > 0;
   }
   get editForm() { return this.config?.editForm || {}; }
   get isEditing() { return this.config?.isEditing; }
   get hasChanges() { return this.config?.hasChanges; }
   get canSave() { return this.config?.canSave; }
+
+  // Action context for the actions service
+  get actionContext(): ActionContext | null {
+    if (this.type === 'appointment' && this.appointment) {
+      return {
+        type: 'appointment',
+        item: this.appointment,
+        permissions: {
+          canEdit: this.canEditAppointment(),
+          canDelete: this.canDeleteAppointment(),
+          canView: false // Disable view action in detail view
+        },
+        onEdit: () => this.onEdit(),
+        onDelete: () => this.onDelete(),
+        onView: () => this.onBack()
+      };
+    }
+    return null;
+  }
 
   // Profile specific
   get avatarData() {
@@ -154,16 +207,24 @@ export class DetailViewComponent implements OnChanges {
   }
 
   // Not found states
-  get notFoundIcon() {
-    return this.type === 'profile' ? '👤' : '📅';
+  get notFoundConfig() {
+    return {
+      icon: this.type === 'profile' ? '👤' : '📅',
+      title: this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
+      message: this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
+      buttonText: 'COMMON.ACTIONS.BACK',
+      showButton: true
+    };
   }
 
-  get notFoundTitle() {
-    return this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND';
-  }
-
-  get notFoundMessage() {
-    return this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA';
+  get loadingConfig() {
+    return {
+      message: 'COMMON.LOADING',
+      spinnerSize: 'large' as const,
+      showMessage: true,
+      fullHeight: true,
+      overlay: true
+    };
   }
 
   // View transitions and toast keys
@@ -205,6 +266,37 @@ export class DetailViewComponent implements OnChanges {
   onCancelEdit() { this.cancelEdit.emit(); }
   onDelete() { this.delete.emit(); }
   onUpdateForm(field: string, value: any) { this.updateForm.emit({ field, value }); }
+
+  // Appointment action checks
+  canEditAppointment(): boolean {
+    if (this.type !== 'appointment' || !this.appointment) return false;
+
+    // Verificar que és una cita futura
+    const appointmentDate = new Date(this.appointment.data);
+    const appointmentTime = this.appointment.hora;
+    const now = new Date();
+
+    // Crear data completa de la cita
+    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
+    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    return appointmentDate > now;
+  }
+
+  canDeleteAppointment(): boolean {
+    if (this.type !== 'appointment' || !this.appointment) return false;
+
+    // Verificar que és una cita futura
+    const appointmentDate = new Date(this.appointment.data);
+    const appointmentTime = this.appointment.hora;
+    const now = new Date();
+
+    // Crear data completa de la cita
+    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
+    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    return appointmentDate > now;
+  }
 
   // Notes editing methods
   private editingNotes: any[] = [];

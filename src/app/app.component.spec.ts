@@ -16,7 +16,9 @@ import {
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [
+        AppComponent
+      ],
       providers: [
         { provide: Auth, useValue: mockAuth },
         { provide: TranslateService, useValue: mockTranslateService },
@@ -34,9 +36,36 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'pelu-app' title`, () => {
+  it('should have the correct title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title()).toEqual('pelu-app');
+  });
+
+  it('should have isLoading signal', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.isLoading).toBeDefined();
+    expect(typeof app.isLoading).toBe('function');
+  });
+
+  it('should have isAuthenticated computed signal', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.isAuthenticated).toBeDefined();
+    expect(typeof app.isAuthenticated).toBe('function');
+  });
+
+  it('should have shouldShowHeader computed signal', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.shouldShowHeader).toBeDefined();
+    expect(typeof app.shouldShowHeader).toBe('function');
+  });
+
+  it('should initialize with loading state', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.isLoading()).toBe(true);
   });
 });

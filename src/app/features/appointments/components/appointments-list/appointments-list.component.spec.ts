@@ -7,10 +7,11 @@ import { Component, signal } from '@angular/core';
 @Component({
   template: `
     <pelu-appointments-list
-      [appointments]="appointments()"
+      [bookings]="bookings()"
       [hasActiveFilters]="hasActiveFilters()"
-      (onViewAppointment)="onViewAppointment($event)"
-      (onDeleteAppointment)="onDeleteAppointment($event)"
+      (onViewBooking)="onViewBooking($event)"
+      (onEditBooking)="onEditBooking($event)"
+      (onDeleteBooking)="onDeleteBooking($event)"
       (onClearFilters)="onClearFilters()">
     </pelu-appointments-list>
   `,
@@ -18,11 +19,12 @@ import { Component, signal } from '@angular/core';
   standalone: true
 })
 class TestWrapperComponent {
-  appointments = signal([]);
+  bookings = signal([]);
   hasActiveFilters = signal(false);
 
-  onViewAppointment(appointment: any) {}
-  onDeleteAppointment(appointment: any) {}
+  onViewBooking(booking: any) {}
+  onEditBooking(booking: any) {}
+  onDeleteBooking(booking: any) {}
   onClearFilters() {}
 }
 
@@ -49,13 +51,14 @@ describe('AppointmentsListComponent', () => {
   });
 
   it('should have required input signals', () => {
-    expect(component.appointments).toBeDefined();
+    expect(component.bookings).toBeDefined();
     expect(component.hasActiveFilters).toBeDefined();
   });
 
   it('should have output signals', () => {
-    expect(component.onViewAppointment).toBeDefined();
-    expect(component.onDeleteAppointment).toBeDefined();
+    expect(component.onViewBooking).toBeDefined();
+    expect(component.onEditBooking).toBeDefined();
+    expect(component.onDeleteBooking).toBeDefined();
     expect(component.onClearFilters).toBeDefined();
   });
 
@@ -90,5 +93,29 @@ describe('AppointmentsListComponent', () => {
   it('should get translated service name', () => {
     const result = component.getTranslatedServiceName('Haircut');
     expect(result).toBeDefined();
+  });
+
+  it('should get client name from booking', () => {
+    const booking = { nom: 'John Doe', editToken: 'test-token' };
+    const result = component.getClientName(booking);
+    expect(result).toBe('John Doe');
+  });
+
+  it('should get client name from title if nom is not available', () => {
+    const booking = { title: 'Jane Smith', editToken: 'test-token' };
+    const result = component.getClientName(booking);
+    expect(result).toBe('Jane Smith');
+  });
+
+  it('should get client name from clientName if nom and title are not available', () => {
+    const booking = { clientName: 'Bob Johnson', editToken: 'test-token' };
+    const result = component.getClientName(booking);
+    expect(result).toBe('Bob Johnson');
+  });
+
+  it('should return default client name if no name fields are available', () => {
+    const booking = { editToken: 'test-token' };
+    const result = component.getClientName(booking);
+    expect(result).toBe('Client');
   });
 });

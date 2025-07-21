@@ -12,23 +12,16 @@
     "ENTER_CLIENT_NAME": "Introdueix el nom del client",
     "DATE": "Data",
     "HOURS": "Hora",
-    "APPOINTMENTS_CALENDAR": "Calendari de Cites",
-    "VIEW_APPOINTMENTS": "Visualitza totes les teves cites en format calendari",
     "APPOINTMENTS_FOR_DATE": "Cites del",
-    "NO_SCHEDULED_APPOINTMENTS": "No hi ha cites programades",
     "NO_APPOINTMENTS_MESSAGE": "Per aquesta data no tens cites programades. Pots seleccionar una altra data o afegir noves cites.",
-    "CLICK_TO_VIEW": "Clica per veure",
-    "DELETE_CONFIRMATION": "Eliminar cita",
     "NO_APPOINTMENTS": "No hi ha cites",
     "NO_APPOINTMENTS_FILTERED": "No s'han trobat cites amb els filtres aplicats.",
     "NO_APPOINTMENTS_SCHEDULED": "Encara no tens cites programades.",
+    "CLICK_TO_VIEW": "Clica per veure",
+    "DELETE_CONFIRMATION": "Eliminar cita",
     "CLEAR_FILTERS_BUTTON": "Netejar filtres",
     "APPOINTMENTS_LIST": "Cites",
     "VIEW_APPOINTMENTS_LIST": "Visualitza totes les teves cites en format llista",
-    "TOTAL_APPOINTMENTS": "Total Cites",
-    "TODAY_APPOINTMENTS": "Cites avui",
-    "UPCOMING_APPOINTMENTS": "Pròximes Cites",
-    "MY_APPOINTMENTS": "Cites meves",
     "AVAILABLE_TIMES": "Horaris disponibles",
     "OR": "o",
     "ACTIONS": {
@@ -49,20 +42,26 @@
       "CLEAR_FILTERS": "Netejar filtres",
       "BOOK_APPOINTMENT": "Reservar cita",
       "ADD_BOOKING": "Afegir reserva",
-      "CONFIRM_BOOKING": "Confirmar reserva"
+      "CONFIRM_BOOKING": "Confirmar reserva",
+      "CONTINUE": "Continuar",
+      "LOGIN": "Iniciar sessió",
+      "TRY_AGAIN": "Tornar a provar"
     },
     "STATUS": {
       "LOADING": "Carregant...",
-      "ERROR": "Error",
-      "SUCCESS": "Èxit",
-      "WARNING": "Advertència",
-      "INFO": "Informació",
+      "STATUS_ERROR": "Error",
+      "STATUS_SUCCESS": "Èxit",
+      "STATUS_WARNING": "Advertència",
+      "STATUS_INFO": "Informació",
       "AVAILABLE": "Disponible",
       "OCCUPIED": "Ocupat",
       "ACTIVE": "Actiu",
-      "INACTIVE": "Inactiu"
+      "INACTIVE": "Inactiu",
+      "RESERVED": "Reservada",
+      "DRAFT": "Esborrany"
     },
     "TIME": {
+      "HOUR": "Hora",
       "TODAY": "Avui",
       "TOMORROW": "Demà",
       "PAST": "Passat",
@@ -81,8 +80,12 @@
       "SELECT_DATE": "Seleccionar data",
       "SELECT_DAY": "Seleccionar dia",
       "SELECT_SERVICE": "Seleccionar servei",
+      "CHOOSE_SERVICE": "Tria un servei",
+      "SELECTED_SERVICE": "Servei seleccionat",
       "PLEASE_SELECT_SERVICE": "Si us plau, selecciona un servei",
-      "NO_AVAILABLE_HOURS": "Cap hora disponible pel dia seleccionat"
+      "NO_AVAILABLE_HOURS": "Cap hora disponible pel dia seleccionat",
+      "POPULAR_SERVICES": "Serveis Populars",
+      "OTHER_SERVICES": "Altres serveis"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Cerca per nom",
@@ -105,6 +108,10 @@
         "TIME_SLOT_BUSY": "Horari ocupat"
       }
     },
+    "LIST_VIEW": "Vista de llista",
+    "LIST_VIEW_LABEL": "Visualitza les cites en format llista",
+    "CALENDAR_VIEW": "Vista de calendari",
+    "CALENDAR_VIEW_LABEL": "Visualitza les cites en format calendari",
     "FILTERS": {
       "FILTERS": "Filtres",
       "OPEN_FILTERS": "Obrir filtres",
@@ -129,7 +136,80 @@
     "MISSING_CLIENT_NAME": "Si us plau, introdueix el nom del client",
     "MISSING_SERVICE": "Si us plau, selecciona un servei",
     "TOTAL": "Total",
-    "NO_DATA": "No hi ha dades"
+    "TOTAL_PRICE": "Preu total",
+    "NO_DATA": "No hi ha dades",
+    "GENERAL_LOADING": "Carregant...",
+    "GENERAL_ERROR": "Error",
+    "EMAIL": "Email",
+    "ENTER_EMAIL": "Introdueix el teu email",
+    "NOTES": "Notes",
+    "ENTER_NOTES": "Introdueix notes (opcional)",
+    "SHARE": "Compartir",
+    "SHARE_WHATSAPP": "Compartir per WhatsApp",
+    "DANGER_ZONE": "Zona de perill",
+    "BOOKING_DETAILS": "Detalls de la reserva",
+    "CLIENT_INFORMATION": "Informació del client",
+    "BOOKING_INFORMATION": "Informació de la reserva",
+    "NAME": "Nom",
+    "DURATION": "Durada",
+    "PRICE": "Preu",
+    "ERROR_LOADING_BOOKING": "Error al carregar la reserva",
+    "BOOKING_NOT_FOUND": "Reserva no trobada",
+    "BOOKING_NOT_FOUND_MESSAGE": "No s'ha pogut trobar la reserva que busques",
+    "ERROR_PAST_BOOKING": "No es poden crear reserves en el passat",
+    "PAST_DATE": "Data passada",
+    "PAST_TIME": "Hora passada",
+    "ERRORS": {
+      "GENERIC_ERROR": "S'ha produït un error inesperat. Si us plau, torna-ho a provar.",
+      "NETWORK_ERROR": "Error de connexió. Verifica la teva connexió a internet i torna-ho a provar.",
+      "AUTH_ERROR": "Error d'autenticació. Si us plau, torna a iniciar sessió.",
+      "FIREBASE_ERROR": "Error de base de dades. Si us plau, torna-ho a provar.",
+      "VALIDATION_ERROR": "Error de validació. Verifica les dades introduïdes.",
+      "PERMISSION_ERROR": "No tens permisos per realitzar aquesta acció.",
+      "NOT_FOUND_ERROR": "No s'ha trobat el recurs sol·licitat.",
+      "TIMEOUT_ERROR": "La operació ha tardat massa temps. Si us plau, torna-ho a provar.",
+      "SERVER_ERROR": "Error del servidor. Si us plau, torna-ho a provar més tard.",
+      "CLIENT_ERROR": "Error en les dades enviades. Verifica la informació introduïda.",
+      "UNKNOWN_ERROR": "Error desconegut. Si us plau, contacta amb el suport tècnic."
+    },
+    "VALIDATION": {
+      "INVALID_EMAIL": "Si us plau, introdueix un email vàlid"
+    },
+    "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la cita de {{name}}?",
+    "DELETE_SUCCESS": "S'ha eliminat la cita de {{name}} correctament",
+    "CONFIRMATION": {
+      "TITLE": "Confirmació",
+      "MESSAGE": "Estàs segur que vols realitzar aquesta acció?",
+      "DELETE_TITLE": "Eliminar cita",
+      "DELETE_MESSAGE": "Estàs segur que vols eliminar la cita de {{name}}?",
+      "YES": "Sí",
+      "NO": "No"
+    },
+    "MIGRATION": {
+      "COMPLETED": "Migració completada",
+      "MESSAGE": "S'han migrat {{count}} cites antigues al teu compte. Ara pots veure els detalls de totes les teves cites."
+    },
+    "NO_ACTIONS_AVAILABLE": "No hi ha accions disponibles",
+    "NO_ACTIONS_AVAILABLE_MESSAGE": "Aquesta cita no es pot editar o eliminar. Pot ser que ja hagi passat, no siguis el propietari, o no tenguis els permisos necessaris.",
+    "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
+    "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
+    "CATEGORY_DELETED_SUCCESS": "Categoria eliminada correctament",
+    "ERROR_CREATING_CATEGORY": "Error al crear la categoria",
+    "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
+    "ERROR_DELETING_CATEGORY": "Error al eliminar la categoria",
+    "BASIC_INFORMATION": "Informació bàsica",
+    "ALERT": {
+      "DANGER_TITLE": "Acció perillosa",
+      "WARNING_TITLE": "Advertència",
+      "SUCCESS_TITLE": "Èxit",
+      "INFO_TITLE": "Informació"
+    },
+    "CATEGORY_AND_ICON": "Categoria i icona",
+    "PRICING_AND_DURATION": "Preu i durada",
+    "OPTIONS": "Opcions",
+    "ICON_SELECTION": "Selecció d'icona",
+    "YES": "Sí",
+    "NO": "No"
   },
   "AUTH": {
     "EMAIL": "Correu electrònic",
@@ -165,7 +245,8 @@
       "REGISTER_ERROR": "Error al registrar",
       "GOOGLE_LOGIN_ERROR": "Error al iniciar sessió amb Google",
       "GOOGLE_REGISTER_ERROR": "Error al registrar amb Google"
-    }
+    },
+    "SESSION_REQUIRED": "Sessió requerida"
   },
   "NAVIGATION": {
     "HOME": "Inici",
@@ -177,7 +258,7 @@
     "ADMIN_SETTINGS": "Configuració"
   },
   "LANDING": {
-    "HERO_TITLE": "Barberia Soca",
+    "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva el teu moment. Ràpid, fàcil i sense trucades.",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Cites",
@@ -185,6 +266,10 @@
     "SERVICES": "Serveis"
   },
   "APPOINTMENTS": {
+    "TOTAL_APPOINTMENTS": "Total Cites",
+    "TODAY_APPOINTMENTS": "Cites avui",
+    "UPCOMING_APPOINTMENTS": "Pròximes Cites",
+    "MY_APPOINTMENTS": "Cites meves",
     "NEW_APPOINTMENT": "Nova cita",
     "APPOINTMENT_DETAILS": "Detalls de la cita",
     "APPOINTMENT_DETAIL": "Detall de la cita",
@@ -208,10 +293,6 @@
       "COMPLETED": "Completada"
     },
     "MESSAGES": {
-      "TOTAL_APPOINTMENTS": "Total Cites",
-      "TODAY_APPOINTMENTS": "Cites avui",
-      "UPCOMING_APPOINTMENTS": "Pròximes Cites",
-      "MY_APPOINTMENTS": "Cites meves",
       "APPOINTMENTS_CALENDAR": "Calendari de Cites",
       "APPOINTMENTS_LIST": "Cites",
       "VIEW_APPOINTMENTS": "Visualitza totes les teves cites en format calendari",
@@ -239,12 +320,19 @@
       "MANUAL_BOOKING": "Afegir Reserva Manual",
       "QUICK_BOOKING": "Reserva Ràpida",
       "QUICK_BOOKING_LABEL": "Afegir nova cita ràpidament"
-    }
+    },
+    "DELETE_CONFIRMATION_TITLE": "Eliminar cita",
+    "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la cita de {{clientName}} del {{date}}? Aquesta acció no es pot desfer.",
+    "EDIT_APPOINTMENT_DESCRIPTION": "Modifica els detalls de la cita",
+    "DELETE_APPOINTMENT_DESCRIPTION": "Elimina permanentment la cita"
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nova reserva",
     "SELECT_DATE": "Seleccionar data",
     "SELECT_TIME": "Seleccionar hora",
+    "SELECT_DATE_DESCRIPTION": "Tria la data que més t'ajusti",
+    "SELECT_TIME_DESCRIPTION": "Selecciona l'hora disponible que prefereixis",
+    "SELECT_SERVICE_DESCRIPTION": "Elegeix el servei que necessites",
     "BOOK_NOW": "Reservar ara",
     "AVAILABLE_TIMES": "Horaris disponibles",
     "NO_AVAILABLE_TIMES": "No hi ha horaris disponibles",
@@ -253,7 +341,34 @@
     "AVAILABLE": "Disponible",
     "NO_AVAILABLE_DAYS": "No hi ha dies disponibles",
     "NO_AVAILABLE_DAYS_MESSAGE": "Tots els dies de la setmana tenen totes les hores ocupades. Prova amb una altra setmana.",
-    "LEGEND": "Llegenda"
+    "LEGEND": "Llegenda",
+    "SUCCESS_TITLE": "Reserva confirmada!",
+    "SUCCESS_MESSAGE": "La teva reserva s'ha creat correctament. Rebràs un email amb els detalls i un enllaç per editar-la.",
+    "EMAIL_NOTICE": "Revisa la teva safata d'entrada per veure els detalls de la reserva.",
+    "EDIT_TITLE": "Editar reserva",
+    "DETAILS": "Detalls de la reserva",
+    "APPOINTMENT_INFO": "Informació de la cita",
+    "LOGIN_PROMPT_TITLE": "Vols gestionar les teves reserves?",
+    "LOGIN_PROMPT_MESSAGE": "Inicia sessió per tenir accés complet a totes les teves reserves i poder gestionar-les fàcilment.",
+    "STATUS": {
+      "CONFIRMED": "Confirmada",
+      "CANCELLED": "Cancel·lada",
+      "COMPLETED": "Completada"
+    },
+    "NOT_FOUND": {
+      "TITLE": "Cita no trobada",
+      "MESSAGE": "No s'ha pogut trobar la cita que busques. És possible que l'enllaç sigui incorrecte o que la cita hagi estat eliminada."
+    },
+    "FULLY_BOOKED_TITLE": "Dia completament ocupat",
+    "FULLY_BOOKED_MESSAGE": "Aquest dia té totes les hores ocupades. Si us plau, selecciona una altra data o prova amb una altra setmana.",
+    "SELECTION_REQUIRED": "Selecció requerida",
+    "SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
+    "SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",
+    "QUICK_SELECTION": {
+      "TODAY": "Avui",
+      "TOMORROW": "Demà",
+      "NEXT_AVAILABLE": "Pròxim disponible"
+    }
   },
   "PROFILE": {
     "PERSONAL_INFO": "Informació del compte",
@@ -301,6 +416,104 @@
     "SYSTEM_SETTINGS": "Configuració del sistema",
     "SYSTEM_SETTINGS_DESCRIPTION": "Configura els paràmetres del sistema i l'aplicació",
     "ACCESS_SETTINGS": "Accedir a configuració",
+    "SERVICES": {
+      "TITLE": "Gestió de Serveis",
+      "SUBTITLE": "Crea, edita i elimina serveis de la peluqueria",
+      "ADD_SERVICE": "Afegir Servei",
+      "CREATE_SERVICE": "Crear Servei",
+      "EDIT_SERVICE": "Editar Servei",
+      "NAME_PLACEHOLDER": "Nom del servei",
+      "DESCRIPTION_PLACEHOLDER": "Descripció del servei",
+      "SELECT_CATEGORY": "Seleccionar categoria",
+      "SELECT_ICON": "Seleccionar icona",
+      "MARK_AS_POPULAR": "Marcar com a popular",
+      "NO_SERVICES_IN_CATEGORY": "No hi ha serveis en aquesta categoria",
+      "SERVICE_CREATED": "Servei creat",
+      "SERVICE_CREATED_MESSAGE": "El servei s'ha creat correctament",
+      "SERVICE_UPDATED": "Servei actualitzat",
+      "SERVICE_UPDATED_MESSAGE": "El servei s'ha actualitzat correctament",
+      "SERVICE_DELETED": "Servei eliminat",
+      "SERVICE_DELETED_MESSAGE": "El servei s'ha eliminat correctament",
+      "SERVICE_MARKED_POPULAR": "Servei marcat com a popular",
+      "SERVICE_UNMARKED_POPULAR": "Servei desmarcat com a popular",
+      "MARK_POPULAR": "Marcar com a popular",
+      "UNMARK_POPULAR": "Desmarcar com a popular",
+      "ERROR_TOGGLING_POPULAR": "Error al canviar l'estat popular del servei",
+      "UPDATING_SERVICE": "Actualitzant servei...",
+      "CREATING_SERVICE": "Creant servei...",
+      "SERVICE_UPDATED_SUCCESS": "Servei actualitzat correctament",
+      "SERVICE_CREATED_SUCCESS": "Servei creat correctament",
+      "ERROR_UPDATING_SERVICE": "Error al actualitzar el servei",
+      "ERROR_CREATING_SERVICE": "Error al crear el servei",
+      "DELETE_CONFIRMATION": "Confirmar eliminació",
+      "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar el servei \"{{name}}\"?",
+      "MIGRATE_SERVICES": "Migrar Serveis",
+      "CREATE_SAMPLE_SERVICES": "Crear Serveis d'Exemple",
+      "REFRESH": "Actualitzar",
+      "CATEGORY": "Categoria",
+      "ICON": "Icona",
+      "ACTIVE": "Actiu",
+      "INACTIVE": "Inactiu",
+      "DURATION_MINUTES": "Durada (minuts)",
+      "PRICE_EURO": "Preu (€)",
+      "VALIDATION": {
+        "NAME_REQUIRED": "El nom del servei és obligatori",
+        "DESCRIPTION_REQUIRED": "La descripció del servei és obligatòria",
+        "CATEGORY_REQUIRED": "La categoria és obligatòria",
+        "PRICE_REQUIRED": "El preu és obligatori",
+        "DURATION_REQUIRED": "La durada és obligatòria",
+        "PRICE_MIN": "El preu ha de ser major a 0",
+        "DURATION_MIN": "La durada ha de ser d'almenys 5 minuts",
+        "DURATION_MAX": "La durada no pot superar les 8 hores"
+      },
+      "CATEGORIES": {
+        "MANAGE_CATEGORIES": "Gestionar Categories",
+        "CREATE_NEW_CATEGORY": "Crear Nova Categoria",
+        "CREATE_CATEGORY": "Crear Categoria",
+        "EDIT_CATEGORY": "Editar Categoria",
+        "DELETE_CATEGORY": "Eliminar Categoria",
+        "CATEGORY_NAME": "Nom de la categoria",
+        "CATEGORY_ID": "ID de la categoria",
+        "CATEGORY_ICON": "Icona de la categoria",
+        "CATEGORY_NAME_PLACEHOLDER": "Nom de la categoria",
+        "CATEGORY_ID_PLACEHOLDER": "id-categoria",
+        "CATEGORY_ICON_PLACEHOLDER": "Introdueix un emoji (ex: ✂️)",
+              "CATEGORY_CREATED": "Categoria creada",
+      "CATEGORY_CREATED_MESSAGE": "La categoria s'ha creat correctament",
+      "CATEGORY_UPDATED": "Categoria actualitzada",
+      "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
+        "CATEGORY_UPDATED": "Categoria actualitzada",
+        "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
+        "CATEGORY_DELETED": "Categoria eliminada",
+        "CATEGORY_DELETED_MESSAGE": "La categoria s'ha eliminat correctament",
+        "DELETE_CATEGORY_CONFIRMATION": "Confirmar eliminació de categoria",
+        "DELETE_CATEGORY_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la categoria \"{{name}}\"? Aquesta acció no es pot desfer.",
+        "CATEGORY_IN_USE": "Categoria en ús",
+        "CATEGORY_IN_USE_MESSAGE": "No es pot eliminar la categoria perquè {{count}} serveis l'estan utilitzant.",
+        "CATEGORY_ID_EXISTS": "ID de categoria ja existeix",
+        "CATEGORY_ID_EXISTS_MESSAGE": "Ja existeix una categoria amb aquest ID. Si us plau, tria un altre ID.",
+        "VALIDATION": {
+          "CATEGORY_NAME_REQUIRED": "El nom de la categoria és obligatori",
+          "CATEGORY_ID_REQUIRED": "L'ID de la categoria és obligatori",
+          "CATEGORY_ICON_REQUIRED": "La icona de la categoria és obligatòria",
+                  "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
+        "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters",
+        "UPDATING_CATEGORY": "Actualitzant categoria...",
+        "CREATING_CATEGORY": "Creant categoria...",
+        "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
+        "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
+        "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
+        "ERROR_CREATING_CATEGORY": "Error al crear la categoria"
+      },
+      "EXISTING_CATEGORIES": "Categories existents",
+      "ADD_NEW_CATEGORY": "Afegir nova categoria",
+      "STATIC_CATEGORY": "Categoria estàtica",
+              "CANNOT_EDIT_STATIC": "No es pot editar (categoria estàtica)",
+        "NO_CATEGORIES": "No hi ha categories disponibles",
+        "ICON_HELP": "Introdueix un emoji directament amb el teclat. Pots utilitzar qualsevol emoji disponible al teu sistema.",
+        "ICON_EXAMPLES": "Exemples d'emojis"
+      }
+    },
     "SETTINGS_PAGE": {
       "TITLE": "Configuració del sistema",
       "SUBTITLE": "Gestiona els paràmetres de l'aplicació",
@@ -317,9 +530,11 @@
       "CURRENCY_HELP": "La moneda s'aplicarà a tots els preus de l'aplicació",
       "SAVE_SETTINGS": "Desar configuració",
       "RESET_DEFAULTS": "Restaurar per defecte",
-      "CANCEL": "Cancel·lar",
       "LOADING": "Carregant configuració..."
-    }
+    },
+    "SERVICES_MANAGEMENT": "Gestió de Serveis",
+    "SERVICES_MANAGEMENT_DESCRIPTION": "Crea, edita i elimina serveis de la peluqueria",
+    "MANAGE_SERVICES": "Gestionar Serveis"
   },
   "CALENDAR": {
     "TODAY": "Avui",
@@ -348,7 +563,11 @@
       "HAIRCUT": "Tallats",
       "BEARD": "Barba",
       "TREATMENT": "Tractaments",
-      "STYLING": "Pentinats"
+      "STYLING": "Pentinats",
+      "COLORING": "Coloració",
+      "SPECIAL": "Especials",
+      "KIDS": "Infantil",
+      "DEFAULT": "General"
     },
     "COLORS": {
       "HAIRCUT": "Tall",
@@ -402,5 +621,8 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "Seleccionar idioma"
-  }
+  },
+  "NO_DATE_SET": "Data no establerta",
+  "VIEW_CALENDAR_APPOINTMENTS": "Visualitza les cites en format calendari",
+  "BOOKINGS_FOR_DATE": "Reserves per a la data"
 }

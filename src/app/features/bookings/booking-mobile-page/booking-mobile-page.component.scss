@@ -142,6 +142,18 @@
           background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
         }
       }
+
+      &.next-available-btn {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+        }
+
+        &:disabled {
+          background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+        }
+      }
     }
   }
 }
@@ -409,59 +421,51 @@
       margin: 0 0 1rem 0;
       padding-bottom: 0.5rem;
       border-bottom: 2px solid #e3f2fd;
+      text-align: center;
     }
   }
 
   .time-slots-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 0.75rem;
 
     @media (max-width: 480px) {
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 0.5rem;
     }
   }
 
   .time-slot {
-    aspect-ratio: 1;
-    border-radius: 8px;
+    min-height: 80px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     overflow: hidden;
+    border: 2px solid transparent;
 
     &:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
     }
 
     &.available {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
       box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      border-color: #10b981;
 
       &:hover {
         box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        transform: translateY(-3px);
       }
     }
 
     &.occupied {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
       color: white;
       cursor: not-allowed;
-      opacity: 0.8;
-    }
-
-    &.lunch-break {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: white;
-      cursor: not-allowed;
-    }
-
-    &.past-time {
-      background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-      color: white;
-      cursor: not-allowed;
-      opacity: 0.6;
+      border-color: #ef4444 !important;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
     }
 
     .slot-content {
@@ -470,25 +474,63 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0.5rem;
+      padding: 0.75rem;
       text-align: center;
 
       .time {
         font-weight: 700;
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
       }
 
-      .status {
-        font-size: 0.7rem;
+      .available-label {
+        font-size: 0.8rem;
         opacity: 0.9;
-        margin-bottom: 0.25rem;
+        font-weight: 500;
       }
 
-      .client {
-        font-size: 0.6rem;
-        opacity: 0.8;
-        font-weight: 500;
+      .occupied-simple {
+        .occupied-label {
+          font-size: 0.8rem;
+          opacity: 0.9;
+          font-weight: 500;
+        }
+      }
+
+      .occupied-details {
+        width: 100%;
+
+        .client-info {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.25rem;
+          margin-bottom: 0.25rem;
+
+          .service-icon {
+            font-size: 0.9rem;
+          }
+
+          .client-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.9;
+          }
+        }
+
+        .service-name {
+          font-size: 0.7rem;
+          opacity: 0.8;
+          margin-bottom: 0.25rem;
+          font-weight: 500;
+        }
+
+        .notes {
+          font-size: 0.65rem;
+          opacity: 0.7;
+          font-style: italic;
+          line-height: 1.2;
+        }
       }
     }
   }
@@ -614,5 +656,105 @@
   .time-slots-card,
   .legend-card {
     margin-bottom: 1rem;
+  }
+}
+
+// Selection required message
+.selection-required {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6b7280;
+
+  .info-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+.selected-service {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+// Fully booked day alert
+.fully-booked-alert {
+  margin-bottom: 1.5rem;
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+
+  .alert-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.5rem;
+
+    .alert-icon {
+      font-size: 1.5rem;
+      color: #d97706;
+      flex-shrink: 0;
+      margin-top: 0.25rem;
+    }
+
+    .alert-text {
+      flex: 1;
+
+      h4 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #92400e;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: #92400e;
+        opacity: 0.9;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 1rem;
+
+    .alert-content {
+      gap: 0.75rem;
+
+      .alert-icon {
+        font-size: 1.25rem;
+      }
+
+      .alert-text {
+        h4 {
+          font-size: 1rem;
+        }
+
+        p {
+          font-size: 0.9rem;
+        }
+      }
+    }
   }
 }

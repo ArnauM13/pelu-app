@@ -25,10 +25,6 @@
     "CLEAR_FILTERS_BUTTON": "مسح الفلاتر",
     "APPOINTMENTS_LIST": "المواعيد",
     "VIEW_APPOINTMENTS_LIST": "عرض جميع مواعيدك بتنسيق القائمة",
-    "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
-    "TODAY_APPOINTMENTS": "مواعيد اليوم",
-    "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
-    "MY_APPOINTMENTS": "مواعيدي",
     "AVAILABLE_TIMES": "الأوقات المتاحة",
     "OR": "أو",
     "ACTIONS": {
@@ -49,30 +45,34 @@
       "CLEAR_FILTERS": "مسح الفلاتر",
       "BOOK_APPOINTMENT": "حجز موعد",
       "ADD_BOOKING": "إضافة حجز",
-      "CONFIRM_BOOKING": "تأكيد الحجز"
+      "CONFIRM_BOOKING": "تأكيد الحجز",
+      "CONTINUE": "متابعة",
+      "LOGIN": "تسجيل الدخول",
+      "TRY_AGAIN": "حاول مرة أخرى"
     },
     "STATUS": {
       "LOADING": "جاري التحميل...",
-      "ERROR": "خطأ",
-      "SUCCESS": "نجح",
-      "WARNING": "تحذير",
-      "INFO": "معلومات",
+      "STATUS_ERROR": "خطأ",
+      "STATUS_SUCCESS": "نجح",
+      "STATUS_WARNING": "تحذير",
+      "STATUS_INFO": "معلومات",
       "AVAILABLE": "متاح",
       "OCCUPIED": "مشغول",
       "ACTIVE": "نشط",
       "INACTIVE": "غير نشط"
     },
     "TIME": {
+      "HOUR": "ساعة",
       "TODAY": "اليوم",
-      "TOMORROW": "غداً",
+      "TOMORROW": "غدًا",
       "PAST": "ماضي",
       "UPCOMING": "قادم",
       "MORNING": "صباح",
-      "AFTERNOON": "ظهر",
+      "AFTERNOON": "مساء",
       "LUNCH_BREAK": "استراحة الغداء",
       "PAST_TIME": "وقت ماضي",
-      "AT_TIME": "في الساعة",
-      "APPOINTMENT_TITLE": "{{nom}} - {{data}} في الساعة {{hora}}"
+      "AT_TIME": "في",
+      "APPOINTMENT_TITLE": "{{nom}} - {{data}} في {{hora}}"
     },
     "SELECTION": {
       "NO_SELECTION": "لا يوجد اختيار",
@@ -81,7 +81,12 @@
       "SELECT_DATE": "اختر التاريخ",
       "SELECT_DAY": "اختر اليوم",
       "SELECT_SERVICE": "اختر الخدمة",
-      "PLEASE_SELECT_SERVICE": "يرجى اختيار خدمة"
+      "CHOOSE_SERVICE": "اختر خدمة",
+      "SELECTED_SERVICE": "الخدمة المختارة",
+      "PLEASE_SELECT_SERVICE": "يرجى اختيار خدمة",
+      "NO_AVAILABLE_HOURS": "لا توجد ساعات متاحة لليوم المختار",
+      "POPULAR_SERVICES": "الخدمات الشائعة",
+      "OTHER_SERVICES": "خدمات أخرى"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "البحث بالاسم",
@@ -104,6 +109,10 @@
         "TIME_SLOT_BUSY": "الوقت مشغول"
       }
     },
+    "LIST_VIEW": "عرض القائمة",
+    "LIST_VIEW_LABEL": "عرض المواعيد بتنسيق القائمة",
+    "CALENDAR_VIEW": "عرض التقويم",
+    "CALENDAR_VIEW_LABEL": "عرض المواعيد بتنسيق التقويم",
     "FILTERS": {
       "FILTERS": "الفلاتر",
       "OPEN_FILTERS": "فتح الفلاتر",
@@ -128,7 +137,61 @@
     "MISSING_CLIENT_NAME": "يرجى إدخال اسم العميل",
     "MISSING_SERVICE": "يرجى اختيار خدمة",
     "TOTAL": "المجموع",
-    "NO_DATA": "لا توجد بيانات"
+    "TOTAL_PRICE": "السعر الإجمالي",
+    "NO_DATA": "لا توجد بيانات",
+    "GENERAL_LOADING": "جاري التحميل...",
+    "GENERAL_ERROR": "خطأ",
+    "EMAIL": "البريد الإلكتروني",
+    "ENTER_EMAIL": "أدخل بريدك الإلكتروني",
+    "NOTES": "ملاحظات",
+    "ENTER_NOTES": "أدخل ملاحظات (اختياري)",
+    "SHARE": "مشاركة",
+    "SHARE_WHATSAPP": "مشاركة عبر واتساب",
+    "DANGER_ZONE": "منطقة الخطر",
+    "BOOKING_DETAILS": "تفاصيل الحجز",
+    "CLIENT_INFORMATION": "معلومات العميل",
+    "BOOKING_INFORMATION": "معلومات الحجز",
+    "NAME": "الاسم",
+    "DURATION": "المدة",
+    "PRICE": "السعر",
+    "ERROR_LOADING_BOOKING": "خطأ في تحميل الحجز",
+    "BOOKING_NOT_FOUND": "لم يتم العثور على الحجز",
+    "BOOKING_NOT_FOUND_MESSAGE": "تعذر العثور على الحجز الذي تبحث عنه",
+    "ERROR_PAST_BOOKING": "لا يمكن إنشاء حجوزات في الماضي",
+    "PAST_DATE": "تاريخ ماضي",
+    "PAST_TIME": "وقت ماضي",
+    "ERRORS": {
+      "GENERIC_ERROR": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+      "NETWORK_ERROR": "خطأ في الاتصال. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.",
+      "AUTH_ERROR": "خطأ في المصادقة. يرجى تسجيل الدخول مرة أخرى.",
+      "FIREBASE_ERROR": "خطأ في قاعدة البيانات. يرجى المحاولة مرة أخرى.",
+      "VALIDATION_ERROR": "خطأ في التحقق من صحة البيانات. يرجى التحقق من البيانات المدخلة.",
+      "PERMISSION_ERROR": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "NOT_FOUND_ERROR": "لم يتم العثور على المورد المطلوب.",
+      "TIMEOUT_ERROR": "استغرقت العملية وقتًا طويلاً. يرجى المحاولة مرة أخرى.",
+      "SERVER_ERROR": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا.",
+      "CLIENT_ERROR": "خطأ في البيانات المرسلة. يرجى التحقق من المعلومات المدخلة.",
+      "UNKNOWN_ERROR": "خطأ غير معروف. يرجى الاتصال بالدعم الفني."
+    },
+    "VALIDATION": {
+      "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح"
+    },
+    "DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من أنك تريد حذف الموعد لـ {{name}}؟",
+    "DELETE_SUCCESS": "تم حذف الموعد لـ {{name}} بنجاح",
+    "CONFIRMATION": {
+      "TITLE": "تأكيد",
+      "MESSAGE": "هل أنت متأكد من أنك تريد تنفيذ هذا الإجراء؟",
+      "DELETE_TITLE": "حذف الموعد",
+      "DELETE_MESSAGE": "هل أنت متأكد من أنك تريد حذف الموعد لـ {{name}}؟",
+      "YES": "نعم",
+      "NO": "لا"
+    },
+    "MIGRATION": {
+      "COMPLETED": "اكتمل الترحيل",
+      "MESSAGE": "تم ترحيل {{count}} موعد قديم إلى حسابك. يمكنك الآن عرض تفاصيل جميع مواعيدك."
+    },
+    "NO_ACTIONS_AVAILABLE": "لا توجد إجراءات متاحة",
+    "NO_ACTIONS_AVAILABLE_MESSAGE": "لا يمكن تحرير أو حذف هذا الموعد. قد يكون قد مر بالفعل، أو قد لا تكون المالك، أو قد لا تملك الأذونات اللازمة."
   },
   "AUTH": {
     "EMAIL": "البريد الإلكتروني",
@@ -164,7 +227,8 @@
       "REGISTER_ERROR": "خطأ في التسجيل",
       "GOOGLE_LOGIN_ERROR": "خطأ في تسجيل الدخول بـ Google",
       "GOOGLE_REGISTER_ERROR": "خطأ في التسجيل بـ Google"
-    }
+    },
+    "SESSION_REQUIRED": "الجلسة مطلوبة"
   },
   "NAVIGATION": {
     "HOME": "الرئيسية",
@@ -176,7 +240,7 @@
     "ADMIN_SETTINGS": "الإعدادات"
   },
   "LANDING": {
-    "HERO_TITLE": "Barberia Soca",
+    "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "احجز لحظتك. سريع وسهل وبدون مكالمات.",
     "BOOK_NOW": "احجز الآن",
     "APPOINTMENTS": "المواعيد",
@@ -184,6 +248,10 @@
     "SERVICES": "الخدمات"
   },
   "APPOINTMENTS": {
+    "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
+    "TODAY_APPOINTMENTS": "مواعيد اليوم",
+    "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
+    "MY_APPOINTMENTS": "مواعيدي",
     "NEW_APPOINTMENT": "موعد جديد",
     "APPOINTMENT_DETAILS": "تفاصيل الموعد",
     "APPOINTMENT_DETAIL": "تفصيل الموعد",
@@ -207,10 +275,6 @@
       "COMPLETED": "مكتمل"
     },
     "MESSAGES": {
-      "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
-      "TODAY_APPOINTMENTS": "مواعيد اليوم",
-      "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
-      "MY_APPOINTMENTS": "مواعيدي",
       "APPOINTMENTS_CALENDAR": "تقويم المواعيد",
       "APPOINTMENTS_LIST": "المواعيد",
       "VIEW_APPOINTMENTS": "عرض جميع مواعيدك بتنسيق التقويم",
@@ -239,12 +303,17 @@
       "QUICK_BOOKING": "حجز سريع",
       "QUICK_BOOKING_LABEL": "إضافة موعد جديد بسرعة",
       "BOOKING_CONFIRMATION": "تأكيد الحجز"
-    }
+    },
+    "EDIT_APPOINTMENT_DESCRIPTION": "تعديل تفاصيل الموعد",
+    "DELETE_APPOINTMENT_DESCRIPTION": "حذف الموعد نهائياً"
   },
   "BOOKING": {
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
     "SELECT_TIME": "اختر الوقت",
+    "SELECT_DATE_DESCRIPTION": "اختر التاريخ الذي يناسبك",
+    "SELECT_TIME_DESCRIPTION": "اختر الوقت المتاح الذي تفضله",
+    "SELECT_SERVICE_DESCRIPTION": "اختر الخدمة التي تحتاجها",
     "BOOK_NOW": "احجز الآن",
     "AVAILABLE_TIMES": "الأوقات المتاحة",
     "NO_AVAILABLE_TIMES": "لا توجد أوقات متاحة",
@@ -253,7 +322,34 @@
     "AVAILABLE": "متاح",
     "NO_AVAILABLE_DAYS": "لا توجد أيام متاحة",
     "NO_AVAILABLE_DAYS_MESSAGE": "جميع أيام الأسبوع مشغولة بالكامل. جرب أسبوعاً آخر.",
-    "LEGEND": "مفتاح"
+    "LEGEND": "مفتاح",
+    "SUCCESS_TITLE": "تم تأكيد الحجز!",
+    "SUCCESS_MESSAGE": "تم إنشاء حجزك بنجاح. ستتلقى بريداً إلكترونياً بالتفاصيل ورابط للتحرير.",
+    "EMAIL_NOTICE": "تحقق من صندوق الوارد لرؤية تفاصيل الحجز.",
+    "EDIT_TITLE": "تحرير الحجز",
+    "DETAILS": "تفاصيل الحجز",
+    "APPOINTMENT_INFO": "معلومات الموعد",
+    "LOGIN_PROMPT_TITLE": "هل تريد إدارة حجوزاتك؟",
+    "LOGIN_PROMPT_MESSAGE": "سجل الدخول للحصول على وصول كامل لجميع حجوزاتك وإدارتها بسهولة.",
+    "STATUS": {
+      "CONFIRMED": "مؤكد",
+      "CANCELLED": "ملغي",
+      "COMPLETED": "مكتمل"
+    },
+    "NOT_FOUND": {
+      "TITLE": "لم يتم العثور على الموعد",
+      "MESSAGE": "لم يتم العثور على الموعد الذي تبحث عنه. قد يكون الرابط غير صحيح أو تم حذف الموعد."
+    },
+    "FULLY_BOOKED_TITLE": "يوم مشغول بالكامل",
+    "FULLY_BOOKED_MESSAGE": "هذا اليوم مشغول بالكامل. يرجى اختيار تاريخ آخر أو تجربة أسبوع آخر.",
+    "SELECTION_REQUIRED": "الاختيار مطلوب",
+    "SELECT_SERVICE_FIRST": "يرجى اختيار خدمة أولاً",
+    "SELECT_DATE_FIRST": "يرجى اختيار تاريخ أولاً",
+    "QUICK_SELECTION": {
+      "TODAY": "اليوم",
+      "TOMORROW": "غداً",
+      "NEXT_AVAILABLE": "التالي المتاح"
+    }
   },
   "PROFILE": {
     "PERSONAL_INFO": "معلومات الحساب",
@@ -318,9 +414,107 @@
       "CURRENCY_HELP": "سيتم تطبيق العملة على جميع الأسعار في التطبيق",
       "SAVE_SETTINGS": "حفظ الإعدادات",
       "RESET_DEFAULTS": "إعادة تعيين إلى الافتراضي",
-      "CANCEL": "إلغاء",
       "LOADING": "جاري تحميل الإعدادات..."
-    }
+    },
+    "SERVICES": {
+      "TITLE": "إدارة الخدمات",
+      "SUBTITLE": "إنشاء وتحرير وحذف خدمات تصفيف الشعر",
+      "ADD_SERVICE": "إضافة خدمة",
+      "CREATE_SERVICE": "إنشاء خدمة",
+      "EDIT_SERVICE": "تحرير خدمة",
+      "NAME_PLACEHOLDER": "اسم الخدمة",
+      "DESCRIPTION_PLACEHOLDER": "وصف الخدمة",
+      "SELECT_CATEGORY": "اختر الفئة",
+      "SELECT_ICON": "اختر الأيقونة",
+      "MARK_AS_POPULAR": "تحديد كشائع",
+      "NO_SERVICES_IN_CATEGORY": "لا توجد خدمات في هذه الفئة",
+      "SERVICE_CREATED": "تم إنشاء الخدمة",
+      "SERVICE_CREATED_MESSAGE": "تم إنشاء الخدمة بنجاح",
+      "SERVICE_UPDATED": "تم تحديث الخدمة",
+      "SERVICE_UPDATED_MESSAGE": "تم تحديث الخدمة بنجاح",
+      "SERVICE_DELETED": "تم حذف الخدمة",
+      "SERVICE_DELETED_MESSAGE": "تم حذف الخدمة بنجاح",
+      "SERVICE_MARKED_POPULAR": "تم تحديد الخدمة كشائعة",
+      "SERVICE_UNMARKED_POPULAR": "تم إلغاء تحديد الخدمة كشائعة",
+      "MARK_POPULAR": "تحديد كشائع",
+      "UNMARK_POPULAR": "إلغاء تحديد كشائع",
+      "ERROR_TOGGLING_POPULAR": "خطأ في تغيير حالة الشعبية للخدمة",
+      "UPDATING_SERVICE": "جاري تحديث الخدمة...",
+      "CREATING_SERVICE": "جاري إنشاء الخدمة...",
+      "SERVICE_UPDATED_SUCCESS": "تم تحديث الخدمة بنجاح",
+      "SERVICE_CREATED_SUCCESS": "تم إنشاء الخدمة بنجاح",
+      "ERROR_UPDATING_SERVICE": "خطأ في تحديث الخدمة",
+      "ERROR_CREATING_SERVICE": "خطأ في إنشاء الخدمة",
+      "DELETE_CONFIRMATION": "تأكيد الحذف",
+      "DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من حذف الخدمة \"{{name}}\"؟",
+      "MIGRATE_SERVICES": "ترحيل الخدمات",
+      "CREATE_SAMPLE_SERVICES": "إنشاء خدمات نموذجية",
+      "REFRESH": "تحديث",
+      "CATEGORY": "الفئة",
+      "ICON": "الأيقونة",
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "DURATION_MINUTES": "المدة (دقائق)",
+      "PRICE_EURO": "السعر (€)",
+      "VALIDATION": {
+        "NAME_REQUIRED": "اسم الخدمة مطلوب",
+        "DESCRIPTION_REQUIRED": "وصف الخدمة مطلوب",
+        "CATEGORY_REQUIRED": "الفئة مطلوبة",
+        "PRICE_REQUIRED": "السعر مطلوب",
+        "DURATION_REQUIRED": "المدة مطلوبة",
+        "PRICE_MIN": "السعر يجب أن يكون أكبر من 0",
+        "DURATION_MIN": "المدة يجب أن تكون 5 دقائق على الأقل",
+        "DURATION_MAX": "المدة لا يمكن أن تتجاوز 8 ساعات"
+      },
+      "CATEGORIES": {
+        "MANAGE_CATEGORIES": "إدارة الفئات",
+        "CREATE_NEW_CATEGORY": "إنشاء فئة جديدة",
+        "CREATE_CATEGORY": "إنشاء فئة",
+        "EDIT_CATEGORY": "تحرير فئة",
+        "DELETE_CATEGORY": "حذف فئة",
+        "CATEGORY_NAME": "اسم الفئة",
+        "CATEGORY_ID": "معرف الفئة",
+        "CATEGORY_ICON": "أيقونة الفئة",
+        "CATEGORY_NAME_PLACEHOLDER": "اسم الفئة",
+        "CATEGORY_ID_PLACEHOLDER": "id-faئة",
+        "CATEGORY_ICON_PLACEHOLDER": "أدخل رمز تعبيري (مثال: ✂️)",
+        "CATEGORY_CREATED": "تم إنشاء الفئة",
+        "CATEGORY_CREATED_MESSAGE": "تم إنشاء الفئة بنجاح",
+        "CATEGORY_UPDATED": "تم تحديث الفئة",
+        "CATEGORY_UPDATED_MESSAGE": "تم تحديث الفئة بنجاح",
+        "CATEGORY_DELETED": "تم حذف الفئة",
+        "CATEGORY_DELETED_MESSAGE": "تم حذف الفئة بنجاح",
+        "DELETE_CATEGORY_CONFIRMATION": "تأكيد حذف الفئة",
+        "DELETE_CATEGORY_CONFIRMATION_MESSAGE": "هل أنت متأكد من حذف الفئة \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+        "CATEGORY_IN_USE": "الفئة قيد الاستخدام",
+        "CATEGORY_IN_USE_MESSAGE": "لا يمكن حذف الفئة لأن {{count}} خدمات تستخدمها.",
+        "CATEGORY_ID_EXISTS": "معرف الفئة موجود بالفعل",
+        "CATEGORY_ID_EXISTS_MESSAGE": "يوجد فئة أخرى بهذا المعرف. يرجى اختيار معرف آخر.",
+        "VALIDATION": {
+          "CATEGORY_NAME_REQUIRED": "اسم الفئة مطلوب",
+          "CATEGORY_ID_REQUIRED": "معرف الفئة مطلوب",
+          "CATEGORY_ICON_REQUIRED": "أيقونة الفئة مطلوبة",
+          "CATEGORY_ID_FORMAT": "معرف الفئة يجب أن يحتوي على أحرف صغيرة وأرقام وشرطات فقط",
+          "CATEGORY_ID_MIN_LENGTH": "معرف الفئة يجب أن يكون 3 أحرف على الأقل",
+          "UPDATING_CATEGORY": "جاري تحديث الفئة...",
+          "CREATING_CATEGORY": "جاري إنشاء الفئة...",
+          "CATEGORY_UPDATED_SUCCESS": "تم تحديث الفئة بنجاح",
+          "CATEGORY_CREATED_SUCCESS": "تم إنشاء الفئة بنجاح",
+          "ERROR_UPDATING_CATEGORY": "خطأ في تحديث الفئة",
+          "ERROR_CREATING_CATEGORY": "خطأ في إنشاء الفئة"
+        },
+        "EXISTING_CATEGORIES": "الفئات الموجودة",
+        "ADD_NEW_CATEGORY": "إضافة فئة جديدة",
+        "STATIC_CATEGORY": "فئة ثابتة",
+        "CANNOT_EDIT_STATIC": "لا يمكن التحرير (فئة ثابتة)",
+        "NO_CATEGORIES": "لا توجد فئات متاحة",
+        "ICON_HELP": "أدخل رمز تعبيري مباشرة من لوحة المفاتيح. يمكنك استخدام أي رمز تعبيري متاح في نظامك.",
+        "ICON_EXAMPLES": "أمثلة على الرموز التعبيرية"
+      }
+    },
+    "SERVICES_MANAGEMENT": "إدارة الخدمات",
+    "SERVICES_MANAGEMENT_DESCRIPTION": "إنشاء وتحرير وحذف خدمات تصفيف الشعر",
+    "MANAGE_SERVICES": "إدارة الخدمات"
   },
   "CALENDAR": {
     "TODAY": "اليوم",

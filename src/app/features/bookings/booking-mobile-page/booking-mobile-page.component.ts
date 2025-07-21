@@ -5,30 +5,38 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
+import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
-import { ServicesService, Service } from '../../../core/services/services.service';
+
+import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
+import { BookingService } from '../../../core/services/booking.service';
+import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
-
-
-interface DaySlot {
-  date: Date;
-  timeSlots: TimeSlot[];
-}
+import { ResponsiveService } from '../../../core/services/responsive.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 
 interface TimeSlot {
   time: string;
   available: boolean;
-  appointment?: any;
-  isLunchBreak: boolean;
-  isPastTime?: boolean;
+  isSelected: boolean;
+  clientName?: string;
+  serviceName?: string;
+  serviceIcon?: string;
+  bookingId?: string;
+  notes?: string;
+}
+
+interface DaySlot {
+  date: Date;
+  timeSlots: TimeSlot[];
 }
 
 @Component({
@@ -40,7 +48,7 @@ interface TimeSlot {
     CardModule,
     InputTextModule,
     ButtonModule,
-    DropdownModule,
+    SelectModule,
     TranslateModule,
     CardComponent,
     BookingPopupComponent,
@@ -52,171 +60,160 @@ interface TimeSlot {
 export class BookingMobilePageComponent {
   // Inject services
   public readonly authService = inject(AuthService);
-  public readonly servicesService = inject(ServicesService);
+  public readonly firebaseServicesService = inject(FirebaseServicesService);
+  public readonly bookingService = inject(BookingService);
+  private readonly roleService = inject(RoleService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
-
+  private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date>(new Date());
-  private readonly selectedServiceSignal = signal<Service | null>(null);
+  private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
   private readonly appointmentsSignal = signal<any[]>([]);
+
   private readonly showBookingPopupSignal = signal<boolean>(false);
-  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: ''});
+
+  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
+  private readonly showLoginPromptSignal = signal<boolean>(false);
 
   // Public computed signals
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
+
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
+
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
+  readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
+  readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
+  readonly isAdmin = computed(() => this.roleService.isAdmin());
 
   // Business configuration
   readonly businessHours = { start: '08:00', end: '20:00' };
   readonly lunchBreak = { start: '13:00', end: '14:00' };
   readonly businessDays = [1, 2, 3, 4, 5, 6]; // Monday to Saturday
-  readonly slotDuration = 30; // minutes
+  readonly slotDuration = 30;
 
-  // Computed properties
+  // Available services
+  readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
+
+  // Week days computation
   readonly weekDays = computed(() => {
     const start = startOfWeek(this.selectedDate(), { weekStartsOn: 1 });
     const end = endOfWeek(this.selectedDate(), { weekStartsOn: 1 });
-    const allDays = eachDayOfInterval({ start, end });
+    return eachDayOfInterval({ start, end });
+  });
 
-    // Always return all 7 days of the week
-    return allDays;
+  // Day slots computation
+  readonly daySlots = computed(() => {
+    return this.weekDays().map(day => ({
+      date: day,
+      timeSlots: this.generateTimeSlots(day)
+    }));
   });
 
   readonly selectedDaySlots = computed(() => {
-    return this.generateTimeSlotsForDay(this.selectedDate());
+    if (!this.selectedDate()) return null;
+    return this.daySlots().find(daySlot => isSameDay(daySlot.date, this.selectedDate()));
   });
 
-  readonly morningSlots = computed(() => {
-    return this.selectedDaySlots().filter(slot => {
-      const slotTime = slot.time;
-      const lunchStart = this.lunchBreak.start;
-      const isMorning = slotTime < lunchStart; // Matí: fins l'inici de l'hora de dinar
+  readonly isSelectedDayFullyBooked = computed(() => {
+    const daySlots = this.selectedDaySlots();
+    if (!daySlots) return false;
 
-      // Per a hui, no mostrar hores passades
-      if (this.isToday(this.selectedDate())) {
-        const currentTime = new Date();
-        // Create date in local timezone to avoid UTC conversion issues
-        const [hours, minutes] = slotTime.split(':').map(Number);
-        const slotDateTime = new Date(this.selectedDate());
-        slotDateTime.setHours(hours, minutes, 0, 0);
-        if (slotDateTime <= currentTime) {
-          return false;
-        }
-      }
-
-      return isMorning;
-    });
+    // Check if all time slots are occupied
+    const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
+    return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
   });
 
-  readonly afternoonSlots = computed(() => {
-    return this.selectedDaySlots().filter(slot => {
-      const slotTime = slot.time;
-      const lunchEnd = this.lunchBreak.end;
-      const isAfternoon = slotTime >= lunchEnd; // Tarda: després de l'hora de dinar
-
-      // Per a hui, no mostrar hores passades
-      if (this.isToday(this.selectedDate())) {
-        const currentTime = new Date();
-        // Create date in local timezone to avoid UTC conversion issues
-        const [hours, minutes] = slotTime.split(':').map(Number);
-        const slotDateTime = new Date(this.selectedDate());
-        slotDateTime.setHours(hours, minutes, 0, 0);
-        if (slotDateTime <= currentTime) {
-          return false;
-        }
-      }
-
-      return isAfternoon;
-    });
-  });
-
-  readonly availableServices = computed(() => {
-    return this.servicesService.getAllServices();
-  });
-
-  readonly canBook = computed(() => {
-    return this.selectedService() !== null;
-  });
-
-  readonly selectedDayHasAvailableSlots = computed(() => {
-    return this.morningSlots().length > 0 || this.afternoonSlots().length > 0;
-  });
-
-  constructor() {
+    constructor() {
+    this.loadServices();
     this.loadAppointments();
-    this.setDefaultClientName();
 
-    // Initialize user effect
-    this.#initUserEffect();
-
-
-  }
-
-  #initUserEffect() {
-    effect(() => {
-      const user = this.authService.user();
-      if (user) {
-        this.setDefaultClientName();
-      }
-    }, { allowSignalWrites: true });
-  }
-
-
-
-  private loadAppointments() {
-    const dades = JSON.parse(localStorage.getItem('cites') || '[]');
-    const dadesAmbIds = dades.map((cita: any) => {
-      if (!cita.id) {
-        return { ...cita, id: uuidv4() };
-      }
-      return cita;
+    // Listen for service updates to refresh services
+    window.addEventListener('serviceUpdated', () => {
+      this.loadServices();
     });
-    this.appointmentsSignal.set(dadesAmbIds);
+
+    // Listen for booking updates to refresh appointments
+    window.addEventListener('bookingUpdated', () => {
+      this.loadAppointments();
+    });
   }
 
-  private setDefaultClientName() {
-    const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || '';
-    this.bookingDetailsSignal.update(details => ({ ...details, clientName: defaultName }));
+  private async loadServices() {
+    try {
+      await this.firebaseServicesService.loadServices();
+      const services = this.firebaseServicesService.activeServices();
+      // Set first service as default if available
+      if (services.length > 0) {
+        this.selectedServiceSignal.set(services[0]);
+      }
+    } catch (error) {
+      console.error('Error loading services:', error);
+      // Don't show toast for loading errors - they're not user-initiated actions
+    }
   }
 
-      private generateTimeSlotsForDay(date: Date): TimeSlot[] {
+  private async loadAppointments() {
+    try {
+      // Load appointments from BookingService (Firebase)
+      await this.bookingService.loadBookings();
+      const bookings = this.bookingService.bookings();
+      this.appointmentsSignal.set(bookings);
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    }
+  }
+
+  private generateTimeSlots(date: Date): TimeSlot[] {
     const slots: TimeSlot[] = [];
+    const dayOfWeek = date.getDay();
+
+    // Check if it's a business day
+    if (!this.businessDays.includes(dayOfWeek)) {
+      return slots;
+    }
+
     const startHour = parseInt(this.businessHours.start.split(':')[0]);
     const endHour = parseInt(this.businessHours.end.split(':')[0]);
-    const lunchStartHour = parseInt(this.lunchBreak.start.split(':')[0]);
-    const lunchStartMinute = parseInt(this.lunchBreak.start.split(':')[1]);
-    const lunchEndHour = parseInt(this.lunchBreak.end.split(':')[0]);
-    const lunchEndMinute = parseInt(this.lunchBreak.end.split(':')[1]);
+    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
+    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+    const now = new Date();
+    const isToday = isSameDay(date, now);
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += this.slotDuration) {
-        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const slotDate = new Date(date);
+        slotDate.setHours(hour, minute, 0, 0);
 
-        // Skip lunch break
-        const isLunchBreak = (hour === lunchStartHour && minute >= lunchStartMinute) ||
-                            (hour > lunchStartHour && hour < lunchEndHour) ||
-                            (hour === lunchEndHour && minute < lunchEndMinute);
-
-        if (isLunchBreak) {
+        // Skip disabled time slots (lunch break, etc.)
+        if (!this.isTimeSlotEnabled(hour, minute)) {
           continue;
         }
 
-        // Check if slot is available
-        const available = this.isTimeSlotAvailable(date, time);
-        const appointment = this.getAppointmentForTimeSlot(date, time);
-        const isPastTime = this.isPastTimeSlot(date, time);
+        // Skip past hours (only for today)
+        if (isToday && slotDate <= now) {
+          continue;
+        }
+
+        // Check if slot is available (not booked)
+        const isAvailable = !this.isSlotBooked(slotDate);
+
+        // Get booking details if slot is occupied
+        const booking = this.getBookingForSlot(date, timeString);
 
         slots.push({
-          time,
-          available: available && !isPastTime,
-          appointment,
-          isLunchBreak: false
+          time: timeString,
+          available: isAvailable,
+          isSelected: false,
+          clientName: booking?.nom || booking?.clientName,
+          serviceName: booking?.serviceName || booking?.servei,
+          serviceIcon: this.getServiceIcon(booking?.serviceId),
+          bookingId: booking?.id,
+          notes: booking?.notes
         });
       }
     }
@@ -224,144 +221,228 @@ export class BookingMobilePageComponent {
     return slots;
   }
 
-  private isPastTimeSlot(date: Date, time: string): boolean {
-    if (isSameDay(date, new Date())) {
-      const currentTime = new Date();
-      // Create date in local timezone to avoid UTC conversion issues
-      const [hours, minutes] = time.split(':').map(Number);
-      const slotTime = new Date(date);
-      slotTime.setHours(hours, minutes, 0, 0);
-      return slotTime <= currentTime;
-    }
-    return false;
+  private isSlotBooked(date: Date): boolean {
+    const bookings = this.bookingService.bookings();
+    const timeString = format(date, 'HH:mm');
+    const dateString = format(date, 'yyyy-MM-dd');
+
+    return bookings.some(booking => {
+      // Check if booking is confirmed and matches the date and time
+      return booking.status === 'confirmed' &&
+             booking.data === dateString &&
+             booking.hora === timeString;
+    });
   }
 
-    private isTimeSlotAvailable(date: Date, time: string): boolean {
-    const dayAppointments = this.appointments().filter(apt =>
-      isSameDay(new Date(apt.data), date)
-    );
+  private getBookingForSlot(date: Date, time: string): any {
+    const dateString = format(date, 'yyyy-MM-dd');
+    const bookings = this.bookingService.bookings();
 
-    // Check if any appointment overlaps with this time slot
-    for (const apt of dayAppointments) {
-      if (apt.hora === time) {
-        return false;
-      }
+    return bookings.find(booking => {
+      // Check if booking is confirmed and matches the date and time
+      return booking.status === 'confirmed' &&
+             booking.data === dateString &&
+             booking.hora === time;
+    });
+  }
+
+  private getServiceIcon(serviceId?: string): string {
+    if (!serviceId) return '🔧';
+    const service = this.firebaseServicesService.services().find(s => s.id === serviceId);
+    return service?.icon || '🔧';
+  }
+
+    private isTimeSlotEnabled(hour: number, minute: number): boolean {
+    // Check lunch break
+    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
+    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+
+    if (hour >= lunchStart && hour < lunchEnd) {
+      return false;
     }
 
-    // Check if the time slot is in the past for today
-    if (isSameDay(date, new Date())) {
-      const currentTime = new Date();
-      // Create date in local timezone to avoid UTC conversion issues
-      const [hours, minutes] = time.split(':').map(Number);
-      const slotTime = new Date(date);
-      slotTime.setHours(hours, minutes, 0, 0);
-      if (slotTime <= currentTime) {
-        return false;
-      }
-    }
+    // Add more disabled time slots here if needed
+    // Example: if (hour === 12 && minute === 0) return false; // Disable 12:00
 
     return true;
   }
 
-  private getAppointmentForTimeSlot(date: Date, time: string): any | undefined {
-    return this.appointments().find(apt =>
-      isSameDay(new Date(apt.data), date) && apt.hora === time
-    );
+  /**
+   * Get enabled time slots for a given date
+   * Used for documentation and testing purposes
+   */
+  getEnabledTimeSlots(date: Date): string[] {
+    const slots: string[] = [];
+    const dayOfWeek = date.getDay();
+
+    // Check if it's a business day
+    if (!this.businessDays.includes(dayOfWeek)) {
+      return slots;
+    }
+
+    const startHour = parseInt(this.businessHours.start.split(':')[0]);
+    const endHour = parseInt(this.businessHours.end.split(':')[0]);
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += this.slotDuration) {
+        if (this.isTimeSlotEnabled(hour, minute)) {
+          const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+          slots.push(timeString);
+        }
+      }
+    }
+
+    return slots;
   }
 
-  selectDate(date: Date) {
+  onDateSelected(date: Date) {
     this.selectedDateSignal.set(date);
   }
 
-  selectService(service: Service) {
+  selectServiceFromList(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
   }
 
-    selectTimeSlot(timeSlot: TimeSlot) {
-    if (!timeSlot.available) return;
 
-    const user = this.authService.user();
-    const defaultName = user?.displayName || user?.email || '';
 
-    // Crear detalls de reserva amb tota la informació ja seleccionada
+  async onBookingConfirmed(details: BookingDetails) {
+    try {
+      // Create booking using the booking service
+      const bookingData = {
+        nom: details.clientName,
+        email: details.email,
+        data: details.date,
+        hora: details.time,
+        serviceName: details.service?.name || '',
+        serviceId: details.service?.id || '',
+        duration: details.service?.duration || 60,
+        price: details.service?.price || 0,
+        notes: '',
+        status: 'confirmed' as const,
+        editToken: '', // Will be generated automatically
+        uid: this.authService.user()?.uid || null
+      };
+
+      const booking = await this.bookingService.createBooking(bookingData);
+
+      if (booking) {
+        // Show login prompt for anonymous users
+        if (!this.isAuthenticated()) {
+          this.showLoginPromptSignal.set(true);
+        }
+
+        // Refresh appointments to show the new booking
+        await this.loadAppointments();
+
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('bookingUpdated'));
+      }
+
+      this.showBookingPopupSignal.set(false);
+      this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      // Don't show toast - the booking service already handles success/error toasts
+    }
+  }
+
+
+
+  onBookingCancelled() {
+    this.showBookingPopupSignal.set(false);
+    this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+  }
+
+  onClientNameChanged(name: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, clientName: name }));
+  }
+
+  onEmailChanged(email: string) {
+    this.bookingDetailsSignal.update(details => ({ ...details, email: email }));
+  }
+
+  // Login prompt handlers
+  onLoginPromptClose() {
+    this.showLoginPromptSignal.set(false);
+  }
+
+  onLoginPromptLogin() {
+    this.showLoginPromptSignal.set(false);
+    this.router.navigate(['/login']);
+  }
+
+  // Navigation
+  goToPreviousWeek() {
+    const newDate = addDays(this.selectedDate(), -7);
+    this.selectedDateSignal.set(newDate);
+  }
+
+  goToNextWeek() {
+    const newDate = addDays(this.selectedDate(), 7);
+    this.selectedDateSignal.set(newDate);
+  }
+
+  goToToday() {
+    this.selectedDateSignal.set(new Date());
+  }
+
+  // Template methods
+  previousWeek() {
+    this.goToPreviousWeek();
+  }
+
+  nextWeek() {
+    this.goToNextWeek();
+  }
+
+  selectDate(date: Date) {
+    this.onDateSelected(date);
+  }
+
+  selectService(service: FirebaseService) {
+    this.selectServiceFromList(service);
+  }
+
+  selectTimeSlot(timeSlot: TimeSlot) {
+    // Check if service is selected
+    if (!this.selectedService()) {
+      this.toastService.showError('Si us plau, selecciona un servei primer');
+      return;
+    }
+
+    // Check if date is selected
+    if (!this.selectedDate()) {
+      this.toastService.showError('Si us plau, selecciona una data primer');
+      return;
+    }
+
+    // Go directly to booking confirmation popup
     const bookingDetails: BookingDetails = {
       date: format(this.selectedDate(), 'yyyy-MM-dd'),
       time: timeSlot.time,
-      clientName: defaultName,
-      service: this.selectedService()
+      clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
+      service: this.selectedService() || undefined
     };
 
     this.bookingDetailsSignal.set(bookingDetails);
     this.showBookingPopupSignal.set(true);
   }
 
-  onBookingConfirmed(details: BookingDetails) {
-    const user = this.authService.user();
-    if (!user) {
-      this.toastService.showLoginRequired();
-      return;
-    }
-
-    const nova = {
-      nom: details.clientName,
-      data: details.date,
-      hora: details.time,
-      id: uuidv4(),
-      userId: user.uid,
-      duration: details.service?.duration || 60,
-      serviceName: details.service?.name,
-      serviceId: details.service?.id
-    };
-
-    this.appointmentsSignal.update(appointments => [...appointments, nova]);
-    this.guardarCites();
-
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('appointmentCreated', {
-      detail: { appointment: nova }
-    }));
-
-    this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
-
-    this.toastService.showAppointmentCreated(details.clientName, nova.id);
-  }
-
-  onBookingCancelled() {
-    this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: ''});
-  }
-
-
-
-  guardarCites() {
-    localStorage.setItem('cites', JSON.stringify(this.appointments()));
-  }
-
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ca-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
+  // Format methods
   formatDay(date: Date): string {
-    if (!date || isNaN(date.getTime())) {
-      return '';
-    }
     return format(date, 'EEEE, d MMMM', { locale: ca });
   }
 
   formatDayShort(date: Date): string {
-    if (!date || isNaN(date.getTime())) {
-      return '';
-    }
-    return format(date, 'EEE d', { locale: ca });
+    return format(date, 'EEE', { locale: ca });
   }
 
+  formatTime(time: string): string {
+    return time;
+  }
+
+  // State check methods
   isToday(date: Date): boolean {
     return isSameDay(date, new Date());
   }
@@ -375,51 +456,65 @@ export class BookingMobilePageComponent {
   }
 
   isPastDate(date: Date): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
-    return checkDate < today;
+    return date < new Date() && !isSameDay(date, new Date());
   }
 
   canSelectDate(date: Date): boolean {
-    return this.isBusinessDay(date) && !this.isPastDate(date);
+    return !this.isPastDate(date) && this.isBusinessDay(date);
   }
 
-  previousWeek() {
-    this.selectedDateSignal.update(date => addDays(date, -7));
-  }
-
-  nextWeek() {
-    this.selectedDateSignal.update(date => addDays(date, 7));
-  }
-
-  today() {
-    this.selectedDateSignal.set(new Date());
-  }
-
-  tomorrow() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    this.selectedDateSignal.set(tomorrow);
-  }
-
+  // Quick date selection methods
   getToday(): Date {
     return new Date();
   }
 
   getTomorrow(): Date {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
+    return addDays(new Date(), 1);
   }
 
+  selectToday() {
+    const today = new Date();
+    if (this.canSelectDate(today)) {
+      this.selectedDateSignal.set(today);
+    }
+  }
 
+  selectTomorrow() {
+    const tomorrow = this.getTomorrow();
+    if (this.canSelectDate(tomorrow)) {
+      this.selectedDateSignal.set(tomorrow);
+    }
+  }
 
+  nextAvailableDate(): Date | null {
+    // Check next 30 days for available dates
+    for (let i = 0; i < 30; i++) {
+      const date = addDays(new Date(), i);
+      if (this.canSelectDate(date)) {
+        // Check if the date has available time slots
+        const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
+        if (daySlots && daySlots.timeSlots.some(slot => slot.available)) {
+          return date;
+        }
+      }
+    }
+    return null;
+  }
 
+  selectNextAvailable() {
+    const nextAvailable = this.nextAvailableDate();
+    if (nextAvailable) {
+      this.selectedDateSignal.set(nextAvailable);
+    }
+  }
 
-  private hasAvailableTimeSlots(date: Date): boolean {
-    const slots = this.generateTimeSlotsForDay(date);
-    return slots.some(slot => slot.available);
+  getServiceColor(serviceName: string): string {
+    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+    return serviceColor.color;
+  }
+
+  getServiceBackgroundColor(serviceName: string): string {
+    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+    return serviceColor.backgroundColor;
   }
 }

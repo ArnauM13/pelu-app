@@ -1,18 +1,19 @@
 <div class="detail-view-container" [style.view-transition-name]="viewTransitionName" [style.background]="serviceGradient">
-  <!-- Loading State - Now handled by global loader service -->
+  <!-- Loading State -->
+  @if (loading) {
+    <pelu-loading-state
+      [config]="loadingConfig">
+    </pelu-loading-state>
+  }
 
   <!-- Not Found State -->
   @if (notFound) {
-  <div class="not-found-section">
-    <div class="not-found-content">
-      <i class="not-found-icon">{{ notFoundIcon }}</i>
-      <h2>{{ notFoundTitle | translate }}</h2>
-      <p>{{ notFoundMessage | translate }}</p>
-      <button class="back-btn" (click)="onBack()">
-        {{ 'COMMON.ACTIONS.BACK' | translate }}
-      </button>
+    <div class="not-found-section">
+      <pelu-not-found-state
+        [config]="notFoundConfig"
+        (onButtonClick)="onBack()">
+      </pelu-not-found-state>
     </div>
-  </div>
   }
 
   <!-- Main Content -->
@@ -34,9 +35,9 @@
       </div>
       }
 
-      <!-- Appointment Header -->
+      <!-- Appointment Header - Desktop Only -->
       @if (type === 'appointment' && appointment) {
-      <div class="appointment-header" [style.background]="getAppointmentHeaderGradient()">
+      <div class="appointment-header desktop-only" [style.background]="getAppointmentHeaderGradient()">
         <div class="appointment-content">
           <!-- Back Button -->
           <button class="back-btn-emoji" (click)="onBack()" [title]="'COMMON.ACTIONS.BACK' | translate">
@@ -60,14 +61,23 @@
       }
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="content-grid" [class.editing-mode]="isEditing" [class.full-width]="!hasAvailableActions">
-      <!-- Left Column - Information Sections -->
-      <div class="info-column">
+      <!-- Card Content -->
+      <div class="card-content">
+        <!-- Mobile Back Button -->
+        @if (type === 'appointment' && appointment) {
+        <div class="mobile-back-section">
+          <button class="mobile-back-btn" (click)="onBack()" [title]="'COMMON.ACTIONS.BACK' | translate">
+            ← {{ 'COMMON.ACTIONS.BACK' | translate }}
+          </button>
+        </div>
+        }
+
         <!-- Status Badge (for appointments) -->
         @if (type === 'appointment' && appointment) {
         <div class="info-section status-section-mobile">
-          <h2>{{ 'COMMON.STATUS' | translate }}</h2>
+          <div class="status-header">
+            <h2>{{ 'APPOINTMENTS.STATUS' | translate }}</h2>
+          </div>
           <pelu-appointment-status-badge
             [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
             [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }">
@@ -84,103 +94,115 @@
             <div class="form-grid">
               <!-- Client Name -->
               <div class="form-group">
-                <label for="nom">{{ 'COMMON.CLIENT_NAME' | translate }} *</label>
-                <input
-                  type="text"
-                  id="nom"
-                  pInputText
+                <pelu-input-text
+                  [config]="{
+                    type: 'text',
+                    label: 'COMMON.CLIENT_NAME',
+                    placeholder: 'COMMON.ENTER_CLIENT_NAME',
+                    required: true,
+                    showLabel: true
+                  }"
                   [value]="editForm.nom"
-                  (input)="onUpdateForm('nom', $any($event.target).value)"
-                  [placeholder]="'COMMON.ENTER_CLIENT_NAME' | translate"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('nom', $event)">
+                </pelu-input-text>
               </div>
 
               <!-- Date -->
               <div class="form-group">
-                <label for="data">{{ 'COMMON.DATE' | translate }} *</label>
-                <input
-                  type="date"
-                  id="data"
+                <pelu-input-date
+                  [config]="{
+                    label: 'COMMON.DATE',
+                    required: true,
+                    showLabel: true
+                  }"
                   [value]="editForm.data"
-                  (input)="onUpdateForm('data', $any($event.target).value)"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('data', $event)">
+                </pelu-input-date>
               </div>
 
               <!-- Time -->
               <div class="form-group">
-                <label for="hora">{{ 'COMMON.HOURS' | translate }}</label>
-                <input
-                  type="time"
-                  id="hora"
+                <pelu-input-text
+                  [config]="{
+                    type: 'time',
+                    label: 'COMMON.HOURS',
+                    showLabel: true
+                  }"
                   [value]="editForm.hora"
-                  (input)="onUpdateForm('hora', $any($event.target).value)"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('hora', $event)">
+                </pelu-input-text>
               </div>
 
               <!-- Service -->
               <div class="form-group">
-                <label for="servei">{{ 'COMMON.SERVICE' | translate }}</label>
-                <input
-                  type="text"
-                  id="servei"
-                  pInputText
+                <pelu-input-text
+                  [config]="{
+                    type: 'text',
+                    label: 'COMMON.SERVICE',
+                    placeholder: 'COMMON.SERVICE',
+                    showLabel: true
+                  }"
                   [value]="editForm.servei"
-                  (input)="onUpdateForm('servei', $any($event.target).value)"
-                  [placeholder]="'COMMON.SERVICE' | translate"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('servei', $event)">
+                </pelu-input-text>
               </div>
 
               <!-- Service Name -->
               <div class="form-group">
-                <label for="serviceName">{{ 'APPOINTMENTS.SERVICE_FULL_NAME' | translate }}</label>
-                <input
-                  type="text"
-                  id="serviceName"
-                  pInputText
+                <pelu-input-text
+                  [config]="{
+                    type: 'text',
+                    label: 'APPOINTMENTS.SERVICE_FULL_NAME',
+                    placeholder: 'COMMON.SERVICE',
+                    showLabel: true
+                  }"
                   [value]="editForm.serviceName"
-                  (input)="onUpdateForm('serviceName', $any($event.target).value)"
-                  [placeholder]="'COMMON.SERVICE' | translate"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('serviceName', $event)">
+                </pelu-input-text>
               </div>
 
               <!-- Duration -->
               <div class="form-group">
-                <label for="duration">{{ 'APPOINTMENTS.DURATION_MINUTES' | translate }}</label>
-                <input
-                  type="number"
-                  id="duration"
+                <pelu-input-number
+                  [config]="{
+                    label: 'APPOINTMENTS.DURATION_MINUTES',
+                    placeholder: '60',
+                    min: 15,
+                    step: 15,
+                    showLabel: true
+                  }"
                   [value]="editForm.duration"
-                  (input)="onUpdateForm('duration', +$any($event.target).value)"
-                  [placeholder]="'60'"
-                  min="15"
-                  step="15"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('duration', $event)">
+                </pelu-input-number>
               </div>
 
               <!-- Price -->
               <div class="form-group">
-                <label for="preu">{{ 'APPOINTMENTS.PRICE_EURO' | translate }}</label>
-                <input
-                  type="number"
-                  id="preu"
+                <pelu-input-number
+                  [config]="{
+                    label: 'APPOINTMENTS.PRICE_EURO',
+                    placeholder: '0',
+                    min: 0,
+                    step: 0.01,
+                    showLabel: true
+                  }"
                   [value]="editForm.preu"
-                  (input)="onUpdateForm('preu', +$any($event.target).value)"
-                  [placeholder]="'0'"
-                  min="0"
-                  step="0.01"
-                  class="form-input">
+                  (valueChange)="onUpdateForm('preu', $event)">
+                </pelu-input-number>
               </div>
 
               <!-- Notes -->
               <div class="form-group full-width">
-                <label for="notes">{{ 'APPOINTMENTS.NOTES' | translate }}</label>
-                <textarea
-                  id="notes"
+                <pelu-input-textarea
+                  [config]="{
+                    label: 'APPOINTMENTS.NOTES',
+                    placeholder: 'APPOINTMENTS.NOTES',
+                    rows: 3,
+                    showLabel: true
+                  }"
                   [value]="editForm.notes"
-                  (input)="onUpdateForm('notes', $any($event.target).value)"
-                  [placeholder]="'APPOINTMENTS.NOTES' | translate"
-                  rows="3"
-                  class="form-textarea"></textarea>
+                  (valueChange)="onUpdateForm('notes', $event)">
+                </pelu-input-textarea>
               </div>
             </div>
 
@@ -210,10 +232,10 @@
           <div class="info-section">
             <div class="section-header">
               <h2>{{ section.title | translate }}</h2>
-              @if (section.onEdit && !section.isEditing) {
-                <button class="edit-section-btn" (click)="section.onEdit()" [title]="'COMMON.ACTIONS.EDIT' | translate">
-                  <i class="edit-icon">✏️</i>
-                </button>
+              @if (i === 0 && hasAvailableActions && !isEditing && actionContext) {
+                <pelu-actions-buttons
+                  [context]="actionContext">
+                </pelu-actions-buttons>
               }
             </div>
 
@@ -222,15 +244,16 @@
                 <div class="notes-form-grid">
                   @for (item of section.items; track item.label; let j = $index) {
                     <div class="form-group">
-                      <label [for]="'note-' + j">{{ item.label | translate }}</label>
-                      <textarea
-                        [id]="'note-' + j"
+                      <pelu-input-textarea
+                        [config]="{
+                          label: item.label,
+                          placeholder: item.label,
+                          rows: 2,
+                          showLabel: true
+                        }"
                         [value]="item.value"
-                        (input)="onUpdateNote(j, $any($event.target).value)"
-                        [placeholder]="item.label | translate"
-                        rows="2"
-                        class="form-textarea note-textarea">
-                      </textarea>
+                        (valueChange)="onUpdateNote(j, $event)">
+                      </pelu-input-textarea>
                     </div>
                   }
                 </div>
@@ -263,34 +286,6 @@
           }
         }
       </div>
-
-      <!-- Right Column - Actions -->
-      @if (!isEditing && hasAvailableActions) {
-      <div class="actions-column">
-        <div class="actions-section">
-          <h2>{{ 'COMMON.ACTIONS.ACTIONS' | translate }}</h2>
-          <div class="actions-grid">
-            @for (action of filteredActions; track action.label; let k = $index) {
-            <button
-              class="action-btn"
-              [class]="action.type || 'secondary'"
-              (click)="action.onClick()"
-              [disabled]="action.disabled"
-              *ngIf="!action.routerLink"
-            >
-              <i class="action-icon">{{ action.icon }}</i>
-              {{ action.label | translate }}
-            </button>
-            <a *ngIf="action.routerLink" [routerLink]="action.routerLink" class="action-btn" [class]="action.type || 'secondary'">
-              <i class="action-icon">{{ action.icon }}</i>
-              {{ action.label | translate }}
-            </a>
-            }
-          </div>
-        </div>
-      </div>
-      }
     </div>
-  </div>
   }
 </div>

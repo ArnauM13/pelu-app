@@ -1,5 +1,14 @@
 <div class="container pelu-appointments-page" style="margin-top: 2rem; view-transition-name: appointments-container">
 
+  <!-- Full Screen Loading State -->
+  @if (loading()) {
+    <pelu-loading-state
+      [config]="loadingConfig">
+    </pelu-loading-state>
+  }
+
+  <!-- Main Content -->
+  @if (!loading()) {
   <!-- Statistics Cards -->
   <pelu-appointments-stats
     [stats]="appointmentStats()"
@@ -8,7 +17,7 @@
 
   <!-- Next Appointment -->
   <pelu-next-appointment
-    [appointments]="appointments()"
+    [bookings]="appointments()"
     (onViewDetail)="viewAppointmentDetail($event)">
   </pelu-next-appointment>
 
@@ -47,8 +56,9 @@
         </pelu-calendar-component>
       } @placeholder {
         <div class="calendar-placeholder">
-          <div class="loading-spinner"></div>
-          <p>{{ 'COMMON.STATUS.LOADING' | translate }}</p>
+          <pelu-loading-state
+            [config]="loadingConfig">
+          </pelu-loading-state>
         </div>
       }
     </div>
@@ -110,29 +120,9 @@
             </div>
 
             <div class="appointment-actions" (click)="$event.stopPropagation()">
-              <button
-                class="btn btn-primary"
-                (click)="viewAppointmentDetail(appointment)"
-                [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
-                pTooltipPosition="left">
-                👁️
-              </button>
-              @if (isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
-                <button
-                  class="btn btn-secondary"
-                  (click)="editAppointment(appointment)"
-                  [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
-                  pTooltipPosition="left">
-                  ✏️
-              </button>
-              <button
-                class="btn btn-danger"
-                (click)="deleteAppointment(appointment)"
-                [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
-                pTooltipPosition="left">
-                🗑️
-              </button>
-              }
+              <pelu-actions-buttons
+                [context]="getActionContext(appointment)">
+              </pelu-actions-buttons>
             </div>
           </div>
         </div>
@@ -146,14 +136,13 @@
 
   <!-- Appointments List View -->
   @if (viewMode() === 'list') {
-  <pelu-appointments-list
-    [appointments]="filteredAppointments()"
-    [hasActiveFilters]="hasActiveFilters()"
-    (onViewAppointment)="viewAppointmentDetail($event)"
-    (onEditAppointment)="editAppointment($event)"
-    (onDeleteAppointment)="deleteAppointment($event)"
-    (onClearFilters)="clearAllFilters()">
-  </pelu-appointments-list>
+    <pelu-appointments-list
+      [bookings]="filteredAppointments()"
+      [hasActiveFilters]="hasActiveFilters()"
+      (onViewBooking)="viewAppointmentDetail($event)"
+      (onClearFilters)="clearAllFilters()">
+    </pelu-appointments-list>
+    }
   }
 
 </div>

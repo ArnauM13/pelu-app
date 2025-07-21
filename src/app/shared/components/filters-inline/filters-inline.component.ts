@@ -1,16 +1,16 @@
-import { Component, input, computed, Signal } from '@angular/core';
+import { Component, input, output, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DropdownModule } from 'primeng/dropdown';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
-import { ServiceColorsService, ServiceColor } from '../../../core/services/service-colors.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
+import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 
 @Component({
   selector: 'pelu-filters-inline',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, DropdownModule, FloatingButtonComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss']
 })
@@ -53,6 +53,29 @@ export class FiltersInlineComponent {
       }))
     ];
   });
+
+  // Input configurations for specific inputs
+  readonly dateFilterConfig = {
+    type: 'date' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_DATE',
+    showLabel: true
+  };
+
+  readonly clientFilterConfig = {
+    type: 'text' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
+    placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
+    showLabel: true
+  };
+
+  readonly serviceFilterConfig = computed(() => ({
+    type: 'select' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_SERVICE',
+    placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
+    options: this.serviceOptions(),
+    showLabel: true,
+    clearable: true
+  }));
 
   constructor(
     private serviceColorsService: ServiceColorsService,

@@ -4,31 +4,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { ServiceColorsService, ServiceColor } from '../../../core/services/service-colors.service';
-
-export interface Appointment {
-  id: string;
-  nom?: string;
-  title?: string;
-  data?: string;
-  hora?: string;
-  start?: string;
-  notes?: string;
-  servei?: string;
-  preu?: number;
-  duration?: number;
-  serviceName?: string;
-  serviceId?: string;
-  userId?: string;
-  clientName?: string;
-  [key: string]: any;
-}
+import { Booking } from '../../../core/services/booking.service';
 
 @Component({
   selector: 'pelu-next-appointment',
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
-    @if (nextAppointment(); as appointment) {
+    @if (nextBooking(); as booking) {
       <div class="next-appointment-card" [ngClass]="serviceCssClass()">
         <div class="appointment-header">
           <div class="header-icon" [style.background]="serviceColor().color">
@@ -42,46 +25,50 @@ export interface Appointment {
 
         <div class="appointment-content">
           <div class="client-info">
-            <h4 class="client-name">{{ appointment.nom || appointment.title || appointment.clientName }}</h4>
+            <h4 class="client-name">{{ getClientName(booking) }}</h4>
             <div class="appointment-details">
-              <div class="detail-item">
-                <span class="detail-icon">📅</span>
-                <span class="detail-text">{{ formatDate(appointment.data || appointment.start || '') }}</span>
-              </div>
-              @if (appointment.hora) {
+              @if (booking.data) {
+                <div class="detail-item">
+                  <span class="detail-icon">📅</span>
+                  <span class="detail-text">{{ formatDate(booking.data) }}</span>
+                </div>
+              }
+              @if (booking.hora) {
                 <div class="detail-item">
                   <span class="detail-icon">🕐</span>
-                  <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
+                  <span class="detail-text">{{ formatTime(booking.hora) }}</span>
                 </div>
               }
             </div>
           </div>
 
-                    <div class="service-info">
-            <div class="service-badge"
-                 [style.background]="serviceColor().color"
-                 [ngClass]="serviceTextCssClass()">
-              <span class="service-icon">✂️</span>
-              <span class="service-name">{{ getServiceName(appointment) }}</span>
-            </div>
-            @if (appointment.duration) {
+          <div class="service-info">
+            @if (getServiceName(booking)) {
+              <div class="service-badge"
+                   [style.background]="serviceColor().color"
+                   [ngClass]="serviceTextCssClass()">
+                <span class="service-icon">✂️</span>
+                <span class="service-name">{{ getServiceName(booking) }}</span>
+              </div>
+            }
+            @if (booking.duration) {
               <div class="duration-info">
                 <span class="duration-icon">⏱️</span>
-                <span class="duration-text">{{ appointment.duration }} min</span>
+                <span class="duration-text">{{ booking.duration }} min</span>
               </div>
             }
           </div>
 
-          @if (appointment.notes) {
+          @if (booking.notes) {
             <div class="notes-section">
               <span class="notes-icon">📝</span>
-              <span class="notes-text">{{ appointment.notes }}</span>
+              <span class="notes-text">{{ booking.notes }}</span>
             </div>
           }
         </div>
 
         <div class="appointment-actions">
-          <button class="btn btn-primary" (click)="onViewDetail.emit(appointment)">
+          <button class="btn btn-primary" (click)="onViewDetail.emit(booking)">
           👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
           </button>
         </div>
@@ -347,36 +334,38 @@ export interface Appointment {
   `]
 })
 export class NextAppointmentComponent {
-  readonly appointments = input.required<Appointment[]>();
+  readonly bookings = input.required<Booking[]>();
 
-  readonly onViewDetail = output<Appointment>();
+  readonly onViewDetail = output<Booking>();
 
   constructor(private serviceColorsService: ServiceColorsService) {}
 
-  readonly nextAppointment = computed(() => {
-    const appointments = this.appointments();
-    if (!appointments || appointments.length === 0) {
+  readonly nextBooking = computed(() => {
+    const bookings = this.bookings();
+    if (!bookings || bookings.length === 0) {
       return null;
     }
 
     const now = new Date();
-    const futureAppointments = appointments.filter(appointment => {
-      const appointmentDate = appointment.data || appointment.start?.split('T')[0];
-      if (!appointmentDate) return false;
+    const futureBookings = bookings.filter(booking => {
+      // Only show confirmed bookings with dates
+      if (booking.status !== 'confirmed' || !booking.data) {
+        return false;
+      }
 
       // Create date in local timezone to avoid UTC conversion issues
-      const [hours, minutes] = (appointment.hora || '23:59').split(':').map(Number);
-      const appointmentDateTime = new Date(appointmentDate);
-      appointmentDateTime.setHours(hours, minutes, 0, 0);
-      return appointmentDateTime > now;
+      const [hours, minutes] = (booking.hora || '23:59').split(':').map(Number);
+      const bookingDateTime = new Date(booking.data);
+      bookingDateTime.setHours(hours, minutes, 0, 0);
+      return bookingDateTime > now;
     });
 
-    if (futureAppointments.length === 0) {
+    if (futureBookings.length === 0) {
       return null;
     }
 
     // Ordenar per data i hora i retornar la primera
-    return futureAppointments.sort((a, b) => {
+    return futureBookings.sort((a, b) => {
       // Create dates in local timezone to avoid UTC conversion issues
       const createLocalDateTime = (dateStr: string, timeStr: string) => {
         const [hours, minutes] = (timeStr || '00:00').split(':').map(Number);
@@ -392,37 +381,41 @@ export class NextAppointmentComponent {
   });
 
   readonly serviceColor = computed(() => {
-    const appointment = this.nextAppointment();
-    if (!appointment) {
+    const booking = this.nextBooking();
+    if (!booking) {
       return this.serviceColorsService.getDefaultColor();
     }
 
-    const serviceName = this.getServiceName(appointment);
+    const serviceName = this.getServiceName(booking);
     return this.serviceColorsService.getServiceColor(serviceName || '');
   });
 
   readonly serviceCssClass = computed(() => {
-    const appointment = this.nextAppointment();
-    if (!appointment) {
+    const booking = this.nextBooking();
+    if (!booking) {
       return this.serviceColorsService.getServiceCssClass('');
     }
 
-    const serviceName = this.getServiceName(appointment);
+    const serviceName = this.getServiceName(booking);
     return this.serviceColorsService.getServiceCssClass(serviceName);
   });
 
   readonly serviceTextCssClass = computed(() => {
-    const appointment = this.nextAppointment();
-    if (!appointment) {
+    const booking = this.nextBooking();
+    if (!booking) {
       return this.serviceColorsService.getServiceTextCssClass('');
     }
 
-    const serviceName = this.getServiceName(appointment);
+    const serviceName = this.getServiceName(booking);
     return this.serviceColorsService.getServiceTextCssClass(serviceName);
   });
 
-  getServiceName(appointment: Appointment): string {
-    return appointment.serviceName || appointment.servei || 'Servei general';
+  getServiceName(booking: Booking): string {
+    return booking.serviceName || booking.servei || 'Servei general';
+  }
+
+  getClientName(booking: Booking): string {
+    return booking.nom || booking.title || booking.clientName || 'Client';
   }
 
   formatDate(dateString: string): string {
