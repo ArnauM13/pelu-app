@@ -111,6 +111,11 @@ export class InputPasswordComponent implements ControlValueAccessor {
       classes.push(`icon-${this.config().iconPosition || 'left'}`);
     }
 
+    // Afegir classe específica quan és text però prové de password
+    if (this.showPassword()) {
+      classes.push('password-as-text');
+    }
+
     return classes.join(' ');
   });
 

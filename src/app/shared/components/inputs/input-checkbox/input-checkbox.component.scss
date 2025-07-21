@@ -80,7 +80,7 @@
   .checkbox-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #000000;
+    color: var(--text-color-light, #374151);
     cursor: pointer;
     line-height: 1.4;
     margin: 0;

@@ -323,6 +323,10 @@ body {
   --info-color: #3B82F6;               /* Blau info modern */
   --info-color-light: #DBEAFE;         /* Blau info clar */
 
+  /* ===== COLORS PER INPUTS ===== */
+  --input-placeholder-color: #6b7280;  /* Color estàndard per placeholders */
+  --input-icon-color: #6b7280;         /* Color estàndard per icones/emojis */
+
   /* ===== COLORS DE SERVEIS ===== */
   --service-haircut-color: #3B82F6;           /* Blau - Corte */
   --service-haircut-bg: #DBEAFE;              /* Blau clar - Corte */
@@ -796,7 +800,7 @@ input[type="radio"]:disabled {
 label {
   display: block;
   font-weight: 600;
-  color: #000000;
+  color: var(--text-color-light, #374151);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
@@ -809,7 +813,7 @@ label {
 .form-group label {
   display: block;
   font-weight: 600;
-  color: #000000;
+  color: var(--text-color-light, #374151);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
@@ -945,6 +949,7 @@ label {
 .input-error .error-message::before {
   content: '⚠';
   font-size: 0.75rem;
+  margin-right: 0.5rem;
 }
 
 /* Estils per inputs amb èxit */
@@ -974,6 +979,7 @@ label {
 .input-success .success-message::before {
   content: '✓';
   font-size: 0.75rem;
+  margin-right: 0.5rem;
 }
 
 /* Estils per inputs amb ajuda */
@@ -2366,7 +2372,7 @@ input[type="week"],
   display: block !important;
   margin-bottom: 0.5rem !important;
   font-weight: 600 !important;
-  color: #1A2C4A !important;
+  color: var(--text-color-light, #374151) !important;
   font-size: 0.95rem !important;
   line-height: 1.4 !important;
 }
@@ -2400,7 +2406,7 @@ input[type="week"],
   min-height: 53px !important;
   padding: 0.75rem 1rem !important;
   background-color: #FFFFFF !important;
-  border: 2px solid var(--border-color) !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 8px !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
@@ -2644,7 +2650,7 @@ input[type="week"],
   display: block !important;
   margin-bottom: 0.5rem !important;
   font-weight: 600 !important;
-  color: #1A2C4A !important;
+  color: var(--text-color-light, #374151) !important;
   font-size: 0.95rem !important;
   line-height: 1.4 !important;
 }
@@ -2666,7 +2672,7 @@ input[type="week"],
   min-height: 53px !important;
   padding: 0.75rem 1rem !important;
   background-color: #FFFFFF !important;
-  border: 2px solid var(--border-color) !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 8px !important;
   font-size: 0.95rem !important;
   line-height: 1.4 !important;
@@ -3042,7 +3048,7 @@ input[type="week"],
   margin-bottom: 0.5rem !important;
   font-size: 0.95rem !important;
   font-weight: 600 !important;
-  color: #1A2C4A !important;
+  color: var(--text-color-light, #374151) !important;
   line-height: 1.4 !important;
 }
 
@@ -3061,7 +3067,7 @@ input[type="week"],
   width: 100% !important;
   min-height: 48px !important;
   padding: 0.75rem 1rem !important;
-  border: 2px solid var(--border-color) !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: var(--border-radius) !important;
   background-color: #FFFFFF !important;
   color: #1A2C4A !important;
@@ -3083,7 +3089,7 @@ input[type="week"],
 }
 
 .input-text .text-input::placeholder {
-  color: #8A9BB8 !important;
+  color: var(--input-placeholder-color, #6b7280) !important;
   opacity: 1 !important;
 }
 
@@ -3191,7 +3197,7 @@ input[type="week"],
   margin-bottom: 0.5rem !important;
   font-size: 0.95rem !important;
   font-weight: 600 !important;
-  color: #1A2C4A !important;
+  color: var(--text-color-light, #374151) !important;
   line-height: 1.4 !important;
 }
 
@@ -3210,7 +3216,7 @@ input[type="week"],
   width: 100% !important;
   min-height: 100px !important;
   padding: 0.75rem 1rem !important;
-  border: 2px solid var(--border-color) !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: var(--border-radius) !important;
   background-color: #FFFFFF !important;
   color: #1A2C4A !important;
@@ -3233,7 +3239,7 @@ input[type="week"],
 }
 
 .input-textarea .textarea-input::placeholder {
-  color: #8A9BB8 !important;
+  color: var(--input-placeholder-color, #6b7280) !important;
   opacity: 1 !important;
 }
 
@@ -3276,29 +3282,51 @@ input[type="week"],
 
 /* ===== FORÇAR COLORS EN TOTS ELS INPUTS ===== */
 input[type="text"],
-input[type="email"],
-input[type="password"],
 input[type="number"],
 input[type="tel"],
 input[type="url"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+input[type="email"],
+input[type="password"],
 input[type="search"],
 input[type="date"],
+textarea,
+select {
+  background-color: #FFFFFF !important;
+  color: var(--text-color, #000000) !important;
+  border: 1px solid #f3f4f6 !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  line-height: 1.4 !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
 input[type="time"],
 input[type="datetime-local"],
 input[type="month"],
 input[type="week"],
 textarea,
 select {
-  background-color: #FFFFFF !important;
-  color: #1A2C4A !important;
-  border: 2px solid #E1E8F5 !important;
-  border-radius: 8px !important;
   padding: 0.75rem 1rem !important;
-  font-size: 1rem !important;
-  font-family: inherit !important;
-  line-height: 1.4 !important;
-  transition: all 0.2s ease !important;
-  box-sizing: border-box !important;
+}
+
+input[type="email"],
+input[type="search"],
+input[type="date"] {
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem !important;
+}
+
+input[type="password"] {
+  padding: 0.75rem 2.5rem 0.75rem 2.5rem !important;
 }
 
 input[type="text"]:focus,
@@ -3328,15 +3356,29 @@ input[type="tel"]::placeholder,
 input[type="url"]::placeholder,
 input[type="search"]::placeholder,
 textarea::placeholder {
-  color: #8A9BB8 !important;
+  color: var(--input-placeholder-color, #6b7280) !important;
   opacity: 1 !important;
+}
+
+/* ===== ESTILS ESPECÍFICS PER INPUT PASSWORD QUAN ES CONVERTEIX EN TEXT ===== */
+.input-password.password-as-text input[type="text"] {
+  padding-left: 2.5rem !important;
+  padding-right: 2.5rem !important;
+}
+
+.input-password.password-as-text.icon-left input[type="text"] {
+  padding-left: 2.5rem !important;
+}
+
+.input-password.password-as-text input[type="text"] {
+  padding-right: 2.5rem !important;
 }
 
 /* ===== FORÇAR COLORS EN PRIMENG INPUTS ===== */
 .p-inputtext {
   background-color: #FFFFFF !important;
-  color: #1A2C4A !important;
-  border: 2px solid #E1E8F5 !important;
+  color: var(--text-color, #000000) !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 8px !important;
   padding: 0.75rem 1rem !important;
   font-size: 1rem !important;
@@ -3353,13 +3395,13 @@ textarea::placeholder {
 }
 
 .p-inputtext::placeholder {
-  color: #8A9BB8 !important;
+  color: var(--input-placeholder-color, #6b7280) !important;
   opacity: 1 !important;
 }
 
 .p-dropdown {
   background-color: #FFFFFF !important;
-  border: 2px solid #E1E8F5 !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 8px !important;
 }
 
@@ -3369,16 +3411,16 @@ textarea::placeholder {
 }
 
 .p-dropdown-label {
-  color: #1A2C4A !important;
+  color: var(--text-color, #000000) !important;
 }
 
 .p-dropdown-trigger {
-  color: #5A6B8A !important;
+  color: var(--input-icon-color, #6b7280) !important;
 }
 
 .p-multiselect {
   background-color: #FFFFFF !important;
-  border: 2px solid #E1E8F5 !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 8px !important;
 }
 
@@ -3388,12 +3430,12 @@ textarea::placeholder {
 }
 
 .p-multiselect-label {
-  color: #1A2C4A !important;
+  color: var(--text-color, #000000) !important;
 }
 
 .p-calendar {
   background-color: #FFFFFF !important;
-  border: 2px solid #E1E8F5 !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 8px !important;
 }
 
@@ -3404,12 +3446,12 @@ textarea::placeholder {
 
 .p-calendar input {
   background-color: transparent !important;
-  color: #1A2C4A !important;
+  color: var(--text-color, #000000) !important;
   border: none !important;
   padding: 0.75rem 1rem !important;
 }
 
 .p-calendar input::placeholder {
-  color: #8A9BB8 !important;
+  color: var(--input-placeholder-color, #6b7280) !important;
   opacity: 1 !important;
 }

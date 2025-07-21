@@ -48,14 +48,16 @@
   <!-- Error text -->
   @if (showErrorText()) {
     <div class="input-textarea-error">
-      {{ (config().errorText || '') | translate }}
+      <span class="error-icon">⚠</span>
+      <span class="error-text">{{ (config().errorText || '') | translate }}</span>
     </div>
   }
 
   <!-- Success text -->
   @if (showSuccessText()) {
     <div class="input-textarea-success">
-      {{ (config().successText || '') | translate }}
+      <span class="success-icon">✓</span>
+      <span class="success-text">{{ (config().successText || '') | translate }}</span>
     </div>
   }
 </div>

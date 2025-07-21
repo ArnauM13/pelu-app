@@ -7,7 +7,7 @@
 
 .input-textarea-label {
   font-weight: 600;
-  color: #000000;
+  color: var(--text-color-light, #374151);
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.2;
@@ -20,78 +20,71 @@
   }
 }
 
-.input-textarea-wrapper {
-  position: relative;
+.input-textarea-icon {
+  position: absolute;
   display: flex;
-  width: 100%;
-  min-height: 80px; // Mida mínima unificada per textarea
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: white !important;
-  transition: all 0.3s ease;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 100%;
+  color: var(--input-icon-color, #6b7280);
+  pointer-events: none;
+  z-index: 1;
 
-  &.focused {
-    border-color: #1e40af;
-    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+  &.left {
+    left: 0;
   }
 
-  &.error {
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  &.right {
+    right: 0;
   }
 
-  &.success {
-    border-color: #16a34a;
-    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-  }
-
-  &.disabled {
-    background-color: #f9fafb;
-    color: #9ca3af;
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  &.auto-resize {
-    .input-textarea-field {
-      resize: none;
-      overflow: hidden;
-    }
+  i {
+    font-size: 1rem;
   }
 }
 
-.input-textarea-field {
-  flex: 1;
-  width: 100%;
-  min-height: 80px; // Mida mínima unificada
-  padding: 0.75rem;
+.input-textarea-loading {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.input-textarea-clear {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
   border: none;
-  background: transparent !important;
-  color: #000000 !important;
-  font-size: 1rem;
-  font-family: inherit;
-  line-height: 1.5;
-  outline: none;
-  box-sizing: border-box;
-  resize: vertical; // Permet redimensionar verticalment per defecte
+  background: transparent;
+  color: var(--input-icon-color, #6b7280);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 1;
 
-  &::placeholder {
-    color: #9ca3af !important;
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
   }
 
-  &:disabled {
-    cursor: not-allowed;
-  }
-
-  &:read-only {
-    cursor: default;
-  }
-
-  // Estils específics per auto-resize
-  &.auto-resize {
-    resize: none;
-    overflow: hidden;
+  i {
+    font-size: 0.75rem;
   }
 }
 
@@ -109,11 +102,15 @@
   line-height: 1.4;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
 
-  &::before {
-    content: '⚠';
+  .error-icon {
     font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .error-text {
+    flex: 1;
   }
 }
 
@@ -124,42 +121,28 @@
   line-height: 1.4;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
 
-  &::before {
-    content: '✓';
+  .success-icon {
     font-size: 0.75rem;
+    flex-shrink: 0;
   }
+
+  .success-text {
+    flex: 1;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 // Responsive design
 @media (max-width: 768px) {
-  .input-textarea-wrapper {
-    min-height: 88px; // Mida mínima més gran per mòbils
-  }
-
   .input-textarea-field {
-    min-height: 88px;
     font-size: 1rem; // Prevent zoom on iOS
   }
 }
 
-// Dark mode support (if needed)
-@media (prefers-color-scheme: dark) {
-  .input-textarea-wrapper {
-    background-color: #1f2937;
-    border-color: #374151;
-  }
 
-  .input-textarea-field {
-    color: #f9fafb;
-
-    &::placeholder {
-      color: #6b7280;
-    }
-  }
-
-  .input-textarea-label {
-    color: #f9fafb;
-  }
-}
