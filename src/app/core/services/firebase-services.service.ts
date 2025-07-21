@@ -203,6 +203,9 @@ export class FirebaseServicesService {
       this._lastSync.set(Date.now());
       this.saveServicesToCache(this._services());
 
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('serviceUpdated'));
+
       this.toastService.showSuccess('COMMON.SERVICE_CREATED_SUCCESS');
       this.logger.info('Service created', {
         component: 'FirebaseServicesService',
@@ -264,6 +267,9 @@ export class FirebaseServicesService {
         )
       );
       this._lastSync.set(Date.now());
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('serviceUpdated'));
       this.saveServicesToCache(this._services());
 
       this.toastService.showSuccess('COMMON.SERVICE_UPDATED_SUCCESS');
@@ -321,6 +327,9 @@ export class FirebaseServicesService {
       );
       this._lastSync.set(Date.now());
       this.saveServicesToCache(this._services());
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('serviceUpdated'));
 
       this.toastService.showSuccess('COMMON.SERVICE_DELETED_SUCCESS');
       this.logger.info('Service deleted', {
