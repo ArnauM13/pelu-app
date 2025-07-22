@@ -1,16 +1,7 @@
 <div class="calendar-container">
   <!-- Loader only on first load -->
   @if (!isBookingsLoaded()) {
-    <div class="calendar-loader">
-      <div class="calendar-loader-content">
-        <div class="calendar-loader-spinner"></div>
-        <h3 class="calendar-loader-title">Carregant calendari...</h3>
-        <p class="calendar-loader-message">Recuperant cites i configuracions</p>
-        <div class="calendar-loader-progress">
-          <div class="calendar-loader-progress-bar"></div>
-        </div>
-      </div>
-    </div>
+    <pelu-calendar-loader />
   }
 
   <!-- Calendar Content (only show when bookings are loaded) -->
@@ -30,91 +21,28 @@
 
     <!-- Calendar Body -->
     <div class="calendar-body">
-    <div class="horizontal-week-view" [style.--calendar-slot-count]="timeSlots().length">
-      <!-- Time Column -->
-      <div class="time-column">
-        <div class="time-header">Hora</div>
-        @for (time of timeSlots(); track time; let k = $index) {
-          <div class="time-slot-label"
-               [class.lunch-break]="isTimeSlotBlocked(time)"
-               [class.lunch-break-start]="isLunchBreakStart(time)"
-               [class.disabled]="isTimeSlotBlocked(time)">
-            {{ time }}
-          </div>
-        }
-      </div>
+      <div class="horizontal-week-view" [style.--calendar-slot-count]="timeSlots().length">
+        <!-- Time Column -->
+        <pelu-calendar-time-column
+          [timeSlots]="timeColumnSlots()">
+        </pelu-calendar-time-column>
 
-      <!-- Day Columns -->
-      @for (day of weekDays(); track day; let i = $index) {
-        <div class="day-column"
-             [class.past]="isPastDate(day)"
-             [class.disabled]="isPastDate(day)">
-          <div class="day-header">
-            <div class="day-name">{{ getDayName(day) }}</div>
-            <div class="day-date">{{ format(day, 'dd/MM') }}</div>
-          </div>
-
-          <!-- Time Slots Container with relative positioning -->
-          <div class="time-slots-container"
-               [class.drag-over]="calendarCoreService.isDragging()"
-               [class.drop-valid]="calendarCoreService.isDragging() && calendarCoreService.isValidDrop()"
-               [class.drop-invalid]="calendarCoreService.isDragging() && !calendarCoreService.isValidDrop()"
-               (mouseenter)="onDropZoneMouseEnter($event, day)"
-               (mousemove)="onDropZoneMouseMove($event, day)"
-               (drop)="onDropZoneDrop($event, day)"
-               (dragover)="onDropZoneDragOver($event)">
-            <!-- Clickable Time Slots -->
-            @for (time of timeSlots(); track time; let k = $index) {
-              <div class="time-slot"
-                   [class.available]="isTimeSlotAvailable(day, time)"
-                   [class.booked]="!isTimeSlotAvailable(day, time) && !isTimeSlotBlocked(time) && !isPastDate(day) && !isPastTimeSlot(day, time)"
-                   [class.lunch-break]="isTimeSlotBlocked(time)"
-                   [class.past-date]="isPastDate(day)"
-                   [class.past-time]="isPastTimeSlot(day, time)"
-                   [class.clickable]="isTimeSlotAvailable(day, time)"
-                   [class.disabled]="isPastDate(day) || isPastTimeSlot(day, time) || isTimeSlotBlocked(time)"
-                   [title]="getTimeSlotTooltip(day, time)"
-                   (click)="onTimeSlotClick(day, time)">
-              </div>
-            }
-
-            <!-- Lunch Break Overlay -->
-            <div class="lunch-break-overlay"
-                 [style.top.px]="calendarCoreService.getLunchBreakPosition().top"
-                 [style.height.px]="calendarCoreService.getLunchBreakPosition().height"
-                 [title]="'Pausa de dinar: ' + calendarCoreService.getLunchBreakTimeRange().start + ' - ' + calendarCoreService.getLunchBreakTimeRange().end">
-              <div class="lunch-break-content">
-                <i class="pi pi-coffee"></i>
-                <span>Pausa de dinar</span>
-              </div>
-            </div>
-
-            <!-- Render Appointments with the new optimized component -->
-            @for (appt of getAppointmentsForDay(day); track appt.id + '-' + appt.start) {
-              @if (appt && appt.start) {
-                <pelu-appointment-slot
-                  [data]="createAppointmentSlotData(appt, day)"
-                  (clicked)="openAppointmentPopup($event)">
-                </pelu-appointment-slot>
-              }
-            }
-
-            <!-- Drop indicator when dragging -->
-            @if (calendarCoreService.isDragging() && calendarCoreService.targetDate() && calendarCoreService.targetTime() && calendarCoreService.draggedAppointment()) {
-              @if (isSameDay(day, calendarCoreService.targetDate()!)) {
-                <div class="drop-indicator"
-                     [style.top.px]="calendarCoreService.calculateAppointmentPositionFromTime(calendarCoreService.targetTime()!, calendarCoreService.draggedAppointment()!.duration || 60).top"
-                     [style.height.px]="calendarCoreService.calculateAppointmentPositionFromTime(calendarCoreService.targetTime()!, calendarCoreService.draggedAppointment()!.duration || 60).height"
-                     [class.valid]="calendarCoreService.isValidDrop()"
-                     [class.invalid]="!calendarCoreService.isValidDrop()">
-                </div>
-              }
-            }
-          </div>
+        <!-- Day Columns Container -->
+        <div class="day-columns-container">
+          @for (dayColumn of dayColumnsData(); track dayColumn.date; let i = $index) {
+            <pelu-calendar-day-column
+              [data]="dayColumn"
+              (timeSlotClicked)="onTimeSlotClick($event.date, $event.time)"
+              (appointmentClicked)="openAppointmentPopup($event)"
+              (dropZoneMouseEnter)="onDropZoneMouseEnter($event, dayColumn.date)"
+              (dropZoneMouseMove)="onDropZoneMouseMove($event, dayColumn.date)"
+              (dropZoneDrop)="onDropZoneDrop($event, dayColumn.date)"
+              (dropZoneDragOver)="onDropZoneDragOver($event)">
+            </pelu-calendar-day-column>
+          }
         </div>
-      }
+      </div>
     </div>
-  </div>
 
   <!-- Appointment Detail Popup -->
   <pelu-appointment-detail-popup
@@ -126,19 +54,10 @@
   </pelu-appointment-detail-popup>
 
   <!-- Global Drag Preview for Cross-Day Dragging -->
-  @if (calendarCoreService.isDragging() && calendarCoreService.draggedAppointment()) {
-    <div class="global-drag-preview"
-         [style.left.px]="calendarCoreService.currentPosition()?.left || 0"
-         [style.top.px]="calendarCoreService.currentPosition()?.top || 0">
-      <div class="drag-preview-content"
-           [ngClass]="getServiceCssClass(calendarCoreService.draggedAppointment()!)">
-        <div class="drag-preview-title">{{ calendarCoreService.draggedAppointment()!.title }}</div>
-        @if (calendarCoreService.draggedAppointment()!.serviceName) {
-          <div class="drag-preview-service">{{ calendarCoreService.draggedAppointment()!.serviceName }}</div>
-        }
-        <div class="drag-preview-duration">{{ formatDuration(calendarCoreService.draggedAppointment()!.duration || 60) }}</div>
-      </div>
-    </div>
+  @if (dragPreviewData()) {
+    <pelu-calendar-drag-preview
+      [data]="dragPreviewData()!">
+    </pelu-calendar-drag-preview>
   }
   }
 </div>

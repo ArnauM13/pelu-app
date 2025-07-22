@@ -48,12 +48,12 @@
 
     <div class="calendar-container">
       @defer {
-        <pelu-calendar-component
+        <pelu-calendar-with-footer
           [events]="calendarEvents()"
           [mini]="false"
           (onEditAppointment)="editAppointment($event)"
           (onDeleteAppointment)="deleteAppointment($event)">
-        </pelu-calendar-component>
+        </pelu-calendar-with-footer>
       } @placeholder {
         <div class="calendar-placeholder">
           <pelu-loading-state

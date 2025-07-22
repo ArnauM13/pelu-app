@@ -612,7 +612,12 @@
     "GO_TO_TODAY": "Ir a hoy",
     "BUSINESS_HOURS": "Horario comercial",
     "TIME_SLOT_AVAILABLE": "Horario disponible",
-    "TIME_SLOT_BUSY": "Horario ocupado"
+    "TIME_SLOT_BUSY": "Horario ocupado",
+                    "FOOTER": {
+                  "INFO_NOTE": "Haz clic en cualquier horario disponible para hacer una reserva",
+                  "WEEKEND_INFO": "Los fines de semana tienen horarios especiales. Contáctanos para más información.",
+                  "BUSINESS_HOURS_INFO": "Horario de atención: Lunes a Viernes de {{startHour}}:00 a {{endHour}}:00, Pausa para comer de {{lunchStart}}:00 a {{lunchEnd}}:00"
+                }
   },
   "SERVICES": {
     "ALL_SERVICES": "Todos los servicios",

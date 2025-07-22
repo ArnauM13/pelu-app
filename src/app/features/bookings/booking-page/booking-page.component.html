@@ -1,12 +1,12 @@
 <div class="container" style="margin-top: 2rem; view-transition-name: booking-container">
   <div class="booking-layout" style="margin-bottom: 2rem; view-transition-name: booking-grid">
-    <!-- Calendar Component -->
-    <pelu-calendar-component
+    <!-- Calendar Component with Footer -->
+    <pelu-calendar-with-footer
       #calendarComponent
       [mini]="false"
       [events]="[]"
       (dateSelected)="onTimeSlotSelected($event)">
-    </pelu-calendar-component>
+    </pelu-calendar-with-footer>
   </div>
 </div>
 

@@ -529,7 +529,12 @@
     "GO_TO_TODAY": "اذهب إلى اليوم",
     "BUSINESS_HOURS": "ساعات العمل",
     "TIME_SLOT_AVAILABLE": "الوقت متاح",
-    "TIME_SLOT_BUSY": "الوقت مشغول"
+    "TIME_SLOT_BUSY": "الوقت مشغول",
+    "FOOTER": {
+      "INFO_NOTE": "انقر على أي وقت متاح للحجز",
+      "WEEKEND_INFO": "عطلات نهاية الأسبوع لها جداول خاصة. اتصل بنا لمزيد من المعلومات.",
+      "BUSINESS_HOURS_INFO": "ساعات العمل: الاثنين إلى الجمعة من {{startHour}}:00 إلى {{endHour}}:00، استراحة الغداء من {{lunchStart}}:00 إلى {{lunchEnd}}:00"
+    }
   },
   "SERVICES": {
     "ALL_SERVICES": "جميع الخدمات",
