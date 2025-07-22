@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppointmentEvent } from '../../calendar.component';
-import { AppointmentSlotComponent, AppointmentSlotData } from '../../appointment-slot.component';
+import { AppointmentEvent } from '../../core/calendar.component';
+import { AppointmentSlotComponent, AppointmentSlotData } from '../../slots/appointment-slot.component';
 import { CalendarDayHeaderComponent, DayHeaderData } from '../calendar-day-header/calendar-day-header.component';
 import { CalendarTimeSlotComponent, TimeSlotData } from '../calendar-time-slot/calendar-time-slot.component';
 import { CalendarLunchBreakComponent, LunchBreakData } from '../calendar-lunch-break/calendar-lunch-break.component';

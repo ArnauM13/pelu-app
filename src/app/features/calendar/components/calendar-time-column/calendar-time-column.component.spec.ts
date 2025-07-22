@@ -1,9 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 import { CalendarTimeColumnComponent, TimeSlot } from './calendar-time-column.component';
+
+// Test host component to provide required inputs
+@Component({
+  template: `
+    <pelu-calendar-time-column [timeSlots]="testTimeSlots"></pelu-calendar-time-column>
+  `,
+  standalone: true,
+  imports: [CalendarTimeColumnComponent]
+})
+class TestHostComponent {
+  testTimeSlots: TimeSlot[] = [
+    { time: '08:00', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
+    { time: '08:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
+    { time: '12:00', isBlocked: true, isLunchBreakStart: true, isDisabled: true },
+    { time: '12:30', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
+    { time: '13:00', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
+    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false }
+  ];
+}
 
 describe('CalendarTimeColumnComponent', () => {
   let component: CalendarTimeColumnComponent;
-  let fixture: ComponentFixture<CalendarTimeColumnComponent>;
+  let hostComponent: TestHostComponent;
+  let hostFixture: ComponentFixture<TestHostComponent>;
 
   const mockTimeSlots: TimeSlot[] = [
     { time: '08:00', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
@@ -16,36 +37,38 @@ describe('CalendarTimeColumnComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarTimeColumnComponent]
+      imports: [TestHostComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CalendarTimeColumnComponent);
-    component = fixture.componentInstance;
-    // Set the input signal using TestBed
-    TestBed.runInInjectionContext(() => {
-      (component.timeSlots as any).set(mockTimeSlots);
-    });
-    fixture.detectChanges();
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostComponent = hostFixture.componentInstance;
+    component = hostFixture.debugElement.children[0].componentInstance;
+    hostFixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should have timeSlots input signal', () => {
+    expect(component.timeSlots).toBeDefined();
+    expect(typeof component.timeSlots).toBe('function');
+  });
+
   it('should display time header', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     expect(compiled.querySelector('.time-header').textContent).toContain('Hora');
   });
 
   it('should render all time slots', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlotLabels = compiled.querySelectorAll('.time-slot-label');
     expect(timeSlotLabels.length).toBe(mockTimeSlots.length);
   });
 
   it('should display correct time values', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlotLabels = compiled.querySelectorAll('.time-slot-label');
 
     mockTimeSlots.forEach((slot, index) => {
@@ -54,7 +77,7 @@ describe('CalendarTimeColumnComponent', () => {
   });
 
   it('should apply lunch break styles correctly', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlotLabels = compiled.querySelectorAll('.time-slot-label');
 
     // Check lunch break start (12:00)
@@ -69,7 +92,7 @@ describe('CalendarTimeColumnComponent', () => {
   });
 
   it('should apply regular time slot styles correctly', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlotLabels = compiled.querySelectorAll('.time-slot-label');
 
     // Check regular time slot (08:00)
@@ -79,7 +102,7 @@ describe('CalendarTimeColumnComponent', () => {
   });
 
   it('should have correct CSS classes', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     expect(compiled.querySelector('.time-column')).toBeTruthy();
     expect(compiled.querySelector('.time-header')).toBeTruthy();
   });

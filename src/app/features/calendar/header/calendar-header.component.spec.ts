@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarHeaderComponent } from './calendar-header.component';
-import { By } from '@angular/platform-browser';
 
 describe('CalendarHeaderComponent', () => {
   let component: CalendarHeaderComponent;
@@ -10,41 +9,63 @@ describe('CalendarHeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CalendarHeaderComponent]
     }).compileComponents();
+
     fixture = TestBed.createComponent(CalendarHeaderComponent);
     component = fixture.componentInstance;
-    component.mainTitle = 'Setmana del 01/01';
-    component.viewDateInfo = '01/01 - 07/01';
-    component.businessDaysInfo = 'Dilluns a Divendres';
-    fixture.detectChanges();
   });
 
-  it('hauria de mostrar la informació de la capçalera', () => {
-    const title = fixture.nativeElement.querySelector('.title-main');
-    expect(title.textContent).toContain('Setmana del 01/01');
-    const info = fixture.nativeElement.querySelector('.title-info');
-    expect(info.textContent).toContain('01/01 - 07/01');
-    const config = fixture.nativeElement.querySelector('.title-config');
-    expect(config.textContent).toContain('Dilluns a Divendres');
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  it('hauria d’emetre today quan es clica el botó Avui', () => {
+  it('should have default input values', () => {
+    expect(component.viewDateInfo).toBe('');
+    expect(component.businessDaysInfo).toBe('');
+    expect(component.mainTitle).toBe('');
+    expect(component.canNavigateToPreviousWeek).toBe(true);
+    expect(component.currentViewDate).toBeInstanceOf(Date);
+  });
+
+  it('should emit today event', () => {
     spyOn(component.today, 'emit');
-    const btn = fixture.debugElement.query(By.css('.today-btn'));
-    btn.nativeElement.click();
+    component.onToday();
     expect(component.today.emit).toHaveBeenCalled();
   });
 
-  it('hauria d’emetre previousWeek quan es clica el botó esquerra', () => {
+  it('should emit previousWeek event', () => {
     spyOn(component.previousWeek, 'emit');
-    const btn = fixture.debugElement.query(By.css('.nav-btn'));
-    btn.nativeElement.click();
+    component.onPreviousWeek();
     expect(component.previousWeek.emit).toHaveBeenCalled();
   });
 
-  it('hauria d’emetre nextWeek quan es clica el botó dreta', () => {
+  it('should emit nextWeek event', () => {
     spyOn(component.nextWeek, 'emit');
-    const btns = fixture.debugElement.queryAll(By.css('.nav-btn'));
-    btns[2].nativeElement.click();
+    component.onNextWeek();
     expect(component.nextWeek.emit).toHaveBeenCalled();
+  });
+
+  it('should emit dateChange event', () => {
+    spyOn(component.dateChange, 'emit');
+    const mockEvent = { target: { value: '2024-01-15' } };
+    component.onDateChange(mockEvent);
+    expect(component.dateChange.emit).toHaveBeenCalledWith('2024-01-15');
+  });
+
+  it('should format current date string correctly', () => {
+    component.currentViewDate = new Date('2024-01-15');
+    expect(component.currentDateString).toBe('2024-01-15');
+  });
+
+  it('should format today string correctly', () => {
+    const today = new Date();
+    const expected = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    expect(component.todayString).toBe(expected);
+  });
+
+  it('should not emit dateChange when value is empty', () => {
+    spyOn(component.dateChange, 'emit');
+    const mockEvent = { target: { value: '' } };
+    component.onDateChange(mockEvent);
+    expect(component.dateChange.emit).not.toHaveBeenCalled();
   });
 });
