@@ -1,0 +1,285 @@
+<div class="mobile-booking-container">
+
+    <!-- Header with navigation -->
+  <div class="booking-header">
+    <h1>{{ 'COMMON.ACTIONS.BOOK_APPOINTMENT' | translate }}</h1>
+
+    <!-- Week navigation -->
+    <div class="week-navigation">
+      <button class="nav-btn" (click)="previousWeek()">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <div class="current-week">
+        <span class="week-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
+        <span class="week-date">
+          {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
+          -
+          {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
+        </span>
+      </div>
+
+      <button class="nav-btn" (click)="nextWeek()">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Quick date selection buttons -->
+    <div class="quick-date-buttons">
+            <button
+        class="quick-date-btn today-btn"
+        [class.disabled]="!canSelectDate(getToday())"
+        (click)="canSelectDate(getToday()) ? selectToday() : null">
+        <i class="pi pi-calendar"></i>
+        {{ 'BOOKING.QUICK_SELECTION.TODAY' | translate }}
+      </button>
+
+      <button
+        class="quick-date-btn tomorrow-btn"
+        [class.disabled]="!canSelectDate(getTomorrow())"
+        (click)="canSelectDate(getTomorrow()) ? selectTomorrow() : null">
+        <i class="pi pi-calendar-plus"></i>
+        {{ 'BOOKING.QUICK_SELECTION.TOMORROW' | translate }}
+      </button>
+
+      <button
+        class="quick-date-btn next-available-btn"
+        [class.disabled]="!nextAvailableDate()"
+        (click)="nextAvailableDate() ? selectNextAvailable() : null">
+        <i class="pi pi-calendar-times"></i>
+        {{ 'BOOKING.QUICK_SELECTION.NEXT_AVAILABLE' | translate }}
+      </button>
+    </div>
+
+    <!-- Day selection -->
+    <pelu-card class="day-selection-card">
+      <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
+      <div class="days-grid">
+        @for (day of weekDays(); track day) {
+          <div
+            class="day-item"
+            [class.today]="isToday(day)"
+            [class.selected]="isSelected(day)"
+            [class.business-day]="isBusinessDay(day)"
+            [class.weekend]="!isBusinessDay(day)"
+            [class.past-date]="isPastDate(day)"
+            [class.selectable]="canSelectDate(day)"
+            (click)="canSelectDate(day) ? selectDate(day) : null">
+            <div class="day-name">{{ formatDayShort(day) }}</div>
+            <div class="day-number">{{ day.getDate() }}</div>
+            @if (isToday(day)) {
+              <div class="today-indicator">{{ 'COMMON.TIME.TODAY' | translate }}</div>
+            }
+          </div>
+        }
+      </div>
+    </pelu-card>
+
+    <!-- Alert for fully booked day -->
+    @if (selectedDate() && isSelectedDayFullyBooked()) {
+      <pelu-card class="alert-card fully-booked-alert">
+        <div class="alert-content">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-text">
+            <h4>{{ 'BOOKING.FULLY_BOOKED_TITLE' | translate }}</h4>
+            <p>{{ 'BOOKING.FULLY_BOOKED_MESSAGE' | translate }}</p>
+          </div>
+        </div>
+      </pelu-card>
+    }
+  </div>
+
+  <!-- Service Selection -->
+  <pelu-card class="service-selection-card">
+    <h3>{{ 'COMMON.SELECTION.SELECT_SERVICE' | translate }}</h3>
+    <div class="services-grid">
+      @for (service of availableServices(); track service.id) {
+        <div
+          class="service-item"
+          [class.selected]="selectedService()?.id === service.id"
+          (click)="selectService(service)">
+          <div class="service-icon">{{ service.icon }}</div>
+          <div class="service-info">
+            <div class="service-name">{{ service.name }}</div>
+            <div class="service-duration">{{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</div>
+          </div>
+          <div class="service-price">{{ service.price | currency }}</div>
+        </div>
+      }
+    </div>
+  </pelu-card>
+
+  <!-- Time Slots for Selected Day -->
+  @if (selectedService() && selectedDate()) {
+    <pelu-card class="time-slots-card">
+      <h3>{{ 'BOOKING.SELECT_TIME' | translate }}</h3>
+      <p class="selected-date">{{ formatDay(selectedDate()) }}</p>
+
+      @for (daySlot of daySlots(); track daySlot.date) {
+        @if (isSelected(daySlot.date)) {
+          <!-- Morning Time Slots -->
+          <div class="time-section">
+            <h4 class="time-section-title">{{ 'COMMON.TIME.MORNING' | translate }}</h4>
+            <div class="time-slots-grid">
+              @for (timeSlot of daySlot.timeSlots; track timeSlot.time) {
+                @if (timeSlot.time < '13:00') {
+                  <div
+                    class="time-slot"
+                    [class.available]="timeSlot.available"
+                    [class.occupied]="!timeSlot.available"
+                    [style.background]="!timeSlot.available && timeSlot.serviceName ? 'linear-gradient(135deg, ' + getServiceBackgroundColor(timeSlot.serviceName) + ' 0%, ' + getServiceColor(timeSlot.serviceName) + ' 100%)' : ''"
+                    [style.border-color]="!timeSlot.available && timeSlot.serviceName ? getServiceColor(timeSlot.serviceName) : ''"
+                    [style.box-shadow]="!timeSlot.available && timeSlot.serviceName ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40' : ''"
+                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
+                    <div class="slot-content">
+                      <div class="time">{{ formatTime(timeSlot.time) }}</div>
+                      @if (!timeSlot.available) {
+                        @if (isAdmin()) {
+                          <div class="occupied-details">
+                            <div class="client-info">
+                              <span class="service-icon">{{ timeSlot.serviceIcon }}</span>
+                              <span class="client-name">{{ timeSlot.clientName }}</span>
+                            </div>
+                            <div class="service-name">{{ timeSlot.serviceName }}</div>
+                            @if (timeSlot.notes) {
+                              <div class="notes">{{ timeSlot.notes }}</div>
+                            }
+                          </div>
+                        } @else {
+                          <div class="occupied-simple">
+                            <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <div class="available-label">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Afternoon Time Slots -->
+          <div class="time-section">
+            <h4 class="time-section-title">{{ 'COMMON.TIME.AFTERNOON' | translate }}</h4>
+            <div class="time-slots-grid">
+              @for (timeSlot of daySlot.timeSlots; track timeSlot.time) {
+                @if (timeSlot.time >= '14:00') {
+                  <div
+                    class="time-slot"
+                    [class.available]="timeSlot.available"
+                    [class.occupied]="!timeSlot.available"
+                    [style.background]="!timeSlot.available && timeSlot.serviceName ? 'linear-gradient(135deg, ' + getServiceBackgroundColor(timeSlot.serviceName) + ' 0%, ' + getServiceColor(timeSlot.serviceName) + ' 100%)' : ''"
+                    [style.border-color]="!timeSlot.available && timeSlot.serviceName ? getServiceColor(timeSlot.serviceName) : ''"
+                    [style.box-shadow]="!timeSlot.available && timeSlot.serviceName ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40' : ''"
+                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
+                    <div class="slot-content">
+                      <div class="time">{{ formatTime(timeSlot.time) }}</div>
+                      @if (!timeSlot.available) {
+                        @if (isAdmin()) {
+                          <div class="occupied-details">
+                            <div class="client-info">
+                              <span class="service-icon">{{ timeSlot.serviceIcon }}</span>
+                              <span class="client-name">{{ timeSlot.clientName }}</span>
+                            </div>
+                            <div class="service-name">{{ timeSlot.serviceName }}</div>
+                            @if (timeSlot.notes) {
+                              <div class="notes">{{ timeSlot.notes }}</div>
+                            }
+                          </div>
+                        } @else {
+                          <div class="occupied-simple">
+                            <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <div class="available-label">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    </pelu-card>
+  } @else {
+    <pelu-card class="time-slots-card">
+      <div class="selection-required">
+        <div class="info-icon">ℹ️</div>
+        <h3>{{ 'BOOKING.SELECTION_REQUIRED' | translate }}</h3>
+        @if (!selectedService()) {
+          <p>{{ 'BOOKING.SELECT_SERVICE_FIRST' | translate }}</p>
+        }
+        @if (!selectedDate()) {
+          <p>{{ 'BOOKING.SELECT_DATE_FIRST' | translate }}</p>
+        }
+      </div>
+    </pelu-card>
+  }
+
+  <!-- Legend -->
+  <pelu-card class="legend-card">
+    <h4>{{ 'COMMON.LEGEND' | translate }}</h4>
+    <div class="legend-items">
+      <div class="legend-item">
+        <div class="legend-color available"></div>
+        <span>{{ 'COMMON.STATUS.AVAILABLE' | translate }}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color occupied"></div>
+        <span>{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color past"></div>
+        <span>{{ 'COMMON.TIME.PAST_TIME' | translate }}</span>
+      </div>
+    </div>
+  </pelu-card>
+</div>
+
+
+
+<!-- Booking Confirmation Popup -->
+<pelu-booking-popup
+  [open]="showBookingPopup()"
+  [bookingDetails]="bookingDetails()"
+  [availableServices]="availableServices()"
+  (confirmed)="onBookingConfirmed($event)"
+  (cancelled)="onBookingCancelled()"
+  (clientNameChanged)="onClientNameChanged($event)"
+  (emailChanged)="onEmailChanged($event)">
+</pelu-booking-popup>
+
+<!-- Login Prompt for Anonymous Users -->
+@if (showLoginPrompt()) {
+<div class="login-prompt-overlay" (click)="onLoginPromptClose()">
+  <div class="login-prompt" (click)="$event.stopPropagation()">
+    <div class="prompt-header">
+      <h3>🎉 {{ 'BOOKING.SUCCESS_TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="onLoginPromptClose()">×</button>
+    </div>
+
+    <div class="prompt-body">
+      <div class="success-icon">✅</div>
+      <p class="success-message">
+        {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
+      </p>
+      <p class="email-notice">
+        {{ 'BOOKING.EMAIL_NOTICE' | translate }}
+      </p>
+
+      <div class="prompt-actions">
+        <button class="btn-secondary" (click)="onLoginPromptClose()">
+          {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
+        </button>
+        <button class="btn-primary" (click)="onLoginPromptLogin()">
+          {{ 'COMMON.ACTIONS.LOGIN' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

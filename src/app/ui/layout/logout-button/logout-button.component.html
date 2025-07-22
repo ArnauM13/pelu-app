@@ -1,0 +1,11 @@
+<button
+  class="logout-button"
+  [disabled]="isLoggingOut()"
+  (click)="logout()"
+  [attr.aria-label]="buttonText() | translate">
+  @if (!isLoggingOut()) {
+    <span class="text">{{ buttonText() | translate }}</span>
+  } @else {
+    <span class="loading">{{ 'COMMON.STATUS.LOADING' | translate }}</span>
+  }
+</button>

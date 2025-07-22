@@ -1,5 +1,6 @@
 import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface InfoItemData {
   icon: string;
@@ -12,7 +13,7 @@ export interface InfoItemData {
 @Component({
   selector: 'pelu-info-item',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './info-item.component.html',
   styleUrls: ['./info-item.component.scss']
 })

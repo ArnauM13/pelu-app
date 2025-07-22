@@ -1,0 +1,37 @@
+<header class="header">
+  <div class="header-content">
+    <div class="left-section">
+      <div class="logo-section" (click)="navigateToHome($event)">
+        <picture>
+          <source
+            srcset="assets/images/responsive/cabj@1x.webp 1x, assets/images/responsive/cabj@2x.webp 2x, assets/images/responsive/cabj@3x.webp 3x"
+            type="image/webp">
+          <img
+            src="assets/images/responsive/cabj@1x.png"
+            srcset="assets/images/responsive/cabj@1x.png 1x, assets/images/responsive/cabj@2x.png 2x, assets/images/responsive/cabj@3x.png 3x"
+            alt="Logo Perruqueria"
+            class="logo-image"
+            loading="lazy" />
+        </picture>
+      </div>
+      <nav class="nav">
+        <a routerLink="/booking" class="nav-link" routerLinkActive="active">
+          {{ 'NAVIGATION.BOOKING' | translate }}
+        </a>
+        <a routerLink="/appointments" class="nav-link" routerLinkActive="active">
+          {{ 'NAVIGATION.APPOINTMENTS' | translate }}
+        </a>
+        <a routerLink="/services" class="nav-link" routerLinkActive="active">
+          {{ 'NAVIGATION.SERVICES' | translate }}
+        </a>
+      </nav>
+    </div>
+    <div class="user-actions">
+      <pelu-language-selector class="language-selector" />
+      <pelu-profile-dropdown
+        [customItems]="customDropdownItems()"
+        (itemClicked)="onDropdownItemClicked($event)">
+      </pelu-profile-dropdown>
+    </div>
+  </div>
+</header>

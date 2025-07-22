@@ -3,13 +3,15 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
-import { providePrimeNG } from 'primeng/config';
+import { primengConfig } from './primeng.config';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
-import Aura from '@primeng/themes/aura';
 
 // Factory function for TranslateHttpLoader
 export function HttpLoaderFactory(http: HttpClient) {
@@ -19,11 +21,8 @@ export function HttpLoaderFactory(http: HttpClient) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
-    providePrimeNG({
-        theme: {
-            preset: Aura,
-        }
-    }),
+    primengConfig,
+    MessageService,
     provideZoneChangeDetection({
       eventCoalescing: true,
       runCoalescing: true
@@ -31,6 +30,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withViewTransitions()),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {
@@ -41,6 +41,7 @@ export const appConfig: ApplicationConfig = {
         defaultLanguage: 'ca',
         useDefaultLang: true
       })
-    )
+    ),
+    importProvidersFrom(BrowserAnimationsModule)
   ]
 };

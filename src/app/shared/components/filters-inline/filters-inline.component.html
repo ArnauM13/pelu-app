@@ -1,27 +1,29 @@
 <div class="filters-inline">
   <div class="filters-grid">
     <div class="filter-group">
-      <label for="filterDate">{{ 'COMMON.FILTER_BY_DATE' | translate }}</label>
-      <input
-        type="date"
-        id="filterDate"
+      <pelu-input-date
+        [config]="dateFilterConfig"
         [value]="filterDateValue()"
-        (input)="onDateChangeHandler($any($event.target).value)"
-        class="input">
+        (valueChange)="onDateChangeHandler($event)">
+      </pelu-input-date>
     </div>
     <div class="filter-group">
-      <label for="filterClient">{{ 'COMMON.FILTER_BY_CLIENT' | translate }}</label>
-      <input
-        type="text"
-        id="filterClient"
+      <pelu-input-text
+        [config]="clientFilterConfig"
         [value]="filterClientValue()"
-        (input)="onClientChangeHandler($any($event.target).value)"
-        [placeholder]="'COMMON.SEARCH_BY_NAME' | translate"
-        class="input">
+        (valueChange)="onClientChangeHandler($event.toString())">
+      </pelu-input-text>
+    </div>
+    <div class="filter-group">
+      <pelu-input-select
+        [config]="serviceFilterConfig()"
+        [value]="filterServiceValue()"
+        (valueChange)="onServiceChangeHandler($event)">
+      </pelu-input-select>
     </div>
     <div class="reset-group">
       <button class="reset-btn" (click)="onResetHandler()">
-        {{ 'COMMON.CLEAR_FILTERS_BUTTON' | translate }}
+        {{ 'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate }}
       </button>
     </div>
   </div>

@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function hasPermission(permission) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions[permission] == true;
+    }
+
+    // Col·lecció d'usuaris
+    match /users/{userId} {
+      // Usuaris poden llegir/escriure només les seves pròpies dades
+      allow read, write: if isOwner(userId);
+
+      // Administradors poden llegir totes les dades d'usuari
+      allow read: if isAdmin();
+
+      // Administradors poden actualitzar rols i permisos
+      allow update: if isAdmin() &&
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'permissions', 'updatedAt']));
+    }
+
+    // Col·lecció de cites (bookings) - totes les cites es gestionen com a reserves
+    // Les regles estan definides a la secció de bookings més avall
+
+    // Col·lecció de serveis
+    match /services/{serviceId} {
+      // Tots els usuaris autenticats poden llegir serveis
+      allow read: if request.auth != null;
+
+      // Només administradors poden crear/actualitzar/eliminar serveis
+      allow write: if isAdmin();
+    }
+
+    // Col·lecció de reserves (bookings)
+    match /bookings/{bookingId} {
+      // Permetre creació de reserves (anònimes i autenticades)
+      allow create: if true;
+
+      // Usuaris poden llegir/escriure només les seves pròpies reserves
+      allow read, write: if request.auth != null &&
+        resource.data.uid == request.auth.uid;
+
+      // Permetre accés amb token d'edició (per usuaris anònims)
+      allow read: if resource.data.editToken == request.query.token;
+
+      // Permetre actualització amb token d'edició (per usuaris anònims)
+      allow update: if resource.data.editToken == request.query.token &&
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nom', 'email', 'data', 'hora', 'serviceId', 'serviceName', 'duration', 'price', 'notes', 'uid', 'updatedAt']));
+
+      // Administradors poden llegir totes les reserves
+      allow read: if isAdmin();
+
+      // Administradors poden actualitzar reserves
+      allow update: if isAdmin();
+    }
+
+    // Col·lecció de preferències d'idioma
+    match /userPreferences/{userId} {
+      // Usuaris poden llegir/escriure només les seves pròpies preferències
+      allow read, write: if isOwner(userId);
+    }
+
+    // Regla per defecte: denegar tot el que no estigui explícitament permès
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -4,6 +4,17 @@ import { CalendarModule, CalendarView } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { DateAdapter, CalendarUtils, CalendarA11y } from 'angular-calendar';
 import { format } from 'date-fns';
+import { Auth } from '@angular/fire/auth';
+import { TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslationService } from '../../core/services/translation.service';
+import { AuthService } from '../../core/auth/auth.service';
+import {
+  mockAuth,
+  mockTranslateService,
+  mockTranslateStore,
+  mockTranslationService,
+  mockAuthService
+} from '../../../testing/firebase-mocks';
 
 describe('CalendarComponent', () => {
   let component: CalendarComponent;
@@ -19,12 +30,18 @@ describe('CalendarComponent', () => {
           provide: DateAdapter,
           useFactory: adapterFactory,
         },
+        { provide: Auth, useValue: mockAuth },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: TranslateStore, useValue: mockTranslateStore },
+        { provide: TranslationService, useValue: mockTranslationService },
+        { provide: AuthService, useValue: mockAuthService }
       ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(CalendarComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -45,8 +62,6 @@ describe('CalendarComponent', () => {
   it('should have computed signals', () => {
     expect(component.viewDate).toBeDefined();
     expect(typeof component.viewDate).toBe('function');
-    expect(component.selectedDateTime).toBeDefined();
-    expect(typeof component.selectedDateTime).toBe('function');
     expect(component.selectedDay).toBeDefined();
     expect(typeof component.selectedDay).toBe('function');
   });
@@ -66,34 +81,13 @@ describe('CalendarComponent', () => {
     expect(typeof component.calendarEvents).toBe('function');
   });
 
-  it('should have selectedDateMessage computed property', () => {
-    expect(component.selectedDateMessage).toBeDefined();
-    expect(typeof component.selectedDateMessage).toBe('function');
-  });
+
 
   it('should have getEventsForDay method', () => {
     expect(typeof component.getEventsForDay).toBe('function');
   });
 
-  it('should have isTimeSlotAvailable method', () => {
-    expect(typeof component.isTimeSlotAvailable).toBe('function');
-  });
 
-  it('should have selectDay method', () => {
-    expect(typeof component.selectDay).toBe('function');
-  });
-
-  it('should have selectTimeSlot method', () => {
-    expect(typeof component.selectTimeSlot).toBe('function');
-  });
-
-  it('should have isDaySelected method', () => {
-    expect(typeof component.isDaySelected).toBe('function');
-  });
-
-  it('should have isTimeSlotSelected method', () => {
-    expect(typeof component.isTimeSlotSelected).toBe('function');
-  });
 
   it('should have getEventForTimeSlot method', () => {
     expect(typeof component.getEventForTimeSlot).toBe('function');
@@ -109,6 +103,18 @@ describe('CalendarComponent', () => {
 
   it('should have today method', () => {
     expect(typeof component.today).toBe('function');
+  });
+
+  it('should have selectDay method', () => {
+    expect(typeof component.selectDay).toBe('function');
+  });
+
+  it('should have selectTimeSlot method', () => {
+    expect(typeof component.selectTimeSlot).toBe('function');
+  });
+
+  it('should have isDaySelected method', () => {
+    expect(typeof component.isDaySelected).toBe('function');
   });
 
   it('should have formatPopupDate method', () => {
@@ -131,6 +137,42 @@ describe('CalendarComponent', () => {
     expect(typeof component.getEventTime).toBe('function');
   });
 
+  it('should have isTimeSlotAvailable method', () => {
+    expect(typeof component.isTimeSlotAvailable).toBe('function');
+  });
+
+  it('should have getAppointmentForTimeSlot method', () => {
+    expect(typeof component.getAppointmentForTimeSlot).toBe('function');
+  });
+
+  it('should have getAppointmentDisplayInfo method', () => {
+    expect(typeof component.getAppointmentDisplayInfo).toBe('function');
+  });
+
+  it('should have isLunchBreak method', () => {
+    expect(typeof component.isLunchBreak).toBe('function');
+  });
+
+  it('should have isPastTimeSlot method', () => {
+    expect(typeof component.isPastTimeSlot).toBe('function');
+  });
+
+  it('should have getAppointmentSlotCoverage method', () => {
+    expect(typeof component.getAppointmentSlotCoverage).toBe('function');
+  });
+
+  it('should have shouldShowAppointmentInfo method', () => {
+    expect(typeof component.shouldShowAppointmentInfo).toBe('function');
+  });
+
+  it('should have getTimeSlotTooltip method', () => {
+    expect(typeof component.getTimeSlotTooltip).toBe('function');
+  });
+
+  it('should have canNavigateToPreviousWeek method', () => {
+    expect(typeof component.canNavigateToPreviousWeek).toBe('function');
+  });
+
   it('should initialize with default values', () => {
     expect(component.mini()).toBe(false);
     expect(component.events()).toEqual([]);
@@ -147,9 +189,7 @@ describe('CalendarComponent', () => {
     expect(viewDate.getFullYear()).toBe(currentDate.getFullYear());
   });
 
-  it('should initialize with empty selected date time', () => {
-    expect(component.selectedDateTime()).toEqual({date: '', time: ''});
-  });
+
 
   it('should initialize with no selected day', () => {
     expect(component.selectedDay()).toBeNull();
@@ -157,16 +197,16 @@ describe('CalendarComponent', () => {
 
   it('should generate time slots correctly', () => {
     const timeSlots = component.timeSlots();
-    expect(timeSlots.length).toBe(12); // 8:00 to 19:00 (12 slots)
+    expect(timeSlots.length).toBe(22); // Business hours: 8:00-20:00 with lunch break 13:00-14:00 = 11 hours * 2 slots per hour
     expect(timeSlots[0]).toBe('08:00');
-    expect(timeSlots[timeSlots.length - 1]).toBe('19:00');
+    expect(timeSlots[timeSlots.length - 1]).toBe('19:30');
   });
 
   it('should generate week days correctly', () => {
     const weekDays = component.weekDays();
-    expect(weekDays.length).toBe(7);
+    expect(weekDays.length).toBe(6); // Monday to Saturday
     expect(weekDays[0].getDay()).toBe(1); // Monday
-    expect(weekDays[6].getDay()).toBe(0); // Sunday
+    expect(weekDays[5].getDay()).toBe(6); // Saturday
   });
 
   it('should convert events to calendar events', () => {
@@ -236,7 +276,6 @@ describe('CalendarComponent', () => {
 
     component.selectTimeSlot(testDate, '10:00');
 
-    expect(component.selectedDateTime()).toEqual({date: format(testDate, 'yyyy-MM-dd'), time: '10:00'});
     expect(component.dateSelected.emit).toHaveBeenCalledWith({date: format(testDate, 'yyyy-MM-dd'), time: '10:00'});
   });
 
@@ -249,14 +288,7 @@ describe('CalendarComponent', () => {
     expect(component.isDaySelected(testDate)).toBe(true);
   });
 
-  it('should check if a time slot is selected', () => {
-    const testDate = new Date();
-    testDate.setDate(testDate.getDate() + 1); // Tomorrow
-    expect(component.isTimeSlotSelected(testDate, '10:00')).toBe(false);
 
-    component.selectTimeSlot(testDate, '10:00');
-    expect(component.isTimeSlotSelected(testDate, '10:00')).toBe(true);
-  });
 
   it('should get event for a time slot', () => {
     const testDate = new Date();
@@ -331,28 +363,38 @@ describe('CalendarComponent', () => {
     expect(time).toBe('');
   });
 
-  it('should show selected date message when date is selected', () => {
-    const testDate = new Date();
-    testDate.setDate(testDate.getDate() + 1); // Tomorrow
-    component.selectTimeSlot(testDate, '10:00');
 
-    const message = component.selectedDateMessage();
-    expect(message).toContain('Seleccionat:');
-    expect(message).toContain('10:00');
+
+  it('should detect lunch break times', () => {
+    expect(component.isLunchBreak('13:00')).toBe(true);
+    expect(component.isLunchBreak('13:30')).toBe(true);
+    expect(component.isLunchBreak('14:00')).toBe(false);
+    expect(component.isLunchBreak('14:30')).toBe(false);
+    expect(component.isLunchBreak('15:00')).toBe(false);
   });
 
-  it('should show selected date message when only date is selected', () => {
-    const testDate = new Date();
-    testDate.setDate(testDate.getDate() + 1); // Tomorrow
-    component.selectTimeSlot(testDate, ''); // Select date without time
-
-    const message = component.selectedDateMessage();
-    expect(message).toContain('Dia seleccionat:');
+  it('should not detect non-lunch break times', () => {
+    expect(component.isLunchBreak('10:00')).toBe(false);
+    expect(component.isLunchBreak('10:30')).toBe(false);
+    expect(component.isLunchBreak('16:00')).toBe(false);
   });
 
-  it('should show default message when no date is selected', () => {
-    const message = component.selectedDateMessage();
-    expect(message).toBe('Cap dia seleccionat');
+  it('should calculate appointment coverage correctly for no appointment', () => {
+    const testDate = new Date('2024-01-15');
+    const testTime = '10:00';
+
+    const coverage = component.getAppointmentSlotCoverage(testDate, testTime);
+    expect(coverage).toBe(0);
+  });
+
+  it('should calculate appointment coverage correctly for different durations', () => {
+    const testDate = new Date('2024-01-15');
+    const testTime = '10:00';
+
+    // Coverage should be between 0 and 1
+    const coverage = component.getAppointmentSlotCoverage(testDate, testTime);
+    expect(coverage).toBeGreaterThanOrEqual(0);
+    expect(coverage).toBeLessThanOrEqual(1);
   });
 
   it('should be a standalone component', () => {

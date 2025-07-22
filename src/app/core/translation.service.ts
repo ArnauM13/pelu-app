@@ -1,152 +1,79 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Observable, of } from 'rxjs';
 
-export interface Language {
+export interface LanguageInfo {
   code: string;
   name: string;
-  flag?: string;
-  flagImage?: string;
-  rtl?: boolean;
+  flag: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class TranslationService {
-  // Internal state signals
-  private readonly currentLanguageSignal = signal<string>('ca');
-
-  // Public computed signals
-  readonly currentLanguage = computed(() => this.currentLanguageSignal());
-  readonly currentLanguageInfo = computed(() => {
-    const currentLang = this.currentLanguage();
-    return this.availableLanguages.find(lang => lang.code === currentLang);
-  });
-
-  readonly availableLanguages: Language[] = [
-    { code: 'ca', name: 'Català', flagImage: '/assets/images/ca.png' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true }
-  ];
+  private currentLang = 'ca';
 
   constructor(private translate: TranslateService) {
     this.initializeLanguage();
   }
 
   private initializeLanguage(): void {
-    // Set available languages
-    this.translate.addLangs(this.availableLanguages.map(lang => lang.code));
+    this.translate.setDefaultLang('ca');
+    this.translate.addLangs(['ca', 'es', 'en']);
 
-    // Get saved language or browser language
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    const browserLanguage = this.translate.getBrowserLang();
+    const browserLang = this.translate.getBrowserLang();
+    const savedLang = this.getUserLanguagePreference();
 
-    // Determine initial language
-    let initialLanguage = 'ca'; // Default
-
-    if (savedLanguage && this.isLanguageAvailable(savedLanguage)) {
-      initialLanguage = savedLanguage;
-    } else if (browserLanguage && this.isLanguageAvailable(browserLanguage)) {
-      initialLanguage = browserLanguage;
-    }
-
-    // Set language without saving to localStorage during initialization
-    this.setLanguage(initialLanguage, false);
-  }
-
-  setLanguage(lang: string, saveToStorage: boolean = true): void {
-    if (!this.isLanguageAvailable(lang)) {
-      console.warn(`Language ${lang} is not available`);
-      return;
-    }
-
-    // Update translate service
-    this.translate.use(lang);
-
-    // Update current language signal
-    this.currentLanguageSignal.set(lang);
-
-    // Save to localStorage only if requested
-    if (saveToStorage) {
-      localStorage.setItem('preferredLanguage', lang);
-    }
-
-    // Update document attributes
-    this.updateDocumentAttributes(lang);
-  }
-
-  getLanguage(): string {
-    return this.currentLanguage();
-  }
-
-  getCurrentLanguageInfo(): Language | undefined {
-    return this.currentLanguageInfo();
-  }
-
-  isLanguageAvailable(lang: string): boolean {
-    return this.availableLanguages.some(language => language.code === lang);
-  }
-
-  isRTL(lang?: string): boolean {
-    const languageCode = lang || this.getLanguage();
-    const languageInfo = this.availableLanguages.find(l => l.code === languageCode);
-    return languageInfo?.rtl || false;
-  }
-
-  private updateDocumentAttributes(lang: string): void {
-    // Set language attribute
-    document.documentElement.lang = lang;
-
-    // Set direction attribute for RTL support
-    const isRTL = this.isRTL(lang);
-    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-
-    // Add/remove RTL class for styling
-    if (isRTL) {
-      document.body.classList.add('rtl');
+    if (savedLang && this.isLanguageAvailable(savedLang)) {
+      this.translate.use(savedLang);
+      this.currentLang = savedLang;
+    } else if (browserLang && this.isLanguageAvailable(browserLang)) {
+      this.translate.use(browserLang);
+      this.currentLang = browserLang;
     } else {
-      document.body.classList.remove('rtl');
+      this.translate.use('ca');
+      this.currentLang = 'ca';
     }
   }
 
-  // Helper method to get translated text
-  get(key: string, params?: any): string {
-    return this.translate.instant(key, params);
+  getCurrentLang(): string {
+    return this.currentLang;
   }
 
-  // Helper method to get translated text as observable
-  get$(key: string, params?: any) {
+  setLanguage(lang: string): void {
+    if (this.isLanguageAvailable(lang)) {
+      this.translate.use(lang);
+      this.currentLang = lang;
+      this.saveUserLanguagePreference(lang);
+    }
+  }
+
+  getAvailableLanguages(): LanguageInfo[] {
+    return [
+      { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
+      { code: 'es', name: 'Español', flag: '🇪🇸' },
+      { code: 'en', name: 'English', flag: '🇬🇧' }
+    ];
+  }
+
+  getTranslation(key: string, params?: any): Observable<string> {
     return this.translate.get(key, params);
   }
 
-  // Method to reload translations (useful for dynamic content)
-  reload(): void {
-    this.translate.reloadLang(this.getLanguage());
+  getTranslationInstant(key: string, params?: any): string {
+    return this.translate.instant(key, params);
   }
 
-  // Method to get browser language
-  getBrowserLanguage(): string | undefined {
-    return this.translate.getBrowserLang();
+  private isLanguageAvailable(lang: string): boolean {
+    return this.translate.getLangs().includes(lang);
   }
 
-  // Method to save user's language preference
-  saveUserLanguagePreference(userId: string, language: string): void {
-    if (this.isLanguageAvailable(language)) {
-      const userLanguageKey = `userLanguage_${userId}`;
-      localStorage.setItem(userLanguageKey, language);
-    }
+  private getUserLanguagePreference(): string | null {
+    return localStorage.getItem('userLanguage');
   }
 
-  // Method to get user's saved language preference
-  getUserLanguagePreference(userId: string): string | null {
-    const userLanguageKey = `userLanguage_${userId}`;
-    return localStorage.getItem(userLanguageKey);
-  }
-
-  // Method to restore user's language preference
-  restoreUserLanguagePreference(userId: string): void {
-    const savedLanguage = this.getUserLanguagePreference(userId);
-    if (savedLanguage && this.isLanguageAvailable(savedLanguage)) {
-      this.setLanguage(savedLanguage);
-    }
+  private saveUserLanguagePreference(lang: string): void {
+    localStorage.setItem('userLanguage', lang);
   }
 }
