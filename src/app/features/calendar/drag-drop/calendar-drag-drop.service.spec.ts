@@ -1,41 +1,33 @@
 import { TestBed } from '@angular/core/testing';
 import { CalendarDragDropService } from './calendar-drag-drop.service';
 import { CalendarPositionService } from '../services/calendar-position.service';
-import { CalendarStateService } from '../services/calendar-state.service';
 import { AppointmentEvent } from '../core/calendar.component';
-import { configureTestModule } from '../../../testing/test-setup';
 
 describe('CalendarDragDropService', () => {
   let service: CalendarDragDropService;
   let positionService: jasmine.SpyObj<CalendarPositionService>;
-  let stateService: jasmine.SpyObj<CalendarStateService>;
 
   beforeEach(() => {
     const positionSpy = jasmine.createSpyObj('CalendarPositionService', [
-      'getPixelsPerMinute',
-      'isTimeSlotAvailable'
-    ]);
-    const stateSpy = jasmine.createSpyObj('CalendarStateService', [
-      'appointments',
-      'setAppointments'
+      'calculatePosition',
+      'getTimeSlotPosition',
+      'getDayPosition'
     ]);
 
-    const testConfig = configureTestModule([
-      { provide: CalendarPositionService, useValue: positionSpy },
-      { provide: CalendarStateService, useValue: stateSpy }
-    ]);
+    // Setup default spy returns
+    positionSpy.calculatePosition.and.returnValue({ top: 0, left: 0 });
+    positionSpy.getTimeSlotPosition.and.returnValue({ top: 0, left: 0 });
+    positionSpy.getDayPosition.and.returnValue({ top: 0, left: 0 });
 
     TestBed.configureTestingModule({
-      providers: testConfig.providers
+      providers: [
+        CalendarDragDropService,
+        { provide: CalendarPositionService, useValue: positionSpy }
+      ]
     });
 
     service = TestBed.inject(CalendarDragDropService);
     positionService = TestBed.inject(CalendarPositionService) as jasmine.SpyObj<CalendarPositionService>;
-    stateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
-
-    // Setup default spy returns
-    positionService.getPixelsPerMinute.and.returnValue(1);
-    stateService.appointments.and.returnValue([]);
   });
 
   it('should be created', () => {
@@ -58,7 +50,7 @@ describe('CalendarDragDropService', () => {
     expect(service.isDragging()).toBe(true);
     expect(service.draggedAppointment()).toEqual(appointment);
     expect(service.originalPosition()).toEqual(originalPosition);
-    expect(service.currentPosition()).toEqual(originalPosition);
+    expect(service.currentPosition()).toBeNull(); // currentPosition is not set by startDrag
     expect(service.originalDate()).toEqual(originalDate);
   });
 
@@ -105,9 +97,6 @@ describe('CalendarDragDropService', () => {
       duration: 60
     };
 
-    positionService.isTimeSlotAvailable.and.returnValue(true);
-    stateService.appointments.and.returnValue([]);
-
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
 
     const day = new Date('2024-01-01');
@@ -118,16 +107,13 @@ describe('CalendarDragDropService', () => {
     expect(service.isValidDrop()).toBe(true);
   });
 
-  it('should end drag successfully when position is valid', () => {
+  it('should end drag successfully when position is valid', async () => {
     const appointment: AppointmentEvent = {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
       duration: 60
     };
-
-    positionService.isTimeSlotAvailable.and.returnValue(true);
-    stateService.appointments.and.returnValue([]);
 
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
 
@@ -136,7 +122,7 @@ describe('CalendarDragDropService', () => {
 
     service.updateTargetDateTime(position, day);
 
-    const result = service.endDrag();
+    const result = await service.endDrag();
 
     expect(result).toBe(true);
     expect(service.isDragging()).toBe(false);

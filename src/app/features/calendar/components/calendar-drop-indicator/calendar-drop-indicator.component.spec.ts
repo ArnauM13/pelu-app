@@ -1,9 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 import { CalendarDropIndicatorComponent, DropIndicatorData } from './calendar-drop-indicator.component';
+
+// Test host component to provide required inputs
+@Component({
+  template: `
+    <pelu-calendar-drop-indicator [data]="testData"></pelu-calendar-drop-indicator>
+  `,
+  standalone: true,
+  imports: [CalendarDropIndicatorComponent]
+})
+class TestHostComponent {
+  testData: DropIndicatorData = {
+    top: 150,
+    height: 60,
+    isValid: true
+  };
+}
 
 describe('CalendarDropIndicatorComponent', () => {
   let component: CalendarDropIndicatorComponent;
-  let fixture: ComponentFixture<CalendarDropIndicatorComponent>;
+  let hostComponent: TestHostComponent;
+  let hostFixture: ComponentFixture<TestHostComponent>;
 
   const mockDropIndicatorData: DropIndicatorData = {
     top: 150,
@@ -13,24 +31,27 @@ describe('CalendarDropIndicatorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarDropIndicatorComponent]
+      imports: [TestHostComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CalendarDropIndicatorComponent);
-    component = fixture.componentInstance;
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(mockDropIndicatorData);
-    });
-    fixture.detectChanges();
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostComponent = hostFixture.componentInstance;
+    component = hostFixture.debugElement.children[0].componentInstance;
+    hostFixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should have data input signal', () => {
+    expect(component.data).toBeDefined();
+    expect(typeof component.data).toBe('function');
+  });
+
   it('should apply correct positioning styles', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     expect(dropIndicator.style.top).toBe('150px');
@@ -38,7 +59,7 @@ describe('CalendarDropIndicatorComponent', () => {
   });
 
   it('should apply valid styles when drop is valid', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     expect(dropIndicator.classList.contains('valid')).toBe(true);
@@ -46,13 +67,10 @@ describe('CalendarDropIndicatorComponent', () => {
   });
 
   it('should apply invalid styles when drop is invalid', () => {
-    const invalidData = { ...mockDropIndicatorData, isValid: false };
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(invalidData);
-    });
-    fixture.detectChanges();
+    hostComponent.testData = { ...mockDropIndicatorData, isValid: false };
+    hostFixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     expect(dropIndicator.classList.contains('invalid')).toBe(true);
@@ -60,18 +78,14 @@ describe('CalendarDropIndicatorComponent', () => {
   });
 
   it('should handle different positioning', () => {
-    const differentData = {
+    hostComponent.testData = {
       ...mockDropIndicatorData,
       top: 300,
       height: 90
     };
+    hostFixture.detectChanges();
 
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(differentData);
-    });
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     expect(dropIndicator.style.top).toBe('300px');
@@ -79,12 +93,12 @@ describe('CalendarDropIndicatorComponent', () => {
   });
 
   it('should have correct CSS classes', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     expect(compiled.querySelector('.drop-indicator')).toBeTruthy();
   });
 
   it('should be positioned absolutely', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     const computedStyle = window.getComputedStyle(dropIndicator);
@@ -92,7 +106,7 @@ describe('CalendarDropIndicatorComponent', () => {
   });
 
   it('should have pointer events disabled', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     const computedStyle = window.getComputedStyle(dropIndicator);
@@ -100,7 +114,7 @@ describe('CalendarDropIndicatorComponent', () => {
   });
 
   it('should have high z-index', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const dropIndicator = compiled.querySelector('.drop-indicator');
 
     const computedStyle = window.getComputedStyle(dropIndicator);

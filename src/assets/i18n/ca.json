@@ -189,6 +189,17 @@
       "COMPLETED": "Migració completada",
       "MESSAGE": "S'han migrat {{count}} cites antigues al teu compte. Ara pots veure els detalls de totes les teves cites."
     },
+    "TOAST": {
+      "APPOINTMENT_CREATED": "Cita creada",
+      "APPOINTMENT_UPDATED": "Cita actualitzada",
+      "APPOINTMENT_DELETED": "Cita eliminada",
+      "APPOINTMENT_CREATED_MESSAGE": "S'ha creat la cita per {{name}}",
+      "APPOINTMENT_UPDATED_MESSAGE": "S'ha actualitzat la cita de {{name}}",
+      "APPOINTMENT_DELETED_MESSAGE": "S'ha eliminat la cita de {{name}}",
+      "VALIDATION_ERROR_MESSAGE": "El camp \"{{field}}\" és obligatori",
+      "NETWORK_ERROR_MESSAGE": "No s'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.",
+      "LOGIN_REQUIRED_MESSAGE": "Si us plau, inicia sessió per continuar."
+    },
     "NO_ACTIONS_AVAILABLE": "No hi ha accions disponibles",
     "NO_ACTIONS_AVAILABLE_MESSAGE": "Aquesta cita no es pot editar o eliminar. Pot ser que ja hagi passat, no siguis el propietari, o no tenguis els permisos necessaris.",
     "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",

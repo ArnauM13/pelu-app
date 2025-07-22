@@ -393,3 +393,7 @@ export const createTestSignal = <T>(initialValue: T) => {
 export const createTestComputed = <T>(fn: () => T) => {
   return computed(fn);
 };
+
+// Re-exports for backward compatibility
+export const mockAuth = authMock;
+export const mockFirestore = firestoreMock;

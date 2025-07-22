@@ -191,6 +191,17 @@
       "COMPLETED": "Migration completed",
       "MESSAGE": "{{count}} old appointments have been migrated to your account. You can now view details of all your appointments."
     },
+    "TOAST": {
+      "APPOINTMENT_CREATED": "Appointment created",
+      "APPOINTMENT_UPDATED": "Appointment updated",
+      "APPOINTMENT_DELETED": "Appointment deleted",
+      "APPOINTMENT_CREATED_MESSAGE": "Appointment has been created for {{name}}",
+      "APPOINTMENT_UPDATED_MESSAGE": "Appointment has been updated for {{name}}",
+      "APPOINTMENT_DELETED_MESSAGE": "Appointment has been deleted for {{name}}",
+      "VALIDATION_ERROR_MESSAGE": "The field \"{{field}}\" is required",
+      "NETWORK_ERROR_MESSAGE": "Could not connect to the server. Please try again.",
+      "LOGIN_REQUIRED_MESSAGE": "Please sign in to continue."
+    },
     "NO_ACTIONS_AVAILABLE": "No actions available",
     "NO_ACTIONS_AVAILABLE_MESSAGE": "This appointment cannot be edited or deleted. It may have already passed, you may not be the owner, or you may not have the necessary permissions."
   },

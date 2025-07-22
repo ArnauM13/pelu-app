@@ -25,7 +25,7 @@ describe('BookingPopupComponent', () => {
   let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
-    const translateSpy = jasmine.createSpyObj('TranslateService', ['get', 'instant']);
+    const translateSpy = jasmine.createSpyObj('TranslateService', ['get', 'instant', 'addLangs', 'getBrowserLang', 'use', 'reloadLang', 'setDefaultLang', 'getDefaultLang', 'getLangs']);
     const servicesSpy = jasmine.createSpyObj('ServicesService', ['getServiceName']);
     const authSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated', 'userDisplayName']);
     const currencySpy = jasmine.createSpyObj('CurrencyService', ['formatPrice']);
@@ -59,8 +59,33 @@ describe('BookingPopupComponent', () => {
     // Setup default mock return values
     translateService.get.and.returnValue(of('translated text'));
     translateService.instant.and.returnValue('translated text');
+    translateService.addLangs.and.returnValue(undefined);
+    translateService.getBrowserLang.and.returnValue('ca');
+    translateService.use.and.returnValue(of({}));
+    translateService.reloadLang.and.returnValue(of({}));
+    translateService.setDefaultLang.and.returnValue(undefined);
+    translateService.getDefaultLang.and.returnValue('ca');
+    translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
     servicesService.getServiceName.and.returnValue('Test Service');
-    authService.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    authService.user.and.returnValue({
+      uid: 'test-uid',
+      email: 'test@example.com',
+      emailVerified: true,
+      isAnonymous: false,
+      metadata: { creationTime: '', lastSignInTime: '' },
+      providerData: [],
+      refreshToken: '',
+      tenantId: null,
+      delete: () => Promise.resolve(),
+      getIdToken: () => Promise.resolve(''),
+      getIdTokenResult: () => Promise.resolve({} as any),
+      reload: () => Promise.resolve(),
+      toJSON: () => ({}),
+      displayName: null,
+      phoneNumber: null,
+      photoURL: null,
+      providerId: 'password'
+    });
     authService.isAuthenticated.and.returnValue(true);
     authService.userDisplayName.and.returnValue('Test User');
     currencyService.formatPrice.and.returnValue('25€');
