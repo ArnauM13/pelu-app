@@ -245,7 +245,7 @@
   "NAVIGATION": {
     "HOME": "Inicio",
     "SERVICES": "Servicios",
-    "BOOKING": "Reservas",
+    "BOOK": "Reservar",
     "APPOINTMENTS": "Citas",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Panel de admin",
