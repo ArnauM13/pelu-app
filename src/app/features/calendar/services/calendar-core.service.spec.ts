@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { CalendarCoreService, CoordinatePosition, TimePosition, GridConfiguration } from './calendar-core.service';
 import { CalendarStateService } from './calendar-state.service';
-import { ToastService } from '../../shared/services/toast.service';
-import { AuthService } from '../../core/auth/auth.service';
-import { AppointmentEvent } from './calendar.component';
+import { ToastService } from '../../../shared/services/toast.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { AppointmentEvent } from '../core/calendar.component';
 
 describe('CalendarCoreService', () => {
   let service: CalendarCoreService;

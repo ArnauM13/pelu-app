@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarDragPreviewComponent, DragPreviewData } from './calendar-drag-preview.component';
-import { AppointmentEvent } from '../../calendar.component';
+import { AppointmentEvent } from '../../core/calendar.component';
 
 describe('CalendarDragPreviewComponent', () => {
   let component: CalendarDragPreviewComponent;
