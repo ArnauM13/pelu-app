@@ -2,8 +2,8 @@ import { Component, input, output, computed, signal, inject } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CalendarComponent, AppointmentEvent } from './calendar.component';
-import { CalendarFooterComponent, CalendarFooterAlert } from './components/calendar-footer/calendar-footer.component';
-import { CalendarBusinessService } from './calendar-business.service';
+import { CalendarFooterComponent, CalendarFooterAlert } from '../components/calendar-footer/calendar-footer.component';
+import { CalendarBusinessService } from '../services/calendar-business.service';
 
 @Component({
   selector: 'pelu-calendar-with-footer',

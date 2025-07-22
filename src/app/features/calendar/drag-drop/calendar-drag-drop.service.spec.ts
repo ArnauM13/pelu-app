@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { CalendarDragDropService } from './calendar-drag-drop.service';
-import { CalendarPositionService } from './calendar-position.service';
-import { CalendarStateService } from './calendar-state.service';
-import { AppointmentEvent } from './calendar.component';
+import { CalendarPositionService } from '../services/calendar-position.service';
+import { CalendarStateService } from '../services/calendar-state.service';
+import { AppointmentEvent } from '../core/calendar.component';
 import { configureTestModule } from '../../../testing/test-setup';
 
 describe('CalendarDragDropService', () => {

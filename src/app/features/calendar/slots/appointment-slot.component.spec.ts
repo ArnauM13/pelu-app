@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
-import { CalendarPositionService } from './calendar-position.service';
-import { AppointmentEvent } from './calendar.component';
-import { ServiceColorsService } from '../../core/services/service-colors.service';
-import { TranslationService } from '../../core/services/translation.service';
+import { CalendarPositionService } from '../services/calendar-position.service';
+import { AppointmentEvent } from '../core/calendar.component';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { TranslationService } from '../../../core/services/translation.service';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';

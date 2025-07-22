@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppointmentEvent } from '../../calendar.component';
+import { AppointmentEvent } from '../../core/calendar.component';
 
 export interface DragPreviewData {
   appointment: AppointmentEvent;
