@@ -36,7 +36,27 @@ describe('BookingMobilePageComponent', () => {
   beforeEach(async () => {
     const authSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'user']);
     const firebaseServicesSpy = jasmine.createSpyObj('FirebaseServicesService', ['activeServices']);
-    const bookingSpy = jasmine.createSpyObj('BookingService', ['createBooking']);
+    const bookingSpy = jasmine.createSpyObj('BookingService', [
+      'createBooking',
+      'bookings',
+      'isLoading',
+      'error',
+      'isInitialized',
+      'hasCachedData',
+      'loadBookings',
+      'getBookingsForDate',
+      'getBookingsForDateRange',
+      'getUpcomingBookings',
+      'getPastBookings',
+      'getDraftBookings',
+      'isBookingComplete',
+      'isPublicBooking',
+      'isOwnBooking',
+      'refreshBookings',
+      'silentRefreshBookings',
+      'getBookingsWithCache',
+      'clearCache'
+    ]);
     const roleSpy = jasmine.createSpyObj('RoleService', ['isAdmin']);
     const toastSpy = jasmine.createSpyObj('ToastService', ['showAppointmentCreated', 'showLoginRequired']);
     const serviceColorsSpy = jasmine.createSpyObj('ServiceColorsService', ['getServiceColor']);
@@ -79,10 +99,48 @@ describe('BookingMobilePageComponent', () => {
 
     // Setup default mock return values
     authService.isAuthenticated.and.returnValue(true);
-    authService.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    authService.user.and.returnValue({
+      uid: 'test-uid',
+      email: 'test@example.com',
+      emailVerified: true,
+      isAnonymous: false,
+      metadata: { creationTime: '', lastSignInTime: '' },
+      providerData: [],
+      refreshToken: '',
+      tenantId: null,
+      delete: () => Promise.resolve(),
+      getIdToken: () => Promise.resolve(''),
+      getIdTokenResult: () => Promise.resolve({} as any),
+      reload: () => Promise.resolve(),
+      toJSON: () => ({}),
+      displayName: null,
+      phoneNumber: null,
+      photoURL: null,
+      providerId: 'password'
+    });
     firebaseServicesService.activeServices.and.returnValue([]);
     roleService.isAdmin.and.returnValue(false);
     responsiveService.isMobile.and.returnValue(true);
+
+    // Setup BookingService mock return values
+    bookingService.bookings.and.returnValue([]);
+    bookingService.isLoading.and.returnValue(false);
+    bookingService.error.and.returnValue(null);
+    bookingService.isInitialized.and.returnValue(true);
+    bookingService.hasCachedData.and.returnValue(false);
+    bookingService.loadBookings.and.returnValue(Promise.resolve());
+    bookingService.getBookingsForDate.and.returnValue([]);
+    bookingService.getBookingsForDateRange.and.returnValue([]);
+    bookingService.getUpcomingBookings.and.returnValue([]);
+    bookingService.getPastBookings.and.returnValue([]);
+    bookingService.getDraftBookings.and.returnValue([]);
+    bookingService.isBookingComplete.and.returnValue(true);
+    bookingService.isPublicBooking.and.returnValue(false);
+    bookingService.isOwnBooking.and.returnValue(true);
+    bookingService.refreshBookings.and.returnValue(Promise.resolve());
+    bookingService.silentRefreshBookings.and.returnValue(Promise.resolve());
+    bookingService.getBookingsWithCache.and.returnValue(Promise.resolve([]));
+    bookingService.clearCache.and.returnValue(undefined);
 
     fixture.detectChanges();
   });

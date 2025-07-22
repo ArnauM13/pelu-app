@@ -66,23 +66,23 @@ export class ToastService {
   }
 
   showAppointmentDeleted(appointmentName: string) {
-    this.showSuccess(`Cita eliminada`, `S'ha eliminat la cita de ${appointmentName}`);
+    this.showSuccess('COMMON.TOAST.APPOINTMENT_DELETED', `COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE`, undefined, false);
   }
 
   showAppointmentUpdated(appointmentName: string) {
-    this.showSuccess(`Cita actualitzada`, `S'ha actualitzat la cita de ${appointmentName}`);
+    this.showSuccess('COMMON.TOAST.APPOINTMENT_UPDATED', `COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE`, undefined, false);
   }
 
   showAppointmentCreated(appointmentName: string, appointmentId: string) {
-    this.showSuccess(`Cita creada`, `S'ha creat la cita per ${appointmentName}`, appointmentId, true);
+    this.showSuccess('COMMON.TOAST.APPOINTMENT_CREATED', `COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE`, appointmentId, true);
   }
 
   showValidationError(field: string) {
-    this.showError('COMMON.ERRORS.VALIDATION_ERROR', `El camp "${field}" és obligatori`);
+    this.showError('COMMON.ERRORS.VALIDATION_ERROR', `COMMON.TOAST.VALIDATION_ERROR_MESSAGE`);
   }
 
   showNetworkError() {
-    this.showError('COMMON.ERRORS.NETWORK_ERROR', 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.');
+    this.showError('COMMON.ERRORS.NETWORK_ERROR', 'COMMON.TOAST.NETWORK_ERROR_MESSAGE');
   }
 
   showUnauthorizedError() {
@@ -90,7 +90,7 @@ export class ToastService {
   }
 
   showLoginRequired() {
-    this.showWarning('AUTH.SESSION_REQUIRED', 'Si us plau, inicia sessió per continuar.');
+    this.showWarning('AUTH.SESSION_REQUIRED', 'COMMON.TOAST.LOGIN_REQUIRED_MESSAGE');
   }
 
   showGenericSuccess(message: string) {

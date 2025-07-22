@@ -53,13 +53,13 @@ interface AppointmentForm {
     AppointmentDetailPopupComponent,
     AlertPopupComponent
   ],
-  providers: [MessageService],
+
   templateUrl: './appointment-detail-page.component.html',
   styleUrls: ['./appointment-detail-page.component.scss']
 })
 export class AppointmentDetailPageComponent implements OnInit {
   // Inject services
-  public readonly messageService = inject(MessageService);
+
   #route = inject(ActivatedRoute);
   #router = inject(Router);
   #location = inject(Location);

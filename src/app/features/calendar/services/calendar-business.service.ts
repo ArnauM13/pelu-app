@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { startOfWeek, endOfWeek, eachDayOfInterval, addMinutes, isSameDay } from 'date-fns';
-import { AppointmentEvent } from './calendar.component';
+import { AppointmentEvent } from '../core/calendar.component';
 
 export interface BusinessConfig {
   hours: {

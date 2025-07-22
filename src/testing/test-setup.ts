@@ -13,6 +13,7 @@ import { Firestore } from '@angular/fire/firestore';
 import { UserService } from '../app/core/services/user.service';
 import { CurrencyService } from '../app/core/services/currency.service';
 import { ToastService } from '../app/shared/services/toast.service';
+import { of } from 'rxjs';
 import {
   provideMockFirebase,
   mockAuthService,
@@ -115,7 +116,7 @@ export function resetMocks() {
 export function setupDefaultMocks() {
   // Set up default return values for commonly used mocks
   mockTranslateService.instant.and.returnValue('Mocked Translation');
-  mockTranslateService.get.and.returnValue({ subscribe: () => ({ unsubscribe: () => {} }) });
+  mockTranslateService.get.and.returnValue(of('Mocked Translation'));
   mockTranslateService.addLangs.and.returnValue(undefined);
   mockTranslateService.getBrowserLang.and.returnValue('ca');
 

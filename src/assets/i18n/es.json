@@ -190,6 +190,17 @@
       "COMPLETED": "Migración completada",
       "MESSAGE": "Se han migrado {{count}} citas antiguas a tu cuenta. Ahora puedes ver los detalles de todas tus citas."
     },
+    "TOAST": {
+      "APPOINTMENT_CREATED": "Cita creada",
+      "APPOINTMENT_UPDATED": "Cita actualizada",
+      "APPOINTMENT_DELETED": "Cita eliminada",
+      "APPOINTMENT_CREATED_MESSAGE": "Se ha creado la cita para {{name}}",
+      "APPOINTMENT_UPDATED_MESSAGE": "Se ha actualizado la cita de {{name}}",
+      "APPOINTMENT_DELETED_MESSAGE": "Se ha eliminado la cita de {{name}}",
+      "VALIDATION_ERROR_MESSAGE": "El campo \"{{field}}\" es obligatorio",
+      "NETWORK_ERROR_MESSAGE": "No se ha podido conectar con el servidor. Por favor, inténtalo de nuevo.",
+      "LOGIN_REQUIRED_MESSAGE": "Por favor, inicia sesión para continuar."
+    },
     "NO_ACTIONS_AVAILABLE": "No hay acciones disponibles",
     "NO_ACTIONS_AVAILABLE_MESSAGE": "Esta cita no se puede editar o eliminar. Puede que ya haya pasado, no seas el propietario, o no tengas los permisos necesarios."
   },

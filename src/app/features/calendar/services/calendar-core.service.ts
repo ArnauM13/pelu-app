@@ -1,10 +1,10 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { addMinutes, format, parseISO, isSameDay } from 'date-fns';
-import { AppointmentEvent } from './calendar.component';
+import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarStateService } from './calendar-state.service';
-import { ToastService } from '../../shared/services/toast.service';
-import { AuthService } from '../../core/auth/auth.service';
-import { BookingService } from '../../core/services/booking.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { BookingService } from '../../../core/services/booking.service';
 
 // Interfaces for coordinate and time management
 export interface CoordinatePosition {

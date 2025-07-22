@@ -13,12 +13,13 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { UserService } from '../../../core/services/user.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
@@ -60,7 +61,7 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     InputCheckboxComponent,
     CurrencyPipe
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [ConfirmationService],
   templateUrl: './admin-services-page.component.html',
   styleUrls: ['./admin-services-page.component.scss']
 })
@@ -71,7 +72,7 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly servicesMigrationService = inject(ServicesMigrationService);
   private readonly userService = inject(UserService);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
 
   // Core signals - Use Firebase service directly for all data
@@ -283,11 +284,10 @@ export class AdminServicesPageComponent implements OnInit {
     if (success) {
       // Show success message after a short delay
       setTimeout(() => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED'),
-          detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED_MESSAGE')
-        });
+        this.toastService.showSuccess(
+          this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED'),
+          this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED_MESSAGE')
+        );
       }, 300);
     }
   }
@@ -300,11 +300,10 @@ export class AdminServicesPageComponent implements OnInit {
     if (success) {
       // Show success message after a short delay
       setTimeout(() => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED'),
-          detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED_MESSAGE')
-        });
+        this.toastService.showSuccess(
+          this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED'),
+          this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED_MESSAGE')
+        );
       }, 300);
     }
   }
@@ -355,56 +354,50 @@ export class AdminServicesPageComponent implements OnInit {
     const formData = this.formData();
 
     if (!formData.name || formData.name.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.NAME_REQUIRED')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.VALIDATION.NAME_REQUIRED')
+      );
       return false;
     }
 
     if (!formData.description || formData.description.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DESCRIPTION_REQUIRED')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.VALIDATION.DESCRIPTION_REQUIRED')
+      );
       return false;
     }
 
     if (!formData.category) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.CATEGORY_REQUIRED')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.VALIDATION.CATEGORY_REQUIRED')
+      );
       return false;
     }
 
     if (!formData.price || formData.price <= 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.PRICE_MIN')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.VALIDATION.PRICE_MIN')
+      );
       return false;
     }
 
     if (!formData.duration || formData.duration < 5) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MIN')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MIN')
+      );
       return false;
     }
 
     if (formData.duration > 480) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MAX')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MAX')
+      );
       return false;
     }
 
@@ -446,11 +439,10 @@ export class AdminServicesPageComponent implements OnInit {
     const needsMigration = await this.servicesMigrationService.isMigrationNeeded();
 
     if (!needsMigration) {
-      this.messageService.add({
-        severity: 'info',
-        summary: this.translateService.instant('COMMON.STATUS.STATUS_INFO'),
-        detail: 'Els serveis ja estan migrats a Firebase'
-      });
+      this.toastService.showInfo(
+        this.translateService.instant('COMMON.STATUS.STATUS_INFO'),
+        'Els serveis ja estan migrats a Firebase'
+      );
       return;
     }
 
@@ -616,47 +608,42 @@ export class AdminServicesPageComponent implements OnInit {
     const formData = this.categoryFormData();
 
     if (!formData.name || formData.name.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
+      );
       return false;
     }
 
     if (!formData.id || formData.id.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_REQUIRED')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_REQUIRED')
+      );
       return false;
     }
 
     if (formData.id.length < 3) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_MIN_LENGTH')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_MIN_LENGTH')
+      );
       return false;
     }
 
     if (!/^[a-z0-9-]+$/.test(formData.id)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_FORMAT')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_FORMAT')
+      );
       return false;
     }
 
     if (!formData.icon || formData.icon.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ICON_REQUIRED')
-      });
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ICON_REQUIRED')
+      );
       return false;
     }
 

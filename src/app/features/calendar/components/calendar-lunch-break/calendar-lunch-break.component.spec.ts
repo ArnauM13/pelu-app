@@ -1,9 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 import { CalendarLunchBreakComponent, LunchBreakData } from './calendar-lunch-break.component';
+
+// Test host component to provide required inputs
+@Component({
+  template: `
+    <pelu-calendar-lunch-break [data]="testData"></pelu-calendar-lunch-break>
+  `,
+  standalone: true,
+  imports: [CalendarLunchBreakComponent]
+})
+class TestHostComponent {
+  testData: LunchBreakData = {
+    top: 120,
+    height: 60,
+    timeRange: {
+      start: '12:00',
+      end: '13:00'
+    }
+  };
+}
 
 describe('CalendarLunchBreakComponent', () => {
   let component: CalendarLunchBreakComponent;
-  let fixture: ComponentFixture<CalendarLunchBreakComponent>;
+  let hostComponent: TestHostComponent;
+  let hostFixture: ComponentFixture<TestHostComponent>;
 
   const mockLunchBreakData: LunchBreakData = {
     top: 120,
@@ -16,31 +37,33 @@ describe('CalendarLunchBreakComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarLunchBreakComponent]
+      imports: [TestHostComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CalendarLunchBreakComponent);
-    component = fixture.componentInstance;
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(mockLunchBreakData);
-    });
-    fixture.detectChanges();
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostComponent = hostFixture.componentInstance;
+    component = hostFixture.debugElement.children[0].componentInstance;
+    hostFixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display lunch break content', () => {
-    const compiled = fixture.nativeElement;
+  it('should have data input signal', () => {
+    expect(component.data).toBeDefined();
+    expect(typeof component.data).toBe('function');
+  });
 
+  it('should display lunch break content', () => {
+    const compiled = hostFixture.nativeElement;
     expect(compiled.querySelector('.lunch-break-content')).toBeTruthy();
     expect(compiled.querySelector('.lunch-break-content span').textContent).toContain('Migdia');
   });
 
   it('should have coffee icon', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const icon = compiled.querySelector('.lunch-break-content i');
 
     expect(icon).toBeTruthy();
@@ -49,7 +72,7 @@ describe('CalendarLunchBreakComponent', () => {
   });
 
   it('should apply correct positioning styles', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const overlay = compiled.querySelector('.lunch-break-overlay');
 
     expect(overlay.style.top).toBe('120px');
@@ -57,45 +80,37 @@ describe('CalendarLunchBreakComponent', () => {
   });
 
   it('should display correct tooltip with time range', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const overlay = compiled.querySelector('.lunch-break-overlay');
 
     expect(overlay.getAttribute('title')).toBe('Migdia: 12:00 - 13:00');
   });
 
   it('should handle different time ranges', () => {
-    const differentData = {
+    hostComponent.testData = {
       ...mockLunchBreakData,
       timeRange: {
         start: '13:00',
         end: '14:00'
       }
     };
+    hostFixture.detectChanges();
 
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(differentData);
-    });
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const overlay = compiled.querySelector('.lunch-break-overlay');
 
     expect(overlay.getAttribute('title')).toBe('Migdia: 13:00 - 14:00');
   });
 
   it('should handle different positioning', () => {
-    const differentData = {
+    hostComponent.testData = {
       ...mockLunchBreakData,
       top: 240,
       height: 90
     };
+    hostFixture.detectChanges();
 
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(differentData);
-    });
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const overlay = compiled.querySelector('.lunch-break-overlay');
 
     expect(overlay.style.top).toBe('240px');
@@ -103,14 +118,13 @@ describe('CalendarLunchBreakComponent', () => {
   });
 
   it('should have correct CSS classes', () => {
-    const compiled = fixture.nativeElement;
-
+    const compiled = hostFixture.nativeElement;
     expect(compiled.querySelector('.lunch-break-overlay')).toBeTruthy();
     expect(compiled.querySelector('.lunch-break-content')).toBeTruthy();
   });
 
   it('should be positioned absolutely', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const overlay = compiled.querySelector('.lunch-break-overlay');
 
     const computedStyle = window.getComputedStyle(overlay);

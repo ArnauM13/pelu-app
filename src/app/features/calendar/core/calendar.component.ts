@@ -7,17 +7,17 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AppointmentDetailPopupComponent } from '../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
-import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slot.component';
-import { LoaderComponent } from '../../shared/components/loader/loader.component';
-import { AuthService } from '../../core/auth/auth.service';
-import { BookingService, Booking } from '../../core/services/booking.service';
-import { RoleService } from '../../core/services/role.service';
-import { CalendarCoreService } from './calendar-core.service';
-import { CalendarBusinessService } from './calendar-business.service';
-import { CalendarStateService } from './calendar-state.service';
-import { ServiceColorsService } from '../../core/services/service-colors.service';
-import { CalendarHeaderComponent } from './header/calendar-header.component';
+import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { AppointmentSlotComponent, AppointmentSlotData } from '../slots/appointment-slot.component';
+import { LoaderComponent } from '../../../shared/components/loader/loader.component';
+import { AuthService } from '../../../core/auth/auth.service';
+import { BookingService, Booking } from '../../../core/services/booking.service';
+import { RoleService } from '../../../core/services/role.service';
+import { CalendarCoreService } from '../services/calendar-core.service';
+import { CalendarBusinessService } from '../services/calendar-business.service';
+import { CalendarStateService } from '../services/calendar-state.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { CalendarHeaderComponent } from '../header/calendar-header.component';
 import {
   CalendarLoaderComponent,
   CalendarTimeColumnComponent,
@@ -26,9 +26,9 @@ import {
   TimeSlot,
   DayColumnData,
   DragPreviewData
-} from './components';
+} from '../components';
 import { Router } from '@angular/router';
-import { migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../shared/services';
+import { migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {

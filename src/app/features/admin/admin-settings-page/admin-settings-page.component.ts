@@ -13,8 +13,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { BusinessSettingsService, BusinessSettings } from '../../../core/services/business-settings.service';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
@@ -36,19 +35,20 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
     SelectModule,
     CheckboxModule,
     ProgressSpinnerModule,
-    ToastModule,
+
     InputTextComponent,
     InputNumberComponent,
     InputCheckboxComponent,
     InputSelectComponent
   ],
-  providers: [MessageService],
+
   templateUrl: './admin-settings-page.component.html',
   styleUrls: ['./admin-settings-page.component.scss']
 })
 export class AdminSettingsPageComponent {
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private toastService = inject(ToastService);
+
   private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
   private businessSettingsService = inject(BusinessSettingsService);
@@ -146,11 +146,7 @@ export class AdminSettingsPageComponent {
       await this.businessSettingsService.loadSettings();
     } catch (error) {
       console.error('Error loading settings:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Error al carregar la configuració'
-      });
+      this.toastService.showError('Error', 'Error al carregar la configuració');
     }
   }
 
@@ -177,21 +173,13 @@ export class AdminSettingsPageComponent {
           currency: formValue.currency
         });
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Èxit',
-          detail: 'Configuració desada correctament'
-        });
+        this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
 
         // Switch back to view mode after saving
         this.setViewMode();
       } catch (error) {
         console.error('Error saving settings:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al desar la configuració'
-        });
+        this.toastService.showError('Error', 'Error al desar la configuració');
       } finally {
         this.saving.set(false);
       }
@@ -201,18 +189,10 @@ export class AdminSettingsPageComponent {
   resetToDefaults() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
       this.businessSettingsService.resetToDefaults().then(() => {
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Restaurat',
-          detail: 'Configuració restaurada per defecte'
-        });
+        this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
       }).catch(error => {
         console.error('Error resetting to defaults:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al restaurar la configuració per defecte'
-        });
+        this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
       });
     }
   }

@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { AppointmentEvent } from './calendar.component';
+import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarBusinessService } from './calendar-business.service';
 
 export interface CalendarState {

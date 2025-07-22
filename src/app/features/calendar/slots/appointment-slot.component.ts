@@ -1,8 +1,8 @@
 import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppointmentEvent } from './calendar.component';
-import { CalendarCoreService } from './calendar-core.service';
-import { ServiceColorsService } from '../../core/services/service-colors.service';
+import { AppointmentEvent } from '../core/calendar.component';
+import { CalendarCoreService } from '../services/calendar-core.service';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
 
 export interface AppointmentSlotData {
   appointment: AppointmentEvent;

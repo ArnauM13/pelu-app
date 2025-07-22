@@ -1,9 +1,38 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 import { CalendarTimeSlotComponent, TimeSlotData } from './calendar-time-slot.component';
+
+// Test host component to provide required inputs
+@Component({
+  template: `
+    <pelu-calendar-time-slot [data]="testData" (clicked)="onClicked($event)"></pelu-calendar-time-slot>
+  `,
+  standalone: true,
+  imports: [CalendarTimeSlotComponent]
+})
+class TestHostComponent {
+  testData: TimeSlotData = {
+    date: new Date('2024-01-15'),
+    time: '10:00',
+    isAvailable: true,
+    isBooked: false,
+    isLunchBreak: false,
+    isPastDate: false,
+    isPastTime: false,
+    isClickable: true,
+    isDisabled: false,
+    tooltip: 'Available slot'
+  };
+
+  onClicked(event: any) {
+    // Handle click event
+  }
+}
 
 describe('CalendarTimeSlotComponent', () => {
   let component: CalendarTimeSlotComponent;
-  let fixture: ComponentFixture<CalendarTimeSlotComponent>;
+  let hostComponent: TestHostComponent;
+  let hostFixture: ComponentFixture<TestHostComponent>;
 
   const mockTimeSlotData: TimeSlotData = {
     date: new Date('2024-01-15'),
@@ -20,24 +49,27 @@ describe('CalendarTimeSlotComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarTimeSlotComponent]
+      imports: [TestHostComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CalendarTimeSlotComponent);
-    component = fixture.componentInstance;
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(mockTimeSlotData);
-    });
-    fixture.detectChanges();
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostComponent = hostFixture.componentInstance;
+    component = hostFixture.debugElement.children[0].componentInstance;
+    hostFixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should have data input signal', () => {
+    expect(component.data).toBeDefined();
+    expect(typeof component.data).toBe('function');
+  });
+
   it('should apply available styles when slot is available', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     expect(timeSlot.classList.contains('available')).toBe(true);
@@ -47,13 +79,10 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply booked styles when slot is booked', () => {
-    const bookedData = { ...mockTimeSlotData, isAvailable: false, isBooked: true, isClickable: false };
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(bookedData);
-    });
-    fixture.detectChanges();
+    hostComponent.testData = { ...mockTimeSlotData, isAvailable: false, isBooked: true, isClickable: false };
+    hostFixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     expect(timeSlot.classList.contains('booked')).toBe(true);
@@ -62,13 +91,10 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply lunch break styles when slot is lunch break', () => {
-    const lunchBreakData = { ...mockTimeSlotData, isLunchBreak: true, isClickable: false, isDisabled: true };
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(lunchBreakData);
-    });
-    fixture.detectChanges();
+    hostComponent.testData = { ...mockTimeSlotData, isLunchBreak: true, isClickable: false, isDisabled: true };
+    hostFixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     expect(timeSlot.classList.contains('lunch-break')).toBe(true);
@@ -76,13 +102,10 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply past date styles when date is in the past', () => {
-    const pastData = { ...mockTimeSlotData, isPastDate: true, isClickable: false, isDisabled: true };
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(pastData);
-    });
-    fixture.detectChanges();
+    hostComponent.testData = { ...mockTimeSlotData, isPastDate: true, isClickable: false, isDisabled: true };
+    hostFixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     expect(timeSlot.classList.contains('past-date')).toBe(true);
@@ -90,13 +113,10 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply past time styles when time is in the past', () => {
-    const pastTimeData = { ...mockTimeSlotData, isPastTime: true, isClickable: false, isDisabled: true };
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(pastTimeData);
-    });
-    fixture.detectChanges();
+    hostComponent.testData = { ...mockTimeSlotData, isPastTime: true, isClickable: false, isDisabled: true };
+    hostFixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     expect(timeSlot.classList.contains('past-time')).toBe(true);
@@ -104,14 +124,14 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should display correct tooltip', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     expect(timeSlot.getAttribute('title')).toBe('Available slot');
   });
 
   it('should emit click event when slot is clickable', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     spyOn(component.clicked, 'emit');
@@ -125,13 +145,10 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should not emit click event when slot is not clickable', () => {
-    const disabledData = { ...mockTimeSlotData, isClickable: false };
-    TestBed.runInInjectionContext(() => {
-      (component.data as any).set(disabledData);
-    });
-    fixture.detectChanges();
+    hostComponent.testData = { ...mockTimeSlotData, isClickable: false };
+    hostFixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = hostFixture.nativeElement;
     const timeSlot = compiled.querySelector('.time-slot');
 
     spyOn(component.clicked, 'emit');
@@ -139,5 +156,10 @@ describe('CalendarTimeSlotComponent', () => {
     timeSlot.click();
 
     expect(component.clicked.emit).not.toHaveBeenCalled();
+  });
+
+  it('should have correct CSS classes', () => {
+    const compiled = hostFixture.nativeElement;
+    expect(compiled.querySelector('.time-slot')).toBeTruthy();
   });
 });
