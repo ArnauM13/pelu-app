@@ -4,24 +4,58 @@ import { CalendarStateService } from './calendar-state.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AppointmentEvent } from '../core/calendar.component';
+import { provideMockFirebase } from '../../../../testing/firebase-mocks';
+import { RoleService } from '../../../core/services/role.service';
+import { LoggerService } from '../../../shared/services/logger.service';
 
 describe('CalendarCoreService', () => {
   let service: CalendarCoreService;
   let mockStateService: jasmine.SpyObj<CalendarStateService>;
   let mockToastService: jasmine.SpyObj<ToastService>;
   let mockAuthService: jasmine.SpyObj<AuthService>;
+  let mockRoleService: jasmine.SpyObj<RoleService>;
+  let mockLoggerService: jasmine.SpyObj<LoggerService>;
 
   beforeEach(() => {
     const stateServiceSpy = jasmine.createSpyObj('CalendarStateService', ['appointments', 'setAppointments']);
-    const toastServiceSpy = jasmine.createSpyObj('ToastService', ['showError', 'showSuccess']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['user']);
+    const toastServiceSpy = jasmine.createSpyObj('ToastService', ['showError', 'showSuccess', 'showAppointmentCreated']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated']);
+    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['isAdmin', 'isClient', 'hasAdminAccess']);
+    const loggerServiceSpy = jasmine.createSpyObj('LoggerService', ['log', 'error', 'warn', 'info']);
+
+    // Setup default mocks BEFORE TestBed configuration
+    stateServiceSpy.appointments.and.returnValue([]);
+    authServiceSpy.user.and.returnValue({
+      uid: 'test-user',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      emailVerified: true,
+      isAnonymous: false,
+      metadata: {
+        creationTime: '2024-01-01T00:00:00.000Z',
+        lastSignInTime: '2024-01-15T00:00:00.000Z'
+      },
+      phoneNumber: null,
+      photoURL: null,
+      providerData: [],
+      providerId: 'password',
+      refreshToken: 'mock-refresh-token',
+      tenantId: null
+    } as any);
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+    roleServiceSpy.isAdmin.and.returnValue(false);
+    roleServiceSpy.isClient.and.returnValue(true);
+    roleServiceSpy.hasAdminAccess.and.returnValue(false);
 
     TestBed.configureTestingModule({
       providers: [
         CalendarCoreService,
         { provide: CalendarStateService, useValue: stateServiceSpy },
         { provide: ToastService, useValue: toastServiceSpy },
-        { provide: AuthService, useValue: authServiceSpy }
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: RoleService, useValue: roleServiceSpy },
+        { provide: LoggerService, useValue: loggerServiceSpy },
+        ...provideMockFirebase()
       ]
     });
 
@@ -29,10 +63,8 @@ describe('CalendarCoreService', () => {
     mockStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
     mockToastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
     mockAuthService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-
-    // Setup default mocks
-    mockStateService.appointments.and.returnValue([]);
-    mockAuthService.user.and.returnValue({ uid: 'test-user' } as any);
+    mockRoleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
+    mockLoggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
   });
 
   it('should be created', () => {
@@ -247,7 +279,7 @@ describe('CalendarCoreService', () => {
       expect(service.currentPosition()).toEqual(newPosition);
     });
 
-    it('should end drag operation', () => {
+    it('should end drag operation', async () => {
       // Start a drag operation first
       const appointment: AppointmentEvent = {
         id: '1',
@@ -257,7 +289,7 @@ describe('CalendarCoreService', () => {
       };
       service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-15'));
 
-      const result = service.endDrag();
+      const result = await service.endDrag();
       expect(result).toBe(false); // Should fail because no valid target position
       expect(service.isDragging()).toBe(false);
     });

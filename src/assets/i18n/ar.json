@@ -190,6 +190,17 @@
       "COMPLETED": "اكتمل الترحيل",
       "MESSAGE": "تم ترحيل {{count}} موعد قديم إلى حسابك. يمكنك الآن عرض تفاصيل جميع مواعيدك."
     },
+    "TOAST": {
+      "APPOINTMENT_CREATED": "تم إنشاء الموعد",
+      "APPOINTMENT_UPDATED": "تم تحديث الموعد",
+      "APPOINTMENT_DELETED": "تم حذف الموعد",
+      "APPOINTMENT_CREATED_MESSAGE": "تم إنشاء الموعد لـ {{name}}",
+      "APPOINTMENT_UPDATED_MESSAGE": "تم تحديث الموعد لـ {{name}}",
+      "APPOINTMENT_DELETED_MESSAGE": "تم حذف الموعد لـ {{name}}",
+      "VALIDATION_ERROR_MESSAGE": "الحقل \"{{field}}\" مطلوب",
+      "NETWORK_ERROR_MESSAGE": "تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+      "LOGIN_REQUIRED_MESSAGE": "يرجى تسجيل الدخول للمتابعة."
+    },
     "NO_ACTIONS_AVAILABLE": "لا توجد إجراءات متاحة",
     "NO_ACTIONS_AVAILABLE_MESSAGE": "لا يمكن تحرير أو حذف هذا الموعد. قد يكون قد مر بالفعل، أو قد لا تكون المالك، أو قد لا تملك الأذونات اللازمة."
   },
