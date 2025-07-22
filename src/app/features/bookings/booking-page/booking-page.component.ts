@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
+import { CalendarWithFooterComponent } from '../../../features/calendar/calendar-with-footer.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { UserService } from '../../../core/services/user.service';
@@ -31,6 +32,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     TooltipModule,
     TranslateModule,
     CalendarComponent,
+    CalendarWithFooterComponent,
     BookingPopupComponent,
     ServiceSelectionPopupComponent
   ],
@@ -38,7 +40,7 @@ import { ToastService } from '../../../shared/services/toast.service';
   styleUrls: ['./booking-page.component.scss']
 })
 export class BookingPageComponent {
-  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
+  @ViewChild('calendarComponent') calendarComponent!: CalendarWithFooterComponent;
 
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);

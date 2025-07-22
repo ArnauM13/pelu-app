@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardComponent } from '../card/card.component';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
+import { CalendarWithFooterComponent } from '../../../features/calendar/calendar-with-footer.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
@@ -19,6 +20,7 @@ import { Booking } from '../../../core/services/booking.service';
     TooltipModule,
     CardComponent,
     CalendarComponent,
+    CalendarWithFooterComponent,
     AppointmentStatusBadgeComponent,
     NotFoundStateComponent,
     LoadingStateComponent
@@ -44,13 +46,13 @@ import { Booking } from '../../../core/services/booking.service';
         </div>
 
         <div class="calendar-container">
-          <pelu-calendar-component
+          <pelu-calendar-with-footer
             [mini]="false"
             [events]="calendarEvents()"
             (dateSelected)="onDateSelected.emit($event)"
             (onEditAppointment)="onCalendarEditBooking($event)"
             (onDeleteAppointment)="onCalendarDeleteBooking($event)">
-          </pelu-calendar-component>
+          </pelu-calendar-with-footer>
         </div>
 
         @if (selectedDate()) {

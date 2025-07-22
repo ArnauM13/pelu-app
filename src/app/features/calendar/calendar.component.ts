@@ -1,4 +1,4 @@
-import { Component, input, output, computed, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, input, output, computed, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarView, CalendarUtils, DateAdapter, CalendarA11y } from 'angular-calendar';
@@ -18,6 +18,15 @@ import { CalendarBusinessService } from './calendar-business.service';
 import { CalendarStateService } from './calendar-state.service';
 import { ServiceColorsService } from '../../core/services/service-colors.service';
 import { CalendarHeaderComponent } from './header/calendar-header.component';
+import {
+  CalendarLoaderComponent,
+  CalendarTimeColumnComponent,
+  CalendarDayColumnComponent,
+  CalendarDragPreviewComponent,
+  TimeSlot,
+  DayColumnData,
+  DragPreviewData
+} from './components';
 import { Router } from '@angular/router';
 import { migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../shared/services';
 
@@ -39,7 +48,20 @@ export interface AppointmentEvent {
 @Component({
   selector: 'pelu-calendar-component',
   standalone: true,
-  imports: [CommonModule, CalendarModule, FormsModule, TranslateModule, AppointmentDetailPopupComponent, AppointmentSlotComponent, CalendarHeaderComponent, LoaderComponent],
+  imports: [
+    CommonModule,
+    CalendarModule,
+    FormsModule,
+    TranslateModule,
+    AppointmentDetailPopupComponent,
+    AppointmentSlotComponent,
+    CalendarHeaderComponent,
+    LoaderComponent,
+    CalendarLoaderComponent,
+    CalendarTimeColumnComponent,
+    CalendarDayColumnComponent,
+    CalendarDragPreviewComponent
+  ],
   providers: [
     CalendarUtils,
     CalendarA11y,
@@ -72,6 +94,7 @@ export class CalendarComponent {
   readonly dateSelected = output<{date: string, time: string}>();
   readonly onEditAppointment = output<AppointmentEvent>();
   readonly onDeleteAppointment = output<AppointmentEvent>();
+  readonly bookingsLoaded = output<boolean>();
 
   // Public computed signals from state service
   readonly viewDate = this.stateService.viewDate;
@@ -87,6 +110,8 @@ export class CalendarComponent {
     this.isInitializedSignal() &&
     this.calendarMountedSignal()
   );
+
+
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
@@ -211,6 +236,87 @@ export class CalendarComponent {
     return this.calendarCoreService.getAppointmentPositions(appointments);
   });
 
+  // Computed time slots for time column
+  readonly timeColumnSlots = computed((): TimeSlot[] => {
+    return this.timeSlots().map(time => ({
+      time,
+      isBlocked: this.isTimeSlotBlocked(time),
+      isLunchBreakStart: this.isLunchBreakStart(time),
+      isDisabled: this.isTimeSlotBlocked(time)
+    }));
+  });
+
+  // Computed day columns data
+  readonly dayColumnsData = computed((): DayColumnData[] => {
+    return this.weekDays().map(day => {
+      const timeSlots = this.timeSlots().map(time => ({
+        date: day,
+        time,
+        isAvailable: this.isTimeSlotAvailable(day, time),
+        isBooked: !this.isTimeSlotAvailable(day, time) && !this.isTimeSlotBlocked(time) && !this.isPastDate(day) && !this.isPastTimeSlot(day, time),
+        isLunchBreak: this.isTimeSlotBlocked(time),
+        isPastDate: this.isPastDate(day),
+        isPastTime: this.isPastTimeSlot(day, time),
+        isClickable: this.isTimeSlotAvailable(day, time),
+        isDisabled: this.isPastDate(day) || this.isPastTimeSlot(day, time) || this.isTimeSlotBlocked(time),
+        tooltip: this.getTimeSlotTooltip(day, time)
+      }));
+
+      const lunchBreak = this.calendarCoreService.getLunchBreakPosition().height > 0 ? {
+        top: this.calendarCoreService.getLunchBreakPosition().top,
+        height: this.calendarCoreService.getLunchBreakPosition().height,
+        timeRange: this.calendarCoreService.getLunchBreakTimeRange()
+      } : null;
+
+      const dropIndicator = this.calendarCoreService.isDragging() &&
+                           this.calendarCoreService.targetDate() &&
+                           this.calendarCoreService.targetTime() &&
+                           this.calendarCoreService.draggedAppointment() &&
+                           this.isSameDay(day, this.calendarCoreService.targetDate()!) ? {
+        top: this.calendarCoreService.calculateAppointmentPositionFromTime(
+          this.calendarCoreService.targetTime()!,
+          this.calendarCoreService.draggedAppointment()!.duration || 60
+        ).top,
+        height: this.calendarCoreService.calculateAppointmentPositionFromTime(
+          this.calendarCoreService.targetTime()!,
+          this.calendarCoreService.draggedAppointment()!.duration || 60
+        ).height,
+        isValid: this.calendarCoreService.isValidDrop()
+      } : null;
+
+      return {
+        date: day,
+        dayName: this.getDayName(day),
+        dayDate: this.format(day, 'dd/MM'),
+        isPast: this.isPastDate(day),
+        isDisabled: this.isPastDate(day),
+        timeSlots,
+        appointments: this.getAppointmentsForDay(day),
+        lunchBreak,
+        dropIndicator,
+        isDragOver: this.calendarCoreService.isDragging(),
+        isDropValid: this.calendarCoreService.isDragging() && this.calendarCoreService.isValidDrop(),
+        isDropInvalid: this.calendarCoreService.isDragging() && !this.calendarCoreService.isValidDrop()
+      };
+    });
+  });
+
+  // Computed drag preview data
+  readonly dragPreviewData = computed((): DragPreviewData | null => {
+    if (!this.calendarCoreService.isDragging() || !this.calendarCoreService.draggedAppointment()) {
+      return null;
+    }
+
+    return {
+      appointment: this.calendarCoreService.draggedAppointment()!,
+      position: {
+        left: this.calendarCoreService.currentPosition()?.left || 0,
+        top: this.calendarCoreService.currentPosition()?.top || 0
+      },
+      serviceCssClass: this.getServiceCssClass(this.calendarCoreService.draggedAppointment()!)
+    };
+  });
+
   constructor(private serviceColorsService: ServiceColorsService) {
     // Initialize coordinate service with business configuration
     this.initializeCoordinateService();
@@ -243,6 +349,11 @@ export class CalendarComponent {
 
     // Set up a periodic check for localStorage changes (fallback)
     // Removed localStorage checking - now using Firebase
+
+    // Effect to emit booking loaded state
+    effect(() => {
+      this.bookingsLoaded.emit(this.isBookingsLoaded());
+    });
   }
 
   // Removed localStorage methods - now using Firebase via AppointmentService
@@ -744,4 +855,5 @@ export class CalendarComponent {
 
     console.log('Calendar core service initialized with config:', this.calendarCoreService.gridConfiguration());
   }
-}
+
+  }
