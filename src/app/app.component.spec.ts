@@ -2,30 +2,29 @@ import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { Auth } from '@angular/fire/auth';
 import { provideRouter } from '@angular/router';
-import { mockAuth } from '../testing/firebase-mocks';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { of } from 'rxjs';
-
-// Mock translate loader
-class MockTranslateLoader implements TranslateLoader {
-  getTranslation() {
-    return of({});
-  }
-}
+import { TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslationService } from './core/services/translation.service';
+import { AuthService } from './core/auth/auth.service';
+import {
+  mockAuth,
+  mockTranslateService,
+  mockTranslateStore,
+  mockTranslationService,
+  mockAuthService
+} from '../testing/firebase-mocks';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        AppComponent,
-        HttpClientModule,
-        TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+        AppComponent
       ],
       providers: [
         { provide: Auth, useValue: mockAuth },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: TranslateStore, useValue: mockTranslateStore },
+        { provide: TranslationService, useValue: mockTranslationService },
+        { provide: AuthService, useValue: mockAuthService },
         provideRouter([])
       ]
     }).compileComponents();

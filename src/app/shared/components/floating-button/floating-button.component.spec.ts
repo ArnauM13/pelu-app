@@ -148,7 +148,7 @@ describe('FloatingButtonComponent', () => {
     expect(inactiveConfig.isActive).toBe(false);
   });
 
-    it('should have proper HTML structure', () => {
+  it('should have proper HTML structure', () => {
     // Skip rendering tests since config is required
     expect(component).toBeTruthy();
   });

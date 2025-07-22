@@ -1,12 +1,12 @@
-@if (isLoading()) {
-<div class="loading-container">
-  <div class="loading-spinner">{{ 'COMMON.LOADING' | translate }}</div>
-</div>
-} @else {
-  @if (shouldShowHeader()) {
-    <pelu-header />
-  }
-  <main>
-    <router-outlet />
-  </main>
+<!-- Main app content -->
+@if (shouldShowHeader()) {
+  <pelu-header></pelu-header>
 }
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Global components -->
+<pelu-toast></pelu-toast>
+<pelu-loader></pelu-loader>

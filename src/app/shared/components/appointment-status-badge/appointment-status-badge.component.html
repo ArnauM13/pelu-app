@@ -1,0 +1,9 @@
+<div class="appointment-status-badge" [ngClass]="cssClasses()">
+  @if (config.showIcon) {
+    <span class="status-icon">{{ status().icon }}</span>
+  }
+  @if (config.showDot) {
+    <span class="status-dot"></span>
+  }
+  <span class="status-text">{{ status().text | translate }}</span>
+</div>

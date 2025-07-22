@@ -1,52 +1,51 @@
-import { Component, input, output, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'pelu-popup-modal',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './popup-modal.component.html',
-  styleUrls: ['./popup-modal.component.scss']
+  selector: 'app-popup-modal',
+  template: `
+    <div class="popup-modal" *ngIf="isOpen">
+      <div class="popup-backdrop" (click)="onBackdropClick($event)"></div>
+      <div class="popup-content">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .popup-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+    }
+    .popup-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .popup-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+  `],
+  standalone: true
 })
 export class PopupModalComponent {
-  // Input signals
-  readonly open = input<boolean>(false);
-  readonly title = input<string>('');
-  readonly size = input<'small' | 'medium' | 'large'>('medium');
-  readonly secondary = input<boolean>(false);
+  @Input() isOpen = false;
+  @Output() close = new EventEmitter<void>();
 
-  // Output signals
-  readonly closed = output<void>();
-
-  // Internal state
-  private readonly isClosingSignal = signal<boolean>(false);
-
-  // Computed properties
-  readonly isClosing = computed(() => this.isClosingSignal());
-  readonly modalClasses = computed(() => {
-    const size = this.size();
-    const secondary = this.secondary();
-    return {
-      'popup-modal': true,
-      [`popup-modal--${size}`]: true,
-      'popup-modal--secondary': secondary,
-      'popup-modal--closing': this.isClosing()
-    };
-  });
-
-  onClose() {
-    if (!this.isClosing()) {
-      this.isClosingSignal.set(true);
-      setTimeout(() => {
-        this.closed.emit();
-        this.isClosingSignal.set(false);
-      }, 300);
-    }
-  }
-
-  onBackdropClick(event: Event) {
+  onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
-      this.onClose();
+      this.close.emit();
     }
   }
 }

@@ -3,33 +3,20 @@
     class="language-button"
     (click)="toggleDropdown()"
     [attr.aria-label]="'LANGUAGES.SELECT_LANGUAGE' | translate"
+    [attr.data-lang-code]="currentLanguage()?.code?.toUpperCase()"
     type="button">
-    @if (currentLanguage()?.flagImage) {
-    <span class="flag">
-      <img [src]="currentLanguage()?.flagImage" [alt]="currentLanguage()?.name" class="flag-image">
-    </span>
-    } @else {
-      <span class="flag">{{ currentLanguage()?.flag }}</span>
-    }
-    <span class="language-code">{{ currentLanguage()?.code?.toUpperCase() }}</span>
+    <span class="language-name">{{ ('LANGUAGES.' + (currentLanguage()?.code?.toUpperCase() || '')) | translate }}</span>
     <span class="arrow" [class.open]="isDropdownOpen()">▼</span>
   </button>
 
   <div class="dropdown" [class.open]="isDropdownOpen()">
-      @for (lang of availableLanguages; track lang.code) {
+    @for (lang of availableLanguages; track lang.code) {
     <button
       class="language-option"
       [class.active]="lang.code === currentLanguage()?.code"
       (click)="selectLanguage(lang.code)"
       type="button">
-      @if (lang.flagImage) {
-        <span class="flag">
-          <img [src]="lang.flagImage" [alt]="lang.name" class="flag-image">
-        </span>
-      } @else {
-        <span class="flag">{{ lang.flag }}</span>
-      }
-      <span class="name">{{ lang.name }}</span>
+      <span class="language-name">{{ ('LANGUAGES.' + lang.code.toUpperCase()) | translate }}</span>
     </button>
     }
   </div>

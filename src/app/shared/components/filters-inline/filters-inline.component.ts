@@ -1,37 +1,32 @@
-import { Component, input, computed, Signal } from '@angular/core';
+import { Component, input, output, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 
 @Component({
   selector: 'pelu-filters-inline',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss']
 })
 export class FiltersInlineComponent {
   // Input signals that can accept either values or signals
-  readonly filterButtons = input.required<any[] | Signal<any[]>>();
   readonly filterDate = input<string | Signal<string>>('');
   readonly filterClient = input<string | Signal<string>>('');
-  readonly showAdvancedFilters = input<boolean | Signal<boolean>>(false);
-
+  readonly filterService = input<string | Signal<string>>('');
 
   // Callback inputs
-  readonly onFilterClick = input<((index: number) => void) | undefined>();
   readonly onDateChange = input<((value: string) => void) | undefined>();
   readonly onClientChange = input<((value: string) => void) | undefined>();
+  readonly onServiceChange = input<((value: string) => void) | undefined>();
   readonly onReset = input<(() => void) | undefined>();
-  readonly onToggleAdvanced = input<(() => void) | undefined>();
 
   // Computed values that handle both signals and static values
-  readonly filterButtonsValue = computed(() => {
-    const value = this.filterButtons();
-    return typeof value === 'function' ? value() : value;
-  });
-
   readonly filterDateValue = computed(() => {
     const value = this.filterDate();
     return typeof value === 'function' ? value() : value;
@@ -42,23 +37,50 @@ export class FiltersInlineComponent {
     return typeof value === 'function' ? value() : value;
   });
 
-  readonly showAdvancedFiltersValue = computed(() => {
-    const value = this.showAdvancedFilters();
+  readonly filterServiceValue = computed(() => {
+    const value = this.filterService();
     return typeof value === 'function' ? value() : value;
   });
 
+  readonly serviceOptions = computed(() => {
+    const colors = this.serviceColorsService.getAllColors();
+    return [
+      { label: this.translationService.get('SERVICES.ALL_SERVICES'), value: '' },
+      ...colors.map(color => ({
+        label: this.serviceColorsService.getServiceColorName(color),
+        value: color.id,
+        color: color.color
+      }))
+    ];
+  });
 
+  // Input configurations for specific inputs
+  readonly dateFilterConfig = {
+    type: 'date' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_DATE',
+    showLabel: true
+  };
 
-  onFilterClickHandler(index: number) {
-    // Check if it's the advanced filters button (last button)
-    if (index === this.filterButtonsValue().length - 1) {
-      this.onToggleAdvanced()?.();
-    } else {
-      this.onFilterClick()?.(index);
-    }
-  }
+  readonly clientFilterConfig = {
+    type: 'text' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
+    placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
+    showLabel: true
+  };
 
+  readonly serviceFilterConfig = computed(() => ({
+    type: 'select' as const,
+    label: 'COMMON.FILTERS.FILTER_BY_SERVICE',
+    placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
+    options: this.serviceOptions(),
+    showLabel: true,
+    clearable: true
+  }));
 
+  constructor(
+    private serviceColorsService: ServiceColorsService,
+    private translationService: TranslationService
+  ) {}
 
   onDateChangeHandler(value: string) {
     this.onDateChange()?.(value);
@@ -66,6 +88,10 @@ export class FiltersInlineComponent {
 
   onClientChangeHandler(value: string) {
     this.onClientChange()?.(value);
+  }
+
+  onServiceChangeHandler(value: string) {
+    this.onServiceChange()?.(value);
   }
 
   onResetHandler() {

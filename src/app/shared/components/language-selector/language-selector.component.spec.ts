@@ -3,8 +3,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { LanguageSelectorComponent } from './language-selector.component';
-import { TranslationService } from '../../../core/translation.service';
-import { AuthService } from '../../../auth/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 describe('LanguageSelectorComponent', () => {
   let component: LanguageSelectorComponent;

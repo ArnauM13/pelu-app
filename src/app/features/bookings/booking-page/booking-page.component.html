@@ -1,0 +1,61 @@
+<div class="container" style="margin-top: 2rem; view-transition-name: booking-container">
+  <div class="booking-layout" style="margin-bottom: 2rem; view-transition-name: booking-grid">
+    <!-- Calendar Component -->
+    <pelu-calendar-component
+      #calendarComponent
+      [mini]="false"
+      [events]="[]"
+      (dateSelected)="onTimeSlotSelected($event)">
+    </pelu-calendar-component>
+  </div>
+</div>
+
+<!-- Service Selection Popup -->
+<pelu-service-selection-popup
+  [open]="showServiceSelectionPopup()"
+  [selectionDetails]="serviceSelectionDetails()"
+  (serviceSelected)="onServiceSelected($event)"
+  (cancelled)="onServiceSelectionCancelled()">
+</pelu-service-selection-popup>
+
+<!-- Booking Confirmation Popup -->
+<pelu-booking-popup
+  [open]="showBookingPopup()"
+  [bookingDetails]="bookingDetails()"
+  [availableServices]="availableServices()"
+  (confirmed)="onBookingConfirmed($event)"
+  (cancelled)="onBookingCancelled()"
+  (clientNameChanged)="onClientNameChanged($event)"
+  (emailChanged)="onEmailChanged($event)">
+</pelu-booking-popup>
+
+<!-- Login Prompt for Anonymous Users -->
+@if (showLoginPrompt()) {
+<div class="login-prompt-overlay" (click)="onLoginPromptClose()">
+  <div class="login-prompt" (click)="$event.stopPropagation()">
+    <div class="prompt-header">
+      <h3>🎉 {{ 'BOOKING.SUCCESS_TITLE' | translate }}</h3>
+      <button class="close-btn" (click)="onLoginPromptClose()">×</button>
+    </div>
+
+    <div class="prompt-body">
+      <div class="success-icon">✅</div>
+      <p class="success-message">
+        {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
+      </p>
+      <p class="email-notice">
+        {{ 'BOOKING.EMAIL_NOTICE' | translate }}
+      </p>
+
+      <div class="prompt-actions">
+        <button class="btn-secondary" (click)="onLoginPromptClose()">
+          {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
+        </button>
+        <button class="btn-primary" (click)="onLoginPromptLogin()">
+          {{ 'COMMON.ACTIONS.LOGIN' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

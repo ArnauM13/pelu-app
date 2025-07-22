@@ -1,34 +1,45 @@
 import { Routes } from '@angular/router';
-import { LandingPageComponent } from './pages/landing-page/landing-page.component';
-import { LoginPageComponent } from './pages/login-page/login-page.component';
-import { RegisterPageComponent } from './pages/register-page/register-page.component';
-import { PerfilPageComponent } from './pages/perfil-page/perfil-page.component';
-import { authGuard } from './auth/auth.guard';
-import { BookingPageComponent } from './pages/booking-page/booking-page.component';
-import { AppointmentsPageComponent } from './pages/appointments-page/appointments-page.component';
-import { AppointmentDetailPageComponent } from './pages/appointment-detail-page/appointment-detail-page.component';
+import { LandingComponent } from './features/landing/landing.component';
+import { LoginPageComponent } from './features/auth/login-page/login-page.component';
+import { RegisterPageComponent } from './features/auth/register-page/register-page.component';
+import { PerfilPageComponent } from './features/profile/perfil-page/perfil-page.component';
+import { authGuard, publicGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
+import { BookingWrapperComponent } from './features/bookings/booking-wrapper/booking-wrapper.component';
+import { AppointmentsPageComponent } from './features/appointments/appointments-page/appointments-page.component';
+import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
+import { ServicesPageComponent } from './features/services/services-page/services-page.component';
+import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
+import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
+import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
 
 export const routes: Routes = [
-  {
-    path: '',
-    component: LandingPageComponent,
-    canActivate: [authGuard],
-    data: { viewTransitionName: 'landing' }
-  },
+  // Public routes
   {
     path: 'login',
     component: LoginPageComponent,
+    canActivate: [publicGuard],
     data: { viewTransitionName: 'login' }
   },
   {
     path: 'register',
     component: RegisterPageComponent,
+    canActivate: [publicGuard],
     data: { viewTransitionName: 'register' }
+  },
+
+
+
+  // All authenticated routes - accessible to all roles
+  {
+    path: '',
+    component: LandingComponent,
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'landing' }
   },
   {
     path: 'booking',
-    component: BookingPageComponent,
-    canActivate: [authGuard],
+    component: BookingWrapperComponent,
     data: { viewTransitionName: 'booking' }
   },
   {
@@ -40,7 +51,6 @@ export const routes: Routes = [
   {
     path: 'appointments/:id',
     component: AppointmentDetailPageComponent,
-    canActivate: [authGuard],
     data: { viewTransitionName: 'appointment-detail' }
   },
   {
@@ -49,6 +59,41 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { viewTransitionName: 'perfil' }
   },
+  {
+    path: 'services',
+    component: ServicesPageComponent,
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'services' }
+  },
+
+
+
+  // Admin pages - accessible only to admins
+  {
+    path: 'admin',
+    children: [
+      {
+        path: 'dashboard',
+        component: AdminDashboardPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-dashboard' }
+      },
+      {
+        path: 'services',
+        component: AdminServicesPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-services' }
+      },
+      {
+        path: 'settings',
+        component: AdminSettingsPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-settings' }
+      }
+    ]
+  },
+
+  // Default redirect
   {
     path: '**',
     redirectTo: ''

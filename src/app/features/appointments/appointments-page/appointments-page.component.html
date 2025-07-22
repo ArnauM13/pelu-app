@@ -1,0 +1,148 @@
+<div class="container pelu-appointments-page" style="margin-top: 2rem; view-transition-name: appointments-container">
+
+  <!-- Full Screen Loading State -->
+  @if (loading()) {
+    <pelu-loading-state
+      [config]="loadingConfig">
+    </pelu-loading-state>
+  }
+
+  <!-- Main Content -->
+  @if (!loading()) {
+  <!-- Statistics Cards -->
+  <pelu-appointments-stats
+    [stats]="appointmentStats()"
+    (onQuickFilterChange)="setQuickFilter($event)">
+  </pelu-appointments-stats>
+
+  <!-- Next Appointment -->
+  <pelu-next-appointment
+    [bookings]="appointments()"
+    (onViewDetail)="viewAppointmentDetail($event)">
+  </pelu-next-appointment>
+
+  <!-- Inline Filters -->
+  <pelu-filters-inline
+    [filterDate]="filterDate"
+    [filterClient]="filterClient"
+    [filterService]="filterService"
+    [onDateChange]="setFilterDate"
+    [onClientChange]="setFilterClient"
+    [onServiceChange]="setFilterService"
+    [onReset]="clearAllFilters">
+  </pelu-filters-inline>
+
+  <!-- View Mode Toggle (main action - right side) -->
+  <pelu-appointments-view-controls
+    [viewButtons]="viewButtons()"
+    (onViewModeChange)="setViewMode($event)">
+  </pelu-appointments-view-controls>
+
+  <!-- Calendar View -->
+  @if (viewMode() === 'calendar') {
+  <pelu-card variant="large" style="view-transition-name: calendar-view">
+    <div class="card-header">
+      <h3>📅 {{ 'COMMON.APPOINTMENTS_CALENDAR' | translate }}</h3>
+      <p class="calendar-subtitle">{{ 'COMMON.VIEW_APPOINTMENTS' | translate }}</p>
+    </div>
+
+    <div class="calendar-container">
+      @defer {
+        <pelu-calendar-component
+          [events]="calendarEvents()"
+          [mini]="false"
+          (onEditAppointment)="editAppointment($event)"
+          (onDeleteAppointment)="deleteAppointment($event)">
+        </pelu-calendar-component>
+      } @placeholder {
+        <div class="calendar-placeholder">
+          <pelu-loading-state
+            [config]="loadingConfig">
+          </pelu-loading-state>
+        </div>
+      }
+    </div>
+
+    <!-- Mostra la llista de cites o el missatge d'instrucció a sota del calendari -->
+    @if (selectedDate()) {
+    <div class="selected-date-appointments">
+      <h4>📋 {{ 'COMMON.APPOINTMENTS_FOR_DATE' | translate }} {{ formatDate(formatDateForDisplay(selectedDate()!)) }}</h4>
+      @if (getAppointmentsForDate(selectedDate()!).length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>{{ 'COMMON.NO_SCHEDULED_APPOINTMENTS' | translate }}</h3>
+        <p>{{ 'COMMON.NO_APPOINTMENTS_MESSAGE' | translate }}</p>
+      </div>
+      } @else {
+      <div class="appointments-list">
+        @for (appointment of getAppointmentsForDate(selectedDate()!); track appointment.id) {
+        <div class="appointment-item clickable" [class.today]="isToday(appointment.data)" (click)="viewAppointmentDetail(appointment)">
+          <!-- Informació de la cita (esquerra) -->
+          <div class="appointment-info">
+            <div class="client-info">
+              <h4 class="client-name">{{ appointment.nom }}</h4>
+              <div class="appointment-details">
+                @if (appointment.hora) {
+                <div class="detail-item">
+                  <span class="detail-icon">⏰</span>
+                  <span class="detail-text">{{ formatTime(appointment.hora) }}</span>
+                </div>
+                }
+                @if (appointment.servei) {
+                <div class="detail-item">
+                  <span class="detail-icon">✂️</span>
+                  <span class="detail-text">{{ appointment.servei }}</span>
+                </div>
+                }
+                @if (appointment.serviceName) {
+                <div class="detail-item">
+                  <span class="detail-icon">✂️</span>
+                  <span class="detail-text">{{ appointment.serviceName }}</span>
+                </div>
+                }
+                @if (appointment.duration) {
+                <div class="detail-item">
+                  <span class="detail-icon">⏱️</span>
+                  <span class="detail-text">{{ appointment.duration }} min</span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Status i accions (dreta) -->
+          <div class="appointment-actions-container">
+            <div class="appointment-status">
+              <pelu-appointment-status-badge
+                [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+                [config]="{ size: 'small', variant: 'default', showIcon: false, showDot: true }">
+              </pelu-appointment-status-badge>
+            </div>
+
+            <div class="appointment-actions" (click)="$event.stopPropagation()">
+              <pelu-actions-buttons
+                [context]="getActionContext(appointment)">
+              </pelu-actions-buttons>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    }
+  </pelu-card>
+  }
+
+  <!-- Appointments List View -->
+  @if (viewMode() === 'list') {
+    <pelu-appointments-list
+      [bookings]="filteredAppointments()"
+      [hasActiveFilters]="hasActiveFilters()"
+      (onViewBooking)="viewAppointmentDetail($event)"
+      (onClearFilters)="clearAllFilters()">
+    </pelu-appointments-list>
+    }
+  }
+
+</div>

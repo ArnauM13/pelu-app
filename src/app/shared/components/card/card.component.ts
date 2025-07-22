@@ -15,9 +15,15 @@ export class CardComponent {
   // Computed CSS classes
   readonly cardClasses = computed(() => {
     const variant = this.variant();
-    return {
-      'pelu-card': true,
-      [`pelu-card--${variant}`]: true
+    const classes: { [key: string]: boolean } = {
+      'pelu-card': true
     };
+
+    // Add variant-specific class
+    if (variant !== 'default') {
+      classes[variant] = true;
+    }
+
+    return classes;
   });
 }
