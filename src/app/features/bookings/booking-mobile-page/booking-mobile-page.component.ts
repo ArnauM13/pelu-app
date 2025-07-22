@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval, parseISO } from 'date-fns';
+import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -68,9 +68,10 @@ export class BookingMobilePageComponent {
   private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Internal state signals
-  private readonly selectedDateSignal = signal<Date>(new Date());
+  private readonly selectedDateSignal = signal<Date | null>(null);
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
   private readonly appointmentsSignal = signal<any[]>([]);
+  private readonly viewModeSignal = signal<'week' | 'month'>('week');
 
   private readonly showBookingPopupSignal = signal<boolean>(false);
 
@@ -81,6 +82,7 @@ export class BookingMobilePageComponent {
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
+  readonly viewMode = computed(() => this.viewModeSignal());
 
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());
 
@@ -100,22 +102,46 @@ export class BookingMobilePageComponent {
 
   // Week days computation
   readonly weekDays = computed(() => {
-    const start = startOfWeek(this.selectedDate(), { weekStartsOn: 1 });
-    const end = endOfWeek(this.selectedDate(), { weekStartsOn: 1 });
+    const currentDate = this.selectedDate() || new Date();
+    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const end = endOfWeek(currentDate, { weekStartsOn: 1 });
     return eachDayOfInterval({ start, end });
+  });
+
+  // Month days computation
+  readonly monthDays = computed(() => {
+    const currentDate = this.selectedDate() || new Date();
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+
+    // Find the first business day of the week that contains the month start
+    // If month starts on Sunday and business days are Mon-Sat, we need to go back to Monday
+    const firstBusinessDayOfWeek = this.getFirstBusinessDayOfWeek(monthStart);
+
+    // Find the last business day of the week that contains the month end
+    // If month ends on Saturday and business days are Mon-Sat, we need to go forward to Saturday
+    const lastBusinessDayOfWeek = this.getLastBusinessDayOfWeek(monthEnd);
+
+    return eachDayOfInterval({ start: firstBusinessDayOfWeek, end: lastBusinessDayOfWeek });
+  });
+
+  // Current view days
+  readonly currentViewDays = computed(() => {
+    return this.viewMode() === 'week' ? this.weekDays() : this.monthDays();
   });
 
   // Day slots computation
   readonly daySlots = computed(() => {
-    return this.weekDays().map(day => ({
+    return this.currentViewDays().map(day => ({
       date: day,
       timeSlots: this.generateTimeSlots(day)
     }));
   });
 
   readonly selectedDaySlots = computed(() => {
-    if (!this.selectedDate()) return null;
-    return this.daySlots().find(daySlot => isSameDay(daySlot.date, this.selectedDate()));
+    const selectedDate = this.selectedDate();
+    if (!selectedDate) return null;
+    return this.daySlots().find(daySlot => isSameDay(daySlot.date, selectedDate));
   });
 
   readonly isSelectedDayFullyBooked = computed(() => {
@@ -145,11 +171,7 @@ export class BookingMobilePageComponent {
   private async loadServices() {
     try {
       await this.firebaseServicesService.loadServices();
-      const services = this.firebaseServicesService.activeServices();
-      // Set first service as default if available
-      if (services.length > 0) {
-        this.selectedServiceSignal.set(services[0]);
-      }
+      // Don't auto-select any service - let user choose
     } catch (error) {
       console.error('Error loading services:', error);
       // Don't show toast for loading errors - they're not user-initiated actions
@@ -297,13 +319,69 @@ export class BookingMobilePageComponent {
 
   onDateSelected(date: Date) {
     this.selectedDateSignal.set(date);
+
+    // Check if the selected day is fully booked and show toast
+    const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
+    if (daySlots && daySlots.timeSlots.length > 0) {
+      const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
+      if (availableSlots.length === 0) {
+        this.toastService.showWarning('Totes les hores estan ocupades', 'Aquest dia no té cap hora disponible per reservar.');
+      }
+    }
   }
 
   selectServiceFromList(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
   }
 
+  // View mode methods
+  toggleViewMode() {
+    const newMode = this.viewMode() === 'week' ? 'month' : 'week';
+    this.viewModeSignal.set(newMode);
+  }
 
+  canGoToPreviousPeriod(): boolean {
+    const currentDate = this.selectedDate() || new Date();
+    const today = new Date();
+
+    if (this.viewMode() === 'week') {
+      // Check if the previous week would be before today
+      const previousWeekStart = addDays(currentDate, -7);
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      return previousWeekStart >= todayStart;
+    } else {
+      // Check if the previous month would be before current month
+      const previousMonth = subMonths(currentDate, 1);
+      const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      return previousMonth >= currentMonth;
+    }
+  }
+
+  previousPeriod() {
+    if (!this.canGoToPreviousPeriod()) {
+      return; // Don't navigate if it would go to past periods
+    }
+
+    const currentDate = this.selectedDate() || new Date();
+    if (this.viewMode() === 'week') {
+      const newDate = addDays(currentDate, -7);
+      this.selectedDateSignal.set(newDate);
+    } else {
+      const newDate = subMonths(currentDate, 1);
+      this.selectedDateSignal.set(newDate);
+    }
+  }
+
+  nextPeriod() {
+    const currentDate = this.selectedDate() || new Date();
+    if (this.viewMode() === 'week') {
+      const newDate = addDays(currentDate, 7);
+      this.selectedDateSignal.set(newDate);
+    } else {
+      const newDate = addMonths(currentDate, 1);
+      this.selectedDateSignal.set(newDate);
+    }
+  }
 
   async onBookingConfirmed(details: BookingDetails) {
     try {
@@ -346,8 +424,6 @@ export class BookingMobilePageComponent {
     }
   }
 
-
-
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
     this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
@@ -373,12 +449,14 @@ export class BookingMobilePageComponent {
 
   // Navigation
   goToPreviousWeek() {
-    const newDate = addDays(this.selectedDate(), -7);
+    const currentDate = this.selectedDate() || new Date();
+    const newDate = addDays(currentDate, -7);
     this.selectedDateSignal.set(newDate);
   }
 
   goToNextWeek() {
-    const newDate = addDays(this.selectedDate(), 7);
+    const currentDate = this.selectedDate() || new Date();
+    const newDate = addDays(currentDate, 7);
     this.selectedDateSignal.set(newDate);
   }
 
@@ -388,11 +466,11 @@ export class BookingMobilePageComponent {
 
   // Template methods
   previousWeek() {
-    this.goToPreviousWeek();
+    this.previousPeriod();
   }
 
   nextWeek() {
-    this.goToNextWeek();
+    this.nextPeriod();
   }
 
   selectDate(date: Date) {
@@ -411,14 +489,15 @@ export class BookingMobilePageComponent {
     }
 
     // Check if date is selected
-    if (!this.selectedDate()) {
+    const selectedDate = this.selectedDate();
+    if (!selectedDate) {
       this.toastService.showError('Si us plau, selecciona una data primer');
       return;
     }
 
     // Go directly to booking confirmation popup
     const bookingDetails: BookingDetails = {
-      date: format(this.selectedDate(), 'yyyy-MM-dd'),
+      date: format(selectedDate, 'yyyy-MM-dd'),
       time: timeSlot.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
@@ -442,13 +521,18 @@ export class BookingMobilePageComponent {
     return time;
   }
 
+  formatMonth(date: Date): string {
+    return format(date, 'MMMM yyyy', { locale: ca });
+  }
+
   // State check methods
   isToday(date: Date): boolean {
     return isSameDay(date, new Date());
   }
 
   isSelected(date: Date): boolean {
-    return isSameDay(date, this.selectedDate());
+    const selectedDate = this.selectedDate();
+    return selectedDate ? isSameDay(date, selectedDate) : false;
   }
 
   isBusinessDay(date: Date): boolean {
@@ -456,11 +540,34 @@ export class BookingMobilePageComponent {
   }
 
   isPastDate(date: Date): boolean {
-    return date < new Date() && !isSameDay(date, new Date());
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    return dateStart < todayStart;
   }
 
-  canSelectDate(date: Date): boolean {
-    return !this.isPastDate(date) && this.isBusinessDay(date);
+  isCurrentMonth(date: Date): boolean {
+    const currentDate = this.selectedDate() || new Date();
+    return date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+  }
+
+    canSelectDate(date: Date): boolean {
+    // In week view, all business days in the week should be selectable regardless of month
+    // In month view, only days of the current month should be selectable
+    if (this.viewMode() === 'week') {
+      return !this.isPastDate(date) && this.isBusinessDay(date);
+    } else {
+      // Month view - only current month days
+      const currentDate = this.selectedDate() || new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+
+      // Check if date is in the current month and year
+      const isInCurrentMonth = date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+
+      return !this.isPastDate(date) && this.isBusinessDay(date) && isInCurrentMonth;
+    }
   }
 
   // Quick date selection methods
@@ -490,14 +597,26 @@ export class BookingMobilePageComponent {
     // Check next 30 days for available dates
     for (let i = 0; i < 30; i++) {
       const date = addDays(new Date(), i);
+      console.log(`Checking date ${i}: ${format(date, 'yyyy-MM-dd')} (day ${date.getDay()})`);
+
       if (this.canSelectDate(date)) {
-        // Check if the date has available time slots
-        const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
-        if (daySlots && daySlots.timeSlots.some(slot => slot.available)) {
+        console.log(`Date ${format(date, 'yyyy-MM-dd')} is selectable`);
+        // Generate time slots for this specific date
+        const timeSlots = this.generateTimeSlots(date);
+        console.log(`Generated ${timeSlots.length} time slots for ${format(date, 'yyyy-MM-dd')}`);
+
+        const availableSlots = timeSlots.filter(slot => slot.available);
+        console.log(`Available slots: ${availableSlots.length}`);
+
+        if (availableSlots.length > 0) {
+          console.log(`Found available date: ${format(date, 'yyyy-MM-dd')}`);
           return date;
         }
+      } else {
+        console.log(`Date ${format(date, 'yyyy-MM-dd')} is not selectable`);
       }
     }
+    console.log('No available dates found in next 30 days');
     return null;
   }
 
@@ -505,6 +624,17 @@ export class BookingMobilePageComponent {
     const nextAvailable = this.nextAvailableDate();
     if (nextAvailable) {
       this.selectedDateSignal.set(nextAvailable);
+      // Show a toast to inform the user about the selected date
+      this.toastService.showInfo(
+        'Data seleccionada',
+        `S'ha seleccionat la propera data disponible: ${this.formatDay(nextAvailable)}`
+      );
+    } else {
+      // Show a message if no available dates found
+      this.toastService.showWarning(
+        'No hi ha dates disponibles',
+        'No s\'han trobat dates disponibles en els propers 30 dies'
+      );
     }
   }
 
@@ -516,5 +646,54 @@ export class BookingMobilePageComponent {
   getServiceBackgroundColor(serviceName: string): string {
     const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
     return serviceColor.backgroundColor;
+  }
+
+  // Helper methods for month view calendar alignment
+  private getFirstBusinessDayOfWeek(date: Date): Date {
+    const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Monday
+    // Find the first business day in the week
+    for (let i = 0; i < 7; i++) {
+      const day = addDays(weekStart, i);
+      if (this.businessDays.includes(day.getDay())) {
+        return day;
+      }
+    }
+    return weekStart; // Fallback
+  }
+
+  private getLastBusinessDayOfWeek(date: Date): Date {
+    const weekEnd = endOfWeek(date, { weekStartsOn: 1 }); // Sunday
+    // Find the last business day in the week
+    for (let i = 6; i >= 0; i--) {
+      const day = addDays(weekEnd, -i);
+      if (this.businessDays.includes(day.getDay())) {
+        return day;
+      }
+    }
+    return weekEnd; // Fallback
+  }
+
+  // Helper methods for template conditions
+  hasMorningSlots(daySlot: DaySlot): boolean {
+    return daySlot.timeSlots.some(slot => slot.time < '13:00' && slot.available);
+  }
+
+  hasAfternoonSlots(daySlot: DaySlot): boolean {
+    return daySlot.timeSlots.some(slot => slot.time >= '14:00' && slot.available);
+  }
+
+  getMorningSlots(daySlot: DaySlot): TimeSlot[] {
+    return daySlot.timeSlots.filter(slot => slot.time < '13:00' && slot.available);
+  }
+
+  getAfternoonSlots(daySlot: DaySlot): TimeSlot[] {
+    return daySlot.timeSlots.filter(slot => slot.time >= '14:00' && slot.available);
+  }
+
+  getSelectionMessage(): string {
+    const hasService = !!this.selectedService();
+    const hasDate = !!this.selectedDate();
+
+    return !hasDate ? 'BOOKING.SELECT_DATE_FIRST' : !hasService ? 'BOOKING.SELECT_SERVICE_FIRST' : 'BOOKING.SELECTION_REQUIRED';
   }
 }

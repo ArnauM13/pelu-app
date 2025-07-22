@@ -40,7 +40,39 @@
     text-shadow: 0 2px 4px rgba(13, 71, 161, 0.08);
   }
 
-  .week-navigation {
+  .view-mode-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+
+    .view-mode-btn {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid rgba(25, 118, 210, 0.2);
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      color: #0d47a1;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(25, 118, 210, 0.4);
+        transform: translateY(-1px);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+        border-color: #0d47a1;
+        color: white;
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+      }
+    }
+  }
+
+  .period-navigation {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -65,10 +97,25 @@
       cursor: pointer;
       transition: all 0.3s ease;
 
-      &:hover {
+      &:hover:not(.disabled) {
         background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
         transform: scale(1.1);
         box-shadow: 0 4px 12px rgba(25, 118, 210, 0.18);
+      }
+
+      &.disabled {
+        background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+        color: #757575;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        opacity: 0.6;
+
+        &:hover {
+          background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+          transform: none;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
       }
 
       i {
@@ -76,12 +123,12 @@
       }
     }
 
-    .current-week {
+    .current-period {
       text-align: center;
       flex: 1;
       margin: 0 1rem;
 
-      .week-label {
+      .period-label {
         display: block;
         font-size: 0.9rem;
         opacity: 0.7;
@@ -89,7 +136,7 @@
         color: #1565c0;
       }
 
-      .week-date {
+      .period-date {
         font-weight: 600;
         font-size: 1rem;
         color: #0d47a1;
@@ -102,6 +149,7 @@
     gap: 1rem;
     justify-content: center;
     margin-top: 1rem;
+    margin-bottom: 1.5rem;
 
     .quick-date-btn {
       background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
@@ -159,7 +207,7 @@
 }
 
 .service-selection-card {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 
   h3 {
     color: #333;
@@ -168,20 +216,20 @@
     font-weight: 600;
   }
 
-  .service-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
+  .services-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 
     @media (max-width: 480px) {
-      grid-template-columns: 1fr;
+      gap: 1.25rem;
     }
   }
 
   .service-item {
     display: flex;
     align-items: center;
-    padding: 1rem;
+    padding: 1.5rem;
     border: 2px solid #e5e7eb;
     border-radius: 12px;
     cursor: pointer;
@@ -299,6 +347,15 @@
     @media (max-width: 480px) {
       gap: 0.25rem;
     }
+
+    &.month-view {
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.25rem;
+
+      @media (max-width: 480px) {
+        gap: 0.15rem;
+      }
+    }
   }
 
   .day-item {
@@ -360,6 +417,23 @@
       }
     }
 
+    &.other-month {
+      opacity: 0.4;
+      background: #f9fafb;
+      cursor: not-allowed;
+      pointer-events: none;
+
+      .day-name,
+      .day-number {
+        color: #9ca3af;
+      }
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+
     &.selectable {
       cursor: pointer;
     }
@@ -390,6 +464,10 @@
 
 .time-slots-card {
   margin-bottom: 1.5rem;
+
+  &.time-slots-active {
+    margin-bottom: 3rem !important;
+  }
 
   h3 {
     color: #333;
@@ -653,7 +731,6 @@
 
   .service-selection-card,
   .day-selection-card,
-  .time-slots-card,
   .legend-card {
     margin-bottom: 1rem;
   }
