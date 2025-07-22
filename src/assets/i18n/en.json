@@ -614,7 +614,12 @@
     "GO_TO_TODAY": "Go to today",
     "BUSINESS_HOURS": "Business hours",
     "TIME_SLOT_AVAILABLE": "Time slot available",
-    "TIME_SLOT_BUSY": "Time slot busy"
+    "TIME_SLOT_BUSY": "Time slot busy",
+    "FOOTER": {
+      "INFO_NOTE": "Click on any available time slot to make a booking",
+      "WEEKEND_INFO": "Weekends have special schedules. Contact us for more information.",
+      "BUSINESS_HOURS_INFO": "Business hours: Monday to Friday from {{startHour}}:00 to {{endHour}}:00, Lunch break from {{lunchStart}}:00 to {{lunchEnd}}:00"
+    }
   },
   "SERVICES": {
     "ALL_SERVICES": "All services",

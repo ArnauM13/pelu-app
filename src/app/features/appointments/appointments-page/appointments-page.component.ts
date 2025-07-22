@@ -14,6 +14,7 @@ import { CardComponent } from '../../../shared/components/card/card.component';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
+import { CalendarWithFooterComponent } from '../../../features/calendar/calendar-with-footer.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
 import { FloatingButtonComponent } from '../../../shared/components/floating-button/floating-button.component';
 import { AppointmentStatusBadgeComponent } from '../../../shared/components/appointment-status-badge';
@@ -41,6 +42,7 @@ import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigrat
     TranslateModule,
     CalendarModule,
     CalendarComponent,
+    CalendarWithFooterComponent,
     CardComponent,
     FiltersInlineComponent,
     AppointmentStatusBadgeComponent,
