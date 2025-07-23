@@ -12,10 +12,8 @@ import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 import {
   mockAuth,
-  mockTranslateService,
   mockTranslateStore,
   mockTranslationService,
-  mockAuthService
 } from '../testing/firebase-mocks';
 
 describe('AppComponent', () => {

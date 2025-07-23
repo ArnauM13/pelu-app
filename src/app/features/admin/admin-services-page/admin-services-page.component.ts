@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, signal, inject, model } from '@angular/core';
+import { Component, computed, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -20,11 +20,9 @@ import { FirebaseServicesService, FirebaseService } from '../../../core/services
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
-import { PopularBadgeComponent } from '../../../shared/components/popular-badge/popular-badge.component';
 import {
   InputTextareaComponent,
   InputSelectComponent,
@@ -42,18 +40,16 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
         CardModule,
         InputTextModule,
         InputNumberModule,
-        DropdownModule,
+        SelectModule,
         CheckboxModule,
         DialogModule,
         ConfirmDialogModule,
         ToastModule,
         TooltipModule,
         TranslateModule,
-        CardComponent,
         LoadingStateComponent,
         AlertPopupComponent,
         ServiceCardComponent,
-        PopularBadgeComponent,
         InputTextareaComponent,
         InputSelectComponent,
         InputNumberComponent,

@@ -104,7 +104,7 @@ export class CalendarBusinessService {
     const endHour = this.businessConfig.hours.end;
 
     for (let hour = startHour; hour < endHour; hour++) {
-      for (let minutes of [0, 30]) {
+      for (const minutes of [0, 30]) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         slots.push(timeString);
       }

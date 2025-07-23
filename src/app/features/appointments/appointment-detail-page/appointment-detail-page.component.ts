@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { MessageService } from 'primeng/api';
 import { v4 as uuidv4 } from 'uuid';
 import { format, parseISO } from 'date-fns';
@@ -46,7 +46,7 @@ interface AppointmentForm {
         ToastModule,
         TooltipModule,
         InputTextModule,
-        CalendarModule,
+        DatePickerModule,
         TranslateModule,
         DetailViewComponent,
         AppointmentDetailPopupComponent,

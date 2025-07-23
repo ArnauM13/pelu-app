@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect, inject, ViewChild } from '@angular/core';
+import { Component, signal, computed, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,10 +6,8 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
-import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/core/calendar.component';
 import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
 import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
@@ -30,7 +28,6 @@ import { ToastService } from '../../../shared/services/toast.service';
         ButtonModule,
         TooltipModule,
         TranslateModule,
-        CalendarComponent,
         CalendarWithFooterComponent,
         BookingPopupComponent,
         ServiceSelectionPopupComponent

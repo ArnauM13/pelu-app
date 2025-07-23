@@ -1,6 +1,6 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -8,11 +8,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { BusinessSettingsService, BusinessSettings } from '../../../core/services/business-settings.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
@@ -28,7 +27,6 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
         ReactiveFormsModule,
         TranslateModule,
         ButtonModule,
-        CardComponent,
         InputTextModule,
         InputNumberModule,
         SelectModule,
@@ -42,7 +40,7 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
     templateUrl: './admin-settings-page.component.html',
     styleUrls: ['./admin-settings-page.component.scss']
 })
-export class AdminSettingsPageComponent {
+export class AdminSettingsPageComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
 
