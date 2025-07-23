@@ -124,13 +124,9 @@
                 <!-- Client Name -->
                 <div class="form-group">
                   <pelu-input-text
-                    [config]="{
-                      type: 'text',
-                      label: 'COMMON.CLIENT_NAME',
-                      placeholder: 'COMMON.ENTER_CLIENT_NAME',
-                      required: true,
-                      showLabel: true,
-                    }"
+                    [label]="'COMMON.CLIENT_NAME'"
+                    [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
+                    [required]="true"
                     [value]="editForm.nom"
                     (valueChange)="onUpdateForm('nom', $event)"
                   >
@@ -140,11 +136,8 @@
                 <!-- Date -->
                 <div class="form-group">
                   <pelu-input-date
-                    [config]="{
-                      label: 'COMMON.DATE',
-                      required: true,
-                      showLabel: true,
-                    }"
+                    label="COMMON.DATE"
+                    [required]="true"
                     [value]="editForm.data"
                     (valueChange)="onUpdateForm('data', $event)"
                   >
@@ -153,27 +146,20 @@
 
                 <!-- Time -->
                 <div class="form-group">
-                  <pelu-input-text
-                    [config]="{
-                      type: 'time',
-                      label: 'COMMON.HOURS',
-                      showLabel: true,
-                    }"
+                  <pelu-input-date
+                    [label]="'COMMON.HOURS'"
                     [value]="editForm.hora"
                     (valueChange)="onUpdateForm('hora', $event)"
                   >
-                  </pelu-input-text>
+                  </pelu-input-date>
                 </div>
 
                 <!-- Service -->
                 <div class="form-group">
+                  <!-- TODO: change to select -->
                   <pelu-input-text
-                    [config]="{
-                      type: 'text',
-                      label: 'COMMON.SERVICE',
-                      placeholder: 'COMMON.SERVICE',
-                      showLabel: true,
-                    }"
+                    [label]="'COMMON.SERVICE'"
+                    [placeholder]="'COMMON.SERVICE'"
                     [value]="editForm.servei"
                     (valueChange)="onUpdateForm('servei', $event)"
                   >
@@ -183,12 +169,8 @@
                 <!-- Service Name -->
                 <div class="form-group">
                   <pelu-input-text
-                    [config]="{
-                      type: 'text',
-                      label: 'APPOINTMENTS.SERVICE_FULL_NAME',
-                      placeholder: 'COMMON.SERVICE',
-                      showLabel: true,
-                    }"
+                    [label]="'APPOINTMENTS.SERVICE_FULL_NAME'"
+                    [placeholder]="'COMMON.SERVICE'"
                     [value]="editForm.serviceName"
                     (valueChange)="onUpdateForm('serviceName', $event)"
                   >
@@ -198,13 +180,10 @@
                 <!-- Duration -->
                 <div class="form-group">
                   <pelu-input-number
-                    [config]="{
-                      label: 'APPOINTMENTS.DURATION_MINUTES',
-                      placeholder: '60',
-                      min: 15,
-                      step: 15,
-                      showLabel: true,
-                    }"
+                    [label]="'APPOINTMENTS.DURATION_MINUTES'"
+                    [placeholder]="'60'"
+                    [min]="15"
+                    [step]="15"
                     [value]="editForm.duration"
                     (valueChange)="onUpdateForm('duration', $event)"
                   >
@@ -214,13 +193,10 @@
                 <!-- Price -->
                 <div class="form-group">
                   <pelu-input-number
-                    [config]="{
-                      label: 'APPOINTMENTS.PRICE_EURO',
-                      placeholder: '0',
-                      min: 0,
-                      step: 0.01,
-                      showLabel: true,
-                    }"
+                    [label]="'APPOINTMENTS.PRICE_EURO'"
+                    [placeholder]="'0'"
+                    [min]="0"
+                    [step]="0.01"
                     [value]="editForm.preu"
                     (valueChange)="onUpdateForm('preu', $event)"
                   >
@@ -230,12 +206,9 @@
                 <!-- Notes -->
                 <div class="form-group full-width">
                   <pelu-input-textarea
-                    [config]="{
-                      label: 'APPOINTMENTS.NOTES',
-                      placeholder: 'APPOINTMENTS.NOTES',
-                      rows: 3,
-                      showLabel: true,
-                    }"
+                    [label]="'APPOINTMENTS.NOTES'"
+                    [placeholder]="'APPOINTMENTS.NOTES'"
+                    [rows]="3"
                     [value]="editForm.notes"
                     (valueChange)="onUpdateForm('notes', $event)"
                   >
@@ -279,12 +252,9 @@
                     @for (item of section.items; track item.label; let j = $index) {
                       <div class="form-group">
                         <pelu-input-textarea
-                          [config]="{
-                            label: item.label,
-                            placeholder: item.label,
-                            rows: 2,
-                            showLabel: true,
-                          }"
+                          [label]="item.label"
+                          [placeholder]="item.label"
+                          [rows]="2"
                           [value]="item.value"
                           (valueChange)="onUpdateNote(j, $event)"
                         >
