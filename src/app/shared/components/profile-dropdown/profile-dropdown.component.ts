@@ -8,6 +8,7 @@ import { UserService } from '../../../core/services/user.service';
 export interface ProfileDropdownItem {
   label?: string;
   icon?: string;
+  emoji?: string;
   routerLink?: string;
   onClick?: () => void;
   disabled?: boolean;
@@ -20,7 +21,7 @@ export interface ProfileDropdownItem {
   template: `
     <div class="profile-dropdown" (click)="toggleDropdown($event)">
       <pelu-avatar [data]="avatarData()" size="medium"></pelu-avatar>
-      <i class="pi pi-chevron-down dropdown-arrow" [class.rotated]="isDropdownOpen()"></i>
+      <span class="dropdown-arrow" [class.rotated]="isDropdownOpen()">▼</span>
 
       <!-- Dropdown Menu -->
       <div class="dropdown-menu" [class.show]="isDropdownOpen()">
@@ -44,7 +45,12 @@ export interface ProfileDropdownItem {
                   [class.disabled]="item.disabled"
                   (click)="onItemClick(item)"
                 >
-                  <i [class]="item.icon || ''"></i>
+                  @if (item.emoji) {
+                    <span class="item-emoji">{{ item.emoji }}</span>
+                  }
+                  @if (item.icon) {
+                    <i [class]="item.icon"></i>
+                  }
                   <span>{{ item.label || '' | translate }}</span>
                 </a>
               } @else {
@@ -55,7 +61,12 @@ export interface ProfileDropdownItem {
                   [disabled]="item.disabled"
                   (click)="onItemClick(item)"
                 >
-                  <i [class]="item.icon || ''"></i>
+                  @if (item.emoji) {
+                    <span class="item-emoji">{{ item.emoji }}</span>
+                  }
+                  @if (item.icon) {
+                    <i [class]="item.icon"></i>
+                  }
                   <span>{{ item.label || '' | translate }}</span>
                 </button>
               }
@@ -101,7 +112,7 @@ export class ProfileDropdownComponent {
     const items: ProfileDropdownItem[] = [
       {
         label: 'NAVIGATION.PROFILE',
-        icon: 'pi pi-user',
+        emoji: '👤',
         routerLink: '/perfil',
       },
     ];
@@ -111,12 +122,12 @@ export class ProfileDropdownComponent {
       items.push(
         {
           label: 'NAVIGATION.ADMIN_DASHBOARD',
-          icon: 'pi pi-chart-bar',
+          emoji: '📊',
           routerLink: '/admin/dashboard',
         },
         {
           label: 'NAVIGATION.ADMIN_SETTINGS',
-          icon: 'pi pi-cog',
+          emoji: '⚙️',
           routerLink: '/admin/settings',
         }
       );
