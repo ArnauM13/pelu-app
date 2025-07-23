@@ -192,9 +192,93 @@ import {
       </pelu-input-text>
       
       <pelu-input-select
-        [config]="serviceConfig"
+        [label]="'Servei'"
+        [placeholder]="'Selecciona un servei'"
+        [required]="true"
+        [options]="serviceOptions"
         [value]="formData().service"
         (valueChange)="updateField('service', $event)">
+      </pelu-input-select>
+      
+      <!-- Input Select amb Plantilles Avançades -->
+      <pelu-input-select
+        [label]="'Servei Premium'"
+        [placeholder]="'Selecciona un servei premium'"
+        [required]="true"
+        [options]="premiumServiceOptions"
+        [filter]="true"
+        [showClear]="true"
+        [value]="formData().premiumService"
+        (valueChange)="updateField('premiumService', $event)"
+      >
+        <!-- Template per l'element seleccionat -->
+        <ng-template #selectedItem let-selectedOption>
+          <div class="flex items-center gap-3" *ngIf="selectedOption">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center" 
+                 [style.background-color]="selectedOption.color">
+              <i [class]="selectedOption.icon" class="text-white text-sm"></i>
+            </div>
+            <div>
+              <div class="font-semibold">{{ selectedOption.label }}</div>
+              <div class="text-xs text-gray-500">{{ selectedOption.category }}</div>
+            </div>
+            <div class="ml-auto">
+              <span class="text-lg font-bold text-green-600">{{ selectedOption.price }}€</span>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Template per les opcions del dropdown -->
+        <ng-template #item let-service>
+          <div class="flex items-center justify-between w-full p-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center" 
+                   [style.background-color]="service.color">
+                <i [class]="service.icon" class="text-white"></i>
+              </div>
+              <div>
+                <div class="font-medium">{{ service.label }}</div>
+                <div class="text-sm text-gray-500">{{ service.description }}</div>
+                <div class="text-xs text-blue-600">{{ service.category }}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-lg text-green-600">{{ service.price }}€</div>
+              <div class="text-sm text-gray-500">{{ service.duration }}min</div>
+              @if (service.popular) {
+                <div class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                  Popular
+                </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Template per l'encapçalament -->
+        <ng-template #header>
+          <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200">
+            <h4 class="font-bold text-blue-900 mb-1">Serveis Premium</h4>
+            <p class="text-sm text-blue-700">Descobreix els nostres serveis exclusius</p>
+            <div class="flex items-center gap-2 mt-2">
+              <i class="pi pi-star-fill text-yellow-500"></i>
+              <span class="text-xs text-blue-600">Qualitat garantida</span>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Template per el peu -->
+        <ng-template #footer>
+          <div class="p-3 bg-gray-50 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <button class="px-3 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                <i class="pi pi-plus mr-2"></i>Nou Servei
+              </button>
+              <button class="px-3 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                <i class="pi pi-calendar mr-2"></i>Reservar
+              </button>
+            </div>
+          </div>
+        </ng-template>
       </pelu-input-select>
       
       <pelu-input-date
@@ -204,7 +288,13 @@ import {
       </pelu-input-date>
       
       <pelu-input-number
-        [config]="durationConfig"
+        [label]="'Durada (minuts)'"
+        [placeholder]="'60'"
+        [required]="true"
+        [min]="30"
+        [max]="180"
+        [step]="15"
+        [helpText]="'Durada estimada del servei'"
         [value]="formData().duration"
         (valueChange)="updateField('duration', $event)">
       </pelu-input-number>
@@ -226,6 +316,7 @@ export class ServiceBookingComponent {
     customerName: '',
     phone: '',
     service: '',
+    premiumService: '',
     date: '',
     duration: 60,
     notes: ''
@@ -246,18 +337,33 @@ export class ServiceBookingComponent {
     helpText: 'Utilitzarem aquest telèfon per contactar-te'
   };
 
-  serviceConfig = {
-    label: 'Servei',
-    placeholder: 'Selecciona un servei',
-    required: true,
-    showLabel: true,
-    options: [
-      { value: 'haircut', label: 'Tall de Cabell', color: '#3B82F6', price: 25 },
-      { value: 'coloring', label: 'Coloració', color: '#EF4444', price: 45 },
-      { value: 'styling', label: 'Estil', color: '#10B981', price: 35 },
-      { value: 'treatment', label: 'Tractament', color: '#F59E0B', price: 55 }
-    ]
-  };
+  // Service configuration is now passed directly as properties
+  // serviceConfig = {
+  //   label: 'Servei',
+  //   placeholder: 'Selecciona un servei',
+  //   required: true,
+  //   showLabel: true,
+  //   options: [
+  //     { value: 'haircut', label: 'Tall de Cabell', color: '#3B82F6', price: 25 },
+  //     { value: 'coloring', label: 'Coloració', color: '#EF4444', price: 45 },
+  //     { value: 'styling', label: 'Estil', color: '#10B981', price: 35 },
+  //     { value: 'treatment', label: 'Tractament', color: '#F59E0B', price: 55 }
+  //   ]
+  // };
+
+  serviceOptions = [
+    { value: 'haircut', label: 'Tall de Cabell', color: '#3B82F6', price: 25 },
+    { value: 'coloring', label: 'Coloració', color: '#EF4444', price: 45 },
+    { value: 'styling', label: 'Estil', color: '#10B981', price: 35 },
+    { value: 'treatment', label: 'Tractament', color: '#F59E0B', price: 55 }
+  ];
+
+  premiumServiceOptions = [
+    { value: 'premium_haircut', label: 'Tall Premium', color: '#4F46E5', icon: 'pi pi-user', category: 'Cabell', description: 'Tall de cabell amb productes de luxe', price: 45, duration: 60, popular: true },
+    { value: 'premium_coloring', label: 'Coloració Premium', color: '#10B981', icon: 'pi pi-palette', category: 'Coloració', description: 'Coloració amb productes exclusius', price: 65, duration: 90, popular: false },
+    { value: 'premium_styling', label: 'Estil Premium', color: '#F59E0B', icon: 'pi pi-brush', category: 'Estil', description: 'Estilització amb tècniques avançades', price: 55, duration: 75, popular: true },
+    { value: 'premium_treatment', label: 'Tractament Premium', color: '#EF4444', icon: 'pi pi-heart', category: 'Tractament', description: 'Tractament facial amb productes naturals', price: 80, duration: 120, popular: false }
+  ];
 
   dateConfig = {
     label: 'Data de la Cita',
@@ -268,16 +374,17 @@ export class ServiceBookingComponent {
     maxDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 dies
   };
 
-  durationConfig = {
-    label: 'Durada (minuts)',
-    placeholder: '60',
-    required: true,
-    showLabel: true,
-    min: 30,
-    max: 180,
-    step: 15,
-    helpText: 'Durada estimada del servei'
-  };
+  // Duration configuration is now passed directly as properties
+  // durationConfig = {
+  //   label: 'Durada (minuts)',
+  //   placeholder: '60',
+  //   required: true,
+  //   showLabel: true,
+  //   min: 30,
+  //   max: 180,
+  //   step: 15,
+  //   helpText: 'Durada estimada del servei'
+  // };
 
   notesConfig = {
     label: 'Notes Addicionals',
@@ -369,13 +476,21 @@ import {
       </pelu-input-email>
       
       <pelu-input-select
-        [config]="timezoneConfig"
+        [label]="'Zona Horària'"
+        [placeholder]="'Selecciona la zona horària'"
+        [required]="true"
+        [options]="timezoneOptions"
         [value]="formData().timezone"
         (valueChange)="updateField('timezone', $event)">
       </pelu-input-select>
       
       <pelu-input-number
-        [config]="maxBookingsConfig"
+        [label]="'Màxim de Reserves Simultànies'"
+        [placeholder]="'10'"
+        [required]="true"
+        [min]="1"
+        [max]="50"
+        [helpText]="'Nombre màxim de reserves que pots gestionar alhora'"
         [value]="formData().maxBookings"
         (valueChange)="updateField('maxBookings', $event)">
       </pelu-input-number>
@@ -447,27 +562,35 @@ export class AdminSettingsComponent {
     showLabel: true
   };
 
-  timezoneConfig = {
-    label: 'Zona Horària',
-    placeholder: 'Selecciona la zona horària',
-    required: true,
-    showLabel: true,
-    options: [
-      { value: 'Europe/Madrid', label: 'Espanya (CET)' },
-      { value: 'Europe/London', label: 'Regne Unit (GMT)' },
-      { value: 'America/New_York', label: 'Nova York (EST)' }
-    ]
-  };
+  // Timezone configuration is now passed directly as properties
+  // timezoneConfig = {
+  //   label: 'Zona Horària',
+  //   placeholder: 'Selecciona la zona horària',
+  //   required: true,
+  //   showLabel: true,
+  //   options: [
+  //     { value: 'Europe/Madrid', label: 'Espanya (CET)' },
+  //     { value: 'Europe/London', label: 'Regne Unit (GMT)' },
+  //     { value: 'America/New_York', label: 'Nova York (EST)' }
+  //   ]
+  // };
 
-  maxBookingsConfig = {
-    label: 'Màxim de Reserves Simultànies',
-    placeholder: '10',
-    required: true,
-    showLabel: true,
-    min: 1,
-    max: 50,
-    helpText: 'Nombre màxim de reserves que pots gestionar alhora'
-  };
+  timezoneOptions = [
+    { value: 'Europe/Madrid', label: 'Espanya (CET)' },
+    { value: 'Europe/London', label: 'Regne Unit (GMT)' },
+    { value: 'America/New_York', label: 'Nova York (EST)' }
+  ];
+
+  // MaxBookings configuration is now passed directly as properties
+  // maxBookingsConfig = {
+  //   label: 'Màxim de Reserves Simultànies',
+  //   placeholder: '10',
+  //   required: true,
+  //   showLabel: true,
+  //   min: 1,
+  //   max: 50,
+  //   helpText: 'Nombre màxim de reserves que pots gestionar alhora'
+  // };
 
   autoConfirmConfig = {
     label: 'Confirmació Automàtica',

@@ -1,127 +1,80 @@
-import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-
-export interface TextareaConfig {
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  rows?: number;
-  cols?: number;
-  maxlength?: number;
-  minlength?: number;
-  spellcheck?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
-  helpText?: string;
-  errorText?: string;
-  successText?: string;
-  showLabel?: boolean;
-  showHelpText?: boolean;
-  showErrorText?: boolean;
-  showSuccessText?: boolean;
-  resize?: 'none' | 'both' | 'horizontal' | 'vertical';
-  autoResize?: boolean;
-  value?: string;
-}
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
-    selector: 'pelu-input-textarea',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-    templateUrl: './input-textarea.component.html',
-    styleUrls: ['./input-textarea.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => InputTextareaComponent),
-            multi: true
-        }
-    ]
+  selector: 'pelu-input-textarea',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, TextareaModule],
+  templateUrl: './input-textarea.component.html',
+  styleUrls: ['./input-textarea.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputTextareaComponent),
+      multi: true,
+    },
+  ],
 })
 export class InputTextareaComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<TextareaConfig>();
+  // Reactive inputs (signals)
   readonly value = input<string>('');
   readonly formControlName = input<string>('');
 
-  // Output signals
+  // Component inputs
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
+  readonly rows = input<number>(3);
+  readonly cols = input<number>();
+  readonly maxlength = input<number>();
+  readonly minlength = input<number>();
+  readonly spellcheck = input<boolean>();
+  readonly tabindex = input<number>();
+  readonly name = input<string>('');
+  readonly id = input<string>('');
+  readonly class = input<string>('');
+  readonly style = input<string>('');
+  readonly size = input<'small' | 'large'>('small');
+  readonly variant = input<'outlined' | 'filled'>('outlined');
+  readonly invalid = input<boolean>(false);
+  readonly fluid = input<boolean>(true);
+  readonly autoResize = input<boolean>(false);
+  readonly resize = input<'none' | 'both' | 'horizontal' | 'vertical'>('vertical');
+
+  // Unique ID generated once
+  private readonly uniqueId = 'input-textarea-' + Math.random().toString(36).substr(2, 9);
+
+  // Outputs
   readonly valueChange = output<string>();
-  readonly focusEvent = output<FocusEvent>();
-  readonly blurEvent = output<FocusEvent>();
-  readonly inputEvent = output<Event>();
-  readonly changeEvent = output<Event>();
-  readonly keydownEvent = output<KeyboardEvent>();
-  readonly keyupEvent = output<KeyboardEvent>();
-  readonly keypressEvent = output<KeyboardEvent>();
 
-  // Internal state
-  private readonly internalValue = signal<string>('');
-
-  // Computed properties
-  readonly displayValue = computed(() => this.value() || this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(() => this.config().showSuccessText !== false && this.hasSuccess());
-
+  // ControlValueAccessor callbacks
   private onChange = (value: string) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const value = this.value();
-      if (value !== undefined && value !== null) {
-        this.internalValue.set(value);
-      }
-    }, { allowSignalWrites: true });
+  // Get unique ID
+  getElementId(): string {
+    return this.id() || this.uniqueId;
   }
 
-  onInput(event: Event): void {
-    const target = event.target as HTMLTextAreaElement;
-    const value = target.value;
-
-    this.internalValue.set(value);
+  // Event handler for input changes
+  onInputChange(value: string) {
     this.onChange(value);
     this.valueChange.emit(value);
-    this.inputEvent.emit(event);
   }
 
-  onChangeHandler(event: Event): void {
-    this.changeEvent.emit(event);
-  }
-
-  onFocus(event: FocusEvent): void {
-    this.focusEvent.emit(event);
-  }
-
-  onBlur(event: FocusEvent): void {
+  // Event handler for input blur
+  onInputBlur() {
     this.onTouched();
-    this.blurEvent.emit(event);
   }
 
-  onKeydown(event: KeyboardEvent): void {
-    this.keydownEvent.emit(event);
-  }
-
-  onKeyup(event: KeyboardEvent): void {
-    this.keyupEvent.emit(event);
-  }
-
-  onKeypress(event: KeyboardEvent): void {
-    this.keypressEvent.emit(event);
-  }
-
+  // ControlValueAccessor methods
   writeValue(value: string): void {
-    this.internalValue.set(value || '');
+    // PrimeNG handles this automatically
   }
 
   registerOnChange(fn: (value: string) => void): void {

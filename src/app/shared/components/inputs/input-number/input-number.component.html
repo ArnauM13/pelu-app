@@ -1,57 +1,57 @@
 <div class="input-number-container">
   <!-- Label -->
-  @if (showLabel()) {
+  @if (label()) {
     <label
-      [for]="config().id || config().name"
+      [for]="getElementId()"
       class="input-number-label"
-      [class.required]="config().required">
-      {{ (config().label || '') | translate }}
+      [class.required]="required()">
+      {{ label() | translate }}
     </label>
   }
 
-  <!-- Native input with PrimeNG classes -->
-  <input
-    type="number"
-    [id]="config().id || config().name"
-    [name]="config().name || ''"
-    [placeholder]="(config().placeholder || '') | translate"
-    [required]="config().required || false"
-    [disabled]="config().disabled || false"
-    [readonly]="config().readonly || false"
-    [tabindex]="config().tabindex"
-    [style]="config().style"
-    [min]="config().min"
-    [max]="config().max"
-    [step]="config().step"
-    [value]="displayValue()"
-    (input)="onInput($event)"
-    (change)="onChangeHandler($event)"
-    (focus)="onFocus($event)"
-    (blur)="onBlur($event)"
-    class="p-inputtext"
-    [class]="config().class || ''"
-    [class.p-invalid]="hasError()"
-    [class.p-valid]="hasSuccess()"
+  <!-- PrimeNG InputNumber -->
+  <p-inputnumber
+    [inputId]="getElementId()"
+    [placeholder]="(placeholder() || '') | translate"
+    [required]="required()"
+    [disabled]="disabled()"
+    [readonly]="readonly()"
+    [autofocus]="autofocus()"
+    [step]="step()"
+    [mode]="mode()"
+    [currency]="currency()"
+    [currencyDisplay]="currencyDisplay()"
+    [locale]="locale()"
+    [prefix]="prefix()"
+    [suffix]="suffix()"
+    [showButtons]="showButtons()"
+    [buttonLayout]="buttonLayout()"
+    [useGrouping]="useGrouping()"
+    [showClear]="showClear()"
+    [(ngModel)]="value"
+    (onInput)="onNumberChange($event.value)"
+    (onBlur)="onBlurHandler($event)"
+    class="w-full"
   />
 
   <!-- Help text -->
-  @if (showHelpText()) {
+  @if (helpText()) {
     <div class="input-help">
-      {{ (config().helpText || '') | translate }}
+      {{ (helpText() || '') | translate }}
     </div>
   }
 
   <!-- Error text -->
-  @if (showErrorText()) {
+  @if (errorText()) {
     <div class="input-error">
-      {{ (config().errorText || '') | translate }}
+      {{ (errorText() || '') | translate }}
     </div>
   }
 
   <!-- Success text -->
-  @if (showSuccessText()) {
+  @if (successText()) {
     <div class="input-success">
-      {{ (config().successText || '') | translate }}
+      {{ (successText() || '') | translate }}
     </div>
   }
 </div>
