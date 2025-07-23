@@ -19,23 +19,35 @@
   }
 }
 
-.input-help {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-  line-height: 1.4;
+.datepicker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-height: 2.5rem;
 }
 
-.input-error {
-  font-size: 0.8rem;
-  color: #dc2626;
-  margin-top: 0.25rem;
-  line-height: 1.4;
+// Force clock icon for time-only picker
+.pelu-datepicker[data-time-only="true"] .p-datepicker-trigger .pi {
+  &::before {
+    content: "\e91b" !important; // PrimeIcons clock icon
+  }
 }
 
-.input-success {
-  font-size: 0.8rem;
-  color: #16a34a;
-  margin-top: 0.25rem;
-  line-height: 1.4;
+// Alternative approach using CSS
+.pelu-datepicker .p-datepicker-trigger .pi-calendar {
+  &::before {
+    content: "\e91b" !important; // Clock icon
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .datepicker-wrapper {
+    gap: 0.75rem;
+  }
+
+  .input-date-label {
+    font-size: 1rem; // Prevent zoom on iOS
+  }
 }
