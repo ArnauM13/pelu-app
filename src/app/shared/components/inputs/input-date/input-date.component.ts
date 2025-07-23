@@ -2,6 +2,7 @@ import { Component, input, output, signal, computed, effect, forwardRef } from '
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { InputTextModule } from 'primeng/inputtext';
 
 export interface InputDateConfig {
   placeholder?: string;
@@ -22,158 +23,141 @@ export interface InputDateConfig {
   showHelpText?: boolean;
   showErrorText?: boolean;
   showSuccessText?: boolean;
-  icon?: string;
-  iconPosition?: 'left' | 'right';
   clearable?: boolean;
-  loading?: boolean;
-  value?: string;
-  min?: string;
-  max?: string;
+  value?: Date | string;
+  min?: Date | string;
+  max?: Date | string;
+  dateFormat?: string;
+  showIcon?: boolean;
+  showButtonBar?: boolean;
+  showTime?: boolean;
+  timeOnly?: boolean;
+  hourFormat?: 12 | 24;
+  selectionMode?: 'single' | 'multiple' | 'range';
+  numberOfMonths?: number;
+  inline?: boolean;
+  readonlyInput?: boolean;
+  showOnFocus?: boolean;
 }
 
 @Component({
-    selector: 'pelu-input-date',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-    templateUrl: './input-date.component.html',
-    styleUrls: ['./input-date.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => InputDateComponent),
-            multi: true
-        }
-    ]
+  selector: 'pelu-input-date',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, InputTextModule],
+  templateUrl: './input-date.component.html',
+  styleUrls: ['./input-date.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputDateComponent),
+      multi: true,
+    },
+  ],
 })
 export class InputDateComponent implements ControlValueAccessor {
   // Input signals
   readonly config = input.required<InputDateConfig>();
-  readonly value = input<string>('');
+  readonly value = input<Date | string | null>(null);
   readonly formControlName = input<string>('');
 
   // Output signals
-  readonly valueChange = output<string>();
-  readonly focus = output<FocusEvent>();
-  readonly blur = output<FocusEvent>();
-  readonly input = output<Event>();
-  readonly change = output<Event>();
-  readonly keydown = output<KeyboardEvent>();
-  readonly keyup = output<KeyboardEvent>();
-  readonly keypress = output<KeyboardEvent>();
+  readonly valueChange = output<Date | string | null>();
+  readonly focusEvent = output<FocusEvent>();
+  readonly blurEvent = output<FocusEvent>();
 
   // Internal state
-  private readonly internalValue = signal<string>('');
-  private readonly isFocused = signal<boolean>(false);
-  private readonly isTouched = signal<boolean>(false);
+  private readonly internalValue = signal<Date | string | null>(null);
 
   // Computed properties
-  readonly displayValue = computed(() => this.value() || this.internalValue());
+  readonly displayValue = computed(() => this.value() ?? this.internalValue());
   readonly hasError = computed(() => !!this.config().errorText);
   readonly hasSuccess = computed(() => !!this.config().successText);
   readonly hasHelp = computed(() => !!this.config().helpText);
   readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
   readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
   readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(() => this.config().showSuccessText !== false && this.hasSuccess());
-  readonly hasIcon = computed(() => !!this.config().icon);
-  readonly isClearable = computed(() => this.config().clearable && !!this.displayValue());
-  readonly inputClasses = computed(() => {
-    const classes = ['input-date'];
+  readonly showSuccessText = computed(
+    () => this.config().showSuccessText !== false && this.hasSuccess()
+  );
+  readonly elementId = computed(
+    () => this.config().id || `date-${Math.random().toString(36).substr(2, 9)}`
+  );
 
-    if (this.config().class) {
-      classes.push(this.config().class || '');
-    }
-
-    if (this.isFocused()) {
-      classes.push('focused');
-    }
-
-    if (this.hasError()) {
-      classes.push('error');
-    }
-
-    if (this.hasSuccess()) {
-      classes.push('success');
-    }
-
-    if (this.config().disabled) {
-      classes.push('disabled');
-    }
-
-    if (this.hasIcon()) {
-      classes.push(`icon-${this.config().iconPosition || 'left'}`);
-    }
-
-    return classes.join(' ');
-  });
-
-  private onChange = (value: any) => {};
+  private onChange = (value: Date | string | null) => {};
   private onTouched = () => {};
 
   constructor() {
     effect(() => {
-      const value = this.value();
-      if (value !== undefined && value !== null) {
-        this.internalValue.set(value);
+      const currentValue = this.value();
+      if (currentValue !== undefined && currentValue !== null) {
+        this.internalValue.set(currentValue);
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
-  onInput(event: Event): void {
+  // Event handlers
+  onDateSelect(date: Date | string | null) {
+    if (date === null) {
+      this.internalValue.set(null);
+      this.onChange(null);
+      this.valueChange.emit(null);
+      return;
+    }
+
+    const dateValue = typeof date === 'string' ? new Date(date) : date;
+    this.internalValue.set(dateValue);
+    this.onChange(dateValue);
+    this.valueChange.emit(dateValue);
+  }
+
+  onInput(event: Event) {
     const target = event.target as HTMLInputElement;
     const value = target.value;
-
-    this.internalValue.set(value);
-    this.onChange(value);
-    this.valueChange.emit(value);
-    this.input.emit(event);
+    if (value) {
+      const dateValue = new Date(value);
+      this.onDateSelect(dateValue);
+    } else {
+      this.onDateSelect(null);
+    }
   }
 
-  onChangeHandler(event: Event): void {
-    this.change.emit(event);
+  onChangeHandler(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+    if (value) {
+      const dateValue = new Date(value);
+      this.onDateSelect(dateValue);
+    } else {
+      this.onDateSelect(null);
+    }
   }
 
-  onFocus(event: FocusEvent): void {
-    this.isFocused.set(true);
-    this.focus.emit(event);
+  onFocus(event: FocusEvent) {
+    this.focusEvent.emit(event);
   }
 
-  onBlur(event: FocusEvent): void {
-    this.isFocused.set(false);
-    this.isTouched.set(true);
-    this.onTouched();
-    this.blur.emit(event);
-  }
-
-  onKeydown(event: KeyboardEvent): void {
-    this.keydown.emit(event);
-  }
-
-  onKeyup(event: KeyboardEvent): void {
-    this.keyup.emit(event);
-  }
-
-  onKeypress(event: KeyboardEvent): void {
-    this.keypress.emit(event);
+  onBlur(event: FocusEvent) {
+    this.blurEvent.emit(event);
   }
 
   onClear(): void {
-    this.internalValue.set('');
-    this.onChange('');
-    this.valueChange.emit('');
+    this.internalValue.set(null);
+    this.onChange(null);
+    this.valueChange.emit(null);
   }
 
-  writeValue(value: any): void {
-    this.internalValue.set(value || '');
+  writeValue(value: Date | string | null): void {
+    this.internalValue.set(value);
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: Date | string | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  setDisabledState(): void {
+    // PrimeNG handles disabled state automatically
   }
 }

@@ -2,7 +2,7 @@
 
 ## 🎯 Visió General
 
-Aquest índex proporciona una navegació completa a tota la documentació del projecte PeluApp, organitzada per categories i àrees de coneixement.
+Aquest índex proporciona una navegació completa a tota la documentació del projecte PeluApp, organitzada per categories i àrees de coneixement. La documentació està actualitzada amb les últimes millores i funcionalitats del projecte.
 
 ---
 
@@ -10,11 +10,11 @@ Aquest índex proporciona una navegació completa a tota la documentació del pr
 
 ### 🏠 [README.md](README.md)
 
-Documentació principal del projecte amb inici ràpid i referències a tota la documentació disponible.
+Documentació principal del projecte amb inici ràpid, característiques principals i referències a tota la documentació disponible. Inclou badges de versions, comandaments principals i guies ràpides d'instal·lació.
 
 ### 📖 [DOCUMENTATION.md](DOCUMENTATION.md)
 
-Documentació unificada i completa del projecte amb tots els aspectes tècnics, arquitectura i guies d'ús.
+Documentació unificada i completa del projecte amb tots els aspectes tècnics, arquitectura i guies d'ús. Inclou exemples de codi, patrons de disseny i millors pràctiques.
 
 ### 🔧 [Guia de Lint i Format](LINT_FORMAT_GUIDE.md)
 
@@ -266,6 +266,16 @@ Documentació unificada i completa del projecte amb tots els aspectes tècnics, 
 - **Descripció**: Documentació oficial de Firebase
 - **Ús**: Per configuració i ús de serveis de Firebase
 
+### 📖 [Documentació de TypeScript](https://www.typescriptlang.org/docs/)
+
+- **Descripció**: Documentació oficial de TypeScript
+- **Ús**: Per tipus, interfícies i característiques avançades
+
+### 📖 [Documentació de RxJS](https://rxjs.dev/)
+
+- **Descripció**: Documentació oficial de RxJS
+- **Ús**: Per programació reactiva i observables
+
 ---
 
 ## 🎯 Comandaments Útils
@@ -309,6 +319,32 @@ firebase deploy
 firebase deploy --only hosting
 ```
 
+### 🔧 Testing
+
+```bash
+# Tests unitaris
+npm test
+
+# Tests amb coverage
+npm run test:coverage
+
+# Tests e2e
+npm run e2e
+```
+
+### 🔧 Qualitat de Codi
+
+```bash
+# Lint
+npm run lint
+
+# Format
+npm run format:fix
+
+# Lint + Format
+npm run lint:format
+```
+
 ---
 
 ## 📞 Suport i Contacte
@@ -323,6 +359,74 @@ firebase deploy --only hosting
 - **Descripció**: Documentació completa del projecte
 - **Ús**: Per informació detallada sobre l'arquitectura i desenvolupament
 
+### 📧 [Email de Suport](mailto:suport@peluapp.com)
+
+- **Descripció**: Contacte directe per suport tècnic
+- **Ús**: Per consultes específiques o problemes urgents
+
+---
+
+## 📊 Estadístiques del Projecte
+
+### 🏗️ **Estructura de Fitxers**
+
+- **Total de fitxers de documentació**: 30+
+- **Documentació principal**: 3 fitxers
+- **Documentació tècnica**: 27+ fitxers
+- **Documentació per àrees**: 10 categories
+
+### 📈 **Cobertura per Àrea**
+
+- **Components UI**: 35% (10 fitxers)
+- **Funcionalitats Mòbils**: 25% (7 fitxers)
+- **Correccions i Millores**: 20% (6 fitxers)
+- **Arquitectura**: 10% (3 fitxers)
+- **Testing i Qualitat**: 5% (2 fitxers)
+- **Configuració**: 5% (2 fitxers)
+
+### 🎯 **Ús Recomanat**
+
+- **Noves incorporacions**: Començar per [README.md](README.md) i [DOCUMENTATION.md](DOCUMENTATION.md)
+- **Desenvolupament**: Consultar documentació específica per àrea
+- **Maintaniment**: Revisar correccions i troubleshooting
+- **Millores**: Consultar guies d'implementació
+
+---
+
+## 🔄 Actualitzacions de Documentació
+
+### 📅 **Última Actualització**: Juliol 2025
+
+### 🎯 **Objectiu**: Documentació unificada, actualitzada i navegable
+
+### ✅ **Estat**: Complet amb índex actualitzat i contingut ampliat
+
+### 📝 **Notes d'Ús**
+
+- Tots els enllaços són relatius al directori arrel del projecte
+- La documentació està organitzada per àrees de coneixement
+- Cada fitxer inclou descripció, contingut i ús recomanat
+- Es proporcionen guies específiques per diferents rols
+- Inclou exemples de codi i millors pràctiques
+
+---
+
+## 📞 Suport de Documentació
+
+### 🤝 **Contribució**
+
+Si trobes errors o vols millorar la documentació:
+
+1. Obre un issue al repositori
+2. Proposa millores específiques
+3. Segueix les guies de contribució
+
+### 📧 **Contacte**
+
+- **Email**: suport@peluapp.com
+- **Issues**: [GitHub Issues](https://github.com/ArnauM13/pelu-app/issues)
+- **Documentació**: [Documentació Completa](DOCUMENTATION.md)
+
 ---
 
 ## 📄 Llicència
@@ -331,4 +435,4 @@ Aquest projecte està sota llicència MIT. Vegeu el fitxer LICENSE per més deta
 
 ---
 
-_Última actualització: Gener 2025_
+_Índex generat automàticament - Última actualització: Juliol 2025_
