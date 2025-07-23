@@ -119,13 +119,10 @@
                 </div>
                 <div class="form-field">
                   <pelu-input-textarea
-                    [config]="{
-                      label: 'COMMON.DESCRIPTION',
-                      placeholder: 'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER',
-                      rows: 3,
-                      required: true,
-                      showLabel: true,
-                    }"
+                    [label]="'COMMON.DESCRIPTION'"
+                    [placeholder]="'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER'"
+                    [rows]="3"
+                    [required]="true"
                     [value]="formData().description || ''"
                     (valueChange)="formData().description = $event"
                   >
@@ -139,29 +136,49 @@
               <div class="form-grid">
                 <div class="form-field">
                   <pelu-input-select
-                    [config]="{
-                      label: 'COMMON.CATEGORY',
-                      placeholder: 'ADMIN.SERVICES.SELECT_CATEGORY',
-                      required: true,
-                      showLabel: true,
-                      options: categoryOptions(),
-                    }"
+                    [label]="'COMMON.CATEGORY'"
+                    [placeholder]="'ADMIN.SERVICES.SELECT_CATEGORY'"
+                    [required]="true"
+                    [options]="categoryOptions()"
                     [value]="formData().category"
-                    (valueChange)="formData().category = $event"
+                    (valueChange)="formData().category = $event?.toString()"
                   >
                   </pelu-input-select>
                 </div>
                 <div class="form-field">
                   <pelu-input-select
-                    [config]="{
-                      label: 'ADMIN.SERVICES.ICON',
-                      placeholder: 'ADMIN.SERVICES.SELECT_ICON',
-                      showLabel: true,
-                      options: iconOptions,
-                    }"
+                    [label]="'ADMIN.SERVICES.ICON'"
+                    [placeholder]="'ADMIN.SERVICES.SELECT_ICON'"
+                    [options]="iconOptions"
                     [value]="formData().icon"
-                    (valueChange)="formData().icon = $event"
+                    (valueChange)="formData().icon = $event?.toString()"
                   >
+                    <!-- Template per l'element seleccionat -->
+                    <ng-template #selectedItem let-selectedOption>
+                      <div class="flex items-center gap-2" *ngIf="selectedOption">
+                        <i [class]="selectedOption.value" class="text-lg"></i>
+                        <span class="font-medium">{{ selectedOption.label }}</span>
+                      </div>
+                    </ng-template>
+
+                    <!-- Template per les opcions del dropdown -->
+                    <ng-template #item let-icon>
+                      <div class="flex items-center gap-3 p-2">
+                        <i [class]="icon.value" class="text-xl text-gray-600"></i>
+                        <div>
+                          <div class="font-medium">{{ icon.label }}</div>
+                          <div class="text-sm text-gray-500">{{ icon.description }}</div>
+                        </div>
+                      </div>
+                    </ng-template>
+
+                    <!-- Template per l'encapçalament -->
+                    <ng-template #header>
+                      <div class="p-3 bg-blue-50 border-b border-blue-200">
+                        <h4 class="font-semibold text-blue-800">Icones Disponibles</h4>
+                        <p class="text-sm text-blue-600">Selecciona una icona per al servei</p>
+                      </div>
+                    </ng-template>
                   </pelu-input-select>
                 </div>
               </div>
@@ -172,16 +189,13 @@
               <div class="form-grid">
                 <div class="form-field">
                   <pelu-input-number
-                    [config]="{
-                      label: 'ADMIN.SERVICES.PRICE_EURO',
-                      placeholder: '0.00',
-                      required: true,
-                      showLabel: true,
-                      min: 0,
-                      max: 1000,
-                      step: 0.01,
-                      suffix: '€',
-                    }"
+                    [label]="'ADMIN.SERVICES.PRICE_EURO'"
+                    [placeholder]="'0.00'"
+                    [required]="true"
+                    [min]="0"
+                    [max]="1000"
+                    [step]="0.01"
+                    [suffix]="'€'"
                     [value]="formData().price || 0"
                     (valueChange)="formData().price = $event"
                   >
@@ -189,16 +203,13 @@
                 </div>
                 <div class="form-field">
                   <pelu-input-number
-                    [config]="{
-                      label: 'ADMIN.SERVICES.DURATION_MINUTES',
-                      placeholder: '30',
-                      required: true,
-                      showLabel: true,
-                      min: 5,
-                      max: 480,
-                      step: 5,
-                      suffix: 'min',
-                    }"
+                    [label]="'ADMIN.SERVICES.DURATION_MINUTES'"
+                    [placeholder]="'30'"
+                    [required]="true"
+                    [min]="5"
+                    [max]="480"
+                    [step]="5"
+                    [suffix]="'min'"
                     [value]="formData().duration || 30"
                     (valueChange)="formData().duration = $event"
                   >
@@ -259,13 +270,10 @@
                 </div>
                 <div class="form-field">
                   <pelu-input-textarea
-                    [config]="{
-                      label: 'COMMON.DESCRIPTION',
-                      placeholder: 'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER',
-                      rows: 3,
-                      required: true,
-                      showLabel: true,
-                    }"
+                    [label]="'COMMON.DESCRIPTION'"
+                    [placeholder]="'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER'"
+                    [rows]="3"
+                    [required]="true"
                     [value]="formData().description || ''"
                     (valueChange)="formData().description = $event"
                   >
@@ -279,29 +287,49 @@
               <div class="form-grid">
                 <div class="form-field">
                   <pelu-input-select
-                    [config]="{
-                      label: 'COMMON.CATEGORY',
-                      placeholder: 'ADMIN.SERVICES.SELECT_CATEGORY',
-                      required: true,
-                      showLabel: true,
-                      options: categoryOptions(),
-                    }"
+                    [label]="'COMMON.CATEGORY'"
+                    [placeholder]="'ADMIN.SERVICES.SELECT_CATEGORY'"
+                    [required]="true"
+                    [options]="categoryOptions()"
                     [value]="formData().category"
-                    (valueChange)="formData().category = $event"
+                    (valueChange)="formData().category = $event?.toString()"
                   >
                   </pelu-input-select>
                 </div>
                 <div class="form-field">
                   <pelu-input-select
-                    [config]="{
-                      label: 'ADMIN.SERVICES.ICON',
-                      placeholder: 'ADMIN.SERVICES.SELECT_ICON',
-                      showLabel: true,
-                      options: iconOptions,
-                    }"
+                    [label]="'ADMIN.SERVICES.ICON'"
+                    [placeholder]="'ADMIN.SERVICES.SELECT_ICON'"
+                    [options]="iconOptions"
                     [value]="formData().icon"
-                    (valueChange)="formData().icon = $event"
+                    (valueChange)="formData().icon = $event?.toString()"
                   >
+                    <!-- Template per l'element seleccionat -->
+                    <ng-template #selectedItem let-selectedOption>
+                      <div class="flex items-center gap-2" *ngIf="selectedOption">
+                        <i [class]="selectedOption.value" class="text-lg"></i>
+                        <span class="font-medium">{{ selectedOption.label }}</span>
+                      </div>
+                    </ng-template>
+
+                    <!-- Template per les opcions del dropdown -->
+                    <ng-template #item let-icon>
+                      <div class="flex items-center gap-3 p-2">
+                        <i [class]="icon.value" class="text-xl text-gray-600"></i>
+                        <div>
+                          <div class="font-medium">{{ icon.label }}</div>
+                          <div class="text-sm text-gray-500">{{ icon.description }}</div>
+                        </div>
+                      </div>
+                    </ng-template>
+
+                    <!-- Template per l'encapçalament -->
+                    <ng-template #header>
+                      <div class="p-3 bg-blue-50 border-b border-blue-200">
+                        <h4 class="font-semibold text-blue-800">Icones Disponibles</h4>
+                        <p class="text-sm text-blue-600">Selecciona una icona per al servei</p>
+                      </div>
+                    </ng-template>
                   </pelu-input-select>
                 </div>
               </div>
@@ -312,16 +340,13 @@
               <div class="form-grid">
                 <div class="form-field">
                   <pelu-input-number
-                    [config]="{
-                      label: 'ADMIN.SERVICES.PRICE_EURO',
-                      placeholder: '0.00',
-                      required: true,
-                      showLabel: true,
-                      min: 0,
-                      max: 1000,
-                      step: 0.01,
-                      suffix: '€',
-                    }"
+                    [label]="'ADMIN.SERVICES.PRICE_EURO'"
+                    [placeholder]="'0.00'"
+                    [required]="true"
+                    [min]="0"
+                    [max]="1000"
+                    [step]="0.01"
+                    [suffix]="'€'"
                     [value]="formData().price || 0"
                     (valueChange)="formData().price = $event"
                   >
@@ -329,16 +354,13 @@
                 </div>
                 <div class="form-field">
                   <pelu-input-number
-                    [config]="{
-                      label: 'ADMIN.SERVICES.DURATION_MINUTES',
-                      placeholder: '30',
-                      required: true,
-                      showLabel: true,
-                      min: 5,
-                      max: 480,
-                      step: 5,
-                      suffix: 'min',
-                    }"
+                    [label]="'ADMIN.SERVICES.DURATION_MINUTES'"
+                    [placeholder]="'30'"
+                    [required]="true"
+                    [min]="5"
+                    [max]="480"
+                    [step]="5"
+                    [suffix]="'min'"
                     [value]="formData().duration || 30"
                     (valueChange)="formData().duration = $event"
                   >
