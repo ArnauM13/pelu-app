@@ -14,10 +14,11 @@
           label: 'Nom',
           placeholder: 'Introdueix el teu nom',
           required: true,
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().name"
-        (valueChange)="updateField('name', $event)">
+        (valueChange)="updateField('name', $event)"
+      >
       </pelu-input-text>
     </div>
 
@@ -29,10 +30,11 @@
           label: 'Email',
           placeholder: 'exemple@email.com',
           required: true,
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().email"
-        (valueChange)="updateField('email', $event)">
+        (valueChange)="updateField('email', $event)"
+      >
       </pelu-input-email>
     </div>
 
@@ -44,10 +46,11 @@
           label: 'Contrasenya',
           placeholder: 'Introdueix la contrasenya',
           required: true,
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().password"
-        (valueChange)="updateField('password', $event)">
+        (valueChange)="updateField('password', $event)"
+      >
       </pelu-input-password>
     </div>
 
@@ -60,10 +63,11 @@
           placeholder: '25',
           min: 0,
           max: 120,
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().age"
-        (valueChange)="updateField('age', $event)">
+        (valueChange)="updateField('age', $event)"
+      >
       </pelu-input-number>
     </div>
 
@@ -74,11 +78,26 @@
         [config]="{
           label: 'Data de naixement',
           placeholder: 'Selecciona una data',
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().birthDate"
-        (valueChange)="updateField('birthDate', $event)">
+        (valueChange)="updateField('birthDate', $event)"
+      >
       </pelu-input-date>
+    </div>
+
+    <!-- Input Checkbox -->
+    <div class="demo-section">
+      <h2>Input Checkbox</h2>
+      <pelu-input-checkbox
+        [config]="{
+          label: 'Accepto els termes i condicions',
+          showLabel: true,
+        }"
+        [value]="formData().terms"
+        (valueChange)="updateField('terms', $event)"
+      >
+      </pelu-input-checkbox>
     </div>
 
     <!-- Input Select -->
@@ -89,61 +108,34 @@
           label: 'Categoria',
           placeholder: 'Selecciona una categoria',
           options: categoryOptions,
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().category"
-        (valueChange)="updateField('category', $event)">
+        (valueChange)="updateField('category', $event)"
+      >
       </pelu-input-select>
     </div>
 
     <!-- Input Textarea -->
-    <div class="demo-section full-width">
-      <h2>Input Textarea (Text llarg)</h2>
-      <pelu-input-textarea
-        [config]="{
-          label: 'Descripció',
-          placeholder: 'Introdueix una descripció detallada...',
-          rows: 4,
-          showLabel: true
-        }"
-        [value]="formData().description"
-        (valueChange)="updateField('description', $event)">
-      </pelu-input-textarea>
-    </div>
-
-    <!-- Input Textarea amb auto-resize -->
-    <div class="demo-section full-width">
-      <h2>Input Textarea amb Auto-resize</h2>
+    <div class="demo-section">
+      <h2>Input Textarea</h2>
       <pelu-input-textarea
         [config]="{
           label: 'Notes',
-          placeholder: 'Aquest textarea es redimensiona automàticament...',
-          rows: 2,
+          placeholder: 'Introdueix notes addicionals...',
+          rows: 4,
           autoResize: true,
-          showLabel: true
+          showLabel: true,
         }"
         [value]="formData().notes"
-        (valueChange)="updateField('notes', $event)">
+        (valueChange)="updateField('notes', $event)"
+      >
       </pelu-input-textarea>
-    </div>
-
-    <!-- Input Checkbox -->
-    <div class="demo-section">
-      <h2>Input Checkbox</h2>
-      <pelu-input-checkbox
-        [config]="{
-          label: 'Accepto els termes i condicions',
-          required: true,
-          showLabel: true
-        }"
-        [value]="formData().terms"
-        (valueChange)="updateField('terms', $event)">
-      </pelu-input-checkbox>
     </div>
   </div>
 
   <!-- Form Data Display -->
-  <div class="form-data-display">
+  <div class="demo-data">
     <h3>Dades del formulari:</h3>
     <pre>{{ formData() | json }}</pre>
   </div>
