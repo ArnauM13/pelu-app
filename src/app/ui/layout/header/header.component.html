@@ -1,7 +1,7 @@
 <header class="header">
   <div class="header-content">
     <div class="left-section">
-      <div class="logo-section" (click)="navigateToHome($event)">
+      <div class="logo-section" (click)="navigateToHome($event)" (keydown.enter)="navigateToHome($event)" (keydown.space)="navigateToHome($event)" tabindex="0" role="button" [attr.aria-label]="'NAVIGATION.HOME' | translate">
         <picture>
           <source
             srcset="
