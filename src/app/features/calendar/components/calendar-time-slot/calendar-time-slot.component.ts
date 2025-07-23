@@ -15,10 +15,9 @@ export interface TimeSlotData {
 }
 
 @Component({
-  selector: 'pelu-calendar-time-slot',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-time-slot',
+    imports: [CommonModule],
+    template: `
     <div class="time-slot"
          [class.available]="data().isAvailable"
          [class.booked]="data().isBooked"
@@ -31,7 +30,7 @@ export interface TimeSlotData {
          (click)="onTimeSlotClick()">
     </div>
   `,
-  styles: [`
+    styles: [`
     .time-slot {
       height: 30px;
       min-height: 30px;

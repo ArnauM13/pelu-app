@@ -4,10 +4,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LoaderService } from '../../services/loader.service';
 
 @Component({
-  selector: 'pelu-loader',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-loader',
+    imports: [CommonModule, TranslateModule],
+    template: `
     @if (loaderService.isLoading()) {
       <div class="loader-overlay">
         <div class="loader-content">
@@ -19,7 +18,7 @@ import { LoaderService } from '../../services/loader.service';
       </div>
     }
   `,
-  styleUrls: ['./loader.component.scss']
+    styleUrls: ['./loader.component.scss']
 })
 export class LoaderComponent {
   readonly loaderService = inject(LoaderService);

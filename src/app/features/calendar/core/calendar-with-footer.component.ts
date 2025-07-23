@@ -6,10 +6,9 @@ import { CalendarFooterComponent, CalendarFooterAlert } from '../components/cale
 import { CalendarBusinessService } from '../services/calendar-business.service';
 
 @Component({
-  selector: 'pelu-calendar-with-footer',
-  standalone: true,
-  imports: [CommonModule, TranslateModule, CalendarComponent, CalendarFooterComponent],
-  template: `
+    selector: 'pelu-calendar-with-footer',
+    imports: [CommonModule, TranslateModule, CalendarComponent, CalendarFooterComponent],
+    template: `
     <!-- Calendar Component -->
     <pelu-calendar-component
       [mini]="mini()"
@@ -27,7 +26,7 @@ import { CalendarBusinessService } from '../services/calendar-business.service';
       </pelu-calendar-footer>
     }
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
     }

@@ -2,10 +2,9 @@ import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'pelu-calendar-loader',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-loader',
+    imports: [CommonModule],
+    template: `
     <div class="calendar-loader">
       <div class="calendar-loader-content">
         <div class="calendar-loader-spinner"></div>
@@ -17,7 +16,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .calendar-loader {
       position: fixed;
       top: 0;

@@ -21,18 +21,17 @@ export interface ServiceCardConfig {
 }
 
 @Component({
-  selector: 'pelu-service-card',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    TooltipModule,
-    CurrencyPipe,
-    ActionsButtonsComponent,
-    PopularBadgeComponent
-  ],
-  templateUrl: './service-card.component.html',
-  styleUrls: ['./service-card.component.scss']
+    selector: 'pelu-service-card',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        TooltipModule,
+        CurrencyPipe,
+        ActionsButtonsComponent,
+        PopularBadgeComponent
+    ],
+    templateUrl: './service-card.component.html',
+    styleUrls: ['./service-card.component.scss']
 })
 export class ServiceCardComponent {
   @Input() service!: FirebaseService;

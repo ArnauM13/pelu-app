@@ -8,11 +8,10 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 
 @Component({
-  selector: 'pelu-filters-inline',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
-  templateUrl: './filters-inline.component.html',
-  styleUrls: ['./filters-inline.component.scss']
+    selector: 'pelu-filters-inline',
+    imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
+    templateUrl: './filters-inline.component.html',
+    styleUrls: ['./filters-inline.component.scss']
 })
 export class FiltersInlineComponent {
   // Input signals that can accept either values or signals

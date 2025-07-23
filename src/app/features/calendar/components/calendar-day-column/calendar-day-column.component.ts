@@ -23,17 +23,16 @@ export interface DayColumnData {
 }
 
 @Component({
-  selector: 'pelu-calendar-day-column',
-  standalone: true,
-  imports: [
-    CommonModule,
-    AppointmentSlotComponent,
-    CalendarDayHeaderComponent,
-    CalendarTimeSlotComponent,
-    CalendarLunchBreakComponent,
-    CalendarDropIndicatorComponent
-  ],
-  template: `
+    selector: 'pelu-calendar-day-column',
+    imports: [
+        CommonModule,
+        AppointmentSlotComponent,
+        CalendarDayHeaderComponent,
+        CalendarTimeSlotComponent,
+        CalendarLunchBreakComponent,
+        CalendarDropIndicatorComponent
+    ],
+    template: `
     <div class="day-column"
          [class.past]="data().isPast"
          [class.disabled]="data().isDisabled">
@@ -87,7 +86,7 @@ export interface DayColumnData {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       width: stretch;
     }

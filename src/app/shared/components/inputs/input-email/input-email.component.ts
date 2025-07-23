@@ -34,18 +34,17 @@ export interface InputEmailConfig {
 }
 
 @Component({
-  selector: 'pelu-input-email',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-email.component.html',
-  styleUrls: ['./input-email.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputEmailComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-email',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-email.component.html',
+    styleUrls: ['./input-email.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputEmailComponent),
+            multi: true
+        }
+    ]
 })
 export class InputEmailComponent implements ControlValueAccessor {
   // Input signals

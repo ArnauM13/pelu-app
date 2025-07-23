@@ -9,10 +9,9 @@ export interface TimeSlot {
 }
 
 @Component({
-  selector: 'pelu-calendar-time-column',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-time-column',
+    imports: [CommonModule],
+    template: `
     <div class="time-column">
       <div class="time-header">Hora</div>
       @for (timeSlot of timeSlots(); track timeSlot.time; let k = $index) {
@@ -25,7 +24,7 @@ export interface TimeSlot {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .time-column {
       min-width: 80px;
       max-width: 80px;

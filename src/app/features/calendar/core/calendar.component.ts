@@ -46,33 +46,32 @@ export interface AppointmentEvent {
 }
 
 @Component({
-  selector: 'pelu-calendar-component',
-  standalone: true,
-  imports: [
-    CommonModule,
-    CalendarModule,
-    FormsModule,
-    TranslateModule,
-    AppointmentDetailPopupComponent,
-    AppointmentSlotComponent,
-    CalendarHeaderComponent,
-    LoaderComponent,
-    CalendarLoaderComponent,
-    CalendarTimeColumnComponent,
-    CalendarDayColumnComponent,
-    CalendarDragPreviewComponent
-  ],
-  providers: [
-    CalendarUtils,
-    CalendarA11y,
-    {
-      provide: DateAdapter,
-      useFactory: adapterFactory,
-    },
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.scss']
+    selector: 'pelu-calendar-component',
+    imports: [
+        CommonModule,
+        CalendarModule,
+        FormsModule,
+        TranslateModule,
+        AppointmentDetailPopupComponent,
+        AppointmentSlotComponent,
+        CalendarHeaderComponent,
+        LoaderComponent,
+        CalendarLoaderComponent,
+        CalendarTimeColumnComponent,
+        CalendarDayColumnComponent,
+        CalendarDragPreviewComponent
+    ],
+    providers: [
+        CalendarUtils,
+        CalendarA11y,
+        {
+            provide: DateAdapter,
+            useFactory: adapterFactory,
+        },
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './calendar.component.html',
+    styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent {
   // Inject services

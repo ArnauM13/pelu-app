@@ -7,11 +7,10 @@ import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 
 @Component({
-  selector: 'pelu-filters-popup',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent],
-  templateUrl: './filters-popup.component.html',
-  styleUrls: ['./filters-popup.component.scss']
+    selector: 'pelu-filters-popup',
+    imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent],
+    templateUrl: './filters-popup.component.html',
+    styleUrls: ['./filters-popup.component.scss']
 })
 export class FiltersPopupComponent {
   // Input signals that can accept either values or signals

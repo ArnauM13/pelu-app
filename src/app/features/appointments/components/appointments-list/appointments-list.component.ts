@@ -13,18 +13,17 @@ import { isFutureAppointment } from '../../../../shared/services';
 import { Booking } from '../../../../core/services/booking.service';
 
 @Component({
-  selector: 'pelu-appointments-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    TooltipModule,
-    AppointmentStatusBadgeComponent,
-    CardComponent,
-    NotFoundStateComponent,
-    ActionsButtonsComponent
-  ],
-  template: `
+    selector: 'pelu-appointments-list',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        TooltipModule,
+        AppointmentStatusBadgeComponent,
+        CardComponent,
+        NotFoundStateComponent,
+        ActionsButtonsComponent
+    ],
+    template: `
     @if (bookings().length === 0) {
       <div class="full-screen-empty-state">
         <pelu-not-found-state
@@ -101,7 +100,7 @@ import { Booking } from '../../../../core/services/booking.service';
       </pelu-card>
     }
   `,
-  styles: [`
+    styles: [`
     .full-screen-empty-state {
       display: flex;
       align-items: center;

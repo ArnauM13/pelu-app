@@ -15,17 +15,16 @@ import { InfoItemComponent, InfoItemData } from '../info-item/info-item.componen
 import { isFutureAppointment } from '../../services';
 
 @Component({
-  selector: 'pelu-appointment-detail-popup',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    TranslateModule,
-    AppointmentStatusBadgeComponent,
-    ConfirmationPopupComponent
-  ],
-  templateUrl: './appointment-detail-popup.component.html',
-  styleUrls: ['./appointment-detail-popup.component.scss']
+    selector: 'pelu-appointment-detail-popup',
+    imports: [
+        CommonModule,
+        ButtonModule,
+        TranslateModule,
+        AppointmentStatusBadgeComponent,
+        ConfirmationPopupComponent
+    ],
+    templateUrl: './appointment-detail-popup.component.html',
+    styleUrls: ['./appointment-detail-popup.component.scss']
 })
 export class AppointmentDetailPopupComponent implements OnInit {
   // Inject services

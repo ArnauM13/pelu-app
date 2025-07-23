@@ -46,18 +46,17 @@ export interface InputSelectConfig {
 }
 
 @Component({
-  selector: 'pelu-input-select',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-select.component.html',
-  styleUrls: ['./input-select.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputSelectComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-select',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-select.component.html',
+    styleUrls: ['./input-select.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputSelectComponent),
+            multi: true
+        }
+    ]
 })
 export class InputSelectComponent implements ControlValueAccessor {
   // Input signals

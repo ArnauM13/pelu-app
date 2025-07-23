@@ -15,9 +15,8 @@ export interface ProfileDropdownItem {
 }
 
 @Component({
-  selector: 'pelu-profile-dropdown',
-  standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, AvatarComponent],
+    selector: 'pelu-profile-dropdown',
+    imports: [CommonModule, RouterModule, TranslateModule, AvatarComponent],
     template: `
     <div class="profile-dropdown" (click)="toggleDropdown($event)">
       <pelu-avatar [data]="avatarData()" size="medium"></pelu-avatar>
@@ -62,7 +61,7 @@ export interface ProfileDropdownItem {
       </div>
     </div>
   `,
-  styleUrls: ['./profile-dropdown.component.scss']
+    styleUrls: ['./profile-dropdown.component.scss']
 })
 export class ProfileDropdownComponent {
   // Input signals

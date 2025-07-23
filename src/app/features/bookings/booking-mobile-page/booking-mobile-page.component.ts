@@ -40,22 +40,21 @@ interface DaySlot {
 }
 
 @Component({
-  selector: 'pelu-booking-mobile-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    SelectModule,
-    TranslateModule,
-    CardComponent,
-    BookingPopupComponent,
-    CurrencyPipe,
-  ],
-  templateUrl: './booking-mobile-page.component.html',
-  styleUrls: ['./booking-mobile-page.component.scss']
+    selector: 'pelu-booking-mobile-page',
+    imports: [
+        CommonModule,
+        FormsModule,
+        CardModule,
+        InputTextModule,
+        ButtonModule,
+        SelectModule,
+        TranslateModule,
+        CardComponent,
+        BookingPopupComponent,
+        CurrencyPipe,
+    ],
+    templateUrl: './booking-mobile-page.component.html',
+    styleUrls: ['./booking-mobile-page.component.scss']
 })
 export class BookingMobilePageComponent {
   // Inject services

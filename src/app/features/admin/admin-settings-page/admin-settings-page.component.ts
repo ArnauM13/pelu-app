@@ -22,28 +22,25 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
 
 
 @Component({
-  selector: 'app-admin-settings-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    ButtonModule,
-    CardComponent,
-    InputTextModule,
-    InputNumberModule,
-    SelectModule,
-    CheckboxModule,
-    ProgressSpinnerModule,
-
-    InputTextComponent,
-    InputNumberComponent,
-    InputCheckboxComponent,
-    InputSelectComponent
-  ],
-
-  templateUrl: './admin-settings-page.component.html',
-  styleUrls: ['./admin-settings-page.component.scss']
+    selector: 'app-admin-settings-page',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        TranslateModule,
+        ButtonModule,
+        CardComponent,
+        InputTextModule,
+        InputNumberModule,
+        SelectModule,
+        CheckboxModule,
+        ProgressSpinnerModule,
+        InputTextComponent,
+        InputNumberComponent,
+        InputCheckboxComponent,
+        InputSelectComponent
+    ],
+    templateUrl: './admin-settings-page.component.html',
+    styleUrls: ['./admin-settings-page.component.scss']
 })
 export class AdminSettingsPageComponent {
   private userService = inject(UserService);

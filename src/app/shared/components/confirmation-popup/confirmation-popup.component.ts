@@ -12,10 +12,9 @@ export interface ConfirmationData {
 }
 
 @Component({
-  selector: 'pelu-confirmation-popup',
-  standalone: true,
-  imports: [CommonModule, TranslateModule, ButtonModule],
-  template: `
+    selector: 'pelu-confirmation-popup',
+    imports: [CommonModule, TranslateModule, ButtonModule],
+    template: `
     @if (isOpen()) {
       <div class="confirmation-overlay" (click)="onBackdropClick($event)">
         <div class="confirmation-popup" (click)="$event.stopPropagation()">
@@ -56,7 +55,7 @@ export interface ConfirmationData {
       </div>
     }
   `,
-  styleUrls: ['./confirmation-popup.component.scss']
+    styleUrls: ['./confirmation-popup.component.scss']
 })
 export class ConfirmationPopupComponent {
   // Input signals

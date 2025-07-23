@@ -14,11 +14,10 @@ export interface ToastData {
 }
 
 @Component({
-  selector: 'pelu-toast',
-  standalone: true,
-  imports: [CommonModule, ToastModule, TranslateModule],
-  encapsulation: ViewEncapsulation.None,
-  template: `
+    selector: 'pelu-toast',
+    imports: [CommonModule, ToastModule, TranslateModule],
+    encapsulation: ViewEncapsulation.None,
+    template: `
     <p-toast [key]="toastKey" position="top-right" [baseZIndex]="10000" (onClick)="onToastClick($event)">
       <ng-template let-message pTemplate="message">
         <div class="toast-container">
@@ -74,7 +73,7 @@ export interface ToastData {
       </ng-template>
     </p-toast>
   `,
-  styles: [`
+    styles: [`
     /* Garantir que els toasts apareguin sempre per sobre de tot */
     :host {
       position: fixed;

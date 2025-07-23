@@ -5,11 +5,10 @@ import { TranslationService, Language } from '../../../core/services/translation
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-  selector: 'pelu-language-selector',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  templateUrl: './language-selector.component.html',
-  styleUrls: ['./language-selector.component.scss']
+    selector: 'pelu-language-selector',
+    imports: [CommonModule, TranslateModule],
+    templateUrl: './language-selector.component.html',
+    styleUrls: ['./language-selector.component.scss']
 })
 export class LanguageSelectorComponent implements OnInit, OnDestroy {
   // Inject services

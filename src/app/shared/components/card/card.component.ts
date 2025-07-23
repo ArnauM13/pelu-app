@@ -2,11 +2,10 @@ import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'pelu-card',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './card.component.html',
-  styleUrls: ['./card.component.scss']
+    selector: 'pelu-card',
+    imports: [CommonModule],
+    templateUrl: './card.component.html',
+    styleUrls: ['./card.component.scss']
 })
 export class CardComponent {
   // Input signals

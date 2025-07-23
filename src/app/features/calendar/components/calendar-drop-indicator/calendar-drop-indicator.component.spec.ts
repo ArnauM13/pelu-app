@@ -4,11 +4,10 @@ import { CalendarDropIndicatorComponent, DropIndicatorData } from './calendar-dr
 
 // Test host component to provide required inputs
 @Component({
-  template: `
+    template: `
     <pelu-calendar-drop-indicator [data]="testData"></pelu-calendar-drop-indicator>
   `,
-  standalone: true,
-  imports: [CalendarDropIndicatorComponent]
+    imports: [CalendarDropIndicatorComponent]
 })
 class TestHostComponent {
   testData: DropIndicatorData = {

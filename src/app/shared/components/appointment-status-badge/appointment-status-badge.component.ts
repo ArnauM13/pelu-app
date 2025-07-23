@@ -17,11 +17,10 @@ export interface AppointmentStatusConfig {
 }
 
 @Component({
-  selector: 'pelu-appointment-status-badge',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  templateUrl: './appointment-status-badge.component.html',
-  styleUrls: ['./appointment-status-badge.component.scss']
+    selector: 'pelu-appointment-status-badge',
+    imports: [CommonModule, TranslateModule],
+    templateUrl: './appointment-status-badge.component.html',
+    styleUrls: ['./appointment-status-badge.component.scss']
 })
 export class AppointmentStatusBadgeComponent {
   @Input() appointmentData!: AppointmentStatusData;

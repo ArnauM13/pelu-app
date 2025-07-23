@@ -18,19 +18,18 @@ export interface AuthPopupConfig {
 }
 
 @Component({
-  selector: 'pelu-auth-popup',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    ButtonModule,
-    TranslateModule,
-    InputEmailComponent,
-    InputPasswordComponent
-  ],
-  templateUrl: './auth-popup.component.html',
-  styleUrls: ['./auth-popup.component.scss']
+    selector: 'pelu-auth-popup',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        ButtonModule,
+        TranslateModule,
+        InputEmailComponent,
+        InputPasswordComponent
+    ],
+    templateUrl: './auth-popup.component.html',
+    styleUrls: ['./auth-popup.component.scss']
 })
 export class AuthPopupComponent implements OnDestroy {
   // Injections

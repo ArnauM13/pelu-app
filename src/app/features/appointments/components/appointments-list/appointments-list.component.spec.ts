@@ -5,7 +5,7 @@ import { Component, signal } from '@angular/core';
 
 // Test wrapper component to provide input signals
 @Component({
-  template: `
+    template: `
     <pelu-appointments-list
       [bookings]="bookings()"
       [hasActiveFilters]="hasActiveFilters()"
@@ -15,8 +15,7 @@ import { Component, signal } from '@angular/core';
       (onClearFilters)="onClearFilters()">
     </pelu-appointments-list>
   `,
-  imports: [AppointmentsListComponent],
-  standalone: true
+    imports: [AppointmentsListComponent]
 })
 class TestWrapperComponent {
   bookings = signal([]);

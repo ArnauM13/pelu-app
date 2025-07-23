@@ -9,11 +9,10 @@ export interface AvatarData {
 }
 
 @Component({
-  selector: 'pelu-avatar',
-  standalone: true,
-  imports: [CommonModule],
-  styleUrls: ['./avatar.component.scss'],
-  template: `
+    selector: 'pelu-avatar',
+    imports: [CommonModule],
+    styleUrls: ['./avatar.component.scss'],
+    template: `
     <div
       class="avatar"
       [class.has-image]="hasImage() && !imageLoadError()"

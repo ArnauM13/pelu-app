@@ -31,30 +31,29 @@ import { BookingService, Booking } from '../../../core/services/booking.service'
 import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
 
 @Component({
-  selector: 'pelu-appointments-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    ButtonModule,
-    TooltipModule,
-    TranslateModule,
-    CalendarModule,
-    CalendarComponent,
-    CalendarWithFooterComponent,
-    CardComponent,
-    FiltersInlineComponent,
-    AppointmentStatusBadgeComponent,
-    AppointmentsStatsComponent,
-    AppointmentsListComponent,
-    AppointmentsViewControlsComponent,
-    NextAppointmentComponent,
-    LoadingStateComponent,
-    ActionsButtonsComponent
-  ],
-  templateUrl: './appointments-page.component.html',
-  styleUrls: ['./appointments-page.component.scss']
+    selector: 'pelu-appointments-page',
+    imports: [
+        CommonModule,
+        FormsModule,
+        CardModule,
+        ButtonModule,
+        TooltipModule,
+        TranslateModule,
+        CalendarModule,
+        CalendarComponent,
+        CalendarWithFooterComponent,
+        CardComponent,
+        FiltersInlineComponent,
+        AppointmentStatusBadgeComponent,
+        AppointmentsStatsComponent,
+        AppointmentsListComponent,
+        AppointmentsViewControlsComponent,
+        NextAppointmentComponent,
+        LoadingStateComponent,
+        ActionsButtonsComponent
+    ],
+    templateUrl: './appointments-page.component.html',
+    styleUrls: ['./appointments-page.component.scss']
 })
 export class AppointmentsPageComponent {
   // Inject services

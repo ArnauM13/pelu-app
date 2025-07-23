@@ -10,11 +10,10 @@ export interface AppointmentSlotData {
 }
 
 @Component({
-  selector: 'pelu-appointment-slot',
-  standalone: true,
-  imports: [CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'pelu-appointment-slot',
+    imports: [CommonModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     @if (data()?.appointment) {
       <div class="appointment"
            [style.top.px]="position().top"
@@ -49,7 +48,7 @@ export interface AppointmentSlotData {
       </div>
     }
   `,
-  styleUrls: ['./appointment-slot.component.scss']
+    styleUrls: ['./appointment-slot.component.scss']
 })
 export class AppointmentSlotComponent {
   // Input signals

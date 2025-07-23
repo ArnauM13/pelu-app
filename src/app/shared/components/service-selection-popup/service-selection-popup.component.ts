@@ -21,20 +21,19 @@ export interface ServiceSelectionDetails {
 
 
 @Component({
-  selector: 'pelu-service-selection-popup',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    TranslateModule,
-    PopularBadgeComponent
-  ],
-  templateUrl: './service-selection-popup.component.html',
-  styleUrls: ['./service-selection-popup.component.scss']
+    selector: 'pelu-service-selection-popup',
+    imports: [
+        CommonModule,
+        FormsModule,
+        CardModule,
+        ButtonModule,
+        InputTextModule,
+        SelectModule,
+        TranslateModule,
+        PopularBadgeComponent
+    ],
+    templateUrl: './service-selection-popup.component.html',
+    styleUrls: ['./service-selection-popup.component.scss']
 })
 export class ServiceSelectionPopupComponent {
   private readonly toastService = inject(ToastService);

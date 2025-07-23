@@ -5,11 +5,10 @@ import { AppointmentEvent } from '../../core/calendar.component';
 
 // Test host component to provide required inputs
 @Component({
-  template: `
+    template: `
     <pelu-calendar-drag-preview [data]="testData"></pelu-calendar-drag-preview>
   `,
-  standalone: true,
-  imports: [CalendarDragPreviewComponent]
+    imports: [CalendarDragPreviewComponent]
 })
 class TestHostComponent {
   testData: DragPreviewData = {

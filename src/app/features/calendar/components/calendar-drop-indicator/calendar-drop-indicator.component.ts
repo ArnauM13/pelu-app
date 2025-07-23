@@ -8,10 +8,9 @@ export interface DropIndicatorData {
 }
 
 @Component({
-  selector: 'pelu-calendar-drop-indicator',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-drop-indicator',
+    imports: [CommonModule],
+    template: `
     <div class="drop-indicator"
          [style.top.px]="data().top"
          [style.height.px]="data().height"
@@ -19,7 +18,7 @@ export interface DropIndicatorData {
          [class.invalid]="!data().isValid">
     </div>
   `,
-  styles: [`
+    styles: [`
     .drop-indicator {
       position: absolute;
       left: 0;

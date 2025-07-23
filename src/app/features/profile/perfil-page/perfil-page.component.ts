@@ -11,11 +11,10 @@ import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../../sh
 
 
 @Component({
-  selector: 'pelu-perfil-page',
-  standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent],
-  templateUrl: './perfil-page.component.html',
-  styleUrls: ['./perfil-page.component.scss']
+    selector: 'pelu-perfil-page',
+    imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent],
+    templateUrl: './perfil-page.component.html',
+    styleUrls: ['./perfil-page.component.scss']
 })
 export class PerfilPageComponent {
   private auth = inject(Auth);

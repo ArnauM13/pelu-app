@@ -21,11 +21,10 @@ export interface BookingDetails {
 }
 
 @Component({
-  selector: 'pelu-booking-popup',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule, InputTextComponent, InputEmailComponent, PopularBadgeComponent],
-  templateUrl: './booking-popup.component.html',
-  styleUrls: ['./booking-popup.component.scss']
+    selector: 'pelu-booking-popup',
+    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule, InputTextComponent, InputEmailComponent, PopularBadgeComponent],
+    templateUrl: './booking-popup.component.html',
+    styleUrls: ['./booking-popup.component.scss']
 })
 export class BookingPopupComponent {
   // Inject services

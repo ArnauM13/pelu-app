@@ -4,11 +4,10 @@ import { CalendarTimeSlotComponent, TimeSlotData } from './calendar-time-slot.co
 
 // Test host component to provide required inputs
 @Component({
-  template: `
+    template: `
     <pelu-calendar-time-slot [data]="testData" (clicked)="onClicked($event)"></pelu-calendar-time-slot>
   `,
-  standalone: true,
-  imports: [CalendarTimeSlotComponent]
+    imports: [CalendarTimeSlotComponent]
 })
 class TestHostComponent {
   testData: TimeSlotData = {

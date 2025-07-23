@@ -12,11 +12,10 @@ export interface FloatingButtonConfig {
 }
 
 @Component({
-  selector: 'pelu-floating-button',
-  standalone: true,
-  imports: [CommonModule, TooltipModule],
-  templateUrl: './floating-button.component.html',
-  styleUrls: ['./floating-button.component.scss']
+    selector: 'pelu-floating-button',
+    imports: [CommonModule, TooltipModule],
+    templateUrl: './floating-button.component.html',
+    styleUrls: ['./floating-button.component.scss']
 })
 export class FloatingButtonComponent {
   // Input signals

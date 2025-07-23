@@ -11,10 +11,9 @@ export interface LunchBreakData {
 }
 
 @Component({
-  selector: 'pelu-calendar-lunch-break',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-lunch-break',
+    imports: [CommonModule],
+    template: `
     <div class="lunch-break-overlay"
          [style.top.px]="data().top"
          [style.height.px]="data().height"
@@ -25,7 +24,7 @@ export interface LunchBreakData {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .lunch-break-overlay {
       position: absolute;
       left: 0;

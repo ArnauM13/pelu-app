@@ -4,11 +4,10 @@ import { CalendarDayHeaderComponent, DayHeaderData } from './calendar-day-header
 
 // Test host component to provide required inputs
 @Component({
-  template: `
+    template: `
     <pelu-calendar-day-header [data]="testData"></pelu-calendar-day-header>
   `,
-  standalone: true,
-  imports: [CalendarDayHeaderComponent]
+    imports: [CalendarDayHeaderComponent]
 })
 class TestHostComponent {
   testData: DayHeaderData = {
