@@ -101,6 +101,164 @@
   padding: 1rem !important;
   font-family: inherit !important;
   z-index: var(--z-popup) !important;
+  color: var(--text-color) !important;
+}
+
+/* ===== CALENDAR COMPONENT ===== */
+.p-calendar {
+  background-color: var(--surface-color) !important;
+  border: none !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-color) !important;
+  font-size: 0.95rem !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  line-height: 1.5 !important;
+  min-height: 44px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.p-calendar:hover {
+  background-color: var(--surface-color-hover) !important;
+}
+
+.p-calendar:focus {
+  background-color: var(--surface-color) !important;
+  outline: none !important;
+}
+
+.p-calendar .p-inputtext {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-color) !important;
+}
+
+.p-calendar .p-inputtext:hover {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.p-calendar .p-inputtext:focus {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ===== TIME PICKER ===== */
+.p-timepicker {
+  background-color: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--box-shadow-elevated) !important;
+  padding: 1rem !important;
+  font-family: inherit !important;
+  z-index: var(--z-popup) !important;
+  color: var(--text-color) !important;
+}
+
+.p-timepicker .p-timepicker-panel {
+  background-color: var(--surface-color) !important;
+  color: var(--text-color) !important;
+}
+
+.p-timepicker .p-timepicker-hour,
+.p-timepicker .p-timepicker-minute,
+.p-timepicker .p-timepicker-second {
+  color: var(--text-color) !important;
+  background-color: var(--surface-color) !important;
+}
+
+.p-timepicker .p-timepicker-hour:hover,
+.p-timepicker .p-timepicker-minute:hover,
+.p-timepicker .p-timepicker-second:hover {
+  background-color: var(--primary-color-alpha-10) !important;
+  color: var(--primary-color) !important;
+}
+
+.p-timepicker .p-timepicker-hour.p-highlight,
+.p-timepicker .p-timepicker-minute.p-highlight,
+.p-timepicker .p-timepicker-second.p-highlight {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* ===== EMOJI PICKER ===== */
+.emoji-picker {
+  background-color: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--box-shadow-elevated) !important;
+  color: var(--text-color) !important;
+}
+
+.emoji-picker .emoji-category {
+  color: var(--text-color) !important;
+}
+
+.emoji-picker .emoji-item {
+  color: var(--text-color) !important;
+  background-color: var(--surface-color) !important;
+}
+
+.emoji-picker .emoji-item:hover {
+  background-color: var(--primary-color-alpha-10) !important;
+}
+
+/* ===== HOUR SELECTOR ===== */
+.hour-selector {
+  background-color: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--box-shadow-elevated) !important;
+  color: var(--text-color) !important;
+}
+
+.hour-selector .hour-option {
+  color: var(--text-color) !important;
+  background-color: var(--surface-color) !important;
+}
+
+.hour-selector .hour-option:hover {
+  background-color: var(--primary-color-alpha-10) !important;
+  color: var(--primary-color) !important;
+}
+
+.hour-selector .hour-option.selected {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* ===== DROPDOWN PANELS ===== */
+.p-dropdown-panel,
+.p-multiselect-panel,
+.p-overlaypanel {
+  background-color: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--box-shadow-elevated) !important;
+  color: var(--text-color) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item,
+.p-multiselect-panel .p-multiselect-item {
+  color: var(--text-color) !important;
+  background-color: var(--surface-color) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item:hover,
+.p-multiselect-panel .p-multiselect-item:hover {
+  background-color: var(--primary-color-alpha-10) !important;
+  color: var(--primary-color) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item.p-highlight,
+.p-multiselect-panel .p-multiselect-item.p-highlight {
+  background-color: var(--primary-color) !important;
+  color: white !important;
 }
 
 .p-datepicker .p-datepicker-header {
@@ -927,13 +1085,13 @@
 /* ===== INPUT NUMBER ===== */
 .p-inputnumber {
   background-color: var(--surface-color) !important;
-  border: 1px solid var(--border-color) !important;
+  border: none !important;
   border-radius: var(--border-radius) !important;
   color: var(--text-color) !important;
   font-size: 0.95rem !important;
   padding: 0.75rem 1rem !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: var(--box-shadow-inset) !important;
+  box-shadow: none !important;
   font-family: inherit !important;
   line-height: 1.5 !important;
   min-height: 44px !important;
@@ -942,13 +1100,11 @@
 }
 
 .p-inputnumber:hover {
-  border-color: var(--primary-color-light) !important;
-  box-shadow: 0 0 0 2px rgba(58, 90, 138, 0.1) !important;
+  background-color: var(--surface-color-hover) !important;
 }
 
 .p-inputnumber:focus {
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 3px rgba(58, 90, 138, 0.15) !important;
+  background-color: var(--surface-color) !important;
   outline: none !important;
 }
 
@@ -960,13 +1116,11 @@
 }
 
 .p-inputnumber.p-invalid {
-  border-color: var(--error-color) !important;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1) !important;
+  background-color: var(--error-color-light) !important;
 }
 
 .p-inputnumber.p-valid {
-  border-color: var(--success-color) !important;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+  background-color: var(--success-color-light) !important;
 }
 
 /* InputNumber buttons */
