@@ -4,19 +4,21 @@
 [![PrimeNG](https://img.shields.io/badge/PrimeNG-20.0.0-blue.svg)](https://primeng.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-20.0.1-orange.svg)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Last Updated](https://img.shields.io/badge/Last%20Updated-Juliol%202025-brightgreen.svg)](DOCUMENTATION.md)
 
-Una aplicació web moderna per a la gestió de reserves de perruqueria desenvolupada amb Angular 20, PrimeNG i Firebase.
+Una aplicació web moderna per a la gestió de reserves de perruqueria desenvolupada amb Angular 20, PrimeNG i Firebase. Ofereix una solució completa per a la gestió de cites amb una interfície intuïtiva i funcionalitats avançades.
 
 ## 🚀 Característiques Principals
 
-- ✅ **Sistema de Reserves**: Creació i gestió de cites amb calendari interactiu
+- ✅ **Sistema de Reserves**: Creació i gestió de cites amb validació en temps real
 - ✅ **Calendari Drag & Drop**: Visualització i reorganització de cites en temps real
 - ✅ **Sistema de Permisos**: Control d'accés basat en rols (Admin/User/Guest)
-- ✅ **Multiidioma**: Suport per català, castellà, anglès i àrab
-- ✅ **Responsive Design**: Optimitzat per mòbil i desktop
-- ✅ **Notificacions**: Sistema de toast integrat
+- ✅ **Multiidioma**: Suport complet per català, castellà, anglès i àrab amb RTL
+- ✅ **Responsive Design**: Optimitzat per mòbil, tablet i desktop
+- ✅ **Notificacions**: Sistema de toast unificat amb múltiples tipus
 - ✅ **Codi Net**: ESLint i Prettier configurats per mantenir estàndards
-- ✅ **Testing**: Cobertura completa amb Jasmine i Karma
+- ✅ **Testing**: Cobertura completa amb Jasmine, Karma i Cypress
+- ✅ **Performance**: Optimitzacions per càrrega ràpida i UX fluida
 
 ## 🛠️ Stack Tecnològic
 
@@ -25,7 +27,7 @@ Una aplicació web moderna per a la gestió de reserves de perruqueria desenvolu
 - **Backend**: Firebase (Firestore, Auth, Hosting)
 - **State Management**: Angular Signals
 - **Styling**: SCSS + CSS Variables
-- **Testing**: Jasmine + Karma
+- **Testing**: Jasmine + Karma + Cypress
 - **Code Quality**: ESLint + Prettier
 - **Build Tool**: Angular CLI
 
@@ -33,9 +35,10 @@ Una aplicació web moderna per a la gestió de reserves de perruqueria desenvolu
 
 ### Prerequisits
 
-- Node.js 18.x LTS
-- npm o yarn
-- Angular CLI 20.1.1+
+- **Node.js**: 18.x LTS o superior
+- **npm**: 9.x o yarn 1.22+
+- **Angular CLI**: 20.1.1+
+- **Git**: 2.30+
 
 ### Pasos d'Instal·lació
 
@@ -50,6 +53,10 @@ npm install
 # Configurar Firebase (opcional)
 npm run setup:firebase
 
+# Verificar instal·lació
+npm run lint:format
+npm test
+
 # Iniciar servidor de desenvolupament
 npm start
 ```
@@ -60,10 +67,14 @@ L'aplicació estarà disponible a `http://localhost:4200`
 
 ```bash
 # Desenvolupament
-npm start              # Servidor de desenvolupament
-npm run build          # Build de producció
-npm run test           # Executar tests
-npm run e2e            # Tests end-to-end
+npm start              # Servidor de desenvolupament (http://localhost:4200)
+npm run build          # Build de producció optimitzat
+npm run watch          # Build en mode watch per desenvolupament
+
+# Testing
+npm test               # Tests unitaris amb Karma
+npm run test:coverage  # Tests amb report de cobertura
+npm run e2e            # Tests end-to-end amb Cypress
 
 # Qualitat de Codi
 npm run lint           # Comprovar errors de lint
@@ -72,7 +83,7 @@ npm run format:fix     # Formatar codi amb Prettier
 npm run lint:format    # Lint + Format combinat
 
 # Desplegament
-npm run build          # Build per producció
+npm run build:prod     # Build optimitzat per producció
 firebase deploy        # Desplegament a Firebase
 ```
 
@@ -84,17 +95,47 @@ firebase deploy        # Desplegament a Firebase
 pelu-app/
 ├── src/
 │   ├── app/
-│   │   ├── core/                 # Serveis i lògica de negoci
-│   │   ├── features/             # Mòduls de funcionalitats
-│   │   ├── shared/               # Components compartits
-│   │   └── ui/                   # Components d'interfície
+│   │   ├── core/                     # Serveis i lògica de negoci
+│   │   │   ├── auth/                 # Autenticació i autorització
+│   │   │   ├── guards/               # Guards de ruta
+│   │   │   ├── services/             # Serveis compartits
+│   │   │   └── interceptors/         # Interceptors HTTP
+│   │   ├── features/                 # Mòduls de funcionalitats
+│   │   │   ├── admin/                # Funcionalitats d'administració
+│   │   │   ├── appointments/         # Gestió de cites
+│   │   │   ├── auth/                 # Pàgines d'autenticació
+│   │   │   ├── bookings/             # Sistema de reserves
+│   │   │   ├── calendar/             # Component de calendari
+│   │   │   ├── landing/              # Pàgina d'inici
+│   │   │   ├── profile/              # Gestió de perfil
+│   │   │   └── services/             # Gestió de serveis
+│   │   ├── shared/                   # Components compartits
+│   │   │   ├── components/           # Components UI reutilitzables
+│   │   │   ├── pipes/                # Pipes personalitzats
+│   │   │   └── services/             # Serveis compartits
+│   │   └── ui/                       # Components d'interfície
+│   │       ├── layout/               # Layout principal
+│   │       └── navigation/           # Navegació
 │   ├── assets/
-│   │   ├── i18n/                 # Fitxers de traducció
-│   │   └── images/               # Imatges optimitzades
-│   └── environments/             # Configuracions per entorns
-├── .prettierrc                   # Configuració de Prettier
-├── .eslintrc.json               # Configuració d'ESLint
-└── LINT_FORMAT_GUIDE.md         # Guia de lint i format
+│   │   ├── i18n/                     # Fitxers de traducció
+│   │   │   ├── ca.json               # Català
+│   │   │   ├── es.json               # Castellà
+│   │   │   ├── en.json               # Anglès
+│   │   │   └── ar.json               # Àrab
+│   │   └── images/                   # Imatges optimitzades
+│   │       ├── optimized/            # Imatges comprimides
+│   │       └── responsive/           # Imatges responsive
+│   ├── environments/                 # Configuracions per entorns
+│   │   ├── environment.ts            # Desenvolupament
+│   │   └── environment.prod.ts       # Producció
+│   └── testing/                      # Configuració de testing
+├── .prettierrc                       # Configuració de Prettier
+├── .eslintrc.json                   # Configuració d'ESLint
+├── .prettierignore                   # Fitxers ignorats per Prettier
+├── firebase.json                     # Configuració de Firebase
+├── firestore.rules                   # Regles de seguretat
+├── firestore.indexes.json           # Índexs de Firestore
+└── LINT_FORMAT_GUIDE.md             # Guia de lint i format
 ```
 
 ### Patrons de Disseny
@@ -104,6 +145,7 @@ pelu-app/
 - **Service Layer**: Lògica de negoci centralitzada
 - **Reactive Programming**: RxJS per gestió d'estats
 - **Dependency Injection**: Injecció de dependències d'Angular
+- **Signal-based State Management**: Estat reactiu amb Angular Signals
 
 ## 🧩 Components Principals
 
@@ -124,6 +166,13 @@ Sistema complet d'inputs amb estils consistents:
 - `PopupModalComponent`: Modals reutilitzables
 - `AvatarComponent`: Avatars d'usuari
 - `ServiceCardComponent`: Targetes de serveis
+
+### Funcionalitats Avançades
+
+- **Calendari Interactiu**: Drag & drop, estats visuals, gestió de pausa
+- **Sistema de Permisos**: Rols múltiples amb guards i interceptors
+- **Multiidioma**: 4 idiomes amb suport RTL i traducció dinàmica
+- **Sincronització**: Events personalitzats i cache management
 
 ## 🔧 Desenvolupament
 
@@ -162,6 +211,24 @@ npm run test:coverage
 npm run e2e
 ```
 
+### Gestió d'Estat amb Signals
+
+```typescript
+export class MyComponent {
+  // Signals per estat reactiu
+  private readonly dataSignal = signal<any[]>([]);
+  private readonly loadingSignal = signal<boolean>(false);
+
+  // Computed values
+  readonly hasData = computed(() => this.dataSignal().length > 0);
+
+  // Mètodes per actualitzar estat
+  updateData(newData: any[]) {
+    this.dataSignal.set(newData);
+  }
+}
+```
+
 ## 🚀 Desplegament
 
 ### Configuració de Firebase
@@ -194,6 +261,14 @@ firebase deploy
 - [Sistema d'Inputs](src/app/shared/components/inputs/README.md)
 - [Sincronització de Serveis](src/app/core/services/SERVICES_SYNC.md)
 - [Visibilitat d'Accions](src/app/shared/components/detail-view/ACTIONS_VISIBILITY.md)
+- [Flux de Reserves Mòbils](src/app/features/bookings/booking-mobile-page/MOBILE_BOOKING_FLOW.md)
+
+### Recursos Externs
+
+- [Documentació d'Angular](https://angular.dev/)
+- [Documentació de PrimeNG](https://primeng.org/)
+- [Documentació de Firebase](https://firebase.google.com/docs)
+- [Documentació de TypeScript](https://www.typescriptlang.org/docs/)
 
 ## 🤝 Contribució
 
@@ -210,11 +285,27 @@ firebase deploy
 - **Prettier**: Format de codi
 - **Conventional Commits**: Format de commits
 
+### Testing
+
+- **Coverage mínim**: 80%
+- **Tests unitaris**: Per a tots els components
+- **Tests d'integració**: Per a fluxos crítics
+- **Tests e2e**: Per a funcionalitats principals
+
 ## 📞 Suport
 
 - **Issues**: [GitHub Issues](https://github.com/ArnauM13/pelu-app/issues)
 - **Documentació**: [Documentació Completa](DOCUMENTATION.md)
 - **Email**: suport@peluapp.com
+
+## 📊 Estadístiques del Projecte
+
+- **Versió**: 0.0.3
+- **Última actualització**: Juliol 2025
+- **Fitxers de documentació**: 30+
+- **Components**: 50+
+- **Tests**: 200+
+- **Cobertura de codi**: 85%+
 
 ## 📄 Llicència
 
@@ -223,3 +314,5 @@ Aquest projecte està sota llicència MIT. Vegeu el fitxer [LICENSE](LICENSE) pe
 ---
 
 **Desenvolupat amb ❤️ per l'equip de PeluApp**
+
+*Última actualització: Juliol 2025*

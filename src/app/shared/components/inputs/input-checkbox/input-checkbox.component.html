@@ -1,67 +1,52 @@
-<div [class]="checkboxClasses()">
-  <div class="checkbox-container">
-    <!-- Checkbox input -->
-    <input
-      type="checkbox"
-      [id]="checkboxId()"
-      [name]="config().name"
-      [checked]="displayValue()"
-      [disabled]="config().disabled"
-      [readonly]="config().readonly"
-      [required]="config().required"
-     
-      [tabindex]="config().tabindex"
-      [indeterminate]="isIndeterminate()"
-      (change)="onCheckboxChange($event)"
-      (focus)="onFocus($event)"
-      (blur)="onBlur($event)"
-      class="checkbox-input">
-
-    <!-- Custom checkbox styling -->
-    <div class="checkbox-custom">
-      <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
-      </svg>
-    </div>
-
-    <!-- Label -->
-    @if (showLabel()) {
-        <label
-      [for]="checkboxId()"
-      class="checkbox-label">
-      {{ config().label || '' | translate }}
-      @if (config().required) {
-        <span class="required-indicator">*</span>
-      }
+<div class="input-checkbox-container">
+  <!-- Label -->
+  @if (showLabel()) {
+    <label
+      [for]="config().id || config().name"
+      class="input-checkbox-label"
+      [class.required]="config().required">
+      {{ (config().label || '') | translate }}
     </label>
-    }
-  </div>
+  }
+
+  <!-- Native checkbox with PrimeNG classes -->
+  <input
+    type="checkbox"
+    [id]="config().id || config().name"
+    [name]="config().name || ''"
+    [required]="config().required || false"
+    [disabled]="config().disabled || false"
+    [readonly]="config().readonly || false"
+    [tabindex]="config().tabindex"
+    [style]="config().style"
+    [checked]="displayValue()"
+    (change)="onCheckboxChange($event)"
+    (focus)="onFocus($event)"
+    (blur)="onBlur($event)"
+    class="p-checkbox"
+    [class]="config().class || ''"
+    [class.p-invalid]="hasError()"
+    [class.p-valid]="hasSuccess()"
+  />
 
   <!-- Help text -->
   @if (showHelpText()) {
-  <div class="help-text">
-    {{ config().helpText || '' | translate }}
-  </div>
+    <div class="input-help">
+      {{ (config().helpText || '') | translate }}
+    </div>
   }
 
   <!-- Error text -->
   @if (showErrorText()) {
-  <div class="error-text">
-    {{ config().errorText || '' | translate }}
-  </div>
+    <div class="input-error">
+      {{ (config().errorText || '') | translate }}
+    </div>
   }
 
   <!-- Success text -->
   @if (showSuccessText()) {
-  <div class="success-text">
-    {{ config().successText || '' | translate }}
-  </div>
-  }
-
-  <!-- Loading indicator -->
-  @if (config().loading) {
-  <div class="loading-indicator">
-    <div class="spinner"></div>
-  </div>
+    <div class="input-success">
+      {{ (config().successText || '') | translate }}
+    </div>
   }
 </div>
