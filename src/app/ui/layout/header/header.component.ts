@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect, inject, HostListener } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,7 +43,7 @@ export class HeaderComponent {
     return [
       {
         label: 'COMMON.ACTIONS.LOGOUT',
-        icon: 'pi pi-sign-out',
+        emoji: '🚪',
         type: 'danger',
         onClick: () => this.onLogout(),
         disabled: this.isLoggingOut(),
