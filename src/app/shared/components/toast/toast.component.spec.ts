@@ -17,8 +17,9 @@ class MockTranslateLoader implements TranslateLoader {
 
 // Mock p-toast component
 @Component({
-  selector: 'p-toast',
-  template: '<ng-content></ng-content>'
+    selector: 'p-toast',
+    template: '<ng-content></ng-content>',
+    standalone: false
 })
 class MockPToastComponent {
   @Input() key: string = '';

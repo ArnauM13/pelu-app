@@ -32,18 +32,17 @@ export interface InputDateConfig {
 }
 
 @Component({
-  selector: 'pelu-input-date',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-date.component.html',
-  styleUrls: ['./input-date.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputDateComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-date',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-date.component.html',
+    styleUrls: ['./input-date.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputDateComponent),
+            multi: true
+        }
+    ]
 })
 export class InputDateComponent implements ControlValueAccessor {
   // Input signals

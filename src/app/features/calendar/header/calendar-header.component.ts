@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { format } from 'date-fns';
 
 @Component({
-  selector: 'pelu-calendar-header',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './calendar-header.component.html',
-  styleUrls: ['./calendar-header.component.scss']
+    selector: 'pelu-calendar-header',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './calendar-header.component.html',
+    styleUrls: ['./calendar-header.component.scss']
 })
 export class CalendarHeaderComponent {
   @Input() viewDateInfo: string = '';

@@ -10,10 +10,9 @@ export interface AppointmentStats {
 }
 
 @Component({
-  selector: 'pelu-appointments-stats',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-appointments-stats',
+    imports: [CommonModule, TranslateModule],
+    template: `
     <div class="stats-grid" style="view-transition-name: stats-grid">
       <div class="stat-card clickable" (click)="onQuickFilterChange.emit('all')">
         <div class="stat-icon">📅</div>
@@ -48,7 +47,7 @@ export interface AppointmentStats {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

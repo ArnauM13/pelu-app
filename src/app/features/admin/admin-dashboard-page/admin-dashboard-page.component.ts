@@ -5,15 +5,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UserService } from '../../../core/services/user.service';
 
 @Component({
-  selector: 'pelu-admin-dashboard-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    TranslateModule
-  ],
-  templateUrl: './admin-dashboard-page.component.html',
-  styleUrls: ['./admin-dashboard-page.component.scss']
+    selector: 'pelu-admin-dashboard-page',
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslateModule
+    ],
+    templateUrl: './admin-dashboard-page.component.html',
+    styleUrls: ['./admin-dashboard-page.component.scss']
 })
 export class AdminDashboardPageComponent {
   userService = inject(UserService);

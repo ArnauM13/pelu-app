@@ -11,11 +11,10 @@ import { PopularBadgeComponent } from '../../../shared/components/popular-badge/
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
-  selector: 'pelu-services-page',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule, TagModule, PopularBadgeComponent, CurrencyPipe],
-  templateUrl: './services-page.component.html',
-  styleUrls: ['./services-page.component.scss']
+    selector: 'pelu-services-page',
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule, TagModule, PopularBadgeComponent, CurrencyPipe],
+    templateUrl: './services-page.component.html',
+    styleUrls: ['./services-page.component.scss']
 })
 export class ServicesPageComponent implements OnInit {
   // Inject services

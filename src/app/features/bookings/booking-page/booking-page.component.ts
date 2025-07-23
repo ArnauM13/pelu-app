@@ -21,23 +21,22 @@ import { BookingService } from '../../../core/services/booking.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
-  selector: 'pelu-booking-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    TooltipModule,
-    TranslateModule,
-    CalendarComponent,
-    CalendarWithFooterComponent,
-    BookingPopupComponent,
-    ServiceSelectionPopupComponent
-  ],
-  templateUrl: './booking-page.component.html',
-  styleUrls: ['./booking-page.component.scss']
+    selector: 'pelu-booking-page',
+    imports: [
+        CommonModule,
+        FormsModule,
+        CardModule,
+        InputTextModule,
+        ButtonModule,
+        TooltipModule,
+        TranslateModule,
+        CalendarComponent,
+        CalendarWithFooterComponent,
+        BookingPopupComponent,
+        ServiceSelectionPopupComponent
+    ],
+    templateUrl: './booking-page.component.html',
+    styleUrls: ['./booking-page.component.scss']
 })
 export class BookingPageComponent {
   @ViewChild('calendarComponent') calendarComponent!: CalendarWithFooterComponent;

@@ -5,14 +5,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ActionsService, ActionConfig, ActionContext } from '../../../core/services/actions.service';
 
 @Component({
-  selector: 'pelu-actions-buttons',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    TooltipModule
-  ],
-  template: `
+    selector: 'pelu-actions-buttons',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        TooltipModule
+    ],
+    template: `
     <div class="actions-container">
       @for (action of actions; track action.id || action.label) {
                             <button
@@ -27,7 +26,7 @@ import { ActionsService, ActionConfig, ActionContext } from '../../../core/servi
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .actions-container {
       display: flex;
       gap: 0.5rem;

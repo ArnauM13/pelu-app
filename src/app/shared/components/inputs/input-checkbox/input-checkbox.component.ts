@@ -29,18 +29,17 @@ export interface InputCheckboxConfig {
 }
 
 @Component({
-  selector: 'pelu-input-checkbox',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-checkbox.component.html',
-  styleUrls: ['./input-checkbox.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputCheckboxComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-checkbox',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-checkbox.component.html',
+    styleUrls: ['./input-checkbox.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputCheckboxComponent),
+            multi: true
+        }
+    ]
 })
 export class InputCheckboxComponent implements ControlValueAccessor {
   // Input signals

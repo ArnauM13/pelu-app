@@ -11,10 +11,9 @@ export interface PopularBadgeConfig {
 }
 
 @Component({
-  selector: 'pelu-popular-badge',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-popular-badge',
+    imports: [CommonModule, TranslateModule],
+    template: `
     <span
       class="popular-badge"
       [class]="cssClasses()"
@@ -27,7 +26,7 @@ export interface PopularBadgeConfig {
       }
     </span>
   `,
-  styles: [`
+    styles: [`
     .popular-badge {
       display: inline-flex;
       align-items: center;

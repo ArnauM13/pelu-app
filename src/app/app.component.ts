@@ -11,11 +11,10 @@ import { runOneTimeMigration, isMigrationCompleted, markMigrationCompleted } fro
 import { ToastService } from './shared/services/toast.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, CommonModule, TranslateModule, HeaderComponent, ToastComponent, LoaderComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [RouterOutlet, CommonModule, TranslateModule, HeaderComponent, ToastComponent, LoaderComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   // Core signals

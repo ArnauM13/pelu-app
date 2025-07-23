@@ -11,22 +11,21 @@ import { InputCheckboxComponent } from '../input-checkbox/input-checkbox.compone
 import { InputSelectComponent } from '../input-select/input-select.component';
 
 @Component({
-  selector: 'pelu-inputs-demo',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    InputTextComponent,
-    InputTextareaComponent,
-    InputNumberComponent,
-    InputEmailComponent,
-    InputPasswordComponent,
-    InputDateComponent,
-    InputCheckboxComponent,
-    InputSelectComponent
-  ],
-  templateUrl: './inputs-demo.component.html',
-  styleUrls: ['./inputs-demo.component.scss']
+    selector: 'pelu-inputs-demo',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        InputTextComponent,
+        InputTextareaComponent,
+        InputNumberComponent,
+        InputEmailComponent,
+        InputPasswordComponent,
+        InputDateComponent,
+        InputCheckboxComponent,
+        InputSelectComponent
+    ],
+    templateUrl: './inputs-demo.component.html',
+    styleUrls: ['./inputs-demo.component.scss']
 })
 export class InputsDemoComponent {
   // Form data signals

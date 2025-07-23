@@ -37,25 +37,23 @@ interface AppointmentForm {
 }
 
 @Component({
-  selector: 'pelu-appointment-detail-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    ButtonModule,
-    ToastModule,
-    TooltipModule,
-    InputTextModule,
-    CalendarModule,
-    TranslateModule,
-    DetailViewComponent,
-    AppointmentDetailPopupComponent,
-    AlertPopupComponent
-  ],
-
-  templateUrl: './appointment-detail-page.component.html',
-  styleUrls: ['./appointment-detail-page.component.scss']
+    selector: 'pelu-appointment-detail-page',
+    imports: [
+        CommonModule,
+        FormsModule,
+        CardModule,
+        ButtonModule,
+        ToastModule,
+        TooltipModule,
+        InputTextModule,
+        CalendarModule,
+        TranslateModule,
+        DetailViewComponent,
+        AppointmentDetailPopupComponent,
+        AlertPopupComponent
+    ],
+    templateUrl: './appointment-detail-page.component.html',
+    styleUrls: ['./appointment-detail-page.component.scss']
 })
 export class AppointmentDetailPageComponent implements OnInit {
   // Inject services

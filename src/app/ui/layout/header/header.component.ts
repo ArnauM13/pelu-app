@@ -7,11 +7,10 @@ import { ProfileDropdownComponent, ProfileDropdownItem } from '../../../shared/c
 import { UserService } from '../../../core/services/user.service';
 
 @Component({
-  selector: 'pelu-header',
-  standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent, ProfileDropdownComponent],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+    selector: 'pelu-header',
+    imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent, ProfileDropdownComponent],
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   // Inject services

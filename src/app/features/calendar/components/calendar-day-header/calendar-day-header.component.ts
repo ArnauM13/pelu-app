@@ -10,10 +10,9 @@ export interface DayHeaderData {
 }
 
 @Component({
-  selector: 'pelu-calendar-day-header',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-day-header',
+    imports: [CommonModule],
+    template: `
     <div class="day-header"
          [class.past]="data().isPast"
          [class.disabled]="data().isDisabled">
@@ -21,7 +20,7 @@ export interface DayHeaderData {
       <div class="day-date">{{ data().dayDate }}</div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .day-header {
       padding: 0.5rem 0.25rem;
       background: #e9ecef;

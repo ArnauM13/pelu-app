@@ -9,16 +9,15 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
-  selector: 'pelu-login-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    AuthPopupComponent,
-    LoadingStateComponent
-  ],
-  templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.scss']
+    selector: 'pelu-login-page',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        AuthPopupComponent,
+        LoadingStateComponent
+    ],
+    templateUrl: './login-page.component.html',
+    styleUrls: ['./login-page.component.scss']
 })
 export class LoginPageComponent implements OnDestroy {
   // Inject services

@@ -36,18 +36,17 @@ export interface InputNumberConfig {
 }
 
 @Component({
-  selector: 'pelu-input-number',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-number.component.html',
-  styleUrls: ['./input-number.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputNumberComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-number',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-number.component.html',
+    styleUrls: ['./input-number.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputNumberComponent),
+            multi: true
+        }
+    ]
 })
 export class InputNumberComponent implements ControlValueAccessor {
   // Input signals

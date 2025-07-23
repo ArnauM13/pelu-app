@@ -4,11 +4,10 @@ import { CalendarTimeColumnComponent, TimeSlot } from './calendar-time-column.co
 
 // Test host component to provide required inputs
 @Component({
-  template: `
+    template: `
     <pelu-calendar-time-column [timeSlots]="testTimeSlots"></pelu-calendar-time-column>
   `,
-  standalone: true,
-  imports: [CalendarTimeColumnComponent]
+    imports: [CalendarTimeColumnComponent]
 })
 class TestHostComponent {
   testTimeSlots: TimeSlot[] = [

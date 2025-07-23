@@ -9,16 +9,15 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 
 @Component({
-  selector: 'pelu-register-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    AuthPopupComponent,
-    LoadingStateComponent
-  ],
-  templateUrl: './register-page.component.html',
-  styleUrls: ['./register-page.component.scss']
+    selector: 'pelu-register-page',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        AuthPopupComponent,
+        LoadingStateComponent
+    ],
+    templateUrl: './register-page.component.html',
+    styleUrls: ['./register-page.component.scss']
 })
 export class RegisterPageComponent implements OnDestroy {
   // Inject services

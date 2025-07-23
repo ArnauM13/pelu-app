@@ -4,11 +4,10 @@ import { CalendarLunchBreakComponent, LunchBreakData } from './calendar-lunch-br
 
 // Test host component to provide required inputs
 @Component({
-  template: `
+    template: `
     <pelu-calendar-lunch-break [data]="testData"></pelu-calendar-lunch-break>
   `,
-  standalone: true,
-  imports: [CalendarLunchBreakComponent]
+    imports: [CalendarLunchBreakComponent]
 })
 class TestHostComponent {
   testData: LunchBreakData = {

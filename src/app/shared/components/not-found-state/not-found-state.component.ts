@@ -11,10 +11,9 @@ export interface NotFoundStateConfig {
 }
 
 @Component({
-  selector: 'pelu-not-found-state',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-not-found-state',
+    imports: [CommonModule, TranslateModule],
+    template: `
     <div class="not-found-content">
       <div class="not-found-icon">{{ config.icon }}</div>
       <h2>{{ config.title | translate }}</h2>
@@ -26,7 +25,7 @@ export interface NotFoundStateConfig {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .not-found-content {
       text-align: center;
       padding: 2rem;

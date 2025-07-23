@@ -35,18 +35,17 @@ export interface InputPasswordConfig {
 }
 
 @Component({
-  selector: 'pelu-input-password',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-password.component.html',
-  styleUrls: ['./input-password.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputPasswordComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-password',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-password.component.html',
+    styleUrls: ['./input-password.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputPasswordComponent),
+            multi: true
+        }
+    ]
 })
 export class InputPasswordComponent implements ControlValueAccessor {
   // Input signals

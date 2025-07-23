@@ -13,10 +13,9 @@ export interface AlertData {
 }
 
 @Component({
-  selector: 'pelu-alert-popup',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-alert-popup',
+    imports: [CommonModule, TranslateModule],
+    template: `
     @if (isOpen()) {
       <div class="alert-overlay" (click)="onBackdropClick($event)">
         <div class="alert-popup" (click)="$event.stopPropagation()">
@@ -53,7 +52,7 @@ export interface AlertData {
       </div>
     }
   `,
-  styleUrls: ['./alert-popup.component.scss']
+    styleUrls: ['./alert-popup.component.scss']
 })
 export class AlertPopupComponent {
   // Input signals

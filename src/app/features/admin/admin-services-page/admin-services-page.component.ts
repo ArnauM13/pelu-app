@@ -34,36 +34,35 @@ import {
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
-  selector: 'pelu-admin-services-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    InputNumberModule,
-    DropdownModule,
-    CheckboxModule,
-    DialogModule,
-    ConfirmDialogModule,
-    ToastModule,
-    TooltipModule,
-    TranslateModule,
-    CardComponent,
-    LoadingStateComponent,
-    AlertPopupComponent,
-    ServiceCardComponent,
-    PopularBadgeComponent,
-    InputTextareaComponent,
-    InputSelectComponent,
-    InputNumberComponent,
-    InputCheckboxComponent,
-    CurrencyPipe
-  ],
-  providers: [ConfirmationService],
-  templateUrl: './admin-services-page.component.html',
-  styleUrls: ['./admin-services-page.component.scss']
+    selector: 'pelu-admin-services-page',
+    imports: [
+        CommonModule,
+        FormsModule,
+        ButtonModule,
+        CardModule,
+        InputTextModule,
+        InputNumberModule,
+        DropdownModule,
+        CheckboxModule,
+        DialogModule,
+        ConfirmDialogModule,
+        ToastModule,
+        TooltipModule,
+        TranslateModule,
+        CardComponent,
+        LoadingStateComponent,
+        AlertPopupComponent,
+        ServiceCardComponent,
+        PopularBadgeComponent,
+        InputTextareaComponent,
+        InputSelectComponent,
+        InputNumberComponent,
+        InputCheckboxComponent,
+        CurrencyPipe
+    ],
+    providers: [ConfirmationService],
+    templateUrl: './admin-services-page.component.html',
+    styleUrls: ['./admin-services-page.component.scss']
 })
 export class AdminServicesPageComponent implements OnInit {
   // Inject services

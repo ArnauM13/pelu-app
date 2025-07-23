@@ -7,10 +7,9 @@ import { ServiceColorsService, ServiceColor } from '../../../core/services/servi
 import { Booking } from '../../../core/services/booking.service';
 
 @Component({
-  selector: 'pelu-next-appointment',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-next-appointment',
+    imports: [CommonModule, TranslateModule],
+    template: `
     @if (nextBooking(); as booking) {
       <div class="next-appointment-card" [ngClass]="serviceCssClass()">
         <div class="appointment-header">
@@ -81,7 +80,7 @@ import { Booking } from '../../../core/services/booking.service';
       </div>
     }
   `,
-  styles: [`
+    styles: [`
     .next-appointment-card {
       background: var(--surface-color);
       border-radius: 16px;

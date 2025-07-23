@@ -13,14 +13,13 @@ class MockTranslateLoader implements TranslateLoader {
 
 // Test wrapper component to provide input signals
 @Component({
-  template: `
+    template: `
     <pelu-appointments-view-controls
       [viewButtons]="viewButtons()"
       (onViewModeChange)="onViewModeChange($event)">
     </pelu-appointments-view-controls>
   `,
-  imports: [AppointmentsViewControlsComponent],
-  standalone: true
+    imports: [AppointmentsViewControlsComponent]
 })
 class TestWrapperComponent {
   viewButtons = signal<ViewButton[]>([

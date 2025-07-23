@@ -54,27 +54,26 @@ export interface DetailViewConfig {
 }
 
 @Component({
-  selector: 'pelu-detail-view',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    InputTextModule,
-    TooltipModule,
-    AvatarComponent,
-    InfoItemComponent,
-    AppointmentStatusBadgeComponent,
-    NotFoundStateComponent,
-    LoadingStateComponent,
-    RouterModule,
-    InputTextComponent,
-    InputTextareaComponent,
-    InputNumberComponent,
-    InputDateComponent,
-    ActionsButtonsComponent
-  ],
-  templateUrl: './detail-view.component.html',
-  styleUrls: ['./detail-view.component.scss']
+    selector: 'pelu-detail-view',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        InputTextModule,
+        TooltipModule,
+        AvatarComponent,
+        InfoItemComponent,
+        AppointmentStatusBadgeComponent,
+        NotFoundStateComponent,
+        LoadingStateComponent,
+        RouterModule,
+        InputTextComponent,
+        InputTextareaComponent,
+        InputNumberComponent,
+        InputDateComponent,
+        ActionsButtonsComponent
+    ],
+    templateUrl: './detail-view.component.html',
+    styleUrls: ['./detail-view.component.scss']
 })
 export class DetailViewComponent implements OnChanges {
   @Input() config!: DetailViewConfig;

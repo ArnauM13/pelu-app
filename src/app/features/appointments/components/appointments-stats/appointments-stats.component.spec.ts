@@ -13,14 +13,13 @@ class MockTranslateLoader implements TranslateLoader {
 
 // Test wrapper component to provide input signals
 @Component({
-  template: `
+    template: `
     <pelu-appointments-stats
       [stats]="stats()"
       (onQuickFilterChange)="onQuickFilterChange($event)">
     </pelu-appointments-stats>
   `,
-  imports: [AppointmentsStatsComponent],
-  standalone: true
+    imports: [AppointmentsStatsComponent]
 })
 class TestWrapperComponent {
   stats = signal<AppointmentStats>({

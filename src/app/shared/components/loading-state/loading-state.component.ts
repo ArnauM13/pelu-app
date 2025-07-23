@@ -11,10 +11,9 @@ export interface LoadingStateConfig {
 }
 
 @Component({
-  selector: 'pelu-loading-state',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-loading-state',
+    imports: [CommonModule, TranslateModule],
+    template: `
     <div class="loading-content" [class.full-height]="config.fullHeight" [class.overlay]="config.overlay">
       <div class="loading-spinner" [class]="'spinner-' + config.spinnerSize">
         <div class="spinner"></div>
@@ -24,7 +23,7 @@ export interface LoadingStateConfig {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .loading-content {
       display: flex;
       flex-direction: column;

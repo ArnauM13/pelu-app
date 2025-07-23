@@ -32,18 +32,17 @@ export interface TextareaConfig {
 }
 
 @Component({
-  selector: 'pelu-input-textarea',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-textarea.component.html',
-  styleUrls: ['./input-textarea.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputTextareaComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-textarea',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-textarea.component.html',
+    styleUrls: ['./input-textarea.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputTextareaComponent),
+            multi: true
+        }
+    ]
 })
 export class InputTextareaComponent implements ControlValueAccessor {
   // Input signals

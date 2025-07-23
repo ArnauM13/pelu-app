@@ -13,10 +13,9 @@ export interface ViewButton {
 }
 
 @Component({
-  selector: 'pelu-appointments-view-controls',
-  standalone: true,
-  imports: [CommonModule, TranslateModule, FloatingButtonComponent],
-  template: `
+    selector: 'pelu-appointments-view-controls',
+    imports: [CommonModule, TranslateModule, FloatingButtonComponent],
+    template: `
     <div class="view-toggle-fab" role="group" [attr.aria-label]="'COMMON.CHANGE_VIEW' | translate">
       @for (button of viewButtons(); track button.icon; let i = $index) {
       <pelu-floating-button
@@ -26,7 +25,7 @@ export interface ViewButton {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .view-toggle-fab {
       position: fixed;
       bottom: 2rem;

@@ -12,10 +12,9 @@ export interface DragPreviewData {
 }
 
 @Component({
-  selector: 'pelu-calendar-drag-preview',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'pelu-calendar-drag-preview',
+    imports: [CommonModule],
+    template: `
     <div class="global-drag-preview"
          [style.left.px]="data().position.left"
          [style.top.px]="data().position.top">
@@ -29,7 +28,7 @@ export interface DragPreviewData {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .global-drag-preview {
       position: fixed;
       pointer-events: none;

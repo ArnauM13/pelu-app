@@ -42,18 +42,17 @@ export interface InputConfig {
 }
 
 @Component({
-  selector: 'pelu-input-text',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-text.component.html',
-  styleUrls: ['./input-text.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputTextComponent),
-      multi: true
-    }
-  ]
+    selector: 'pelu-input-text',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-text.component.html',
+    styleUrls: ['./input-text.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputTextComponent),
+            multi: true
+        }
+    ]
 })
 export class InputTextComponent implements ControlValueAccessor {
   // Input signals

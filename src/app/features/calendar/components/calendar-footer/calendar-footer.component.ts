@@ -11,10 +11,9 @@ export interface CalendarFooterAlert {
 }
 
 @Component({
-  selector: 'pelu-calendar-footer',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'pelu-calendar-footer',
+    imports: [CommonModule, TranslateModule],
+    template: `
     <div class="calendar-footer">
       <!-- Info note just below calendar -->
       <div class="footer-info">
@@ -36,7 +35,7 @@ export interface CalendarFooterAlert {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .footer-info {
       margin-top: 1rem;
       margin-bottom: 1rem;
