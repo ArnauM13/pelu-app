@@ -142,10 +142,7 @@
         <!-- Auto Confirm -->
         <div class="settings-group">
           <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM'"
             [value]="settingsForm.get('autoConfirm')?.value"
             (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)"
           >
@@ -154,10 +151,7 @@
         <!-- Notifications -->
         <div class="settings-group">
           <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS'"
             [value]="settingsForm.get('sendNotifications')?.value"
             (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)"
           >
@@ -166,10 +160,7 @@
         <!-- Maintenance Mode -->
         <div class="settings-group">
           <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE'"
             [value]="settingsForm.get('maintenanceMode')?.value"
             (valueChange)="settingsForm.get('maintenanceMode')?.setValue($event)"
           >

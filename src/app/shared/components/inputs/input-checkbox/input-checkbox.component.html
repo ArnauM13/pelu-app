@@ -1,52 +1,19 @@
 <div class="input-checkbox-container">
-  <!-- Label -->
-  @if (showLabel()) {
-    <label
-      [for]="config().id || config().name"
-      class="input-checkbox-label"
-      [class.required]="config().required">
-      {{ (config().label || '') | translate }}
+  <!-- PrimeNG Checkbox with label -->
+  <div class="checkbox-wrapper">
+    <p-checkbox
+      [inputId]="getElementId()"
+      [binary]="true"
+      [disabled]="disabled()"
+      [variant]="variant()"
+      [ngModel]="value()"
+      (ngModelChange)="onCheckboxChange($event)"
+      class="pelu-checkbox"
+    />
+
+    <!-- Checkbox label -->
+    <label [for]="getElementId()" class="checkbox-label">
+      {{ label() | translate }}
     </label>
-  }
-
-  <!-- Native checkbox with PrimeNG classes -->
-  <input
-    type="checkbox"
-    [id]="config().id || config().name"
-    [name]="config().name || ''"
-    [required]="config().required || false"
-    [disabled]="config().disabled || false"
-    [readonly]="config().readonly || false"
-    [tabindex]="config().tabindex"
-    [style]="config().style"
-    [checked]="displayValue()"
-    (change)="onCheckboxChange($event)"
-    (focus)="onFocus($event)"
-    (blur)="onBlur($event)"
-    class="p-checkbox"
-    [class]="config().class || ''"
-    [class.p-invalid]="hasError()"
-    [class.p-valid]="hasSuccess()"
-  />
-
-  <!-- Help text -->
-  @if (showHelpText()) {
-    <div class="input-help">
-      {{ (config().helpText || '') | translate }}
-    </div>
-  }
-
-  <!-- Error text -->
-  @if (showErrorText()) {
-    <div class="input-error">
-      {{ (config().errorText || '') | translate }}
-    </div>
-  }
-
-  <!-- Success text -->
-  @if (showSuccessText()) {
-    <div class="input-success">
-      {{ (config().successText || '') | translate }}
-    </div>
-  }
+  </div>
 </div>

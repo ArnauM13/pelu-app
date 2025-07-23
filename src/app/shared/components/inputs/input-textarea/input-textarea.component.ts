@@ -1,11 +1,6 @@
 import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ControlValueAccessor,
-  FormsModule,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface TextareaConfig {
@@ -37,17 +32,17 @@ export interface TextareaConfig {
 }
 
 @Component({
-  selector: 'pelu-input-textarea',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  templateUrl: './input-textarea.component.html',
-  styleUrls: ['./input-textarea.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputTextareaComponent),
-      multi: true,
-    },
-  ],
+    selector: 'pelu-input-textarea',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+    templateUrl: './input-textarea.component.html',
+    styleUrls: ['./input-textarea.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputTextareaComponent),
+            multi: true
+        }
+    ]
 })
 export class InputTextareaComponent implements ControlValueAccessor {
   // Input signals
@@ -76,23 +71,18 @@ export class InputTextareaComponent implements ControlValueAccessor {
   readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
   readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
   readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(
-    () => this.config().showSuccessText !== false && this.hasSuccess()
-  );
+  readonly showSuccessText = computed(() => this.config().showSuccessText !== false && this.hasSuccess());
 
   private onChange = (value: string) => {};
   private onTouched = () => {};
 
   constructor() {
-    effect(
-      () => {
-        const currentValue = this.value();
-        if (currentValue !== undefined && currentValue !== null) {
-          this.internalValue.set(currentValue);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const value = this.value();
+      if (value !== undefined && value !== null) {
+        this.internalValue.set(value);
+      }
+    }, { allowSignalWrites: true });
   }
 
   onInput(event: Event): void {
@@ -142,7 +132,7 @@ export class InputTextareaComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(): void {
+  setDisabledState(isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }

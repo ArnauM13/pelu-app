@@ -2,11 +2,10 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { format } from 'date-fns';
-import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'pelu-calendar-header',
-  imports: [CommonModule, FormsModule, ButtonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './calendar-header.component.html',
   styleUrls: ['./calendar-header.component.scss'],
 })
