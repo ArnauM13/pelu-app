@@ -20,7 +20,10 @@ export interface Appointment {
  * @param currentUserId Current user ID to assign to appointments without userId
  * @returns Migrated appointments array
  */
-export function migrateOldAppointments(appointments: Appointment[], currentUserId?: string): Appointment[] {
+export function migrateOldAppointments(
+  appointments: Appointment[],
+  currentUserId?: string
+): Appointment[] {
   return appointments.map(appointment => {
     const updatedAppointment = { ...appointment };
 
@@ -30,7 +33,12 @@ export function migrateOldAppointments(appointments: Appointment[], currentUserI
     }
 
     // Add userId if missing and user is logged in
-    if (currentUserId && (!updatedAppointment.userId || updatedAppointment.userId === null || updatedAppointment.userId === undefined)) {
+    if (
+      currentUserId &&
+      (!updatedAppointment.userId ||
+        updatedAppointment.userId === null ||
+        updatedAppointment.userId === undefined)
+    ) {
       updatedAppointment.userId = currentUserId;
     }
 
@@ -44,7 +52,10 @@ export function migrateOldAppointments(appointments: Appointment[], currentUserI
  * @param migratedAppointments Migrated appointments array
  * @returns True if any appointment was migrated
  */
-export function needsMigration(originalAppointments: Appointment[], migratedAppointments: Appointment[]): boolean {
+export function needsMigration(
+  originalAppointments: Appointment[],
+  migratedAppointments: Appointment[]
+): boolean {
   return migratedAppointments.some((appointment, index) => {
     const original = originalAppointments[index];
     return appointment.id !== original?.id || appointment.userId !== original?.userId;
@@ -117,7 +128,7 @@ export function markMigrationCompleted(): void {
   }
 }
 
-export function isFutureAppointment(appointment: { data: string, hora: string }): boolean {
+export function isFutureAppointment(appointment: { data: string; hora: string }): boolean {
   if (!appointment?.data || !appointment?.hora) return false;
   const now = new Date();
   const citaDate = new Date(`${appointment.data}T${appointment.hora}:00`);

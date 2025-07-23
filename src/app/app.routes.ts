@@ -19,54 +19,50 @@ export const routes: Routes = [
     path: 'login',
     component: LoginPageComponent,
     canActivate: [publicGuard],
-    data: { viewTransitionName: 'login' }
+    data: { viewTransitionName: 'login' },
   },
   {
     path: 'register',
     component: RegisterPageComponent,
     canActivate: [publicGuard],
-    data: { viewTransitionName: 'register' }
+    data: { viewTransitionName: 'register' },
   },
-
-
 
   // All authenticated routes - accessible to all roles
   {
     path: '',
     component: LandingComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'landing' }
+    data: { viewTransitionName: 'landing' },
   },
   {
     path: 'booking',
     component: BookingWrapperComponent,
-    data: { viewTransitionName: 'booking' }
+    data: { viewTransitionName: 'booking' },
   },
   {
     path: 'appointments',
     component: AppointmentsPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'appointments' }
+    data: { viewTransitionName: 'appointments' },
   },
   {
     path: 'appointments/:id',
     component: AppointmentDetailPageComponent,
-    data: { viewTransitionName: 'appointment-detail' }
+    data: { viewTransitionName: 'appointment-detail' },
   },
   {
     path: 'perfil',
     component: PerfilPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'perfil' }
+    data: { viewTransitionName: 'perfil' },
   },
   {
     path: 'services',
     component: ServicesPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'services' }
+    data: { viewTransitionName: 'services' },
   },
-
-
 
   // Admin pages - accessible only to admins
   {
@@ -76,26 +72,26 @@ export const routes: Routes = [
         path: 'dashboard',
         component: AdminDashboardPageComponent,
         canActivate: [adminGuard],
-        data: { viewTransitionName: 'admin-dashboard' }
+        data: { viewTransitionName: 'admin-dashboard' },
       },
       {
         path: 'services',
         component: AdminServicesPageComponent,
         canActivate: [adminGuard],
-        data: { viewTransitionName: 'admin-services' }
+        data: { viewTransitionName: 'admin-services' },
       },
       {
         path: 'settings',
         component: AdminSettingsPageComponent,
         canActivate: [adminGuard],
-        data: { viewTransitionName: 'admin-settings' }
-      }
-    ]
+        data: { viewTransitionName: 'admin-settings' },
+      },
+    ],
   },
 
   // Default redirect
   {
     path: '**',
-    redirectTo: ''
-  }
+    redirectTo: '',
+  },
 ];

@@ -1,7 +1,11 @@
 /* Perfil page specific styles - using detail-page component */
 .perfil-page-container {
   height: 100vh;
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   padding: 1rem;
   display: flex;
   align-items: center;
@@ -128,8 +132,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Content Section - now handled by detail-page component */
@@ -267,7 +275,11 @@
     border: 1px solid var(--border-color);
 
     &:hover {
-      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--secondary-color-dark) 0%,
+        var(--secondary-color) 100%
+      );
     }
   }
 

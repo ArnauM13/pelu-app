@@ -25,7 +25,7 @@ export class TranslationService {
     { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
     { code: 'es', name: 'Español', flag: '🇪🇸' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true }
+    { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true },
   ];
 
   constructor(private translate: TranslateService) {

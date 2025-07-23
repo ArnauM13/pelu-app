@@ -7,7 +7,7 @@ describe('CalendarHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarHeaderComponent]
+      imports: [CalendarHeaderComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CalendarHeaderComponent);

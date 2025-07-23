@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-    selector: 'pelu-logout-button',
-    imports: [CommonModule, TranslateModule],
-    templateUrl: './logout-button.component.html',
-    styleUrls: ['./logout-button.component.scss']
+  selector: 'pelu-logout-button',
+  imports: [CommonModule, TranslateModule],
+  templateUrl: './logout-button.component.html',
+  styleUrls: ['./logout-button.component.scss'],
 })
 export class LogoutButtonComponent {
   private authService = inject(AuthService);

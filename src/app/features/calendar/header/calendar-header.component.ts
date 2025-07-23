@@ -5,10 +5,10 @@ import { format } from 'date-fns';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-    selector: 'pelu-calendar-header',
-    imports: [CommonModule, FormsModule, ButtonModule],
-    templateUrl: './calendar-header.component.html',
-    styleUrls: ['./calendar-header.component.scss']
+  selector: 'pelu-calendar-header',
+  imports: [CommonModule, FormsModule, ButtonModule],
+  templateUrl: './calendar-header.component.html',
+  styleUrls: ['./calendar-header.component.scss'],
 })
 export class CalendarHeaderComponent {
   @Input() viewDateInfo: string = '';

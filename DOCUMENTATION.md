@@ -3,32 +3,38 @@
 ## 📋 Taula de Continguts
 
 ### 🚀 [Inici Ràpid](#inici-ràpid)
+
 - [Descripció General](#descripció-general)
 - [Instal·lació i Configuració](#instal·lació-i-configuració)
 - [Comandaments de Desenvolupament](#comandaments-de-desenvolupament)
 
 ### 🏗️ [Arquitectura](#arquitectura)
+
 - [Estructura del Projecte](#estructura-del-projecte)
 - [Stack Tecnològic](#stack-tecnològic)
 - [Patrons de Disseny](#patrons-de-disseny)
 
 ### ⚡ [Funcionalitats Principals](#funcionalitats-principals)
+
 - [Sistema de Reserves](#sistema-de-reserves)
 - [Calendari Interactiu](#calendari-interactiu)
 - [Sistema de Permisos](#sistema-de-permisos)
 - [Multiidioma](#multiidioma)
 
 ### 🧩 [Components Compartits](#components-compartits)
+
 - [Sistema d'Inputs Unificats](#sistema-dinputs-unificats)
 - [Components UI](#components-ui)
 - [Popups i Modals](#popups-i-modals)
 
 ### 🔧 [Desenvolupament](#desenvolupament)
+
 - [Guies de Desenvolupament](#guies-de-desenvolupament)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 
 ### 🚀 [Desplegament](#desplegament)
+
 - [Configuració de Firebase](#configuració-de-firebase)
 - [Desplegament a Producció](#desplegament-a-producció)
 
@@ -41,6 +47,7 @@
 **PeluApp** és una aplicació web per a la gestió de reserves de perruqueria desenvolupada amb Angular 18. L'aplicació permet als usuaris veure horaris disponibles, fer reserves i als administradors gestionar cites i serveis.
 
 ### Característiques Principals
+
 - ✅ **Sistema de Reserves**: Creació i gestió de cites
 - ✅ **Calendari Interactiu**: Visualització en temps real amb drag & drop
 - ✅ **Sistema de Permisos**: Rol-based access control
@@ -52,6 +59,7 @@
 ### Instal·lació i Configuració
 
 #### Prerequisits
+
 - Node.js 18.x LTS
 - npm o yarn
 - Angular CLI 18.2.0+
@@ -160,6 +168,7 @@ El sistema de reserves permet als usuaris crear i gestionar cites de perruqueria
 #### Flux de Booking
 
 **Flux Mòbil Optimitzat**:
+
 ```
 1. Usuari selecciona data
    ↓
@@ -171,6 +180,7 @@ El sistema de reserves permet als usuaris crear i gestionar cites de perruqueria
 ```
 
 **Flux Desktop**:
+
 ```
 1. Usuari selecciona data
    ↓
@@ -207,6 +217,7 @@ window.addEventListener('serviceUpdated', () => {
 ```
 
 **Cache Management**:
+
 - Durada: 5 minuts
 - Clau: `pelu-services-cache`
 - Timestamp: `pelu-services-cache-timestamp`
@@ -305,6 +316,7 @@ Sistema complet d'inputs amb mides i estils consistents.
 #### Components Disponibles
 
 ##### 1. **Input Text** (`pelu-input-text`)
+
 Per a entrades de text d'una sola línia.
 
 ```typescript
@@ -324,6 +336,7 @@ Per a entrades de text d'una sola línia.
 **Mida unificada**: 44px d'alçada
 
 ##### 2. **Input Textarea** (`pelu-input-textarea`)
+
 Per a entrades de text llarg amb múltiples línies.
 
 ```typescript
@@ -343,32 +356,40 @@ Per a entrades de text llarg amb múltiples línies.
 **Mida unificada**: 80px d'alçada mínima (mòbil: 88px)
 
 ##### 3. **Input Email** (`pelu-input-email`)
+
 Per a entrades d'email amb validació.
 
 ##### 4. **Input Password** (`pelu-input-password`)
+
 Per a contrasenyes amb opció de mostrar/amagar.
 
 ##### 5. **Input Number** (`pelu-input-number`)
+
 Per a entrades numèriques.
 
 ##### 6. **Input Date** (`pelu-input-date`)
+
 Per a selecció de dates.
 
 ##### 7. **Input Select** (`pelu-input-select`)
+
 Per a selecció d'opcions amb suport per colors.
 
 ##### 8. **Input Checkbox** (`pelu-input-checkbox`)
+
 Per a caselles de selecció.
 
 #### Característiques Unificades
 
 ##### **Mides Consistents**
+
 - **Inputs de text**: 44px d'alçada
 - **Textareas**: 80px d'alçada mínima (mòbil: 88px)
 - **Bordes**: 2px amb border-radius de 8px
 - **Padding**: 0.75rem
 
 ##### **Estats Visuals**
+
 - **Normal**: Border gris clar (#e5e7eb)
 - **Focus**: Border blau (#1e40af) amb shadow
 - **Error**: Border vermell (#dc2626) amb shadow
@@ -376,6 +397,7 @@ Per a caselles de selecció.
 - **Disabled**: Opacitat 0.6, cursor not-allowed
 
 ##### **Funcionalitats Comunes**
+
 - ✅ ControlValueAccessor implementat
 - ✅ Suport per traduccions
 - ✅ Estats d'error, ajuda i èxit
@@ -389,12 +411,12 @@ Per a caselles de selecció.
 import { InputTextComponent, InputTextareaComponent } from '@shared/components/inputs';
 
 @Component({
-  imports: [InputTextComponent, InputTextareaComponent]
+  imports: [InputTextComponent, InputTextareaComponent],
 })
 export class MyComponent {
   formData = signal({
     name: '',
-    description: ''
+    description: '',
   });
 
   updateField(field: string, value: any) {
@@ -408,20 +430,23 @@ export class MyComponent {
 <pelu-input-text
   [config]="{ label: 'Nom', placeholder: 'Nom complet', showLabel: true }"
   [value]="formData().name"
-  (valueChange)="updateField('name', $event)">
+  (valueChange)="updateField('name', $event)"
+>
 </pelu-input-text>
 
 <!-- Input textarea (text llarg) -->
 <pelu-input-textarea
   [config]="{ label: 'Descripció', placeholder: 'Descripció detallada...', rows: 4, showLabel: true }"
   [value]="formData().description"
-  (valueChange)="updateField('description', $event)">
+  (valueChange)="updateField('description', $event)"
+>
 </pelu-input-textarea>
 ```
 
 ### Components UI
 
 #### Card Component (`pelu-card`)
+
 Component base per contenidors amb estil consistent.
 
 ```html
@@ -432,6 +457,7 @@ Component base per contenidors amb estil consistent.
 ```
 
 #### Toast Component (`pelu-toast`)
+
 Sistema de notificacions unificat.
 
 ```typescript
@@ -446,6 +472,7 @@ this.toastService.showWarning('Advertència');
 ```
 
 #### Loader Component (`pelu-loader`)
+
 Indicador de càrrega global.
 
 ```html
@@ -455,6 +482,7 @@ Indicador de càrrega global.
 ```
 
 #### Not Found State (`pelu-not-found-state`)
+
 Component per mostrar estats de "no trobat".
 
 ```html
@@ -462,13 +490,15 @@ Component per mostrar estats de "no trobat".
   [title]="'No s\'han trobat resultats'"
   [message]="'Prova amb altres filtres'"
   [actionText]="'Tornar'"
-  (actionClick)="goBack()">
+  (actionClick)="goBack()"
+>
 </pelu-not-found-state>
 ```
 
 ### Popups i Modals
 
 #### Booking Popup (`pelu-booking-popup`)
+
 Popup de confirmació de reserves.
 
 ```html
@@ -476,11 +506,13 @@ Popup de confirmació de reserves.
   [open]="showBookingPopup()"
   [bookingDetails]="bookingDetails()"
   (confirmed)="onBookingConfirmed($event)"
-  (cancelled)="onBookingCancelled()">
+  (cancelled)="onBookingCancelled()"
+>
 </pelu-booking-popup>
 ```
 
 #### Auth Popup (`pelu-auth-popup`)
+
 Popup d'autenticació.
 
 ```html
@@ -488,11 +520,13 @@ Popup d'autenticació.
   [open]="showAuthPopup()"
   [mode]="'login'"
   (authenticated)="onAuthenticated($event)"
-  (cancelled)="onAuthCancelled()">
+  (cancelled)="onAuthCancelled()"
+>
 </pelu-auth-popup>
 ```
 
 #### Confirmation Popup (`pelu-confirmation-popup`)
+
 Popup de confirmació genèric.
 
 ```html
@@ -503,7 +537,8 @@ Popup de confirmació genèric.
   [confirmText]="'Confirmar'"
   [cancelText]="'Cancel·lar'"
   (confirmed)="onConfirmed()"
-  (cancelled)="onCancelled()">
+  (cancelled)="onCancelled()"
+>
 </pelu-confirmation-popup>
 ```
 
@@ -516,6 +551,7 @@ Popup de confirmació genèric.
 #### Creació de Components
 
 1. **Estructura de Carpetes**:
+
 ```
 feature-name/
 ├── component-name/
@@ -526,6 +562,7 @@ feature-name/
 ```
 
 2. **Template del Component**:
+
 ```typescript
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -535,7 +572,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './component-name.component.html',
-  styleUrls: ['./component-name.component.scss']
+  styleUrls: ['./component-name.component.scss'],
 })
 export class ComponentNameComponent {
   // Lògica del component
@@ -577,7 +614,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MyService {
   private readonly http = inject(HttpClient);
@@ -606,7 +643,7 @@ describe('MyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MyComponent]
+      imports: [MyComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyComponent);
@@ -638,7 +675,7 @@ describe('MyComponent Integration', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MyComponent, HttpClientTestingModule]
+      imports: [MyComponent, HttpClientTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyComponent);
@@ -657,6 +694,7 @@ describe('MyComponent Integration', () => {
 #### Problemes Comuns
 
 ##### 1. **Error de Compilació TypeScript**
+
 ```bash
 # Verificar tipus
 npm run type-check
@@ -666,6 +704,7 @@ npm run clean
 ```
 
 ##### 2. **Error de Dependències**
+
 ```bash
 # Eliminar node_modules i reinstal·lar
 rm -rf node_modules package-lock.json
@@ -673,6 +712,7 @@ npm install
 ```
 
 ##### 3. **Error de Firebase**
+
 ```bash
 # Verificar configuració
 firebase projects:list
@@ -682,6 +722,7 @@ firebase init
 ```
 
 ##### 4. **Error de Build**
+
 ```bash
 # Build amb més detalls
 ng build --verbose
@@ -693,6 +734,7 @@ ng build --configuration production
 #### Debugging
 
 ##### 1. **Console Logging**
+
 ```typescript
 // Logging amb nivells
 console.log('Info:', data);
@@ -701,11 +743,13 @@ console.error('Error:', error);
 ```
 
 ##### 2. **Angular DevTools**
+
 - Instal·lar Angular DevTools extension
 - Inspeccionar components i serveis
 - Debuggar signals i estat
 
 ##### 3. **Network Tab**
+
 - Verificar crides HTTP
 - Comprovar headers i responses
 - Debuggar errors de xarxa
@@ -717,17 +761,20 @@ console.error('Error:', error);
 ### Configuració de Firebase
 
 #### 1. **Instal·lació de Firebase CLI**
+
 ```bash
 npm install -g firebase-tools
 ```
 
 #### 2. **Inicialització del Projecte**
+
 ```bash
 firebase login
 firebase init
 ```
 
 #### 3. **Configuració de Firestore**
+
 ```javascript
 // firestore.rules
 rules_version = '2';
@@ -737,7 +784,7 @@ service cloud.firestore {
     match /appointments/{appointmentId} {
       allow read, write: if request.auth != null;
     }
-    
+
     match /services/{serviceId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.token.admin == true;
@@ -747,16 +794,13 @@ service cloud.firestore {
 ```
 
 #### 4. **Configuració d'Hosting**
+
 ```json
 // firebase.json
 {
   "hosting": {
     "public": "dist/pelu-app/browser",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
@@ -770,6 +814,7 @@ service cloud.firestore {
 ### Desplegament a Producció
 
 #### 1. **Build de Producció**
+
 ```bash
 # Build optimitzat
 npm run build
@@ -779,6 +824,7 @@ npm run build:analyze
 ```
 
 #### 2. **Desplegament**
+
 ```bash
 # Desplegament complet
 firebase deploy
@@ -791,6 +837,7 @@ firebase deploy --only firestore
 ```
 
 #### 3. **Verificació Post-Desplegament**
+
 ```bash
 # Verificar URL de desplegament
 firebase hosting:channel:list
@@ -800,6 +847,7 @@ firebase firestore:rules:get
 ```
 
 #### 4. **Monitoring**
+
 ```bash
 # Veure logs
 firebase functions:log
@@ -813,12 +861,14 @@ firebase hosting:channel:list
 ## 📚 Recursos Addicionals
 
 ### Documentació Externa
+
 - [Angular Documentation](https://angular.dev/)
 - [PrimeNG Documentation](https://primeng.org/)
 - [Firebase Documentation](https://firebase.google.com/docs)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 
 ### Comandaments Útils
+
 ```bash
 # Generar component
 ng generate component feature-name/component-name
@@ -869,6 +919,7 @@ npm run test:coverage
 ## 🎯 Contribució
 
 ### Guies de Contribució
+
 1. **Fork del repositori**
 2. **Crear branch per feature**: `git checkout -b feature/nova-funcionalitat`
 3. **Fer commits descriptius**: `git commit -m "feat: afegir nova funcionalitat"`
@@ -876,12 +927,14 @@ npm run test:coverage
 5. **Crear Pull Request**
 
 ### Estàndards de Codi
+
 - **TypeScript**: Configuració estricta
 - **ESLint**: Regles de linting
 - **Prettier**: Format de codi
 - **Conventional Commits**: Format de commits
 
 ### Testing
+
 - **Coverage mínim**: 80%
 - **Tests unitaris**: Per a tots els components
 - **Tests d'integració**: Per a fluxos crítics
@@ -892,15 +945,17 @@ npm run test:coverage
 ## 📞 Suport
 
 ### Contacte
+
 - **Email**: suport@peluapp.com
 - **Issues**: [GitHub Issues](https://github.com/peluapp/issues)
 - **Documentació**: [Documentació Completa](DOCUMENTATION.md)
 
 ### Recursos
+
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 - **API Reference**: [API.md](API.md)
 - **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ---
 
-*Última actualització: Gener 2025* 
+_Última actualització: Gener 2025_

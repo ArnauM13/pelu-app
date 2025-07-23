@@ -12,11 +12,14 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/core/calendar.component';
+import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
 import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
 import { AppointmentStatusBadgeComponent } from '../../../shared/components/appointment-status-badge';
-import { AppointmentsStatsComponent, AppointmentStats } from '../components/appointments-stats/appointments-stats.component';
+import {
+  AppointmentsStatsComponent,
+  AppointmentStats,
+} from '../components/appointments-stats/appointments-stats.component';
 import { AppointmentsListComponent } from '../components/appointments-list/appointments-list.component';
 import { AppointmentsViewControlsComponent } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
@@ -29,29 +32,28 @@ import { BookingService, Booking } from '../../../core/services/booking.service'
 import { isFutureAppointment } from '../../../shared/services';
 
 @Component({
-    selector: 'pelu-appointments-page',
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        ButtonModule,
-        TooltipModule,
-        TranslateModule,
-        DatePickerModule,
-        CalendarComponent,
-        CalendarWithFooterComponent,
-        CardComponent,
-        FiltersInlineComponent,
-        AppointmentStatusBadgeComponent,
-        AppointmentsStatsComponent,
-        AppointmentsListComponent,
-        AppointmentsViewControlsComponent,
-        NextAppointmentComponent,
-        LoadingStateComponent,
-        ActionsButtonsComponent
-    ],
-    templateUrl: './appointments-page.component.html',
-    styleUrls: ['./appointments-page.component.scss']
+  selector: 'pelu-appointments-page',
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    TooltipModule,
+    TranslateModule,
+    DatePickerModule,
+    CalendarWithFooterComponent,
+    CardComponent,
+    FiltersInlineComponent,
+    AppointmentStatusBadgeComponent,
+    AppointmentsStatsComponent,
+    AppointmentsListComponent,
+    AppointmentsViewControlsComponent,
+    NextAppointmentComponent,
+    LoadingStateComponent,
+    ActionsButtonsComponent,
+  ],
+  templateUrl: './appointments-page.component.html',
+  styleUrls: ['./appointments-page.component.scss'],
 })
 export class AppointmentsPageComponent {
   // Inject services
@@ -59,10 +61,9 @@ export class AppointmentsPageComponent {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly appointmentService = inject(BookingService);
-  private readonly actionsService = inject(ActionsService);
   private readonly serviceColorsService = inject(ServiceColorsService);
 
-    // Core data signals - now using Firebase
+  // Core data signals - now using Firebase
   readonly appointments = this.appointmentService.bookings;
   private readonly viewModeSignal = signal<'list' | 'calendar'>('list');
   private readonly selectedDateSignal = signal<Date | null>(null);
@@ -89,7 +90,7 @@ export class AppointmentsPageComponent {
       ariaLabel: 'COMMON.LIST_VIEW_LABEL',
       isActive: this.viewMode() === 'list',
       variant: 'primary' as const,
-      size: 'large' as const
+      size: 'large' as const,
     },
     {
       icon: '📅',
@@ -97,8 +98,8 @@ export class AppointmentsPageComponent {
       ariaLabel: 'COMMON.CALENDAR_VIEW_LABEL',
       isActive: this.viewMode() === 'calendar',
       variant: 'primary' as const,
-      size: 'large' as const
-    }
+      size: 'large' as const,
+    },
   ]);
 
   // Computed filtered appointments - fully reactive
@@ -114,7 +115,9 @@ export class AppointmentsPageComponent {
       case 'upcoming':
         const now = new Date();
         filtered = filtered.filter(appointment => {
-          const appointmentDateTime = new Date(appointment.data + 'T' + (appointment.hora || '23:59'));
+          const appointmentDateTime = new Date(
+            appointment.data + 'T' + (appointment.hora || '23:59')
+          );
           return appointmentDateTime > now;
         });
         break;
@@ -174,7 +177,7 @@ export class AppointmentsPageComponent {
       start: (appointment.data || '') + (appointment.hora ? 'T' + appointment.hora : 'T00:00'),
       duration: appointment.duration || 60,
       serviceName: appointment.serviceName || '',
-      clientName: appointment.nom || 'Client'
+      clientName: appointment.nom || 'Client',
     }));
   });
 
@@ -196,20 +199,26 @@ export class AppointmentsPageComponent {
   });
   readonly myAppointments = computed(() => {
     const currentUserId = this.getCurrentUserId();
-          return this.appointments().filter(appointment => appointment.uid === currentUserId).length;
+    return this.appointments().filter(appointment => appointment.uid === currentUserId).length;
   });
 
-  readonly hasActiveFilters = computed(() =>
-    this.filterDate() !== '' || this.filterClient() !== '' || this.filterService() !== '' || this.quickFilter() !== 'all'
+  readonly hasActiveFilters = computed(
+    () =>
+      this.filterDate() !== '' ||
+      this.filterClient() !== '' ||
+      this.filterService() !== '' ||
+      this.quickFilter() !== 'all'
   );
 
   // Computed appointment stats for the stats component
-  readonly appointmentStats = computed((): AppointmentStats => ({
-    total: this.totalAppointments(),
-    today: this.todayAppointments(),
-    upcoming: this.upcomingAppointments(),
-    mine: this.myAppointments()
-  }));
+  readonly appointmentStats = computed(
+    (): AppointmentStats => ({
+      total: this.totalAppointments(),
+      today: this.todayAppointments(),
+      upcoming: this.upcomingAppointments(),
+      mine: this.myAppointments(),
+    })
+  );
 
   // Loading state
   readonly loading = computed(() => this.appointmentService.isLoading());
@@ -222,7 +231,7 @@ export class AppointmentsPageComponent {
       spinnerSize: 'large' as const,
       showMessage: true,
       fullHeight: true,
-      overlay: true
+      overlay: true,
     };
   }
 
@@ -253,7 +262,7 @@ export class AppointmentsPageComponent {
       return;
     }
 
-          const success = await this.appointmentService.deleteBooking(appointment.id);
+    const success = await this.appointmentService.deleteBooking(appointment.id);
 
     if (success) {
       // Show success message with better fallback for client name
@@ -265,7 +274,7 @@ export class AppointmentsPageComponent {
   editAppointment(appointment: any): void {
     const user = this.authService.user();
     if (!user?.uid) {
-      this.toastService.showError('No s\'ha pogut editar la cita. Si us plau, inicia sessió.');
+      this.toastService.showError("No s'ha pogut editar la cita. Si us plau, inicia sessió.");
       return;
     }
 
@@ -274,8 +283,8 @@ export class AppointmentsPageComponent {
       this.router.navigate(['/appointments', appointment.id], {
         queryParams: {
           token: appointment.editToken,
-          edit: 'true'
-        }
+          edit: 'true',
+        },
       });
     } else {
       // Fallback: generem un ID únic combinant clientId i appointmentId
@@ -292,7 +301,7 @@ export class AppointmentsPageComponent {
   formatDate(dateString: string): string {
     try {
       const date = parseISO(dateString);
-      return format(date, 'EEEE, d \'de\' MMMM \'de\' yyyy', { locale: ca });
+      return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ca });
     } catch {
       return dateString;
     }
@@ -351,7 +360,13 @@ export class AppointmentsPageComponent {
     return currentUser.uid;
   }
 
-  showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
+  showToast(
+    severity: 'success' | 'error' | 'info' | 'warn',
+    summary: string,
+    detail: string,
+    appointmentId?: string,
+    showViewButton: boolean = false
+  ) {
     this.toastService.showToast(severity, summary, detail, appointmentId, showViewButton);
   }
 
@@ -400,8 +415,7 @@ export class AppointmentsPageComponent {
       item: appointment,
       onEdit: () => this.editAppointment(appointment),
       onDelete: () => this.deleteAppointment(appointment),
-      onView: () => this.viewAppointmentDetail(appointment)
+      onView: () => this.viewAppointmentDetail(appointment),
     };
   }
 }
-

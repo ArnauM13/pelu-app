@@ -9,7 +9,7 @@ export interface LanguageInfo {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TranslationService {
   private currentLang = 'ca';
@@ -53,7 +53,7 @@ export class TranslationService {
     return [
       { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
       { code: 'es', name: 'Español', flag: '🇪🇸' },
-      { code: 'en', name: 'English', flag: '🇬🇧' }
+      { code: 'en', name: 'English', flag: '🇬🇧' },
     ];
   }
 

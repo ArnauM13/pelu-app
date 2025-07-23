@@ -6,10 +6,9 @@ export interface Position {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarPositionService {
-
   calculatePosition(date: Date, time: string): Position {
     // Mock implementation for testing
     return { top: 0, left: 0 };

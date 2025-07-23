@@ -5,10 +5,10 @@ import { TranslationService, Language } from '../../../core/services/translation
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-    selector: 'pelu-language-selector',
-    imports: [CommonModule, TranslateModule],
-    templateUrl: './language-selector.component.html',
-    styleUrls: ['./language-selector.component.scss']
+  selector: 'pelu-language-selector',
+  imports: [CommonModule, TranslateModule],
+  templateUrl: './language-selector.component.html',
+  styleUrls: ['./language-selector.component.scss'],
 })
 export class LanguageSelectorComponent implements OnInit, OnDestroy {
   // Inject services
@@ -43,9 +43,12 @@ export class LanguageSelectorComponent implements OnInit, OnDestroy {
   private onDocumentClickBound = (event: Event) => this.onDocumentClick(event);
 
   #initLanguageEffect() {
-    effect(() => {
-      this.currentLanguageSignal.set(this.#translationService.getCurrentLanguageInfo());
-    }, { allowSignalWrites: true });
+    effect(
+      () => {
+        this.currentLanguageSignal.set(this.#translationService.getCurrentLanguageInfo());
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   toggleDropdown(): void {

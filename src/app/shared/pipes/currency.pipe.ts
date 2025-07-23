@@ -3,7 +3,7 @@ import { CurrencyService } from '../../core/services/currency.service';
 
 @Pipe({
   name: 'currency',
-  standalone: true
+  standalone: true,
 })
 export class CurrencyPipe implements PipeTransform {
   private readonly currencyService = inject(CurrencyService);

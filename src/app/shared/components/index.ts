@@ -40,4 +40,3 @@ export type { ActionConfig, ActionContext } from '../../core/services/actions.se
 // Popular badge component
 export { PopularBadgeComponent } from './popular-badge/popular-badge.component';
 export type { PopularBadgeConfig } from './popular-badge/popular-badge.component';
-

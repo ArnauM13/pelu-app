@@ -8,7 +8,8 @@
           type="button"
           class="mode-btn"
           [class.active]="!isEditMode()"
-          (click)="setViewMode()">
+          (click)="setViewMode()"
+        >
           <i class="pi pi-eye"></i>
           {{ 'ADMIN.SETTINGS_PAGE.VIEW_MODE' | translate }}
         </button>
@@ -16,7 +17,8 @@
           type="button"
           class="mode-btn"
           [class.active]="isEditMode()"
-          (click)="setEditMode()">
+          (click)="setEditMode()"
+        >
           <i class="pi pi-pencil"></i>
           {{ 'ADMIN.SETTINGS_PAGE.EDIT_MODE' | translate }}
         </button>
@@ -45,7 +47,11 @@
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM' | translate }}</label>
           <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settings().autoConfirmAppointments" [class.pi-times]="!settings().autoConfirmAppointments"></i>
+            <i
+              class="pi"
+              [class.pi-check]="settings().autoConfirmAppointments"
+              [class.pi-times]="!settings().autoConfirmAppointments"
+            ></i>
             {{ settings().autoConfirmAppointments ? 'Sí' : 'No' }}
           </div>
         </div>
@@ -53,7 +59,11 @@
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS' | translate }}</label>
           <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settings().sendNotifications" [class.pi-times]="!settings().sendNotifications"></i>
+            <i
+              class="pi"
+              [class.pi-check]="settings().sendNotifications"
+              [class.pi-times]="!settings().sendNotifications"
+            ></i>
             {{ settings().sendNotifications ? 'Sí' : 'No' }}
           </div>
         </div>
@@ -61,7 +71,11 @@
         <div class="settings-group">
           <label>{{ 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE' | translate }}</label>
           <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settings().maintenanceMode" [class.pi-times]="!settings().maintenanceMode"></i>
+            <i
+              class="pi"
+              [class.pi-check]="settings().maintenanceMode"
+              [class.pi-times]="!settings().maintenanceMode"
+            ></i>
             {{ settings().maintenanceMode ? 'Sí' : 'No' }}
           </div>
         </div>
@@ -88,10 +102,11 @@
               type: 'text',
               label: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
               placeholder: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
-              showLabel: true
+              showLabel: true,
             }"
             [value]="settingsForm.get('businessName')?.value"
-            (valueChange)="settingsForm.get('businessName')?.setValue($event)">
+            (valueChange)="settingsForm.get('businessName')?.setValue($event)"
+          >
           </pelu-input-text>
         </div>
         <!-- Appointment Duration -->
@@ -103,10 +118,11 @@
               max: 480,
               step: 15,
               suffix: ' min',
-              showLabel: true
+              showLabel: true,
             }"
             [value]="settingsForm.get('appointmentDuration')?.value"
-            (valueChange)="settingsForm.get('appointmentDuration')?.setValue($event)">
+            (valueChange)="settingsForm.get('appointmentDuration')?.setValue($event)"
+          >
           </pelu-input-number>
         </div>
         <!-- Max Appointments -->
@@ -116,10 +132,11 @@
               label: 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS',
               min: 1,
               max: 100,
-              showLabel: true
+              showLabel: true,
             }"
             [value]="settingsForm.get('maxAppointments')?.value"
-            (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)">
+            (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)"
+          >
           </pelu-input-number>
         </div>
         <!-- Auto Confirm -->
@@ -127,10 +144,11 @@
           <pelu-input-checkbox
             [config]="{
               label: 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM',
-              showLabel: true
+              showLabel: true,
             }"
             [value]="settingsForm.get('autoConfirm')?.value"
-            (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)">
+            (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)"
+          >
           </pelu-input-checkbox>
         </div>
         <!-- Notifications -->
@@ -138,10 +156,11 @@
           <pelu-input-checkbox
             [config]="{
               label: 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS',
-              showLabel: true
+              showLabel: true,
             }"
             [value]="settingsForm.get('sendNotifications')?.value"
-            (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)">
+            (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)"
+          >
           </pelu-input-checkbox>
         </div>
         <!-- Maintenance Mode -->
@@ -149,10 +168,11 @@
           <pelu-input-checkbox
             [config]="{
               label: 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE',
-              showLabel: true
+              showLabel: true,
             }"
             [value]="settingsForm.get('maintenanceMode')?.value"
-            (valueChange)="settingsForm.get('maintenanceMode')?.setValue($event)">
+            (valueChange)="settingsForm.get('maintenanceMode')?.setValue($event)"
+          >
           </pelu-input-checkbox>
         </div>
         <!-- Language -->
@@ -163,10 +183,11 @@
               placeholder: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
               options: languageOptions,
               showLabel: true,
-              clearable: true
+              clearable: true,
             }"
             [value]="settingsForm.get('defaultLanguage')?.value"
-            (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)">
+            (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)"
+          >
           </pelu-input-select>
         </div>
         <!-- Currency -->
@@ -178,17 +199,35 @@
               options: currencyOptions,
               showLabel: true,
               clearable: true,
-              helpText: 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP'
+              helpText: 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP',
             }"
             [value]="settingsForm.get('currency')?.value"
-            (valueChange)="settingsForm.get('currency')?.setValue($event)">
+            (valueChange)="settingsForm.get('currency')?.setValue($event)"
+          >
           </pelu-input-select>
         </div>
       </div>
       <div class="settings-actions">
-        <p-button type="submit" [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate" [loading]="saving()" icon="pi pi-save"></p-button>
-        <p-button type="button" severity="secondary" [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate" icon="pi pi-refresh" (click)="resetToDefaults()"></p-button>
-        <p-button type="button" severity="secondary" [label]="'COMMON.ACTIONS.CANCEL' | translate" icon="pi pi-times" (click)="setViewMode()"></p-button>
+        <p-button
+          type="submit"
+          [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate"
+          [loading]="saving()"
+          icon="pi pi-save"
+        ></p-button>
+        <p-button
+          type="button"
+          severity="secondary"
+          [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate"
+          icon="pi pi-refresh"
+          (click)="resetToDefaults()"
+        ></p-button>
+        <p-button
+          type="button"
+          severity="secondary"
+          [label]="'COMMON.ACTIONS.CANCEL' | translate"
+          icon="pi pi-times"
+          (click)="setViewMode()"
+        ></p-button>
       </div>
     </form>
 

@@ -2,7 +2,8 @@
   <pelu-auth-popup
     [config]="loginConfig()"
     (submitForm)="onLoginSubmit($event)"
-    (googleAuth)="onGoogleAuth()" />
+    (googleAuth)="onGoogleAuth()"
+  />
 
   @if (hasError()) {
     <div class="error-message">
@@ -11,8 +12,6 @@
   }
 
   @if (isSubmitting()) {
-    <pelu-loading-state
-      [config]="loadingConfig()">
-    </pelu-loading-state>
+    <pelu-loading-state [config]="loadingConfig()"> </pelu-loading-state>
   }
 </div>

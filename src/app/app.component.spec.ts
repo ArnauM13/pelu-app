@@ -10,11 +10,7 @@ import { ToastService } from './shared/services/toast.service';
 import { LoggerService } from './shared/services/logger.service';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
-import {
-  mockAuth,
-  mockTranslateStore,
-  mockTranslationService,
-} from '../testing/firebase-mocks';
+import { mockAuth, mockTranslateStore, mockTranslationService } from '../testing/firebase-mocks';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -27,19 +23,39 @@ describe('AppComponent', () => {
 
   beforeEach(async () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', [
-      'user', 'isAuthenticated', 'isLoading', 'signOut', 'signInWithEmailAndPassword'
+      'user',
+      'isAuthenticated',
+      'isLoading',
+      'signOut',
+      'signInWithEmailAndPassword',
     ]);
     const scrollServiceSpy = jasmine.createSpyObj('ScrollService', [
-      'scrollToTop', 'scrollToTopImmediate', 'scrollToElement'
+      'scrollToTop',
+      'scrollToTopImmediate',
+      'scrollToElement',
     ]);
     const toastServiceSpy = jasmine.createSpyObj('ToastService', [
-      'showSuccess', 'showError', 'showInfo', 'showWarning', 'showToast'
+      'showSuccess',
+      'showError',
+      'showInfo',
+      'showWarning',
+      'showToast',
     ]);
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant', 'get', 'use', 'setDefaultLang', 'addLangs', 'getLangs'
+      'instant',
+      'get',
+      'use',
+      'setDefaultLang',
+      'addLangs',
+      'getLangs',
     ]);
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
-      'log', 'error', 'warn', 'info', 'debug', 'firebaseError'
+      'log',
+      'error',
+      'warn',
+      'info',
+      'debug',
+      'firebaseError',
     ]);
 
     // Setup default spy returns
@@ -51,14 +67,14 @@ describe('AppComponent', () => {
       isAnonymous: false,
       metadata: {
         creationTime: '2024-01-01T00:00:00.000Z',
-        lastSignInTime: '2024-01-15T00:00:00.000Z'
+        lastSignInTime: '2024-01-15T00:00:00.000Z',
       },
       phoneNumber: null,
       photoURL: null,
       providerData: [],
       providerId: 'password',
       refreshToken: 'mock-refresh-token',
-      tenantId: null
+      tenantId: null,
     } as any);
     authServiceSpy.isAuthenticated.and.returnValue(true);
     authServiceSpy.isLoading.and.returnValue(false);
@@ -77,8 +93,8 @@ describe('AppComponent', () => {
         { provide: LoggerService, useValue: loggerServiceSpy },
         MessageService,
         ConfirmationService,
-        provideRouter([])
-      ]
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
@@ -93,11 +109,11 @@ describe('AppComponent', () => {
   });
 
   describe('Component Creation and Basic Properties', () => {
-  it('should create the app', () => {
+    it('should create the app', () => {
       expect(component).toBeTruthy();
-  });
+    });
 
-  it('should have the correct title', () => {
+    it('should have the correct title', () => {
       expect(component.title()).toEqual('pelu-app');
     });
 
@@ -111,14 +127,14 @@ describe('AppComponent', () => {
     it('should have isLoading computed signal', () => {
       expect(component.isLoading).toBeDefined();
       expect(typeof component.isLoading).toBe('function');
-  });
+    });
 
-  it('should have isAuthenticated computed signal', () => {
+    it('should have isAuthenticated computed signal', () => {
       expect(component.isAuthenticated).toBeDefined();
       expect(typeof component.isAuthenticated).toBe('function');
-  });
+    });
 
-  it('should have shouldShowHeader computed signal', () => {
+    it('should have shouldShowHeader computed signal', () => {
       expect(component.shouldShowHeader).toBeDefined();
       expect(typeof component.shouldShowHeader).toBe('function');
     });
@@ -310,7 +326,7 @@ describe('AppComponent', () => {
       }).toThrow();
     });
 
-        it('should handle undefined service returns', () => {
+    it('should handle undefined service returns', () => {
       authService.user.and.returnValue(null);
       authService.isAuthenticated.and.returnValue(false);
 

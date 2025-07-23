@@ -4,21 +4,24 @@
       <pelu-input-date
         [config]="dateFilterConfig"
         [value]="filterDateValue()"
-        (valueChange)="onDateChangeHandler($event)">
+        (valueChange)="onDateChangeHandler($event)"
+      >
       </pelu-input-date>
     </div>
     <div class="filter-group">
       <pelu-input-text
         [config]="clientFilterConfig"
         [value]="filterClientValue()"
-        (valueChange)="onClientChangeHandler($event.toString())">
+        (valueChange)="onClientChangeHandler($event.toString())"
+      >
       </pelu-input-text>
     </div>
     <div class="filter-group">
       <pelu-input-select
         [config]="serviceFilterConfig()"
         [value]="filterServiceValue()"
-        (valueChange)="onServiceChangeHandler($event)">
+        (valueChange)="onServiceChangeHandler($event)"
+      >
       </pelu-input-select>
     </div>
     <div class="reset-group">

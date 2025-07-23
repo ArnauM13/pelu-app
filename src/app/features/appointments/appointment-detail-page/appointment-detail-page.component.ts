@@ -14,15 +14,31 @@ import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../../../shared/components/card/card.component';
-import { InfoItemComponent, InfoItemData } from '../../../shared/components/info-item/info-item.component';
+import {
+  InfoItemComponent,
+  InfoItemData,
+} from '../../../shared/components/info-item/info-item.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { DetailViewComponent, DetailViewConfig, DetailAction, InfoSection } from '../../../shared/components/detail-view/detail-view.component';
+import {
+  DetailViewComponent,
+  DetailViewConfig,
+  DetailAction,
+  InfoSection,
+} from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
-import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
+import {
+  AlertPopupComponent,
+  AlertData,
+} from '../../../shared/components/alert-popup/alert-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
-import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
+import {
+  isFutureAppointment,
+  migrateOldAppointments,
+  needsMigration,
+  saveMigratedAppointments,
+} from '../../../shared/services';
 
 interface AppointmentForm {
   nom: string;
@@ -37,23 +53,23 @@ interface AppointmentForm {
 }
 
 @Component({
-    selector: 'pelu-appointment-detail-page',
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        ButtonModule,
-        ToastModule,
-        TooltipModule,
-        InputTextModule,
-        DatePickerModule,
-        TranslateModule,
-        DetailViewComponent,
-        AppointmentDetailPopupComponent,
-        AlertPopupComponent
-    ],
-    templateUrl: './appointment-detail-page.component.html',
-    styleUrls: ['./appointment-detail-page.component.scss']
+  selector: 'pelu-appointment-detail-page',
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    ToastModule,
+    TooltipModule,
+    InputTextModule,
+    DatePickerModule,
+    TranslateModule,
+    DetailViewComponent,
+    AppointmentDetailPopupComponent,
+    AlertPopupComponent,
+  ],
+  templateUrl: './appointment-detail-page.component.html',
+  styleUrls: ['./appointment-detail-page.component.scss'],
 })
 export class AppointmentDetailPageComponent implements OnInit {
   // Inject services
@@ -80,7 +96,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     hora: '',
     notes: '',
     servei: '',
-    preu: 0
+    preu: 0,
   });
 
   // Delete confirmation signals
@@ -105,20 +121,20 @@ export class AppointmentDetailPageComponent implements OnInit {
       {
         icon: '👤',
         label: 'COMMON.CLIENT',
-        value: cita.nom
+        value: cita.nom,
       },
       {
         icon: '📅',
         label: 'COMMON.DATE',
-        value: this.formatDate(cita.data)
-      }
+        value: this.formatDate(cita.data),
+      },
     ];
 
     if (cita.hora) {
       items.push({
         icon: '⏰',
         label: 'COMMON.TIME',
-        value: this.formatTime(cita.hora)
+        value: this.formatTime(cita.hora),
       });
     }
 
@@ -126,7 +142,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       items.push({
         icon: '✂️',
         label: 'COMMON.SERVICE',
-        value: cita.servei
+        value: cita.servei,
       });
     }
 
@@ -134,7 +150,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       items.push({
         icon: '✂️',
         label: 'COMMON.SERVICE',
-        value: cita.serviceName
+        value: cita.serviceName,
       });
     }
 
@@ -142,7 +158,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       items.push({
         icon: '⏱️',
         label: 'APPOINTMENTS.DURATION',
-        value: `${cita.duration} min`
+        value: `${cita.duration} min`,
       });
     }
 
@@ -150,7 +166,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       items.push({
         icon: '💰',
         label: 'APPOINTMENTS.PRICE',
-        value: this.#currencyService.formatPrice(cita.preu)
+        value: this.#currencyService.formatPrice(cita.preu),
       });
     }
 
@@ -158,11 +174,9 @@ export class AppointmentDetailPageComponent implements OnInit {
       items.push({
         icon: '📝',
         label: 'APPOINTMENTS.NOTES',
-        value: cita.notes
+        value: cita.notes,
       });
     }
-
-
 
     return items;
   });
@@ -195,15 +209,17 @@ export class AppointmentDetailPageComponent implements OnInit {
     const form = this.editForm();
     if (!cita) return false;
 
-    return cita.nom !== form.nom ||
-           cita.data !== form.data ||
-           cita.hora !== form.hora ||
-           cita.notes !== form.notes ||
-           cita.servei !== form.servei ||
-           cita.preu !== form.preu ||
-           cita.duration !== form.duration ||
-           cita.serviceName !== form.serviceName ||
-           cita.serviceId !== form.serviceId;
+    return (
+      cita.nom !== form.nom ||
+      cita.data !== form.data ||
+      cita.hora !== form.hora ||
+      cita.notes !== form.notes ||
+      cita.servei !== form.servei ||
+      cita.preu !== form.preu ||
+      cita.duration !== form.duration ||
+      cita.serviceName !== form.serviceName ||
+      cita.serviceId !== form.serviceId
+    );
   });
 
   readonly canEditOrDelete = computed(() => {
@@ -248,7 +264,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     return isFutureAppointment({ data: cita.data || '', hora: cita.hora || '' });
   });
 
-    // Detail page configuration
+  // Detail page configuration
   readonly detailConfig = computed((): DetailViewConfig => {
     const isEditing = this.isEditing();
     const editForm = this.editForm();
@@ -263,8 +279,8 @@ export class AppointmentDetailPageComponent implements OnInit {
         label: 'COMMON.ACTIONS.BACK',
         icon: '←',
         type: 'secondary',
-        onClick: () => this.goBack()
-      }
+        onClick: () => this.goBack(),
+      },
     ];
 
     // Add edit action if user can edit
@@ -273,7 +289,7 @@ export class AppointmentDetailPageComponent implements OnInit {
         label: 'COMMON.ACTIONS.EDIT',
         icon: '✏️',
         type: 'primary',
-        onClick: () => this.startEditing()
+        onClick: () => this.startEditing(),
       });
     }
 
@@ -283,7 +299,7 @@ export class AppointmentDetailPageComponent implements OnInit {
         label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
         type: 'danger',
-        onClick: () => this.showDeleteConfirmation()
+        onClick: () => this.showDeleteConfirmation(),
       });
     }
 
@@ -295,18 +311,16 @@ export class AppointmentDetailPageComponent implements OnInit {
       infoSections: [
         {
           title: 'APPOINTMENTS.APPOINTMENT_DETAILS',
-          items: this.appointmentInfoItems()
-        }
+          items: this.appointmentInfoItems(),
+        },
       ],
       actions: actions,
       editForm: editForm,
       isEditing: isEditing,
       hasChanges: hasChanges,
-      canSave: canSave
+      canSave: canSave,
     };
   });
-
-
 
   constructor() {}
 
@@ -330,7 +344,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     });
   }
 
-      private async loadAppointment() {
+  private async loadAppointment() {
     const uniqueId = this.#route.snapshot.paramMap.get('id');
     const token = this.#route.snapshot.queryParams['token'];
     const editMode = this.#route.snapshot.queryParams['edit'] === 'true';
@@ -388,7 +402,7 @@ export class AppointmentDetailPageComponent implements OnInit {
             preu: appointment.preu || 0,
             duration: appointment.duration || 0,
             serviceName: appointment.serviceName || '',
-            serviceId: appointment.serviceId || ''
+            serviceId: appointment.serviceId || '',
           });
           this.#loadingSignal.set(false);
           return;
@@ -417,7 +431,7 @@ export class AppointmentDetailPageComponent implements OnInit {
           preu: appointment.preu || 0,
           duration: appointment.duration || 0,
           serviceName: appointment.serviceName || '',
-          serviceId: appointment.serviceId || ''
+          serviceId: appointment.serviceId || '',
         });
       }
       this.#loadingSignal.set(false);
@@ -461,7 +475,7 @@ export class AppointmentDetailPageComponent implements OnInit {
             preu: appointment.preu || 0,
             duration: appointment.duration || 0,
             serviceName: appointment.serviceName || '',
-            serviceId: appointment.serviceId || ''
+            serviceId: appointment.serviceId || '',
           });
           return;
         }
@@ -496,7 +510,7 @@ export class AppointmentDetailPageComponent implements OnInit {
         preu: appointment.preu || 0,
         duration: appointment.duration || 0,
         serviceName: appointment.serviceName || '',
-        serviceId: appointment.serviceId || ''
+        serviceId: appointment.serviceId || '',
       });
     } catch (error) {
       console.error('Error loading appointment:', error);
@@ -522,7 +536,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       userId: booking.uid || booking.userId || '',
       editToken: booking.editToken,
       createdAt: booking.createdAt,
-      updatedAt: booking.updatedAt
+      updatedAt: booking.updatedAt,
     };
   }
 
@@ -539,7 +553,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       preu: cita.preu || 0,
       duration: cita.duration || 60,
       serviceName: cita.serviceName || '',
-      serviceId: cita.serviceId || ''
+      serviceId: cita.serviceId || '',
     });
     this.#isEditingSignal.set(true);
   }
@@ -555,7 +569,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       preu: 0,
       duration: 60,
       serviceName: '',
-      serviceId: ''
+      serviceId: '',
     });
   }
 
@@ -580,7 +594,7 @@ export class AppointmentDetailPageComponent implements OnInit {
     const token = this.#route.snapshot.queryParams['token'];
 
     if (!token) {
-      this.#toastService.showError('No s\'ha pogut guardar la reserva. Token invàlid.');
+      this.#toastService.showError("No s'ha pogut guardar la reserva. Token invàlid.");
       return;
     }
 
@@ -590,12 +604,12 @@ export class AppointmentDetailPageComponent implements OnInit {
       hora: form.hora,
       notes: form.notes?.trim() || '',
       serviceName: form.serviceName?.trim() || '',
-      serviceId: form.serviceId || ''
+      serviceId: form.serviceId || '',
     };
 
     // Only authenticated users can update bookings
     if (!currentUser?.uid) {
-      this.#toastService.showError('No s\'ha pogut guardar la reserva. Si us plau, inicia sessió.');
+      this.#toastService.showError("No s'ha pogut guardar la reserva. Si us plau, inicia sessió.");
       return;
     }
 
@@ -605,7 +619,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       // Actualitzar l'estat local
       const updatedAppointment = {
         ...cita,
-        ...updates
+        ...updates,
       };
       this.#appointmentSignal.set(updatedAppointment);
       this.#isEditingSignal.set(false);
@@ -619,7 +633,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   private async saveAppointmentToLocalStorage(cita: any, form: any) {
     const user = this.#authService.user();
     if (!user) {
-      this.#toastService.showError('No s\'ha pogut guardar la cita. Si us plau, inicia sessió.');
+      this.#toastService.showError("No s'ha pogut guardar la cita. Si us plau, inicia sessió.");
       return;
     }
 
@@ -632,16 +646,16 @@ export class AppointmentDetailPageComponent implements OnInit {
       preu: form.preu || 0,
       duration: form.duration || 60,
       serviceName: form.serviceName?.trim() || '',
-      serviceId: form.serviceId || ''
+      serviceId: form.serviceId || '',
     };
 
-          const success = await this.#appointmentService.updateBooking(cita.id!, updates);
+    const success = await this.#appointmentService.updateBooking(cita.id!, updates);
 
     if (success) {
       // Update local state
       const updatedAppointment = {
         ...cita,
-        ...updates
+        ...updates,
       };
       this.#appointmentSignal.set(updatedAppointment);
       this.#isEditingSignal.set(false);
@@ -669,7 +683,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       severity: 'danger',
       confirmText: 'COMMON.ACTIONS.DELETE',
       cancelText: 'COMMON.ACTIONS.CANCEL',
-      showCancel: true
+      showCancel: true,
     };
 
     this.#deleteAlertDataSignal.set(alertData);
@@ -693,7 +707,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     // Si és una reserva (té editToken), no permetem eliminar des d'aquí
     if (cita.editToken) {
-      this.#toastService.showError('No es pot eliminar una reserva des d\'aquesta pàgina.');
+      this.#toastService.showError("No es pot eliminar una reserva des d'aquesta pàgina.");
       return;
     }
 
@@ -719,14 +733,14 @@ export class AppointmentDetailPageComponent implements OnInit {
   updateForm(field: string, value: any) {
     this.#editFormSignal.update(form => ({
       ...form,
-      [field]: value
+      [field]: value,
     }));
   }
 
   // Utility methods
   formatDate(dateString: string): string {
     try {
-      return format(parseISO(dateString), 'EEEE, d \'de\' MMMM \'de\' yyyy', { locale: ca });
+      return format(parseISO(dateString), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ca });
     } catch {
       return dateString;
     }
@@ -752,8 +766,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     const appointmentDate = new Date(dateString);
     return appointmentDate < today;
   }
-
-
 
   onToastClick(event: any) {
     const appointmentId = event.message?.data?.appointmentId;

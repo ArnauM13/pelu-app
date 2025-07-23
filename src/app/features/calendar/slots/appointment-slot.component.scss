@@ -90,16 +90,16 @@
   display: none; /* Per defecte ocult, es mostra si hi ha espai */
 }
 
-  .appointment-duration {
-    font-size: 8px;
-    opacity: 0.8;
-    line-height: 1;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 1px 3px;
-    border-radius: 2px;
-    white-space: nowrap;
-    flex-shrink: 0; /* No es redueix */
-  }
+.appointment-duration {
+  font-size: 8px;
+  opacity: 0.8;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+  flex-shrink: 0; /* No es redueix */
+}
 
 /* Drag Handle */
 .drag-handle {
@@ -145,12 +145,12 @@
 }
 
 /* Mostrar el servei per appointments més llargs */
-.appointment[style*="height: 45px"] .appointment-service,
-.appointment[style*="height: 60px"] .appointment-service,
-.appointment[style*="height: 75px"] .appointment-service,
-.appointment[style*="height: 90px"] .appointment-service,
-.appointment[style*="height: 105px"] .appointment-service,
-.appointment[style*="height: 120px"] .appointment-service {
+.appointment[style*='height: 45px'] .appointment-service,
+.appointment[style*='height: 60px'] .appointment-service,
+.appointment[style*='height: 75px'] .appointment-service,
+.appointment[style*='height: 90px'] .appointment-service,
+.appointment[style*='height: 105px'] .appointment-service,
+.appointment[style*='height: 120px'] .appointment-service {
   display: block;
 }
 

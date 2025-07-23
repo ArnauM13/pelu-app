@@ -2,13 +2,16 @@ import { Component, input, output, computed, signal, inject } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CalendarComponent, AppointmentEvent } from './calendar.component';
-import { CalendarFooterComponent, CalendarFooterAlert } from '../components/calendar-footer/calendar-footer.component';
+import {
+  CalendarFooterComponent,
+  CalendarFooterAlert,
+} from '../components/calendar-footer/calendar-footer.component';
 import { CalendarBusinessService } from '../services/calendar-business.service';
 
 @Component({
-    selector: 'pelu-calendar-with-footer',
-    imports: [CommonModule, TranslateModule, CalendarComponent, CalendarFooterComponent],
-    template: `
+  selector: 'pelu-calendar-with-footer',
+  imports: [CommonModule, TranslateModule, CalendarComponent, CalendarFooterComponent],
+  template: `
     <!-- Calendar Component -->
     <pelu-calendar-component
       [mini]="mini()"
@@ -16,37 +19,38 @@ import { CalendarBusinessService } from '../services/calendar-business.service';
       (dateSelected)="dateSelected.emit($event)"
       (onEditAppointment)="onEditAppointment.emit($event)"
       (onDeleteAppointment)="onDeleteAppointment.emit($event)"
-      (bookingsLoaded)="onBookingsLoaded($event)">
+      (bookingsLoaded)="onBookingsLoaded($event)"
+    >
     </pelu-calendar-component>
 
     <!-- Footer outside the calendar card - only show when calendar is loaded -->
     @if (isCalendarLoaded()) {
-      <pelu-calendar-footer
-        [alerts]="footerAlerts()">
-      </pelu-calendar-footer>
+      <pelu-calendar-footer [alerts]="footerAlerts()"> </pelu-calendar-footer>
     }
   `,
-    styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `,
+  ],
 })
 export class CalendarWithFooterComponent {
   // Inject services
   private readonly translateService = inject(TranslateService);
   private readonly businessService = inject(CalendarBusinessService);
 
-    // Input signals
+  // Input signals
   readonly mini = input<boolean>(false);
   readonly events = input<AppointmentEvent[]>([]);
 
   // Output signals
-  readonly dateSelected = output<{date: string, time: string}>();
+  readonly dateSelected = output<{ date: string; time: string }>();
   readonly onEditAppointment = output<AppointmentEvent>();
   readonly onDeleteAppointment = output<AppointmentEvent>();
 
-    // Internal state
+  // Internal state
   private readonly calendarLoadedSignal = signal<boolean>(false);
   readonly isCalendarLoaded = computed(() => this.calendarLoadedSignal());
 
@@ -76,7 +80,7 @@ export class CalendarWithFooterComponent {
         type: 'info',
         message: this.translateService.instant('CALENDAR.FOOTER.WEEKEND_INFO') as string,
         icon: '📅',
-        show: true
+        show: true,
       });
     }
 
@@ -88,10 +92,10 @@ export class CalendarWithFooterComponent {
         startHour: startHour.toString().padStart(2, '0'),
         endHour: endHour.toString().padStart(2, '0'),
         lunchStart: lunchStart.toString().padStart(2, '0'),
-        lunchEnd: lunchEnd.toString().padStart(2, '0')
+        lunchEnd: lunchEnd.toString().padStart(2, '0'),
       }) as string,
       icon: '🕐',
-      show: true
+      show: true,
     });
 
     return alerts;

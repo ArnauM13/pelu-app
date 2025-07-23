@@ -21,17 +21,17 @@ export interface ServiceCardConfig {
 }
 
 @Component({
-    selector: 'pelu-service-card',
-    imports: [
-        CommonModule,
-        TranslateModule,
-        TooltipModule,
-        CurrencyPipe,
-        ActionsButtonsComponent,
-        PopularBadgeComponent
-    ],
-    templateUrl: './service-card.component.html',
-    styleUrls: ['./service-card.component.scss']
+  selector: 'pelu-service-card',
+  imports: [
+    CommonModule,
+    TranslateModule,
+    TooltipModule,
+    CurrencyPipe,
+    ActionsButtonsComponent,
+    PopularBadgeComponent,
+  ],
+  templateUrl: './service-card.component.html',
+  styleUrls: ['./service-card.component.scss'],
 })
 export class ServiceCardComponent {
   @Input() service!: FirebaseService;
@@ -44,7 +44,7 @@ export class ServiceCardComponent {
     showDescription: true,
     clickable: false,
     selected: false,
-    compact: false
+    compact: false,
   };
 
   @Output() cardClick = new EventEmitter<FirebaseService>();
@@ -81,14 +81,14 @@ export class ServiceCardComponent {
 
   getCategoryName(category: string): string {
     const categoryMap: { [key: string]: string } = {
-      'haircut': 'SERVICES.CATEGORIES.HAIRCUT',
-      'beard': 'SERVICES.CATEGORIES.BEARD',
-      'treatment': 'SERVICES.CATEGORIES.TREATMENT',
-      'styling': 'SERVICES.CATEGORIES.STYLING',
-      'coloring': 'SERVICES.CATEGORIES.COLORING',
-      'children': 'SERVICES.CATEGORIES.CHILDREN',
-      'special': 'SERVICES.CATEGORIES.SPECIAL',
-      'general': 'SERVICES.CATEGORIES.GENERAL'
+      haircut: 'SERVICES.CATEGORIES.HAIRCUT',
+      beard: 'SERVICES.CATEGORIES.BEARD',
+      treatment: 'SERVICES.CATEGORIES.TREATMENT',
+      styling: 'SERVICES.CATEGORIES.STYLING',
+      coloring: 'SERVICES.CATEGORIES.COLORING',
+      children: 'SERVICES.CATEGORIES.CHILDREN',
+      special: 'SERVICES.CATEGORIES.SPECIAL',
+      general: 'SERVICES.CATEGORIES.GENERAL',
     };
     return categoryMap[category] || category;
   }
@@ -99,7 +99,7 @@ export class ServiceCardComponent {
       item: this.service,
       onEdit: () => this.editClick.emit(this.service),
       onDelete: () => this.deleteClick.emit(this.service),
-      onTogglePopular: () => this.togglePopularClick.emit(this.service)
+      onTogglePopular: () => this.togglePopularClick.emit(this.service),
     };
   }
 }

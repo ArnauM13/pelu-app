@@ -178,12 +178,10 @@
 }
 
 .btn-danger:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+  background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
-
-
 
 .loading-container,
 .error-container,
@@ -251,8 +249,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {

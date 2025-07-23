@@ -21,10 +21,19 @@ export interface BookingDetails {
 }
 
 @Component({
-    selector: 'pelu-booking-popup',
-    imports: [CommonModule, FormsModule, ButtonModule, SelectModule, TranslateModule, InputTextComponent, InputEmailComponent, PopularBadgeComponent],
-    templateUrl: './booking-popup.component.html',
-    styleUrls: ['./booking-popup.component.scss']
+  selector: 'pelu-booking-popup',
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    SelectModule,
+    TranslateModule,
+    InputTextComponent,
+    InputEmailComponent,
+    PopularBadgeComponent,
+  ],
+  templateUrl: './booking-popup.component.html',
+  styleUrls: ['./booking-popup.component.scss'],
 })
 export class BookingPopupComponent {
   // Inject services
@@ -36,7 +45,12 @@ export class BookingPopupComponent {
 
   // Input signals
   readonly open = input<boolean>(false);
-  readonly bookingDetails = input<BookingDetails>({date: '', time: '', clientName: '', email: ''});
+  readonly bookingDetails = input<BookingDetails>({
+    date: '',
+    time: '',
+    clientName: '',
+    email: '',
+  });
   readonly availableServices = input<FirebaseService[]>([]);
 
   // Output signals
@@ -78,7 +92,7 @@ export class BookingPopupComponent {
     placeholder: 'COMMON.ENTER_CLIENT_NAME',
     required: true,
     icon: 'pi pi-user',
-    iconPosition: 'left' as const
+    iconPosition: 'left' as const,
   };
 
   readonly emailConfig = {
@@ -88,17 +102,20 @@ export class BookingPopupComponent {
     required: true,
     icon: 'pi pi-envelope',
     iconPosition: 'left' as const,
-    autocomplete: 'email'
+    autocomplete: 'email',
   };
 
   constructor() {
     // Initialize form with authenticated user data if available
-    effect(() => {
-      if (this.isAuthenticated()) {
-        this.clientName.set(this.currentUserName() || '');
-        this.email.set(this.currentUserEmail() || '');
-      }
-    }, {allowSignalWrites: true});
+    effect(
+      () => {
+        if (this.isAuthenticated()) {
+          this.clientName.set(this.currentUserName() || '');
+          this.email.set(this.currentUserEmail() || '');
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   // Email validation
@@ -125,7 +142,7 @@ export class BookingPopupComponent {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -191,7 +208,7 @@ export class BookingPopupComponent {
       ...details,
       clientName: clientName.trim(),
       email: email.trim().toLowerCase(),
-      service: service
+      service: service,
     };
 
     // Clean up state

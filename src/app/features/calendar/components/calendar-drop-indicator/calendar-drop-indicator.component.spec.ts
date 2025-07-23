@@ -1,19 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
-import { CalendarDropIndicatorComponent, DropIndicatorData } from './calendar-drop-indicator.component';
+import {
+  CalendarDropIndicatorComponent,
+  DropIndicatorData,
+} from './calendar-drop-indicator.component';
 
 // Test host component to provide required inputs
 @Component({
-    template: `
-    <pelu-calendar-drop-indicator [data]="testData"></pelu-calendar-drop-indicator>
-  `,
-    imports: [CalendarDropIndicatorComponent]
+  template: ` <pelu-calendar-drop-indicator [data]="testData"></pelu-calendar-drop-indicator> `,
+  imports: [CalendarDropIndicatorComponent],
 })
 class TestHostComponent {
   testData: DropIndicatorData = {
     top: 150,
     height: 60,
-    isValid: true
+    isValid: true,
   };
 }
 
@@ -25,14 +26,13 @@ describe('CalendarDropIndicatorComponent', () => {
   const mockDropIndicatorData: DropIndicatorData = {
     top: 150,
     height: 60,
-    isValid: true
+    isValid: true,
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent]
-    })
-    .compileComponents();
+      imports: [TestHostComponent],
+    }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostComponent = hostFixture.componentInstance;
@@ -80,7 +80,7 @@ describe('CalendarDropIndicatorComponent', () => {
     hostComponent.testData = {
       ...mockDropIndicatorData,
       top: 300,
-      height: 90
+      height: 90,
     };
     hostFixture.detectChanges();
 

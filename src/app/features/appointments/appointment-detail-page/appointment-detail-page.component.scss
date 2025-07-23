@@ -58,7 +58,11 @@
 
 // Background styles like landing page
 :host {
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   min-height: 100vh;
   position: relative;
   overflow: hidden;
@@ -186,19 +190,31 @@
         box-shadow: var(--box-shadow);
 
         &.today {
-          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%
+          );
           color: white;
           box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
 
         &.past {
-          background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-color-dark) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--danger-color) 0%,
+            var(--danger-color-dark) 100%
+          );
           color: white;
           box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
 
         &.upcoming {
-          background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color-dark) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--success-color) 0%,
+            var(--success-color-dark) 100%
+          );
           color: white;
           box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
@@ -256,7 +272,11 @@
           color: white;
 
           &:hover {
-            background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+            background: linear-gradient(
+              135deg,
+              var(--primary-color-dark) 0%,
+              var(--primary-color) 100%
+            );
             box-shadow: 0 6px 20px rgba(58, 90, 138, 0.3);
           }
         }
@@ -278,7 +298,7 @@
           color: white;
 
           &:hover {
-            background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+            background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
             box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
           }
         }
@@ -486,8 +506,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Content Section */

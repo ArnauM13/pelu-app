@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #FAFCFF 0%, #E8F2FF 100%);
+  background: linear-gradient(135deg, #fafcff 0%, #e8f2ff 100%);
   padding: 1rem;
   position: relative;
 }
@@ -120,8 +120,6 @@
   gap: 0.5rem;
 }
 
-
-
 /* Button Styles - Unified with app design */
 .auth-button {
   width: 100%;
@@ -141,16 +139,16 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   color: white;
-  border-color: #3B82F6;
+  border-color: #3b82f6;
 }
 
 .auth-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
-  border-color: #2563EB;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  border-color: #2563eb;
 }
 
 .auth-button:active {
@@ -183,15 +181,15 @@
   overflow: hidden;
   background: white;
   color: #374151;
-  border: 1px solid #E1E8F5;
+  border: 1px solid #e1e8f5;
 }
 
 .google-auth-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  background: #F0F5FF;
-  border-color: #3B82F6;
-  color: #1F2937;
+  background: #f0f5ff;
+  border-color: #3b82f6;
+  color: #1f2937;
 }
 
 .google-auth-button:active {
@@ -211,7 +209,8 @@
   color: #6b7280;
   font-size: 0.9rem;
 
-  &::before, &::after {
+  &::before,
+  &::after {
     content: '';
     flex: 1;
     height: 1px;
@@ -265,4 +264,3 @@
     font-size: 0.9rem;
   }
 }
-

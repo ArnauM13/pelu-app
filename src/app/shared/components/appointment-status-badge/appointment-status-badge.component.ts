@@ -17,10 +17,10 @@ export interface AppointmentStatusConfig {
 }
 
 @Component({
-    selector: 'pelu-appointment-status-badge',
-    imports: [CommonModule, TranslateModule],
-    templateUrl: './appointment-status-badge.component.html',
-    styleUrls: ['./appointment-status-badge.component.scss']
+  selector: 'pelu-appointment-status-badge',
+  imports: [CommonModule, TranslateModule],
+  templateUrl: './appointment-status-badge.component.html',
+  styleUrls: ['./appointment-status-badge.component.scss'],
 })
 export class AppointmentStatusBadgeComponent {
   @Input() appointmentData!: AppointmentStatusData;
@@ -28,7 +28,7 @@ export class AppointmentStatusBadgeComponent {
     size: 'medium',
     variant: 'default',
     showIcon: true,
-    showDot: true
+    showDot: true,
   };
 
   readonly status = computed((): { type: AppointmentStatusType; text: string; icon: string } => {
@@ -58,7 +58,7 @@ export class AppointmentStatusBadgeComponent {
     return {
       [`status-badge-${size}`]: true,
       [`status-badge-${variant}`]: true,
-      [`status-badge-${statusType}`]: true
+      [`status-badge-${statusType}`]: true,
     };
   });
 }

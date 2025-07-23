@@ -1,15 +1,15 @@
 <div class="calendar-header">
   <div class="calendar-navigation">
-    <button class="nav-btn"
-            [class.disabled]="!canNavigateToPreviousWeek"
-            [disabled]="!canNavigateToPreviousWeek"
-            (click)="onPreviousWeek()"
-            title="Setmana anterior">
+    <button
+      class="nav-btn"
+      [class.disabled]="!canNavigateToPreviousWeek"
+      [disabled]="!canNavigateToPreviousWeek"
+      (click)="onPreviousWeek()"
+      title="Setmana anterior"
+    >
       <i class="pi pi-arrow-left"></i>
     </button>
-    <button class="nav-btn today-btn" (click)="onToday()" title="Anar a avui">
-      Avui
-    </button>
+    <button class="nav-btn today-btn" (click)="onToday()" title="Anar a avui">Avui</button>
     <button class="nav-btn" (click)="onNextWeek()" title="Setmana següent">
       <i class="pi pi-arrow-right"></i>
     </button>
@@ -23,7 +23,8 @@
       (input)="onDateChange($event)"
       class="date-input"
       title="Seleccionar data"
-      [min]="todayString">
+      [min]="todayString"
+    />
   </div>
 
   <p-button label="Seleccionar data" />

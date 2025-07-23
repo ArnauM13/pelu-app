@@ -4,7 +4,6 @@
     <div class="header-content">
       <h1>🛠️ {{ 'ADMIN.SERVICES.TITLE' | translate }}</h1>
       <p>{{ 'ADMIN.SERVICES.SUBTITLE' | translate }}</p>
-
     </div>
     <div class="header-actions">
       <button
@@ -13,8 +12,8 @@
         label="{{ 'ADMIN.SERVICES.ADD_SERVICE' | translate }}"
         icon="pi pi-plus"
         class="p-button-primary"
-        (click)="showCreateService()">
-      </button>
+        (click)="showCreateService()"
+      ></button>
       <!-- <button
         pButton
         type="button"
@@ -37,8 +36,8 @@
         label="{{ 'ADMIN.SERVICES.CATEGORIES.CREATE_NEW_CATEGORY' | translate }}"
         icon="pi pi-tags"
         class="p-button-success"
-        (click)="showCategoriesManager()">
-      </button>
+        (click)="showCategoriesManager()"
+      ></button>
     </div>
   </div>
 
@@ -74,11 +73,12 @@
                   showDescription: true,
                   clickable: false,
                   selected: false,
-                  compact: false
+                  compact: false,
                 }"
                 (editClick)="showEditService($event)"
                 (deleteClick)="deleteService($event)"
-                (togglePopularClick)="togglePopularStatus($event)">
+                (togglePopularClick)="togglePopularStatus($event)"
+              >
               </pelu-service-card>
             }
           </div>
@@ -114,7 +114,8 @@
                     id="serviceName"
                     [(ngModel)]="formData().name"
                     placeholder="{{ 'ADMIN.SERVICES.NAME_PLACEHOLDER' | translate }}"
-                    class="w-full">
+                    class="w-full"
+                  />
                 </div>
                 <div class="form-field">
                   <pelu-input-textarea
@@ -123,10 +124,11 @@
                       placeholder: 'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER',
                       rows: 3,
                       required: true,
-                      showLabel: true
+                      showLabel: true,
                     }"
                     [value]="formData().description || ''"
-                    (valueChange)="formData().description = $event">
+                    (valueChange)="formData().description = $event"
+                  >
                   </pelu-input-textarea>
                 </div>
               </div>
@@ -142,10 +144,11 @@
                       placeholder: 'ADMIN.SERVICES.SELECT_CATEGORY',
                       required: true,
                       showLabel: true,
-                      options: categoryOptions()
+                      options: categoryOptions(),
                     }"
                     [value]="formData().category"
-                    (valueChange)="formData().category = $event">
+                    (valueChange)="formData().category = $event"
+                  >
                   </pelu-input-select>
                 </div>
                 <div class="form-field">
@@ -154,10 +157,11 @@
                       label: 'ADMIN.SERVICES.ICON',
                       placeholder: 'ADMIN.SERVICES.SELECT_ICON',
                       showLabel: true,
-                      options: iconOptions
+                      options: iconOptions,
                     }"
                     [value]="formData().icon"
-                    (valueChange)="formData().icon = $event">
+                    (valueChange)="formData().icon = $event"
+                  >
                   </pelu-input-select>
                 </div>
               </div>
@@ -176,10 +180,11 @@
                       min: 0,
                       max: 1000,
                       step: 0.01,
-                      suffix: '€'
+                      suffix: '€',
                     }"
                     [value]="formData().price || 0"
-                    (valueChange)="formData().price = $event">
+                    (valueChange)="formData().price = $event"
+                  >
                   </pelu-input-number>
                 </div>
                 <div class="form-field">
@@ -192,10 +197,11 @@
                       min: 5,
                       max: 480,
                       step: 5,
-                      suffix: 'min'
+                      suffix: 'min',
                     }"
                     [value]="formData().duration || 30"
-                    (valueChange)="formData().duration = $event">
+                    (valueChange)="formData().duration = $event"
+                  >
                   </pelu-input-number>
                 </div>
               </div>
@@ -207,10 +213,11 @@
                 <pelu-input-checkbox
                   [config]="{
                     label: 'ADMIN.SERVICES.MARK_AS_POPULAR',
-                    showLabel: true
+                    showLabel: true,
                   }"
                   [value]="formData().popular || false"
-                  (valueChange)="formData().popular = $event">
+                  (valueChange)="formData().popular = $event"
+                >
                 </pelu-input-checkbox>
               </div>
             </div>
@@ -218,14 +225,10 @@
         </div>
 
         <div class="popup-actions">
-          <button
-            class="btn btn-secondary"
-            (click)="cancelDialog()">
+          <button class="btn btn-secondary" (click)="cancelDialog()">
             {{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
-          <button
-            class="btn btn-primary"
-            (click)="createService()">
+          <button class="btn btn-primary" (click)="createService()">
             ✏️&nbsp;{{ 'ADMIN.SERVICES.CREATE_SERVICE' | translate }}
           </button>
         </div>
@@ -254,7 +257,8 @@
                     id="editServiceName"
                     [(ngModel)]="formData().name"
                     placeholder="{{ 'ADMIN.SERVICES.NAME_PLACEHOLDER' | translate }}"
-                    class="w-full">
+                    class="w-full"
+                  />
                 </div>
                 <div class="form-field">
                   <pelu-input-textarea
@@ -263,10 +267,11 @@
                       placeholder: 'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER',
                       rows: 3,
                       required: true,
-                      showLabel: true
+                      showLabel: true,
                     }"
                     [value]="formData().description || ''"
-                    (valueChange)="formData().description = $event">
+                    (valueChange)="formData().description = $event"
+                  >
                   </pelu-input-textarea>
                 </div>
               </div>
@@ -282,10 +287,11 @@
                       placeholder: 'ADMIN.SERVICES.SELECT_CATEGORY',
                       required: true,
                       showLabel: true,
-                      options: categoryOptions()
+                      options: categoryOptions(),
                     }"
                     [value]="formData().category"
-                    (valueChange)="formData().category = $event">
+                    (valueChange)="formData().category = $event"
+                  >
                   </pelu-input-select>
                 </div>
                 <div class="form-field">
@@ -294,10 +300,11 @@
                       label: 'ADMIN.SERVICES.ICON',
                       placeholder: 'ADMIN.SERVICES.SELECT_ICON',
                       showLabel: true,
-                      options: iconOptions
+                      options: iconOptions,
                     }"
                     [value]="formData().icon"
-                    (valueChange)="formData().icon = $event">
+                    (valueChange)="formData().icon = $event"
+                  >
                   </pelu-input-select>
                 </div>
               </div>
@@ -316,10 +323,11 @@
                       min: 0,
                       max: 1000,
                       step: 0.01,
-                      suffix: '€'
+                      suffix: '€',
                     }"
                     [value]="formData().price || 0"
-                    (valueChange)="formData().price = $event">
+                    (valueChange)="formData().price = $event"
+                  >
                   </pelu-input-number>
                 </div>
                 <div class="form-field">
@@ -332,10 +340,11 @@
                       min: 5,
                       max: 480,
                       step: 5,
-                      suffix: 'min'
+                      suffix: 'min',
                     }"
                     [value]="formData().duration || 30"
-                    (valueChange)="formData().duration = $event">
+                    (valueChange)="formData().duration = $event"
+                  >
                   </pelu-input-number>
                 </div>
               </div>
@@ -344,14 +353,10 @@
         </div>
 
         <div class="popup-actions">
-          <button
-            class="btn btn-secondary"
-            (click)="cancelDialog()">
+          <button class="btn btn-secondary" (click)="cancelDialog()">
             ❌&nbsp;{{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
-          <button
-            class="btn btn-primary"
-            (click)="updateService()">
+          <button class="btn btn-primary" (click)="updateService()">
             💾&nbsp;{{ 'COMMON.ACTIONS.SAVE' | translate }}
           </button>
         </div>
@@ -374,9 +379,7 @@
             <div class="categories-list">
               <div class="categories-header">
                 <h3>{{ 'ADMIN.SERVICES.CATEGORIES.EXISTING_CATEGORIES' | translate }}</h3>
-                <button
-                  class="btn btn-primary btn-sm"
-                  (click)="showCreateCategory()">
+                <button class="btn btn-primary btn-sm" (click)="showCreateCategory()">
                   ✨ {{ 'ADMIN.SERVICES.CATEGORIES.ADD_NEW_CATEGORY' | translate }}
                 </button>
               </div>
@@ -387,10 +390,18 @@
                     <div class="category-info">
                       <span class="category-icon">{{ category.icon }}</span>
                       <div class="category-details">
-                        <h4>{{ category.custom ? category.name : ('SERVICES.CATEGORIES.' + category.id.toUpperCase() | translate) }}</h4>
+                        <h4>
+                          {{
+                            category.custom
+                              ? category.name
+                              : ('SERVICES.CATEGORIES.' + category.id.toUpperCase() | translate)
+                          }}
+                        </h4>
                         <p class="category-id">{{ category.id }}</p>
                         @if (!category.custom) {
-                          <span class="static-badge">{{ 'ADMIN.SERVICES.CATEGORIES.STATIC_CATEGORY' | translate }}</span>
+                          <span class="static-badge">{{
+                            'ADMIN.SERVICES.CATEGORIES.STATIC_CATEGORY' | translate
+                          }}</span>
                         }
                       </div>
                     </div>
@@ -399,17 +410,21 @@
                         <button
                           class="btn btn-secondary btn-sm"
                           [title]="'ADMIN.SERVICES.CATEGORIES.EDIT_CATEGORY' | translate"
-                          (click)="showEditCategory(category)">
+                          (click)="showEditCategory(category)"
+                        >
                           ✏️&nbsp;{{ 'COMMON.ACTIONS.EDIT' | translate }}
                         </button>
                         <button
                           class="btn btn-danger btn-sm"
                           [title]="'ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY' | translate"
-                          (click)="deleteCategory(category)">
+                          (click)="deleteCategory(category)"
+                        >
                           🗑️&nbsp;{{ 'COMMON.ACTIONS.DELETE' | translate }}
                         </button>
                       } @else {
-                        <span class="static-message">{{ 'ADMIN.SERVICES.CATEGORIES.CANNOT_EDIT_STATIC' | translate }}</span>
+                        <span class="static-message">{{
+                          'ADMIN.SERVICES.CATEGORIES.CANNOT_EDIT_STATIC' | translate
+                        }}</span>
                       }
                     </div>
                   </div>
@@ -426,9 +441,7 @@
         </div>
 
         <div class="popup-actions">
-          <button
-            class="btn btn-secondary"
-            (click)="closeCategoriesManager()">
+          <button class="btn btn-secondary" (click)="closeCategoriesManager()">
             {{ 'COMMON.ACTIONS.CLOSE' | translate }}
           </button>
         </div>
@@ -451,23 +464,35 @@
               <h3>{{ 'COMMON.BASIC_INFORMATION' | translate }}</h3>
               <div class="form-grid">
                 <div class="form-field">
-                  <label for="categoryName">{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME' | translate }} *</label>
+                  <label for="categoryName"
+                    >{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME' | translate }} *</label
+                  >
                   <input
                     pInputText
                     id="categoryName"
                     [(ngModel)]="categoryFormData().name"
-                    placeholder="{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME_PLACEHOLDER' | translate }}"
-                    class="w-full">
+                    placeholder="{{
+                      'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME_PLACEHOLDER' | translate
+                    }}"
+                    class="w-full"
+                  />
                 </div>
                 <div class="form-field">
-                  <label for="categoryId">{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID' | translate }} *</label>
+                  <label for="categoryId"
+                    >{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID' | translate }} *</label
+                  >
                   <input
                     pInputText
                     id="categoryId"
                     [(ngModel)]="categoryFormData().id"
-                    placeholder="{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID_PLACEHOLDER' | translate }}"
-                    class="w-full">
-                  <small class="form-help">Només lletres minúscules, números i guions (ex: mi-categoria)</small>
+                    placeholder="{{
+                      'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID_PLACEHOLDER' | translate
+                    }}"
+                    class="w-full"
+                  />
+                  <small class="form-help"
+                    >Només lletres minúscules, números i guions (ex: mi-categoria)</small
+                  >
                 </div>
               </div>
             </div>
@@ -475,23 +500,29 @@
             <div class="form-section">
               <h3>{{ 'COMMON.ICON_SELECTION' | translate }}</h3>
               <div class="form-field">
-                <label for="categoryIcon">{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON' | translate }} *</label>
+                <label for="categoryIcon"
+                  >{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON' | translate }} *</label
+                >
                 <div class="icon-input-container">
                   <input
                     pInputText
                     id="categoryIcon"
                     [(ngModel)]="categoryFormData().icon"
-                    placeholder="{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON_PLACEHOLDER' | translate }}"
-                    class="w-full icon-input"
-                    maxlength="2">
+                    placeholder="{{
+                      'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON_PLACEHOLDER' | translate
+                    }}"
+                    class="icon-input w-full"
+                    maxlength="2"
+                  />
                   <div class="icon-preview" *ngIf="categoryFormData().icon">
                     <span class="preview-icon">{{ categoryFormData().icon }}</span>
                   </div>
                 </div>
                 <small class="form-help">
                   {{ 'ADMIN.SERVICES.CATEGORIES.ICON_HELP' | translate }}
-                  <br>
-                  <strong>{{ 'ADMIN.SERVICES.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️ 🧔 💆 💇 🎨 👶 ⭐ 🔧 🏠 🚗 🎵 📱 💻 🎮 🏃‍♂️ 🧘‍♀️
+                  <br />
+                  <strong>{{ 'ADMIN.SERVICES.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️
+                  🧔 💆 💇 🎨 👶 ⭐ 🔧 🏠 🚗 🎵 📱 💻 🎮 🏃‍♂️ 🧘‍♀️
                 </small>
               </div>
             </div>
@@ -499,14 +530,10 @@
         </div>
 
         <div class="popup-actions">
-          <button
-            class="btn btn-secondary"
-            (click)="cancelCategoryDialog()">
+          <button class="btn btn-secondary" (click)="cancelCategoryDialog()">
             {{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
-          <button
-            class="btn btn-primary"
-            (click)="createCategory()">
+          <button class="btn btn-primary" (click)="createCategory()">
             ✏️&nbsp;{{ 'ADMIN.SERVICES.CATEGORIES.CREATE_CATEGORY' | translate }}
           </button>
         </div>
@@ -529,23 +556,33 @@
               <h3>{{ 'COMMON.BASIC_INFORMATION' | translate }}</h3>
               <div class="form-grid">
                 <div class="form-field">
-                  <label for="editCategoryName">{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME' | translate }} *</label>
+                  <label for="editCategoryName"
+                    >{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME' | translate }} *</label
+                  >
                   <input
                     pInputText
                     id="editCategoryName"
                     [(ngModel)]="categoryFormData().name"
-                    placeholder="{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME_PLACEHOLDER' | translate }}"
-                    class="w-full">
+                    placeholder="{{
+                      'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME_PLACEHOLDER' | translate
+                    }}"
+                    class="w-full"
+                  />
                 </div>
                 <div class="form-field">
-                  <label for="editCategoryId">{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID' | translate }} *</label>
+                  <label for="editCategoryId"
+                    >{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID' | translate }} *</label
+                  >
                   <input
                     pInputText
                     id="editCategoryId"
                     [(ngModel)]="categoryFormData().id"
-                    placeholder="{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID_PLACEHOLDER' | translate }}"
+                    placeholder="{{
+                      'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID_PLACEHOLDER' | translate
+                    }}"
                     class="w-full"
-                    readonly>
+                    readonly
+                  />
                   <small class="form-help">L'ID de la categoria no es pot modificar</small>
                 </div>
               </div>
@@ -554,23 +591,29 @@
             <div class="form-section">
               <h3>{{ 'COMMON.ICON_SELECTION' | translate }}</h3>
               <div class="form-field">
-                <label for="editCategoryIcon">{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON' | translate }} *</label>
+                <label for="editCategoryIcon"
+                  >{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON' | translate }} *</label
+                >
                 <div class="icon-input-container">
                   <input
                     pInputText
                     id="editCategoryIcon"
                     [(ngModel)]="categoryFormData().icon"
-                    placeholder="{{ 'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON_PLACEHOLDER' | translate }}"
-                    class="w-full icon-input"
-                    maxlength="2">
+                    placeholder="{{
+                      'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON_PLACEHOLDER' | translate
+                    }}"
+                    class="icon-input w-full"
+                    maxlength="2"
+                  />
                   <div class="icon-preview" *ngIf="categoryFormData().icon">
                     <span class="preview-icon">{{ categoryFormData().icon }}</span>
                   </div>
                 </div>
                 <small class="form-help">
                   {{ 'ADMIN.SERVICES.CATEGORIES.ICON_HELP' | translate }}
-                  <br>
-                  <strong>{{ 'ADMIN.SERVICES.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️ 🧔 💆 💇 🎨 👶 ⭐ 🔧 🏠 🚗 🎵 📱 💻 🎮 🏃‍♂️ 🧘‍♀️
+                  <br />
+                  <strong>{{ 'ADMIN.SERVICES.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️
+                  🧔 💆 💇 🎨 👶 ⭐ 🔧 🏠 🚗 🎵 📱 💻 🎮 🏃‍♂️ 🧘‍♀️
                 </small>
               </div>
             </div>
@@ -578,14 +621,10 @@
         </div>
 
         <div class="popup-actions">
-          <button
-            class="btn btn-secondary"
-            (click)="cancelCategoryDialog()">
+          <button class="btn btn-secondary" (click)="cancelCategoryDialog()">
             {{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
-          <button
-            class="btn btn-primary"
-            (click)="updateCategory()">
+          <button class="btn btn-primary" (click)="updateCategory()">
             ✏️&nbsp;{{ 'ADMIN.SERVICES.CATEGORIES.EDIT_CATEGORY' | translate }}
           </button>
         </div>
@@ -598,11 +637,10 @@
     [isOpen]="showAlertDialog()"
     [data]="alertData()"
     (confirmed)="onAlertConfirmed()"
-    (cancelled)="onAlertCancelled()">
+    (cancelled)="onAlertCancelled()"
+  >
   </pelu-alert-popup>
 
   <!-- Confirm Dialog -->
   <p-confirmDialog></p-confirmDialog>
-
-
 </div>
