@@ -20,7 +20,7 @@ import {
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputEmailComponent, InputPasswordComponent } from '../inputs';
+import { InputTextComponent } from "../inputs/input-text/input-text.component";
 
 export interface AuthPopupConfig {
   mode: 'login' | 'register';
@@ -41,9 +41,8 @@ export interface AuthPopupConfig {
     RouterModule,
     ButtonModule,
     TranslateModule,
-    InputEmailComponent,
-    InputPasswordComponent,
-  ],
+    InputTextComponent
+],
   templateUrl: './auth-popup.component.html',
   styleUrls: ['./auth-popup.component.scss'],
 })
@@ -151,7 +150,7 @@ export class AuthPopupComponent implements OnDestroy {
     effect(
       () => {
         const form = this.form();
-        const isFirstValid = this.isFirstPasswordValid();
+        // const isFirstValid = this.isFirstPasswordValid();
         const isEnabled = this.isRepeatPasswordEnabled();
 
         if (form && this.isRegisterMode()) {

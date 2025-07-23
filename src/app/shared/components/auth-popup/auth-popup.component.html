@@ -6,22 +6,32 @@
     @if (form()) {
       <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
         <div class="form-field">
-          <pelu-input-email [config]="emailConfig" formControlName="email"> </pelu-input-email>
+          <pelu-input-text
+            label='COMMON.EMAIL'
+            placeholder='COMMON.EMAIL'
+            type='email'
+            formControlName="email"
+          >
+          </pelu-input-text>
         </div>
 
         <div class="form-field">
-          <pelu-input-password
-            [config]="passwordConfig"
+          <pelu-input-text
+            label="COMMON.PASSWORD"
+            placeholder="COMMON.PASSWORD"
+            type="password"
             formControlName="password"
             (input)="onPasswordChange($event)"
           >
-          </pelu-input-password>
+          </pelu-input-text>
         </div>
 
         @if (hasRepeatPassword()) {
           <div class="form-field">
             <pelu-input-password
-              [config]="repeatPasswordConfig"
+              label="COMMON.REPEAT_PASSWORD"
+              placeholder="COMMON.REPEAT_PASSWORD"
+              type="password"
               formControlName="repeatPassword"
               (input)="onRepeatPasswordChange($event)"
             >
@@ -29,13 +39,9 @@
           </div>
         }
 
-        <button
-          pButton
-          type="submit"
-          [label]="config().submitButtonText"
-          class="auth-button"
-          [disabled]="form()!.invalid"
-        ></button>
+        <button pButton type="submit" class="auth-button" [disabled]="form()!.invalid">
+          {{ config().submitButtonText }}
+        </button>
       </form>
     }
 
@@ -50,7 +56,9 @@
       icon="pi pi-google"
       class="google-auth-button"
       (click)="onGoogleAuth()"
-    ></button>
+    >
+      {{ config().googleButtonText }}
+    </button>
 
     <div class="auth-link">
       <p>

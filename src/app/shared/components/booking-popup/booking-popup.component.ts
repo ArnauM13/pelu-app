@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InputTextComponent, InputEmailComponent } from '../inputs';
+import { InputTextComponent } from '../inputs';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
@@ -29,7 +29,6 @@ export interface BookingDetails {
     SelectModule,
     TranslateModule,
     InputTextComponent,
-    InputEmailComponent,
     PopularBadgeComponent,
   ],
   templateUrl: './booking-popup.component.html',
