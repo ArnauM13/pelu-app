@@ -43,7 +43,7 @@ export interface DragDropState {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarCoreService {
   private readonly stateService = inject(CalendarStateService);
@@ -60,15 +60,17 @@ export class CalendarCoreService {
   private readonly lunchBreakStartSignal = signal<number>(13);
   private readonly lunchBreakEndSignal = signal<number>(15);
 
-  readonly gridConfiguration = computed((): GridConfiguration => ({
-    slotHeightPx: this.slotHeightPxSignal(),
-    pixelsPerMinute: this.pixelsPerMinuteSignal(),
-    slotDurationMinutes: this.slotDurationMinutesSignal(),
-    businessStartHour: this.businessStartHourSignal(),
-    businessEndHour: this.businessEndHourSignal(),
-    lunchBreakStart: this.lunchBreakStartSignal(),
-    lunchBreakEnd: this.lunchBreakEndSignal()
-  }));
+  readonly gridConfiguration = computed(
+    (): GridConfiguration => ({
+      slotHeightPx: this.slotHeightPxSignal(),
+      pixelsPerMinute: this.pixelsPerMinuteSignal(),
+      slotDurationMinutes: this.slotDurationMinutesSignal(),
+      businessStartHour: this.businessStartHourSignal(),
+      businessEndHour: this.businessEndHourSignal(),
+      lunchBreakStart: this.lunchBreakStartSignal(),
+      lunchBreakEnd: this.lunchBreakEndSignal(),
+    })
+  );
 
   // ===== DRAG & DROP STATE =====
   private readonly isDraggingSignal = signal<boolean>(false);
@@ -90,15 +92,17 @@ export class CalendarCoreService {
   readonly isValidDrop = computed(() => this.isValidDropSignal());
   readonly originalDate = computed(() => this.originalDateSignal());
 
-  readonly dragState = computed((): DragDropState => ({
-    isDragging: this.isDragging(),
-    draggedAppointment: this.draggedAppointment(),
-    originalPosition: this.originalPosition(),
-    currentPosition: this.currentPosition(),
-    targetDate: this.targetDate(),
-    targetTime: this.targetTime(),
-    originalDate: this.originalDate()
-  }));
+  readonly dragState = computed(
+    (): DragDropState => ({
+      isDragging: this.isDragging(),
+      draggedAppointment: this.draggedAppointment(),
+      originalPosition: this.originalPosition(),
+      currentPosition: this.currentPosition(),
+      targetDate: this.targetDate(),
+      targetTime: this.targetTime(),
+      originalDate: this.originalDate(),
+    })
+  );
 
   // ===== CONFIGURATION METHODS =====
   updateGridConfiguration(config: Partial<GridConfiguration>): void {
@@ -134,13 +138,16 @@ export class CalendarCoreService {
 
     // Calculate total minutes from business start
     // Since we now show ALL time slots including lunch break, no need to adjust for lunch break
-    const totalMinutes = (config.businessStartHour * 60) + (slotIndex * config.slotDurationMinutes);
+    const totalMinutes = config.businessStartHour * 60 + slotIndex * config.slotDurationMinutes;
 
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
     // Clamp to business hours
-    const clampedHours = Math.max(config.businessStartHour, Math.min(config.businessEndHour - 1, hours));
+    const clampedHours = Math.max(
+      config.businessStartHour,
+      Math.min(config.businessEndHour - 1, hours)
+    );
 
     const result = `${clampedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     console.log('coordinateToTime:', {
@@ -151,7 +158,7 @@ export class CalendarCoreService {
       hours,
       minutes,
       clampedHours,
-      result
+      result,
     });
 
     return result;
@@ -175,7 +182,7 @@ export class CalendarCoreService {
     console.log('coordinateToTimePosition:', { position, time, alignedTime });
     return {
       date: targetDate,
-      time: alignedTime
+      time: alignedTime,
     };
   }
 
@@ -185,12 +192,13 @@ export class CalendarCoreService {
   }
 
   // ===== TIME ALIGNMENT METHODS =====
-    alignTimeToGrid(time: string): string {
+  alignTimeToGrid(time: string): string {
     const config = this.gridConfiguration();
     const [hours, minutes] = time.split(':').map(Number);
 
     // Always align to 30-minute slots (0 or 30 minutes)
-    const roundedMinutes = Math.round(minutes / config.slotDurationMinutes) * config.slotDurationMinutes;
+    const roundedMinutes =
+      Math.round(minutes / config.slotDurationMinutes) * config.slotDurationMinutes;
 
     let finalHours = hours;
     let finalMinutes = roundedMinutes;
@@ -234,7 +242,10 @@ export class CalendarCoreService {
     return { top, height };
   }
 
-  calculateAppointmentPositionFromTime(startTime: string, durationMinutes: number): { top: number; height: number } {
+  calculateAppointmentPositionFromTime(
+    startTime: string,
+    durationMinutes: number
+  ): { top: number; height: number } {
     const top = this.timeToCoordinate(startTime);
     const height = durationMinutes * this.gridConfiguration().pixelsPerMinute;
 
@@ -275,7 +286,12 @@ export class CalendarCoreService {
     return this.isWithinBusinessHours(time);
   }
 
-  isTimeSlotAvailable(date: Date, time: string, appointments: AppointmentEvent[], requestedDuration: number = this.gridConfiguration().slotDurationMinutes): boolean {
+  isTimeSlotAvailable(
+    date: Date,
+    time: string,
+    appointments: AppointmentEvent[],
+    requestedDuration: number = this.gridConfiguration().slotDurationMinutes
+  ): boolean {
     const [hour, minute] = time.split(':').map(Number);
     const slotStart = new Date(date);
     slotStart.setHours(hour, minute, 0, 0);
@@ -294,7 +310,9 @@ export class CalendarCoreService {
       if (!appointment.start) return false;
 
       const appointmentStart = new Date(appointment.start);
-      const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
+      const appointmentEnd = appointment.end
+        ? new Date(appointment.end)
+        : addMinutes(appointmentStart, appointment.duration || 60);
 
       return appointmentStart < slotEnd && appointmentEnd > slotStart;
     });
@@ -370,7 +388,9 @@ export class CalendarCoreService {
     const minutesSinceStart = lunchBreakStartMinutes - businessStartMinutes;
 
     const top = (minutesSinceStart / config.slotDurationMinutes) * config.slotHeightPx;
-    const height = ((config.lunchBreakEnd - config.lunchBreakStart) * 60 / config.slotDurationMinutes) * config.slotHeightPx;
+    const height =
+      (((config.lunchBreakEnd - config.lunchBreakStart) * 60) / config.slotDurationMinutes) *
+      config.slotHeightPx;
 
     return { top, height };
   }
@@ -379,12 +399,16 @@ export class CalendarCoreService {
     const config = this.gridConfiguration();
     return {
       start: `${config.lunchBreakStart.toString().padStart(2, '0')}:00`,
-      end: `${config.lunchBreakEnd.toString().padStart(2, '0')}:00`
+      end: `${config.lunchBreakEnd.toString().padStart(2, '0')}:00`,
     };
   }
 
   // ===== DRAG & DROP METHODS =====
-  startDrag(appointment: AppointmentEvent, originalPosition: { top: number; left: number }, originalDate: Date): void {
+  startDrag(
+    appointment: AppointmentEvent,
+    originalPosition: { top: number; left: number },
+    originalDate: Date
+  ): void {
     console.log('startDrag called with:', { appointment, originalPosition, originalDate });
 
     this.isDraggingSignal.set(true);
@@ -416,7 +440,11 @@ export class CalendarCoreService {
 
     const draggedAppointment = this.draggedAppointment();
     if (draggedAppointment) {
-      const isValid = this.isValidDropPosition(draggedAppointment, timePosition.date, timePosition.time);
+      const isValid = this.isValidDropPosition(
+        draggedAppointment,
+        timePosition.date,
+        timePosition.time
+      );
       console.log('Drop position valid:', isValid);
       this.isValidDropSignal.set(isValid);
     }
@@ -467,17 +495,23 @@ export class CalendarCoreService {
     }
   }
 
-  private isValidDropPosition(appointment: AppointmentEvent, targetDate: Date, targetTime: string): boolean {
+  private isValidDropPosition(
+    appointment: AppointmentEvent,
+    targetDate: Date,
+    targetTime: string
+  ): boolean {
     const appointments = this.stateService.appointments();
 
-    const appointmentEvents: AppointmentEvent[] = appointments.map(app => ({
-      id: app.id,
-      title: app.nom,
-      start: `${app.data}T${app.hora}:00`,
-      duration: app.duration || 60,
-      serviceName: app.serviceName,
-      clientName: app.nom
-    })).filter(app => app.id !== appointment.id);
+    const appointmentEvents: AppointmentEvent[] = appointments
+      .map(app => ({
+        id: app.id,
+        title: app.nom,
+        start: `${app.data}T${app.hora}:00`,
+        duration: app.duration || 60,
+        serviceName: app.serviceName,
+        clientName: app.nom,
+      }))
+      .filter(app => app.id !== appointment.id);
 
     const alignedTime = this.alignTimeToGrid(targetTime);
 
@@ -488,7 +522,10 @@ export class CalendarCoreService {
     const newAppointment: AppointmentEvent = {
       ...appointment,
       start: newStartDate.toISOString().slice(0, 16).replace('T', 'T'),
-      end: addMinutes(newStartDate, appointment.duration || 60).toISOString().slice(0, 16).replace('T', 'T')
+      end: addMinutes(newStartDate, appointment.duration || 60)
+        .toISOString()
+        .slice(0, 16)
+        .replace('T', 'T'),
     };
 
     return this.isTimeSlotAvailable(
@@ -499,7 +536,11 @@ export class CalendarCoreService {
     );
   }
 
-  private async moveAppointment(appointment: AppointmentEvent, targetDate: Date, targetTime: string): Promise<void> {
+  private async moveAppointment(
+    appointment: AppointmentEvent,
+    targetDate: Date,
+    targetTime: string
+  ): Promise<void> {
     console.log('moveAppointment called with:', { appointment, targetDate, targetTime });
 
     const user = this.authService.user();
@@ -519,21 +560,24 @@ export class CalendarCoreService {
     console.log('Updating booking with:', {
       bookingId: appointment.id,
       data: formattedDate,
-      hora: alignedTime
+      hora: alignedTime,
     });
 
     try {
       // Update the booking in Firebase
       const success = await this.bookingService.updateBooking(appointment.id, {
         data: formattedDate,
-        hora: alignedTime
+        hora: alignedTime,
       });
 
       if (success) {
         // Refresh bookings to update the UI
         await this.bookingService.refreshBookings();
 
-        this.toastService.showSuccess('Cita moguda', `S'ha mogut la cita de ${appointment.title} a ${format(targetDate, 'dd/MM')} a les ${alignedTime}`);
+        this.toastService.showSuccess(
+          'Cita moguda',
+          `S'ha mogut la cita de ${appointment.title} a ${format(targetDate, 'dd/MM')} a les ${alignedTime}`
+        );
 
         console.log('Booking updated successfully');
       } else {

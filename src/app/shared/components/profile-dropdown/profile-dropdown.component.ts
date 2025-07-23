@@ -15,9 +15,9 @@ export interface ProfileDropdownItem {
 }
 
 @Component({
-    selector: 'pelu-profile-dropdown',
-    imports: [CommonModule, RouterModule, TranslateModule, AvatarComponent],
-    template: `
+  selector: 'pelu-profile-dropdown',
+  imports: [CommonModule, RouterModule, TranslateModule, AvatarComponent],
+  template: `
     <div class="profile-dropdown" (click)="toggleDropdown($event)">
       <pelu-avatar [data]="avatarData()" size="medium"></pelu-avatar>
       <i class="pi pi-chevron-down dropdown-arrow" [class.rotated]="isDropdownOpen()"></i>
@@ -37,22 +37,26 @@ export interface ProfileDropdownItem {
               <div class="dropdown-divider" (click)="closeDropdown()"></div>
             } @else {
               @if (item.routerLink) {
-                <a [routerLink]="item.routerLink"
-                   class="dropdown-item"
-                   [class.danger]="item.type === 'danger'"
-                   [class.disabled]="item.disabled"
-                   (click)="onItemClick(item)">
+                <a
+                  [routerLink]="item.routerLink"
+                  class="dropdown-item"
+                  [class.danger]="item.type === 'danger'"
+                  [class.disabled]="item.disabled"
+                  (click)="onItemClick(item)"
+                >
                   <i [class]="item.icon || ''"></i>
-                  <span>{{ (item.label || '') | translate }}</span>
+                  <span>{{ item.label || '' | translate }}</span>
                 </a>
               } @else {
-                <button class="dropdown-item"
-                        [class.danger]="item.type === 'danger'"
-                        [class.disabled]="item.disabled"
-                        [disabled]="item.disabled"
-                        (click)="onItemClick(item)">
+                <button
+                  class="dropdown-item"
+                  [class.danger]="item.type === 'danger'"
+                  [class.disabled]="item.disabled"
+                  [disabled]="item.disabled"
+                  (click)="onItemClick(item)"
+                >
                   <i [class]="item.icon || ''"></i>
-                  <span>{{ (item.label || '') | translate }}</span>
+                  <span>{{ item.label || '' | translate }}</span>
                 </button>
               }
             }
@@ -61,7 +65,7 @@ export interface ProfileDropdownItem {
       </div>
     </div>
   `,
-    styleUrls: ['./profile-dropdown.component.scss']
+  styleUrls: ['./profile-dropdown.component.scss'],
 })
 export class ProfileDropdownComponent {
   // Input signals
@@ -89,7 +93,7 @@ export class ProfileDropdownComponent {
       imageUrl: user?.photoURL || undefined,
       name: user?.displayName?.split(' ')[0] || undefined,
       surname: user?.displayName?.split(' ').slice(1).join(' ') || undefined,
-      email: user?.email || undefined
+      email: user?.email || undefined,
     };
   });
 
@@ -98,8 +102,8 @@ export class ProfileDropdownComponent {
       {
         label: 'NAVIGATION.PROFILE',
         icon: 'pi pi-user',
-        routerLink: '/perfil'
-      }
+        routerLink: '/perfil',
+      },
     ];
 
     // Add admin items if user has admin access and showAdminItems is true
@@ -108,12 +112,12 @@ export class ProfileDropdownComponent {
         {
           label: 'NAVIGATION.ADMIN_DASHBOARD',
           icon: 'pi pi-chart-bar',
-          routerLink: '/admin/dashboard'
+          routerLink: '/admin/dashboard',
         },
         {
           label: 'NAVIGATION.ADMIN_SETTINGS',
           icon: 'pi pi-cog',
-          routerLink: '/admin/settings'
+          routerLink: '/admin/settings',
         }
       );
     }

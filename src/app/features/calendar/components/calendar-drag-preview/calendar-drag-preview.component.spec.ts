@@ -5,10 +5,8 @@ import { AppointmentEvent } from '../../core/calendar.component';
 
 // Test host component to provide required inputs
 @Component({
-    template: `
-    <pelu-calendar-drag-preview [data]="testData"></pelu-calendar-drag-preview>
-  `,
-    imports: [CalendarDragPreviewComponent]
+  template: ` <pelu-calendar-drag-preview [data]="testData"></pelu-calendar-drag-preview> `,
+  imports: [CalendarDragPreviewComponent],
 })
 class TestHostComponent {
   testData: DragPreviewData = {
@@ -22,13 +20,13 @@ class TestHostComponent {
       isPublicBooking: false,
       isOwnBooking: true,
       canDrag: true,
-      canViewDetails: true
+      canViewDetails: true,
     },
     position: {
       left: 200,
-      top: 150
+      top: 150,
     },
-    serviceCssClass: 'service-haircut'
+    serviceCssClass: 'service-haircut',
   };
 }
 
@@ -47,23 +45,22 @@ describe('CalendarDragPreviewComponent', () => {
     isPublicBooking: false,
     isOwnBooking: true,
     canDrag: true,
-    canViewDetails: true
+    canViewDetails: true,
   };
 
   const mockDragPreviewData: DragPreviewData = {
     appointment: mockAppointment,
     position: {
       left: 200,
-      top: 150
+      top: 150,
     },
-    serviceCssClass: 'service-haircut'
+    serviceCssClass: 'service-haircut',
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent]
-    })
-    .compileComponents();
+      imports: [TestHostComponent],
+    }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostComponent = hostFixture.componentInstance;
@@ -142,8 +139,8 @@ describe('CalendarDragPreviewComponent', () => {
       ...mockDragPreviewData,
       position: {
         left: 400,
-        top: 300
-      }
+        top: 300,
+      },
     };
     hostFixture.detectChanges();
 

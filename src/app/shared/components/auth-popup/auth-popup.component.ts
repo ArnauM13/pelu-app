@@ -1,6 +1,22 @@
-import { Component, input, output, signal, computed, effect, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  computed,
+  effect,
+  OnDestroy,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  FormGroup,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,18 +34,18 @@ export interface AuthPopupConfig {
 }
 
 @Component({
-    selector: 'pelu-auth-popup',
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        RouterModule,
-        ButtonModule,
-        TranslateModule,
-        InputEmailComponent,
-        InputPasswordComponent
-    ],
-    templateUrl: './auth-popup.component.html',
-    styleUrls: ['./auth-popup.component.scss']
+  selector: 'pelu-auth-popup',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    ButtonModule,
+    TranslateModule,
+    InputEmailComponent,
+    InputPasswordComponent,
+  ],
+  templateUrl: './auth-popup.component.html',
+  styleUrls: ['./auth-popup.component.scss'],
 })
 export class AuthPopupComponent implements OnDestroy {
   // Injections
@@ -39,7 +55,7 @@ export class AuthPopupComponent implements OnDestroy {
   readonly config = input.required<AuthPopupConfig>();
 
   // Output signals
-  readonly submitForm = output<{email: string, password: string, repeatPassword?: string}>();
+  readonly submitForm = output<{ email: string; password: string; repeatPassword?: string }>();
   readonly googleAuth = output<void>();
   readonly passwordMismatch = output<boolean>();
 
@@ -81,7 +97,7 @@ export class AuthPopupComponent implements OnDestroy {
     required: true,
     icon: 'pi pi-envelope',
     iconPosition: 'left' as const,
-    autocomplete: 'email'
+    autocomplete: 'email',
   };
 
   readonly passwordConfig = {
@@ -92,7 +108,7 @@ export class AuthPopupComponent implements OnDestroy {
     iconPosition: 'left' as const,
     minlength: 6,
     autocomplete: 'current-password',
-    showToggle: true
+    showToggle: true,
   };
 
   readonly repeatPasswordConfig = {
@@ -103,7 +119,7 @@ export class AuthPopupComponent implements OnDestroy {
     iconPosition: 'left' as const,
     minlength: 6,
     autocomplete: 'new-password',
-    showToggle: true
+    showToggle: true,
   };
 
   constructor() {
@@ -120,48 +136,60 @@ export class AuthPopupComponent implements OnDestroy {
   }
 
   #initConfigEffect() {
-    effect(() => {
-      const config = this.config();
-      if (config) {
-        this.initializeFormForMode(config.mode);
-      }
-    }, { allowSignalWrites: true });
+    effect(
+      () => {
+        const config = this.config();
+        if (config) {
+          this.initializeFormForMode(config.mode);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   #initPasswordValidationEffect() {
-    effect(() => {
-      const form = this.form();
-      const isFirstValid = this.isFirstPasswordValid();
-      const isEnabled = this.isRepeatPasswordEnabled();
+    effect(
+      () => {
+        const form = this.form();
+        const isFirstValid = this.isFirstPasswordValid();
+        const isEnabled = this.isRepeatPasswordEnabled();
 
-      if (form && this.isRegisterMode()) {
-        const repeatPasswordControl = form.get('repeatPassword');
-        if (repeatPasswordControl) {
-          if (isEnabled) {
-            repeatPasswordControl.enable();
-          } else {
-            repeatPasswordControl.disable();
-            repeatPasswordControl.setValue('');
-            this.repeatPasswordValueSignal.set('');
+        if (form && this.isRegisterMode()) {
+          const repeatPasswordControl = form.get('repeatPassword');
+          if (repeatPasswordControl) {
+            if (isEnabled) {
+              repeatPasswordControl.enable();
+            } else {
+              repeatPasswordControl.disable();
+              repeatPasswordControl.setValue('');
+              this.repeatPasswordValueSignal.set('');
+            }
           }
         }
-      }
-    }, { allowSignalWrites: true });
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   private initializeFormForMode(mode: 'login' | 'register') {
     if (mode === 'register') {
-      const form = this.fb.group({
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        repeatPassword: [{value: '', disabled: true}, [Validators.required, Validators.minLength(6)]]
-      }, { validators: this.passwordMatchValidator });
+      const form = this.fb.group(
+        {
+          email: ['', [Validators.required, Validators.email]],
+          password: ['', [Validators.required, Validators.minLength(6)]],
+          repeatPassword: [
+            { value: '', disabled: true },
+            [Validators.required, Validators.minLength(6)],
+          ],
+        },
+        { validators: this.passwordMatchValidator }
+      );
 
       this.formSignal.set(form);
     } else {
       const form = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]]
+        password: ['', [Validators.required, Validators.minLength(6)]],
       });
       this.formSignal.set(form);
     }

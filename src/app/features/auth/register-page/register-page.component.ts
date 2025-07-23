@@ -4,20 +4,18 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { AuthService } from '../../../core/auth/auth.service';
-import { AuthPopupComponent, AuthPopupConfig } from '../../../shared/components/auth-popup/auth-popup.component';
+import {
+  AuthPopupComponent,
+  AuthPopupConfig,
+} from '../../../shared/components/auth-popup/auth-popup.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 
 @Component({
-    selector: 'pelu-register-page',
-    imports: [
-        CommonModule,
-        TranslateModule,
-        AuthPopupComponent,
-        LoadingStateComponent
-    ],
-    templateUrl: './register-page.component.html',
-    styleUrls: ['./register-page.component.scss']
+  selector: 'pelu-register-page',
+  imports: [CommonModule, TranslateModule, AuthPopupComponent, LoadingStateComponent],
+  templateUrl: './register-page.component.html',
+  styleUrls: ['./register-page.component.scss'],
 })
 export class RegisterPageComponent implements OnDestroy {
   // Inject services
@@ -32,16 +30,18 @@ export class RegisterPageComponent implements OnDestroy {
   readonly passwordMismatch = signal<boolean>(false);
 
   // Computed properties
-  readonly registerConfig = computed((): AuthPopupConfig => ({
-    mode: 'register',
-    title: this.#translation.get('AUTH.SIGN_UP'),
-    subtitle: this.#translation.get('AUTH.REGISTER_FOR_ACTIVITIES'),
-    submitButtonText: this.#translation.get('AUTH.SIGN_UP'),
-    googleButtonText: this.#translation.get('AUTH.SIGN_UP_WITH_GOOGLE'),
-    linkText: this.#translation.get('AUTH.ALREADY_HAVE_ACCOUNT'),
-    linkRoute: '/login',
-    linkLabel: this.#translation.get('AUTH.SIGN_IN_HERE')
-  }));
+  readonly registerConfig = computed(
+    (): AuthPopupConfig => ({
+      mode: 'register',
+      title: this.#translation.get('AUTH.SIGN_UP'),
+      subtitle: this.#translation.get('AUTH.REGISTER_FOR_ACTIVITIES'),
+      submitButtonText: this.#translation.get('AUTH.SIGN_UP'),
+      googleButtonText: this.#translation.get('AUTH.SIGN_UP_WITH_GOOGLE'),
+      linkText: this.#translation.get('AUTH.ALREADY_HAVE_ACCOUNT'),
+      linkRoute: '/login',
+      linkLabel: this.#translation.get('AUTH.SIGN_IN_HERE'),
+    })
+  );
 
   readonly isSubmitting = computed(() => this.isLoading());
   readonly hasError = computed(() => this.errorMessage() !== '');
@@ -51,7 +51,7 @@ export class RegisterPageComponent implements OnDestroy {
     spinnerSize: 'medium' as const,
     showMessage: true,
     fullHeight: false,
-    overlay: true
+    overlay: true,
   }));
 
   ngOnDestroy() {
@@ -67,7 +67,7 @@ export class RegisterPageComponent implements OnDestroy {
     }
   }
 
-  async onRegisterSubmit(formData: {email: string, password: string, repeatPassword?: string}) {
+  async onRegisterSubmit(formData: { email: string; password: string; repeatPassword?: string }) {
     if (this.isLoading()) return; // Prevent multiple submissions
 
     this.isLoading.set(true);
@@ -130,10 +130,10 @@ export class RegisterPageComponent implements OnDestroy {
       if (err?.code) {
         switch (err.code) {
           case 'auth/popup-closed-by-user':
-            errorMessage = 'S\'ha tancat la finestra d\'autenticació';
+            errorMessage = "S'ha tancat la finestra d'autenticació";
             break;
           case 'auth/popup-blocked':
-            errorMessage = 'La finestra d\'autenticació ha estat bloquejada';
+            errorMessage = "La finestra d'autenticació ha estat bloquejada";
             break;
           default:
             errorMessage = err.message || 'Error al registrar-se amb Google';

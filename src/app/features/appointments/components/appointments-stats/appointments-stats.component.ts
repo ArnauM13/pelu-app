@@ -10,9 +10,9 @@ export interface AppointmentStats {
 }
 
 @Component({
-    selector: 'pelu-appointments-stats',
-    imports: [CommonModule, TranslateModule],
-    template: `
+  selector: 'pelu-appointments-stats',
+  imports: [CommonModule, TranslateModule],
+  template: `
     <div class="stats-grid" style="view-transition-name: stats-grid">
       <div class="stat-card clickable" (click)="onQuickFilterChange.emit('all')">
         <div class="stat-icon">📅</div>
@@ -47,53 +47,55 @@ export interface AppointmentStats {
       </div>
     </div>
   `,
-    styles: [`
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-    }
+  styles: [
+    `
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+      }
 
-    .stat-card {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      border: 1px solid #e5e7eb;
-    }
+      .stat-card {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+      }
 
-    .stat-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    }
+      .stat-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
 
-    .stat-icon {
-      font-size: 2rem;
-      margin-right: 1rem;
-    }
+      .stat-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+      }
 
-    .stat-content {
-      flex: 1;
-    }
+      .stat-content {
+        flex: 1;
+      }
 
-    .stat-number {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary-color);
-    }
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
 
-    .stat-label {
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
-      margin-top: 0.25rem;
-    }
-  `]
+      .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-color-secondary);
+        margin-top: 0.25rem;
+      }
+    `,
+  ],
 })
 export class AppointmentsStatsComponent {
   stats = input.required<AppointmentStats>();

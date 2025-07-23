@@ -6,7 +6,7 @@ describe('CalendarBusinessService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CalendarBusinessService]
+      providers: [CalendarBusinessService],
     });
 
     service = TestBed.inject(CalendarBusinessService);
@@ -22,7 +22,7 @@ describe('CalendarBusinessService', () => {
       expect(config.hours.start).toBe(8);
       expect(config.hours.end).toBe(20);
       expect(config.days.start).toBe(1); // Monday
-      expect(config.days.end).toBe(6);   // Saturday
+      expect(config.days.end).toBe(6); // Saturday
       expect(config.lunchBreak.start).toBe(13);
       expect(config.lunchBreak.end).toBe(15);
     });
@@ -30,9 +30,9 @@ describe('CalendarBusinessService', () => {
 
   describe('Business Days', () => {
     it('should check if day is business day', () => {
-      expect(service.isBusinessDay(1)).toBe(true);  // Monday
-      expect(service.isBusinessDay(5)).toBe(true);  // Friday
-      expect(service.isBusinessDay(6)).toBe(true);  // Saturday
+      expect(service.isBusinessDay(1)).toBe(true); // Monday
+      expect(service.isBusinessDay(5)).toBe(true); // Friday
+      expect(service.isBusinessDay(6)).toBe(true); // Saturday
       expect(service.isBusinessDay(0)).toBe(false); // Sunday
     });
 
@@ -106,7 +106,7 @@ describe('CalendarBusinessService', () => {
     it('should get appointments for day', () => {
       const date = new Date('2024-01-15');
       const appointments: any[] = [
-        { id: '1', title: 'Test', start: '2024-01-15T10:00:00', duration: 60 }
+        { id: '1', title: 'Test', start: '2024-01-15T10:00:00', duration: 60 },
       ];
 
       const dayAppointments = service.getAppointmentsForDay(date, appointments);

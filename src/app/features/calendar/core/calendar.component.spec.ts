@@ -37,7 +37,7 @@ describe('CalendarComponent', () => {
       'calculateAppointmentPosition',
       'updateTargetDateTime',
       'endDrag',
-      'updateGridConfiguration'
+      'updateGridConfiguration',
     ]);
     const businessSpy = jasmine.createSpyObj('CalendarBusinessService', [
       'getBusinessConfig',
@@ -52,7 +52,7 @@ describe('CalendarComponent', () => {
       'isTimeSlotBookable',
       'canNavigateToPreviousWeek',
       'isBusinessDay',
-      'getBusinessDaysInfo'
+      'getBusinessDaysInfo',
     ]);
     const stateSpy = jasmine.createSpyObj('CalendarStateService', [
       'viewDate',
@@ -66,7 +66,7 @@ describe('CalendarComponent', () => {
       'previousWeek',
       'nextWeek',
       'today',
-      'navigateToDate'
+      'navigateToDate',
     ]);
     const colorsSpy = jasmine.createSpyObj('ServiceColorsService', ['getServiceColor']);
     const authSpy = jasmine.createSpyObj('AuthService', ['user']);
@@ -75,7 +75,7 @@ describe('CalendarComponent', () => {
       'isLoading',
       'hasCachedData',
       'silentRefreshBookings',
-      'getBookingsWithCache'
+      'getBookingsWithCache',
     ]);
     const roleSpy = jasmine.createSpyObj('RoleService', ['isAdmin']);
     const translateSpy = jasmine.createSpyObj('TranslateService', ['instant']);
@@ -88,12 +88,12 @@ describe('CalendarComponent', () => {
       businessStartHour: 8,
       businessEndHour: 20,
       lunchBreakStart: 13,
-      lunchBreakEnd: 15
+      lunchBreakEnd: 15,
     });
     businessSpy.getBusinessConfig.and.returnValue({
       hours: { start: 8, end: 20 },
       lunchBreak: { start: 13, end: 15 },
-      days: { start: 1, end: 5 }
+      days: { start: 1, end: 5 },
     });
     businessSpy.generateTimeSlots.and.returnValue([]);
     businessSpy.getBusinessDaysForWeek.and.returnValue([]);
@@ -127,16 +127,24 @@ describe('CalendarComponent', () => {
         { provide: AuthService, useValue: authSpy },
         { provide: BookingService, useValue: bookingSpy },
         { provide: RoleService, useValue: roleSpy },
-        { provide: TranslateService, useValue: translateSpy }
-      ]
+        { provide: TranslateService, useValue: translateSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CalendarComponent);
     component = fixture.componentInstance;
-    calendarCoreService = TestBed.inject(CalendarCoreService) as jasmine.SpyObj<CalendarCoreService>;
-    calendarBusinessService = TestBed.inject(CalendarBusinessService) as jasmine.SpyObj<CalendarBusinessService>;
-    calendarStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
-    serviceColorsService = TestBed.inject(ServiceColorsService) as jasmine.SpyObj<ServiceColorsService>;
+    calendarCoreService = TestBed.inject(
+      CalendarCoreService
+    ) as jasmine.SpyObj<CalendarCoreService>;
+    calendarBusinessService = TestBed.inject(
+      CalendarBusinessService
+    ) as jasmine.SpyObj<CalendarBusinessService>;
+    calendarStateService = TestBed.inject(
+      CalendarStateService
+    ) as jasmine.SpyObj<CalendarStateService>;
+    serviceColorsService = TestBed.inject(
+      ServiceColorsService
+    ) as jasmine.SpyObj<ServiceColorsService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     bookingService = TestBed.inject(BookingService) as jasmine.SpyObj<BookingService>;
     roleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
@@ -189,7 +197,7 @@ describe('CalendarComponent', () => {
       displayName: null,
       phoneNumber: null,
       photoURL: null,
-      providerId: ''
+      providerId: '',
     });
 
     component.onAppointmentEditRequested(appointment);

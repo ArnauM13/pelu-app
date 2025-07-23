@@ -18,27 +18,25 @@ import { InputNumberComponent } from '../../../shared/components/inputs/input-nu
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 
-
-
 @Component({
-    selector: 'app-admin-settings-page',
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        TranslateModule,
-        ButtonModule,
-        InputTextModule,
-        InputNumberModule,
-        SelectModule,
-        CheckboxModule,
-        ProgressSpinnerModule,
-        InputTextComponent,
-        InputNumberComponent,
-        InputCheckboxComponent,
-        InputSelectComponent
-    ],
-    templateUrl: './admin-settings-page.component.html',
-    styleUrls: ['./admin-settings-page.component.scss']
+  selector: 'app-admin-settings-page',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    ButtonModule,
+    InputTextModule,
+    InputNumberModule,
+    SelectModule,
+    CheckboxModule,
+    ProgressSpinnerModule,
+    InputTextComponent,
+    InputNumberComponent,
+    InputCheckboxComponent,
+    InputSelectComponent,
+  ],
+  templateUrl: './admin-settings-page.component.html',
+  styleUrls: ['./admin-settings-page.component.scss'],
 })
 export class AdminSettingsPageComponent implements OnInit {
   private userService = inject(UserService);
@@ -70,27 +68,27 @@ export class AdminSettingsPageComponent implements OnInit {
     { label: 'Dijous', value: 4 },
     { label: 'Divendres', value: 5 },
     { label: 'Dissabte', value: 6 },
-    { label: 'Diumenge', value: 0 }
+    { label: 'Diumenge', value: 0 },
   ];
 
   backupFrequencyOptions = [
     { label: 'Diari', value: 'daily' },
     { label: 'Setmanal', value: 'weekly' },
-    { label: 'Mensual', value: 'monthly' }
+    { label: 'Mensual', value: 'monthly' },
   ];
 
   languageOptions = [
     { label: 'Català', value: 'ca' },
     { label: 'Español', value: 'es' },
     { label: 'English', value: 'en' },
-    { label: 'العربية', value: 'ar' }
+    { label: 'العربية', value: 'ar' },
   ];
 
   timezoneOptions = [
     { label: 'Madrid (UTC+1)', value: 'Europe/Madrid' },
     { label: 'Barcelona (UTC+1)', value: 'Europe/Madrid' },
     { label: 'Londres (UTC+0)', value: 'Europe/London' },
-    { label: 'Nova York (UTC-5)', value: 'America/New_York' }
+    { label: 'Nova York (UTC-5)', value: 'America/New_York' },
   ];
 
   get currencyOptions() {
@@ -132,7 +130,7 @@ export class AdminSettingsPageComponent implements OnInit {
       sendNotifications: [currentSettings.sendNotifications],
       maintenanceMode: [currentSettings.maintenanceMode],
       defaultLanguage: [currentSettings.language],
-      currency: [currentSettings.currency]
+      currency: [currentSettings.currency],
     });
   }
 
@@ -152,7 +150,10 @@ export class AdminSettingsPageComponent implements OnInit {
         const formValue = this.settingsForm.value;
 
         // Update currency if changed
-        if (formValue.currency && formValue.currency !== this.currencyService.getCurrentCurrency()) {
+        if (
+          formValue.currency &&
+          formValue.currency !== this.currencyService.getCurrentCurrency()
+        ) {
           this.currencyService.setCurrentCurrency(formValue.currency);
         }
 
@@ -165,7 +166,7 @@ export class AdminSettingsPageComponent implements OnInit {
           sendNotifications: formValue.sendNotifications,
           maintenanceMode: formValue.maintenanceMode,
           language: formValue.defaultLanguage,
-          currency: formValue.currency
+          currency: formValue.currency,
         });
 
         this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
@@ -183,12 +184,15 @@ export class AdminSettingsPageComponent implements OnInit {
 
   resetToDefaults() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.businessSettingsService.resetToDefaults().then(() => {
-        this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
-      }).catch(error => {
-        console.error('Error resetting to defaults:', error);
-        this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
-      });
+      this.businessSettingsService
+        .resetToDefaults()
+        .then(() => {
+          this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
+        })
+        .catch(error => {
+          console.error('Error resetting to defaults:', error);
+          this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
+        });
     }
   }
 
@@ -201,7 +205,7 @@ export class AdminSettingsPageComponent implements OnInit {
         autoConfirm: false,
         sendNotifications: true,
         maintenanceMode: false,
-        defaultLanguage: 'ca'
+        defaultLanguage: 'ca',
       });
     }
   }
@@ -209,16 +213,18 @@ export class AdminSettingsPageComponent implements OnInit {
   toggleMaintenanceMode() {
     const currentSettings = this.settings();
     this.businessSettingsService.saveSettings({
-      maintenanceMode: !currentSettings.maintenanceMode
+      maintenanceMode: !currentSettings.maintenanceMode,
     });
   }
 
   getWorkingDaysLabels(): string {
     const workingDays = this.settings().workingDays;
-    return workingDays.map(day => {
-      const option = this.workingDaysOptions.find(opt => opt.value === day);
-      return option ? option.label : day.toString();
-    }).join(', ');
+    return workingDays
+      .map(day => {
+        const option = this.workingDaysOptions.find(opt => opt.value === day);
+        return option ? option.label : day.toString();
+      })
+      .join(', ');
   }
 
   formatTime(hour: number): string {

@@ -4,10 +4,8 @@ import { CalendarTimeColumnComponent, TimeSlot } from './calendar-time-column.co
 
 // Test host component to provide required inputs
 @Component({
-    template: `
-    <pelu-calendar-time-column [timeSlots]="testTimeSlots"></pelu-calendar-time-column>
-  `,
-    imports: [CalendarTimeColumnComponent]
+  template: ` <pelu-calendar-time-column [timeSlots]="testTimeSlots"></pelu-calendar-time-column> `,
+  imports: [CalendarTimeColumnComponent],
 })
 class TestHostComponent {
   testTimeSlots: TimeSlot[] = [
@@ -16,7 +14,7 @@ class TestHostComponent {
     { time: '12:00', isBlocked: true, isLunchBreakStart: true, isDisabled: true },
     { time: '12:30', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
     { time: '13:00', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
-    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false }
+    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
   ];
 }
 
@@ -31,14 +29,13 @@ describe('CalendarTimeColumnComponent', () => {
     { time: '12:00', isBlocked: true, isLunchBreakStart: true, isDisabled: true },
     { time: '12:30', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
     { time: '13:00', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
-    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false }
+    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
   ];
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent]
-    })
-    .compileComponents();
+      imports: [TestHostComponent],
+    }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostComponent = hostFixture.componentInstance;

@@ -9,31 +9,40 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
-import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
-import { ServiceSelectionPopupComponent, ServiceSelectionDetails } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
+import {
+  BookingPopupComponent,
+  BookingDetails,
+} from '../../../shared/components/booking-popup/booking-popup.component';
+import {
+  ServiceSelectionPopupComponent,
+  ServiceSelectionDetails,
+} from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
-import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
+import {
+  FirebaseServicesService,
+  FirebaseService,
+} from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
-    selector: 'pelu-booking-page',
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        InputTextModule,
-        ButtonModule,
-        TooltipModule,
-        TranslateModule,
-        CalendarWithFooterComponent,
-        BookingPopupComponent,
-        ServiceSelectionPopupComponent
-    ],
-    templateUrl: './booking-page.component.html',
-    styleUrls: ['./booking-page.component.scss']
+  selector: 'pelu-booking-page',
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    InputTextModule,
+    ButtonModule,
+    TooltipModule,
+    TranslateModule,
+    CalendarWithFooterComponent,
+    BookingPopupComponent,
+    ServiceSelectionPopupComponent,
+  ],
+  templateUrl: './booking-page.component.html',
+  styleUrls: ['./booking-page.component.scss'],
 })
 export class BookingPageComponent {
   @ViewChild('calendarComponent') calendarComponent!: CalendarWithFooterComponent;
@@ -49,8 +58,18 @@ export class BookingPageComponent {
   // Signals
   readonly showServiceSelectionPopupSignal = signal(false);
   readonly showBookingPopupSignal = signal(false);
-  readonly serviceSelectionDetailsSignal = signal<ServiceSelectionDetails>({date: '', time: '', clientName: '', email: ''});
-  readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
+  readonly serviceSelectionDetailsSignal = signal<ServiceSelectionDetails>({
+    date: '',
+    time: '',
+    clientName: '',
+    email: '',
+  });
+  readonly bookingDetailsSignal = signal<BookingDetails>({
+    date: '',
+    time: '',
+    clientName: '',
+    email: '',
+  });
   readonly availableServicesSignal = signal<FirebaseService[]>([]);
   readonly showLoginPromptSignal = signal(false);
 
@@ -68,18 +87,18 @@ export class BookingPageComponent {
     {
       icon: '📅',
       label: 'BOOKING.SELECT_DATE',
-      value: 'BOOKING.SELECT_DATE_DESCRIPTION'
+      value: 'BOOKING.SELECT_DATE_DESCRIPTION',
     },
     {
       icon: '⏰',
       label: 'BOOKING.SELECT_TIME',
-      value: 'BOOKING.SELECT_TIME_DESCRIPTION'
+      value: 'BOOKING.SELECT_TIME_DESCRIPTION',
     },
     {
       icon: '✂️',
       label: 'BOOKING.SELECT_SERVICE',
-      value: 'BOOKING.SELECT_SERVICE_DESCRIPTION'
-    }
+      value: 'BOOKING.SELECT_SERVICE_DESCRIPTION',
+    },
   ];
 
   constructor() {
@@ -102,13 +121,13 @@ export class BookingPageComponent {
     }
   }
 
-    onTimeSlotSelected(event: {date: string, time: string}) {
+  onTimeSlotSelected(event: { date: string; time: string }) {
     // Show service selection popup first
     const details: ServiceSelectionDetails = {
       date: event.date,
       time: event.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
-      email: this.isAuthenticated() ? this.authService.user()?.email || '' : ''
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
     };
 
     this.serviceSelectionDetailsSignal.set(details);
@@ -127,7 +146,7 @@ export class BookingPageComponent {
     console.log('Delete appointment:', event);
   }
 
-    async onBookingConfirmed(details: BookingDetails) {
+  async onBookingConfirmed(details: BookingDetails) {
     try {
       // Create booking using the booking service
       const bookingData = {
@@ -142,7 +161,7 @@ export class BookingPageComponent {
         notes: '',
         status: 'confirmed' as const,
         editToken: '', // Will be generated automatically
-        uid: this.authService.user()?.uid || null
+        uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
@@ -155,14 +174,14 @@ export class BookingPageComponent {
       }
 
       this.showBookingPopupSignal.set(false);
-      this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+      this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
       // Don't show toast - the booking service already handles success/error toasts
     }
   }
 
-  onServiceSelected(event: {details: ServiceSelectionDetails, service: FirebaseService}) {
+  onServiceSelected(event: { details: ServiceSelectionDetails; service: FirebaseService }) {
     // Close service selection popup
     this.showServiceSelectionPopupSignal.set(false);
 
@@ -172,7 +191,7 @@ export class BookingPageComponent {
       time: event.details.time,
       clientName: event.details.clientName,
       email: event.details.email,
-      service: event.service
+      service: event.service,
     };
 
     this.bookingDetailsSignal.set(bookingDetails);
@@ -181,12 +200,12 @@ export class BookingPageComponent {
 
   onServiceSelectionCancelled() {
     this.showServiceSelectionPopupSignal.set(false);
-    this.serviceSelectionDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+    this.serviceSelectionDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+    this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
   onClientNameChanged(name: string) {

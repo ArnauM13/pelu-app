@@ -11,7 +11,7 @@ describe('CalendarDragDropService', () => {
     const positionSpy = jasmine.createSpyObj('CalendarPositionService', [
       'calculatePosition',
       'getTimeSlotPosition',
-      'getDayPosition'
+      'getDayPosition',
     ]);
 
     // Setup default spy returns
@@ -22,12 +22,14 @@ describe('CalendarDragDropService', () => {
     TestBed.configureTestingModule({
       providers: [
         CalendarDragDropService,
-        { provide: CalendarPositionService, useValue: positionSpy }
-      ]
+        { provide: CalendarPositionService, useValue: positionSpy },
+      ],
     });
 
     service = TestBed.inject(CalendarDragDropService);
-    positionService = TestBed.inject(CalendarPositionService) as jasmine.SpyObj<CalendarPositionService>;
+    positionService = TestBed.inject(
+      CalendarPositionService
+    ) as jasmine.SpyObj<CalendarPositionService>;
   });
 
   it('should be created', () => {
@@ -39,7 +41,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     const originalPosition = { top: 100, left: 50 };
@@ -59,7 +61,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
@@ -75,7 +77,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
@@ -94,7 +96,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
@@ -112,7 +114,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
@@ -133,7 +135,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-01'));
@@ -154,7 +156,7 @@ describe('CalendarDragDropService', () => {
       id: 'test-1',
       title: 'Test Appointment',
       start: '2024-01-01T10:00:00',
-      duration: 60
+      duration: 60,
     };
 
     const originalDate = new Date('2024-01-01');

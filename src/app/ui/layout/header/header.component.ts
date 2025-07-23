@@ -3,14 +3,23 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
-import { ProfileDropdownComponent, ProfileDropdownItem } from '../../../shared/components/profile-dropdown/profile-dropdown.component';
+import {
+  ProfileDropdownComponent,
+  ProfileDropdownItem,
+} from '../../../shared/components/profile-dropdown/profile-dropdown.component';
 import { UserService } from '../../../core/services/user.service';
 
 @Component({
-    selector: 'pelu-header',
-    imports: [CommonModule, RouterModule, TranslateModule, LanguageSelectorComponent, ProfileDropdownComponent],
-    templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss']
+  selector: 'pelu-header',
+  imports: [
+    CommonModule,
+    RouterModule,
+    TranslateModule,
+    LanguageSelectorComponent,
+    ProfileDropdownComponent,
+  ],
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
   // Inject services
@@ -37,8 +46,8 @@ export class HeaderComponent {
         icon: 'pi pi-sign-out',
         type: 'danger',
         onClick: () => this.onLogout(),
-        disabled: this.isLoggingOut()
-      }
+        disabled: this.isLoggingOut(),
+      },
     ];
   });
 

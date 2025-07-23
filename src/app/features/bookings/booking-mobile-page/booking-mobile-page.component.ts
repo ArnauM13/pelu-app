@@ -8,13 +8,31 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import {
+  addDays,
+  format,
+  isSameDay,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  parseISO,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  subMonths,
+} from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
-import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
+import {
+  BookingPopupComponent,
+  BookingDetails,
+} from '../../../shared/components/booking-popup/booking-popup.component';
 
-import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
+import {
+  FirebaseServicesService,
+  FirebaseService,
+} from '../../../core/services/firebase-services.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -40,21 +58,21 @@ interface DaySlot {
 }
 
 @Component({
-    selector: 'pelu-booking-mobile-page',
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        InputTextModule,
-        ButtonModule,
-        SelectModule,
-        TranslateModule,
-        CardComponent,
-        BookingPopupComponent,
-        CurrencyPipe,
-    ],
-    templateUrl: './booking-mobile-page.component.html',
-    styleUrls: ['./booking-mobile-page.component.scss']
+  selector: 'pelu-booking-mobile-page',
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    InputTextModule,
+    ButtonModule,
+    SelectModule,
+    TranslateModule,
+    CardComponent,
+    BookingPopupComponent,
+    CurrencyPipe,
+  ],
+  templateUrl: './booking-mobile-page.component.html',
+  styleUrls: ['./booking-mobile-page.component.scss'],
 })
 export class BookingMobilePageComponent {
   // Inject services
@@ -74,7 +92,12 @@ export class BookingMobilePageComponent {
 
   private readonly showBookingPopupSignal = signal<boolean>(false);
 
-  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
+  private readonly bookingDetailsSignal = signal<BookingDetails>({
+    date: '',
+    time: '',
+    clientName: '',
+    email: '',
+  });
   private readonly showLoginPromptSignal = signal<boolean>(false);
 
   // Public computed signals
@@ -133,7 +156,7 @@ export class BookingMobilePageComponent {
   readonly daySlots = computed(() => {
     return this.currentViewDays().map(day => ({
       date: day,
-      timeSlots: this.generateTimeSlots(day)
+      timeSlots: this.generateTimeSlots(day),
     }));
   });
 
@@ -152,7 +175,7 @@ export class BookingMobilePageComponent {
     return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
   });
 
-    constructor() {
+  constructor() {
     this.loadServices();
     this.loadAppointments();
 
@@ -234,7 +257,7 @@ export class BookingMobilePageComponent {
           serviceName: booking?.serviceName || booking?.servei,
           serviceIcon: this.getServiceIcon(booking?.serviceId),
           bookingId: booking?.id,
-          notes: booking?.notes
+          notes: booking?.notes,
         });
       }
     }
@@ -249,9 +272,9 @@ export class BookingMobilePageComponent {
 
     return bookings.some(booking => {
       // Check if booking is confirmed and matches the date and time
-      return booking.status === 'confirmed' &&
-             booking.data === dateString &&
-             booking.hora === timeString;
+      return (
+        booking.status === 'confirmed' && booking.data === dateString && booking.hora === timeString
+      );
     });
   }
 
@@ -261,9 +284,7 @@ export class BookingMobilePageComponent {
 
     return bookings.find(booking => {
       // Check if booking is confirmed and matches the date and time
-      return booking.status === 'confirmed' &&
-             booking.data === dateString &&
-             booking.hora === time;
+      return booking.status === 'confirmed' && booking.data === dateString && booking.hora === time;
     });
   }
 
@@ -273,7 +294,7 @@ export class BookingMobilePageComponent {
     return service?.icon || '🔧';
   }
 
-    private isTimeSlotEnabled(hour: number, minute: number): boolean {
+  private isTimeSlotEnabled(hour: number, minute: number): boolean {
     // Check lunch break
     const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
     const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
@@ -324,7 +345,10 @@ export class BookingMobilePageComponent {
     if (daySlots && daySlots.timeSlots.length > 0) {
       const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
       if (availableSlots.length === 0) {
-        this.toastService.showWarning('Totes les hores estan ocupades', 'Aquest dia no té cap hora disponible per reservar.');
+        this.toastService.showWarning(
+          'Totes les hores estan ocupades',
+          'Aquest dia no té cap hora disponible per reservar.'
+        );
       }
     }
   }
@@ -397,7 +421,7 @@ export class BookingMobilePageComponent {
         notes: '',
         status: 'confirmed' as const,
         editToken: '', // Will be generated automatically
-        uid: this.authService.user()?.uid || null
+        uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
@@ -416,7 +440,7 @@ export class BookingMobilePageComponent {
       }
 
       this.showBookingPopupSignal.set(false);
-      this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+      this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
       // Don't show toast - the booking service already handles success/error toasts
@@ -425,7 +449,7 @@ export class BookingMobilePageComponent {
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+    this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
   onClientNameChanged(name: string) {
@@ -500,7 +524,7 @@ export class BookingMobilePageComponent {
       time: timeSlot.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
-      service: this.selectedService() || undefined
+      service: this.selectedService() || undefined,
     };
 
     this.bookingDetailsSignal.set(bookingDetails);
@@ -548,10 +572,12 @@ export class BookingMobilePageComponent {
 
   isCurrentMonth(date: Date): boolean {
     const currentDate = this.selectedDate() || new Date();
-    return date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+    return (
+      date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear()
+    );
   }
 
-    canSelectDate(date: Date): boolean {
+  canSelectDate(date: Date): boolean {
     // In week view, all business days in the week should be selectable regardless of month
     // In month view, only days of the current month should be selectable
     if (this.viewMode() === 'week') {
@@ -563,7 +589,8 @@ export class BookingMobilePageComponent {
       const currentYear = currentDate.getFullYear();
 
       // Check if date is in the current month and year
-      const isInCurrentMonth = date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      const isInCurrentMonth =
+        date.getMonth() === currentMonth && date.getFullYear() === currentYear;
 
       return !this.isPastDate(date) && this.isBusinessDay(date) && isInCurrentMonth;
     }
@@ -632,7 +659,7 @@ export class BookingMobilePageComponent {
       // Show a message if no available dates found
       this.toastService.showWarning(
         'No hi ha dates disponibles',
-        'No s\'han trobat dates disponibles en els propers 30 dies'
+        "No s'han trobat dates disponibles en els propers 30 dies"
       );
     }
   }
@@ -693,6 +720,10 @@ export class BookingMobilePageComponent {
     const hasService = !!this.selectedService();
     const hasDate = !!this.selectedDate();
 
-    return !hasDate ? 'BOOKING.SELECT_DATE_FIRST' : !hasService ? 'BOOKING.SELECT_SERVICE_FIRST' : 'BOOKING.SELECTION_REQUIRED';
+    return !hasDate
+      ? 'BOOKING.SELECT_DATE_FIRST'
+      : !hasService
+        ? 'BOOKING.SELECT_SERVICE_FIRST'
+        : 'BOOKING.SELECTION_REQUIRED';
   }
 }

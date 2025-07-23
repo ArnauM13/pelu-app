@@ -2,10 +2,9 @@ import { Injectable } from '@angular/core';
 import { TranslationService } from './translation.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ServiceTranslationService {
-
   private readonly serviceNameMap = new Map<string, string>([
     // Spanish service names
     ['corte de cabell masculí', 'SERVICES.NAMES.MALE_HAIRCUT'],
@@ -88,7 +87,7 @@ export class ServiceTranslationService {
     ['completa', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
     ['complete', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
     ['prova', 'SERVICES.NAMES.TEST_SERVICE'],
-    ['test', 'SERVICES.NAMES.TEST_SERVICE']
+    ['test', 'SERVICES.NAMES.TEST_SERVICE'],
   ]);
 
   constructor(private translationService: TranslationService) {}

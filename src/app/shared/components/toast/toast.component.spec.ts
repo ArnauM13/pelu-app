@@ -17,9 +17,9 @@ class MockTranslateLoader implements TranslateLoader {
 
 // Mock p-toast component
 @Component({
-    selector: 'p-toast',
-    template: '<ng-content></ng-content>',
-    standalone: false
+  selector: 'p-toast',
+  template: '<ng-content></ng-content>',
+  standalone: false,
 })
 class MockPToastComponent {
   @Input() key: string = '';
@@ -47,20 +47,20 @@ describe('ToastComponent', () => {
         ToastComponent,
         // ToastModule, // Eliminat
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       // declarations: [MockPToastComponent], // ja no cal
       providers: [
         { provide: MessageService, useValue: messageServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: AuthService, useValue: authServiceSpy }
+        { provide: AuthService, useValue: authServiceSpy },
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     })
-    // OVERRIDE TEMPLATE: Evitem que es renderitzi p-toast
-    .overrideComponent(ToastComponent, { set: { template: '' } })
-    .compileComponents();
+      // OVERRIDE TEMPLATE: Evitem que es renderitzi p-toast
+      .overrideComponent(ToastComponent, { set: { template: '' } })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ToastComponent);
     component = fixture.componentInstance;
@@ -96,7 +96,7 @@ describe('ToastComponent', () => {
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId, showViewButton, action }
+        data: { appointmentId, showViewButton, action },
       });
     });
 
@@ -113,7 +113,7 @@ describe('ToastComponent', () => {
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId: undefined, showViewButton: false, action: undefined }
+        data: { appointmentId: undefined, showViewButton: false, action: undefined },
       });
     });
   });
@@ -131,8 +131,8 @@ describe('ToastComponent', () => {
       const action = jasmine.createSpy('action');
       const event = {
         message: {
-          data: { action }
-        }
+          data: { action },
+        },
       };
 
       component.onToastClick(event);
@@ -145,8 +145,8 @@ describe('ToastComponent', () => {
       const appointmentId = 'test-id';
       const event = {
         message: {
-          data: { appointmentId }
-        }
+          data: { appointmentId },
+        },
       };
 
       component.onToastClick(event);
@@ -158,8 +158,8 @@ describe('ToastComponent', () => {
       spyOn(component, 'viewAppointmentDetail');
       const event = {
         message: {
-          data: {}
-        }
+          data: {},
+        },
       };
 
       component.onToastClick(event);
@@ -173,8 +173,8 @@ describe('ToastComponent', () => {
       const appointmentId = 'test-id';
       const event = {
         message: {
-          data: { action, appointmentId }
-        }
+          data: { action, appointmentId },
+        },
       };
 
       component.onToastClick(event);
@@ -202,7 +202,10 @@ describe('ToastComponent', () => {
       component.executeAction(action);
 
       expect(action).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('Error executing toast action:', jasmine.any(Error));
+      expect(console.error).toHaveBeenCalledWith(
+        'Error executing toast action:',
+        jasmine.any(Error)
+      );
     });
   });
 

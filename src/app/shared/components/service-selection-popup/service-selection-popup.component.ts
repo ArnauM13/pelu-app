@@ -9,7 +9,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
-import { FirebaseService, FirebaseServicesService } from '../../../core/services/firebase-services.service';
+import {
+  FirebaseService,
+  FirebaseServicesService,
+} from '../../../core/services/firebase-services.service';
 
 export interface ServiceSelectionDetails {
   date: string;
@@ -18,22 +21,20 @@ export interface ServiceSelectionDetails {
   email: string;
 }
 
-
-
 @Component({
-    selector: 'pelu-service-selection-popup',
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        ButtonModule,
-        InputTextModule,
-        SelectModule,
-        TranslateModule,
-        PopularBadgeComponent
-    ],
-    templateUrl: './service-selection-popup.component.html',
-    styleUrls: ['./service-selection-popup.component.scss']
+  selector: 'pelu-service-selection-popup',
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    InputTextModule,
+    SelectModule,
+    TranslateModule,
+    PopularBadgeComponent,
+  ],
+  templateUrl: './service-selection-popup.component.html',
+  styleUrls: ['./service-selection-popup.component.scss'],
 })
 export class ServiceSelectionPopupComponent {
   private readonly toastService = inject(ToastService);
@@ -49,7 +50,10 @@ export class ServiceSelectionPopupComponent {
   }
 
   // Output events
-  @Output() serviceSelected = new EventEmitter<{details: ServiceSelectionDetails, service: FirebaseService}>();
+  @Output() serviceSelected = new EventEmitter<{
+    details: ServiceSelectionDetails;
+    service: FirebaseService;
+  }>();
   @Output() cancelled = new EventEmitter<void>();
 
   // Internal signals
@@ -58,7 +62,7 @@ export class ServiceSelectionPopupComponent {
     date: '',
     time: '',
     clientName: '',
-    email: ''
+    email: '',
   });
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
 
@@ -98,7 +102,7 @@ export class ServiceSelectionPopupComponent {
 
     this.serviceSelected.emit({
       details: this.selectionDetailsComputed(),
-      service: selectedService
+      service: selectedService,
     });
     this.resetState();
   }
@@ -151,7 +155,7 @@ export class ServiceSelectionPopupComponent {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 }

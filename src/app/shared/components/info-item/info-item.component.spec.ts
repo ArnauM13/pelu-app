@@ -11,32 +11,29 @@ describe('InfoItemComponent', () => {
     label: 'Test Label',
     value: 'Test Value',
     status: 'active',
-    statusText: 'Active Status'
+    statusText: 'Active Status',
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        InfoItemComponent,
-        TranslateModule.forRoot()
-      ],
+      imports: [InfoItemComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
-          }
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+          },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InfoItemComponent);
@@ -112,7 +109,7 @@ describe('InfoItemComponent', () => {
       label: 'Test Label',
       value: 'Test Value',
       status: 'active',
-      statusText: 'Active Status'
+      statusText: 'Active Status',
     };
 
     expect(testData.icon).toBe('📅');
@@ -126,7 +123,7 @@ describe('InfoItemComponent', () => {
     const testData: InfoItemData = {
       icon: '📅',
       label: 'Test Label',
-      value: 'Test Value'
+      value: 'Test Value',
     };
 
     expect(testData.icon).toBe('📅');
@@ -149,7 +146,7 @@ describe('InfoItemComponent', () => {
       icon: '📅',
       label: 'Test',
       value: 'Value',
-      status: 'warning'
+      status: 'warning',
     };
 
     // Test that the component can handle different status values
@@ -163,7 +160,7 @@ describe('InfoItemComponent', () => {
     const emptyData: InfoItemData = {
       icon: '',
       label: '',
-      value: ''
+      value: '',
     };
 
     expect(emptyData.icon).toBe('');

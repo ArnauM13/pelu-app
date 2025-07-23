@@ -2,10 +2,10 @@ import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'pelu-card',
-    imports: [CommonModule],
-    templateUrl: './card.component.html',
-    styleUrls: ['./card.component.scss']
+  selector: 'pelu-card',
+  imports: [CommonModule],
+  templateUrl: './card.component.html',
+  styleUrls: ['./card.component.scss'],
 })
 export class CardComponent {
   // Input signals
@@ -15,7 +15,7 @@ export class CardComponent {
   readonly cardClasses = computed(() => {
     const variant = this.variant();
     const classes: { [key: string]: boolean } = {
-      'pelu-card': true
+      'pelu-card': true,
     };
 
     // Add variant-specific class

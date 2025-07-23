@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {
     MessageService,
     provideZoneChangeDetection({
       eventCoalescing: true,
-      runCoalescing: true
+      runCoalescing: true,
     }),
     provideRouter(routes, withViewTransitions()),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
@@ -40,12 +40,12 @@ export const appConfig: ApplicationConfig = {
         loader: {
           provide: TranslateLoader,
           useFactory: HttpLoaderFactory,
-          deps: [HttpClient]
+          deps: [HttpClient],
         },
         defaultLanguage: 'ca',
-        useDefaultLang: true
+        useDefaultLang: true,
       })
     ),
-    importProvidersFrom(BrowserAnimationsModule)
-  ]
+    importProvidersFrom(BrowserAnimationsModule),
+  ],
 };

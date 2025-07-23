@@ -11,32 +11,29 @@ describe('NotFoundStateComponent', () => {
     title: 'Test Title',
     message: 'Test Message',
     buttonText: 'Test Button',
-    showButton: true
+    showButton: true,
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        NotFoundStateComponent,
-        TranslateModule.forRoot()
-      ],
+      imports: [NotFoundStateComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
-          }
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+          },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NotFoundStateComponent);
@@ -155,7 +152,7 @@ describe('NotFoundStateComponent', () => {
   });
 
   describe('Event Handling', () => {
-        it('should emit onButtonClick when button is clicked', () => {
+    it('should emit onButtonClick when button is clicked', () => {
       component.config = mockConfig;
       fixture.detectChanges();
 
@@ -187,7 +184,7 @@ describe('NotFoundStateComponent', () => {
         title: 'Full Title',
         message: 'Full Message',
         buttonText: 'Full Button',
-        showButton: true
+        showButton: true,
       };
 
       component.config = fullConfig;
@@ -204,7 +201,7 @@ describe('NotFoundStateComponent', () => {
       const minimalConfig: NotFoundStateConfig = {
         icon: '🔍',
         title: 'Minimal Title',
-        message: 'Minimal Message'
+        message: 'Minimal Message',
       };
 
       component.config = minimalConfig;
@@ -223,7 +220,7 @@ describe('NotFoundStateComponent', () => {
         title: 'No Button Title',
         message: 'No Button Message',
         buttonText: 'Button Text',
-        showButton: false
+        showButton: false,
       };
 
       component.config = configWithNoButton;
@@ -271,7 +268,7 @@ describe('NotFoundStateComponent', () => {
       const incompleteConfig: NotFoundStateConfig = {
         icon: '🔍',
         title: 'Test',
-        message: 'Test'
+        message: 'Test',
       };
       component.config = incompleteConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -282,7 +279,7 @@ describe('NotFoundStateComponent', () => {
         icon: '',
         title: '',
         message: '',
-        buttonText: ''
+        buttonText: '',
       };
       component.config = emptyConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -296,7 +293,7 @@ describe('NotFoundStateComponent', () => {
         title: 'Test Title',
         message: 'Test Message',
         buttonText: 'Test Button',
-        showButton: true
+        showButton: true,
       };
 
       expect(testConfig.icon).toBe('🔍');
@@ -310,7 +307,7 @@ describe('NotFoundStateComponent', () => {
       const testConfig: NotFoundStateConfig = {
         icon: '🔍',
         title: 'Test Title',
-        message: 'Test Message'
+        message: 'Test Message',
       };
 
       expect(testConfig.icon).toBe('🔍');

@@ -18,7 +18,7 @@ class MockTranslateLoader implements TranslateLoader {
 // Mock AuthService
 const mockAuthService = {
   loginWithGoogle: jasmine.createSpy('loginWithGoogle'),
-  register: jasmine.createSpy('register')
+  register: jasmine.createSpy('register'),
 };
 
 describe('RegisterPageComponent', () => {
@@ -31,14 +31,14 @@ describe('RegisterPageComponent', () => {
         RegisterPageComponent,
         HttpClientModule,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: Auth, useValue: mockAuth },
         { provide: AuthService, useValue: mockAuthService },
-        provideRouter([])
-      ]
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterPageComponent);

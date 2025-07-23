@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   z-index: var(--z-popup);
   pointer-events: all;
 }
@@ -56,8 +56,12 @@
 }
 
 @keyframes calendarSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .calendar-loader-title {
@@ -91,9 +95,15 @@
 }
 
 @keyframes calendarProgress {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(200%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(200%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 /* Responsive adjustments for calendar loader */
@@ -121,7 +131,11 @@
 
 /* Calendar page background */
 :host {
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   display: block;
   box-sizing: border-box;
 }
@@ -225,8 +239,6 @@
   font-weight: 500;
 }
 
-
-
 .calendar-body {
   padding: 1rem;
   overflow-x: auto;
@@ -260,8 +272,6 @@
   color: #6c757d;
 }
 
-
-
 /* Past slots have no hover effects - they remain static */
 
 /* Lunch break slots have no hover effects - they remain static */
@@ -277,8 +287,6 @@
   background: linear-gradient(135deg, #2563eb, #1e40af);
   transform: scale(1.02);
 }
-
-
 
 // Appointment styles for duration-based display
 .day-time-slot.appointment-slot {
@@ -299,7 +307,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
   animation: shimmer 2s infinite;
 }
 
@@ -316,8 +329,6 @@
   line-height: 1.1;
   min-height: 25px;
 }
-
-
 
 @keyframes shimmer {
   0% {
@@ -388,8 +399,6 @@
     grid-template-rows: 35px repeat(var(--calendar-slot-count, 24), 25px); /* Smaller slots for mobile */
   }
 
-
-
   .time-slot-label {
     height: 25px;
     min-height: 25px;
@@ -413,8 +422,6 @@
     padding: 0.4rem 0.2rem;
     grid-row: 1;
   }
-
-
 
   // Mobile time slot styles
   .booked-event {
@@ -720,7 +727,6 @@
   display: block;
   /* CSS Variables - Now using global variables from styles.scss */
 }
-
 
 .time-slot.disabled {
   opacity: 0.4;

@@ -12,9 +12,9 @@ export interface ConfirmationData {
 }
 
 @Component({
-    selector: 'pelu-confirmation-popup',
-    imports: [CommonModule, TranslateModule, ButtonModule],
-    template: `
+  selector: 'pelu-confirmation-popup',
+  imports: [CommonModule, TranslateModule, ButtonModule],
+  template: `
     @if (isOpen()) {
       <div class="confirmation-overlay" (click)="onBackdropClick($event)">
         <div class="confirmation-popup" (click)="$event.stopPropagation()">
@@ -39,15 +39,14 @@ export interface ConfirmationData {
           </div>
 
           <div class="popup-footer">
-            <button
-              class="btn-secondary"
-              (click)="onCancel()">
+            <button class="btn-secondary" (click)="onCancel()">
               {{ data()?.cancelText || 'COMMON.ACTIONS.CANCEL' | translate }}
             </button>
             <button
               class="btn-primary"
               [class.btn-danger]="data()?.severity === 'danger'"
-              (click)="onConfirm()">
+              (click)="onConfirm()"
+            >
               {{ data()?.confirmText || 'COMMON.ACTIONS.CONFIRM' | translate }}
             </button>
           </div>
@@ -55,7 +54,7 @@ export interface ConfirmationData {
       </div>
     }
   `,
-    styleUrls: ['./confirmation-popup.component.scss']
+  styleUrls: ['./confirmation-popup.component.scss'],
 })
 export class ConfirmationPopupComponent {
   // Input signals

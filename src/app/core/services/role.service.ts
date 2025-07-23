@@ -1,5 +1,17 @@
 import { inject, Injectable, signal, computed, effect } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, deleteDoc, CollectionReference, DocumentData } from '@angular/fire/firestore';
+import {
+  Firestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+  collection,
+  getDocs,
+  deleteDoc,
+  CollectionReference,
+  DocumentData,
+} from '@angular/fire/firestore';
 import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
 
 export interface UserRole {
@@ -31,7 +43,7 @@ export class RoleService {
   }
 
   private initializeRoleListener() {
-    onAuthStateChanged(this.auth, (user) => {
+    onAuthStateChanged(this.auth, user => {
       if (user) {
         this.loadUserRole(user);
       } else {
@@ -52,24 +64,28 @@ export class RoleService {
       }, 0);
 
       const userDocRef = doc(this.firestore, 'users', user.uid);
-      const unsubscribe = onSnapshot(userDocRef, (doc) => {
-        if (doc.exists()) {
-          const data = doc.data() as UserRole;
+      const unsubscribe = onSnapshot(
+        userDocRef,
+        doc => {
+          if (doc.exists()) {
+            const data = doc.data() as UserRole;
+            // Use setTimeout to avoid signal write conflicts
+            setTimeout(() => {
+              this.userRoleSignal.set(data);
+              this.isLoadingRoleSignal.set(false);
+            }, 0);
+          } else {
+            this.createDefaultUserRole(user);
+          }
+        },
+        error => {
+          console.error('Error loading user role:', error);
           // Use setTimeout to avoid signal write conflicts
           setTimeout(() => {
-            this.userRoleSignal.set(data);
             this.isLoadingRoleSignal.set(false);
           }, 0);
-        } else {
-          this.createDefaultUserRole(user);
         }
-      }, (error) => {
-        console.error('Error loading user role:', error);
-        // Use setTimeout to avoid signal write conflicts
-        setTimeout(() => {
-          this.isLoadingRoleSignal.set(false);
-        }, 0);
-      });
+      );
       (this as any).unsubscribeRole = unsubscribe;
     } catch (error) {
       console.error('Error in loadUserRole:', error);
@@ -86,7 +102,7 @@ export class RoleService {
       email: user.email || '',
       lang: 'ca',
       role: 'client',
-      theme: 'light'
+      theme: 'light',
     };
     await this.setUserRole(defaultRole);
   }

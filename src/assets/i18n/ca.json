@@ -489,10 +489,10 @@
         "CATEGORY_NAME_PLACEHOLDER": "Nom de la categoria",
         "CATEGORY_ID_PLACEHOLDER": "id-categoria",
         "CATEGORY_ICON_PLACEHOLDER": "Introdueix un emoji (ex: ✂️)",
-              "CATEGORY_CREATED": "Categoria creada",
-      "CATEGORY_CREATED_MESSAGE": "La categoria s'ha creat correctament",
-      "CATEGORY_UPDATED": "Categoria actualitzada",
-      "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
+        "CATEGORY_CREATED": "Categoria creada",
+        "CATEGORY_CREATED_MESSAGE": "La categoria s'ha creat correctament",
+        "CATEGORY_UPDATED": "Categoria actualitzada",
+        "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
         "CATEGORY_UPDATED": "Categoria actualitzada",
         "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
         "CATEGORY_DELETED": "Categoria eliminada",
@@ -507,19 +507,19 @@
           "CATEGORY_NAME_REQUIRED": "El nom de la categoria és obligatori",
           "CATEGORY_ID_REQUIRED": "L'ID de la categoria és obligatori",
           "CATEGORY_ICON_REQUIRED": "La icona de la categoria és obligatòria",
-                  "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
-        "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters",
-        "UPDATING_CATEGORY": "Actualitzant categoria...",
-        "CREATING_CATEGORY": "Creant categoria...",
-        "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
-        "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
-        "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
-        "ERROR_CREATING_CATEGORY": "Error al crear la categoria"
-      },
-      "EXISTING_CATEGORIES": "Categories existents",
-      "ADD_NEW_CATEGORY": "Afegir nova categoria",
-      "STATIC_CATEGORY": "Categoria estàtica",
-              "CANNOT_EDIT_STATIC": "No es pot editar (categoria estàtica)",
+          "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
+          "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters",
+          "UPDATING_CATEGORY": "Actualitzant categoria...",
+          "CREATING_CATEGORY": "Creant categoria...",
+          "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
+          "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
+          "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
+          "ERROR_CREATING_CATEGORY": "Error al crear la categoria"
+        },
+        "EXISTING_CATEGORIES": "Categories existents",
+        "ADD_NEW_CATEGORY": "Afegir nova categoria",
+        "STATIC_CATEGORY": "Categoria estàtica",
+        "CANNOT_EDIT_STATIC": "No es pot editar (categoria estàtica)",
         "NO_CATEGORIES": "No hi ha categories disponibles",
         "ICON_HELP": "Introdueix un emoji directament amb el teclat. Pots utilitzar qualsevol emoji disponible al teu sistema.",
         "ICON_EXAMPLES": "Exemples d'emojis"
@@ -561,11 +561,11 @@
     "BUSINESS_HOURS": "Horari comercial",
     "TIME_SLOT_AVAILABLE": "Horari disponible",
     "TIME_SLOT_BUSY": "Horari ocupat",
-                    "FOOTER": {
-                  "INFO_NOTE": "Clica sobre qualsevol horari disponible per fer una reserva",
-                  "WEEKEND_INFO": "Els caps de setmana tenen horaris especials. Contacta amb nosaltres per més informació.",
-                  "BUSINESS_HOURS_INFO": "Horari d'atenció: Dilluns a Divendres de {{startHour}}:00 a {{endHour}}:00, Pausa per dinar de {{lunchStart}}:00 a {{lunchEnd}}:00"
-                }
+    "FOOTER": {
+      "INFO_NOTE": "Clica sobre qualsevol horari disponible per fer una reserva",
+      "WEEKEND_INFO": "Els caps de setmana tenen horaris especials. Contacta amb nosaltres per més informació.",
+      "BUSINESS_HOURS_INFO": "Horari d'atenció: Dilluns a Divendres de {{startHour}}:00 a {{endHour}}:00, Pausa per dinar de {{lunchStart}}:00 a {{lunchEnd}}:00"
+    }
   },
   "SERVICES": {
     "ALL_SERVICES": "Tots els serveis",
