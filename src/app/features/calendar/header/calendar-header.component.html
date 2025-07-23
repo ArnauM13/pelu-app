@@ -17,14 +17,16 @@
 
   <!-- Date Input -->
   <div class="date-input-container">
-    <input
-      type="date"
-      [value]="currentDateString"
-      (input)="onDateChange($event)"
-      class="date-input"
-      title="Seleccionar data"
-      [min]="todayString"
-    />
+    <pelu-input-date
+      [value]="currentViewDate"
+      [dateFormat]="'dd/mm/yy'"
+      [showIcon]="true"
+      [showButtonBar]="false"
+      [inline]="false"
+      [minDate]="todayDate"
+      (valueChange)="onDateChange($event)"
+    >
+    </pelu-input-date>
   </div>
 
   <div class="calendar-title">

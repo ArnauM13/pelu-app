@@ -90,3 +90,30 @@
   color: #3b82f6;
   font-weight: 500;
 }
+
+.date-input-container {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+}
+
+// Estils específics per al datepicker al header del calendari
+.date-input-container ::ng-deep .input-date-container {
+  width: 100%;
+}
+
+.date-input-container ::ng-deep .input-date-label {
+  display: none; // Amagar el label per estalviar espai
+}
+
+.date-input-container ::ng-deep .datepicker-wrapper {
+  min-height: 36px;
+}
+
+.date-input-container ::ng-deep .pelu-datepicker {
+  width: 100%;
+}
+
+.date-input-container ::ng-deep .p-datepicker {
+  z-index: 1000;
+}
