@@ -1,13 +1,12 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
-import { v4 as uuidv4 } from 'uuid';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -16,11 +15,10 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/core/calendar.component';
 import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
-import { FloatingButtonComponent } from '../../../shared/components/floating-button/floating-button.component';
 import { AppointmentStatusBadgeComponent } from '../../../shared/components/appointment-status-badge';
 import { AppointmentsStatsComponent, AppointmentStats } from '../components/appointments-stats/appointments-stats.component';
 import { AppointmentsListComponent } from '../components/appointments-list/appointments-list.component';
-import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
+import { AppointmentsViewControlsComponent } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ActionsButtonsComponent } from '../../../shared/components/actions-buttons';
@@ -28,7 +26,7 @@ import { ActionsService, ActionContext } from '../../../core/services/actions.se
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
-import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
+import { isFutureAppointment } from '../../../shared/services';
 
 @Component({
     selector: 'pelu-appointments-page',
@@ -39,7 +37,7 @@ import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigrat
         ButtonModule,
         TooltipModule,
         TranslateModule,
-        CalendarModule,
+        DatePickerModule,
         CalendarComponent,
         CalendarWithFooterComponent,
         CardComponent,
@@ -62,6 +60,7 @@ export class AppointmentsPageComponent {
   private readonly toastService = inject(ToastService);
   private readonly appointmentService = inject(BookingService);
   private readonly actionsService = inject(ActionsService);
+  private readonly serviceColorsService = inject(ServiceColorsService);
 
     // Core data signals - now using Firebase
   readonly appointments = this.appointmentService.bookings;
@@ -225,10 +224,6 @@ export class AppointmentsPageComponent {
       fullHeight: true,
       overlay: true
     };
-  }
-
-    constructor(private serviceColorsService: ServiceColorsService) {
-    // Removed localStorage loading - now using Firebase
   }
 
   // Public methods for template binding

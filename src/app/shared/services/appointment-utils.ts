@@ -22,7 +22,7 @@ export interface Appointment {
  */
 export function migrateOldAppointments(appointments: Appointment[], currentUserId?: string): Appointment[] {
   return appointments.map(appointment => {
-    let updatedAppointment = { ...appointment };
+    const updatedAppointment = { ...appointment };
 
     // Add ID if missing
     if (!updatedAppointment.id) {

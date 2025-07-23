@@ -1,15 +1,14 @@
-import { Component, input, output, computed, Signal } from '@angular/core';
+import { Component, input, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 
 @Component({
     selector: 'pelu-filters-inline',
-    imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
+    imports: [CommonModule, FormsModule, TranslateModule, InputTextComponent, InputDateComponent, InputSelectComponent],
     templateUrl: './filters-inline.component.html',
     styleUrls: ['./filters-inline.component.scss']
 })
