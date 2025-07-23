@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -17,7 +17,7 @@ import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
-import { v4 as uuidv4 } from 'uuid';
+
 
 export interface FirebaseService {
   id?: string;
