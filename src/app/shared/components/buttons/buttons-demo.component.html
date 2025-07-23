@@ -1,0 +1,251 @@
+<div class="buttons-demo-container">
+  <div class="demo-header">
+    <h1>Components de Botó Unificats</h1>
+    <p>Demostració dels components de botó amb PrimeNG</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- Basic Buttons -->
+    <div class="demo-section">
+      <h2>Botons Bàsics</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Botó Primari"
+          (clicked)="onButtonClick('primary')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Botó Secundari"
+          severity="secondary"
+          (clicked)="onButtonClick('secondary')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Botó d'Èxit"
+          severity="success"
+          (clicked)="onButtonClick('success')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Botó d'Informació"
+          severity="info"
+          (clicked)="onButtonClick('info')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Botó d'Advertència"
+          severity="warn"
+          (clicked)="onButtonClick('warn')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Botó de Perill"
+          severity="danger"
+          (clicked)="onButtonClick('danger')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Button Variants -->
+    <div class="demo-section">
+      <h2>Variants de Botó</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Filled (per defecte)"
+          (clicked)="onButtonClick('filled')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Outlined"
+          variant="outlined"
+          (clicked)="onButtonClick('outlined')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Text"
+          variant="text"
+          (clicked)="onButtonClick('text')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Link"
+          [link]="true"
+          (clicked)="onButtonClick('link')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Button Sizes -->
+    <div class="demo-section">
+      <h2>Mides de Botó</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Petit"
+          [size]="'small'"
+          (clicked)="onButtonClick('small')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Gran"
+          [size]="'large'"
+          (clicked)="onButtonClick('large')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Button with Icons -->
+    <div class="demo-section">
+      <h2>Botons amb Icones</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Guardar"
+          icon="pi pi-check"
+          (clicked)="onButtonClick('save')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Eliminar"
+          icon="pi pi-trash"
+          iconPos="right"
+          severity="danger"
+          (clicked)="onButtonClick('delete')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Actualitzar"
+          icon="pi pi-refresh"
+          iconPos="top"
+          severity="info"
+          (clicked)="onButtonClick('refresh')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          icon="pi pi-home"
+          [ariaLabel]="'Inici'"
+          (clicked)="onButtonClick('home')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Button States -->
+    <div class="demo-section">
+      <h2>Estats del Botó</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Cargant..."
+          icon="pi pi-spinner"
+          [loading]="loading()"
+          (clicked)="onButtonClick('loading')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Deshabilitat"
+          [disabled]="true"
+          (clicked)="onButtonClick('disabled')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Elevat"
+          [raised]="true"
+          (clicked)="onButtonClick('raised')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Arrodonit"
+          [rounded]="true"
+          (clicked)="onButtonClick('rounded')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Fluid Buttons -->
+    <div class="demo-section">
+      <h2>Botons Fluids</h2>
+      <div class="button-group fluid">
+        <pelu-button
+          label="Botó Fluid"
+          [fluid]="true"
+          (clicked)="onButtonClick('fluid')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Form Buttons -->
+    <div class="demo-section">
+      <h2>Botons de Formulari</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Enviar"
+          type="submit"
+          icon="pi pi-send"
+          (clicked)="onButtonClick('submit')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Netejar"
+          type="reset"
+          severity="secondary"
+          icon="pi pi-times"
+          (clicked)="onButtonClick('reset')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+
+    <!-- Complex Examples -->
+    <div class="demo-section">
+      <h2>Exemples Complexos</h2>
+      <div class="button-group">
+        <pelu-button
+          label="Crear Cita"
+          icon="pi pi-calendar-plus"
+          severity="success"
+          [raised]="true"
+          [size]="'large'"
+          (clicked)="onButtonClick('create-appointment')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Cancel·lar Cita"
+          icon="pi pi-times"
+          severity="danger"
+          variant="outlined"
+          (clicked)="onButtonClick('cancel-appointment')"
+        >
+        </pelu-button>
+
+        <pelu-button
+          label="Editar Perfil"
+          icon="pi pi-user-edit"
+          severity="info"
+          variant="text"
+          (clicked)="onButtonClick('edit-profile')"
+        >
+        </pelu-button>
+      </div>
+    </div>
+  </div>
+</div>
