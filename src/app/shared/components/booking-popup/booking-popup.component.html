@@ -68,8 +68,9 @@
               <div class="readonly-field">{{ currentUserName() }}</div>
             } @else {
               <pelu-input-text
-                [config]="clientNameConfig"
-                [value]="clientName() || bookingDetails().clientName"
+                label='COMMON.CLIENT_NAME'
+                placeholder='COMMON.CLIENT_NAME'
+                value]="clientName() || bookingDetails().clientName"
                 (valueChange)="updateClientName($event.toString())"
               >
               </pelu-input-text>
@@ -82,12 +83,14 @@
             @if (isAuthenticated()) {
               <div class="readonly-field">{{ currentUserEmail() }}</div>
             } @else {
-              <pelu-input-email
-                [config]="emailConfig"
+              <pelu-input-text
+                label='COMMON.EMAIL'
+                placeholder='COMMON.EMAIL'
+                type='email'
                 [value]="email() || bookingDetails().email"
                 (valueChange)="updateEmail($event.toString())"
               >
-              </pelu-input-email>
+              </pelu-input-text>
             }
           </div>
         </div>
