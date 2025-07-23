@@ -87,16 +87,22 @@ export class FiltersInlineComponent {
     private translationService: TranslationService
   ) {}
 
-  onDateChangeHandler(value: string) {
-    this.onDateChange()?.(value);
+  onDateChangeHandler(value: string | Date | null) {
+    if (typeof value === 'string') {
+      this.onDateChange()?.(value);
+    } else if (value instanceof Date) {
+      this.onDateChange()?.(value.toISOString().split('T')[0]);
+    } else {
+      this.onDateChange()?.('');
+    }
   }
 
   onClientChangeHandler(value: string) {
     this.onClientChange()?.(value);
   }
 
-  onServiceChangeHandler(value: string) {
-    this.onServiceChange()?.(value);
+  onServiceChangeHandler(value: string | undefined) {
+    this.onServiceChange()?.(value || '');
   }
 
   onResetHandler() {

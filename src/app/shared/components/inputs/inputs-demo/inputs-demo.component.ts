@@ -11,21 +11,21 @@ import { InputCheckboxComponent } from '../input-checkbox/input-checkbox.compone
 import { InputSelectComponent } from '../input-select/input-select.component';
 
 @Component({
-    selector: 'pelu-inputs-demo',
-    imports: [
-        CommonModule,
-        TranslateModule,
-        InputTextComponent,
-        InputTextareaComponent,
-        InputNumberComponent,
-        InputEmailComponent,
-        InputPasswordComponent,
-        InputDateComponent,
-        InputCheckboxComponent,
-        InputSelectComponent
-    ],
-    templateUrl: './inputs-demo.component.html',
-    styleUrls: ['./inputs-demo.component.scss']
+  selector: 'pelu-inputs-demo',
+  imports: [
+    CommonModule,
+    TranslateModule,
+    InputTextComponent,
+    InputTextareaComponent,
+    InputNumberComponent,
+    InputEmailComponent,
+    InputPasswordComponent,
+    InputDateComponent,
+    InputCheckboxComponent,
+    InputSelectComponent,
+  ],
+  templateUrl: './inputs-demo.component.html',
+  styleUrls: ['./inputs-demo.component.scss'],
 })
 export class InputsDemoComponent {
   // Form data signals
@@ -38,18 +38,18 @@ export class InputsDemoComponent {
     birthDate: '',
     terms: false,
     category: '',
-    notes: ''
+    notes: '',
   });
 
   // Select options
   readonly categoryOptions = [
     { label: 'Opció 1', value: 'option1', color: '#3b82f6' },
     { label: 'Opció 2', value: 'option2', color: '#10b981' },
-    { label: 'Opció 3', value: 'option3', color: '#f59e0b' }
+    { label: 'Opció 3', value: 'option3', color: '#f59e0b' },
   ];
 
   // Update methods
-  updateField(field: keyof ReturnType<typeof this.formData>, value: any): void {
+  updateField(field: keyof ReturnType<typeof this.formData>, value: unknown): void {
     this.formData.update(data => ({ ...data, [field]: value }));
   }
 }

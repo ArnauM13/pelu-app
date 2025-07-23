@@ -35,7 +35,6 @@ import {
   InputNumberComponent,
   InputCheckboxComponent,
 } from '../../../shared/components/inputs';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'pelu-admin-services-page',
@@ -60,7 +59,6 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
-    CurrencyPipe,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-services-page.component.html',

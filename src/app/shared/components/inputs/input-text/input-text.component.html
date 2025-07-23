@@ -4,94 +4,78 @@
     <label
       [for]="config().id || config().name"
       class="input-text-label"
-      [class.required]="config().required">
+      [class.required]="config().required"
+    >
       {{ config().label || '' | translate }}
     </label>
   }
 
-  <!-- Input wrapper -->
-  <div class="input-text-wrapper" [class]="inputClasses()">
-    <!-- Left icon -->
-    @if (hasIcon() && config().iconPosition !== 'right') {
-      <div class="input-text-icon left">
-        <i [class]="config().icon"></i>
-      </div>
-    }
+  <!-- Native input with PrimeNG classes -->
+  <input
+    [type]="config().type"
+    [id]="config().id || config().name"
+    [name]="config().name"
+    [placeholder]="config().placeholder || '' | translate"
+    [required]="config().required"
+    [disabled]="config().disabled"
+    [readonly]="config().readonly"
+    [min]="config().min"
+    [max]="config().max"
+    [step]="config().step"
+    [pattern]="config().pattern"
+    [autocomplete]="config().autocomplete"
+    [size]="config().size"
+    [attr.maxlength]="config().maxlength"
+    [attr.minlength]="config().minlength"
+    [spellcheck]="config().spellcheck"
+    [tabindex]="config().tabindex"
+    [style]="config().style"
+    [value]="displayValue()"
+    (input)="onInput($event)"
+    (change)="onChangeHandler($event)"
+    (focus)="onFocus($event)"
+    (blur)="onBlur($event)"
+    (keydown)="onKeydown($event)"
+    (keyup)="onKeyup($event)"
+    (keypress)="onKeypress($event)"
+    class="p-inputtext"
+    [class]="config().class || ''"
+    [class.p-invalid]="hasError()"
+    [class.p-valid]="hasSuccess()"
+  />
 
-    <!-- Loading spinner -->
-    @if (config().loading) {
-      <div class="input-text-loading">
-        <div class="spinner"></div>
-      </div>
-    }
-
-    <!-- Main input -->
-    <input
-      [type]="config().type"
-      [id]="config().id || config().name"
-      [name]="config().name"
-      [placeholder]="(config().placeholder || '') | translate"
-      [required]="config().required"
-      [disabled]="config().disabled"
-      [readonly]="config().readonly"
-      [min]="config().min"
-      [max]="config().max"
-      [step]="config().step"
-      [pattern]="config().pattern"
-      [autocomplete]="config().autocomplete"
-     
-
-      [attr.maxlength]="config().maxlength"
-      [attr.minlength]="config().minlength"
-      [spellcheck]="config().spellcheck"
-      [tabindex]="config().tabindex"
-      [style]="config().style"
-      [value]="displayValue()"
-      (input)="onInput($event)"
-      (change)="onChangeHandler($event)"
-      (focus)="onFocus($event)"
-      (blur)="onBlur($event)"
-      (keydown)="onKeydown($event)"
-      (keyup)="onKeyup($event)"
-      (keypress)="onKeypress($event)"
-      class="input-text-field">
-
-    <!-- Right icon or clear button -->
-    @if (hasIcon() && config().iconPosition === 'right') {
-      <div class="input-text-icon right">
-        <i [class]="config().icon"></i>
-      </div>
-    } @else if (isClearable()) {
-      <button
-        type="button"
-        class="input-text-clear"
-        (click)="onClear()"
-        [title]="'COMMON.CLEAR' | translate">
-        <i class="pi pi-times"></i>
-      </button>
-    }
-  </div>
+  <!-- Clear button -->
+  @if (isClearable()) {
+    <button
+      type="button"
+      class="input-clear"
+      (click)="onClear()"
+      [title]="'COMMON.CLEAR' | translate"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+  }
 
   <!-- Help text -->
   @if (showHelpText()) {
-    <div class="input-text-help">
-      {{ (config().helpText || '') | translate }}
+    <div class="input-help">
+      {{ config().helpText || '' | translate }}
     </div>
   }
 
   <!-- Error text -->
   @if (showErrorText()) {
-    <div class="input-text-error">
+    <div class="input-error">
       <span class="error-icon">⚠</span>
-      <span class="error-text">{{ (config().errorText || '') | translate }}</span>
+      <span class="error-text">{{ config().errorText || '' | translate }}</span>
     </div>
   }
 
   <!-- Success text -->
   @if (showSuccessText()) {
-    <div class="input-text-success">
+    <div class="input-success">
       <span class="success-icon">✓</span>
-      <span class="success-text">{{ (config().successText || '') | translate }}</span>
+      <span class="success-text">{{ config().successText || '' | translate }}</span>
     </div>
   }
 </div>
