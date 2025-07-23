@@ -90,10 +90,7 @@
     <div class="demo-section">
       <h2>Input Checkbox</h2>
       <pelu-input-checkbox
-        [config]="{
-          label: 'Accepto els termes i condicions',
-          showLabel: true,
-        }"
+        label="Accepto els termes i condicions"
         [value]="formData().terms"
         (valueChange)="updateField('terms', $event)"
       >

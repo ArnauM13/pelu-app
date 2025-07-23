@@ -211,10 +211,7 @@
               <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
               <div class="form-field">
                 <pelu-input-checkbox
-                  [config]="{
-                    label: 'ADMIN.SERVICES.MARK_AS_POPULAR',
-                    showLabel: true,
-                  }"
+                  [label]="'ADMIN.SERVICES.MARK_AS_POPULAR'"
                   [value]="formData().popular || false"
                   (valueChange)="formData().popular = $event"
                 >

@@ -20,7 +20,6 @@ export {
 } from './input-number/input-number.component';
 export {
   InputCheckboxComponent,
-  type InputCheckboxConfig,
 } from './input-checkbox/input-checkbox.component';
 export {
   InputSelectComponent,

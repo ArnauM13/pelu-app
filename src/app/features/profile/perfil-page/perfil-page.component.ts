@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { RoleService } from '../../../core/services/role.service';
@@ -12,10 +12,11 @@ import {
   DetailViewConfig,
   DetailAction,
 } from '../../../shared/components/detail-view/detail-view.component';
+import { InputsDemoComponent } from '../../../shared/components/inputs/inputs-demo/inputs-demo.component';
 
 @Component({
   selector: 'pelu-perfil-page',
-  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent, InputsDemoComponent],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss'],
 })
