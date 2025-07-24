@@ -25,6 +25,326 @@
   gap: 0.5rem;
   flex-wrap: wrap;
   min-height: 2.5rem;
+  width: 100%;
+}
+
+.pelu-datepicker {
+  width: 100% !important;
+
+  .p-calendar {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: none !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    min-height: 44px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+
+    &:hover {
+      background-color: var(--surface-color-hover) !important;
+      border-color: var(--border-color-hover) !important;
+    }
+
+    &:focus-within {
+      background-color: var(--surface-color) !important;
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 0 0 3px rgba(58, 90, 138, 0.15) !important;
+    }
+
+    .p-inputtext {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: var(--text-color) !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: unset !important;
+      font-size: inherit !important;
+      line-height: inherit !important;
+
+      &:hover {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+
+      &:focus {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+
+      // Ensure placeholder is visible
+      &::placeholder {
+        color: var(--text-color-muted) !important;
+        opacity: 1 !important;
+      }
+
+      // Hide placeholder when there's a value
+      &:not(:placeholder-shown) {
+        color: var(--text-color) !important;
+      }
+
+      // Show placeholder when empty
+      &:placeholder-shown {
+        color: var(--text-color-muted) !important;
+      }
+    }
+
+    .p-datepicker-trigger {
+      background: transparent !important;
+      border: none !important;
+      color: var(--text-color-muted) !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 0 !important;
+      margin-left: 0.5rem !important;
+      transition: color 0.2s ease !important;
+
+      &:hover {
+        background: transparent !important;
+        color: var(--primary-color) !important;
+      }
+
+      &:focus {
+        background: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+
+      .pi {
+        font-size: 1.1rem !important;
+      }
+    }
+  }
+
+  // Calendar popup styling - white background
+  .p-datepicker-panel {
+    background-color: white !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-lg) !important;
+    box-shadow: var(--box-shadow-elevated) !important;
+    padding: 1.5rem !important;
+    z-index: var(--z-popup) !important;
+    color: #000000 !important;
+
+    .p-datepicker-header {
+      background-color: white !important;
+      border-bottom: 1px solid var(--border-color) !important;
+      padding-bottom: 1rem !important;
+      margin-bottom: 1rem !important;
+
+      .p-datepicker-title {
+        color: #000000 !important;
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+      }
+
+      .p-datepicker-prev,
+      .p-datepicker-next {
+        background-color: white !important;
+        border: 1px solid var(--border-color) !important;
+        color: #000000 !important;
+        border-radius: var(--border-radius) !important;
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        transition: all 0.2s ease !important;
+        padding: 0.5rem !important;
+
+        &:hover {
+          background-color: #f3f4f6 !important;
+          border-color: var(--border-color-hover) !important;
+          color: #000000 !important;
+        }
+
+        &:focus {
+          outline: none !important;
+          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
+        }
+      }
+    }
+
+    table {
+      background-color: white !important;
+      border-collapse: collapse !important;
+      width: 100% !important;
+
+      th {
+        background-color: white !important;
+        color: #000000 !important;
+        font-weight: 600 !important;
+        padding: 0.75rem 0.5rem !important;
+        text-align: center !important;
+        border: none !important;
+        font-size: 0.9rem !important;
+      }
+
+      td {
+        background-color: white !important;
+        padding: 0.25rem !important;
+        border: none !important;
+
+        > span {
+          background-color: white !important;
+          border: 1px solid transparent !important;
+          border-radius: var(--border-radius) !important;
+          color: #000000 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 2.5rem !important;
+          height: 2.5rem !important;
+          transition: all 0.2s ease !important;
+          cursor: pointer !important;
+          padding: 0.5rem !important;
+
+          &:hover {
+            background-color: #f3f4f6 !important;
+            border-color: #d1d5db !important;
+            color: #000000 !important;
+          }
+
+          &.p-highlight {
+            background-color: #000000 !important;
+            border-color: #000000 !important;
+            color: white !important;
+          }
+
+          &.p-today {
+            background-color: #f3f4f6 !important;
+            border-color: #000000 !important;
+            color: #000000 !important;
+            font-weight: 600 !important;
+          }
+
+          &.p-other-month {
+            color: #9ca3af !important;
+            opacity: 0.7 !important;
+          }
+
+          &.p-disabled {
+            color: #9ca3af !important;
+            opacity: 0.3 !important;
+            cursor: not-allowed !important;
+            background-color: white !important;
+            border-color: transparent !important;
+
+            &:hover {
+              background-color: white !important;
+              border-color: transparent !important;
+              color: #9ca3af !important;
+            }
+          }
+        }
+      }
+    }
+
+    .p-datepicker-buttonbar {
+      background-color: white !important;
+      border-top: 1px solid var(--border-color) !important;
+      padding-top: 1rem !important;
+      margin-top: 1rem !important;
+
+      .p-button {
+        background-color: #000000 !important;
+        border: 1px solid #000000 !important;
+        color: white !important;
+        border-radius: var(--border-radius) !important;
+        padding: 0.75rem 1.5rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        margin: 0 0.5rem !important;
+
+        &:hover {
+          background-color: #374151 !important;
+          border-color: #374151 !important;
+        }
+
+        &.p-button-secondary {
+          background-color: white !important;
+          border: 1px solid var(--border-color) !important;
+          color: #000000 !important;
+
+          &:hover {
+            background-color: #f3f4f6 !important;
+            border-color: var(--border-color-hover) !important;
+          }
+        }
+      }
+    }
+  }
+
+  // Time picker styling - white background
+  .p-timepicker {
+    background-color: white !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-lg) !important;
+    box-shadow: var(--box-shadow-elevated) !important;
+    padding: 1.5rem !important;
+    z-index: var(--z-popup) !important;
+    color: #000000 !important;
+
+    .p-timepicker-panel {
+      background-color: white !important;
+      color: #000000 !important;
+    }
+
+    .p-timepicker-hour,
+    .p-timepicker-minute,
+    .p-timepicker-second {
+      background-color: white !important;
+      color: #000000 !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--border-radius) !important;
+      padding: 0.75rem !important;
+      transition: all 0.2s ease !important;
+      font-size: 1rem !important;
+
+      &:hover {
+        background-color: #f3f4f6 !important;
+        border-color: #d1d5db !important;
+        color: #000000 !important;
+      }
+
+      &.p-highlight {
+        background-color: #000000 !important;
+        border-color: #000000 !important;
+        color: white !important;
+      }
+    }
+
+    .p-timepicker-separator {
+      color: #000000 !important;
+      background-color: white !important;
+      font-size: 1.2rem !important;
+      font-weight: 600 !important;
+    }
+
+    .p-timepicker-ampm {
+      background-color: white !important;
+      color: #000000 !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--border-radius) !important;
+      padding: 0.75rem !important;
+      transition: all 0.2s ease !important;
+      font-size: 0.9rem !important;
+
+      &:hover {
+        background-color: #f3f4f6 !important;
+        border-color: #d1d5db !important;
+        color: #000000 !important;
+      }
+
+      &.p-highlight {
+        background-color: #000000 !important;
+        border-color: #000000 !important;
+        color: white !important;
+      }
+    }
+  }
 }
 
 // Force clock icon for time-only picker
@@ -49,5 +369,17 @@
 
   .input-date-label {
     font-size: 1rem; // Prevent zoom on iOS
+  }
+
+  .pelu-datepicker {
+    .p-datepicker-panel {
+      width: 90vw !important;
+      max-width: 350px !important;
+    }
+
+    .p-timepicker {
+      width: 90vw !important;
+      max-width: 300px !important;
+    }
   }
 }
