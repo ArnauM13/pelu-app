@@ -112,8 +112,7 @@ export class BookingPopupComponent {
           this.clientName.set(this.currentUserName() || '');
           this.email.set(this.currentUserEmail() || '');
         }
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 
