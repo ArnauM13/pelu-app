@@ -14,7 +14,7 @@
     <textarea
       [id]="getElementId()"
       pTextarea
-      [placeholder]="placeholder()"
+      [placeholder]="(placeholder() || 'INPUTS.TEXTAREA_PLACEHOLDER') | translate"
       [disabled]="disabled()"
       [readonly]="readonly()"
       [rows]="rows()"

@@ -13,7 +13,7 @@
   <p-select
     [inputId]="getElementId()"
     [options]="options()"
-    [placeholder]="(placeholder() || '') | translate"
+    [placeholder]="(placeholder() || 'INPUTS.SELECT_PLACEHOLDER') | translate"
     [required]="required()"
     [disabled]="disabled()"
     [readonly]="readonly()"
@@ -23,7 +23,7 @@
     [filter]="filter()"
     [filterBy]="filterBy()"
     [filterMatchMode]="filterMatchMode()"
-    [filterPlaceholder]="(filterPlaceholder() || '') | translate"
+    [filterPlaceholder]="(filterPlaceholder() || 'INPUTS.SELECT_FILTER_PLACEHOLDER') | translate"
     [showClear]="showClear()"
     [appendTo]="appendTo()"
     [scrollHeight]="scrollHeight()"

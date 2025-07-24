@@ -12,7 +12,7 @@
   <!-- PrimeNG InputNumber -->
   <p-inputnumber
     [inputId]="getElementId()"
-    [placeholder]="(placeholder() || '') | translate"
+    [placeholder]="(placeholder() || 'INPUTS.NUMBER_PLACEHOLDER') | translate"
     [required]="required()"
     [disabled]="disabled()"
     [readonly]="readonly()"
@@ -28,10 +28,11 @@
     [buttonLayout]="buttonLayout()"
     [useGrouping]="useGrouping()"
     [showClear]="showClear()"
-    [(ngModel)]="value"
+    [ngModel]="displayValue()"
+    (ngModelChange)="onNumberChange($event)"
     (onInput)="onNumberChange($event.value)"
     (onBlur)="onBlurHandler($event)"
-    class="w-full"
+    class="pelu-inputnumber"
   />
 
   <!-- Help text -->

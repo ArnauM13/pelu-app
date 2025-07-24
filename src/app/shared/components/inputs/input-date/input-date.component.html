@@ -13,7 +13,7 @@
   <div class="datepicker-wrapper">
     <p-datepicker
       [inputId]="getElementId()"
-      [placeholder]="placeholder()"
+      [placeholder]="(placeholder() || 'INPUTS.DATE_PLACEHOLDER') | translate"
       [disabled]="disabled()"
       [dateFormat]="dateFormat()"
       [showIcon]="showIcon()"
@@ -28,7 +28,7 @@
       [showOnFocus]="showOnFocus()"
       [minDate]="minDate()"
       [maxDate]="maxDate()"
-      [ngModel]="value()"
+      [ngModel]="displayValue()"
       (ngModelChange)="onDateChange($event)"
       class="pelu-datepicker"
       [attr.data-time-only]="timeOnly()"
