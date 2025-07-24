@@ -141,8 +141,7 @@ export class AuthPopupComponent implements OnDestroy {
         if (config) {
           this.initializeFormForMode(config.mode);
         }
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 
@@ -165,8 +164,7 @@ export class AuthPopupComponent implements OnDestroy {
             }
           }
         }
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 
