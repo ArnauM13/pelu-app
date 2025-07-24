@@ -613,5 +613,15 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "اختر اللغة"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "أدخل رقماً",
+    "TEXT_PLACEHOLDER": "أدخل نصاً",
+    "TEXT_EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
+    "TEXT_PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+    "TEXTAREA_PLACEHOLDER": "أدخل نصاً...",
+    "SELECT_PLACEHOLDER": "اختر خياراً",
+    "SELECT_FILTER_PLACEHOLDER": "ابحث...",
+    "DATE_PLACEHOLDER": "اختر تاريخاً"
   }
 }

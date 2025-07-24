@@ -638,6 +638,16 @@
     "AR": "العربية",
     "SELECT_LANGUAGE": "Seleccionar idioma"
   },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "Introdueix un número",
+    "TEXT_PLACEHOLDER": "Introdueix text",
+    "TEXT_EMAIL_PLACEHOLDER": "Introdueix el teu email",
+    "TEXT_PASSWORD_PLACEHOLDER": "Introdueix la teva contrasenya",
+    "TEXTAREA_PLACEHOLDER": "Introdueix text...",
+    "SELECT_PLACEHOLDER": "Selecciona una opció",
+    "SELECT_FILTER_PLACEHOLDER": "Cerca...",
+    "DATE_PLACEHOLDER": "Selecciona una data"
+  },
   "NO_DATE_SET": "Data no establerta",
   "VIEW_CALENDAR_APPOINTMENTS": "Visualitza les cites en format calendari",
   "BOOKINGS_FOR_DATE": "Reserves per a la data"
