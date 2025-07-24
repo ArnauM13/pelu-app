@@ -24,7 +24,6 @@
       <h2>Input Email</h2>
       <pelu-input-text
         label="Email"
-        placeholder="exemple@email.com"
         type="email"
         [required]="true"
         [value]="formData().email"
@@ -38,7 +37,6 @@
       <h2>Input Password</h2>
       <pelu-input-text
         label="Contrasenya"
-        placeholder="Introdueix la contrasenya"
         type="password"
         [required]="true"
         [value]="formData().password"
@@ -51,8 +49,7 @@
     <div class="demo-section">
       <h2>Input Number</h2>
       <pelu-input-number
-        [label]="'Edat'"
-        [placeholder]="'25'"
+        label="Edat"
         [min]="0"
         [max]="120"
         [value]="formData().age"
@@ -66,7 +63,6 @@
       <h2>Input Date - Calendar</h2>
       <pelu-input-date
         label="Data de naixement"
-        placeholder="Selecciona una data"
         dateFormat="dd/mm/yy"
         [showIcon]="true"
         [showButtonBar]="true"
@@ -81,7 +77,6 @@
       <h2>Input Date - Time Only</h2>
       <pelu-input-date
         label="Hora de la cita"
-        placeholder="Selecciona una hora"
         [timeOnly]="true"
         hourFormat="24"
         [showIcon]="true"
@@ -348,7 +343,6 @@
         [size]="'large'"
         [autoResize]="true"
         [resize]="'both'"
-        class="mt-4"
       >
       </pelu-input-textarea>
     </div>
@@ -369,7 +363,6 @@
         placeholder="Estil filled..."
         [rows]="3"
         [variant]="'filled'"
-        class="mt-4"
       >
       </pelu-input-textarea>
     </div>
