@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,9 +49,9 @@ export class InputNumberComponent implements ControlValueAccessor {
   readonly minFractionDigits = input<number | undefined>(undefined);
   readonly maxFractionDigits = input<number | undefined>(undefined);
   readonly mode = input<'decimal' | 'currency'>('decimal');
-  readonly currency = input<string>('USD');
+  readonly currency = input<string>('EUR');
   readonly currencyDisplay = input<'symbol' | 'code'>('symbol');
-  readonly locale = input<string>('en-US');
+  readonly locale = input<string>('ca-ES');
   readonly prefix = input<string>('');
   readonly suffix = input<string>('');
   readonly showButtons = input<boolean>(false);
@@ -68,19 +68,37 @@ export class InputNumberComponent implements ControlValueAccessor {
 
   // ControlValueAccessor callbacks
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private onChange = (value: number | undefined) => {};
+  private onChange = (value: number | null) => {};
   private onTouched = () => {};
+
+    readonly displayValue = computed(() => {
+    const currentValue = this.value();
+    if (currentValue === null || currentValue === undefined) return null;
+    if (typeof currentValue === 'number' && !isNaN(currentValue)) return currentValue;
+    return null;
+  });
 
   // Get unique ID
   getElementId(): string {
     return this.uniqueId;
   }
 
-  // Event handler for number changes
+    // Event handler for number changes
   onNumberChange(value: number | string | null) {
-    const numValue = typeof value === 'number' ? value : undefined;
+    // Handle different value types
+    let numValue: number | null = null;
+
+    if (typeof value === 'number') {
+      numValue = isNaN(value) ? null : value;
+    } else if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      numValue = isNaN(parsed) ? null : parsed;
+    } else {
+      numValue = null;
+    }
+
     this.onChange(numValue);
-    this.valueChange.emit(numValue);
+    this.valueChange.emit(numValue === null ? undefined : numValue);
   }
 
   // Event handler for blur
@@ -95,7 +113,7 @@ export class InputNumberComponent implements ControlValueAccessor {
     // PrimeNG handles this automatically
   }
 
-  registerOnChange(fn: (value: number | undefined) => void): void {
+  registerOnChange(fn: (value: number | null) => void): void {
     this.onChange = fn;
   }
 
