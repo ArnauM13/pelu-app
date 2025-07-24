@@ -700,5 +700,15 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "Seleccionar idioma"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "Introduce un número",
+    "TEXT_PLACEHOLDER": "Introduce texto",
+    "TEXT_EMAIL_PLACEHOLDER": "Introduce tu email",
+    "TEXT_PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+    "TEXTAREA_PLACEHOLDER": "Introduce texto...",
+    "SELECT_PLACEHOLDER": "Selecciona una opción",
+    "SELECT_FILTER_PLACEHOLDER": "Buscar...",
+    "DATE_PLACEHOLDER": "Selecciona una fecha"
   }
 }

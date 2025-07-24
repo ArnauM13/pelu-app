@@ -702,5 +702,15 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "Select language"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "Enter a number",
+    "TEXT_PLACEHOLDER": "Enter text",
+    "TEXT_EMAIL_PLACEHOLDER": "Enter your email",
+    "TEXT_PASSWORD_PLACEHOLDER": "Enter your password",
+    "TEXTAREA_PLACEHOLDER": "Enter text...",
+    "SELECT_PLACEHOLDER": "Select an option",
+    "SELECT_FILTER_PLACEHOLDER": "Search...",
+    "DATE_PLACEHOLDER": "Select a date"
   }
 }
