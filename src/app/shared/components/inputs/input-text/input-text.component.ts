@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,6 +53,28 @@ export class InputTextComponent implements ControlValueAccessor {
   // ControlValueAccessor callbacks
   private onChange = (value: string) => {};
   private onTouched = () => {};
+
+  // Computed property to get the appropriate placeholder based on type
+  readonly displayPlaceholder = computed(() => {
+    const customPlaceholder = this.placeholder();
+
+    // If a custom placeholder is provided, use it
+    if (customPlaceholder && customPlaceholder.trim()) {
+      return customPlaceholder;
+    }
+
+    // Otherwise, use the default placeholder based on type
+    const inputType = this.type();
+    switch (inputType) {
+      case 'email':
+        return 'INPUTS.TEXT_EMAIL_PLACEHOLDER';
+      case 'password':
+        return 'INPUTS.TEXT_PASSWORD_PLACEHOLDER';
+      case 'text':
+      default:
+        return 'INPUTS.TEXT_PLACEHOLDER';
+    }
+  });
 
   // Get unique ID
   getElementId(): string {
