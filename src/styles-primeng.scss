@@ -97,8 +97,6 @@
   background-color: var(--surface-color) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg) !important;
-  box-shadow: var(--box-shadow-elevated) !important;
-  padding: 1rem !important;
   font-family: inherit !important;
   z-index: var(--z-popup) !important;
   color: var(--text-color) !important;
@@ -1089,7 +1087,6 @@
   border-radius: var(--border-radius) !important;
   color: var(--text-color) !important;
   font-size: 0.95rem !important;
-  padding: 0.75rem 1rem !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: none !important;
   font-family: inherit !important;
