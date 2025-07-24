@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -64,6 +64,33 @@ export class InputDateComponent implements ControlValueAccessor {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onChange = (value: Date | string | null) => {};
   private onTouched = () => {};
+
+  // Computed value that handles empty strings and converts them to null
+  readonly displayValue = computed(() => {
+    const currentValue = this.value();
+
+    // Handle all falsy values and empty strings
+    if (!currentValue || currentValue === '' || currentValue === null || currentValue === undefined) {
+      return null;
+    }
+
+    // If it's already a Date object, return it
+    if (currentValue instanceof Date) {
+      return currentValue;
+    }
+
+    // If it's a string, try to parse it as a date
+    if (typeof currentValue === 'string') {
+      const parsedDate = new Date(currentValue);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      } else {
+        return null;
+      }
+    }
+
+    return null;
+  });
 
   // Get unique ID
   getElementId(): string {
