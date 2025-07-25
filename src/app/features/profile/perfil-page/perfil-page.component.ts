@@ -12,11 +12,10 @@ import {
   DetailViewConfig,
   DetailAction,
 } from '../../../shared/components/detail-view/detail-view.component';
-import { InputsDemoComponent } from '../../../shared/components/inputs/inputs-demo/inputs-demo.component';
 
 @Component({
   selector: 'pelu-perfil-page',
-  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent, InputsDemoComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss'],
 })
