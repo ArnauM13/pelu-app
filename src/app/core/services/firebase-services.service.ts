@@ -28,6 +28,7 @@ export interface FirebaseService {
   category: string; // Now supports any string category
   icon: string;
   popular?: boolean;
+  favorite?: boolean;
   active?: boolean;
   createdAt?: any;
   updatedAt?: any;
