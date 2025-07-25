@@ -70,8 +70,7 @@ export class UserService {
           isLoading: authLoading || roleLoading,
           isInitialized: authInitialized && !roleLoading,
         });
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 

@@ -12,12 +12,12 @@ import {
   getDocs,
   serverTimestamp,
   orderBy,
+  FieldValue,
 } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
-import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { isPastDateTime } from '../../shared/services/appointment-utils';
 
@@ -35,8 +35,8 @@ export interface Booking {
   status?: 'draft' | 'confirmed' | 'cancelled' | 'completed';
   editToken: string;
   uid?: string | null;
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: Date | string | FieldValue;
+  updatedAt?: Date | string | FieldValue;
   // Campos legacy per compatibilitat
   title?: string;
   start?: string;

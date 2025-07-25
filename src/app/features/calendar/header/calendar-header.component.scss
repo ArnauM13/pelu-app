@@ -49,7 +49,7 @@
 
 .nav-btn i {
   font-size: 1rem;
-  color: var(--primary-color);
+  color: #000000;
 }
 
 .today-btn {
@@ -76,17 +76,44 @@
 .title-main {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: #000000;
 }
 
 .title-info {
   font-size: 0.75rem;
-  color: #6c757d;
+  color: #000000;
   font-weight: 400;
 }
 
 .title-config {
   font-size: 0.7rem;
-  color: #3b82f6;
+  color: #000000;
   font-weight: 500;
+}
+
+.date-input-container {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+}
+
+// Estils específics per al datepicker al header del calendari
+.date-input-container ::ng-deep .input-date-container {
+  width: 100%;
+}
+
+.date-input-container ::ng-deep .input-date-label {
+  display: none; // Amagar el label per estalviar espai
+}
+
+.date-input-container ::ng-deep .datepicker-wrapper {
+  min-height: 36px;
+}
+
+.date-input-container ::ng-deep .pelu-datepicker {
+  width: 100%;
+}
+
+.date-input-container ::ng-deep .p-datepicker {
+  z-index: 1000;
 }

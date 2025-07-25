@@ -34,6 +34,7 @@ import {
   InputSelectComponent,
   InputNumberComponent,
   InputCheckboxComponent,
+  InputToggleSwitchComponent,
 } from '../../../shared/components/inputs';
 
 @Component({
@@ -59,6 +60,7 @@ import {
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
+    InputToggleSwitchComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-services-page.component.html',
@@ -94,6 +96,7 @@ export class AdminServicesPageComponent implements OnInit {
     category: 'haircut',
     icon: '✂️',
     popular: false,
+    favorite: false,
   });
 
   // Category form signals
@@ -136,16 +139,72 @@ export class AdminServicesPageComponent implements OnInit {
     }))
   );
 
-  // Icon options
+  // Icon options with enhanced information for templates
   readonly iconOptions = [
-    { label: '✂️ Talla', value: '✂️' },
-    { label: '🧔 Barba', value: '🧔' },
-    { label: '💆 Tractament', value: '💆' },
-    { label: '💇 Estilitzat', value: '💇' },
-    { label: '🎨 Coloració', value: '🎨' },
-    { label: '👶 Infantil', value: '👶' },
-    { label: '⭐ Especial', value: '⭐' },
-    { label: '🔧 General', value: '🔧' },
+    {
+      label: '✂️ Talla',
+      value: '✂️',
+      description: 'Tall de cabell professional',
+      category: 'Cabell',
+      color: '#3b82f6',
+      popular: true
+    },
+    {
+      label: '🧔 Barba',
+      value: '🧔',
+      description: 'Arreglat i modelat de barba',
+      category: 'Barba',
+      color: '#8b5cf6',
+      popular: false
+    },
+    {
+      label: '💆 Tractament',
+      value: '💆',
+      description: 'Tractaments capil·lars',
+      category: 'Tractament',
+      color: '#10b981',
+      popular: true
+    },
+    {
+      label: '💇 Estilitzat',
+      value: '💇',
+      description: 'Estilització i arreglat',
+      category: 'Estil',
+      color: '#f59e0b',
+      popular: false
+    },
+    {
+      label: '🎨 Coloració',
+      value: '🎨',
+      description: 'Coloració i tintat',
+      category: 'Coloració',
+      color: '#ef4444',
+      popular: true
+    },
+    {
+      label: '👶 Infantil',
+      value: '👶',
+      description: 'Serveis per a nens',
+      category: 'Infantil',
+      color: '#06b6d4',
+      popular: false
+    },
+    {
+      label: '⭐ Especial',
+      value: '⭐',
+      description: 'Serveis especials i premium',
+      category: 'Premium',
+      color: '#f97316',
+      popular: true
+    },
+    {
+      label: '🔧 General',
+      value: '🔧',
+      description: 'Serveis generals',
+      category: 'General',
+      color: '#6b7280',
+      popular: false
+    },
   ];
 
   // Services by category computed - Use Firebase service directly

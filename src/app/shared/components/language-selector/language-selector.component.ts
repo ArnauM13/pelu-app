@@ -46,8 +46,7 @@ export class LanguageSelectorComponent implements OnInit, OnDestroy {
     effect(
       () => {
         this.currentLanguageSignal.set(this.#translationService.getCurrentLanguageInfo());
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 
