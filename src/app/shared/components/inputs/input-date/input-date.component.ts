@@ -55,13 +55,15 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly maxDate = input<Date | null>(null);
   readonly preventPastMonths = input<boolean>(false);
 
-  // Computed minDate that prevents past months when enabled
+  // Computed minDate that prevents past months when enabled or applies minDate restriction
   readonly computedMinDate = computed(() => {
     if (this.preventPastMonths()) {
       // Set to today's date to prevent selecting past dates
       return new Date();
     }
-    return this.minDate();
+    // Always apply minDate restriction if it's provided
+    const minDate = this.minDate();
+    return minDate;
   });
 
   // Unique ID generated once
@@ -113,6 +115,15 @@ export class InputDateComponent implements ControlValueAccessor {
 
   // Event handler for date changes
   onDateChange(date: Date | string | null) {
+    // Validate against minDate if provided
+    if (date instanceof Date && this.minDate()) {
+      const minDate = this.minDate();
+      if (minDate && date < minDate) {
+        // If selected date is before minDate, don't emit the change
+        return;
+      }
+    }
+
     this.onChange(date);
     this.valueChange.emit(date);
   }

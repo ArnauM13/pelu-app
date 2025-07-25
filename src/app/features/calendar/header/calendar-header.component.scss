@@ -52,6 +52,12 @@
   color: #000000;
 }
 
+.nav-btn svg {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+}
+
 .today-btn {
   background: var(--primary-color);
   color: var(--text-color-white);

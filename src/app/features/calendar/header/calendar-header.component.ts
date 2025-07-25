@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { format } from 'date-fns';
@@ -26,8 +26,11 @@ export class CalendarHeaderComponent {
     return format(this.currentViewDate, 'yyyy-MM-dd');
   }
 
+  // Use a signal for today's date to ensure stability
+  private readonly todayDateSignal = signal(new Date());
+
   get todayDate(): Date {
-    return new Date();
+    return this.todayDateSignal();
   }
 
   get todayString(): string {
