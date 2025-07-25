@@ -155,65 +155,6 @@
   align-items: center;
 }
 
-.nav-btn {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface-color);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-color);
-  transition: all 0.2s ease;
-  min-width: 36px;
-  height: 36px;
-}
-
-.nav-btn:hover {
-  background: var(--surface-color-hover);
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
-}
-
-.nav-btn:active {
-  transform: translateY(1px);
-}
-
-.nav-btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.nav-btn.disabled:hover {
-  background: var(--surface-color);
-  border-color: var(--border-color);
-  box-shadow: none;
-}
-
-.nav-btn i {
-  font-size: 1rem;
-  color: #000000;
-}
-
-.today-btn {
-  background: var(--primary-color);
-  color: var(--text-color-white);
-  border-color: var(--primary-color);
-  font-weight: 600;
-  min-width: 60px;
-  font-size: 0.85rem;
-}
-
-.today-btn:hover {
-  background: var(--primary-color-dark);
-  border-color: var(--primary-color-dark);
-}
-
 .calendar-title {
   display: flex;
   flex-direction: column;
@@ -240,7 +181,10 @@
 }
 
 .calendar-body {
-  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem 3rem 1rem;
   overflow-x: auto;
   width: 100%;
 }
@@ -359,18 +303,6 @@
 
   .calendar-navigation {
     gap: 0.5rem;
-  }
-
-  .nav-btn {
-    padding: 0.4rem 0.6rem;
-    min-width: 32px;
-    height: 32px;
-    font-size: 0.85rem;
-  }
-
-  .today-btn {
-    min-width: 50px;
-    font-size: 0.8rem;
   }
 
   .calendar-title {

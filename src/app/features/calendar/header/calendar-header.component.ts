@@ -23,8 +23,6 @@ export class CalendarHeaderComponent {
 
   // Output signals
   readonly today = output<void>();
-  readonly previousWeek = output<void>();
-  readonly nextWeek = output<void>();
   readonly dateChange = output<string>();
 
   // Computed properties
@@ -34,23 +32,8 @@ export class CalendarHeaderComponent {
 
   readonly todayDate = computed(() => new Date());
 
-  // Static literals
-  readonly todayLabel = 'Avui';
-  readonly previousWeekLabel = 'Setmana anterior';
-  readonly nextWeekLabel = 'Pròxima setmana';
-  readonly goToTodayLabel = 'Anar a avui';
-
-  // Navigation methods
-  onToday(): void {
+  emitToday() {
     this.today.emit();
-  }
-
-  onPreviousWeek(): void {
-    this.previousWeek.emit();
-  }
-
-  onNextWeek(): void {
-    this.nextWeek.emit();
   }
 
   onDateChange(date: Date | string | null): void {

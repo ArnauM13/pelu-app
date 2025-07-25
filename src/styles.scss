@@ -237,6 +237,8 @@ body {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  overflow-x: hidden;
 }
 
 /* Custom styles for the application */
@@ -365,9 +367,7 @@ h6 {
 /* ===== ESTILS DE CONTAINERS UNIFICATS ===== */
 .container {
   margin: 0 auto;
-  padding: 0 var(--spacing);
-  max-width: 1200px;
-  width: 100%;
+  width: 100vw;
 }
 
 .container-sm {

@@ -17,8 +17,8 @@ export class ButtonComponent {
   readonly icon = input<string>('');
   readonly iconPos = input<'left' | 'right' | 'top' | 'bottom'>('left');
   readonly severity = input<'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'help' | 'danger' | 'contrast'>('primary');
-  readonly variant = input<'outlined' | 'text'>('outlined');
-  readonly size = input<'small' | 'large'>('small');
+  readonly variant = input<'outlined' | 'text' | undefined>(undefined);
+  readonly size = input<'small' | 'large' | undefined>(undefined);
   readonly disabled = input<boolean>(false);
   readonly loading = input<boolean>(false);
   readonly raised = input<boolean>(false);

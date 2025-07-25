@@ -55,8 +55,8 @@
             <pelu-calendar-with-footer
               [events]="calendarEvents()"
               [mini]="false"
-              (onEditAppointment)="editAppointment($event)"
-              (onDeleteAppointment)="deleteAppointment($event)"
+              (editAppointment)="editAppointment($event)"
+              (deleteAppointment)="deleteAppointment($event)"
             >
             </pelu-calendar-with-footer>
           } @placeholder {
@@ -127,7 +127,7 @@
                     <div class="appointment-actions-container">
                       <div class="appointment-status">
                         <pelu-appointment-status-badge
-                          [appointmentData]="{ date: appointment.data, time: appointment.hora }"
+                          [appointmentData]="{ date: appointment.data || '', time: appointment.hora || '' }"
                           [config]="{
                             size: 'small',
                             variant: 'default',

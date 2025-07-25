@@ -73,7 +73,6 @@ onDateChange(date: Date | string | null): void {
       size="small"
       severity="secondary"
       variant="outlined"
-      [class]="'nav-btn'"
       (clicked)="onPreviousWeek()"
     >
     </pelu-button>
@@ -85,7 +84,6 @@ onDateChange(date: Date | string | null): void {
       size="small"
       severity="primary"
       variant="outlined"
-      [class]="'nav-btn today-btn'"
       (clicked)="onToday()"
     >
     </pelu-button>
@@ -97,7 +95,6 @@ onDateChange(date: Date | string | null): void {
       size="small"
       severity="secondary"
       variant="outlined"
-      [class]="'nav-btn'"
       (clicked)="onNextWeek()"
     >
     </pelu-button>

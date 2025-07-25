@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../shared/services/toast.service';
 import { BookingService, Booking } from './booking.service';
+import { BookingValidationService } from './booking-validation.service';
 
 export interface ActionConfig {
   id: string;
@@ -38,6 +39,7 @@ export class ActionsService {
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #bookingService = inject(BookingService);
+  #bookingValidationService = inject(BookingValidationService);
 
   /**
    * Get available actions for a specific context
@@ -260,7 +262,10 @@ export class ActionsService {
    * Check if appointment can be deleted
    */
   private canDeleteAppointment(appointment: Booking): boolean {
-    return this.canEditAppointment(appointment);
+    if (!appointment?.data || !appointment?.hora) return false;
+
+    const appointmentDate = new Date(appointment.data);
+    return this.#bookingValidationService.canCancelBooking(appointmentDate, appointment.hora);
   }
 
   /**
@@ -274,7 +279,7 @@ export class ActionsService {
    * Check if booking can be deleted
    */
   private canDeleteBooking(booking: Booking): boolean {
-    return this.canEditAppointment(booking);
+    return this.canDeleteAppointment(booking);
   }
 
   // Action handlers for appointments
