@@ -915,68 +915,6 @@
   }
 }
 
-// Toast Styles
-.p-toast-message-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.p-toast-message-icon {
-  flex-shrink: 0;
-  font-size: 1.5rem;
-}
-
-.p-toast-message-text {
-  flex: 1;
-
-  .p-toast-summary {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  .p-toast-detail {
-    font-size: 0.9rem;
-    opacity: 0.9;
-  }
-}
-
-.p-toast-message-actions {
-  margin-top: 0.75rem;
-
-  .p-toast-message-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-  }
-}
-
-.p-toast-icon-close {
-  background: none;
-  border: none;
-  color: inherit;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
 // Appointment Action Buttons
 .status-header {
   display: flex;

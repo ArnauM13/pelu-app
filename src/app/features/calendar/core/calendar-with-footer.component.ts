@@ -17,8 +17,8 @@ import { CalendarBusinessService } from '../services/calendar-business.service';
       [mini]="mini()"
       [events]="events()"
       (dateSelected)="dateSelected.emit($event)"
-      (onEditAppointment)="onEditAppointment.emit($event)"
-      (onDeleteAppointment)="onDeleteAppointment.emit($event)"
+      (editAppointment)="editAppointment.emit($event)"
+      (deleteAppointment)="deleteAppointment.emit($event)"
       (bookingsLoaded)="onBookingsLoaded($event)"
     >
     </pelu-calendar-component>
@@ -47,8 +47,8 @@ export class CalendarWithFooterComponent {
 
   // Output signals
   readonly dateSelected = output<{ date: string; time: string }>();
-  readonly onEditAppointment = output<AppointmentEvent>();
-  readonly onDeleteAppointment = output<AppointmentEvent>();
+  readonly editAppointment = output<any>();
+  readonly deleteAppointment = output<any>();
 
   // Internal state
   private readonly calendarLoadedSignal = signal<boolean>(false);
