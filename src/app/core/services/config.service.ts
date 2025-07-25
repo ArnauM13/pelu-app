@@ -14,11 +14,15 @@ export interface BusinessSettings {
   maxAppointmentsPerDay: number;
   autoConfirmAppointments: boolean;
   sendNotifications: boolean;
-  maintenanceMode: boolean;
   backupFrequency: string;
   language: string;
   timezone: string;
   currency: string;
+  // New booking parameters
+  preventCancellation: boolean;
+  cancellationTimeLimit: number; // in hours
+  bookingAdvanceDays: number; // days in advance bookings can be made
+  bookingAdvanceTime: number; // minutes before appointment time that booking is allowed
 }
 
 export interface CurrencyInfo {
@@ -42,11 +46,15 @@ const DEFAULT_SETTINGS: BusinessSettings = {
   maxAppointmentsPerDay: 20,
   autoConfirmAppointments: false,
   sendNotifications: true,
-  maintenanceMode: false,
   backupFrequency: 'daily',
   language: 'ca',
   timezone: 'Europe/Madrid',
   currency: 'EUR',
+  // New booking parameters
+  preventCancellation: false,
+  cancellationTimeLimit: 24, // in hours
+  bookingAdvanceDays: 30, // days in advance bookings can be made (1 month)
+  bookingAdvanceTime: 30, // minutes before appointment time that booking is allowed
 };
 
 @Injectable({
@@ -76,9 +84,12 @@ export class ConfigService {
   readonly maxAppointmentsPerDay = computed(() => this.settings().maxAppointmentsPerDay);
   readonly autoConfirmAppointments = computed(() => this.settings().autoConfirmAppointments);
   readonly sendNotifications = computed(() => this.settings().sendNotifications);
-  readonly maintenanceMode = computed(() => this.settings().maintenanceMode);
   readonly language = computed(() => this.settings().language);
   readonly currency = computed(() => this.settings().currency);
+  readonly preventCancellation = computed(() => this.settings().preventCancellation);
+  readonly cancellationTimeLimit = computed(() => this.settings().cancellationTimeLimit);
+  readonly bookingAdvanceDays = computed(() => this.settings().bookingAdvanceDays);
+  readonly bookingAdvanceTime = computed(() => this.settings().bookingAdvanceTime);
 
   // Currency information mapping
   private readonly currencies: Record<string, CurrencyInfo> = {
@@ -249,8 +260,20 @@ export class ConfigService {
     return this.sendNotifications();
   }
 
-  isMaintenanceMode(): boolean {
-    return this.maintenanceMode();
+  isPreventCancellation(): boolean {
+    return this.preventCancellation();
+  }
+
+  getCancellationTimeLimit(): number {
+    return this.cancellationTimeLimit();
+  }
+
+  getBookingAdvanceDays(): number {
+    return this.bookingAdvanceDays();
+  }
+
+  getBookingAdvanceTime(): number {
+    return this.bookingAdvanceTime();
   }
 
   getLanguage(): string {

@@ -20,6 +20,7 @@
 - [Calendari Interactiu](#calendari-interactiu)
 - [Sistema de Permisos](#sistema-de-permisos)
 - [Multiidioma](#multiidioma)
+- [Pàgina d'Administració de Configuració](#pàgina-dadministració-de-configuració)
 
 ### 🧩 [Components Compartits](#components-compartits)
 
@@ -58,6 +59,7 @@
 - ✅ **Codi Net**: ESLint i Prettier configurats per mantenir estàndards
 - ✅ **Testing**: Cobertura completa amb Jasmine, Karma i Cypress
 - ✅ **Performance**: Optimitzacions per càrrega ràpida i UX fluida
+- ✅ **Configuració Avançada**: Pàgina d'administració amb layout de 3 columnes
 
 ### Instal·lació i Configuració
 
@@ -98,16 +100,6 @@ npm run watch          # Build en mode watch per desenvolupament
 npm test               # Tests unitaris amb Karma
 npm run test:coverage  # Tests amb report de cobertura
 npm run e2e            # Tests end-to-end amb Cypress
-
-# Qualitat de Codi
-npm run lint           # Comprovar errors de lint
-npm run lint:fix       # Corregir errors automàticament
-npm run format:fix     # Formatar codi amb Prettier
-npm run lint:format    # Lint + Format combinat
-
-# Desplegament
-npm run build:prod     # Build optimitzat per producció
-firebase deploy        # Desplegament a Firebase
 ```
 
 ---
@@ -120,79 +112,34 @@ firebase deploy        # Desplegament a Firebase
 pelu-app/
 ├── src/
 │   ├── app/
-│   │   ├── core/                     # Serveis i lògica de negoci
-│   │   │   ├── auth/                 # Autenticació i autorització
-│   │   │   ├── guards/               # Guards de ruta
-│   │   │   ├── services/             # Serveis compartits
-│   │   │   └── interceptors/         # Interceptors HTTP
-│   │   ├── features/                 # Mòduls de funcionalitats
-│   │   │   ├── admin/                # Funcionalitats d'administració
-│   │   │   ├── appointments/         # Gestió de cites
-│   │   │   ├── auth/                 # Pàgines d'autenticació
-│   │   │   ├── bookings/             # Sistema de reserves
-│   │   │   ├── calendar/             # Component de calendari
-│   │   │   ├── landing/              # Pàgina d'inici
-│   │   │   ├── profile/              # Gestió de perfil
-│   │   │   └── services/             # Gestió de serveis
-│   │   ├── shared/                   # Components compartits
-│   │   │   ├── components/           # Components UI reutilitzables
-│   │   │   ├── pipes/                # Pipes personalitzats
-│   │   │   └── services/             # Serveis compartits
-│   │   └── ui/                       # Components d'interfície
-│   │       ├── layout/               # Layout principal
-│   │       └── navigation/           # Navegació
-│   ├── assets/
-│   │   ├── i18n/                     # Fitxers de traducció
-│   │   │   ├── ca.json               # Català
-│   │   │   ├── es.json               # Castellà
-│   │   │   ├── en.json               # Anglès
-│   │   │   └── ar.json               # Àrab
-│   │   └── images/                   # Imatges optimitzades
-│   │       ├── optimized/            # Imatges comprimides
-│   │       └── responsive/           # Imatges responsive
-│   ├── environments/                 # Configuracions per entorns
-│   │   ├── environment.ts            # Desenvolupament
-│   │   └── environment.prod.ts       # Producció
-│   └── testing/                      # Configuració de testing
-├── .prettierrc                       # Configuració de Prettier
-├── .eslintrc.json                   # Configuració d'ESLint
-├── .prettierignore                   # Fitxers ignorats per Prettier
-├── firebase.json                     # Configuració de Firebase
-├── firestore.rules                   # Regles de seguretat
-├── firestore.indexes.json           # Índexs de Firestore
-└── LINT_FORMAT_GUIDE.md             # Guia de lint i format
+│   │   ├── core/                 # Serveis i lògica de negoci
+│   │   ├── features/             # Mòduls de funcionalitats
+│   │   │   ├── admin/            # Funcionalitats d'administració
+│   │   │   │   └── admin-settings-page/  # Pàgina de configuració
+│   │   │   ├── bookings/         # Sistema de reserves
+│   │   │   ├── calendar/         # Calendari interactiu
+│   │   │   └── auth/             # Autenticació
+│   │   ├── shared/               # Components compartits
+│   │   │   ├── components/       # Components UI reutilitzables
+│   │   │   └── services/         # Serveis compartits
+│   │   └── ui/                   # Layout i navegació
+│   ├── assets/                   # Recursos estàtics
+│   │   └── i18n/                 # Traduccions
+│   └── environments/             # Configuracions per entorns
+├── public/                       # Arxius públics
+└── scripts/                      # Scripts d'automatització
 ```
 
 ### Stack Tecnològic
 
-#### Frontend
-- **Angular**: 20.1.2 - Framework principal
-- **TypeScript**: 5.8.3 - Llenguatge de programació
-- **PrimeNG**: 20.0.0 - Biblioteca de components UI
-- **PrimeFlex**: 4.0.0 - Sistema de grid i utilitats CSS
-- **PrimeIcons**: 7.0.0 - Icones vectorials
-
-#### Backend i Serveis
-- **Firebase**: 20.0.1 - Backend as a Service
-  - **Firestore**: Base de dades NoSQL
-  - **Authentication**: Sistema d'autenticació
-  - **Hosting**: Desplegament web
-  - **Functions**: Funcions serverless
-
-#### Estat i Reactivitat
-- **Angular Signals**: Gestió d'estat reactiu
-- **RxJS**: 7.8.1 - Programació reactiva
-- **Zone.js**: 0.15.1 - Detecció de canvis
-
-#### Testing
-- **Jasmine**: Framework de testing
-- **Karma**: Test runner
-- **Cypress**: Tests end-to-end
-
-#### Qualitat de Codi
-- **ESLint**: 8.57.1 - Linting de codi
-- **Prettier**: 3.5.3 - Format de codi
-- **TypeScript ESLint**: 8.38.0 - Regles TypeScript
+- **Frontend**: Angular 20.1.1 amb TypeScript 5.4
+- **UI Framework**: PrimeNG 18.0.0 amb tema Aura
+- **Estil**: SCSS amb variables CSS personalitzades
+- **Estat**: Angular Signals per gestió reactiva d'estat
+- **Backend**: Firebase (Firestore, Authentication, Hosting)
+- **Testing**: Jasmine, Karma, Cypress
+- **Linting**: ESLint + Prettier
+- **Build**: Angular CLI amb optimitzacions
 
 ### Patrons de Disseny
 
@@ -409,6 +356,177 @@ this.translateService.use('en');
 {{ 'BOOKING.CONFIRMATION.MESSAGE' | translate:{name: userName} }}
 ```
 
+### Pàgina d'Administració de Configuració
+
+La pàgina d'administració de configuració ofereix una interfície completa per gestionar tots els paràmetres del sistema amb un disseny modern i responsive.
+
+#### Característiques Principals
+
+- **Layout de 3 Columnes**: Organització lògica dels paràmetres
+- **Disseny Totalment Responsive**: Adaptació perfecta a tots els dispositius
+- **Mode d'Edició Unificat**: Interfície única amb botó d'edició a la dreta
+- **Inputs Específics**: Tipus d'input adequats per cada paràmetre
+- **Estats de Càrrega**: Feedback visual durant les operacions
+- **Validació en Temps Real**: Verificació immediata de dades
+
+#### Layout i Organització
+
+**Estructura de Columnes**:
+
+1. **Columna 1: Informació del Negoci**
+   - Nom del negoci
+   - Hores d'obertura (inici i fi)
+   - Pausa per dinar (inici i fi)
+
+2. **Columna 2: Configuració de Cites**
+   - Durada de cites
+   - Màxim de cites per dia
+   - Confirmació automàtica
+   - Notificacions
+   - Prevenció de cancel·lacions
+   - Límit de temps per cancel·lar
+
+3. **Columna 3: Sistema de Reserves i Configuració**
+   - Dies d'antelació per reserves
+   - Temps d'antelació per reserves
+   - Idioma per defecte
+   - Moneda
+
+#### Responsive Design
+
+**Breakpoints**:
+- **1400px+**: 3 columnes, experiència desktop completa
+- **1024px-1200px**: 3 columnes amb espaiat ajustat
+- **768px-1024px**: 2 columnes (tercera columna ocupa 2)
+- **480px-768px**: 1 columna, optimitzat per mòbil
+- **360px-480px**: Layout compacte per mòbils petits
+- **<360px**: Layout ultra-compacte per pantalles molt petites
+- **Mode paisatge**: Ajustaments especials per pantalles baixes
+
+#### Tipus d'Inputs Específics
+
+```typescript
+// Inputs de temps per hores d'obertura i pausa
+<pelu-input-date
+  [timeOnly]="true"
+  [hourFormat]="'24'"
+  [dateFormat]="'HH:mm'"
+  [readonly]="!isEditMode()"
+  [value]="getTimeValue(timeString)"
+  (valueChange)="onTimeChange($event, 'fieldName')">
+</pelu-input-date>
+
+// Inputs numèrics per durades i límits
+<pelu-input-number
+  [min]="15"
+  [max]="480"
+  [step]="15"
+  [suffix]="' min'"
+  [readonly]="!isEditMode()"
+  [value]="numericValue"
+  (valueChange)="onValueChange($event)">
+</pelu-input-number>
+
+// Inputs de selecció per idioma i moneda
+<pelu-input-select
+  [options]="languageOptions"
+  [showClear]="true"
+  [disabled]="!isEditMode()"
+  [value]="selectedValue"
+  (valueChange)="onSelectionChange($event)">
+</pelu-input-select>
+
+// Checkboxes per opcions booleanes
+<pelu-input-checkbox
+  [disabled]="!isEditMode()"
+  [value]="booleanValue"
+  (valueChange)="onCheckboxChange($event)">
+</pelu-input-checkbox>
+```
+
+#### Gestió d'Estats
+
+```typescript
+// Mode d'edició amb toggle
+private readonly isEditModeSignal = signal(false);
+readonly isEditMode = computed(() => this.isEditModeSignal());
+
+toggleEditMode() {
+  if (this.isEditMode()) {
+    this.setViewMode();
+  } else {
+    this.setEditMode();
+  }
+}
+
+// Gestió de temps
+getTimeValue(timeString: string | null): Date | null {
+  if (!timeString) return null;
+  
+  const [hours, minutes] = timeString.split(':').map(Number);
+  if (isNaN(hours) || isNaN(minutes)) return null;
+  
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+}
+
+onTimeChange(date: Date | string | null, fieldName: string) {
+  if (!date || !(date instanceof Date)) {
+    this.settingsForm.get(fieldName)?.setValue('');
+    return;
+  }
+  
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const timeString = `${hours}:${minutes}`;
+  
+  this.settingsForm.get(fieldName)?.setValue(timeString);
+}
+```
+
+#### Estats de Càrrega
+
+```typescript
+// Botó de desar amb estat de càrrega
+<pelu-button
+  type="submit"
+  [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate"
+  [loading]="saving()"
+  [disabled]="saving()"
+  icon="pi pi-save"
+  severity="primary">
+</pelu-button>
+
+// Deshabilitació d'altres botons durant el desat
+<pelu-button
+  type="button"
+  severity="secondary"
+  [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate"
+  [disabled]="saving()"
+  icon="pi pi-refresh"
+  (clicked)="resetToDefaults()">
+</pelu-button>
+```
+
+#### Característiques Avançades
+
+- **Mides d'Input Consistents**: 2.75rem d'alçada amb escalat responsive
+- **Scrollbar Personalitzat**: Estil consistent amb el tema
+- **Tipografia Fluida**: Mides de font que s'adapten al viewport
+- **Espaiat Responsive**: Gaps i padding que s'ajusten automàticament
+- **Targets de Toc Optimitzats**: Mides adequades per dispositius tàctils
+- **Box-sizing Predictible**: Layout consistent amb border-box
+
+#### Components Principals
+
+- `AdminSettingsPageComponent`: Component principal de la pàgina
+- `BusinessSettingsService`: Servei per gestionar la configuració
+- `InputDateComponent`: Inputs de temps amb picker integrat
+- `InputNumberComponent`: Inputs numèrics amb validació
+- `InputSelectComponent`: Inputs de selecció amb opcions
+- `InputCheckboxComponent`: Checkboxes per opcions booleanes
+
 ---
 
 ## 🧩 Components Compartits
@@ -473,7 +591,20 @@ Per a entrades numèriques amb validació basat en PrimeNG InputNumber.
 
 ##### 6. **Input Date** (`pelu-input-date`)
 
-Per a selecció de dates amb picker integrat.
+Per a selecció de dates amb picker integrat. Suporta mode només temps per hores.
+
+```typescript
+// Mode només temps per hores d'obertura
+<pelu-input-date
+  [timeOnly]="true"
+  [hourFormat]="'24'"
+  [dateFormat]="'HH:mm'"
+  [label]="'Hora d\'inici'"
+  [placeholder]="'08:00'"
+  [value]="timeValue"
+  (valueChange)="onTimeChange($event)">
+</pelu-input-date>
+```
 
 ##### 7. **Input Select** (`pelu-input-select`)
 

@@ -29,6 +29,17 @@
 // Container styles
 .container {
   position: relative;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    width: 95%;
+  }
+
+  @media (max-width: 480px) {
+    width: 98%;
+  }
 }
 
 // Input styles
