@@ -25,11 +25,12 @@ import { AppointmentsViewControlsComponent } from '../components/appointments-vi
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ActionsButtonsComponent } from '../../../shared/components/actions-buttons';
-import { ActionsService, ActionContext } from '../../../core/services/actions.service';
+import { ActionContext } from '../../../core/services/actions.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
 import { isFutureAppointment } from '../../../shared/services';
+import { ToastConfig } from '../../../shared/components/toast/toast.component';
 
 @Component({
   selector: 'pelu-appointments-page',
@@ -360,14 +361,8 @@ export class AppointmentsPageComponent {
     return currentUser.uid;
   }
 
-  showToast(
-    severity: 'success' | 'error' | 'info' | 'warn',
-    summary: string,
-    detail: string,
-    appointmentId?: string,
-    showViewButton: boolean = false
-  ) {
-    this.toastService.showToast(severity, summary, detail, appointmentId, showViewButton);
+  showToast(config: ToastConfig) {
+    this.toastService.showToast(config);
   }
 
   onToastClick(event: any) {

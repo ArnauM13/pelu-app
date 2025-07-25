@@ -13,63 +13,58 @@
   align-items: center;
 }
 
+// Styles for the new PrimeNG buttons
 .nav-btn {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface-color);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-color);
-  transition: all 0.2s ease;
-  min-width: 36px;
-  height: 36px;
+  // Override PrimeNG button styles to match existing design
+  min-width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+
+  // Ensure proper spacing for icon-only buttons
+  &.p-button-icon-only {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  // Hover effects
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15) !important;
+  }
+
+  // Active state
+  &:active {
+    transform: translateY(0);
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+  }
 }
 
-.nav-btn:hover {
-  background: var(--surface-color-hover);
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
-}
-
-.nav-btn:active {
-  transform: translateY(1px);
-}
-
-.nav-btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.nav-btn i {
-  font-size: 1rem;
-  color: #000000;
-}
-
-.nav-btn svg {
-  width: 16px;
-  height: 16px;
-  color: currentColor;
-}
-
+// Special styling for the "Today" button
 .today-btn {
-  background: var(--primary-color);
-  color: var(--text-color-white);
-  border-color: var(--primary-color);
-  font-weight: 600;
-  min-width: 60px;
-  font-size: 0.85rem;
-}
+  min-width: 60px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
 
-.today-btn:hover {
-  background: var(--primary-color-dark);
-  border-color: var(--primary-color-dark);
+  // Override PrimeNG primary button colors to match existing design
+  &.p-button-outlined.p-button-primary {
+    background: var(--primary-color) !important;
+    color: var(--text-color-white) !important;
+    border-color: var(--primary-color) !important;
+
+    &:hover {
+      background: var(--primary-color-dark) !important;
+      border-color: var(--primary-color-dark) !important;
+    }
+  }
 }
 
 .calendar-title {
