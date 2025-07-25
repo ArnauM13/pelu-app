@@ -20,79 +20,20 @@
 /* Angular Calendar */
 @import '../node_modules/angular-calendar/css/angular-calendar.css';
 
-/* ===== PRIMENG DATEPICKER GLOBAL OVERRIDES ===== */
-/* Force selected dates to be visible in PrimeNG datepicker */
-.p-datepicker-day.p-highlight {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
-.p-datepicker-day.p-highlight:hover {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
-.p-datepicker-day.p-highlight:focus {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
-/* Force any element with p-highlight class to be visible */
-.p-highlight {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-}
-
-/* Specific overrides for datepicker calendar */
-.p-datepicker .p-datepicker-calendar .p-datepicker-dates td .p-datepicker-day.p-highlight {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
-.p-datepicker-panel .p-datepicker-calendar .p-datepicker-dates td .p-datepicker-day.p-highlight {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
-/* Maximum specificity override */
-.p-datepicker-panel .p-datepicker-calendar .p-datepicker-dates td .p-datepicker-day.p-datepicker-day.p-highlight {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
 /* ===== PALETA DE COLORS UNIFICADA ===== */
 :root {
   /* ===== COLORS PRINCIPALS - GAMA BLAVA ===== */
   --primary-color-darkest: #1a2e4a; /* Blau molt fosc - reduït intensitat */
   --primary-color-dark: #2a4a7a; /* Blau fosc - reduït intensitat */
-  --primary-color: #3a5a8a; /* Blau principal - reduït intensitat */
-  --primary-color-light: #5a7aa0; /* Blau clar - reduït intensitat */
+  --primary-color: #1d3557; /* Blau fosc per botó primari */
+  --primary-color-light: #457b9d; /* Blau una mica més clar per gradient */
   --primary-color-lighter: #8fa3c0; /* Blau molt clar - reduït intensitat */
   --primary-color-lightest: #c7d4e0; /* Blau gairebé blanc - reduït intensitat */
 
   /* ===== COLORS SECUNDARIS ===== */
-  --secondary-color: #e8f0fe; /* Blau gris molt clar */
-  --secondary-color-light: #f8faff; /* Blau més clar - evita coincidència amb serveis */
-  --secondary-color-dark: #d1e0f7; /* Blau gris clar */
+  --secondary-color: #5fa8d3; /* Blau clar per botó secundari */
+  --secondary-color-light: #a9d6e5; /* Blau molt clar per gradient */
+  --secondary-color-dark: #4895b6; /* Blau clar més fosc per hover */
 
   /* ===== COLORS DE TEXT ===== */
   --text-color: #000000; /* Text principal - negre */
@@ -190,6 +131,7 @@
   --box-shadow: 0 2px 8px rgba(30, 58, 138, 0.08);
   --box-shadow-hover: 0 4px 16px rgba(30, 58, 138, 0.12);
   --box-shadow-elevated: 0 8px 32px rgba(30, 58, 138, 0.16);
+  --box-shadow-elevated-hover: 0 12px 40px rgba(30, 58, 138, 0.24);
   --box-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
 
   /* ===== GRADIENTS ===== */
@@ -201,11 +143,30 @@
   --gradient-secondary: linear-gradient(
     135deg,
     var(--secondary-color) 0%,
-    var(--surface-color) 100%
+    var(--secondary-color-light) 100%
   );
   --gradient-success: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
   --gradient-warning: linear-gradient(135deg, var(--warning-color) 0%, #fbbf24 100%);
   --gradient-error: linear-gradient(135deg, var(--error-color) 0%, #f87171 100%);
+  --gradient-info: linear-gradient(135deg, var(--info-color) 0%, #1d4ed8 100%);
+  --gradient-contrast: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+
+  /* ===== COLORS FOSCOS PER BOTONS ===== */
+  --primary-color-dark: #2563eb;
+  --secondary-color-dark: #4b5563;
+  --success-color-dark: #059669;
+  --warning-color-dark: #d97706;
+  --error-color-dark: #dc2626;
+  --info-color-dark: #1d4ed8;
+  --soft-blue-color: #3be0f6;
+  --contrast-color: #1f2937;
+  --contrast-color-dark: #111827;
+
+  /* ===== COLORS ALPHA PER BOTONS TEXT ===== */
+  --secondary-color-alpha-10: rgba(107, 114, 128, 0.1);
+  --success-color-alpha-10: rgba(16, 185, 129, 0.1);
+  --warning-color-alpha-10: rgba(245, 158, 11, 0.1);
+  --error-color-alpha-10: rgba(239, 68, 68, 0.1);
 
   /* ===== GRADIENTS SUAUS PER HEADERS ===== */
   --gradient-header-profile: linear-gradient(135deg, #ffffff 0%, #f0f4ff 50%, #e8f0fe 100%);
@@ -218,6 +179,7 @@
   --border-radius-lg: 12px;
   --border-radius-xl: 16px;
   --border-radius-2xl: 24px;
+  --border-radius-full: 50px;
 
   /* ===== SPACING ===== */
   --spacing-xs: 0.25rem;
@@ -226,6 +188,7 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
 
   /* ===== SISTEMA UNIFICAT DE Z-INDEX ===== */
   /* Base layer - Contingut principal */
@@ -251,6 +214,14 @@
 
   /* Elements crítics (Firebase UI, etc.) */
   --z-critical: 9999;
+
+  /* ===== MIDES DE BOTONS ===== */
+  --button-height-sm: 36px;
+  --button-height: 44px;
+  --button-height-lg: 52px;
+  --button-padding-sm: 0.5rem 1rem;
+  --button-padding: 0.75rem 1.5rem;
+  --button-padding-lg: 1rem 2rem;
 }
 
 /* ===== ESTILS GLOBALS UNIFICATS ===== */
@@ -271,87 +242,6 @@ body {
 /* Custom styles for the application */
 :host {
   display: block;
-}
-
-/* ===== ESTILS DE BOTONS UNIFICATS ===== */
-.btn {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  border: 1px solid transparent;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--box-shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--box-shadow-hover);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn-primary {
-  background: var(--gradient-primary);
-  color: var(--text-color-white);
-  border-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
-  border-color: var(--primary-color-dark);
-}
-
-.btn-secondary {
-  background: var(--gradient-secondary);
-  color: var(--text-color);
-  border-color: var(--border-color);
-}
-
-.btn-secondary:hover {
-  background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
-  border-color: var(--border-color-dark);
-}
-
-.btn-outline {
-  background-color: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  box-shadow: none;
-}
-
-.btn-outline:hover {
-  background: var(--gradient-primary);
-  color: var(--text-color-white);
-  border-color: var(--primary-color);
-}
-
-.btn-success {
-  background: var(--gradient-success);
-  color: var(--text-color-white);
-  border-color: var(--success-color);
-}
-
-.btn-warning {
-  background: var(--gradient-warning);
-  color: var(--text-color-white);
-  border-color: var(--warning-color);
-}
-
-.btn-error {
-  background: var(--gradient-error);
-  color: var(--text-color-white);
-  border-color: var(--error-color);
 }
 
 /* ===== ESTILS DE TARGETES UNIFICATS ===== */

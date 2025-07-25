@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
+import { ButtonComponent } from '../buttons/button.component';
 
 @Component({
   selector: 'pelu-filters-inline',
@@ -15,6 +16,7 @@ import { InputTextComponent, InputDateComponent, InputSelectComponent } from '..
     InputTextComponent,
     InputDateComponent,
     InputSelectComponent,
+    ButtonComponent,
   ],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss'],

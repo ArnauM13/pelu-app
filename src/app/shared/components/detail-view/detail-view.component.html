@@ -46,13 +46,16 @@
           >
             <div class="appointment-content">
               <!-- Back Button -->
-              <button
+              <pelu-button
+                label="←"
+                [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
+                variant="text"
+                severity="contrast"
+                [rounded]="true"
                 class="back-btn-emoji"
-                (click)="onBack()"
-                [title]="'COMMON.ACTIONS.BACK' | translate"
+                (clicked)="onBack()"
               >
-                ←
-              </button>
+              </pelu-button>
 
               <div class="appointment-info">
                 <h1 class="appointment-title">
@@ -87,13 +90,15 @@
         <!-- Mobile Back Button -->
         @if (type === 'appointment' && appointment) {
           <div class="mobile-back-section">
-            <button
+            <pelu-button
+              [label]="'← ' + ('COMMON.ACTIONS.BACK' | translate)"
+              [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
+              variant="text"
+              severity="secondary"
               class="mobile-back-btn"
-              (click)="onBack()"
-              [title]="'COMMON.ACTIONS.BACK' | translate"
+              (clicked)="onBack()"
             >
-              ← {{ 'COMMON.ACTIONS.BACK' | translate }}
-            </button>
+            </pelu-button>
           </div>
         }
 
@@ -218,18 +223,21 @@
 
               <!-- Form Actions -->
               <div class="form-actions">
-                <button class="action-btn secondary" (click)="onCancelEdit()">
-                  <i class="action-icon">❌</i>
-                  {{ 'COMMON.ACTIONS.CANCEL' | translate }}
-                </button>
-                <button
-                  class="action-btn primary"
-                  (click)="onSave()"
-                  [disabled]="!canSave || !hasChanges"
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.CANCEL' | translate"
+                  icon="❌"
+                  severity="secondary"
+                  (clicked)="onCancelEdit()"
                 >
-                  <i class="action-icon">💾</i>
-                  {{ 'COMMON.ACTIONS.SAVE' | translate }}
-                </button>
+                </pelu-button>
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.SAVE' | translate"
+                  icon="💾"
+                  severity="primary"
+                  [disabled]="!canSave || !hasChanges"
+                  (clicked)="onSave()"
+                >
+                </pelu-button>
               </div>
             </div>
           </div>
@@ -264,14 +272,20 @@
                   </div>
 
                   <div class="form-actions">
-                    <button class="action-btn secondary" (click)="section.onCancel?.()">
-                      <i class="action-icon">❌</i>
-                      {{ 'COMMON.ACTIONS.CANCEL' | translate }}
-                    </button>
-                    <button class="action-btn primary" (click)="onSaveNotes(section)">
-                      <i class="action-icon">💾</i>
-                      {{ 'COMMON.ACTIONS.SAVE' | translate }}
-                    </button>
+                    <pelu-button
+                      [label]="'COMMON.ACTIONS.CANCEL' | translate"
+                      icon="❌"
+                      severity="secondary"
+                      (clicked)="section.onCancel?.()"
+                    >
+                    </pelu-button>
+                    <pelu-button
+                      [label]="'COMMON.ACTIONS.SAVE' | translate"
+                      icon="💾"
+                      severity="primary"
+                      (clicked)="onSaveNotes(section)"
+                    >
+                    </pelu-button>
                   </div>
                 </div>
               } @else {

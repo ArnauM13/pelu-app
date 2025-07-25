@@ -3,7 +3,15 @@
     <div class="service-selection-popup" (click)="$event.stopPropagation()">
       <div class="popup-header">
         <h3>✂️ {{ 'COMMON.SELECTION.SELECT_SERVICE' | translate }}</h3>
-        <button class="close-btn" (click)="onCancel()">×</button>
+        <pelu-button
+  label="×"
+  variant="text"
+  severity="secondary"
+  [rounded]="true"
+  class="close-btn"
+  (clicked)="onCancel()"
+>
+</pelu-button>
       </div>
 
       <div class="popup-body">
@@ -109,9 +117,12 @@
       </div>
 
       <div class="popup-footer">
-        <button class="btn-primary" (click)="onConfirm()" [disabled]="!canConfirm()">
-          {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
-        </button>
+        <pelu-button
+          [label]="'COMMON.ACTIONS.CONTINUE' | translate"
+          [disabled]="!canConfirm()"
+          (clicked)="onConfirm()"
+        >
+        </pelu-button>
       </div>
     </div>
   </div>
