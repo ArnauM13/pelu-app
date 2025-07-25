@@ -34,6 +34,7 @@ import {
   InputSelectComponent,
   InputNumberComponent,
   InputCheckboxComponent,
+  InputToggleSwitchComponent,
 } from '../../../shared/components/inputs';
 
 @Component({
@@ -59,6 +60,7 @@ import {
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
+    InputToggleSwitchComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-services-page.component.html',
@@ -94,6 +96,7 @@ export class AdminServicesPageComponent implements OnInit {
     category: 'haircut',
     icon: '✂️',
     popular: false,
+    favorite: false,
   });
 
   // Category form signals
