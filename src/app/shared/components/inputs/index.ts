@@ -22,6 +22,14 @@ export {
   type InputSelectConfig,
   type SelectOption,
 } from './input-select/input-select.component';
+export {
+  InputPasswordComponent,
+  type InputPasswordConfig,
+} from './input-password/input-password.component';
+export {
+  InputToggleSwitchComponent,
+  type InputToggleSwitchConfig,
+} from './input-toggleswitch/input-toggleswitch.component';
 // Removed input-service-select component as it doesn't exist
 // export {
 //   InputServiceSelectComponent,
@@ -29,7 +37,6 @@ export {
 //   type ServiceOption,
 // } from './input-service-select/input-service-select.component';
 export { InputsDemoComponent } from './inputs-demo/inputs-demo.component';
-export { InputTextDemoComponent } from './input-text/input-text-demo.component';
 
 // Re-export for convenience
 export * from './input-text/input-text.component';
@@ -38,6 +45,7 @@ export * from './input-date/input-date.component';
 export * from './input-number/input-number.component';
 export * from './input-checkbox/input-checkbox.component';
 export * from './input-select/input-select.component';
+export * from './input-password/input-password.component';
+export * from './input-toggleswitch/input-toggleswitch.component';
 // export * from './input-service-select/input-service-select.component';
 export * from './inputs-demo/inputs-demo.component';
-export * from './input-text/input-text-demo.component';

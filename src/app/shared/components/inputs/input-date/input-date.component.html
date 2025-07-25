@@ -1,4 +1,4 @@
-<div class="input-date-container">
+<div class="input-date-container" [class.inline-mode]="inline()">
   <!-- Label -->
   @if (label() && label().trim()) {
     <label
@@ -17,7 +17,7 @@
       [disabled]="disabled()"
       [dateFormat]="dateFormat()"
       [showIcon]="showIcon()"
-      [iconDisplay]="'button'"
+      [iconDisplay]="'input'"
       [showButtonBar]="showButtonBar()"
       [showTime]="showTime()"
       [timeOnly]="timeOnly()"
@@ -26,7 +26,7 @@
       [inline]="inline()"
       [readonlyInput]="readonlyInput()"
       [showOnFocus]="showOnFocus()"
-      [minDate]="minDate()"
+      [minDate]="computedMinDate()"
       [maxDate]="maxDate()"
       [ngModel]="displayValue()"
       (ngModelChange)="onDateChange($event)"
@@ -35,8 +35,23 @@
     >
       <!-- Custom icon for time-only picker -->
       @if (timeOnly()) {
-        <ng-template pTemplate="inputicon">
-          <i class="pi pi-clock" style="color: #1e40af; font-size: 1.1rem;"></i>
+        <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+          <svg
+            class="custom-clock-icon"
+            (click)="clickCallBack($event)"
+            (keydown.enter)="clickCallBack($event)"
+            (keydown.space)="clickCallBack($event)"
+            tabindex="0"
+            role="button"
+            aria-label="Seleccionar hora"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
         </ng-template>
       }
     </p-datepicker>

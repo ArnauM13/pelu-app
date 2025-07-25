@@ -7,6 +7,8 @@ import { InputNumberComponent } from '../input-number/input-number.component';
 import { InputDateComponent } from '../input-date/input-date.component';
 import { InputCheckboxComponent } from '../input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../input-select/input-select.component';
+import { InputPasswordComponent } from '../input-password/input-password.component';
+import { InputToggleSwitchComponent } from '../input-toggleswitch/input-toggleswitch.component';
 
 @Component({
   selector: 'pelu-inputs-demo',
@@ -19,6 +21,8 @@ import { InputSelectComponent } from '../input-select/input-select.component';
     InputDateComponent,
     InputCheckboxComponent,
     InputSelectComponent,
+    InputPasswordComponent,
+    InputToggleSwitchComponent,
   ],
   templateUrl: './inputs-demo.component.html',
   styleUrls: ['./inputs-demo.component.scss'],
@@ -32,11 +36,15 @@ export class InputsDemoComponent {
     description: '',
     age: null,
     birthDate: null as Date | string | null,
+    appointmentDate: null as Date | string | null,
     appointmentTime: null as Date | string | null,
+    demoDate: new Date() as Date | string | null, // Pre-selected date for demo
+    inlineDate: new Date() as Date | string | null, // Date for inline calendar demo
     terms: false,
     category: '',
     service: '',
     notes: '',
+    favorite: false,
   });
 
   // Select options

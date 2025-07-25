@@ -1,0 +1,59 @@
+<div class="input-toggleswitch-container">
+  <!-- Label -->
+  @if (label()) {
+    <label
+      [for]="getElementId()"
+      class="input-toggleswitch-label"
+      [class.required]="required()">
+      {{ label() | translate }}
+    </label>
+  }
+
+  <!-- PrimeNG ToggleSwitch -->
+  <div class="toggleswitch-wrapper">
+    <p-toggleswitch
+      [inputId]="getElementId()"
+      [name]="name()"
+      [styleClass]="styleClass()"
+      [tabindex]="tabindex()"
+      [required]="required()"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      [invalid]="invalid()"
+      [trueValue]="trueValue()"
+      [falseValue]="falseValue()"
+      [ngModel]="value()"
+      (ngModelChange)="onToggleChange($event)"
+      (onBlur)="onBlurHandler($event)"
+      class="pelu-toggleswitch"
+    >
+      <!-- Handle Template -->
+      @if (handleTemplate) {
+        <ng-template #handle let-checked="checked">
+          <ng-container *ngTemplateOutlet="handleTemplate; context: { checked: checked }"></ng-container>
+        </ng-template>
+      }
+    </p-toggleswitch>
+  </div>
+
+  <!-- Help text -->
+  @if (helpText()) {
+    <div class="input-help">
+      {{ (helpText() || '') | translate }}
+    </div>
+  }
+
+  <!-- Error text -->
+  @if (errorText()) {
+    <div class="input-error">
+      {{ (errorText() || '') | translate }}
+    </div>
+  }
+
+  <!-- Success text -->
+  @if (successText()) {
+    <div class="input-success">
+      {{ (successText() || '') | translate }}
+    </div>
+  }
+</div>
