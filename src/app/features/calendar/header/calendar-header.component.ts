@@ -1,55 +1,55 @@
-import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { format } from 'date-fns';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
   selector: 'pelu-calendar-header',
-  imports: [CommonModule, FormsModule, InputDateComponent],
+  imports: [CommonModule, FormsModule, InputDateComponent, ButtonComponent],
   templateUrl: './calendar-header.component.html',
   styleUrls: ['./calendar-header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
 })
 export class CalendarHeaderComponent {
-  @Input() viewDateInfo: string = '';
-  @Input() businessDaysInfo: string = '';
-  @Input() mainTitle: string = '';
-  @Input() canNavigateToPreviousWeek: boolean = true;
-  @Input() currentViewDate: Date = new Date();
+  // Input signals
+  readonly viewDateInfo = input<string>('');
+  readonly businessDaysInfo = input<string>('');
+  readonly mainTitle = input<string>('');
+  readonly canNavigateToPreviousWeek = input<boolean>(true);
+  readonly currentViewDate = input<Date>(new Date());
 
-  @Output() today = new EventEmitter<void>();
-  @Output() previousWeek = new EventEmitter<void>();
-  @Output() nextWeek = new EventEmitter<void>();
-  @Output() dateChange = new EventEmitter<string>();
+  // Output signals
+  readonly today = output<void>();
+  readonly previousWeek = output<void>();
+  readonly nextWeek = output<void>();
+  readonly dateChange = output<string>();
 
-  get currentDateString(): string {
-    return format(this.currentViewDate, 'yyyy-MM-dd');
-  }
+  // Computed properties
+  readonly currentDateString = computed(() =>
+    format(this.currentViewDate(), 'yyyy-MM-dd')
+  );
 
-  // Use a signal for today's date to ensure stability
-  private readonly todayDateSignal = signal(new Date());
+  readonly todayDate = computed(() => new Date());
 
-  get todayDate(): Date {
-    return this.todayDateSignal();
-  }
+  // Static literals
+  readonly todayLabel = 'Avui';
+  readonly previousWeekLabel = 'Setmana anterior';
+  readonly nextWeekLabel = 'Pròxima setmana';
+  readonly goToTodayLabel = 'Anar a avui';
 
-  get todayString(): string {
-    const today = this.todayDate;
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  onToday() {
+  // Navigation methods
+  onToday(): void {
     this.today.emit();
   }
 
-  onPreviousWeek() {
+  onPreviousWeek(): void {
     this.previousWeek.emit();
   }
 
-  onNextWeek() {
+  onNextWeek(): void {
     this.nextWeek.emit();
   }
 

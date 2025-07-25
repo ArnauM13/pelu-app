@@ -5,6 +5,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -27,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({ theme: { preset: Aura }}),
     provideAnimationsAsync(),
     MessageService,
+
     provideZoneChangeDetection({
       eventCoalescing: true,
       runCoalescing: true,
