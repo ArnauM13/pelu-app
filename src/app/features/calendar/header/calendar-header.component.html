@@ -1,6 +1,11 @@
 <div class="calendar-header">
   <!-- Date Input -->
   <div class="date-input-container">
+    <pelu-button
+      icon="pi pi-calendar"
+      label="COMMON.TIME.TODAY"
+      (clicked)="emitToday()"
+    />
     <pelu-input-date
       [value]="currentViewDate()"
       [dateFormat]="'dd/mm/yy'"

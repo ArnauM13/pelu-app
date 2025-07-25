@@ -32,6 +32,10 @@ export class CalendarHeaderComponent {
 
   readonly todayDate = computed(() => new Date());
 
+  emitToday() {
+    this.today.emit();
+  }
+
   onDateChange(date: Date | string | null): void {
     if (date instanceof Date) {
       const dateString = format(date, 'yyyy-MM-dd');

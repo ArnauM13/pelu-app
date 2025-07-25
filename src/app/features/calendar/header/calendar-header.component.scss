@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 1.5rem;
   background: var(--surface-color);
   border-bottom: 1px solid var(--border-color);
 }
@@ -40,6 +40,7 @@
 
 .date-input-container {
   display: flex;
+  gap: 1rem;
   align-items: center;
   min-width: 200px;
 }
