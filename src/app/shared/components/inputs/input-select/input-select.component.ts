@@ -16,6 +16,14 @@ export interface SelectOption {
   icon?: string;
   group?: string;
   color?: string;
+  price?: number;
+  duration?: number;
+  description?: string;
+  category?: string;
+  popular?: boolean;
+  new?: boolean;
+  discount?: number;
+  available?: boolean;
 }
 
 export interface InputSelectConfig {

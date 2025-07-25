@@ -48,9 +48,9 @@ describe('NotFoundStateComponent', () => {
     expect(component.config).toBeDefined();
   });
 
-  it('should have onButtonClick output event', () => {
-    expect(component.onButtonClick).toBeDefined();
-    expect(component.onButtonClick.emit).toBeDefined();
+  it('should have buttonClick output event', () => {
+    expect(component.buttonClick).toBeDefined();
+    expect(component.buttonClick.emit).toBeDefined();
   });
 
   it('should be a standalone component', () => {
@@ -152,11 +152,11 @@ describe('NotFoundStateComponent', () => {
   });
 
   describe('Event Handling', () => {
-    it('should emit onButtonClick when button is clicked', () => {
+    it('should emit buttonClick when button is clicked', () => {
       component.config = mockConfig;
       fixture.detectChanges();
 
-      const spy = spyOn(component.onButtonClick, 'emit');
+      const spy = spyOn(component.buttonClick, 'emit');
       const buttonElement = fixture.nativeElement.querySelector('.not-found-btn');
 
       buttonElement.click();
@@ -168,7 +168,7 @@ describe('NotFoundStateComponent', () => {
       component.config = mockConfig;
       fixture.detectChanges();
 
-      const spy = spyOn(component.onButtonClick, 'emit');
+      const spy = spyOn(component.buttonClick, 'emit');
       const buttonElement = fixture.nativeElement.querySelector('.not-found-btn');
 
       buttonElement.click();
