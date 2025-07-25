@@ -3,7 +3,8 @@
     [config]="registerConfig()"
     (submitForm)="onRegisterSubmit($event)"
     (googleAuth)="onGoogleAuth()"
-    (passwordMismatch)="onPasswordMismatch($event)" />
+    (passwordMismatch)="onPasswordMismatch($event)"
+  />
 
   @if (hasError()) {
     <div class="error-message">
@@ -12,8 +13,6 @@
   }
 
   @if (isSubmitting()) {
-    <pelu-loading-state
-      [config]="loadingConfig()">
-    </pelu-loading-state>
+    <pelu-loading-state [config]="loadingConfig()"> </pelu-loading-state>
   }
 </div>

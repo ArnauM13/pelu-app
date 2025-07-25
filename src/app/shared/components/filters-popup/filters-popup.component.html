@@ -2,45 +2,42 @@
   <!-- Quick Filters -->
   <div class="quick-filters">
     @for (button of filterButtonsValue(); track button.icon; let i = $index) {
-    <pelu-floating-button
-      [config]="button"
-      (clicked)="onFilterClickHandler(i)">
-    </pelu-floating-button>
+      <pelu-floating-button [config]="button" (clicked)="onFilterClickHandler(i)">
+      </pelu-floating-button>
     }
   </div>
 
   <!-- Advanced Filters Section -->
   @if (showAdvancedFiltersValue()) {
-  <div class="advanced-filters-section">
-    <div class="filters-grid">
-      <div class="filter-group">
-        <pelu-input-date
-          [config]="{
-            label: 'COMMON.FILTERS.FILTER_BY_DATE',
-            showLabel: true
-          }"
-          [value]="filterDateValue()"
-          (valueChange)="onDateChangeHandler($event)">
-        </pelu-input-date>
+    <div class="advanced-filters-section">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <pelu-input-date
+            label="COMMON.FILTERS.FILTER_BY_DATE"
+            [value]="filterDateValue()"
+            (valueChange)="onDateChangeHandler($event)"
+          >
+          </pelu-input-date>
+        </div>
+        <div class="filter-group">
+          <pelu-input-text
+            [config]="{
+              type: 'text',
+              label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
+              placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
+              showLabel: true,
+            }"
+            [value]="filterClientValue() || ''"
+            (valueChange)="onClientChangeHandler($event)"
+          >
+          </pelu-input-text>
+        </div>
       </div>
-      <div class="filter-group">
-        <pelu-input-text
-          [config]="{
-            type: 'text',
-            label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
-            placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
-            showLabel: true
-          }"
-          [value]="filterClientValue() || ''"
-          (valueChange)="onClientChangeHandler($event)">
-        </pelu-input-text>
+      <div class="reset-section">
+        <button class="reset-btn" (click)="onResetHandler()">
+          {{ 'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate }}
+        </button>
       </div>
     </div>
-    <div class="reset-section">
-      <button class="reset-btn" (click)="onResetHandler()">
-        {{ 'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate }}
-      </button>
-    </div>
-  </div>
   }
 </div>

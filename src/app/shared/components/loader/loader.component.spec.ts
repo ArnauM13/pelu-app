@@ -10,28 +10,25 @@ describe('LoaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        LoaderComponent,
-        TranslateModule.forRoot()
-      ],
+      imports: [LoaderComponent, TranslateModule.forRoot()],
       providers: [
         LoaderService,
         {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
-          }
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+          },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoaderComponent);

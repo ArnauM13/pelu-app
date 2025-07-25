@@ -1,7 +1,11 @@
 .mobile-booking-container {
   max-width: 100%;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   min-height: 100vh;
   position: relative;
   overflow: hidden;
@@ -24,8 +28,6 @@
     margin: 0 auto;
   }
 }
-
-
 
 .booking-header {
   text-align: center;
@@ -85,22 +87,23 @@
     box-shadow: 0 4px 12px rgba(13, 71, 161, 0.08);
 
     .nav-btn {
-      background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
-      border: none;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
       border-radius: 50%;
       width: 40px;
       height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #000000;
       cursor: pointer;
       transition: all 0.3s ease;
 
       &:hover:not(.disabled) {
-        background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+        background: #e9ecef;
+        color: #000000;
         transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.18);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
       &.disabled {
@@ -133,13 +136,13 @@
         font-size: 0.9rem;
         opacity: 0.7;
         margin-bottom: 0.25rem;
-        color: #1565c0;
+        color: #000000;
       }
 
       .period-date {
         font-weight: 600;
         font-size: 1rem;
-        color: #0d47a1;
+        color: #000000;
       }
     }
   }
@@ -261,7 +264,11 @@
         bottom: 0;
         border: 2px solid #3b82f6;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(59, 130, 246, 0.1) 0%,
+          rgba(59, 130, 246, 0.05) 100%
+        );
         pointer-events: none;
       }
     }
@@ -413,7 +420,7 @@
 
       .day-name,
       .day-number {
-        color: #6b7280;
+        color: var(--input-placeholder-color);
       }
     }
 
@@ -425,7 +432,7 @@
 
       .day-name,
       .day-number {
-        color: #9ca3af;
+        color: var(--input-placeholder-color);
       }
 
       &:hover {
@@ -479,8 +486,8 @@
   .no-service-selected {
     text-align: center;
     padding: 2rem;
-    color: #6b7280;
-    background: #f9fafb;
+    color: var(--input-placeholder-color);
+    background: var(--surface-color);
     border-radius: 8px;
     border: 2px dashed #d1d5db;
   }
@@ -740,7 +747,7 @@
 .selection-required {
   text-align: center;
   padding: 2rem 1rem;
-  color: #6b7280;
+  color: var(--input-placeholder-color);
 
   .info-icon {
     font-size: 3rem;

@@ -9,45 +9,39 @@
     <div class="demo-section">
       <h2>Input Text (Una línia)</h2>
       <pelu-input-text
-        [config]="{
-          type: 'text',
-          label: 'Nom',
-          placeholder: 'Introdueix el teu nom',
-          required: true,
-          showLabel: true
-        }"
+        label="Nom"
+        placeholder="Introdueix el teu nom"
+        type="text"
+        [required]="true"
         [value]="formData().name"
-        (valueChange)="updateField('name', $event)">
+        (valueChange)="updateField('name', $event)"
+      >
       </pelu-input-text>
     </div>
 
     <!-- Input Email -->
     <div class="demo-section">
       <h2>Input Email</h2>
-      <pelu-input-email
-        [config]="{
-          label: 'Email',
-          placeholder: 'exemple@email.com',
-          required: true,
-          showLabel: true
-        }"
+      <pelu-input-text
+        label="Email"
+        type="email"
+        [required]="true"
         [value]="formData().email"
-        (valueChange)="updateField('email', $event)">
-      </pelu-input-email>
+        (valueChange)="updateField('email', $event)"
+      >
+      </pelu-input-text>
     </div>
 
     <!-- Input Password -->
     <div class="demo-section">
       <h2>Input Password</h2>
       <pelu-input-password
-        [config]="{
-          label: 'Contrasenya',
-          placeholder: 'Introdueix la contrasenya',
-          required: true,
-          showLabel: true
-        }"
+        label="Contrasenya"
+        [required]="true"
+        [toggleMask]="true"
         [value]="formData().password"
-        (valueChange)="updateField('password', $event)">
+        (valueChange)="updateField('password', $event)"
+      >
       </pelu-input-password>
     </div>
 
@@ -55,95 +49,367 @@
     <div class="demo-section">
       <h2>Input Number</h2>
       <pelu-input-number
-        [config]="{
-          label: 'Edat',
-          placeholder: '25',
-          min: 0,
-          max: 120,
-          showLabel: true
-        }"
+        label="Edat"
+        [min]="0"
+        [max]="120"
         [value]="formData().age"
-        (valueChange)="updateField('age', $event)">
+        (valueChange)="updateField('age', $event)"
+      >
       </pelu-input-number>
-    </div>
-
-    <!-- Input Date -->
-    <div class="demo-section">
-      <h2>Input Date</h2>
-      <pelu-input-date
-        [config]="{
-          label: 'Data de naixement',
-          placeholder: 'Selecciona una data',
-          showLabel: true
-        }"
-        [value]="formData().birthDate"
-        (valueChange)="updateField('birthDate', $event)">
-      </pelu-input-date>
-    </div>
-
-    <!-- Input Select -->
-    <div class="demo-section">
-      <h2>Input Select</h2>
-      <pelu-input-select
-        [config]="{
-          label: 'Categoria',
-          placeholder: 'Selecciona una categoria',
-          options: categoryOptions,
-          showLabel: true
-        }"
-        [value]="formData().category"
-        (valueChange)="updateField('category', $event)">
-      </pelu-input-select>
-    </div>
-
-    <!-- Input Textarea -->
-    <div class="demo-section full-width">
-      <h2>Input Textarea (Text llarg)</h2>
-      <pelu-input-textarea
-        [config]="{
-          label: 'Descripció',
-          placeholder: 'Introdueix una descripció detallada...',
-          rows: 4,
-          showLabel: true
-        }"
-        [value]="formData().description"
-        (valueChange)="updateField('description', $event)">
-      </pelu-input-textarea>
-    </div>
-
-    <!-- Input Textarea amb auto-resize -->
-    <div class="demo-section full-width">
-      <h2>Input Textarea amb Auto-resize</h2>
-      <pelu-input-textarea
-        [config]="{
-          label: 'Notes',
-          placeholder: 'Aquest textarea es redimensiona automàticament...',
-          rows: 2,
-          autoResize: true,
-          showLabel: true
-        }"
-        [value]="formData().notes"
-        (valueChange)="updateField('notes', $event)">
-      </pelu-input-textarea>
     </div>
 
     <!-- Input Checkbox -->
     <div class="demo-section">
       <h2>Input Checkbox</h2>
       <pelu-input-checkbox
-        [config]="{
-          label: 'Accepto els termes i condicions',
-          required: true,
-          showLabel: true
-        }"
+        label="Accepto els termes i condicions"
         [value]="formData().terms"
-        (valueChange)="updateField('terms', $event)">
+        (valueChange)="updateField('terms', $event)"
+      >
       </pelu-input-checkbox>
     </div>
-  </div>
+
+    <!-- Input Select -->
+    <div class="demo-section">
+      <h2>Input Select</h2>
+      <pelu-input-select
+        [label]="'Categoria'"
+        [placeholder]="'Selecciona una categoria'"
+        [options]="categoryOptions"
+        [value]="formData().category"
+        (valueChange)="updateField('category', $event)"
+      >
+      </pelu-input-select>
+    </div>
+
+    <!-- Input Select with Templates -->
+    <div class="demo-section">
+      <h2>Input Select amb Plantilles - Selecció de Serveis</h2>
+      <pelu-input-select
+        [label]="'Selecciona un Servei'"
+        [placeholder]="'Cerca i selecciona un servei...'"
+        [options]="serviceOptions"
+        [value]="formData().service"
+        (valueChange)="updateField('service', $event)"
+        [filter]="true"
+        [showClear]="true"
+        [filterPlaceholder]="'Cerca serveis...'"
+      >
+        <!-- Template per l'element seleccionat -->
+        <ng-template #selectedItem let-selectedOption>
+          <div class="flex items-center gap-3" *ngIf="selectedOption">
+            <!-- Icona del servei amb color de fons -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg shadow-md"
+                 [style.background-color]="selectedOption.color">
+              <i [class]="selectedOption.icon" class="text-white"></i>
+            </div>
+
+            <!-- Informació del servei -->
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-gray-900 truncate">{{ selectedOption.label }}</div>
+              <div class="text-sm text-gray-500">{{ selectedOption.category }}</div>
+            </div>
+
+            <!-- Preu i durada -->
+            <div class="text-right">
+              <div class="font-bold text-lg text-green-600">{{ selectedOption.price }}€</div>
+              <div class="text-xs text-gray-500">{{ selectedOption.duration }}min</div>
+            </div>
+
+            <!-- Badge popular si és popular -->
+            @if (selectedOption.popular) {
+              <div class="ml-2">
+                <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-medium">
+                  Popular
+                </span>
+              </div>
+            }
+          </div>
+        </ng-template>
+
+        <!-- Template per les opcions del dropdown -->
+        <ng-template #item let-service>
+          <div class="flex items-center justify-between w-full p-4 hover:bg-gray-50 rounded-lg transition-colors">
+            <!-- Secció esquerra: Icona i informació -->
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+              <!-- Icona del servei -->
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl shadow-md flex-shrink-0"
+                   [style.background-color]="service.color">
+                <i [class]="service.icon" class="text-white"></i>
+              </div>
+
+              <!-- Informació del servei -->
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-gray-900 mb-1">{{ service.label }}</div>
+                <div class="text-sm text-gray-600 mb-1">{{ service.description }}</div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-full">
+                    {{ service.category }}
+                  </span>
+                  @if (service.available) {
+                    <span class="text-xs text-green-600 font-medium">
+                      <i class="pi pi-check-circle mr-1"></i>Disponible
+                    </span>
+                  } @else {
+                    <span class="text-xs text-red-600 font-medium">
+                      <i class="pi pi-times-circle mr-1"></i>No disponible
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Secció dreta: Preu, durada i badges -->
+            <div class="text-right ml-4">
+              <!-- Preu -->
+              <div class="font-bold text-xl text-green-600 mb-1">{{ service.price }}€</div>
+
+              <!-- Durada -->
+              <div class="text-sm text-gray-500 mb-2">{{ service.duration }} minuts</div>
+
+              <!-- Badges -->
+              <div class="flex flex-col gap-1">
+                @if (service.popular) {
+                  <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-medium">
+                    <i class="pi pi-star mr-1"></i>Popular
+                  </span>
+                }
+                @if (service.new) {
+                  <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                    <i class="pi pi-plus mr-1"></i>Nou
+                  </span>
+                }
+                @if (service.discount) {
+                  <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-medium">
+                    <i class="pi pi-percentage mr-1"></i>-{{ service.discount }}%
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Template per l'encapçalament -->
+        <ng-template #header>
+          <div class="p-4 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border-b border-blue-200">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="font-bold text-gray-900 text-lg">Serveis Disponibles</h4>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-600">{{ serviceOptions.length }} serveis</span>
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              </div>
+            </div>
+            <p class="text-sm text-gray-700 mb-3">Selecciona el servei que millor s'adapti a les teves necessitats</p>
+
+            <!-- Estadístiques ràpides -->
+            <div class="flex items-center gap-4 text-xs">
+              <div class="flex items-center gap-1">
+                <i class="pi pi-star text-yellow-500"></i>
+                <span class="text-gray-600">{{ popularServicesCount() }} populars</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="pi pi-clock text-blue-500"></i>
+                <span class="text-gray-600">Durada mitjana: {{ averageDuration() }}min</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="pi pi-euro text-green-500"></i>
+                <span class="text-gray-600">Preu mitjà: {{ averagePrice() }}€</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Template per el peu -->
+        <ng-template #footer>
+          <div class="p-3 bg-gray-50 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <!-- Informació addicional -->
+              <div class="flex items-center gap-4 text-xs text-gray-500">
+                <div class="flex items-center gap-1">
+                  <i class="pi pi-info-circle"></i>
+                  <span>Preus amb IVA inclòs</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <i class="pi pi-clock"></i>
+                  <span>Reserves amb 24h d'antelació</span>
+                </div>
+              </div>
+
+              <!-- Accions -->
+              <div class="flex items-center gap-2">
+                <button type="button"
+                        class="text-xs text-blue-600 hover:text-blue-800 font-medium px-3 py-1 rounded hover:bg-blue-50 transition-colors">
+                  <i class="pi pi-eye mr-1"></i>
+                  Veure tots
+                </button>
+                <button type="button"
+                        class="text-xs text-green-600 hover:text-green-800 font-medium px-3 py-1 rounded hover:bg-green-50 transition-colors">
+                  <i class="pi pi-calendar mr-1"></i>
+                  Reservar ara
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Template per missatge buit -->
+        <ng-template #emptyMessage>
+          <div class="p-8 text-center text-gray-500">
+            <!-- Icona il·lustrativa -->
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <i class="pi pi-search text-3xl text-gray-400"></i>
+            </div>
+
+            <!-- Missatge principal -->
+            <h4 class="font-semibold text-gray-700 mb-2">No s'han trobat serveis</h4>
+            <p class="text-sm text-gray-500 mb-4">Prova amb altres paraules clau o filtra per categoria</p>
+
+            <!-- Suggeriments -->
+            <div class="text-xs text-gray-400 space-y-1">
+              <p>Suggeriments: "tall", "coloració", "tractament", "barba"</p>
+              <p>O contacta amb nosaltres per serveis personalitzats</p>
+            </div>
+
+            <!-- Botó d'ajuda -->
+            <button type="button"
+                    class="mt-4 text-xs text-blue-600 hover:text-blue-800 font-medium px-4 py-2 rounded border border-blue-200 hover:bg-blue-50 transition-colors">
+              <i class="pi pi-question-circle mr-1"></i>
+              Necessites ajuda?
+            </button>
+          </div>
+        </ng-template>
+      </pelu-input-select>
+    </div>
+
+    <!-- Input Textarea -->
+    <div class="demo-section">
+      <h2>Input Textarea</h2>
+      <pelu-input-textarea
+        label="Notes"
+        placeholder="Introdueix notes addicionals..."
+        [rows]="4"
+        [autoResize]="true"
+        [value]="formData().notes"
+        (valueChange)="updateField('notes', $event)"
+      >
+      </pelu-input-textarea>
+    </div>
+
+    <!-- Input Textarea with different sizes -->
+    <div class="demo-section">
+      <h2>Input Textarea - Diferents mides</h2>
+      <pelu-input-textarea
+        label="Descripció curta"
+        placeholder="Descripció curta..."
+        [rows]="2"
+        [size]="'small'"
+        [autoResize]="false"
+        [resize]="'none'"
+      >
+      </pelu-input-textarea>
+
+      <pelu-input-textarea
+        label="Descripció llarga"
+        placeholder="Descripció llarga..."
+        [rows]="6"
+        [size]="'large'"
+        [autoResize]="true"
+        [resize]="'both'"
+      >
+      </pelu-input-textarea>
+    </div>
+
+         <!-- Input Textarea with variants -->
+     <div class="demo-section">
+       <h2>Input Textarea - Variants</h2>
+       <pelu-input-textarea
+         label="Textarea Outlined (per defecte)"
+         placeholder="Estil outlined..."
+         [rows]="3"
+         [variant]="'outlined'"
+       >
+       </pelu-input-textarea>
+
+       <pelu-input-textarea
+         label="Textarea Filled"
+         placeholder="Estil filled..."
+         [rows]="3"
+         [variant]="'filled'"
+       >
+       </pelu-input-textarea>
+     </div>
+
+     <!-- Input Toggle Switch -->
+     <div class="demo-section">
+       <h2>Input Toggle Switch</h2>
+       <pelu-input-toggleswitch
+         label="Marcar com a favorit"
+         [value]="formData().favorite"
+         (valueChange)="updateField('favorite', $event)"
+         helpText="Aquest servei apareixerà destacat a la llista"
+       >
+       </pelu-input-toggleswitch>
+     </div>
+
+     <!-- Input Date - Calendar -->
+     <div class="demo-section">
+       <h2>Input Date - Calendar (Sense restriccions)</h2>
+       <pelu-input-date
+         label="Data de naixement"
+         dateFormat="dd/mm/yy"
+         [showIcon]="true"
+         [value]="formData().birthDate"
+         (valueChange)="updateField('birthDate', $event)"
+       >
+       </pelu-input-date>
+     </div>
+
+     <!-- Input Date - Calendar with Past Months Prevention -->
+     <div class="demo-section">
+       <h2>Input Date - Calendar (Impedeix mesos anteriors)</h2>
+       <pelu-input-date
+         label="Data de cita"
+         dateFormat="dd/mm/yy"
+         [showIcon]="true"
+         [preventPastMonths]="true"
+         [value]="formData().appointmentDate"
+         (valueChange)="updateField('appointmentDate', $event)"
+       >
+       </pelu-input-date>
+     </div>
+
+     <!-- Input Date - Time Only -->
+     <div class="demo-section">
+       <h2>Input Date - Time Only</h2>
+       <pelu-input-date
+         label="Hora de la cita"
+         [timeOnly]="true"
+         hourFormat="24"
+         [showIcon]="true"
+         [value]="formData().appointmentTime"
+         (valueChange)="updateField('appointmentTime', $event)"
+       >
+       </pelu-input-date>
+     </div>
+
+     <!-- Input Date - Inline Calendar -->
+     <div class="demo-section">
+       <h2>Input Date - Calendari Inline</h2>
+       <p class="demo-description">Calendari que es mostra sempre visible, sense popup</p>
+       <pelu-input-date
+         label="Selecciona una data"
+         dateFormat="dd/mm/yy"
+         [inline]="true"
+         [showIcon]="false"
+         [value]="formData().inlineDate"
+         (valueChange)="updateField('inlineDate', $event)"
+       >
+       </pelu-input-date>
+     </div>
+   </div>
 
   <!-- Form Data Display -->
-  <div class="form-data-display">
+  <div class="demo-data">
     <h3>Dades del formulari:</h3>
     <pre>{{ formData() | json }}</pre>
   </div>

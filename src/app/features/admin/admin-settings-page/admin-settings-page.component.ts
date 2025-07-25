@@ -1,6 +1,6 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -8,44 +8,37 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { BusinessSettingsService, BusinessSettings } from '../../../core/services/business-settings.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 
-
-
 @Component({
   selector: 'app-admin-settings-page',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
     ButtonModule,
-    CardComponent,
     InputTextModule,
     InputNumberModule,
     SelectModule,
     CheckboxModule,
     ProgressSpinnerModule,
-
     InputTextComponent,
     InputNumberComponent,
     InputCheckboxComponent,
-    InputSelectComponent
+    InputSelectComponent,
   ],
-
   templateUrl: './admin-settings-page.component.html',
-  styleUrls: ['./admin-settings-page.component.scss']
+  styleUrls: ['./admin-settings-page.component.scss'],
 })
-export class AdminSettingsPageComponent {
+export class AdminSettingsPageComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
 
@@ -75,27 +68,27 @@ export class AdminSettingsPageComponent {
     { label: 'Dijous', value: 4 },
     { label: 'Divendres', value: 5 },
     { label: 'Dissabte', value: 6 },
-    { label: 'Diumenge', value: 0 }
+    { label: 'Diumenge', value: 0 },
   ];
 
   backupFrequencyOptions = [
     { label: 'Diari', value: 'daily' },
     { label: 'Setmanal', value: 'weekly' },
-    { label: 'Mensual', value: 'monthly' }
+    { label: 'Mensual', value: 'monthly' },
   ];
 
   languageOptions = [
     { label: 'Català', value: 'ca' },
     { label: 'Español', value: 'es' },
     { label: 'English', value: 'en' },
-    { label: 'العربية', value: 'ar' }
+    { label: 'العربية', value: 'ar' },
   ];
 
   timezoneOptions = [
     { label: 'Madrid (UTC+1)', value: 'Europe/Madrid' },
     { label: 'Barcelona (UTC+1)', value: 'Europe/Madrid' },
     { label: 'Londres (UTC+0)', value: 'Europe/London' },
-    { label: 'Nova York (UTC-5)', value: 'America/New_York' }
+    { label: 'Nova York (UTC-5)', value: 'America/New_York' },
   ];
 
   get currencyOptions() {
@@ -137,7 +130,7 @@ export class AdminSettingsPageComponent {
       sendNotifications: [currentSettings.sendNotifications],
       maintenanceMode: [currentSettings.maintenanceMode],
       defaultLanguage: [currentSettings.language],
-      currency: [currentSettings.currency]
+      currency: [currentSettings.currency],
     });
   }
 
@@ -157,7 +150,10 @@ export class AdminSettingsPageComponent {
         const formValue = this.settingsForm.value;
 
         // Update currency if changed
-        if (formValue.currency && formValue.currency !== this.currencyService.getCurrentCurrency()) {
+        if (
+          formValue.currency &&
+          formValue.currency !== this.currencyService.getCurrentCurrency()
+        ) {
           this.currencyService.setCurrentCurrency(formValue.currency);
         }
 
@@ -170,7 +166,7 @@ export class AdminSettingsPageComponent {
           sendNotifications: formValue.sendNotifications,
           maintenanceMode: formValue.maintenanceMode,
           language: formValue.defaultLanguage,
-          currency: formValue.currency
+          currency: formValue.currency,
         });
 
         this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
@@ -188,12 +184,15 @@ export class AdminSettingsPageComponent {
 
   resetToDefaults() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.businessSettingsService.resetToDefaults().then(() => {
-        this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
-      }).catch(error => {
-        console.error('Error resetting to defaults:', error);
-        this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
-      });
+      this.businessSettingsService
+        .resetToDefaults()
+        .then(() => {
+          this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
+        })
+        .catch(error => {
+          console.error('Error resetting to defaults:', error);
+          this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
+        });
     }
   }
 
@@ -206,7 +205,7 @@ export class AdminSettingsPageComponent {
         autoConfirm: false,
         sendNotifications: true,
         maintenanceMode: false,
-        defaultLanguage: 'ca'
+        defaultLanguage: 'ca',
       });
     }
   }
@@ -214,16 +213,18 @@ export class AdminSettingsPageComponent {
   toggleMaintenanceMode() {
     const currentSettings = this.settings();
     this.businessSettingsService.saveSettings({
-      maintenanceMode: !currentSettings.maintenanceMode
+      maintenanceMode: !currentSettings.maintenanceMode,
     });
   }
 
   getWorkingDaysLabels(): string {
     const workingDays = this.settings().workingDays;
-    return workingDays.map(day => {
-      const option = this.workingDaysOptions.find(opt => opt.value === day);
-      return option ? option.label : day.toString();
-    }).join(', ');
+    return workingDays
+      .map(day => {
+        const option = this.workingDaysOptions.find(opt => opt.value === day);
+        return option ? option.label : day.toString();
+      })
+      .join(', ');
   }
 
   formatTime(hour: number): string {

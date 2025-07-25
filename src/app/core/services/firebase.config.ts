@@ -12,7 +12,7 @@ export const auth = getAuth(app);
 // Initialize Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: 'select_account',
 });
 
 // Initialize Firebase Firestore

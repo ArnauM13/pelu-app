@@ -55,12 +55,17 @@ describe('BookingMobilePageComponent', () => {
       'refreshBookings',
       'silentRefreshBookings',
       'getBookingsWithCache',
-      'clearCache'
+      'clearCache',
     ]);
     const roleSpy = jasmine.createSpyObj('RoleService', ['isAdmin']);
-    const toastSpy = jasmine.createSpyObj('ToastService', ['showAppointmentCreated', 'showLoginRequired']);
+    const toastSpy = jasmine.createSpyObj('ToastService', [
+      'showAppointmentCreated',
+      'showLoginRequired',
+    ]);
     const serviceColorsSpy = jasmine.createSpyObj('ServiceColorsService', ['getServiceColor']);
-    const serviceTranslationSpy = jasmine.createSpyObj('ServiceTranslationService', ['getServiceName']);
+    const serviceTranslationSpy = jasmine.createSpyObj('ServiceTranslationService', [
+      'getServiceName',
+    ]);
     const responsiveSpy = jasmine.createSpyObj('ResponsiveService', ['isMobile']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -68,8 +73,8 @@ describe('BookingMobilePageComponent', () => {
       imports: [
         BookingMobilePageComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: AuthService, useValue: authSpy },
@@ -80,20 +85,26 @@ describe('BookingMobilePageComponent', () => {
         { provide: ServiceColorsService, useValue: serviceColorsSpy },
         { provide: ServiceTranslationService, useValue: serviceTranslationSpy },
         { provide: ResponsiveService, useValue: responsiveSpy },
-        { provide: Router, useValue: routerSpy }
+        { provide: Router, useValue: routerSpy },
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BookingMobilePageComponent);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    firebaseServicesService = TestBed.inject(FirebaseServicesService) as jasmine.SpyObj<FirebaseServicesService>;
+    firebaseServicesService = TestBed.inject(
+      FirebaseServicesService
+    ) as jasmine.SpyObj<FirebaseServicesService>;
     bookingService = TestBed.inject(BookingService) as jasmine.SpyObj<BookingService>;
     roleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
-    serviceColorsService = TestBed.inject(ServiceColorsService) as jasmine.SpyObj<ServiceColorsService>;
-    serviceTranslationService = TestBed.inject(ServiceTranslationService) as jasmine.SpyObj<ServiceTranslationService>;
+    serviceColorsService = TestBed.inject(
+      ServiceColorsService
+    ) as jasmine.SpyObj<ServiceColorsService>;
+    serviceTranslationService = TestBed.inject(
+      ServiceTranslationService
+    ) as jasmine.SpyObj<ServiceTranslationService>;
     responsiveService = TestBed.inject(ResponsiveService) as jasmine.SpyObj<ResponsiveService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
@@ -116,7 +127,7 @@ describe('BookingMobilePageComponent', () => {
       displayName: null,
       phoneNumber: null,
       photoURL: null,
-      providerId: 'password'
+      providerId: 'password',
     });
     firebaseServicesService.activeServices.and.returnValue([]);
     roleService.isAdmin.and.returnValue(false);
@@ -324,7 +335,7 @@ describe('BookingMobilePageComponent', () => {
         date: '2024-01-01',
         time: '10:00',
         clientName: 'Test User',
-        email: 'test@example.com'
+        email: 'test@example.com',
       };
 
       expect(() => component.onBookingConfirmed(bookingDetails)).not.toThrow();
@@ -342,7 +353,7 @@ describe('BookingMobilePageComponent', () => {
         date: '2024-01-01',
         time: '10:00',
         clientName: 'Test User',
-        email: 'test@example.com'
+        email: 'test@example.com',
       };
 
       component.onBookingConfirmed(bookingDetails);

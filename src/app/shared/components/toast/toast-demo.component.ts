@@ -15,29 +15,12 @@ import { ToastService } from '../../services/toast.service';
         <div class="demo-section">
           <h3>Mètodes bàsics</h3>
           <div class="button-group">
-            <p-button
-              label="Success"
-              severity="success"
-              (onClick)="showSuccess()"
-              size="small">
+            <p-button label="Success" severity="success" (onClick)="showSuccess()" size="small">
             </p-button>
-            <p-button
-              label="Error"
-              severity="danger"
-              (onClick)="showError()"
-              size="small">
+            <p-button label="Error" severity="danger" (onClick)="showError()" size="small">
             </p-button>
-            <p-button
-              label="Info"
-              severity="info"
-              (onClick)="showInfo()"
-              size="small">
-            </p-button>
-            <p-button
-              label="Warning"
-              severity="warn"
-              (onClick)="showWarning()"
-              size="small">
+            <p-button label="Info" severity="info" (onClick)="showInfo()" size="small"> </p-button>
+            <p-button label="Warning" severity="warn" (onClick)="showWarning()" size="small">
             </p-button>
           </div>
         </div>
@@ -49,25 +32,29 @@ import { ToastService } from '../../services/toast.service';
               label="Reserva creada"
               severity="success"
               (onClick)="showReservationCreated()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Cita eliminada"
               severity="success"
               (onClick)="showAppointmentDeleted()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Cita actualitzada"
               severity="success"
               (onClick)="showAppointmentUpdated()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Error validació"
               severity="danger"
               (onClick)="showValidationError()"
-              size="small">
+              size="small"
+            >
             </p-button>
           </div>
         </div>
@@ -79,25 +66,29 @@ import { ToastService } from '../../services/toast.service';
               label="Èxit genèric"
               severity="success"
               (onClick)="showGenericSuccess()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Error genèric"
               severity="danger"
               (onClick)="showGenericError()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Info genèric"
               severity="info"
               (onClick)="showGenericInfo()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Warning genèric"
               severity="warn"
               (onClick)="showGenericWarning()"
-              size="small">
+              size="small"
+            >
             </p-button>
           </div>
         </div>
@@ -109,19 +100,22 @@ import { ToastService } from '../../services/toast.service';
               label="Error xarxa"
               severity="danger"
               (onClick)="showNetworkError()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="No autoritzat"
               severity="danger"
               (onClick)="showUnauthorizedError()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Sessió requerida"
               severity="warn"
               (onClick)="showLoginRequired()"
-              size="small">
+              size="small"
+            >
             </p-button>
           </div>
         </div>
@@ -133,59 +127,63 @@ import { ToastService } from '../../services/toast.service';
               label="Toast amb acció"
               severity="info"
               (onClick)="showToastWithAction()"
-              size="small">
+              size="small"
+            >
             </p-button>
             <p-button
               label="Netejar toasts"
               severity="secondary"
               (onClick)="clearToasts()"
-              size="small">
+              size="small"
+            >
             </p-button>
           </div>
         </div>
       </p-card>
     </div>
   `,
-  styles: [`
-    .toast-demo {
-      padding: 1rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
+  styles: [
+    `
+      .toast-demo {
+        padding: 1rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-    .demo-section {
-      margin-bottom: 2rem;
-    }
+      .demo-section {
+        margin-bottom: 2rem;
+      }
 
-    .demo-section h3 {
-      margin-bottom: 1rem;
-      color: #374151;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
+      .demo-section h3 {
+        margin-bottom: 1rem;
+        color: #374151;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
 
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .button-group p-button {
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    @media (max-width: 768px) {
       .button-group {
-        flex-direction: column;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
       .button-group p-button {
-        width: 100%;
-        margin-right: 0;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
       }
-    }
-  `]
+
+      @media (max-width: 768px) {
+        .button-group {
+          flex-direction: column;
+        }
+
+        .button-group p-button {
+          width: 100%;
+          margin-right: 0;
+        }
+      }
+    `,
+  ],
 })
 export class ToastDemoComponent {
   private readonly toastService = inject(ToastService);
@@ -200,7 +198,7 @@ export class ToastDemoComponent {
   }
 
   showInfo() {
-    this.toastService.showInfo('Informació important per l\'usuari');
+    this.toastService.showInfo("Informació important per l'usuari");
   }
 
   showWarning() {
@@ -234,7 +232,7 @@ export class ToastDemoComponent {
   }
 
   showGenericInfo() {
-    this.toastService.showGenericInfo('Informació important per l\'usuari');
+    this.toastService.showGenericInfo("Informació important per l'usuari");
   }
 
   showGenericWarning() {
@@ -259,7 +257,7 @@ export class ToastDemoComponent {
     this.toastService.showToastWithAction(
       'success',
       'Acció completada',
-      'La teva acció s\'ha realitzat correctament. Clica per veure més detalls.',
+      "La teva acció s'ha realitzat correctament. Clica per veure més detalls.",
       () => {
         console.log('Acció personalitzada executada!');
         alert('Acció personalitzada executada!');

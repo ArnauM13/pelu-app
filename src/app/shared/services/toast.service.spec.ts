@@ -19,10 +19,20 @@ describe('ToastService', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['user']);
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant', 'get', 'use', 'setDefaultLang', 'addLangs', 'getLangs'
+      'instant',
+      'get',
+      'use',
+      'setDefaultLang',
+      'addLangs',
+      'getLangs',
     ]);
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
-      'log', 'error', 'warn', 'info', 'debug', 'firebaseError'
+      'log',
+      'error',
+      'warn',
+      'info',
+      'debug',
+      'firebaseError',
     ]);
 
     // Setup default spy returns
@@ -36,8 +46,8 @@ describe('ToastService', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
         { provide: TranslateStore, useValue: {} },
-        { provide: LoggerService, useValue: loggerServiceSpy }
-      ]
+        { provide: LoggerService, useValue: loggerServiceSpy },
+      ],
     });
 
     service = TestBed.inject(ToastService);
@@ -70,7 +80,7 @@ describe('ToastService', () => {
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId, showViewButton, action }
+        data: { appointmentId, showViewButton, action },
       });
     });
 
@@ -87,7 +97,7 @@ describe('ToastService', () => {
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId: undefined, showViewButton: false, action: undefined }
+        data: { appointmentId: undefined, showViewButton: false, action: undefined },
       });
     });
   });
@@ -102,7 +112,13 @@ describe('ToastService', () => {
 
       service.showSuccess(summary, detail, appointmentId, showViewButton);
 
-      expect(service.showToast).toHaveBeenCalledWith('success', summary, detail, appointmentId, showViewButton);
+      expect(service.showToast).toHaveBeenCalledWith(
+        'success',
+        summary,
+        detail,
+        appointmentId,
+        showViewButton
+      );
     });
   });
 
@@ -149,7 +165,12 @@ describe('ToastService', () => {
 
       service.showReservationCreated(appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.RESERVATION_CREATED', '', appointmentId, true);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.RESERVATION_CREATED',
+        '',
+        appointmentId,
+        true
+      );
     });
   });
 
@@ -160,7 +181,12 @@ describe('ToastService', () => {
 
       service.showAppointmentDeleted(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.TOAST.APPOINTMENT_DELETED', 'COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE', undefined, false);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.TOAST.APPOINTMENT_DELETED',
+        'COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE',
+        undefined,
+        false
+      );
     });
   });
 
@@ -171,7 +197,12 @@ describe('ToastService', () => {
 
       service.showAppointmentUpdated(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.TOAST.APPOINTMENT_UPDATED', 'COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE', undefined, false);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.TOAST.APPOINTMENT_UPDATED',
+        'COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE',
+        undefined,
+        false
+      );
     });
   });
 
@@ -183,7 +214,12 @@ describe('ToastService', () => {
 
       service.showAppointmentCreated(appointmentName, appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.TOAST.APPOINTMENT_CREATED', 'COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE', appointmentId, true);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.TOAST.APPOINTMENT_CREATED',
+        'COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE',
+        appointmentId,
+        true
+      );
     });
   });
 
@@ -194,7 +230,10 @@ describe('ToastService', () => {
 
       service.showValidationError(field);
 
-      expect(service.showError).toHaveBeenCalledWith('COMMON.ERRORS.VALIDATION_ERROR', 'COMMON.TOAST.VALIDATION_ERROR_MESSAGE');
+      expect(service.showError).toHaveBeenCalledWith(
+        'COMMON.ERRORS.VALIDATION_ERROR',
+        'COMMON.TOAST.VALIDATION_ERROR_MESSAGE'
+      );
     });
   });
 
@@ -204,7 +243,10 @@ describe('ToastService', () => {
 
       service.showNetworkError();
 
-      expect(service.showError).toHaveBeenCalledWith('COMMON.ERRORS.NETWORK_ERROR', 'COMMON.TOAST.NETWORK_ERROR_MESSAGE');
+      expect(service.showError).toHaveBeenCalledWith(
+        'COMMON.ERRORS.NETWORK_ERROR',
+        'COMMON.TOAST.NETWORK_ERROR_MESSAGE'
+      );
     });
   });
 
@@ -214,7 +256,10 @@ describe('ToastService', () => {
 
       service.showUnauthorizedError();
 
-      expect(service.showError).toHaveBeenCalledWith('COMMON.ERRORS.PERMISSION_ERROR', 'No tens permisos per realitzar aquesta acció.');
+      expect(service.showError).toHaveBeenCalledWith(
+        'COMMON.ERRORS.PERMISSION_ERROR',
+        'No tens permisos per realitzar aquesta acció.'
+      );
     });
   });
 
@@ -224,7 +269,10 @@ describe('ToastService', () => {
 
       service.showLoginRequired();
 
-      expect(service.showWarning).toHaveBeenCalledWith('AUTH.SESSION_REQUIRED', 'COMMON.TOAST.LOGIN_REQUIRED_MESSAGE');
+      expect(service.showWarning).toHaveBeenCalledWith(
+        'AUTH.SESSION_REQUIRED',
+        'COMMON.TOAST.LOGIN_REQUIRED_MESSAGE'
+      );
     });
   });
 
@@ -293,8 +341,8 @@ describe('ToastService', () => {
       const action = jasmine.createSpy('action');
       const event = {
         message: {
-          data: { action }
-        }
+          data: { action },
+        },
       };
 
       service.onToastClick(event);
@@ -307,8 +355,8 @@ describe('ToastService', () => {
       const appointmentId = 'test-id';
       const event = {
         message: {
-          data: { appointmentId }
-        }
+          data: { appointmentId },
+        },
       };
 
       service.onToastClick(event);
@@ -320,8 +368,8 @@ describe('ToastService', () => {
       spyOn(service, 'viewAppointmentDetail');
       const event = {
         message: {
-          data: {}
-        }
+          data: {},
+        },
       };
 
       service.onToastClick(event);
@@ -372,7 +420,14 @@ describe('ToastService', () => {
 
       service.showToastWithAction(severity, summary, detail, action, actionLabel);
 
-      expect(service.showToast).toHaveBeenCalledWith(severity, summary, detail, undefined, false, action);
+      expect(service.showToast).toHaveBeenCalledWith(
+        severity,
+        summary,
+        detail,
+        undefined,
+        false,
+        action
+      );
     });
   });
 });

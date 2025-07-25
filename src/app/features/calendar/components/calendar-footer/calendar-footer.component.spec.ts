@@ -6,7 +6,7 @@ import { CalendarFooterComponent, CalendarFooterAlert } from './calendar-footer.
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {
     return of({
-      'CALENDAR.FOOTER.INFO_NOTE': 'Mocked info note'
+      'CALENDAR.FOOTER.INFO_NOTE': 'Mocked info note',
     });
   }
 }
@@ -20,9 +20,9 @@ describe('CalendarFooterComponent', () => {
       imports: [
         CalendarFooterComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ]
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CalendarFooterComponent);

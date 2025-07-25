@@ -14,7 +14,6 @@ export interface AlertData {
 
 @Component({
   selector: 'pelu-alert-popup',
-  standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
     @if (isOpen()) {
@@ -36,16 +35,11 @@ export interface AlertData {
 
           <div class="popup-footer">
             @if (data()?.showCancel !== false) {
-              <button
-                class="btn btn-secondary"
-                (click)="onCancel()">
+              <button class="btn btn-secondary" (click)="onCancel()">
                 {{ getCancelText() }}
               </button>
             }
-            <button
-              class="btn"
-              [class]="getConfirmButtonClass()"
-              (click)="onConfirm()">
+            <button class="btn" [class]="getConfirmButtonClass()" (click)="onConfirm()">
               {{ getConfirmText() }}
             </button>
           </div>
@@ -53,7 +47,7 @@ export interface AlertData {
       </div>
     }
   `,
-  styleUrls: ['./alert-popup.component.scss']
+  styleUrls: ['./alert-popup.component.scss'],
 })
 export class AlertPopupComponent {
   // Input signals
@@ -121,7 +115,7 @@ export class AlertPopupComponent {
     }
   }
 
-    getConfirmText(): string {
+  getConfirmText(): string {
     const confirmText = this.data()?.confirmText;
     if (confirmText) return confirmText;
 

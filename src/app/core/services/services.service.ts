@@ -19,7 +19,15 @@ export interface Service {
   description: string;
   price: number;
   duration: number; // in minutes
-  category: 'haircut' | 'beard' | 'treatment' | 'styling' | 'coloring' | 'special' | 'kids' | 'default';
+  category:
+    | 'haircut'
+    | 'beard'
+    | 'treatment'
+    | 'styling'
+    | 'coloring'
+    | 'special'
+    | 'kids'
+    | 'default';
   icon: string;
   popular?: boolean;
 }
@@ -31,7 +39,7 @@ export interface ServiceCategory {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ServicesService {
   // Inject services
@@ -46,7 +54,7 @@ export class ServicesService {
       color: 'var(--service-haircut-color)',
       backgroundColor: 'var(--service-haircut-bg)',
       borderColor: 'var(--service-haircut-color)',
-      textColor: 'var(--service-haircut-text)'
+      textColor: 'var(--service-haircut-text)',
     },
     {
       id: 'styling',
@@ -54,7 +62,7 @@ export class ServicesService {
       color: 'var(--service-styling-color)',
       backgroundColor: 'var(--service-styling-bg)',
       borderColor: 'var(--service-styling-color)',
-      textColor: 'var(--service-styling-text)'
+      textColor: 'var(--service-styling-text)',
     },
     {
       id: 'treatment',
@@ -62,7 +70,7 @@ export class ServicesService {
       color: 'var(--service-treatment-color)',
       backgroundColor: 'var(--service-treatment-bg)',
       borderColor: 'var(--service-treatment-color)',
-      textColor: 'var(--service-treatment-text)'
+      textColor: 'var(--service-treatment-text)',
     },
     {
       id: 'coloring',
@@ -70,7 +78,7 @@ export class ServicesService {
       color: 'var(--service-coloring-color)',
       backgroundColor: 'var(--service-coloring-bg)',
       borderColor: 'var(--service-coloring-color)',
-      textColor: 'var(--service-coloring-text)'
+      textColor: 'var(--service-coloring-text)',
     },
     {
       id: 'special',
@@ -78,7 +86,7 @@ export class ServicesService {
       color: 'var(--service-special-color)',
       backgroundColor: 'var(--service-special-bg)',
       borderColor: 'var(--service-special-color)',
-      textColor: 'var(--service-special-text)'
+      textColor: 'var(--service-special-text)',
     },
     {
       id: 'kids',
@@ -86,7 +94,7 @@ export class ServicesService {
       color: 'var(--service-kids-color)',
       backgroundColor: 'var(--service-kids-bg)',
       borderColor: 'var(--service-kids-color)',
-      textColor: 'var(--service-kids-text)'
+      textColor: 'var(--service-kids-text)',
     },
     {
       id: 'default',
@@ -94,8 +102,8 @@ export class ServicesService {
       color: 'var(--service-default-color)',
       backgroundColor: 'var(--service-default-bg)',
       borderColor: 'var(--service-default-color)',
-      textColor: 'var(--service-default-text)'
-    }
+      textColor: 'var(--service-default-text)',
+    },
   ];
 
   private readonly serviceColorMap = new Map<string, ServiceColor>();
@@ -172,7 +180,7 @@ export class ServicesService {
     ['completa', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
     ['complete', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
     ['prova', 'SERVICES.NAMES.TEST_SERVICE'],
-    ['test', 'SERVICES.NAMES.TEST_SERVICE']
+    ['test', 'SERVICES.NAMES.TEST_SERVICE'],
   ]);
 
   // Service categories configuration - single source of truth
@@ -184,7 +192,7 @@ export class ServicesService {
     { id: 'coloring', name: 'SERVICES.CATEGORIES.COLORING', icon: '🎨' },
     { id: 'special', name: 'SERVICES.CATEGORIES.SPECIAL', icon: '⭐' },
     { id: 'kids', name: 'SERVICES.CATEGORIES.KIDS', icon: '👶' },
-    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' }
+    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' },
   ];
 
   // All services - single source of truth
@@ -197,7 +205,7 @@ export class ServicesService {
       duration: 30,
       category: 'haircut',
       icon: '✂️',
-      popular: true
+      popular: true,
     },
     {
       id: '2',
@@ -207,7 +215,7 @@ export class ServicesService {
       duration: 45,
       category: 'haircut',
       icon: '✂️',
-      popular: true
+      popular: true,
     },
     {
       id: '3',
@@ -216,7 +224,7 @@ export class ServicesService {
       price: 15,
       duration: 20,
       category: 'beard',
-      icon: '🧔'
+      icon: '🧔',
     },
     {
       id: '4',
@@ -225,7 +233,7 @@ export class ServicesService {
       price: 12,
       duration: 15,
       category: 'beard',
-      icon: '🧔'
+      icon: '🧔',
     },
     {
       id: '5',
@@ -234,7 +242,7 @@ export class ServicesService {
       price: 18,
       duration: 25,
       category: 'treatment',
-      icon: '💆'
+      icon: '💆',
     },
     {
       id: '6',
@@ -244,7 +252,7 @@ export class ServicesService {
       duration: 60,
       category: 'treatment',
       icon: '💆',
-      popular: true
+      popular: true,
     },
     {
       id: '7',
@@ -254,7 +262,7 @@ export class ServicesService {
       duration: 40,
       category: 'styling',
       icon: '💇',
-      popular: true
+      popular: true,
     },
     {
       id: '8',
@@ -263,8 +271,8 @@ export class ServicesService {
       price: 18,
       duration: 25,
       category: 'haircut',
-      icon: '✂️'
-    }
+      icon: '✂️',
+    },
   ];
 
   constructor() {
@@ -297,7 +305,7 @@ export class ServicesService {
 
     return {
       ...service,
-      name: this.getServiceName(service)
+      name: this.getServiceName(service),
     };
   }
 
@@ -405,7 +413,7 @@ export class ServicesService {
   getServicesWithTranslatedNames(): Service[] {
     return this.allServices.map(service => ({
       ...service,
-      name: this.getServiceName(service)
+      name: this.getServiceName(service),
     }));
   }
 
@@ -418,7 +426,7 @@ export class ServicesService {
         // If we can get a translation, the service is ready
         return this.allServices.map(service => ({
           ...service,
-          name: this.getServiceName(service)
+          name: this.getServiceName(service),
         }));
       }),
       catchError(() => {
@@ -435,9 +443,10 @@ export class ServicesService {
     const lowerQuery = query.toLowerCase();
     const translatedServices = this.getServicesWithTranslatedNames();
 
-    return translatedServices.filter(service =>
-      service.name.toLowerCase().includes(lowerQuery) ||
-      service.description.toLowerCase().includes(lowerQuery)
+    return translatedServices.filter(
+      service =>
+        service.name.toLowerCase().includes(lowerQuery) ||
+        service.description.toLowerCase().includes(lowerQuery)
     );
   }
 
@@ -445,8 +454,8 @@ export class ServicesService {
    * Get services within a price range
    */
   getServicesByPriceRange(minPrice: number, maxPrice: number): Service[] {
-    return this.getServicesWithTranslatedNames().filter(service =>
-      service.price >= minPrice && service.price <= maxPrice
+    return this.getServicesWithTranslatedNames().filter(
+      service => service.price >= minPrice && service.price <= maxPrice
     );
   }
 
@@ -454,8 +463,8 @@ export class ServicesService {
    * Get services within a duration range
    */
   getServicesByDurationRange(minDuration: number, maxDuration: number): Service[] {
-    return this.getServicesWithTranslatedNames().filter(service =>
-      service.duration >= minDuration && service.duration <= maxDuration
+    return this.getServicesWithTranslatedNames().filter(
+      service => service.duration >= minDuration && service.duration <= maxDuration
     );
   }
 
@@ -528,27 +537,54 @@ export class ServicesService {
     const serviceNameLower = serviceName.toLowerCase();
 
     // Mapeig de noms de serveis a IDs de colors
-    if (serviceNameLower.includes('corte') || serviceNameLower.includes('tall') || serviceNameLower.includes('cabell')) {
+    if (
+      serviceNameLower.includes('corte') ||
+      serviceNameLower.includes('tall') ||
+      serviceNameLower.includes('cabell')
+    ) {
       return this.serviceColorMap.get('haircut') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('peinat') || serviceNameLower.includes('pentinat') || serviceNameLower.includes('estil') || serviceNameLower.includes('estilitzat')) {
+    if (
+      serviceNameLower.includes('peinat') ||
+      serviceNameLower.includes('pentinat') ||
+      serviceNameLower.includes('estil') ||
+      serviceNameLower.includes('estilitzat')
+    ) {
       return this.serviceColorMap.get('styling') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('tractament') || serviceNameLower.includes('màscara') || serviceNameLower.includes('hidratació') || serviceNameLower.includes('rentat')) {
+    if (
+      serviceNameLower.includes('tractament') ||
+      serviceNameLower.includes('màscara') ||
+      serviceNameLower.includes('hidratació') ||
+      serviceNameLower.includes('rentat')
+    ) {
       return this.serviceColorMap.get('treatment') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('color') || serviceNameLower.includes('tint') || serviceNameLower.includes('coloració')) {
+    if (
+      serviceNameLower.includes('color') ||
+      serviceNameLower.includes('tint') ||
+      serviceNameLower.includes('coloració')
+    ) {
       return this.serviceColorMap.get('coloring') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('especial') || serviceNameLower.includes('event') || serviceNameLower.includes('completa')) {
+    if (
+      serviceNameLower.includes('especial') ||
+      serviceNameLower.includes('event') ||
+      serviceNameLower.includes('completa')
+    ) {
       return this.serviceColorMap.get('special') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('infantil') || serviceNameLower.includes('nen') || serviceNameLower.includes('nena') || serviceNameLower.includes('infant')) {
+    if (
+      serviceNameLower.includes('infantil') ||
+      serviceNameLower.includes('nen') ||
+      serviceNameLower.includes('nena') ||
+      serviceNameLower.includes('infant')
+    ) {
       return this.serviceColorMap.get('kids') || this.getDefaultColor();
     }
 

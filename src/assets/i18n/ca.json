@@ -267,7 +267,8 @@
     "APPOINTMENTS": "Cites",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Taulell d'admin",
-    "ADMIN_SETTINGS": "Configuració"
+    "ADMIN_SETTINGS": "Configuració",
+    "PLAYGROUND": "Playground"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
@@ -438,6 +439,7 @@
       "SELECT_CATEGORY": "Seleccionar categoria",
       "SELECT_ICON": "Seleccionar icona",
       "MARK_AS_POPULAR": "Marcar com a popular",
+      "MARK_AS_FAVORITE": "Marcar com a favorit",
       "NO_SERVICES_IN_CATEGORY": "No hi ha serveis en aquesta categoria",
       "SERVICE_CREATED": "Servei creat",
       "SERVICE_CREATED_MESSAGE": "El servei s'ha creat correctament",
@@ -489,10 +491,10 @@
         "CATEGORY_NAME_PLACEHOLDER": "Nom de la categoria",
         "CATEGORY_ID_PLACEHOLDER": "id-categoria",
         "CATEGORY_ICON_PLACEHOLDER": "Introdueix un emoji (ex: ✂️)",
-              "CATEGORY_CREATED": "Categoria creada",
-      "CATEGORY_CREATED_MESSAGE": "La categoria s'ha creat correctament",
-      "CATEGORY_UPDATED": "Categoria actualitzada",
-      "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
+        "CATEGORY_CREATED": "Categoria creada",
+        "CATEGORY_CREATED_MESSAGE": "La categoria s'ha creat correctament",
+        "CATEGORY_UPDATED": "Categoria actualitzada",
+        "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
         "CATEGORY_UPDATED": "Categoria actualitzada",
         "CATEGORY_UPDATED_MESSAGE": "La categoria s'ha actualitzat correctament",
         "CATEGORY_DELETED": "Categoria eliminada",
@@ -507,19 +509,19 @@
           "CATEGORY_NAME_REQUIRED": "El nom de la categoria és obligatori",
           "CATEGORY_ID_REQUIRED": "L'ID de la categoria és obligatori",
           "CATEGORY_ICON_REQUIRED": "La icona de la categoria és obligatòria",
-                  "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
-        "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters",
-        "UPDATING_CATEGORY": "Actualitzant categoria...",
-        "CREATING_CATEGORY": "Creant categoria...",
-        "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
-        "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
-        "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
-        "ERROR_CREATING_CATEGORY": "Error al crear la categoria"
-      },
-      "EXISTING_CATEGORIES": "Categories existents",
-      "ADD_NEW_CATEGORY": "Afegir nova categoria",
-      "STATIC_CATEGORY": "Categoria estàtica",
-              "CANNOT_EDIT_STATIC": "No es pot editar (categoria estàtica)",
+          "CATEGORY_ID_FORMAT": "L'ID de la categoria ha de contenir només lletres minúscules, números i guions",
+          "CATEGORY_ID_MIN_LENGTH": "L'ID de la categoria ha de tenir almenys 3 caràcters",
+          "UPDATING_CATEGORY": "Actualitzant categoria...",
+          "CREATING_CATEGORY": "Creant categoria...",
+          "CATEGORY_UPDATED_SUCCESS": "Categoria actualitzada correctament",
+          "CATEGORY_CREATED_SUCCESS": "Categoria creada correctament",
+          "ERROR_UPDATING_CATEGORY": "Error al actualitzar la categoria",
+          "ERROR_CREATING_CATEGORY": "Error al crear la categoria"
+        },
+        "EXISTING_CATEGORIES": "Categories existents",
+        "ADD_NEW_CATEGORY": "Afegir nova categoria",
+        "STATIC_CATEGORY": "Categoria estàtica",
+        "CANNOT_EDIT_STATIC": "No es pot editar (categoria estàtica)",
         "NO_CATEGORIES": "No hi ha categories disponibles",
         "ICON_HELP": "Introdueix un emoji directament amb el teclat. Pots utilitzar qualsevol emoji disponible al teu sistema.",
         "ICON_EXAMPLES": "Exemples d'emojis"
@@ -561,11 +563,11 @@
     "BUSINESS_HOURS": "Horari comercial",
     "TIME_SLOT_AVAILABLE": "Horari disponible",
     "TIME_SLOT_BUSY": "Horari ocupat",
-                    "FOOTER": {
-                  "INFO_NOTE": "Clica sobre qualsevol horari disponible per fer una reserva",
-                  "WEEKEND_INFO": "Els caps de setmana tenen horaris especials. Contacta amb nosaltres per més informació.",
-                  "BUSINESS_HOURS_INFO": "Horari d'atenció: Dilluns a Divendres de {{startHour}}:00 a {{endHour}}:00, Pausa per dinar de {{lunchStart}}:00 a {{lunchEnd}}:00"
-                }
+    "FOOTER": {
+      "INFO_NOTE": "Clica sobre qualsevol horari disponible per fer una reserva",
+      "WEEKEND_INFO": "Els caps de setmana tenen horaris especials. Contacta amb nosaltres per més informació.",
+      "BUSINESS_HOURS_INFO": "Horari d'atenció: Dilluns a Divendres de {{startHour}}:00 a {{endHour}}:00, Pausa per dinar de {{lunchStart}}:00 a {{lunchEnd}}:00"
+    }
   },
   "SERVICES": {
     "ALL_SERVICES": "Tots els serveis",
@@ -637,6 +639,21 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "Seleccionar idioma"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "Introdueix un número",
+    "TEXT_PLACEHOLDER": "Introdueix text",
+    "TEXT_EMAIL_PLACEHOLDER": "Introdueix el teu email",
+    "TEXT_PASSWORD_PLACEHOLDER": "Introdueix la teva contrasenya",
+    "PASSWORD_PLACEHOLDER": "Introdueix la teva contrasenya",
+    "PASSWORD_PROMPT_LABEL": "Tria una contrasenya",
+    "PASSWORD_WEAK_LABEL": "Massa simple",
+    "PASSWORD_MEDIUM_LABEL": "Complexitat mitjana",
+    "PASSWORD_STRONG_LABEL": "Contrasenya complexa",
+    "TEXTAREA_PLACEHOLDER": "Introdueix text...",
+    "SELECT_PLACEHOLDER": "Selecciona una opció",
+    "SELECT_FILTER_PLACEHOLDER": "Cerca...",
+    "DATE_PLACEHOLDER": "Selecciona una data"
   },
   "NO_DATE_SET": "Data no establerta",
   "VIEW_CALENDAR_APPOINTMENTS": "Visualitza les cites en format calendari",

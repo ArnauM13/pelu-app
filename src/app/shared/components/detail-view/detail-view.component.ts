@@ -20,7 +20,6 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 
-
 export interface DetailAction {
   label: string;
   icon: string;
@@ -55,7 +54,6 @@ export interface DetailViewConfig {
 
 @Component({
   selector: 'pelu-detail-view',
-  standalone: true,
   imports: [
     CommonModule,
     TranslateModule,
@@ -71,10 +69,10 @@ export interface DetailViewConfig {
     InputTextareaComponent,
     InputNumberComponent,
     InputDateComponent,
-    ActionsButtonsComponent
+    ActionsButtonsComponent,
   ],
   templateUrl: './detail-view.component.html',
-  styleUrls: ['./detail-view.component.scss']
+  styleUrls: ['./detail-view.component.scss'],
 })
 export class DetailViewComponent implements OnChanges {
   @Input() config!: DetailViewConfig;
@@ -85,7 +83,7 @@ export class DetailViewComponent implements OnChanges {
   @Output() delete = new EventEmitter<void>();
   @Output() updateForm = new EventEmitter<{ field: string; value: any }>();
 
-    constructor(
+  constructor(
     private router: Router,
     private serviceColorsService: ServiceColorsService,
     private toastService: ToastService,
@@ -97,22 +95,37 @@ export class DetailViewComponent implements OnChanges {
   }
 
   // Helper getters for template
-  get type() { return this.config?.type; }
-  get loading() { return this.config?.loading; }
-  get notFound() { return this.config?.notFound; }
-  get user() { return this.config?.user; }
-  get appointment() { return this.config?.appointment; }
-  get infoSections() { return this.config?.infoSections || []; }
-  get actions() { return this.config?.actions || []; }
+  get type() {
+    return this.config?.type;
+  }
+  get loading() {
+    return this.config?.loading;
+  }
+  get notFound() {
+    return this.config?.notFound;
+  }
+  get user() {
+    return this.config?.user;
+  }
+  get appointment() {
+    return this.config?.appointment;
+  }
+  get infoSections() {
+    return this.config?.infoSections || [];
+  }
+  get actions() {
+    return this.config?.actions || [];
+  }
   get filteredActions() {
-    return this.actions.filter(action =>
-      action.label !== 'COMMON.ACTIONS.BACK' &&
-      action.label !== 'Back' &&
-      action.label !== 'Tornar endarrere'
+    return this.actions.filter(
+      action =>
+        action.label !== 'COMMON.ACTIONS.BACK' &&
+        action.label !== 'Back' &&
+        action.label !== 'Tornar endarrere'
     );
   }
 
-    get hasAvailableActions() {
+  get hasAvailableActions() {
     // No mostrar accions si estem en mode edició
     if (this.isEditing) return false;
 
@@ -120,9 +133,10 @@ export class DetailViewComponent implements OnChanges {
     const hasGeneralActions = this.filteredActions.length > 0;
 
     // Comprovar si hi ha accions específiques de cites disponibles
-    const hasAppointmentActions = this.type === 'appointment' &&
-                                 this.appointment &&
-                                 (this.canEditAppointment() || this.canDeleteAppointment());
+    const hasAppointmentActions =
+      this.type === 'appointment' &&
+      this.appointment &&
+      (this.canEditAppointment() || this.canDeleteAppointment());
 
     // Mostrar la columna d'accions només si hi ha accions generals O accions específiques de cites
     return hasGeneralActions || hasAppointmentActions;
@@ -130,19 +144,29 @@ export class DetailViewComponent implements OnChanges {
 
   // Mètode per verificar si hi ha accions específiques de cites
   get hasAppointmentActions(): boolean {
-    return this.type === 'appointment' &&
-           this.appointment &&
-           (this.canEditAppointment() || this.canDeleteAppointment());
+    return (
+      this.type === 'appointment' &&
+      this.appointment &&
+      (this.canEditAppointment() || this.canDeleteAppointment())
+    );
   }
 
   // Mètode per verificar si hi ha accions generals
   get hasGeneralActions(): boolean {
     return this.filteredActions.length > 0;
   }
-  get editForm() { return this.config?.editForm || {}; }
-  get isEditing() { return this.config?.isEditing; }
-  get hasChanges() { return this.config?.hasChanges; }
-  get canSave() { return this.config?.canSave; }
+  get editForm() {
+    return this.config?.editForm || {};
+  }
+  get isEditing() {
+    return this.config?.isEditing;
+  }
+  get hasChanges() {
+    return this.config?.hasChanges;
+  }
+  get canSave() {
+    return this.config?.canSave;
+  }
 
   // Action context for the actions service
   get actionContext(): ActionContext | null {
@@ -153,11 +177,11 @@ export class DetailViewComponent implements OnChanges {
         permissions: {
           canEdit: this.canEditAppointment(),
           canDelete: this.canDeleteAppointment(),
-          canView: false // Disable view action in detail view
+          canView: false, // Disable view action in detail view
         },
         onEdit: () => this.onEdit(),
         onDelete: () => this.onDelete(),
-        onView: () => this.onBack()
+        onView: () => this.onBack(),
       };
     }
     return null;
@@ -178,7 +202,7 @@ export class DetailViewComponent implements OnChanges {
       name: name,
       surname: surname,
       email: user.email,
-      imageUrl: user.photoURL
+      imageUrl: user.photoURL,
     };
   }
 
@@ -213,7 +237,7 @@ export class DetailViewComponent implements OnChanges {
       title: this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
       message: this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
       buttonText: 'COMMON.ACTIONS.BACK',
-      showButton: true
+      showButton: true,
     };
   }
 
@@ -223,17 +247,25 @@ export class DetailViewComponent implements OnChanges {
       spinnerSize: 'large' as const,
       showMessage: true,
       fullHeight: true,
-      overlay: true
+      overlay: true,
     };
   }
 
   // View transitions and toast keys
-  get viewTransitionName() { return `${this.type}-container`; }
-  get cardTransitionName() { return `${this.type}-card`; }
-  get contentTransitionName() { return `${this.type}-content`; }
-  get toastKey() { return `${this.type}-detail-toast`; }
+  get viewTransitionName() {
+    return `${this.type}-container`;
+  }
+  get cardTransitionName() {
+    return `${this.type}-card`;
+  }
+  get contentTransitionName() {
+    return `${this.type}-content`;
+  }
+  get toastKey() {
+    return `${this.type}-detail-toast`;
+  }
 
-    // Service color gradient for appointment detail page
+  // Service color gradient for appointment detail page
   get serviceGradient(): string {
     if (this.type !== 'appointment' || !this.appointment) {
       return 'linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%)';
@@ -260,12 +292,24 @@ export class DetailViewComponent implements OnChanges {
   }
 
   // Event handlers
-  onBack() { this.back.emit(); }
-  onEdit() { this.edit.emit(); }
-  onSave() { this.save.emit(this.editForm); }
-  onCancelEdit() { this.cancelEdit.emit(); }
-  onDelete() { this.delete.emit(); }
-  onUpdateForm(field: string, value: any) { this.updateForm.emit({ field, value }); }
+  onBack() {
+    this.back.emit();
+  }
+  onEdit() {
+    this.edit.emit();
+  }
+  onSave() {
+    this.save.emit(this.editForm);
+  }
+  onCancelEdit() {
+    this.cancelEdit.emit();
+  }
+  onDelete() {
+    this.delete.emit();
+  }
+  onUpdateForm(field: string, value: any) {
+    this.updateForm.emit({ field, value });
+  }
 
   // Appointment action checks
   canEditAppointment(): boolean {
@@ -309,7 +353,7 @@ export class DetailViewComponent implements OnChanges {
     if (section.onSave) {
       const updatedNotes = section.items.map((item, index) => ({
         ...item,
-        value: this.editingNotes[index] || item.value
+        value: this.editingNotes[index] || item.value,
       }));
       section.onSave({ notes: updatedNotes });
       this.editingNotes = [];
@@ -323,7 +367,7 @@ export class DetailViewComponent implements OnChanges {
     return date.toLocaleDateString('ca-ES', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 

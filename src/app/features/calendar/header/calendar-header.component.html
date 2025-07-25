@@ -1,29 +1,37 @@
 <div class="calendar-header">
   <div class="calendar-navigation">
-    <button class="nav-btn"
-            [class.disabled]="!canNavigateToPreviousWeek"
-            [disabled]="!canNavigateToPreviousWeek"
-            (click)="onPreviousWeek()"
-            title="Setmana anterior">
-      <i class="pi pi-arrow-left"></i>
+    <button
+      class="nav-btn"
+      [class.disabled]="!canNavigateToPreviousWeek"
+      [disabled]="!canNavigateToPreviousWeek"
+      (click)="onPreviousWeek()"
+      title="Setmana anterior"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>
-    <button class="nav-btn today-btn" (click)="onToday()" title="Anar a avui">
-      Avui
-    </button>
+    <button class="nav-btn today-btn" (click)="onToday()" title="Anar a avui">Avui</button>
     <button class="nav-btn" (click)="onNextWeek()" title="Setmana següent">
-      <i class="pi pi-arrow-right"></i>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>
   </div>
 
   <!-- Date Input -->
   <div class="date-input-container">
-    <input
-      type="date"
-      [value]="currentDateString"
-      (input)="onDateChange($event)"
-      class="date-input"
-      title="Seleccionar data"
-      [min]="todayString">
+    <pelu-input-date
+      [value]="currentViewDate"
+      [dateFormat]="'dd/mm/yy'"
+      [showIcon]="true"
+      [showButtonBar]="true"
+      [inline]="false"
+      [minDate]="todayDate"
+      [preventPastMonths]="true"
+      (valueChange)="onDateChange($event)"
+    >
+    </pelu-input-date>
   </div>
 
   <div class="calendar-title">

@@ -3,7 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   padding: 0;
   overflow: hidden;
 }
@@ -11,7 +15,7 @@
 .settings-card {
   background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   max-width: 900px;
   width: 100%;
   padding: 2rem 2rem 1.5rem 2rem;
@@ -55,7 +59,7 @@
   padding: 0.5rem 1rem;
   border: 2px solid #e5e7eb;
   background: white;
-  color: #6b7280;
+  color: var(--input-placeholder-color);
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
@@ -136,7 +140,7 @@
 }
 
 .form-help {
-  color: #6b7280;
+  color: var(--input-placeholder-color);
   font-size: 0.8rem;
   margin-top: 0.25rem;
 }
@@ -159,7 +163,7 @@
   gap: 1rem;
 
   p {
-    color: #6b7280;
+    color: var(--input-placeholder-color);
     font-size: 0.9rem;
   }
 }

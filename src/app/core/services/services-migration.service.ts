@@ -5,7 +5,7 @@ import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ServicesMigrationService {
   private readonly firebaseServicesService = inject(FirebaseServicesService);
@@ -30,7 +30,7 @@ export class ServicesMigrationService {
     try {
       this.logger.info('Starting services migration to Firebase', {
         component: 'ServicesMigrationService',
-        method: 'migrateServicesToFirebase'
+        method: 'migrateServicesToFirebase',
       });
 
       this._isMigrating.set(true);
@@ -43,7 +43,7 @@ export class ServicesMigrationService {
       if (currentServices.length === 0) {
         this.logger.warn('No services to migrate', {
           component: 'ServicesMigrationService',
-          method: 'migrateServicesToFirebase'
+          method: 'migrateServicesToFirebase',
         });
         this._migrationStatus.set('No hi ha serveis per migrar');
         return false;
@@ -58,10 +58,15 @@ export class ServicesMigrationService {
         const progress = Math.round(((i + 1) / currentServices.length) * 100);
 
         this._migrationProgress.set(progress);
-        this._migrationStatus.set(`Migrant servei ${i + 1} de ${currentServices.length}: ${service.name}`);
+        this._migrationStatus.set(
+          `Migrant servei ${i + 1} de ${currentServices.length}: ${service.name}`
+        );
 
         try {
-          const firebaseService: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> = {
+          const firebaseService: Omit<
+            FirebaseService,
+            'id' | 'createdAt' | 'updatedAt' | 'createdBy'
+          > = {
             name: service.name,
             description: service.description,
             price: service.price,
@@ -69,7 +74,7 @@ export class ServicesMigrationService {
             category: service.category,
             icon: service.icon,
             popular: service.popular || false,
-            active: true
+            active: true,
           };
 
           const result = await this.firebaseServicesService.createService(firebaseService);
@@ -77,20 +82,20 @@ export class ServicesMigrationService {
             migratedCount++;
             this.logger.info(`Service migrated: ${service.name}`, {
               component: 'ServicesMigrationService',
-              method: 'migrateServicesToFirebase'
+              method: 'migrateServicesToFirebase',
             });
           } else {
             errorCount++;
             this.logger.error(`Failed to migrate service: ${service.name}`, {
               component: 'ServicesMigrationService',
-              method: 'migrateServicesToFirebase'
+              method: 'migrateServicesToFirebase',
             });
           }
         } catch (error) {
           errorCount++;
           this.logger.error(`Error migrating service: ${service.name}`, {
             component: 'ServicesMigrationService',
-            method: 'migrateServicesToFirebase'
+            method: 'migrateServicesToFirebase',
           });
         }
       }
@@ -101,7 +106,7 @@ export class ServicesMigrationService {
         this._migrationStatus.set(`Migració completada: ${migratedCount} serveis migrats`);
         this.logger.info('Services migration completed', {
           component: 'ServicesMigrationService',
-          method: 'migrateServicesToFirebase'
+          method: 'migrateServicesToFirebase',
         });
       }
 
@@ -114,7 +119,7 @@ export class ServicesMigrationService {
     } catch (error) {
       this.logger.error('Services migration failed', {
         component: 'ServicesMigrationService',
-        method: 'migrateServicesToFirebase'
+        method: 'migrateServicesToFirebase',
       });
 
       this.toastService.showGenericError('Error en la migració de serveis');
@@ -145,7 +150,7 @@ export class ServicesMigrationService {
     } catch (error) {
       this.logger.error('Error checking migration status', {
         component: 'ServicesMigrationService',
-        method: 'isMigrationNeeded'
+        method: 'isMigrationNeeded',
       });
       return false;
     }
@@ -167,18 +172,18 @@ export class ServicesMigrationService {
       return {
         needsMigration: localServices.length > 0 && firebaseServices.length === 0,
         localServicesCount: localServices.length,
-        firebaseServicesCount: firebaseServices.length
+        firebaseServicesCount: firebaseServices.length,
       };
     } catch (error) {
       this.logger.error('Error getting migration status', {
         component: 'ServicesMigrationService',
-        method: 'getMigrationStatus'
+        method: 'getMigrationStatus',
       });
 
       return {
         needsMigration: false,
         localServicesCount: 0,
-        firebaseServicesCount: 0
+        firebaseServicesCount: 0,
       };
     }
   }

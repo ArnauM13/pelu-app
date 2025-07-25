@@ -8,10 +8,9 @@ export interface Position {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarDragDropService {
-
   private readonly isDraggingSignal = signal<boolean>(false);
   private readonly draggedAppointmentSignal = signal<AppointmentEvent | null>(null);
   private readonly originalPositionSignal = signal<Position | null>(null);
@@ -51,8 +50,11 @@ export class CalendarDragDropService {
   }
 
   isMovingToDifferentDay(): boolean {
-    return this.originalDate() !== null && this.targetDate() !== null &&
-           this.originalDate()!.getTime() !== this.targetDate()!.getTime();
+    return (
+      this.originalDate() !== null &&
+      this.targetDate() !== null &&
+      this.originalDate()!.getTime() !== this.targetDate()!.getTime()
+    );
   }
 
   async endDrag(): Promise<boolean> {
@@ -69,7 +71,12 @@ export class CalendarDragDropService {
     this.reset();
   }
 
-  canDropAppointment(sourceDate: Date, targetDate: Date, sourceTime: string, targetTime: string): boolean {
+  canDropAppointment(
+    sourceDate: Date,
+    targetDate: Date,
+    sourceTime: string,
+    targetTime: string
+  ): boolean {
     return true;
   }
 

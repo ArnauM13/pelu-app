@@ -1,18 +1,23 @@
-import { Component, input, output, computed, Signal } from '@angular/core';
+import { Component, input, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 
 @Component({
   selector: 'pelu-filters-inline',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent, InputSelectComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    InputTextComponent,
+    InputDateComponent,
+    InputSelectComponent,
+  ],
   templateUrl: './filters-inline.component.html',
-  styleUrls: ['./filters-inline.component.scss']
+  styleUrls: ['./filters-inline.component.scss'],
 })
 export class FiltersInlineComponent {
   // Input signals that can accept either values or signals
@@ -49,8 +54,8 @@ export class FiltersInlineComponent {
       ...colors.map(color => ({
         label: this.serviceColorsService.getServiceColorName(color),
         value: color.id,
-        color: color.color
-      }))
+        color: color.color,
+      })),
     ];
   });
 
@@ -58,14 +63,14 @@ export class FiltersInlineComponent {
   readonly dateFilterConfig = {
     type: 'date' as const,
     label: 'COMMON.FILTERS.FILTER_BY_DATE',
-    showLabel: true
+    showLabel: true,
   };
 
   readonly clientFilterConfig = {
     type: 'text' as const,
     label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
     placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
-    showLabel: true
+    showLabel: true,
   };
 
   readonly serviceFilterConfig = computed(() => ({
@@ -74,7 +79,7 @@ export class FiltersInlineComponent {
     placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
     options: this.serviceOptions(),
     showLabel: true,
-    clearable: true
+    clearable: true,
   }));
 
   constructor(
@@ -82,16 +87,22 @@ export class FiltersInlineComponent {
     private translationService: TranslationService
   ) {}
 
-  onDateChangeHandler(value: string) {
-    this.onDateChange()?.(value);
+  onDateChangeHandler(value: string | Date | null) {
+    if (typeof value === 'string') {
+      this.onDateChange()?.(value);
+    } else if (value instanceof Date) {
+      this.onDateChange()?.(value.toISOString().split('T')[0]);
+    } else {
+      this.onDateChange()?.('');
+    }
   }
 
   onClientChangeHandler(value: string) {
     this.onClientChange()?.(value);
   }
 
-  onServiceChangeHandler(value: string) {
-    this.onServiceChange()?.(value);
+  onServiceChangeHandler(value: string | undefined) {
+    this.onServiceChange()?.(value || '');
   }
 
   onResetHandler() {

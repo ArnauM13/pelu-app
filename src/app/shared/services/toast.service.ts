@@ -13,7 +13,7 @@ export interface ToastData {
 export type ToastSeverity = 'success' | 'error' | 'info' | 'warn';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private readonly messageService = inject(MessageService);
@@ -39,12 +39,17 @@ export class ToastService {
       life: 4000,
       closable: false,
       key: this.toastKey,
-      data: { appointmentId, showViewButton, action } as ToastData
+      data: { appointmentId, showViewButton, action } as ToastData,
     });
   }
 
   // Mètodes ràpids per diferents tipus de toast
-  showSuccess(summary: string, detail: string = '', appointmentId?: string, showViewButton: boolean = false) {
+  showSuccess(
+    summary: string,
+    detail: string = '',
+    appointmentId?: string,
+    showViewButton: boolean = false
+  ) {
     this.showToast('success', summary, detail, appointmentId, showViewButton);
   }
 
@@ -66,15 +71,30 @@ export class ToastService {
   }
 
   showAppointmentDeleted(appointmentName: string) {
-    this.showSuccess('COMMON.TOAST.APPOINTMENT_DELETED', `COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE`, undefined, false);
+    this.showSuccess(
+      'COMMON.TOAST.APPOINTMENT_DELETED',
+      `COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE`,
+      undefined,
+      false
+    );
   }
 
   showAppointmentUpdated(appointmentName: string) {
-    this.showSuccess('COMMON.TOAST.APPOINTMENT_UPDATED', `COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE`, undefined, false);
+    this.showSuccess(
+      'COMMON.TOAST.APPOINTMENT_UPDATED',
+      `COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE`,
+      undefined,
+      false
+    );
   }
 
   showAppointmentCreated(appointmentName: string, appointmentId: string) {
-    this.showSuccess('COMMON.TOAST.APPOINTMENT_CREATED', `COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE`, appointmentId, true);
+    this.showSuccess(
+      'COMMON.TOAST.APPOINTMENT_CREATED',
+      `COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE`,
+      appointmentId,
+      true
+    );
   }
 
   showValidationError(field: string) {
@@ -86,7 +106,10 @@ export class ToastService {
   }
 
   showUnauthorizedError() {
-    this.showError('COMMON.ERRORS.PERMISSION_ERROR', 'No tens permisos per realitzar aquesta acció.');
+    this.showError(
+      'COMMON.ERRORS.PERMISSION_ERROR',
+      'No tens permisos per realitzar aquesta acció.'
+    );
   }
 
   showLoginRequired() {

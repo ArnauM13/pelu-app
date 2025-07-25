@@ -18,22 +18,22 @@ export interface BusinessConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarBusinessService {
   private readonly businessConfig: BusinessConfig = {
     hours: {
       start: 8,
-      end: 20
+      end: 20,
     },
     days: {
       start: 1, // Monday
-      end: 6    // Saturday
+      end: 6, // Saturday
     },
     lunchBreak: {
       start: 13,
-      end: 15
-    }
+      end: 15,
+    },
   };
 
   /**
@@ -55,7 +55,9 @@ export class CalendarBusinessService {
    */
   isLunchBreak(time: string): boolean {
     const [hour] = time.split(':').map(Number);
-    return hour >= this.businessConfig.lunchBreak.start && hour < this.businessConfig.lunchBreak.end;
+    return (
+      hour >= this.businessConfig.lunchBreak.start && hour < this.businessConfig.lunchBreak.end
+    );
   }
 
   /**
@@ -104,7 +106,7 @@ export class CalendarBusinessService {
     const endHour = this.businessConfig.hours.end;
 
     for (let hour = startHour; hour < endHour; hour++) {
-      for (let minutes of [0, 30]) {
+      for (const minutes of [0, 30]) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         slots.push(timeString);
       }
@@ -121,7 +123,10 @@ export class CalendarBusinessService {
     const currentDayOfWeek = today.getDay();
 
     // If today is outside business days, jump to next business week
-    if (currentDayOfWeek < this.businessConfig.days.start || currentDayOfWeek > this.businessConfig.days.end) {
+    if (
+      currentDayOfWeek < this.businessConfig.days.start ||
+      currentDayOfWeek > this.businessConfig.days.end
+    ) {
       let daysToAdd: number;
 
       if (currentDayOfWeek < this.businessConfig.days.start) {
@@ -178,7 +183,15 @@ export class CalendarBusinessService {
    * Get business days info string
    */
   getBusinessDaysInfo(): string {
-    const dayNames = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+    const dayNames = [
+      'Diumenge',
+      'Dilluns',
+      'Dimarts',
+      'Dimecres',
+      'Dijous',
+      'Divendres',
+      'Dissabte',
+    ];
     const startDay = dayNames[this.businessConfig.days.start];
     const endDay = dayNames[this.businessConfig.days.end];
     return `${startDay} - ${endDay}`;
@@ -194,7 +207,10 @@ export class CalendarBusinessService {
   /**
    * Check if can navigate to previous week
    */
-  canNavigateToPreviousWeek(currentViewDate: Date = new Date(), appointments: AppointmentEvent[] = []): boolean {
+  canNavigateToPreviousWeek(
+    currentViewDate: Date = new Date(),
+    appointments: AppointmentEvent[] = []
+  ): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     // Calcular la data d'inici de la setmana anterior
@@ -235,7 +251,9 @@ export class CalendarBusinessService {
         if (!appointment.start) return false;
 
         const appointmentStart = new Date(appointment.start);
-        const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
+        const appointmentEnd = appointment.end
+          ? new Date(appointment.end)
+          : addMinutes(appointmentStart, appointment.duration || 60);
 
         // Check for overlap
         return appointmentStart < addMinutes(slotStart, 30) && appointmentEnd > slotStart;

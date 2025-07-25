@@ -25,7 +25,7 @@ describe('AuthPopupComponent', () => {
     googleButtonText: 'Inicia sessió amb Google',
     linkText: 'No tens compte?',
     linkRoute: '/register',
-    linkLabel: 'Registra\'t aquí'
+    linkLabel: "Registra't aquí",
   };
 
   beforeEach(async () => {
@@ -35,12 +35,10 @@ describe('AuthPopupComponent', () => {
         ReactiveFormsModule,
         HttpClientModule,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
-      providers: [
-        provideRouter([])
-      ]
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthPopupComponent);
@@ -132,7 +130,7 @@ describe('AuthPopupComponent', () => {
       googleButtonText: 'Google Auth',
       linkText: 'Link Text',
       linkRoute: '/test',
-      linkLabel: 'Link Label'
+      linkLabel: 'Link Label',
     };
 
     expect(config.mode).toBe('login');
@@ -154,7 +152,7 @@ describe('AuthPopupComponent', () => {
       googleButtonText: 'Register with Google',
       linkText: 'Have account?',
       linkRoute: '/login',
-      linkLabel: 'Login here'
+      linkLabel: 'Login here',
     };
 
     expect(registerConfig.mode).toBe('register');

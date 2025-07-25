@@ -12,6 +12,7 @@ import { ServicesPageComponent } from './features/services/services-page/service
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
 import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
+import { PlaygroundPageComponent } from './features/playground/playground-page/playground-page.component';
 
 export const routes: Routes = [
   // Public routes
@@ -19,54 +20,56 @@ export const routes: Routes = [
     path: 'login',
     component: LoginPageComponent,
     canActivate: [publicGuard],
-    data: { viewTransitionName: 'login' }
+    data: { viewTransitionName: 'login' },
   },
   {
     path: 'register',
     component: RegisterPageComponent,
     canActivate: [publicGuard],
-    data: { viewTransitionName: 'register' }
+    data: { viewTransitionName: 'register' },
   },
-
-
 
   // All authenticated routes - accessible to all roles
   {
     path: '',
     component: LandingComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'landing' }
+    data: { viewTransitionName: 'landing' },
   },
   {
     path: 'booking',
     component: BookingWrapperComponent,
-    data: { viewTransitionName: 'booking' }
+    data: { viewTransitionName: 'booking' },
   },
   {
     path: 'appointments',
     component: AppointmentsPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'appointments' }
+    data: { viewTransitionName: 'appointments' },
   },
   {
     path: 'appointments/:id',
     component: AppointmentDetailPageComponent,
-    data: { viewTransitionName: 'appointment-detail' }
+    data: { viewTransitionName: 'appointment-detail' },
   },
   {
     path: 'perfil',
     component: PerfilPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'perfil' }
+    data: { viewTransitionName: 'perfil' },
   },
   {
     path: 'services',
     component: ServicesPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'services' }
+    data: { viewTransitionName: 'services' },
   },
-
-
+  {
+    path: 'playground',
+    component: PlaygroundPageComponent,
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'playground' },
+  },
 
   // Admin pages - accessible only to admins
   {
@@ -76,26 +79,26 @@ export const routes: Routes = [
         path: 'dashboard',
         component: AdminDashboardPageComponent,
         canActivate: [adminGuard],
-        data: { viewTransitionName: 'admin-dashboard' }
+        data: { viewTransitionName: 'admin-dashboard' },
       },
       {
         path: 'services',
         component: AdminServicesPageComponent,
         canActivate: [adminGuard],
-        data: { viewTransitionName: 'admin-services' }
+        data: { viewTransitionName: 'admin-services' },
       },
       {
         path: 'settings',
         component: AdminSettingsPageComponent,
         canActivate: [adminGuard],
-        data: { viewTransitionName: 'admin-settings' }
-      }
-    ]
+        data: { viewTransitionName: 'admin-settings' },
+      },
+    ],
   },
 
   // Default redirect
   {
     path: '**',
-    redirectTo: ''
-  }
+    redirectTo: '',
+  },
 ];

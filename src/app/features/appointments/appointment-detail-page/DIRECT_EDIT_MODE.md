@@ -11,11 +11,13 @@
 ### **🎯 Mode d'Edició Directe**
 
 **Comportament**:
+
 - Clicar "editar" des del calendari → Obre detall en mode d'edició
 - Clicar "editar" des de la llista de cites → Obre detall en mode d'edició
 - Clicar "editar" des del popup de detall → Obre detall en mode d'edició
 
 **Paràmetres URL**:
+
 - `edit=true`: Activa el mode d'edició automàticament
 - `token=xxx`: Token d'edició per acessar la cita (si està disponible)
 
@@ -24,6 +26,7 @@
 ### **1. Mètode `editAppointment()` - Pàgina de Cites**
 
 **Mètode actualitzat**:
+
 ```typescript
 editAppointment(appointment: any): void {
   const user = this.authService.user();
@@ -52,6 +55,7 @@ editAppointment(appointment: any): void {
 ```
 
 **Característiques**:
+
 - **Prioritat a editToken**: Si l'appointment té editToken, l'usa directament
 - **Fallback segur**: Si no hi ha editToken, genera un ID únic
 - **Paràmetre edit**: Afegeix `edit=true` a la URL
@@ -60,6 +64,7 @@ editAppointment(appointment: any): void {
 ### **2. Mètode `onAppointmentEditRequested()` - Calendari**
 
 **Mètode existent**:
+
 ```typescript
 onAppointmentEditRequested(appointment: any) {
   const currentUser = this.authService.user();
@@ -89,6 +94,7 @@ onAppointmentEditRequested(appointment: any) {
 ```
 
 **Característiques**:
+
 - **Navegació directa**: Usa el mateix sistema que `editAppointment()`
 - **Tancament de popup**: Tanca el popup de detall després de navegar
 - **Consistència**: Mateixa lògica que altres mètodes d'edició
@@ -96,6 +102,7 @@ onAppointmentEditRequested(appointment: any) {
 ### **3. Detecció de Mode d'Edició - Component de Detall**
 
 **Mètode `ngOnInit()` actualitzat**:
+
 ```typescript
 ngOnInit() {
   this.loadAppointment();
@@ -119,6 +126,7 @@ ngOnInit() {
 ```
 
 **Característiques**:
+
 - **Detecció reactiva**: Escolta canvis en els query parameters
 - **Espera intel·ligent**: Espera que l'appointment es carregui abans d'activar l'edició
 - **Retry automàtic**: Si l'appointment no està carregat, espera i torna a intentar
@@ -126,6 +134,7 @@ ngOnInit() {
 ### **4. Detecció dins `loadAppointment()`**
 
 **Lògica afegida**:
+
 ```typescript
 private async loadAppointment() {
   const uniqueId = this.#route.snapshot.paramMap.get('id');
@@ -142,6 +151,7 @@ private async loadAppointment() {
 ```
 
 **Característiques**:
+
 - **Detecció immediata**: Detecta el mode d'edició des dels query parameters
 - **Activació automàtica**: Activa l'edició després de carregar l'appointment
 - **Delay segur**: Usa un delay per assegurar que l'appointment estigui carregat
@@ -160,11 +170,13 @@ private async loadAppointment() {
 ### **Exemples d'URLs**:
 
 **Amb editToken**:
+
 ```
 /appointments/booking123?token=abc123&edit=true
 ```
 
 **Sense editToken (fallback)**:
+
 ```
 /appointments/user456-booking123?edit=true
 ```
@@ -172,18 +184,21 @@ private async loadAppointment() {
 ## 🔍 Casos d'Ús
 
 ### **1. Edició des del Calendari**:
+
 - Usuari veu una cita al calendari
 - Clica el botó "editar" (✏️)
 - S'obri directament el detall en mode d'edició
 - Usuari pot modificar i guardar
 
 ### **2. Edició des de la Llista**:
+
 - Usuari veu una cita a la llista
 - Clica el botó "editar" (✏️)
 - S'obri directament el detall en mode d'edició
 - Usuari pot modificar i guardar
 
 ### **3. Edició des del Popup**:
+
 - Usuari veu el popup de detall d'una cita
 - Clica el botó "editar" (✏️)
 - S'obri la pàgina de detall en mode d'edició
@@ -203,32 +218,38 @@ private async loadAppointment() {
 ### **Testos a fer**:
 
 **Vista Calendari**:
+
 - Clicar "editar" en una cita del calendari
 - Verificar que s'obri en mode d'edició
 - Verificar que es puguin modificar els camps
 
 **Vista Llista**:
+
 - Clicar "editar" en una cita de la llista
 - Verificar que s'obri en mode d'edició
 - Verificar que es puguin modificar els camps
 
 **Popup de Detall**:
+
 - Clicar "editar" en el popup de detall
 - Verificar que s'obri la pàgina en mode d'edició
 - Verificar que es puguin modificar els camps
 
 **URLs**:
+
 - Verificar que la URL contingui `edit=true`
 - Verificar que la URL contingui el token correcte (si està disponible)
 
 ## 📱 Comportament Responsiu
 
 ### **Desktop/Tablet**:
+
 - Mode d'edició funciona correctament
 - Formularis són fàcils d'usar
 - Navegació és intuïtiva
 
 ### **Mòbil**:
+
 - Mode d'edició funciona en pantalles petites
 - Formularis són touch-friendly
 - Navegació és optimitzada per mòbil
@@ -236,11 +257,13 @@ private async loadAppointment() {
 ## 🎨 Impacte Visual
 
 ### **Abans**:
+
 - Clicar "editar" obria el detall normal
 - Usuari havia de clicar una segona vegada per editar
 - Flux confús i poc intuïtiu
 
 ### **Després**:
+
 - Clicar "editar" obre directament el mode d'edició
 - Usuari pot editar immediatament
 - Flux clar i intuïtiu
@@ -248,12 +271,14 @@ private async loadAppointment() {
 ## 🔧 Manteniment
 
 ### **Canvis Futurs**:
+
 - Afegir més camps editables
 - Implementar validació en temps real
 - Afegir autosave
 - Implementar històric de canvis
 
 ### **Optimitzacions**:
+
 - Reduir el delay d'activació d'edició
 - Implementar cache d'appointments
 - Afegir indicadors de càrrega
@@ -262,21 +287,25 @@ private async loadAppointment() {
 ## 🎉 Beneficis Obtinguts
 
 ### **✅ Experiència d'Usuari Millorada**
+
 - Flux d'edició més ràpid i intuïtiu
 - Menys clics per editar una cita
 - Interfície més eficient
 
 ### **✅ Eficiència**
+
 - Edició directa sense passos intermedis
 - Navegació optimitzada
 - Temps d'ús reduït
 
 ### **✅ Usabilitat**
+
 - Flux clar i previsible
 - Interfície consistent
 - Accions obvies
 
 ### **✅ Mantenibilitat**
+
 - Codi centralitzat i reutilitzable
 - Lògica clara i documentada
 - Fàcil d'estendre
@@ -284,16 +313,19 @@ private async loadAppointment() {
 ## 📚 Notes Tècniques
 
 ### **Performance**:
+
 - Navegació ràpida amb paràmetres URL
 - Càrrega eficient d'appointments
 - Activació d'edició optimitzada
 
 ### **Compatibilitat**:
+
 - Funciona amb tots els navegadors moderns
 - Compatible amb lectors de pantalla
 - Responsiu per tots els dispositius
 
 ### **Escalabilitat**:
+
 - Fàcil d'afegir més camps editables
 - Sistema extensible per altres tipus d'edició
 - Arquitectura modular
@@ -306,4 +338,4 @@ private async loadAppointment() {
 
 **✅ USABILITAT**: Menys clics per editar cites.
 
-**✅ MANTENIBILITAT**: Codi centralitzat i extensible. 
+**✅ MANTENIBILITAT**: Codi centralitzat i extensible.

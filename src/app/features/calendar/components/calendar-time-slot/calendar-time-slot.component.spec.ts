@@ -5,10 +5,12 @@ import { CalendarTimeSlotComponent, TimeSlotData } from './calendar-time-slot.co
 // Test host component to provide required inputs
 @Component({
   template: `
-    <pelu-calendar-time-slot [data]="testData" (clicked)="onClicked($event)"></pelu-calendar-time-slot>
+    <pelu-calendar-time-slot
+      [data]="testData"
+      (clicked)="onClicked($event)"
+    ></pelu-calendar-time-slot>
   `,
-  standalone: true,
-  imports: [CalendarTimeSlotComponent]
+  imports: [CalendarTimeSlotComponent],
 })
 class TestHostComponent {
   testData: TimeSlotData = {
@@ -21,7 +23,7 @@ class TestHostComponent {
     isPastTime: false,
     isClickable: true,
     isDisabled: false,
-    tooltip: 'Available slot'
+    tooltip: 'Available slot',
   };
 
   onClicked(event: any) {
@@ -44,14 +46,13 @@ describe('CalendarTimeSlotComponent', () => {
     isPastTime: false,
     isClickable: true,
     isDisabled: false,
-    tooltip: 'Available slot'
+    tooltip: 'Available slot',
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent]
-    })
-    .compileComponents();
+      imports: [TestHostComponent],
+    }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostComponent = hostFixture.componentInstance;
@@ -79,7 +80,12 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply booked styles when slot is booked', () => {
-    hostComponent.testData = { ...mockTimeSlotData, isAvailable: false, isBooked: true, isClickable: false };
+    hostComponent.testData = {
+      ...mockTimeSlotData,
+      isAvailable: false,
+      isBooked: true,
+      isClickable: false,
+    };
     hostFixture.detectChanges();
 
     const compiled = hostFixture.nativeElement;
@@ -91,7 +97,12 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply lunch break styles when slot is lunch break', () => {
-    hostComponent.testData = { ...mockTimeSlotData, isLunchBreak: true, isClickable: false, isDisabled: true };
+    hostComponent.testData = {
+      ...mockTimeSlotData,
+      isLunchBreak: true,
+      isClickable: false,
+      isDisabled: true,
+    };
     hostFixture.detectChanges();
 
     const compiled = hostFixture.nativeElement;
@@ -102,7 +113,12 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply past date styles when date is in the past', () => {
-    hostComponent.testData = { ...mockTimeSlotData, isPastDate: true, isClickable: false, isDisabled: true };
+    hostComponent.testData = {
+      ...mockTimeSlotData,
+      isPastDate: true,
+      isClickable: false,
+      isDisabled: true,
+    };
     hostFixture.detectChanges();
 
     const compiled = hostFixture.nativeElement;
@@ -113,7 +129,12 @@ describe('CalendarTimeSlotComponent', () => {
   });
 
   it('should apply past time styles when time is in the past', () => {
-    hostComponent.testData = { ...mockTimeSlotData, isPastTime: true, isClickable: false, isDisabled: true };
+    hostComponent.testData = {
+      ...mockTimeSlotData,
+      isPastTime: true,
+      isClickable: false,
+      isDisabled: true,
+    };
     hostFixture.detectChanges();
 
     const compiled = hostFixture.nativeElement;
@@ -140,7 +161,7 @@ describe('CalendarTimeSlotComponent', () => {
 
     expect(component.clicked.emit).toHaveBeenCalledWith({
       date: mockTimeSlotData.date,
-      time: mockTimeSlotData.time
+      time: mockTimeSlotData.time,
     });
   });
 

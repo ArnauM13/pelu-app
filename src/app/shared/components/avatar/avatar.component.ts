@@ -1,4 +1,13 @@
-import { Component, Input, computed, signal, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  computed,
+  signal,
+  OnInit,
+  OnDestroy,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface AvatarData {
@@ -10,7 +19,6 @@ export interface AvatarData {
 
 @Component({
   selector: 'pelu-avatar',
-  standalone: true,
   imports: [CommonModule],
   styleUrls: ['./avatar.component.scss'],
   template: `
@@ -44,7 +52,7 @@ export interface AvatarData {
         {{ initials() }}
       </div>
     </div>
-  `
+  `,
 })
 export class AvatarComponent implements OnInit, OnDestroy, OnChanges {
   @Input() data: AvatarData = {};

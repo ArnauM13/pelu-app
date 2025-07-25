@@ -8,14 +8,20 @@ import { InputDateComponent } from '../inputs/input-date/input-date.component';
 
 @Component({
   selector: 'pelu-filters-popup',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    FloatingButtonComponent,
+    InputTextComponent,
+    InputDateComponent,
+  ],
   templateUrl: './filters-popup.component.html',
-  styleUrls: ['./filters-popup.component.scss']
+  styleUrls: ['./filters-popup.component.scss'],
 })
 export class FiltersPopupComponent {
   // Input signals that can accept either values or signals
-  readonly filterButtons = input.required<any[] | Signal<any[]>>();
+  readonly filterButtons = input.required<unknown[] | Signal<unknown[]>>();
   readonly filterDate = input<string | Signal<string>>('');
   readonly filterClient = input<string | Signal<string>>('');
   readonly showAdvancedFilters = input<boolean | Signal<boolean>>(false);
@@ -57,8 +63,14 @@ export class FiltersPopupComponent {
     }
   }
 
-  onDateChangeHandler(value: string) {
-    this.onDateChange()?.(value);
+  onDateChangeHandler(value: string | Date | null) {
+    if (typeof value === 'string') {
+      this.onDateChange()?.(value);
+    } else if (value instanceof Date) {
+      this.onDateChange()?.(value.toISOString().split('T')[0]);
+    } else {
+      this.onDateChange()?.('');
+    }
   }
 
   onClientChangeHandler(value: string | number) {

@@ -11,32 +11,29 @@ describe('LoadingStateComponent', () => {
     spinnerSize: 'medium',
     showMessage: true,
     fullHeight: false,
-    overlay: false
+    overlay: false,
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        LoadingStateComponent,
-        TranslateModule.forRoot()
-      ],
+      imports: [LoadingStateComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
-          }
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+          },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoadingStateComponent);
@@ -192,7 +189,7 @@ describe('LoadingStateComponent', () => {
         spinnerSize: 'large',
         showMessage: true,
         fullHeight: true,
-        overlay: true
+        overlay: true,
       };
 
       component.config = fullConfig;
@@ -200,15 +197,21 @@ describe('LoadingStateComponent', () => {
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.querySelector('.spinner-large')).toBeTruthy();
-      expect(compiled.querySelector('.loading-message')?.textContent).toContain('Full config message');
-      expect(compiled.querySelector('.loading-content')?.classList.contains('full-height')).toBeTruthy();
-      expect(compiled.querySelector('.loading-content')?.classList.contains('overlay')).toBeTruthy();
+      expect(compiled.querySelector('.loading-message')?.textContent).toContain(
+        'Full config message'
+      );
+      expect(
+        compiled.querySelector('.loading-content')?.classList.contains('full-height')
+      ).toBeTruthy();
+      expect(
+        compiled.querySelector('.loading-content')?.classList.contains('overlay')
+      ).toBeTruthy();
     });
 
     it('should handle config with minimal properties', () => {
       const minimalConfig: LoadingStateConfig = {
         message: 'Minimal message',
-        spinnerSize: 'small'
+        spinnerSize: 'small',
       };
 
       component.config = minimalConfig;
@@ -221,7 +224,7 @@ describe('LoadingStateComponent', () => {
 
     it('should handle undefined config properties', () => {
       const incompleteConfig: LoadingStateConfig = {
-        message: 'Test message'
+        message: 'Test message',
       };
 
       component.config = incompleteConfig;
@@ -267,7 +270,7 @@ describe('LoadingStateComponent', () => {
 
     it('should handle undefined config properties gracefully', () => {
       const incompleteConfig: LoadingStateConfig = {
-        message: 'Test message'
+        message: 'Test message',
       };
       component.config = incompleteConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -276,7 +279,7 @@ describe('LoadingStateComponent', () => {
     it('should handle empty strings gracefully', () => {
       const emptyConfig: LoadingStateConfig = {
         message: '',
-        spinnerSize: 'medium'
+        spinnerSize: 'medium',
       };
       component.config = emptyConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -290,7 +293,7 @@ describe('LoadingStateComponent', () => {
         spinnerSize: 'large',
         showMessage: true,
         fullHeight: true,
-        overlay: true
+        overlay: true,
       };
 
       expect(testConfig.message).toBe('Test message');
@@ -302,7 +305,7 @@ describe('LoadingStateComponent', () => {
 
     it('should handle LoadingStateConfig without optional properties', () => {
       const testConfig: LoadingStateConfig = {
-        message: 'Test message'
+        message: 'Test message',
       };
 
       expect(testConfig.message).toBe('Test message');

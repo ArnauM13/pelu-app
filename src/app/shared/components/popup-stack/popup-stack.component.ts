@@ -18,31 +18,33 @@ export interface PopupItem {
       </div>
     </div>
   `,
-  styles: [`
-    .popup-stack {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-    }
-    .popup-stack-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-    }
-    .popup-stack-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-  `],
-  standalone: true
+  styles: [
+    `
+      .popup-stack {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+      }
+      .popup-stack-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .popup-stack-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    `,
+  ],
+  standalone: true,
 })
 export class PopupStackComponent {
   @Input() popups: PopupItem[] = [];

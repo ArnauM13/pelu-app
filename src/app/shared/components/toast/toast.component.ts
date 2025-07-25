@@ -15,20 +15,32 @@ export interface ToastData {
 
 @Component({
   selector: 'pelu-toast',
-  standalone: true,
   imports: [CommonModule, ToastModule, TranslateModule],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <p-toast [key]="toastKey" position="top-right" [baseZIndex]="10000" (onClick)="onToastClick($event)">
+    <p-toast
+      [key]="toastKey"
+      position="top-right"
+      [baseZIndex]="10000"
+      (onClick)="onToastClick($event)"
+    >
       <ng-template let-message pTemplate="message">
         <div class="toast-container">
           <!-- Icona del tipus de toast -->
           <div class="toast-icon">
             @switch (message.severity) {
-              @case ('success') { ✅ }
-              @case ('error') { ❌ }
-              @case ('warning') { ⚠️ }
-              @case ('info') { ℹ️ }
+              @case ('success') {
+                ✅
+              }
+              @case ('error') {
+                ❌
+              }
+              @case ('warning') {
+                ⚠️
+              }
+              @case ('info') {
+                ℹ️
+              }
             }
           </div>
 
@@ -48,7 +60,10 @@ export interface ToastData {
               <button
                 type="button"
                 class="toast-action-btn view-detail-btn"
-                (click)="viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()">
+                (click)="
+                  viewAppointmentDetail(message.data.appointmentId); $event.stopPropagation()
+                "
+              >
                 Veure detall
               </button>
             }
@@ -56,7 +71,8 @@ export interface ToastData {
               <button
                 type="button"
                 class="toast-action-btn action-btn"
-                (click)="executeAction(message.data.action); $event.stopPropagation()">
+                (click)="executeAction(message.data.action); $event.stopPropagation()"
+              >
                 Acció
               </button>
             }
@@ -66,7 +82,8 @@ export interface ToastData {
               type="button"
               class="toast-close-btn"
               (click)="clearToast(); $event.stopPropagation()"
-              [attr.aria-label]="'Tancar notificació'">
+              [attr.aria-label]="'Tancar notificació'"
+            >
               ×
             </button>
           </div>
@@ -74,33 +91,35 @@ export interface ToastData {
       </ng-template>
     </p-toast>
   `,
-  styles: [`
-    /* Garantir que els toasts apareguin sempre per sobre de tot */
-    :host {
-      position: fixed;
-      top: 0;
-      right: 0;
-      z-index: 10000;
-      pointer-events: none;
-    }
-
-    .p-toast {
-      position: fixed !important;
-      top: 1rem !important;
-      right: 1rem !important;
-      z-index: 10000 !important;
-      pointer-events: auto;
-    }
-
-    /* Responsiu per mòbils */
-    @media (max-width: 768px) {
-      .p-toast {
-        top: 0.5rem !important;
-        right: 0.5rem !important;
-        left: 0.5rem !important;
+  styles: [
+    `
+      /* Garantir que els toasts apareguin sempre per sobre de tot */
+      :host {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 10000;
+        pointer-events: none;
       }
-    }
-  `]
+
+      .p-toast {
+        position: fixed !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        z-index: 10000 !important;
+        pointer-events: auto;
+      }
+
+      /* Responsiu per mòbils */
+      @media (max-width: 768px) {
+        .p-toast {
+          top: 0.5rem !important;
+          right: 0.5rem !important;
+          left: 0.5rem !important;
+        }
+      }
+    `,
+  ],
 })
 export class ToastComponent {
   private readonly messageService = inject(MessageService);
@@ -125,7 +144,7 @@ export class ToastComponent {
       life: 4000,
       closable: false,
       key: this.toastKey,
-      data: { appointmentId, showViewButton, action } as ToastData
+      data: { appointmentId, showViewButton, action } as ToastData,
     });
   }
 
@@ -150,10 +169,14 @@ export class ToastComponent {
       this.clearToast();
       action();
     } catch (error) {
-      this.logger.error(error, {
-        component: 'ToastComponent',
-        method: 'executeAction'
-      }, false); // No mostrar toast per evitar recursió
+      this.logger.error(
+        error,
+        {
+          component: 'ToastComponent',
+          method: 'executeAction',
+        },
+        false
+      ); // No mostrar toast per evitar recursió
     }
   }
 
@@ -163,7 +186,7 @@ export class ToastComponent {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: this.authService.user()?.uid,
-      data: { appointmentId }
+      data: { appointmentId },
     });
 
     // Amagar el toast automàticament
@@ -174,7 +197,7 @@ export class ToastComponent {
       this.logger.warn('No user found when trying to view appointment detail', {
         component: 'ToastComponent',
         method: 'viewAppointmentDetail',
-        data: { appointmentId }
+        data: { appointmentId },
       });
       return;
     }
@@ -186,7 +209,7 @@ export class ToastComponent {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: user.uid,
-      data: { appointmentId, uniqueId }
+      data: { appointmentId, uniqueId },
     });
 
     this.router.navigate(['/appointments', uniqueId]);
