@@ -267,7 +267,8 @@
     "APPOINTMENTS": "Cites",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Taulell d'admin",
-    "ADMIN_SETTINGS": "Configuració"
+    "ADMIN_SETTINGS": "Configuració",
+    "PLAYGROUND": "Playground"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
@@ -438,6 +439,7 @@
       "SELECT_CATEGORY": "Seleccionar categoria",
       "SELECT_ICON": "Seleccionar icona",
       "MARK_AS_POPULAR": "Marcar com a popular",
+      "MARK_AS_FAVORITE": "Marcar com a favorit",
       "NO_SERVICES_IN_CATEGORY": "No hi ha serveis en aquesta categoria",
       "SERVICE_CREATED": "Servei creat",
       "SERVICE_CREATED_MESSAGE": "El servei s'ha creat correctament",
@@ -643,6 +645,11 @@
     "TEXT_PLACEHOLDER": "Introdueix text",
     "TEXT_EMAIL_PLACEHOLDER": "Introdueix el teu email",
     "TEXT_PASSWORD_PLACEHOLDER": "Introdueix la teva contrasenya",
+    "PASSWORD_PLACEHOLDER": "Introdueix la teva contrasenya",
+    "PASSWORD_PROMPT_LABEL": "Tria una contrasenya",
+    "PASSWORD_WEAK_LABEL": "Massa simple",
+    "PASSWORD_MEDIUM_LABEL": "Complexitat mitjana",
+    "PASSWORD_STRONG_LABEL": "Contrasenya complexa",
     "TEXTAREA_PLACEHOLDER": "Introdueix text...",
     "SELECT_PLACEHOLDER": "Selecciona una opció",
     "SELECT_FILTER_PLACEHOLDER": "Cerca...",
