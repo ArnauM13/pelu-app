@@ -249,7 +249,8 @@
     "APPOINTMENTS": "Citas",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Panel de admin",
-    "ADMIN_SETTINGS": "Configuración"
+    "ADMIN_SETTINGS": "Configuración",
+    "PLAYGROUND": "Playground"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
@@ -419,6 +420,7 @@
       "SELECT_CATEGORY": "Seleccionar categoría",
       "SELECT_ICON": "Seleccionar icono",
       "MARK_AS_POPULAR": "Marcar como popular",
+      "MARK_AS_FAVORITE": "Marcar como favorito",
       "NO_SERVICES_IN_CATEGORY": "No hay servicios en esta categoría",
       "SERVICE_CREATED": "Servicio creado",
       "SERVICE_CREATED_MESSAGE": "El servicio se ha creado correctamente",
@@ -706,6 +708,11 @@
     "TEXT_PLACEHOLDER": "Introduce texto",
     "TEXT_EMAIL_PLACEHOLDER": "Introduce tu email",
     "TEXT_PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+    "PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+    "PASSWORD_PROMPT_LABEL": "Elige una contraseña",
+    "PASSWORD_WEAK_LABEL": "Demasiado simple",
+    "PASSWORD_MEDIUM_LABEL": "Complejidad media",
+    "PASSWORD_STRONG_LABEL": "Contraseña compleja",
     "TEXTAREA_PLACEHOLDER": "Introduce texto...",
     "SELECT_PLACEHOLDER": "Selecciona una opción",
     "SELECT_FILTER_PLACEHOLDER": "Buscar...",
