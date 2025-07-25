@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'pelu-buttons-demo',
+  standalone: true,
   imports: [CommonModule, TranslateModule, ButtonModule],
   templateUrl: './buttons-demo.component.html',
   styleUrls: ['./buttons-demo.component.scss'],

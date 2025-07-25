@@ -16,6 +16,7 @@ import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.
 import { InputNumberComponent } from '../inputs/input-number/input-number.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { ActionsButtonsComponent } from '../actions-buttons';
+import { ButtonComponent } from '../buttons/button.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
@@ -70,6 +71,7 @@ export interface DetailViewConfig {
     InputNumberComponent,
     InputDateComponent,
     ActionsButtonsComponent,
+    ButtonComponent,
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss'],

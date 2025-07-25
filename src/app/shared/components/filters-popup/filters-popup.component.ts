@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloatingButtonComponent } from '../floating-button/floating-button.component';
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
+import { ButtonComponent } from '../buttons/button.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 
 @Component({
@@ -15,6 +16,7 @@ import { InputDateComponent } from '../inputs/input-date/input-date.component';
     FloatingButtonComponent,
     InputTextComponent,
     InputDateComponent,
+    ButtonComponent,
   ],
   templateUrl: './filters-popup.component.html',
   styleUrls: ['./filters-popup.component.scss'],

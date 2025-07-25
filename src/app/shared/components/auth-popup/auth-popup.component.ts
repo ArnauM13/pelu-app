@@ -22,6 +22,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextComponent } from "../inputs/input-text/input-text.component";
 import { InputPasswordComponent } from "../inputs/input-password/input-password.component";
+import { ButtonComponent } from "../buttons/button.component";
 
 export interface AuthPopupConfig {
   mode: 'login' | 'register';
@@ -43,7 +44,8 @@ export interface AuthPopupConfig {
     ButtonModule,
     TranslateModule,
     InputTextComponent,
-    InputPasswordComponent
+    InputPasswordComponent,
+    ButtonComponent
 ],
   templateUrl: './auth-popup.component.html',
   styleUrls: ['./auth-popup.component.scss'],
