@@ -35,14 +35,14 @@
     <!-- Input Password -->
     <div class="demo-section">
       <h2>Input Password</h2>
-      <pelu-input-text
+      <pelu-input-password
         label="Contrasenya"
-        type="password"
         [required]="true"
+        [toggleMask]="true"
         [value]="formData().password"
         (valueChange)="updateField('password', $event)"
       >
-      </pelu-input-text>
+      </pelu-input-password>
     </div>
 
     <!-- Input Number -->
@@ -56,34 +56,6 @@
         (valueChange)="updateField('age', $event)"
       >
       </pelu-input-number>
-    </div>
-
-    <!-- Input Date - Calendar -->
-    <div class="demo-section">
-      <h2>Input Date - Calendar</h2>
-      <pelu-input-date
-        label="Data de naixement"
-        dateFormat="dd/mm/yy"
-        [showIcon]="true"
-        [showButtonBar]="true"
-        [value]="formData().birthDate"
-        (valueChange)="updateField('birthDate', $event)"
-      >
-      </pelu-input-date>
-    </div>
-
-    <!-- Input Date - Time Only -->
-    <div class="demo-section">
-      <h2>Input Date - Time Only</h2>
-      <pelu-input-date
-        label="Hora de la cita"
-        [timeOnly]="true"
-        hourFormat="24"
-        [showIcon]="true"
-        [value]="formData().appointmentTime"
-        (valueChange)="updateField('appointmentTime', $event)"
-      >
-      </pelu-input-date>
     </div>
 
     <!-- Input Checkbox -->
@@ -347,26 +319,94 @@
       </pelu-input-textarea>
     </div>
 
-    <!-- Input Textarea with variants -->
-    <div class="demo-section">
-      <h2>Input Textarea - Variants</h2>
-      <pelu-input-textarea
-        label="Textarea Outlined (per defecte)"
-        placeholder="Estil outlined..."
-        [rows]="3"
-        [variant]="'outlined'"
-      >
-      </pelu-input-textarea>
+         <!-- Input Textarea with variants -->
+     <div class="demo-section">
+       <h2>Input Textarea - Variants</h2>
+       <pelu-input-textarea
+         label="Textarea Outlined (per defecte)"
+         placeholder="Estil outlined..."
+         [rows]="3"
+         [variant]="'outlined'"
+       >
+       </pelu-input-textarea>
 
-      <pelu-input-textarea
-        label="Textarea Filled"
-        placeholder="Estil filled..."
-        [rows]="3"
-        [variant]="'filled'"
-      >
-      </pelu-input-textarea>
-    </div>
-  </div>
+       <pelu-input-textarea
+         label="Textarea Filled"
+         placeholder="Estil filled..."
+         [rows]="3"
+         [variant]="'filled'"
+       >
+       </pelu-input-textarea>
+     </div>
+
+     <!-- Input Toggle Switch -->
+     <div class="demo-section">
+       <h2>Input Toggle Switch</h2>
+       <pelu-input-toggleswitch
+         label="Marcar com a favorit"
+         [value]="formData().favorite"
+         (valueChange)="updateField('favorite', $event)"
+         helpText="Aquest servei apareixerà destacat a la llista"
+       >
+       </pelu-input-toggleswitch>
+     </div>
+
+     <!-- Input Date - Calendar -->
+     <div class="demo-section">
+       <h2>Input Date - Calendar (Sense restriccions)</h2>
+       <pelu-input-date
+         label="Data de naixement"
+         dateFormat="dd/mm/yy"
+         [showIcon]="true"
+         [value]="formData().birthDate"
+         (valueChange)="updateField('birthDate', $event)"
+       >
+       </pelu-input-date>
+     </div>
+
+     <!-- Input Date - Calendar with Past Months Prevention -->
+     <div class="demo-section">
+       <h2>Input Date - Calendar (Impedeix mesos anteriors)</h2>
+       <pelu-input-date
+         label="Data de cita"
+         dateFormat="dd/mm/yy"
+         [showIcon]="true"
+         [preventPastMonths]="true"
+         [value]="formData().appointmentDate"
+         (valueChange)="updateField('appointmentDate', $event)"
+       >
+       </pelu-input-date>
+     </div>
+
+     <!-- Input Date - Time Only -->
+     <div class="demo-section">
+       <h2>Input Date - Time Only</h2>
+       <pelu-input-date
+         label="Hora de la cita"
+         [timeOnly]="true"
+         hourFormat="24"
+         [showIcon]="true"
+         [value]="formData().appointmentTime"
+         (valueChange)="updateField('appointmentTime', $event)"
+       >
+       </pelu-input-date>
+     </div>
+
+     <!-- Input Date - Inline Calendar -->
+     <div class="demo-section">
+       <h2>Input Date - Calendari Inline</h2>
+       <p class="demo-description">Calendari que es mostra sempre visible, sense popup</p>
+       <pelu-input-date
+         label="Selecciona una data"
+         dateFormat="dd/mm/yy"
+         [inline]="true"
+         [showIcon]="false"
+         [value]="formData().inlineDate"
+         (valueChange)="updateField('inlineDate', $event)"
+       >
+       </pelu-input-date>
+     </div>
+   </div>
 
   <!-- Form Data Display -->
   <div class="demo-data">

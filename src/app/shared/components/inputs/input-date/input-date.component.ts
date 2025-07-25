@@ -53,6 +53,16 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly showOnFocus = input<boolean>(true);
   readonly minDate = input<Date | null>(null);
   readonly maxDate = input<Date | null>(null);
+  readonly preventPastMonths = input<boolean>(false);
+
+  // Computed minDate that prevents past months when enabled
+  readonly computedMinDate = computed(() => {
+    if (this.preventPastMonths()) {
+      // Set to today's date to prevent selecting past dates
+      return new Date();
+    }
+    return this.minDate();
+  });
 
   // Unique ID generated once
   private readonly uniqueId = 'date-' + Math.random().toString(36).substr(2, 9);
@@ -92,6 +102,10 @@ export class InputDateComponent implements ControlValueAccessor {
     return null;
   });
 
+  constructor() {
+    // No need for complex synchronization - let PrimeNG handle it natively
+  }
+
   // Get unique ID
   getElementId(): string {
     return this.uniqueId;
@@ -103,10 +117,12 @@ export class InputDateComponent implements ControlValueAccessor {
     this.valueChange.emit(date);
   }
 
+
+
   // ControlValueAccessor methods
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   writeValue(value: Date | string | null): void {
-    // PrimeNG handles this automatically
+    // PrimeNG handles this automatically through the input signal
   }
 
   registerOnChange(fn: (value: Date | string | null) => void): void {

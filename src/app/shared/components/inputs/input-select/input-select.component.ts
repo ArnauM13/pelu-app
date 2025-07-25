@@ -64,7 +64,7 @@ export class InputSelectComponent implements ControlValueAccessor {
   readonly loading = input<boolean>(false);
   readonly editable = input<boolean>(false);
   readonly checkmark = input<boolean>(false);
-  readonly filter = input<boolean>(false);
+  readonly filter = input<boolean>(true);
   readonly filterBy = input<string>('label');
   readonly filterMatchMode = input<'contains' | 'startsWith' | 'endsWith' | 'equals' | 'notEquals' | 'in' | 'lt' | 'lte' | 'gt' | 'gte'>('contains');
   readonly filterPlaceholder = input<string>('');

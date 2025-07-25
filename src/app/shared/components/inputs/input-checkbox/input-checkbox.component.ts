@@ -28,6 +28,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   readonly size = input<'small' | 'large'>('small');
   readonly variant = input<'outlined' | 'filled'>('outlined');
   readonly disabled = input<boolean>(false);
+  readonly invalid = input<boolean>(false);
 
   // Unique ID generated once
   private readonly uniqueId = 'checkbox-' + Math.random().toString(36).substr(2, 9);

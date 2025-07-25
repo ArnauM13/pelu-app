@@ -19,6 +19,94 @@
   }
 }
 
+// Ensure p-select component has white background
+p-select .p-select {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-color-secondary) !important;
+  font-size: 0.95rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 44px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+
+  &:hover {
+    background-color: white !important;
+    border-color: var(--border-color-hover) !important;
+  }
+
+  &:focus-within {
+    background-color: white !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
+  }
+
+  .p-select-label {
+    background-color: transparent !important;
+    color: var(--text-color-secondary) !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .p-select-trigger {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-color-muted) !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin-right: 0.5rem !important;
+    transition: color 0.2s ease !important;
+
+    &:hover {
+      background: transparent !important;
+      color: var(--primary-color) !important;
+    }
+
+    .pi {
+      font-size: 1rem !important;
+      color: inherit !important;
+    }
+  }
+}
+
+p-select .p-select-panel {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--box-shadow-elevated) !important;
+  z-index: 99999 !important;
+  margin-top: 0.25rem !important;
+
+  .p-select-item {
+    background-color: white !important;
+    color: var(--text-color-secondary) !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+
+    &:hover {
+      background-color: var(--surface-color-hover) !important;
+      color: var(--text-color-secondary) !important;
+    }
+
+    &.p-highlight {
+      background-color: var(--primary-color) !important;
+      color: white !important;
+      font-weight: 600 !important;
+    }
+  }
+
+  .p-select-empty-message {
+    background-color: white !important;
+    color: var(--text-color-muted) !important;
+    padding: 0.75rem 1rem !important;
+    text-align: center !important;
+  }
+}
+
 .input-help {
   font-size: 0.8rem;
   color: #6b7280;
