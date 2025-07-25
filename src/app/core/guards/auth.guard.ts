@@ -6,7 +6,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 
-  return new Promise<boolean>((resolve) => {
+  return new Promise<boolean>(resolve => {
     if (userService.isInitialized()) {
       const isAuth = userService.isAuthenticated();
       if (!isAuth) {
@@ -37,7 +37,7 @@ export const publicGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 
-  return new Promise<boolean>((resolve) => {
+  return new Promise<boolean>(resolve => {
     if (userService.isInitialized()) {
       const isAuth = userService.isAuthenticated();
       if (isAuth) {
@@ -64,5 +64,3 @@ export const publicGuard: CanActivateFn = (route, state) => {
     }
   });
 };
-
-

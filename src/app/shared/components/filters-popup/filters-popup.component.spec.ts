@@ -11,12 +11,8 @@ describe('FiltersPopupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FiltersPopupComponent,
-        TranslateModule.forRoot(),
-        HttpClientModule
-      ],
-      providers: [HttpClient]
+      imports: [FiltersPopupComponent, TranslateModule.forRoot(), HttpClientModule],
+      providers: [HttpClient],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FiltersPopupComponent);
@@ -157,7 +153,7 @@ describe('FiltersPopupComponent', () => {
     const testButtons = [
       { id: 1, name: 'All', active: true },
       { id: 2, name: 'Today', active: false },
-      { id: 3, name: 'Advanced', active: false }
+      { id: 3, name: 'Advanced', active: false },
     ];
 
     expect(testButtons.length).toBe(3);

@@ -8,10 +8,7 @@ describe('PerfilPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PerfilPageComponent],
-      providers: [
-        { provide: Auth, useValue: mockAuth },
-        provideRouter([])
-      ]
+      providers: [{ provide: Auth, useValue: mockAuth }, provideRouter([])],
     }).compileComponents();
   });
 

@@ -20,7 +20,7 @@ export interface ErrorDetails {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoggerService {
   private readonly translateService = inject(TranslateService);
@@ -73,7 +73,12 @@ export class LoggerService {
     }
 
     // Enviar a servei de logging
-    this.sendToLoggingService('error', errorDetails.technicalDetails || 'Unknown error', logContext, error);
+    this.sendToLoggingService(
+      'error',
+      errorDetails.technicalDetails || 'Unknown error',
+      logContext,
+      error
+    );
 
     // Mostrar toast a l'usuari si cal: ELIMINAT
     // if (showUserToast) {
@@ -96,7 +101,12 @@ export class LoggerService {
     console.error('Error Context:', logContext);
 
     // Enviar a servei de logging amb prioritat alta
-    this.sendToLoggingService('critical', errorDetails.technicalDetails || 'Critical error', logContext, error);
+    this.sendToLoggingService(
+      'critical',
+      errorDetails.technicalDetails || 'Critical error',
+      logContext,
+      error
+    );
 
     // Mostrar error crític a l'usuari
     // this.showUserFriendlyError(errorDetails); // ELIMINAT
@@ -205,7 +215,7 @@ export class LoggerService {
   private buildLogContext(context?: LogContext): LogContext {
     return {
       timestamp: new Date(),
-      ...context
+      ...context,
     };
   }
 
@@ -214,11 +224,16 @@ export class LoggerService {
       error,
       context,
       technicalDetails: error?.message || 'Unknown error occurred',
-      severity: 'medium'
+      severity: 'medium',
     };
   }
 
-  private formatLogMessage(level: string, message: string, context: LogContext, data?: any): string {
+  private formatLogMessage(
+    level: string,
+    message: string,
+    context: LogContext,
+    data?: any
+  ): string {
     const timestamp = context.timestamp?.toISOString() || new Date().toISOString();
     const component = context.component ? `[${context.component}]` : '';
     const method = context.method ? `.${context.method}` : '';
@@ -253,7 +268,12 @@ export class LoggerService {
   //   );
   // }
 
-  private sendToLoggingService(level: string, message: string, context: LogContext, data?: any): void {
+  private sendToLoggingService(
+    level: string,
+    message: string,
+    context: LogContext,
+    data?: any
+  ): void {
     // En un entorn de producció, aquí enviaríem els logs a un servei extern
     // com ara Sentry, LogRocket, o un servei personalitzat
 
@@ -264,7 +284,7 @@ export class LoggerService {
       data,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      url: window.location.href
+      url: window.location.href,
     };
 
     // Per ara, només guardem en localStorage per a debugging

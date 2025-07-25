@@ -11,7 +11,7 @@ export interface ServiceColor {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ServiceColorsService {
   private readonly serviceColors: ServiceColor[] = [
@@ -21,7 +21,7 @@ export class ServiceColorsService {
       color: 'var(--service-haircut-color)',
       backgroundColor: 'var(--service-haircut-bg)',
       borderColor: 'var(--service-haircut-color)',
-      textColor: 'var(--service-haircut-text)'
+      textColor: 'var(--service-haircut-text)',
     },
     {
       id: 'styling',
@@ -29,7 +29,7 @@ export class ServiceColorsService {
       color: 'var(--service-styling-color)',
       backgroundColor: 'var(--service-styling-bg)',
       borderColor: 'var(--service-styling-color)',
-      textColor: 'var(--service-styling-text)'
+      textColor: 'var(--service-styling-text)',
     },
     {
       id: 'treatment',
@@ -37,7 +37,7 @@ export class ServiceColorsService {
       color: 'var(--service-treatment-color)',
       backgroundColor: 'var(--service-treatment-bg)',
       borderColor: 'var(--service-treatment-color)',
-      textColor: 'var(--service-treatment-text)'
+      textColor: 'var(--service-treatment-text)',
     },
     {
       id: 'coloring',
@@ -45,7 +45,7 @@ export class ServiceColorsService {
       color: 'var(--service-coloring-color)',
       backgroundColor: 'var(--service-coloring-bg)',
       borderColor: 'var(--service-coloring-color)',
-      textColor: 'var(--service-coloring-text)'
+      textColor: 'var(--service-coloring-text)',
     },
     {
       id: 'special',
@@ -53,7 +53,7 @@ export class ServiceColorsService {
       color: 'var(--service-special-color)',
       backgroundColor: 'var(--service-special-bg)',
       borderColor: 'var(--service-special-color)',
-      textColor: 'var(--service-special-text)'
+      textColor: 'var(--service-special-text)',
     },
     {
       id: 'kids',
@@ -61,7 +61,7 @@ export class ServiceColorsService {
       color: 'var(--service-kids-color)',
       backgroundColor: 'var(--service-kids-bg)',
       borderColor: 'var(--service-kids-color)',
-      textColor: 'var(--service-kids-text)'
+      textColor: 'var(--service-kids-text)',
     },
     {
       id: 'default',
@@ -69,8 +69,8 @@ export class ServiceColorsService {
       color: 'var(--service-default-color)',
       backgroundColor: 'var(--service-default-bg)',
       borderColor: 'var(--service-default-color)',
-      textColor: 'var(--service-default-text)'
-    }
+      textColor: 'var(--service-default-text)',
+    },
   ];
 
   private readonly serviceColorMap = new Map<string, ServiceColor>();
@@ -93,27 +93,54 @@ export class ServiceColorsService {
     const serviceNameLower = serviceName.toLowerCase();
 
     // Mapeig de noms de serveis a IDs de colors
-    if (serviceNameLower.includes('corte') || serviceNameLower.includes('tall') || serviceNameLower.includes('cabell')) {
+    if (
+      serviceNameLower.includes('corte') ||
+      serviceNameLower.includes('tall') ||
+      serviceNameLower.includes('cabell')
+    ) {
       return this.serviceColorMap.get('haircut') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('peinat') || serviceNameLower.includes('pentinat') || serviceNameLower.includes('estil') || serviceNameLower.includes('estilitzat')) {
+    if (
+      serviceNameLower.includes('peinat') ||
+      serviceNameLower.includes('pentinat') ||
+      serviceNameLower.includes('estil') ||
+      serviceNameLower.includes('estilitzat')
+    ) {
       return this.serviceColorMap.get('styling') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('tractament') || serviceNameLower.includes('màscara') || serviceNameLower.includes('hidratació') || serviceNameLower.includes('rentat')) {
+    if (
+      serviceNameLower.includes('tractament') ||
+      serviceNameLower.includes('màscara') ||
+      serviceNameLower.includes('hidratació') ||
+      serviceNameLower.includes('rentat')
+    ) {
       return this.serviceColorMap.get('treatment') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('color') || serviceNameLower.includes('tint') || serviceNameLower.includes('coloració')) {
+    if (
+      serviceNameLower.includes('color') ||
+      serviceNameLower.includes('tint') ||
+      serviceNameLower.includes('coloració')
+    ) {
       return this.serviceColorMap.get('coloring') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('especial') || serviceNameLower.includes('event') || serviceNameLower.includes('completa')) {
+    if (
+      serviceNameLower.includes('especial') ||
+      serviceNameLower.includes('event') ||
+      serviceNameLower.includes('completa')
+    ) {
       return this.serviceColorMap.get('special') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('infantil') || serviceNameLower.includes('nen') || serviceNameLower.includes('nena') || serviceNameLower.includes('infant')) {
+    if (
+      serviceNameLower.includes('infantil') ||
+      serviceNameLower.includes('nen') ||
+      serviceNameLower.includes('nena') ||
+      serviceNameLower.includes('infant')
+    ) {
       return this.serviceColorMap.get('kids') || this.getDefaultColor();
     }
 
@@ -141,7 +168,7 @@ export class ServiceColorsService {
     return [...this.serviceColors];
   }
 
-    /**
+  /**
    * Obté els colors únics dels serveis disponibles
    */
   getUniqueServiceColors(): ServiceColor[] {

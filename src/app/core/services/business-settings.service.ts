@@ -27,7 +27,7 @@ const DEFAULT_SETTINGS: BusinessSettings = {
     start: 8,
     end: 20,
     lunchStart: 13,
-    lunchEnd: 14
+    lunchEnd: 14,
   },
   workingDays: [1, 2, 3, 4, 5, 6], // Monday to Saturday
   appointmentDuration: 60,
@@ -38,11 +38,11 @@ const DEFAULT_SETTINGS: BusinessSettings = {
   backupFrequency: 'daily',
   language: 'ca',
   timezone: 'Europe/Madrid',
-  currency: 'EUR'
+  currency: 'EUR',
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BusinessSettingsService {
   private readonly firestore = inject(Firestore);

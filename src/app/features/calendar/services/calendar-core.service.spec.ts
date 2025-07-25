@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { CalendarCoreService, CoordinatePosition, TimePosition, GridConfiguration } from './calendar-core.service';
+import {
+  CalendarCoreService,
+  CoordinatePosition,
+  TimePosition,
+  GridConfiguration,
+} from './calendar-core.service';
 import { CalendarStateService } from './calendar-state.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -17,11 +22,27 @@ describe('CalendarCoreService', () => {
   let mockLoggerService: jasmine.SpyObj<LoggerService>;
 
   beforeEach(() => {
-    const stateServiceSpy = jasmine.createSpyObj('CalendarStateService', ['appointments', 'setAppointments']);
-    const toastServiceSpy = jasmine.createSpyObj('ToastService', ['showError', 'showSuccess', 'showAppointmentCreated']);
+    const stateServiceSpy = jasmine.createSpyObj('CalendarStateService', [
+      'appointments',
+      'setAppointments',
+    ]);
+    const toastServiceSpy = jasmine.createSpyObj('ToastService', [
+      'showError',
+      'showSuccess',
+      'showAppointmentCreated',
+    ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated']);
-    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['isAdmin', 'isClient', 'hasAdminAccess']);
-    const loggerServiceSpy = jasmine.createSpyObj('LoggerService', ['log', 'error', 'warn', 'info']);
+    const roleServiceSpy = jasmine.createSpyObj('RoleService', [
+      'isAdmin',
+      'isClient',
+      'hasAdminAccess',
+    ]);
+    const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
+      'log',
+      'error',
+      'warn',
+      'info',
+    ]);
 
     // Setup default mocks BEFORE TestBed configuration
     stateServiceSpy.appointments.and.returnValue([]);
@@ -33,14 +54,14 @@ describe('CalendarCoreService', () => {
       isAnonymous: false,
       metadata: {
         creationTime: '2024-01-01T00:00:00.000Z',
-        lastSignInTime: '2024-01-15T00:00:00.000Z'
+        lastSignInTime: '2024-01-15T00:00:00.000Z',
       },
       phoneNumber: null,
       photoURL: null,
       providerData: [],
       providerId: 'password',
       refreshToken: 'mock-refresh-token',
-      tenantId: null
+      tenantId: null,
     } as any);
     authServiceSpy.isAuthenticated.and.returnValue(true);
     roleServiceSpy.isAdmin.and.returnValue(false);
@@ -55,8 +76,8 @@ describe('CalendarCoreService', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RoleService, useValue: roleServiceSpy },
         { provide: LoggerService, useValue: loggerServiceSpy },
-        ...provideMockFirebase()
-      ]
+        ...provideMockFirebase(),
+      ],
     });
 
     service = TestBed.inject(CalendarCoreService);
@@ -87,7 +108,7 @@ describe('CalendarCoreService', () => {
       const newConfig: Partial<GridConfiguration> = {
         slotHeightPx: 40,
         pixelsPerMinute: 2,
-        businessStartHour: 9
+        businessStartHour: 9,
       };
 
       service.updateGridConfiguration(newConfig);
@@ -109,7 +130,7 @@ describe('CalendarCoreService', () => {
         businessStartHour: 8,
         businessEndHour: 20,
         lunchBreakStart: 13,
-        lunchBreakEnd: 15
+        lunchBreakEnd: 15,
       });
     });
 
@@ -147,7 +168,7 @@ describe('CalendarCoreService', () => {
         businessStartHour: 8,
         businessEndHour: 20,
         lunchBreakStart: 13,
-        lunchBreakEnd: 15
+        lunchBreakEnd: 15,
       });
     });
 
@@ -173,7 +194,7 @@ describe('CalendarCoreService', () => {
         businessStartHour: 8,
         businessEndHour: 20,
         lunchBreakStart: 13,
-        lunchBreakEnd: 15
+        lunchBreakEnd: 15,
       });
     });
 
@@ -182,7 +203,7 @@ describe('CalendarCoreService', () => {
         id: '1',
         title: 'Test Appointment',
         start: '2024-01-15T09:00:00',
-        duration: 60
+        duration: 60,
       };
 
       const position = service.calculateAppointmentPosition(appointment);
@@ -208,7 +229,7 @@ describe('CalendarCoreService', () => {
         businessStartHour: 8,
         businessEndHour: 20,
         lunchBreakStart: 13,
-        lunchBreakEnd: 15
+        lunchBreakEnd: 15,
       });
     });
 
@@ -259,7 +280,7 @@ describe('CalendarCoreService', () => {
         id: '1',
         title: 'Test Appointment',
         start: '2024-01-15T09:00:00',
-        duration: 60
+        duration: 60,
       };
       const originalPosition = { top: 100, left: 50 };
       const originalDate = new Date('2024-01-15');
@@ -285,7 +306,7 @@ describe('CalendarCoreService', () => {
         id: '1',
         title: 'Test Appointment',
         start: '2024-01-15T09:00:00',
-        duration: 60
+        duration: 60,
       };
       service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-15'));
 
@@ -299,7 +320,7 @@ describe('CalendarCoreService', () => {
         id: '1',
         title: 'Test Appointment',
         start: '2024-01-15T09:00:00',
-        duration: 60
+        duration: 60,
       };
       service.startDrag(appointment, { top: 100, left: 50 }, new Date('2024-01-15'));
 
@@ -318,7 +339,7 @@ describe('CalendarCoreService', () => {
         businessStartHour: 8,
         businessEndHour: 20,
         lunchBreakStart: 13,
-        lunchBreakEnd: 15
+        lunchBreakEnd: 15,
       });
     });
 
@@ -348,7 +369,7 @@ describe('CalendarCoreService', () => {
         businessStartHour: 8,
         businessEndHour: 20,
         lunchBreakStart: 13,
-        lunchBreakEnd: 15
+        lunchBreakEnd: 15,
       });
     });
 

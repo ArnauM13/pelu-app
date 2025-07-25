@@ -16,35 +16,37 @@ describe('AppointmentSlotComponent', () => {
     start: '2024-01-01T10:00:00',
     duration: 60,
     serviceName: 'Test Service',
-    clientName: 'Test Client'
+    clientName: 'Test Client',
   };
 
   const mockSlotData: AppointmentSlotData = {
     appointment: mockAppointmentEvent,
-    date: new Date('2024-01-01')
+    date: new Date('2024-01-01'),
   };
 
   beforeEach(async () => {
-    const coreSpy = jasmine.createSpyObj('CalendarCoreService', [
-      'calculateAppointmentPosition'
-    ]);
+    const coreSpy = jasmine.createSpyObj('CalendarCoreService', ['calculateAppointmentPosition']);
     const colorsSpy = jasmine.createSpyObj('ServiceColorsService', [
       'getServiceColor',
-      'getDefaultColor'
+      'getDefaultColor',
     ]);
 
     await TestBed.configureTestingModule({
       imports: [AppointmentSlotComponent],
       providers: [
         { provide: CalendarCoreService, useValue: coreSpy },
-        { provide: ServiceColorsService, useValue: colorsSpy }
-      ]
+        { provide: ServiceColorsService, useValue: colorsSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppointmentSlotComponent);
     component = fixture.componentInstance;
-    mockCalendarCoreService = TestBed.inject(CalendarCoreService) as jasmine.SpyObj<CalendarCoreService>;
-    mockServiceColorsService = TestBed.inject(ServiceColorsService) as jasmine.SpyObj<ServiceColorsService>;
+    mockCalendarCoreService = TestBed.inject(
+      CalendarCoreService
+    ) as jasmine.SpyObj<CalendarCoreService>;
+    mockServiceColorsService = TestBed.inject(
+      ServiceColorsService
+    ) as jasmine.SpyObj<ServiceColorsService>;
 
     // Setup default spy returns
     mockCalendarCoreService.calculateAppointmentPosition.and.returnValue({ top: 100, height: 60 });
@@ -66,13 +68,15 @@ describe('AppointmentSlotComponent', () => {
     expect(component.formatDuration(30)).toBe('30m');
   });
 
-    it('should have computed position', () => {
+  it('should have computed position', () => {
     // Set data using writeSignal (Angular 17+ way)
     (component.data as any).set(mockSlotData);
     const position = component.position();
 
     expect(position).toEqual({ top: 100, height: 60 });
-    expect(mockCalendarCoreService.calculateAppointmentPosition).toHaveBeenCalledWith(mockAppointmentEvent);
+    expect(mockCalendarCoreService.calculateAppointmentPosition).toHaveBeenCalledWith(
+      mockAppointmentEvent
+    );
   });
 
   it('should have computed service color', () => {

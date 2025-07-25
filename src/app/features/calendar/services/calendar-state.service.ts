@@ -11,7 +11,7 @@ export interface CalendarState {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarStateService {
   private readonly businessService = inject(CalendarBusinessService);
@@ -156,7 +156,7 @@ export class CalendarStateService {
       selectedDay: this.selectedDay(),
       showDetailPopup: this.showDetailPopup(),
       selectedAppointment: this.selectedAppointment(),
-      appointments: this.appointments()
+      appointments: this.appointments(),
     };
   }
 }

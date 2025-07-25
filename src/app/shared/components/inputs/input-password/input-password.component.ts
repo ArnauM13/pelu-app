@@ -1,196 +1,109 @@
-import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { PasswordModule } from 'primeng/password';
 
 export interface InputPasswordConfig {
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  autocomplete?: string;
-  autofocus?: boolean;
-  maxlength?: number;
-  minlength?: number;
-  spellcheck?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
   helpText?: string;
   errorText?: string;
   successText?: string;
-  showLabel?: boolean;
   showHelpText?: boolean;
   showErrorText?: boolean;
   showSuccessText?: boolean;
-  icon?: string;
-  iconPosition?: 'left' | 'right';
-  clearable?: boolean;
-  loading?: boolean;
-  value?: string;
-  showToggle?: boolean;
 }
 
 @Component({
   selector: 'pelu-input-password',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, PasswordModule],
   templateUrl: './input-password.component.html',
   styleUrls: ['./input-password.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => InputPasswordComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class InputPasswordComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<InputPasswordConfig>();
+  // Reactive inputs (signals)
   readonly value = input<string>('');
   readonly formControlName = input<string>('');
 
-  // Output signals
+  // Component inputs
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
+  readonly size = input<'small' | 'large'>('small');
+  readonly variant = input<'outlined' | 'filled'>('outlined');
+  readonly invalid = input<boolean>(false);
+  readonly fluid = input<boolean>(true);
+
+  // Password specific properties
+  readonly feedback = input<boolean>(true);
+  readonly toggleMask = input<boolean>(true);
+  readonly promptLabel = input<string>('INPUTS.PASSWORD_PROMPT_LABEL');
+  readonly weakLabel = input<string>('INPUTS.PASSWORD_WEAK_LABEL');
+  readonly mediumLabel = input<string>('INPUTS.PASSWORD_MEDIUM_LABEL');
+  readonly strongLabel = input<string>('INPUTS.PASSWORD_STRONG_LABEL');
+
+  // Unique ID generated once
+  private readonly uniqueId = 'input-password-' + Math.random().toString(36).substr(2, 9);
+
+  // Outputs
   readonly valueChange = output<string>();
-  readonly focus = output<FocusEvent>();
-  readonly blur = output<FocusEvent>();
-  readonly input = output<Event>();
-  readonly change = output<Event>();
-  readonly keydown = output<KeyboardEvent>();
-  readonly keyup = output<KeyboardEvent>();
-  readonly keypress = output<KeyboardEvent>();
 
-  // Internal state
-  private readonly internalValue = signal<string>('');
-  private readonly isFocused = signal<boolean>(false);
-  private readonly isTouched = signal<boolean>(false);
-  readonly showPassword = signal<boolean>(false);
-
-  // Computed properties
-  readonly displayValue = computed(() => this.value() || this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(() => this.config().showSuccessText !== false && this.hasSuccess());
-  readonly hasIcon = computed(() => !!this.config().icon);
-  readonly isClearable = computed(() => this.config().clearable && !!this.displayValue());
-  readonly showToggle = computed(() => this.config().showToggle !== false);
-  readonly inputType = computed(() => this.showPassword() ? 'text' : 'password');
-  readonly toggleIcon = computed(() => this.showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye');
-  readonly inputClasses = computed(() => {
-    const classes = ['input-password'];
-
-    if (this.config().class) {
-      classes.push(this.config().class || '');
-    }
-
-    if (this.isFocused()) {
-      classes.push('focused');
-    }
-
-    if (this.hasError()) {
-      classes.push('error');
-    }
-
-    if (this.hasSuccess()) {
-      classes.push('success');
-    }
-
-    if (this.config().disabled) {
-      classes.push('disabled');
-    }
-
-    if (this.hasIcon()) {
-      classes.push(`icon-${this.config().iconPosition || 'left'}`);
-    }
-
-    // Afegir classe específica quan és text però prové de password
-    if (this.showPassword()) {
-      classes.push('password-as-text');
-    }
-
-    return classes.join(' ');
-  });
-
-  private onChange = (value: any) => {};
+  // ControlValueAccessor callbacks
+  private onChange = (value: string) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const value = this.value();
-      if (value !== undefined && value !== null) {
-        this.internalValue.set(value);
-      }
-    }, { allowSignalWrites: true });
+  // Computed property to get the appropriate placeholder
+  readonly displayPlaceholder = computed(() => {
+    const customPlaceholder = this.placeholder();
+
+    // If a custom placeholder is provided, use it
+    if (customPlaceholder && customPlaceholder.trim()) {
+      return customPlaceholder;
+    }
+
+    // Otherwise, use the default password placeholder
+    return 'INPUTS.PASSWORD_PLACEHOLDER';
+  });
+
+  // Get unique ID
+  getElementId(): string {
+    return this.uniqueId;
   }
 
-  onInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const value = target.value;
-
-    this.internalValue.set(value);
+  // Event handler for password changes
+  onPasswordChange(value: string) {
     this.onChange(value);
     this.valueChange.emit(value);
-    this.input.emit(event);
   }
 
-  onChangeHandler(event: Event): void {
-    this.change.emit(event);
-  }
-
-  onFocus(event: FocusEvent): void {
-    this.isFocused.set(true);
-    this.focus.emit(event);
-  }
-
-  onBlur(event: FocusEvent): void {
-    this.isFocused.set(false);
-    this.isTouched.set(true);
+  // Event handler for password blur
+  onPasswordBlur() {
     this.onTouched();
-    this.blur.emit(event);
   }
 
-  onKeydown(event: KeyboardEvent): void {
-    this.keydown.emit(event);
+  // ControlValueAccessor methods
+  writeValue(value: string): void {
+    // PrimeNG handles this automatically
   }
 
-  onKeyup(event: KeyboardEvent): void {
-    this.keyup.emit(event);
-  }
-
-  onKeypress(event: KeyboardEvent): void {
-    this.keypress.emit(event);
-  }
-
-  onClear(): void {
-    this.internalValue.set('');
-    this.onChange('');
-    this.valueChange.emit('');
-  }
-
-  onTogglePassword(): void {
-    this.showPassword.update(show => !show);
-  }
-
-  writeValue(value: any): void {
-    this.internalValue.set(value || '');
-  }
-
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
+    // PrimeNG handles disabled state automatically
   }
 }

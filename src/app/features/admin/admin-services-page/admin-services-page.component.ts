@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, signal, inject, model } from '@angular/core';
+import { Component, computed, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -16,26 +16,29 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
-import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
+import {
+  FirebaseServicesService,
+  FirebaseService,
+} from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
-import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
+import {
+  AlertPopupComponent,
+  AlertData,
+} from '../../../shared/components/alert-popup/alert-popup.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
-import { PopularBadgeComponent } from '../../../shared/components/popular-badge/popular-badge.component';
 import {
   InputTextareaComponent,
   InputSelectComponent,
   InputNumberComponent,
-  InputCheckboxComponent
+  InputCheckboxComponent,
+  InputToggleSwitchComponent,
 } from '../../../shared/components/inputs';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'pelu-admin-services-page',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -43,27 +46,25 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     CardModule,
     InputTextModule,
     InputNumberModule,
-    DropdownModule,
+    SelectModule,
     CheckboxModule,
     DialogModule,
     ConfirmDialogModule,
     ToastModule,
     TooltipModule,
     TranslateModule,
-    CardComponent,
     LoadingStateComponent,
     AlertPopupComponent,
     ServiceCardComponent,
-    PopularBadgeComponent,
     InputTextareaComponent,
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
-    CurrencyPipe
+    InputToggleSwitchComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-services-page.component.html',
-  styleUrls: ['./admin-services-page.component.scss']
+  styleUrls: ['./admin-services-page.component.scss'],
 })
 export class AdminServicesPageComponent implements OnInit {
   // Inject services
@@ -86,7 +87,6 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly _showAlertDialog = signal<boolean>(false);
   private readonly _alertData = signal<AlertData | null>(null);
 
-
   // Form signals
   private readonly _formData = signal<Partial<FirebaseService>>({
     name: '',
@@ -95,14 +95,15 @@ export class AdminServicesPageComponent implements OnInit {
     duration: 30,
     category: 'haircut',
     icon: '✂️',
-    popular: false
+    popular: false,
+    favorite: false,
   });
 
   // Category form signals
   private readonly _categoryFormData = signal<{ name: string; icon: string; id: string }>({
     name: '',
     icon: '🔧',
-    id: ''
+    id: '',
   });
 
   // Public computed signals - Use Firebase service directly
@@ -120,7 +121,6 @@ export class AdminServicesPageComponent implements OnInit {
   readonly showAlertDialog = computed(() => this._showAlertDialog());
   readonly alertData = computed(() => this._alertData());
 
-
   // Admin access computed
   readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
@@ -131,22 +131,80 @@ export class AdminServicesPageComponent implements OnInit {
   // Category options for dropdown
   readonly categoryOptions = computed(() =>
     this.serviceCategories().map(category => ({
-      label: category.custom ? category.name : this.translateService.instant(`SERVICES.CATEGORIES.${category.id.toUpperCase()}`),
+      label: category.custom
+        ? category.name
+        : this.translateService.instant(`SERVICES.CATEGORIES.${category.id.toUpperCase()}`),
       value: category.id,
-      icon: category.icon
+      icon: category.icon,
     }))
   );
 
-  // Icon options
+  // Icon options with enhanced information for templates
   readonly iconOptions = [
-    { label: '✂️ Talla', value: '✂️' },
-    { label: '🧔 Barba', value: '🧔' },
-    { label: '💆 Tractament', value: '💆' },
-    { label: '💇 Estilitzat', value: '💇' },
-    { label: '🎨 Coloració', value: '🎨' },
-    { label: '👶 Infantil', value: '👶' },
-    { label: '⭐ Especial', value: '⭐' },
-    { label: '🔧 General', value: '🔧' }
+    {
+      label: '✂️ Talla',
+      value: '✂️',
+      description: 'Tall de cabell professional',
+      category: 'Cabell',
+      color: '#3b82f6',
+      popular: true
+    },
+    {
+      label: '🧔 Barba',
+      value: '🧔',
+      description: 'Arreglat i modelat de barba',
+      category: 'Barba',
+      color: '#8b5cf6',
+      popular: false
+    },
+    {
+      label: '💆 Tractament',
+      value: '💆',
+      description: 'Tractaments capil·lars',
+      category: 'Tractament',
+      color: '#10b981',
+      popular: true
+    },
+    {
+      label: '💇 Estilitzat',
+      value: '💇',
+      description: 'Estilització i arreglat',
+      category: 'Estil',
+      color: '#f59e0b',
+      popular: false
+    },
+    {
+      label: '🎨 Coloració',
+      value: '🎨',
+      description: 'Coloració i tintat',
+      category: 'Coloració',
+      color: '#ef4444',
+      popular: true
+    },
+    {
+      label: '👶 Infantil',
+      value: '👶',
+      description: 'Serveis per a nens',
+      category: 'Infantil',
+      color: '#06b6d4',
+      popular: false
+    },
+    {
+      label: '⭐ Especial',
+      value: '⭐',
+      description: 'Serveis especials i premium',
+      category: 'Premium',
+      color: '#f97316',
+      popular: true
+    },
+    {
+      label: '🔧 General',
+      value: '🔧',
+      description: 'Serveis generals',
+      category: 'General',
+      color: '#6b7280',
+      popular: false
+    },
   ];
 
   // Services by category computed - Use Firebase service directly
@@ -195,7 +253,7 @@ export class AdminServicesPageComponent implements OnInit {
       duration: service.duration,
       category: service.category,
       icon: service.icon,
-      popular: service.popular || false
+      popular: service.popular || false,
     });
     this._showEditDialog.set(true);
   }
@@ -209,7 +267,10 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     const serviceData = this.formData();
-    const newService = await this.firebaseServicesService.createService(serviceData as Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>, false);
+    const newService = await this.firebaseServicesService.createService(
+      serviceData as Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>,
+      false
+    );
 
     if (newService) {
       this._showCreateDialog.set(false);
@@ -226,7 +287,11 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     const serviceData = this.formData();
-    const success = await this.firebaseServicesService.updateService(this.selectedService()!.id!, serviceData, false);
+    const success = await this.firebaseServicesService.updateService(
+      this.selectedService()!.id!,
+      serviceData,
+      false
+    );
 
     if (success) {
       this._showEditDialog.set(false);
@@ -235,17 +300,19 @@ export class AdminServicesPageComponent implements OnInit {
     }
   }
 
-    /**
+  /**
    * Delete service
    */
   deleteService(service: FirebaseService): void {
     const alertData: AlertData = {
       title: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION'),
-      message: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
+      message: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION_MESSAGE', {
+        name: service.name,
+      }),
       emoji: '⚠️',
       severity: 'danger',
       confirmText: this.translateService.instant('COMMON.ACTIONS.YES'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.NO')
+      cancelText: this.translateService.instant('COMMON.ACTIONS.NO'),
     };
 
     this._alertData.set(alertData);
@@ -343,7 +410,7 @@ export class AdminServicesPageComponent implements OnInit {
       duration: 30,
       category: 'haircut',
       icon: '✂️',
-      popular: false
+      popular: false,
     });
   }
 
@@ -456,7 +523,7 @@ export class AdminServicesPageComponent implements OnInit {
           // Refresh services after migration
           await this.refreshServices();
         }
-      }
+      },
     });
   }
 
@@ -475,7 +542,7 @@ export class AdminServicesPageComponent implements OnInit {
       message: 'COMMON.STATUS.LOADING',
       spinnerSize: 'large' as const,
       showMessage: true,
-      fullHeight: false
+      fullHeight: false,
     };
   }
 
@@ -497,7 +564,7 @@ export class AdminServicesPageComponent implements OnInit {
     this._categoryFormData.set({
       name: category.name,
       icon: category.icon,
-      id: category.id
+      id: category.id,
     });
     this._showEditCategoryDialog.set(true);
   }
@@ -511,10 +578,14 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     const categoryData = this.categoryFormData();
-    const success = await this.firebaseServicesService.updateCategory(this.selectedCategory()!.id, {
-      name: categoryData.name,
-      icon: categoryData.icon
-    }, false);
+    const success = await this.firebaseServicesService.updateCategory(
+      this.selectedCategory()!.id,
+      {
+        name: categoryData.name,
+        icon: categoryData.icon,
+      },
+      false
+    );
 
     if (success) {
       this._showEditCategoryDialog.set(false);
@@ -545,12 +616,17 @@ export class AdminServicesPageComponent implements OnInit {
    */
   deleteCategory(category: any): void {
     const alertData: AlertData = {
-      title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
-      message: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
+      title: this.translateService.instant(
+        'ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'
+      ),
+      message: this.translateService.instant(
+        'ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE',
+        { name: category.name }
+      ),
       emoji: '⚠️',
       severity: 'danger',
       confirmText: this.translateService.instant('COMMON.ACTIONS.YES'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.NO')
+      cancelText: this.translateService.instant('COMMON.ACTIONS.NO'),
     };
 
     this._alertData.set(alertData);
@@ -597,7 +673,7 @@ export class AdminServicesPageComponent implements OnInit {
     this._categoryFormData.set({
       name: '',
       icon: '🔧',
-      id: ''
+      id: '',
     });
   }
 
@@ -655,8 +731,13 @@ export class AdminServicesPageComponent implements OnInit {
    */
   async togglePopularStatus(service: FirebaseService): Promise<void> {
     const newPopularStatus = !service.popular;
-    await this.firebaseServicesService.updateService(service.id!, {
-      popular: newPopularStatus
-    }, false, false);
+    await this.firebaseServicesService.updateService(
+      service.id!,
+      {
+        popular: newPopularStatus,
+      },
+      false,
+      false
+    );
   }
 }

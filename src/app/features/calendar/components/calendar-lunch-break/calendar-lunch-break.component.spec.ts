@@ -4,11 +4,8 @@ import { CalendarLunchBreakComponent, LunchBreakData } from './calendar-lunch-br
 
 // Test host component to provide required inputs
 @Component({
-  template: `
-    <pelu-calendar-lunch-break [data]="testData"></pelu-calendar-lunch-break>
-  `,
-  standalone: true,
-  imports: [CalendarLunchBreakComponent]
+  template: ` <pelu-calendar-lunch-break [data]="testData"></pelu-calendar-lunch-break> `,
+  imports: [CalendarLunchBreakComponent],
 })
 class TestHostComponent {
   testData: LunchBreakData = {
@@ -16,8 +13,8 @@ class TestHostComponent {
     height: 60,
     timeRange: {
       start: '12:00',
-      end: '13:00'
-    }
+      end: '13:00',
+    },
   };
 }
 
@@ -31,15 +28,14 @@ describe('CalendarLunchBreakComponent', () => {
     height: 60,
     timeRange: {
       start: '12:00',
-      end: '13:00'
-    }
+      end: '13:00',
+    },
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent]
-    })
-    .compileComponents();
+      imports: [TestHostComponent],
+    }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostComponent = hostFixture.componentInstance;
@@ -91,8 +87,8 @@ describe('CalendarLunchBreakComponent', () => {
       ...mockLunchBreakData,
       timeRange: {
         start: '13:00',
-        end: '14:00'
-      }
+        end: '14:00',
+      },
     };
     hostFixture.detectChanges();
 
@@ -106,7 +102,7 @@ describe('CalendarLunchBreakComponent', () => {
     hostComponent.testData = {
       ...mockLunchBreakData,
       top: 240,
-      height: 90
+      height: 90,
     };
     hostFixture.detectChanges();
 

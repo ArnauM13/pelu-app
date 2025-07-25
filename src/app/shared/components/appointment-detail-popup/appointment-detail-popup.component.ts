@@ -1,31 +1,25 @@
-import { Component, input, output, signal, computed, effect, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
-import { ConfirmationPopupComponent, ConfirmationData } from '../confirmation-popup/confirmation-popup.component';
+import {
+  ConfirmationPopupComponent,
+  ConfirmationData,
+} from '../confirmation-popup/confirmation-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
-import { InfoItemComponent, InfoItemData } from '../info-item/info-item.component';
 import { isFutureAppointment } from '../../services';
 
 @Component({
   selector: 'pelu-appointment-detail-popup',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    TranslateModule,
-    AppointmentStatusBadgeComponent,
-    ConfirmationPopupComponent
-  ],
+  imports: [CommonModule, ButtonModule, TranslateModule, ConfirmationPopupComponent],
   templateUrl: './appointment-detail-popup.component.html',
-  styleUrls: ['./appointment-detail-popup.component.scss']
+  styleUrls: ['./appointment-detail-popup.component.scss'],
 })
 export class AppointmentDetailPopupComponent implements OnInit {
   // Inject services
@@ -165,11 +159,11 @@ export class AppointmentDetailPopupComponent implements OnInit {
     this.confirmationData.set({
       title: this.#translateService.instant('COMMON.CONFIRMATION.DELETE_TITLE'),
       message: this.#translateService.instant('COMMON.CONFIRMATION.DELETE_MESSAGE', {
-        name: booking.nom
+        name: booking.nom,
       }),
       confirmText: this.#translateService.instant('COMMON.CONFIRMATION.YES'),
       cancelText: this.#translateService.instant('COMMON.CONFIRMATION.NO'),
-      severity: 'danger'
+      severity: 'danger',
     });
     this.showConfirmationPopup.set(true);
   }
@@ -193,7 +187,7 @@ export class AppointmentDetailPopupComponent implements OnInit {
           // Show success message
           this.#toastService.showSuccess(
             this.#translateService.instant('COMMON.DELETE_SUCCESS', {
-              name: booking.nom
+              name: booking.nom,
             })
           );
 
@@ -244,7 +238,7 @@ export class AppointmentDetailPopupComponent implements OnInit {
   formatDate(dateString: string): string {
     try {
       const date = parseISO(dateString);
-      return format(date, 'EEEE, d \'de\' MMMM \'de\' yyyy', { locale: ca });
+      return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ca });
     } catch {
       return dateString;
     }

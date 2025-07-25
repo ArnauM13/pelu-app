@@ -1,0 +1,15 @@
+// El component utilitza directament p-button de PrimeNG
+// Els estils globals a styles-primeng.scss s'apliquen automàticament
+// Aquest fitxer es manté per a possibles personalitzacions específiques
+
+// Responsive design
+@media (max-width: 768px) {
+  :host {
+    // Assegurar que els botons siguin touch-friendly en mòbils
+    .p-button {
+      min-height: 48px !important;
+      font-size: 1rem !important;
+      padding: 0.875rem 1.25rem !important;
+    }
+  }
+}

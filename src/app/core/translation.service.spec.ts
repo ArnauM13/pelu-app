@@ -21,7 +21,7 @@ const mockTranslateService = {
   getBrowserLang: jasmine.createSpy('getBrowserLang').and.returnValue('ca'),
   setDefaultLang: jasmine.createSpy('setDefaultLang'),
   getLangs: jasmine.createSpy('getLangs').and.returnValue(['ca', 'es', 'en']),
-  reloadLang: jasmine.createSpy('reloadLang')
+  reloadLang: jasmine.createSpy('reloadLang'),
 };
 
 describe('TranslationService', () => {
@@ -33,13 +33,13 @@ describe('TranslationService', () => {
       imports: [
         HttpClientModule,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         TranslationService,
-        { provide: TranslateService, useValue: mockTranslateService }
-      ]
+        { provide: TranslateService, useValue: mockTranslateService },
+      ],
     });
     service = TestBed.inject(TranslationService);
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;

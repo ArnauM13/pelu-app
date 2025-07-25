@@ -11,6 +11,7 @@
 ### **1. Migració a BookingService**
 
 **Abans**:
+
 ```typescript
 private async loadAppointments() {
   try {
@@ -34,6 +35,7 @@ private loadAppointmentsFromStorage(): any[] {
 ```
 
 **Després**:
+
 ```typescript
 private async loadAppointments() {
   try {
@@ -50,31 +52,33 @@ private async loadAppointments() {
 ### **2. Actualització de Mètodes de Verificació**
 
 **Mètode `isSlotBooked()` actualitzat**:
+
 ```typescript
 private isSlotBooked(date: Date): boolean {
   const bookings = this.bookingService.bookings();
   const timeString = format(date, 'HH:mm');
   const dateString = format(date, 'yyyy-MM-dd');
-  
+
   return bookings.some(booking => {
     // Check if booking is confirmed and matches the date and time
-    return booking.status === 'confirmed' && 
-           booking.data === dateString && 
+    return booking.status === 'confirmed' &&
+           booking.data === dateString &&
            booking.hora === timeString;
   });
 }
 ```
 
 **Mètode `getBookingForSlot()` actualitzat**:
+
 ```typescript
 private getBookingForSlot(date: Date, time: string): any {
   const dateString = format(date, 'yyyy-MM-dd');
   const bookings = this.bookingService.bookings();
-  
+
   return bookings.find(booking => {
     // Check if booking is confirmed and matches the date and time
-    return booking.status === 'confirmed' && 
-           booking.data === dateString && 
+    return booking.status === 'confirmed' &&
+           booking.data === dateString &&
            booking.hora === time;
   });
 }
@@ -83,11 +87,12 @@ private getBookingForSlot(date: Date, time: string): any {
 ### **3. Sincronització en Temps Real**
 
 **Listener per actualitzacions de cites**:
+
 ```typescript
 constructor() {
   this.loadServices();
   this.loadAppointments();
-  
+
   // Listen for service updates to refresh services
   window.addEventListener('serviceUpdated', () => {
     this.loadServices();
@@ -101,6 +106,7 @@ constructor() {
 ```
 
 **Event disparat quan es crea una nova reserva**:
+
 ```typescript
 async onBookingConfirmed(details: BookingDetails) {
   try {
@@ -130,16 +136,19 @@ async onBookingConfirmed(details: BookingDetails) {
 ## 🎯 Beneficis Obtinguts
 
 ### **✅ Sincronització Completa**
+
 - Les cites apareixen en temps real a la vista mòbil
 - Dades consistents entre calendari i vista mòbil
 - Actualització automàtica quan es creen noves reserves
 
 ### **✅ Dades Actualitzades**
+
 - Eliminació de la dependència del localStorage
 - Ús de dades de Firebase en temps real
 - Consistència amb la resta de l'aplicació
 
 ### **✅ Experiència d'Usuari Millorada**
+
 - Franjes vermelles visibles per cites ocupades
 - Informació detallada de les reserves (client, servei, notes)
 - Actualització immediata després de crear reserves
@@ -147,33 +156,40 @@ async onBookingConfirmed(details: BookingDetails) {
 ## 🔧 Canvis Tècnics
 
 ### **Font de Dades**
+
 - **Abans**: `localStorage.getItem('cites')`
 - **Després**: `this.bookingService.bookings()`
 
 ### **Format de Dades**
+
 - **Abans**: Format antic de cites (`appointment.date`, `appointment.time`)
 - **Després**: Format de Firebase (`booking.data`, `booking.hora`, `booking.status`)
 
 ### **Verificació d'Estat**
+
 - **Abans**: Només verificava data i hora
 - **Després**: Verifica data, hora i estat de confirmació
 
 ### **Sincronització**
+
 - **Abans**: Dades estàtiques del localStorage
 - **Després**: Dades dinàmiques de Firebase amb events
 
 ## 📱 Comportament de la Vista Mòbil
 
 ### **Franjes Temporals**
+
 - **Verdes**: Hores disponibles per reservar
 - **Vermelles**: Hores ocupades amb cites confirmades
 - **Grises**: Hores passades o no disponibles
 
 ### **Informació de Cites Ocupades**
+
 - **Per usuaris normals**: Mostra "Ocupat"
 - **Per admins**: Mostra detalls (client, servei, notes)
 
 ### **Actualització en Temps Real**
+
 - Quan es crea una nova reserva, es reflecteix immediatament
 - Quan es cancela una reserva, es reflecteix immediatament
 - Quan es modifica una reserva, es reflecteix immediatament
@@ -181,6 +197,7 @@ async onBookingConfirmed(details: BookingDetails) {
 ## 🔍 Verificació
 
 **Per verificar que funciona**:
+
 1. **Obre la vista mòbil de booking**
 2. **Navega per les dates** - hauries de veure franjes vermelles per cites ocupades
 3. **Crea una nova reserva** - hauria d'aparèixer immediatament com ocupada
@@ -191,13 +208,14 @@ async onBookingConfirmed(details: BookingDetails) {
 ## 📚 Notes Tècniques
 
 ### **Estructura de Dades**
+
 ```typescript
 interface Booking {
   id?: string;
   nom?: string;
   email?: string;
-  data?: string;        // Format: 'yyyy-MM-dd'
-  hora?: string;        // Format: 'HH:mm'
+  data?: string; // Format: 'yyyy-MM-dd'
+  hora?: string; // Format: 'HH:mm'
   serviceName?: string;
   serviceId?: string;
   duration?: number;
@@ -212,11 +230,13 @@ interface Booking {
 ```
 
 ### **Verificació d'Estat**
+
 - Només les reserves amb `status === 'confirmed'` es mostren com ocupades
 - Les reserves cancel·lades o esborrades no apareixen
 - Les reserves en esborrany no es mostren
 
 ### **Format de Dates**
+
 - **Data**: Format `'yyyy-MM-dd'` per consistència amb Firebase
 - **Hora**: Format `'HH:mm'` per comparació directa
 - **Comparació**: Exacta per data i hora
@@ -227,4 +247,4 @@ interface Booking {
 
 **✅ DADES CONSISTENTS**: Vista mòbil i calendari mostren la mateixa informació.
 
-**✅ EXPERIÈNCIA MILLORADA**: Franjes vermelles visibles per cites ocupades amb informació detallada. 
+**✅ EXPERIÈNCIA MILLORADA**: Franjes vermelles visibles per cites ocupades amb informació detallada.

@@ -1,218 +1,218 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Test Drag & Drop</title>
     <style>
-        .calendar-container {
-            display: flex;
-            gap: 10px;
-            padding: 20px;
-        }
+      .calendar-container {
+        display: flex;
+        gap: 10px;
+        padding: 20px;
+      }
 
-        .day-column {
-            border: 1px solid #ccc;
-            width: 200px;
-            height: 600px;
-            position: relative;
-        }
+      .day-column {
+        border: 1px solid #ccc;
+        width: 200px;
+        height: 600px;
+        position: relative;
+      }
 
-        .time-slot {
-            height: 30px;
-            border-bottom: 1px solid #eee;
-            position: relative;
-        }
+      .time-slot {
+        height: 30px;
+        border-bottom: 1px solid #eee;
+        position: relative;
+      }
 
-        .appointment {
-            position: absolute;
-            left: 0;
-            right: 0;
-            background: #3b82f6;
-            color: white;
-            padding: 5px;
-            border-radius: 4px;
-            cursor: move;
-            user-select: none;
-        }
+      .appointment {
+        position: absolute;
+        left: 0;
+        right: 0;
+        background: #3b82f6;
+        color: white;
+        padding: 5px;
+        border-radius: 4px;
+        cursor: move;
+        user-select: none;
+      }
 
-        .dragging {
-            opacity: 0.5;
-        }
+      .dragging {
+        opacity: 0.5;
+      }
 
-        .drop-indicator {
-            position: absolute;
-            left: 0;
-            right: 0;
-            background: rgba(59, 130, 246, 0.3);
-            border: 2px dashed #3b82f6;
-            pointer-events: none;
-        }
+      .drop-indicator {
+        position: absolute;
+        left: 0;
+        right: 0;
+        background: rgba(59, 130, 246, 0.3);
+        border: 2px dashed #3b82f6;
+        pointer-events: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Test Drag & Drop Calendar</h1>
     <div class="calendar-container">
-        <div class="day-column" data-day="2024-01-15">
-            <h3>Dilluns 15/01</h3>
-            <div class="time-slot" data-time="08:00">08:00</div>
-            <div class="time-slot" data-time="08:30">08:30</div>
-            <div class="time-slot" data-time="09:00">09:00</div>
-            <div class="time-slot" data-time="09:30">09:30</div>
-            <div class="time-slot" data-time="10:00">10:00</div>
-            <div class="time-slot" data-time="10:30">10:30</div>
-            <div class="time-slot" data-time="11:00">11:00</div>
-            <div class="time-slot" data-time="11:30">11:30</div>
-            <div class="time-slot" data-time="12:00">12:00</div>
-            <div class="time-slot" data-time="12:30">12:30</div>
-            <div class="time-slot" data-time="13:00" style="background: #ffebee;">13:00 (Dinar)</div>
-            <div class="time-slot" data-time="13:30" style="background: #ffebee;">13:30 (Dinar)</div>
-            <div class="time-slot" data-time="14:00" style="background: #ffebee;">14:00 (Dinar)</div>
-            <div class="time-slot" data-time="14:30" style="background: #ffebee;">14:30 (Dinar)</div>
-            <div class="time-slot" data-time="15:00">15:00</div>
-            <div class="time-slot" data-time="15:30">15:30</div>
-            <div class="time-slot" data-time="16:00">16:00</div>
-            <div class="time-slot" data-time="16:30">16:30</div>
-            <div class="time-slot" data-time="17:00">17:00</div>
+      <div class="day-column" data-day="2024-01-15">
+        <h3>Dilluns 15/01</h3>
+        <div class="time-slot" data-time="08:00">08:00</div>
+        <div class="time-slot" data-time="08:30">08:30</div>
+        <div class="time-slot" data-time="09:00">09:00</div>
+        <div class="time-slot" data-time="09:30">09:30</div>
+        <div class="time-slot" data-time="10:00">10:00</div>
+        <div class="time-slot" data-time="10:30">10:30</div>
+        <div class="time-slot" data-time="11:00">11:00</div>
+        <div class="time-slot" data-time="11:30">11:30</div>
+        <div class="time-slot" data-time="12:00">12:00</div>
+        <div class="time-slot" data-time="12:30">12:30</div>
+        <div class="time-slot" data-time="13:00" style="background: #ffebee">13:00 (Dinar)</div>
+        <div class="time-slot" data-time="13:30" style="background: #ffebee">13:30 (Dinar)</div>
+        <div class="time-slot" data-time="14:00" style="background: #ffebee">14:00 (Dinar)</div>
+        <div class="time-slot" data-time="14:30" style="background: #ffebee">14:30 (Dinar)</div>
+        <div class="time-slot" data-time="15:00">15:00</div>
+        <div class="time-slot" data-time="15:30">15:30</div>
+        <div class="time-slot" data-time="16:00">16:00</div>
+        <div class="time-slot" data-time="16:30">16:30</div>
+        <div class="time-slot" data-time="17:00">17:00</div>
 
-            <div class="appointment" style="top: 90px; height: 60px;" draggable="true">
-                Cita de prova (09:00-10:00)
-            </div>
+        <div class="appointment" style="top: 90px; height: 60px" draggable="true">
+          Cita de prova (09:00-10:00)
         </div>
+      </div>
 
-        <div class="day-column" data-day="2024-01-16">
-            <h3>Dimarts 16/01</h3>
-            <div class="time-slot" data-time="08:00">08:00</div>
-            <div class="time-slot" data-time="08:30">08:30</div>
-            <div class="time-slot" data-time="09:00">09:00</div>
-            <div class="time-slot" data-time="09:30">09:30</div>
-            <div class="time-slot" data-time="10:00">10:00</div>
-            <div class="time-slot" data-time="10:30">10:30</div>
-            <div class="time-slot" data-time="11:00">11:00</div>
-            <div class="time-slot" data-time="11:30">11:30</div>
-            <div class="time-slot" data-time="12:00">12:00</div>
-            <div class="time-slot" data-time="12:30">12:30</div>
-            <div class="time-slot" data-time="13:00" style="background: #ffebee;">13:00 (Dinar)</div>
-            <div class="time-slot" data-time="13:30" style="background: #ffebee;">13:30 (Dinar)</div>
-            <div class="time-slot" data-time="14:00" style="background: #ffebee;">14:00 (Dinar)</div>
-            <div class="time-slot" data-time="14:30" style="background: #ffebee;">14:30 (Dinar)</div>
-            <div class="time-slot" data-time="15:00">15:00</div>
-            <div class="time-slot" data-time="15:30">15:30</div>
-            <div class="time-slot" data-time="16:00">16:00</div>
-            <div class="time-slot" data-time="16:30">16:30</div>
-            <div class="time-slot" data-time="17:00">17:00</div>
-        </div>
+      <div class="day-column" data-day="2024-01-16">
+        <h3>Dimarts 16/01</h3>
+        <div class="time-slot" data-time="08:00">08:00</div>
+        <div class="time-slot" data-time="08:30">08:30</div>
+        <div class="time-slot" data-time="09:00">09:00</div>
+        <div class="time-slot" data-time="09:30">09:30</div>
+        <div class="time-slot" data-time="10:00">10:00</div>
+        <div class="time-slot" data-time="10:30">10:30</div>
+        <div class="time-slot" data-time="11:00">11:00</div>
+        <div class="time-slot" data-time="11:30">11:30</div>
+        <div class="time-slot" data-time="12:00">12:00</div>
+        <div class="time-slot" data-time="12:30">12:30</div>
+        <div class="time-slot" data-time="13:00" style="background: #ffebee">13:00 (Dinar)</div>
+        <div class="time-slot" data-time="13:30" style="background: #ffebee">13:30 (Dinar)</div>
+        <div class="time-slot" data-time="14:00" style="background: #ffebee">14:00 (Dinar)</div>
+        <div class="time-slot" data-time="14:30" style="background: #ffebee">14:30 (Dinar)</div>
+        <div class="time-slot" data-time="15:00">15:00</div>
+        <div class="time-slot" data-time="15:30">15:30</div>
+        <div class="time-slot" data-time="16:00">16:00</div>
+        <div class="time-slot" data-time="16:30">16:30</div>
+        <div class="time-slot" data-time="17:00">17:00</div>
+      </div>
     </div>
 
     <script>
-        // Simulació del servei de coordenades
-        class CoordinateService {
-            constructor() {
-                this.businessStartHour = 8;
-                this.pixelsPerMinute = 1;
-                this.slotHeightPx = 30;
-            }
-
-                    coordinateToTime(yPosition) {
-            // Calculate which time slot we're in (each slot is 30 minutes = 30 pixels)
-            const slotIndex = Math.round(yPosition / this.slotHeightPx);
-            const totalMinutes = (this.businessStartHour * 60) + (slotIndex * 30);
-
-            const hours = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-
-            // Clamp to business hours
-            const clampedHours = Math.max(this.businessStartHour, Math.min(19, hours));
-
-            return `${clampedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      // Simulació del servei de coordenades
+      class CoordinateService {
+        constructor() {
+          this.businessStartHour = 8;
+          this.pixelsPerMinute = 1;
+          this.slotHeightPx = 30;
         }
 
-            timeToCoordinate(time) {
-                const [hours, minutes] = time.split(':').map(Number);
-                const minutesSinceStart = (hours - this.businessStartHour) * 60 + minutes;
-                return minutesSinceStart * this.pixelsPerMinute;
-            }
+        coordinateToTime(yPosition) {
+          // Calculate which time slot we're in (each slot is 30 minutes = 30 pixels)
+          const slotIndex = Math.round(yPosition / this.slotHeightPx);
+          const totalMinutes = this.businessStartHour * 60 + slotIndex * 30;
+
+          const hours = Math.floor(totalMinutes / 60);
+          const minutes = totalMinutes % 60;
+
+          // Clamp to business hours
+          const clampedHours = Math.max(this.businessStartHour, Math.min(19, hours));
+
+          return `${clampedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         }
 
-        const coordinateService = new CoordinateService();
+        timeToCoordinate(time) {
+          const [hours, minutes] = time.split(':').map(Number);
+          const minutesSinceStart = (hours - this.businessStartHour) * 60 + minutes;
+          return minutesSinceStart * this.pixelsPerMinute;
+        }
+      }
 
-        // Drag & Drop logic
-        let draggedElement = null;
-        let dropIndicator = null;
+      const coordinateService = new CoordinateService();
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const appointments = document.querySelectorAll('.appointment');
+      // Drag & Drop logic
+      let draggedElement = null;
+      let dropIndicator = null;
 
-            appointments.forEach(appointment => {
-                appointment.addEventListener('dragstart', function(e) {
-                    draggedElement = this;
-                    this.classList.add('dragging');
-                    console.log('Drag started:', this.textContent);
-                });
+      document.addEventListener('DOMContentLoaded', function () {
+        const appointments = document.querySelectorAll('.appointment');
 
-                appointment.addEventListener('dragend', function(e) {
-                    this.classList.remove('dragging');
-                    if (dropIndicator) {
-                        dropIndicator.remove();
-                        dropIndicator = null;
-                    }
-                    console.log('Drag ended');
-                });
-            });
+        appointments.forEach(appointment => {
+          appointment.addEventListener('dragstart', function (e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            console.log('Drag started:', this.textContent);
+          });
 
-            const dayColumns = document.querySelectorAll('.day-column');
-
-            dayColumns.forEach(column => {
-                column.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-
-                    if (draggedElement) {
-                        const rect = this.getBoundingClientRect();
-                        const relativeY = e.clientY - rect.top;
-                        const time = coordinateService.coordinateToTime(relativeY);
-
-                        console.log('Drag over - Y:', relativeY, 'Time:', time);
-
-                        // Show drop indicator
-                        if (dropIndicator) {
-                            dropIndicator.remove();
-                        }
-
-                        dropIndicator = document.createElement('div');
-                        dropIndicator.className = 'drop-indicator';
-                        dropIndicator.style.top = relativeY + 'px';
-                        dropIndicator.style.height = '60px';
-                        dropIndicator.textContent = `Drop at ${time}`;
-
-                        this.appendChild(dropIndicator);
-                    }
-                });
-
-                column.addEventListener('drop', function(e) {
-                    e.preventDefault();
-
-                    if (draggedElement) {
-                        const rect = this.getBoundingClientRect();
-                        const relativeY = e.clientY - rect.top;
-                        const time = coordinateService.coordinateToTime(relativeY);
-
-                        console.log('Drop - Y:', relativeY, 'Time:', time);
-
-                        // Move appointment
-                        draggedElement.style.top = relativeY + 'px';
-                        this.appendChild(draggedElement);
-
-                        // Update appointment text
-                        draggedElement.textContent = `Cita moguda (${time})`;
-
-                        if (dropIndicator) {
-                            dropIndicator.remove();
-                            dropIndicator = null;
-                        }
-                    }
-                });
-            });
+          appointment.addEventListener('dragend', function (e) {
+            this.classList.remove('dragging');
+            if (dropIndicator) {
+              dropIndicator.remove();
+              dropIndicator = null;
+            }
+            console.log('Drag ended');
+          });
         });
+
+        const dayColumns = document.querySelectorAll('.day-column');
+
+        dayColumns.forEach(column => {
+          column.addEventListener('dragover', function (e) {
+            e.preventDefault();
+
+            if (draggedElement) {
+              const rect = this.getBoundingClientRect();
+              const relativeY = e.clientY - rect.top;
+              const time = coordinateService.coordinateToTime(relativeY);
+
+              console.log('Drag over - Y:', relativeY, 'Time:', time);
+
+              // Show drop indicator
+              if (dropIndicator) {
+                dropIndicator.remove();
+              }
+
+              dropIndicator = document.createElement('div');
+              dropIndicator.className = 'drop-indicator';
+              dropIndicator.style.top = relativeY + 'px';
+              dropIndicator.style.height = '60px';
+              dropIndicator.textContent = `Drop at ${time}`;
+
+              this.appendChild(dropIndicator);
+            }
+          });
+
+          column.addEventListener('drop', function (e) {
+            e.preventDefault();
+
+            if (draggedElement) {
+              const rect = this.getBoundingClientRect();
+              const relativeY = e.clientY - rect.top;
+              const time = coordinateService.coordinateToTime(relativeY);
+
+              console.log('Drop - Y:', relativeY, 'Time:', time);
+
+              // Move appointment
+              draggedElement.style.top = relativeY + 'px';
+              this.appendChild(draggedElement);
+
+              // Update appointment text
+              draggedElement.textContent = `Cita moguda (${time})`;
+
+              if (dropIndicator) {
+                dropIndicator.remove();
+                dropIndicator = null;
+              }
+            }
+          });
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

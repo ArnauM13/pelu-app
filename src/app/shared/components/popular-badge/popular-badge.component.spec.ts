@@ -11,32 +11,29 @@ describe('PopularBadgeComponent', () => {
     variant: 'default',
     showIcon: true,
     showText: true,
-    text: 'Popular Service'
+    text: 'Popular Service',
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        PopularBadgeComponent,
-        TranslateModule.forRoot()
-      ],
+      imports: [PopularBadgeComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
-          }
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+          },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PopularBadgeComponent);
@@ -217,7 +214,7 @@ describe('PopularBadgeComponent', () => {
         variant: 'filled',
         showIcon: true,
         showText: true,
-        text: 'Full Config Text'
+        text: 'Full Config Text',
       };
 
       component.config = fullConfig;
@@ -231,7 +228,7 @@ describe('PopularBadgeComponent', () => {
     it('should handle config with minimal properties', () => {
       const minimalConfig: PopularBadgeConfig = {
         size: 'small',
-        variant: 'default'
+        variant: 'default',
       };
 
       component.config = minimalConfig;
@@ -244,7 +241,7 @@ describe('PopularBadgeComponent', () => {
 
     it('should handle undefined config properties', () => {
       const incompleteConfig: PopularBadgeConfig = {
-        size: 'medium'
+        size: 'medium',
       };
 
       component.config = incompleteConfig;
@@ -290,7 +287,7 @@ describe('PopularBadgeComponent', () => {
 
     it('should handle undefined config properties gracefully', () => {
       const incompleteConfig: PopularBadgeConfig = {
-        size: 'medium'
+        size: 'medium',
       };
       component.config = incompleteConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -300,7 +297,7 @@ describe('PopularBadgeComponent', () => {
       const emptyConfig: PopularBadgeConfig = {
         size: 'medium',
         variant: 'default',
-        text: ''
+        text: '',
       };
       component.config = emptyConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -314,7 +311,7 @@ describe('PopularBadgeComponent', () => {
         variant: 'filled',
         showIcon: true,
         showText: true,
-        text: 'Test Text'
+        text: 'Test Text',
       };
 
       expect(testConfig.size).toBe('large');
@@ -326,7 +323,7 @@ describe('PopularBadgeComponent', () => {
 
     it('should handle PopularBadgeConfig without optional properties', () => {
       const testConfig: PopularBadgeConfig = {
-        size: 'medium'
+        size: 'medium',
       };
 
       expect(testConfig.size).toBe('medium');

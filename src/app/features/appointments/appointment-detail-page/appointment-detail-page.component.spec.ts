@@ -16,19 +16,20 @@ describe('AppointmentDetailPageComponent', () => {
     mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
       snapshot: {
         paramMap: {
-          get: jasmine.createSpy('get').and.returnValue('test-id')
-        }
-      }
+          get: jasmine.createSpy('get').and.returnValue('test-id'),
+        },
+      },
     });
     mockMessageService = jasmine.createSpyObj('MessageService', ['add']);
 
-    await configureTestBed([
-      AppointmentDetailPageComponent
-    ], [
-      { provide: Router, useValue: mockRouter },
-      { provide: ActivatedRoute, useValue: mockActivatedRoute },
-      { provide: MessageService, useValue: mockMessageService }
-    ]).compileComponents();
+    await configureTestBed(
+      [AppointmentDetailPageComponent],
+      [
+        { provide: Router, useValue: mockRouter },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: MessageService, useValue: mockMessageService },
+      ]
+    ).compileComponents();
 
     fixture = TestBed.createComponent(AppointmentDetailPageComponent);
     component = fixture.componentInstance;

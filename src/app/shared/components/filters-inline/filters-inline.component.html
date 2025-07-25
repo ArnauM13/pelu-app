@@ -2,23 +2,29 @@
   <div class="filters-grid">
     <div class="filter-group">
       <pelu-input-date
-        [config]="dateFilterConfig"
+        label="COMMON.FILTERS.FILTER_BY_DATE"
         [value]="filterDateValue()"
-        (valueChange)="onDateChangeHandler($event)">
+        (valueChange)="onDateChangeHandler($event)"
+      >
       </pelu-input-date>
     </div>
     <div class="filter-group">
       <pelu-input-text
-        [config]="clientFilterConfig"
+        label='COMMON.FILTERS.FILTER_BY_CLIENT'
+        placeholder='COMMON.FILTERS.FILTER_BY_CLIENT'
         [value]="filterClientValue()"
-        (valueChange)="onClientChangeHandler($event.toString())">
+        (valueChange)="onClientChangeHandler($event.toString())"
+      >
       </pelu-input-text>
     </div>
     <div class="filter-group">
       <pelu-input-select
-        [config]="serviceFilterConfig()"
+        [label]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
+        [placeholder]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
+        [options]="serviceOptions()"
         [value]="filterServiceValue()"
-        (valueChange)="onServiceChangeHandler($event)">
+        (valueChange)="onServiceChangeHandler($event?.toString())"
+      >
       </pelu-input-select>
     </div>
     <div class="reset-group">

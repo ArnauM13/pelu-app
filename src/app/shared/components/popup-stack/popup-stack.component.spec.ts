@@ -7,7 +7,7 @@ describe('PopupStackComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PopupStackComponent]
+      imports: [PopupStackComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PopupStackComponent);
@@ -43,7 +43,7 @@ describe('PopupStackComponent', () => {
     const sameElement = document.createElement('div');
     const mockEvent = {
       target: sameElement,
-      currentTarget: sameElement
+      currentTarget: sameElement,
     } as unknown as Event;
 
     component.onBackdropClick(mockEvent);
@@ -59,7 +59,7 @@ describe('PopupStackComponent', () => {
     const sameElement = document.createElement('div');
     const mockEvent = {
       target: sameElement,
-      currentTarget: sameElement
+      currentTarget: sameElement,
     } as unknown as Event;
 
     component.onBackdropClick(mockEvent);
@@ -75,7 +75,7 @@ describe('PopupStackComponent', () => {
 
     const mockEvent = {
       target: document.createElement('div'),
-      currentTarget: document.createElement('div')
+      currentTarget: document.createElement('div'),
     } as unknown as Event;
 
     component.onBackdropClick(mockEvent);

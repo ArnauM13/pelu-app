@@ -4,7 +4,11 @@
 
 // Background styles like landing page and services page
 :host {
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   min-height: 100vh;
   position: relative;
   overflow: hidden;
@@ -34,7 +38,9 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   background-color: white;
   color: var(--text-color);
 }
@@ -105,7 +111,9 @@ pelu-appointments-view-controls {
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
@@ -117,7 +125,10 @@ pelu-appointments-view-controls {
 .stat-card.clickable {
   cursor: pointer;
   border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .stat-card.clickable:hover {
@@ -135,7 +146,7 @@ pelu-appointments-view-controls {
   justify-content: center;
   background: var(--primary-color-lighter);
   border-radius: 50%;
-  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
   line-height: 1;
 }
 
@@ -273,8 +284,6 @@ pelu-appointments-list {
   border: 1px solid var(--border-color);
 }
 
-
-
 .empty-state h3 {
   margin: 0 0 0.5rem 0;
   color: var(--text-color);
@@ -411,7 +420,8 @@ pelu-appointments-list {
   align-items: center;
 }
 
-.btn-primary, .btn-danger {
+.btn-primary,
+.btn-danger {
   padding: 0.35rem 0.5rem;
   font-size: 0.95rem;
   min-width: 32px;
@@ -436,8 +446,8 @@ pelu-appointments-list {
 }
 
 .btn-danger:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
-  border-color: #B91C1C;
+  background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
+  border-color: #b91c1c;
 }
 
 // Responsive
@@ -689,41 +699,6 @@ pelu-appointments-list {
   box-shadow: var(--box-shadow-hover);
 }
 
-// Calendar Header Styling
-.calendar-container ::ng-deep .p-calendar .p-datepicker-header {
-  background: var(--primary-color);
-  color: white;
-  padding: 1.5rem;
-  text-align: center;
-  border-radius: 12px 12px 0 0;
-}
-
-.calendar-container ::ng-deep .p-calendar .p-datepicker-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-}
-
-.calendar-container ::ng-deep .p-calendar .p-datepicker-prev,
-.calendar-container ::ng-deep .p-calendar .p-datepicker-next {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.calendar-container ::ng-deep .p-calendar .p-datepicker-prev:hover,
-.calendar-container ::ng-deep .p-calendar .p-datepicker-next:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
-}
-
 // Calendar Subtitle
 .calendar-subtitle {
   color: var(--text-color-light);
@@ -843,20 +818,6 @@ pelu-appointments-list {
   .appointment-indicators {
     gap: 0.125rem;
   }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-header {
-    padding: 1rem;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-title {
-    font-size: 1.2rem;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-prev,
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-next {
-    width: 35px;
-    height: 35px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -878,14 +839,6 @@ pelu-appointments-list {
   .appointment-dot {
     width: 5px;
     height: 5px;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-header {
-    padding: 0.75rem;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-title {
-    font-size: 1rem;
   }
 }
 
@@ -1181,8 +1134,6 @@ pelu-appointments-list {
   gap: 0.5rem;
 }
 
-
-
 .filters-content {
   background: white;
   border-radius: 12px;
@@ -1285,5 +1236,5 @@ pelu-appointments-list {
 }
 
 .btn-danger:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+  background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
 }

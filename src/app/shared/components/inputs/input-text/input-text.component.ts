@@ -1,190 +1,111 @@
-import { Component, input, output, signal, computed, effect, forwardRef, inject } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { InputTextModule } from 'primeng/inputtext';
 
-export type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time' | 'datetime-local' | 'month' | 'week';
-
-export interface InputConfig {
-  type: InputType;
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  min?: number | string;
-  max?: number | string;
-  step?: number | string;
-  pattern?: string;
-  autocomplete?: string;
-  autofocus?: boolean;
-  size?: number;
-  maxlength?: number;
-  minlength?: number;
-  spellcheck?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
+export interface InputTextConfig {
   helpText?: string;
   errorText?: string;
   successText?: string;
-  showLabel?: boolean;
   showHelpText?: boolean;
   showErrorText?: boolean;
   showSuccessText?: boolean;
-  icon?: string;
-  iconPosition?: 'left' | 'right';
-  clearable?: boolean;
-  loading?: boolean;
-  value?: string | number;
 }
 
 @Component({
   selector: 'pelu-input-text',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, InputTextModule],
   templateUrl: './input-text.component.html',
   styleUrls: ['./input-text.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => InputTextComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class InputTextComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<InputConfig>();
-  readonly value = input<string | number>('');
+  // Reactive inputs (signals)
+  readonly value = input<string>('');
   readonly formControlName = input<string>('');
 
-  // Output signals
-  readonly valueChange = output<string | number>();
-  readonly focus = output<FocusEvent>();
-  readonly blur = output<FocusEvent>();
-  readonly input = output<Event>();
-  readonly change = output<Event>();
-  readonly keydown = output<KeyboardEvent>();
-  readonly keyup = output<KeyboardEvent>();
-  readonly keypress = output<KeyboardEvent>();
+  // Component inputs
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
+  readonly type = input<'text' | 'email' | 'password'>('text');
+  readonly size = input<'small' | 'large'>('small');
+  readonly variant = input<'outlined' | 'filled'>('outlined');
+  readonly invalid = input<boolean>(false);
+  readonly fluid = input<boolean>(true);
 
-  // Internal state
-  private readonly internalValue = signal<string | number>('');
-  private readonly isFocused = signal<boolean>(false);
-  private readonly isTouched = signal<boolean>(false);
+  // Unique ID generated once
+  private readonly uniqueId = 'input-text-' + Math.random().toString(36).substr(2, 9);
 
-  // Computed properties
-  readonly displayValue = computed(() => this.value() || this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(() => this.config().showSuccessText !== false && this.hasSuccess());
-  readonly hasIcon = computed(() => !!this.config().icon);
-  readonly isClearable = computed(() => this.config().clearable && !!this.displayValue());
-  readonly inputClasses = computed(() => {
-    const classes = ['input-text'];
+  // Outputs
+  readonly valueChange = output<string>();
 
-    if (this.config().class) {
-      classes.push(this.config().class || '');
-    }
-
-    if (this.isFocused()) {
-      classes.push('focused');
-    }
-
-    if (this.hasError()) {
-      classes.push('error');
-    }
-
-    if (this.hasSuccess()) {
-      classes.push('success');
-    }
-
-    if (this.config().disabled) {
-      classes.push('disabled');
-    }
-
-    if (this.hasIcon()) {
-      classes.push(`icon-${this.config().iconPosition || 'left'}`);
-    }
-
-    return classes.join(' ');
-  });
-
-  private onChange = (value: any) => {};
+  // ControlValueAccessor callbacks
+  private onChange = (value: string) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const value = this.value();
-      if (value !== undefined && value !== null) {
-        this.internalValue.set(value);
-      }
-    }, { allowSignalWrites: true });
+  // Computed property to get the appropriate placeholder based on type
+  readonly displayPlaceholder = computed(() => {
+    const customPlaceholder = this.placeholder();
+
+    // If a custom placeholder is provided, use it
+    if (customPlaceholder && customPlaceholder.trim()) {
+      return customPlaceholder;
+    }
+
+    // Otherwise, use the default placeholder based on type
+    const inputType = this.type();
+    switch (inputType) {
+      case 'email':
+        return 'INPUTS.TEXT_EMAIL_PLACEHOLDER';
+      case 'password':
+        return 'INPUTS.TEXT_PASSWORD_PLACEHOLDER';
+      case 'text':
+      default:
+        return 'INPUTS.TEXT_PLACEHOLDER';
+    }
+  });
+
+  // Get unique ID
+  getElementId(): string {
+    return this.uniqueId;
   }
 
-  onInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const value = this.config().type === 'number' ? Number(target.value) : target.value;
-
-    this.internalValue.set(value);
+  // Event handler for input changes
+  onInputChange(value: string) {
     this.onChange(value);
     this.valueChange.emit(value);
-    this.input.emit(event);
   }
 
-  onChangeHandler(event: Event): void {
-    this.change.emit(event);
-  }
-
-  onFocus(event: FocusEvent): void {
-    this.isFocused.set(true);
-    this.focus.emit(event);
-  }
-
-  onBlur(event: FocusEvent): void {
-    this.isFocused.set(false);
-    this.isTouched.set(true);
+  // Event handler for input blur
+  onInputBlur() {
     this.onTouched();
-    this.blur.emit(event);
   }
 
-  onKeydown(event: KeyboardEvent): void {
-    this.keydown.emit(event);
+  // ControlValueAccessor methods
+  writeValue(value: string): void {
+    // PrimeNG handles this automatically
   }
 
-  onKeyup(event: KeyboardEvent): void {
-    this.keyup.emit(event);
-  }
-
-  onKeypress(event: KeyboardEvent): void {
-    this.keypress.emit(event);
-  }
-
-  onClear(): void {
-    this.internalValue.set('');
-    this.onChange('');
-    this.valueChange.emit('');
-  }
-
-  writeValue(value: any): void {
-    this.internalValue.set(value || '');
-  }
-
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
+    // PrimeNG handles disabled state automatically
   }
 }

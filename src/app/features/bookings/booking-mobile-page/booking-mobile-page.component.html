@@ -1,5 +1,4 @@
 <div class="mobile-booking-container">
-
   <!-- Header with navigation -->
   <div class="booking-header">
     <h1>{{ 'COMMON.ACTIONS.BOOK_APPOINTMENT' | translate }}</h1>
@@ -9,13 +8,15 @@
       <button
         class="view-mode-btn"
         [class.active]="viewMode() === 'week'"
-        (click)="viewMode() === 'week' ? null : toggleViewMode()">
+        (click)="viewMode() === 'week' ? null : toggleViewMode()"
+      >
         {{ 'COMMON.VIEWS.CALENDAR.VIEW_WEEK' | translate }}
       </button>
       <button
         class="view-mode-btn"
         [class.active]="viewMode() === 'month'"
-        (click)="viewMode() === 'month' ? null : toggleViewMode()">
+        (click)="viewMode() === 'month' ? null : toggleViewMode()"
+      >
         {{ 'COMMON.VIEWS.CALENDAR.VIEW_MONTH' | translate }}
       </button>
     </div>
@@ -25,7 +26,8 @@
       <button
         class="nav-btn"
         [class.disabled]="!canGoToPreviousPeriod()"
-        (click)="canGoToPreviousPeriod() ? previousPeriod() : null">
+        (click)="canGoToPreviousPeriod() ? previousPeriod() : null"
+      >
         <i class="pi pi-chevron-left"></i>
       </button>
 
@@ -55,7 +57,8 @@
       <button
         class="quick-date-btn today-btn"
         [class.disabled]="!canSelectDate(getToday())"
-        (click)="canSelectDate(getToday()) ? selectToday() : null">
+        (click)="canSelectDate(getToday()) ? selectToday() : null"
+      >
         <i class="pi pi-calendar"></i>
         {{ 'BOOKING.QUICK_SELECTION.TODAY' | translate }}
       </button>
@@ -63,7 +66,8 @@
       <button
         class="quick-date-btn tomorrow-btn"
         [class.disabled]="!canSelectDate(getTomorrow())"
-        (click)="canSelectDate(getTomorrow()) ? selectTomorrow() : null">
+        (click)="canSelectDate(getTomorrow()) ? selectTomorrow() : null"
+      >
         <i class="pi pi-calendar-plus"></i>
         {{ 'BOOKING.QUICK_SELECTION.TOMORROW' | translate }}
       </button>
@@ -71,7 +75,8 @@
       <button
         class="quick-date-btn next-available-btn"
         [class.disabled]="!nextAvailableDate()"
-        (click)="nextAvailableDate() ? selectNextAvailable() : null">
+        (click)="nextAvailableDate() ? selectNextAvailable() : null"
+      >
         <i class="pi pi-calendar-times"></i>
         {{ 'BOOKING.QUICK_SELECTION.NEXT_AVAILABLE' | translate }}
       </button>
@@ -91,7 +96,8 @@
             [class.past-date]="isPastDate(day)"
             [class.other-month]="viewMode() === 'month' && !isCurrentMonth(day)"
             [class.selectable]="canSelectDate(day)"
-            (click)="canSelectDate(day) ? selectDate(day) : null">
+            (click)="canSelectDate(day) ? selectDate(day) : null"
+          >
             <div class="day-name">{{ formatDayShort(day) }}</div>
             <div class="day-number">{{ day.getDate() }}</div>
             @if (isToday(day)) {
@@ -124,11 +130,14 @@
         <div
           class="service-item"
           [class.selected]="selectedService()?.id === service.id"
-          (click)="selectService(service)">
+          (click)="selectService(service)"
+        >
           <div class="service-icon">{{ service.icon }}</div>
           <div class="service-info">
             <div class="service-name">{{ service.name }}</div>
-            <div class="service-duration">{{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</div>
+            <div class="service-duration">
+              {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
+            </div>
           </div>
           <div class="service-price">{{ service.price | currency }}</div>
         </div>
@@ -154,10 +163,27 @@
                     class="time-slot"
                     [class.available]="timeSlot.available"
                     [class.occupied]="!timeSlot.available"
-                    [style.background]="!timeSlot.available && timeSlot.serviceName ? 'linear-gradient(135deg, ' + getServiceBackgroundColor(timeSlot.serviceName) + ' 0%, ' + getServiceColor(timeSlot.serviceName) + ' 100%)' : ''"
-                    [style.border-color]="!timeSlot.available && timeSlot.serviceName ? getServiceColor(timeSlot.serviceName) : ''"
-                    [style.box-shadow]="!timeSlot.available && timeSlot.serviceName ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40' : ''"
-                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
+                    [style.background]="
+                      !timeSlot.available && timeSlot.serviceName
+                        ? 'linear-gradient(135deg, ' +
+                          getServiceBackgroundColor(timeSlot.serviceName) +
+                          ' 0%, ' +
+                          getServiceColor(timeSlot.serviceName) +
+                          ' 100%)'
+                        : ''
+                    "
+                    [style.border-color]="
+                      !timeSlot.available && timeSlot.serviceName
+                        ? getServiceColor(timeSlot.serviceName)
+                        : ''
+                    "
+                    [style.box-shadow]="
+                      !timeSlot.available && timeSlot.serviceName
+                        ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40'
+                        : ''
+                    "
+                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null"
+                  >
                     <div class="slot-content">
                       <div class="time">{{ formatTime(timeSlot.time) }}</div>
                       @if (!timeSlot.available) {
@@ -174,11 +200,15 @@
                           </div>
                         } @else {
                           <div class="occupied-simple">
-                            <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+                            <span class="occupied-label">{{
+                              'COMMON.STATUS.OCCUPIED' | translate
+                            }}</span>
                           </div>
                         }
                       } @else {
-                        <div class="available-label">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
+                        <div class="available-label">
+                          {{ 'COMMON.STATUS.AVAILABLE' | translate }}
+                        </div>
                       }
                     </div>
                   </div>
@@ -197,10 +227,27 @@
                     class="time-slot"
                     [class.available]="timeSlot.available"
                     [class.occupied]="!timeSlot.available"
-                    [style.background]="!timeSlot.available && timeSlot.serviceName ? 'linear-gradient(135deg, ' + getServiceBackgroundColor(timeSlot.serviceName) + ' 0%, ' + getServiceColor(timeSlot.serviceName) + ' 100%)' : ''"
-                    [style.border-color]="!timeSlot.available && timeSlot.serviceName ? getServiceColor(timeSlot.serviceName) : ''"
-                    [style.box-shadow]="!timeSlot.available && timeSlot.serviceName ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40' : ''"
-                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null">
+                    [style.background]="
+                      !timeSlot.available && timeSlot.serviceName
+                        ? 'linear-gradient(135deg, ' +
+                          getServiceBackgroundColor(timeSlot.serviceName) +
+                          ' 0%, ' +
+                          getServiceColor(timeSlot.serviceName) +
+                          ' 100%)'
+                        : ''
+                    "
+                    [style.border-color]="
+                      !timeSlot.available && timeSlot.serviceName
+                        ? getServiceColor(timeSlot.serviceName)
+                        : ''
+                    "
+                    [style.box-shadow]="
+                      !timeSlot.available && timeSlot.serviceName
+                        ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40'
+                        : ''
+                    "
+                    (click)="timeSlot.available ? selectTimeSlot(timeSlot) : null"
+                  >
                     <div class="slot-content">
                       <div class="time">{{ formatTime(timeSlot.time) }}</div>
                       @if (!timeSlot.available) {
@@ -217,11 +264,15 @@
                           </div>
                         } @else {
                           <div class="occupied-simple">
-                            <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
+                            <span class="occupied-label">{{
+                              'COMMON.STATUS.OCCUPIED' | translate
+                            }}</span>
                           </div>
                         }
                       } @else {
-                        <div class="available-label">{{ 'COMMON.STATUS.AVAILABLE' | translate }}</div>
+                        <div class="available-label">
+                          {{ 'COMMON.STATUS.AVAILABLE' | translate }}
+                        </div>
                       }
                     </div>
                   </div>
@@ -241,7 +292,6 @@
       </div>
     </pelu-card>
   }
-
 </div>
 
 <!-- Booking Confirmation Popup -->
@@ -252,7 +302,8 @@
   (confirmed)="onBookingConfirmed($event)"
   (cancelled)="onBookingCancelled()"
   (clientNameChanged)="onClientNameChanged($event)"
-  (emailChanged)="onEmailChanged($event)">
+  (emailChanged)="onEmailChanged($event)"
+>
 </pelu-booking-popup>
 
 <!-- Login Prompt for Anonymous Users -->

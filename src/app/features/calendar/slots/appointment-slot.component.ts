@@ -1,4 +1,14 @@
-import { Component, input, output, computed, ChangeDetectionStrategy, inject, ElementRef, HostListener, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  computed,
+  ChangeDetectionStrategy,
+  inject,
+  ElementRef,
+  HostListener,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarCoreService } from '../services/calendar-core.service';
@@ -11,34 +21,41 @@ export interface AppointmentSlotData {
 
 @Component({
   selector: 'pelu-appointment-slot',
-  standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (data()?.appointment) {
-      <div class="appointment"
-           [style.top.px]="position().top"
-           [style.height.px]="position().height"
-           [style.left.px]="0"
-           [style.right.px]="0"
-           [ngClass]="appointmentCssClass()"
-           [class.dragging]="isBeingDragged()"
-           [class.public-booking]="data()!.appointment!.isPublicBooking"
-           [class.no-drag]="!data()!.appointment!.canDrag"
-           (mousedown)="onMouseDown($event)"
-           (mousemove)="onMouseMove($event)"
-           (mouseup)="onMouseUp($event)"
-           (mouseenter)="onMouseEnter($event)"
-           (mouseleave)="onMouseLeave($event)">
+      <div
+        class="appointment"
+        [style.top.px]="position().top"
+        [style.height.px]="position().height"
+        [style.left.px]="0"
+        [style.right.px]="0"
+        [ngClass]="appointmentCssClass()"
+        [class.dragging]="isBeingDragged()"
+        [class.public-booking]="data()!.appointment!.isPublicBooking"
+        [class.no-drag]="!data()!.appointment!.canDrag"
+        (mousedown)="onMouseDown($event)"
+        (mousemove)="onMouseMove($event)"
+        (mouseup)="onMouseUp($event)"
+        (mouseenter)="onMouseEnter($event)"
+        (mouseleave)="onMouseLeave($event)"
+      >
         <div class="appointment-content">
           <div class="appointment-info">
-            <div class="appointment-title" [ngClass]="textCssClass()">{{ data()!.appointment!.title }}</div>
+            <div class="appointment-title" [ngClass]="textCssClass()">
+              {{ data()!.appointment!.title }}
+            </div>
             @if (data()!.appointment!.serviceName && !data()!.appointment!.isPublicBooking) {
-              <div class="appointment-service" [ngClass]="textCssClass()">{{ data()!.appointment!.serviceName }}</div>
+              <div class="appointment-service" [ngClass]="textCssClass()">
+                {{ data()!.appointment!.serviceName }}
+              </div>
             }
           </div>
           @if (!data()!.appointment!.isPublicBooking) {
-            <div class="appointment-duration" [ngClass]="textCssClass()">{{ formatDuration(data()!.appointment!.duration || 60) }}</div>
+            <div class="appointment-duration" [ngClass]="textCssClass()">
+              {{ formatDuration(data()!.appointment!.duration || 60) }}
+            </div>
           }
         </div>
         @if (data()!.appointment!.canDrag) {
@@ -49,7 +66,7 @@ export interface AppointmentSlotData {
       </div>
     }
   `,
-  styleUrls: ['./appointment-slot.component.scss']
+  styleUrls: ['./appointment-slot.component.scss'],
 })
 export class AppointmentSlotComponent {
   // Input signals
@@ -83,7 +100,8 @@ export class AppointmentSlotComponent {
 
   // Computed service color
   readonly serviceColor = computed(() => {
-    if (!this.data() || !this.data()!.appointment) return this.serviceColorsService.getDefaultColor();
+    if (!this.data() || !this.data()!.appointment)
+      return this.serviceColorsService.getDefaultColor();
     const serviceName = this.data()!.appointment!.serviceName || '';
     return this.serviceColorsService.getServiceColor(serviceName);
   });
@@ -129,8 +147,14 @@ export class AppointmentSlotComponent {
 
     // Only emit click if not currently dragging and no drag has started
     // and if the appointment can be viewed
-    if (!this.calendarCoreService.isDragging() && !this.hasDragStarted() && !this.isDragging &&
-        this.data() && this.data()!.appointment && this.data()!.appointment!.canViewDetails) {
+    if (
+      !this.calendarCoreService.isDragging() &&
+      !this.hasDragStarted() &&
+      !this.isDragging &&
+      this.data() &&
+      this.data()!.appointment &&
+      this.data()!.appointment!.canViewDetails
+    ) {
       this.clicked.emit(this.data()!.appointment!);
     }
   }
@@ -205,7 +229,7 @@ export class AppointmentSlotComponent {
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
     const originalPosition = {
       top: rect.top,
-      left: rect.left
+      left: rect.left,
     };
 
     // Pass the original date for cross-day dragging support
@@ -228,7 +252,7 @@ export class AppointmentSlotComponent {
     if (this.calendarCoreService.isDragging()) {
       this.calendarCoreService.updateDragPosition({
         top: event.clientY,
-        left: event.clientX
+        left: event.clientX,
       });
     }
   };
