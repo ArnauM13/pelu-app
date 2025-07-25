@@ -1,45 +1,11 @@
 <div class="calendar-header">
-  <div class="calendar-navigation">
-    <!-- Previous Week Button -->
-    <pelu-button
-      icon="pi pi-chevron-left"
-      [disabled]="!canNavigateToPreviousWeek()"
-      [ariaLabel]="previousWeekLabel"
-      size="small"
-      severity="secondary"
-      variant="outlined"
-      [class]="'nav-btn'"
-      (clicked)="onPreviousWeek()"
-    >
-    </pelu-button>
-
-    <!-- Today Button -->
-    <pelu-button
-      [label]="todayLabel"
-      [ariaLabel]="goToTodayLabel"
-      size="small"
-      severity="primary"
-      variant="outlined"
-      [class]="'nav-btn today-btn'"
-      (clicked)="onToday()"
-    >
-    </pelu-button>
-
-    <!-- Next Week Button -->
-    <pelu-button
-      icon="pi pi-chevron-right"
-      [ariaLabel]="nextWeekLabel"
-      size="small"
-      severity="secondary"
-      variant="outlined"
-      [class]="'nav-btn'"
-      (clicked)="onNextWeek()"
-    >
-    </pelu-button>
-  </div>
-
   <!-- Date Input -->
   <div class="date-input-container">
+    <pelu-button
+      icon="pi pi-calendar"
+      label="COMMON.TIME.TODAY"
+      (clicked)="emitToday()"
+    />
     <pelu-input-date
       [value]="currentViewDate()"
       [dateFormat]="'dd/mm/yy'"

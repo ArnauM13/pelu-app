@@ -43,6 +43,27 @@ Documentació unificada i completa del projecte amb tots els aspectes tècnics, 
 
 ---
 
+## ⚡ Funcionalitats Principals
+
+### ⚙️ [Pàgina d'Administració de Configuració](src/app/features/admin/admin-settings-page/)
+
+- **Descripció**: Pàgina d'administració completa per gestionar tots els paràmetres del sistema
+- **Contingut**:
+  - Layout de 3 columnes responsive
+  - Mode d'edició unificat amb botó a la dreta
+  - Inputs específics per cada tipus de paràmetre
+  - Gestió d'estats de càrrega
+  - Disseny totalment responsive
+  - Validació en temps real
+- **Característiques**:
+  - **Columna 1**: Informació del negoci (nom, hores, pausa)
+  - **Columna 2**: Configuració de cites (durada, límits, opcions)
+  - **Columna 3**: Sistema de reserves i configuració (antelació, idioma, moneda)
+- **Responsive**: Adaptació perfecta de 3 columnes → 2 columnes → 1 columna
+- **Ús**: Per administradors que gestionen la configuració del sistema
+
+---
+
 ## 🧩 Components Compartits
 
 ### 🔧 [Sistema d'Inputs Unificats](src/app/shared/components/inputs/README.md)

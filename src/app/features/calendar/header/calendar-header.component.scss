@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 1.5rem;
   background: var(--surface-color);
   border-bottom: 1px solid var(--border-color);
 }
@@ -11,60 +11,6 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-}
-
-// Styles for the new PrimeNG buttons
-.nav-btn {
-  // Override PrimeNG button styles to match existing design
-  min-width: 36px !important;
-  height: 36px !important;
-  border-radius: 8px !important;
-  font-size: 0.9rem !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease !important;
-
-  // Ensure proper spacing for icon-only buttons
-  &.p-button-icon-only {
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  // Hover effects
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15) !important;
-  }
-
-  // Active state
-  &:active {
-    transform: translateY(0);
-  }
-
-  // Disabled state
-  &:disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
-  }
-}
-
-// Special styling for the "Today" button
-.today-btn {
-  min-width: 60px !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-
-  // Override PrimeNG primary button colors to match existing design
-  &.p-button-outlined.p-button-primary {
-    background: var(--primary-color) !important;
-    color: var(--text-color-white) !important;
-    border-color: var(--primary-color) !important;
-
-    &:hover {
-      background: var(--primary-color-dark) !important;
-      border-color: var(--primary-color-dark) !important;
-    }
-  }
 }
 
 .calendar-title {
@@ -94,27 +40,7 @@
 
 .date-input-container {
   display: flex;
+  gap: 1rem;
   align-items: center;
   min-width: 200px;
-}
-
-// Estils específics per al datepicker al header del calendari
-.date-input-container ::ng-deep .input-date-container {
-  width: 100%;
-}
-
-.date-input-container ::ng-deep .input-date-label {
-  display: none; // Amagar el label per estalviar espai
-}
-
-.date-input-container ::ng-deep .datepicker-wrapper {
-  min-height: 36px;
-}
-
-.date-input-container ::ng-deep .pelu-datepicker {
-  width: 100%;
-}
-
-.date-input-container ::ng-deep .p-datepicker {
-  z-index: 1000;
 }

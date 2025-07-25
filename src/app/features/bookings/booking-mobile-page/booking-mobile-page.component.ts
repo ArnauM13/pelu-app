@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
-import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   addDays,
@@ -15,7 +14,6 @@ import {
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
-  parseISO,
   startOfMonth,
   endOfMonth,
   addMonths,
@@ -33,13 +31,12 @@ import {
   FirebaseServicesService,
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
-import { BookingService } from '../../../core/services/booking.service';
+import { Booking, BookingService } from '../../../core/services/booking.service';
 import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
-import { ResponsiveService } from '../../../core/services/responsive.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { ServiceTranslationService } from '../../../core/services/service-translation.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 interface TimeSlot {
   time: string;
@@ -83,11 +80,12 @@ export class BookingMobilePageComponent {
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
   private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly businessSettingsService = inject(BusinessSettingsService);
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date | null>(null);
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
-  private readonly appointmentsSignal = signal<any[]>([]);
+  private readonly appointmentsSignal = signal<Booking[]>([]);
   private readonly viewModeSignal = signal<'week' | 'month'>('week');
 
   private readonly showBookingPopupSignal = signal<boolean>(false);
@@ -114,10 +112,10 @@ export class BookingMobilePageComponent {
   readonly isAdmin = computed(() => this.roleService.isAdmin());
 
   // Business configuration
-  readonly businessHours = { start: '08:00', end: '20:00' };
-  readonly lunchBreak = { start: '13:00', end: '14:00' };
-  readonly businessDays = [1, 2, 3, 4, 5, 6]; // Monday to Saturday
-  readonly slotDuration = 30;
+  readonly businessHours = computed(() => this.businessSettingsService.getBusinessHoursString());
+  readonly lunchBreak = computed(() => this.businessSettingsService.getLunchBreak());
+  readonly businessDays = computed(() => this.businessSettingsService.getWorkingDays());
+  readonly slotDuration = computed(() => this.businessSettingsService.getAppointmentDuration());
 
   // Available services
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
@@ -216,19 +214,20 @@ export class BookingMobilePageComponent {
     const dayOfWeek = date.getDay();
 
     // Check if it's a business day
-    if (!this.businessDays.includes(dayOfWeek)) {
+    if (!this.businessDays().includes(dayOfWeek)) {
       return slots;
     }
 
-    const startHour = parseInt(this.businessHours.start.split(':')[0]);
-    const endHour = parseInt(this.businessHours.end.split(':')[0]);
-    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
-    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+    const businessHours = this.businessHours();
+    const slotDuration = this.slotDuration();
+
+    const startHour = parseInt(businessHours.start.split(':')[0]);
+    const endHour = parseInt(businessHours.end.split(':')[0]);
     const now = new Date();
     const isToday = isSameDay(date, now);
 
     for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += this.slotDuration) {
+      for (let minute = 0; minute < 60; minute += slotDuration) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const slotDate = new Date(date);
         slotDate.setHours(hour, minute, 0, 0);
@@ -278,7 +277,7 @@ export class BookingMobilePageComponent {
     });
   }
 
-  private getBookingForSlot(date: Date, time: string): any {
+  private getBookingForSlot(date: Date, time: string): Booking | undefined {
     const dateString = format(date, 'yyyy-MM-dd');
     const bookings = this.bookingService.bookings();
 
@@ -294,10 +293,11 @@ export class BookingMobilePageComponent {
     return service?.icon || '🔧';
   }
 
-  private isTimeSlotEnabled(hour: number, minute: number): boolean {
+  private isTimeSlotEnabled(hour: number, _minute: number): boolean {
     // Check lunch break
-    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
-    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+    const lunchBreak = this.lunchBreak();
+    const lunchStart = parseInt(lunchBreak.start.split(':')[0]);
+    const lunchEnd = parseInt(lunchBreak.end.split(':')[0]);
 
     if (hour >= lunchStart && hour < lunchEnd) {
       return false;
@@ -318,15 +318,18 @@ export class BookingMobilePageComponent {
     const dayOfWeek = date.getDay();
 
     // Check if it's a business day
-    if (!this.businessDays.includes(dayOfWeek)) {
+    if (!this.businessDays().includes(dayOfWeek)) {
       return slots;
     }
 
-    const startHour = parseInt(this.businessHours.start.split(':')[0]);
-    const endHour = parseInt(this.businessHours.end.split(':')[0]);
+    const businessHours = this.businessHours();
+    const slotDuration = this.slotDuration();
+
+    const startHour = parseInt(businessHours.start.split(':')[0]);
+    const endHour = parseInt(businessHours.end.split(':')[0]);
 
     for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += this.slotDuration) {
+      for (let minute = 0; minute < 60; minute += slotDuration) {
         if (this.isTimeSlotEnabled(hour, minute)) {
           const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
           slots.push(timeString);
@@ -559,7 +562,7 @@ export class BookingMobilePageComponent {
   }
 
   isBusinessDay(date: Date): boolean {
-    return this.businessDays.includes(date.getDay());
+    return this.businessDays().includes(date.getDay());
   }
 
   isPastDate(date: Date): boolean {
@@ -680,7 +683,7 @@ export class BookingMobilePageComponent {
     // Find the first business day in the week
     for (let i = 0; i < 7; i++) {
       const day = addDays(weekStart, i);
-      if (this.businessDays.includes(day.getDay())) {
+      if (this.businessDays().includes(day.getDay())) {
         return day;
       }
     }
@@ -692,7 +695,7 @@ export class BookingMobilePageComponent {
     // Find the last business day in the week
     for (let i = 6; i >= 0; i--) {
       const day = addDays(weekEnd, -i);
-      if (this.businessDays.includes(day.getDay())) {
+      if (this.businessDays().includes(day.getDay())) {
         return day;
       }
     }

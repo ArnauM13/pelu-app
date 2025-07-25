@@ -20,6 +20,7 @@ import { ButtonComponent } from '../buttons/button.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
+import { BookingValidationService } from '../../../core/services/booking-validation.service';
 
 export interface DetailAction {
   label: string;
@@ -89,7 +90,8 @@ export class DetailViewComponent implements OnChanges {
     private router: Router,
     private serviceColorsService: ServiceColorsService,
     private toastService: ToastService,
-    private actionsService: ActionsService
+    private actionsService: ActionsService,
+    private bookingValidationService: BookingValidationService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -332,16 +334,13 @@ export class DetailViewComponent implements OnChanges {
   canDeleteAppointment(): boolean {
     if (this.type !== 'appointment' || !this.appointment) return false;
 
-    // Verificar que és una cita futura
-    const appointmentDate = new Date(this.appointment.data);
-    const appointmentTime = this.appointment.hora;
-    const now = new Date();
+    // Use the validation service to check if cancellation is allowed
+    if (this.appointment.data && this.appointment.hora) {
+      const appointmentDate = new Date(this.appointment.data);
+      return this.bookingValidationService.canCancelBooking(appointmentDate, this.appointment.hora);
+    }
 
-    // Crear data completa de la cita
-    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
-    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-    return appointmentDate > now;
+    return false;
   }
 
   // Notes editing methods
