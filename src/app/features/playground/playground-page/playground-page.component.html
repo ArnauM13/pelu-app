@@ -19,6 +19,12 @@
         (click)="setActiveTab('buttons')">
         🔘 Botons
       </button>
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('toasts')"
+        (click)="setActiveTab('toasts')">
+        🎯 Toasts
+      </button>
     </div>
 
     <!-- Tab Content -->
@@ -40,6 +46,16 @@
           <p>Demostració dels components de botons amb diferents variants i estats.</p>
 
           <pelu-buttons-demo></pelu-buttons-demo>
+        </div>
+      </div>
+
+      <!-- Toasts Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('toasts')">
+        <div class="demo-section">
+          <h2>🎯 Sistema de Toasts</h2>
+          <p>Demostració del sistema de toasts unificat amb PrimeNG i personalització completa.</p>
+
+          <pelu-toast-demo></pelu-toast-demo>
         </div>
       </div>
     </div>

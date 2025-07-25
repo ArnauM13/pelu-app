@@ -1,177 +1,276 @@
 import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
-import { LoggerService } from './logger.service';
+import { ToastConfig, ToastData } from '../components/toast/toast.component';
 
-export interface ToastData {
-  appointmentId?: string;
-  showViewButton?: boolean;
-  action?: () => void;
-}
-
-export type ToastSeverity = 'success' | 'error' | 'info' | 'warn';
+export type ToastSeverity = 'success' | 'error' | 'info' | 'warn' | 'secondary' | 'contrast';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ToastService {
   private readonly messageService = inject(MessageService);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
-  private readonly logger = inject(LoggerService);
+  private readonly defaultToastKey = 'pelu-toast';
 
-  private readonly toastKey = 'pelu-toast';
-
-  // Mètode principal per mostrar toasts
-  showToast(
-    severity: ToastSeverity,
-    summary: string,
-    detail: string = '',
-    appointmentId?: string,
-    showViewButton: boolean = false,
-    action?: () => void
-  ) {
-    this.messageService.add({
-      severity,
-      summary,
-      detail,
+  showToast(config: ToastConfig) {
+    const defaultConfig: Partial<ToastConfig> = {
       life: 4000,
-      closable: false,
-      key: this.toastKey,
-      data: { appointmentId, showViewButton, action } as ToastData,
+      sticky: false,
+      closable: true,
+      position: 'top-right',
+      key: this.defaultToastKey,
+      data: {},
+    };
+
+    const finalConfig = { ...defaultConfig, ...config };
+
+    this.messageService.add({
+      severity: finalConfig.severity,
+      summary: finalConfig.summary,
+      detail: finalConfig.detail || '',
+      life: finalConfig.life,
+      sticky: finalConfig.sticky,
+      closable: finalConfig.closable,
+      key: finalConfig.key,
+      data: finalConfig.data,
     });
   }
 
-  // Mètodes ràpids per diferents tipus de toast
-  showSuccess(
-    summary: string,
-    detail: string = '',
-    appointmentId?: string,
-    showViewButton: boolean = false
-  ) {
-    this.showToast('success', summary, detail, appointmentId, showViewButton);
+  // Quick helper methods
+  showSuccess(summary: string, detail?: string, data?: ToastData) {
+    this.showToast({
+      severity: 'success',
+      summary,
+      detail,
+      data,
+    });
   }
 
-  showError(summary: string, detail: string = '') {
-    this.showToast('error', summary, detail);
+  showError(summary: string, detail?: string, data?: ToastData) {
+    this.showToast({
+      severity: 'error',
+      summary,
+      detail,
+      data,
+    });
   }
 
-  showInfo(summary: string, detail: string = '') {
-    this.showToast('info', summary, detail);
+  showInfo(summary: string, detail?: string, data?: ToastData) {
+    this.showToast({
+      severity: 'info',
+      summary,
+      detail,
+      data,
+    });
   }
 
-  showWarning(summary: string, detail: string = '') {
-    this.showToast('warn', summary, detail);
+  showWarning(summary: string, detail?: string, data?: ToastData) {
+    this.showToast({
+      severity: 'warn',
+      summary,
+      detail,
+      data,
+    });
   }
 
-  // Mètodes específics per casos d'ús comuns
-  showReservationCreated(appointmentId: string) {
-    this.showSuccess('COMMON.RESERVATION_CREATED', '', appointmentId, true);
+  showSecondary(summary: string, detail?: string, data?: ToastData) {
+    this.showToast({
+      severity: 'secondary',
+      summary,
+      detail,
+      data,
+    });
   }
 
-  showAppointmentDeleted(appointmentName: string) {
-    this.showSuccess(
-      'COMMON.TOAST.APPOINTMENT_DELETED',
-      `COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE`,
-      undefined,
-      false
-    );
+  showContrast(summary: string, detail?: string, data?: ToastData) {
+    this.showToast({
+      severity: 'contrast',
+      summary,
+      detail,
+      data,
+    });
   }
 
-  showAppointmentUpdated(appointmentName: string) {
-    this.showSuccess(
-      'COMMON.TOAST.APPOINTMENT_UPDATED',
-      `COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE`,
-      undefined,
-      false
-    );
+  // Specific use cases
+  showReservationCreated(appointmentId?: string) {
+    this.showToast({
+      severity: 'success',
+      summary: 'Cita creada',
+      detail: 'La teva cita s\'ha creat correctament',
+      data: {
+        appointmentId,
+        showViewButton: true,
+        customIcon: '📅',
+      },
+    });
   }
 
-  showAppointmentCreated(appointmentName: string, appointmentId: string) {
-    this.showSuccess(
-      'COMMON.TOAST.APPOINTMENT_CREATED',
-      `COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE`,
-      appointmentId,
-      true
-    );
+  showAppointmentDeleted(appointmentName?: string) {
+    this.showToast({
+      severity: 'info',
+      summary: 'Cita eliminada',
+      detail: `La cita per a ${appointmentName || 'el client'} s'ha eliminat correctament`,
+      data: {
+        customIcon: '🗑️',
+      },
+    });
   }
 
-  showValidationError(field: string) {
-    this.showError('COMMON.ERRORS.VALIDATION_ERROR', `COMMON.TOAST.VALIDATION_ERROR_MESSAGE`);
+  showAppointmentUpdated(appointmentName?: string) {
+    this.showToast({
+      severity: 'success',
+      summary: 'Cita actualitzada',
+      detail: `La cita per a ${appointmentName || 'el client'} s'ha actualitzat correctament`,
+      data: {
+        customIcon: '✏️',
+      },
+    });
+  }
+
+  showAppointmentCreated(appointmentName?: string, appointmentId?: string) {
+    this.showToast({
+      severity: 'success',
+      summary: 'Cita creada',
+      detail: `La cita per a ${appointmentName || 'el client'} s'ha creat correctament`,
+      data: {
+        appointmentId,
+        showViewButton: true,
+        customIcon: '✅',
+      },
+    });
+  }
+
+  showValidationError(message: string) {
+    this.showToast({
+      severity: 'error',
+      summary: 'Error de validació',
+      detail: message,
+      data: {
+        customIcon: '⚠️',
+      },
+    });
   }
 
   showNetworkError() {
-    this.showError('COMMON.ERRORS.NETWORK_ERROR', 'COMMON.TOAST.NETWORK_ERROR_MESSAGE');
+    this.showToast({
+      severity: 'error',
+      summary: 'Error de connexió',
+      detail: 'No s\'ha pogut connectar amb el servidor',
+      data: {
+        customIcon: '🌐',
+      },
+    });
   }
 
   showUnauthorizedError() {
-    this.showError(
-      'COMMON.ERRORS.PERMISSION_ERROR',
-      'No tens permisos per realitzar aquesta acció.'
-    );
+    this.showToast({
+      severity: 'error',
+      summary: 'Accés denegat',
+      detail: 'No tens permisos per realitzar aquesta acció',
+      data: {
+        customIcon: '🚫',
+      },
+    });
   }
 
   showLoginRequired() {
-    this.showWarning('AUTH.SESSION_REQUIRED', 'COMMON.TOAST.LOGIN_REQUIRED_MESSAGE');
+    this.showToast({
+      severity: 'warn',
+      summary: 'Sessió requerida',
+      detail: 'Has d\'iniciar sessió per continuar',
+      data: {
+        customIcon: '🔐',
+      },
+    });
   }
 
+  // Generic methods for backward compatibility
   showGenericSuccess(message: string) {
-    this.showSuccess('COMMON.STATUS.STATUS_SUCCESS', message);
+    this.showToast({
+      severity: 'success',
+      summary: 'Èxit',
+      detail: message,
+    });
   }
 
   showGenericError(message: string) {
-    this.showError('COMMON.GENERAL_ERROR', message);
+    this.showToast({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+    });
   }
 
   showGenericInfo(message: string) {
-    this.showInfo('COMMON.STATUS.STATUS_INFO', message);
+    this.showToast({
+      severity: 'info',
+      summary: 'Informació',
+      detail: message,
+    });
   }
 
   showGenericWarning(message: string) {
-    this.showWarning('COMMON.STATUS.STATUS_WARNING', message);
+    this.showToast({
+      severity: 'warn',
+      summary: 'Advertència',
+      detail: message,
+    });
   }
 
-  // Mètodes per gestionar toasts
-  clearToast() {
-    this.messageService.clear(this.toastKey);
+  // Advanced methods
+  showStickyToast(config: ToastConfig) {
+    this.showToast({ ...config, sticky: true });
+  }
+
+  showToastWithCustomIcon(config: ToastConfig, icon: string) {
+    this.showToast({
+      ...config,
+      data: { ...config.data, customIcon: icon },
+    });
+  }
+
+  showToastWithCustomClass(config: ToastConfig, customClass: string) {
+    this.showToast({
+      ...config,
+      data: { ...config.data, customClass },
+    });
+  }
+
+  showToastAtPosition(
+    config: ToastConfig,
+    position: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'center'
+  ) {
+    this.showToast({ ...config, position });
+  }
+
+  showMultipleToasts(configs: ToastConfig[]) {
+    configs.forEach((config, index) => {
+      setTimeout(() => {
+        this.showToast(config);
+      }, index * 500);
+    });
+  }
+
+  showToastWithDuration(config: ToastConfig, duration: number) {
+    this.showToast({ ...config, life: duration });
+  }
+
+  showToastWithAction(
+    config: ToastConfig,
+    action: () => void,
+    actionLabel: string = 'Acció'
+  ) {
+    this.showToast({
+      ...config,
+      data: { ...config.data, action, actionLabel },
+    });
+  }
+
+  // Clear methods
+  clearToast(key?: string) {
+    this.messageService.clear(key || this.defaultToastKey);
   }
 
   clearAllToasts() {
     this.messageService.clear();
-  }
-
-  // Mètodes per navegació des de toasts
-  onToastClick(event: any) {
-    const appointmentId = event.message?.data?.appointmentId;
-    const action = event.message?.data?.action;
-
-    if (action && typeof action === 'function') {
-      action();
-    } else if (appointmentId) {
-      this.viewAppointmentDetail(appointmentId);
-    }
-  }
-
-  viewAppointmentDetail(appointmentId: string) {
-    const user = this.authService.user();
-    if (!user?.uid) {
-      return;
-    }
-
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointmentId}`;
-    this.router.navigate(['/appointments', uniqueId]);
-  }
-
-  // Mètode per mostrar toasts amb accions personalitzades
-  showToastWithAction(
-    severity: ToastSeverity,
-    summary: string,
-    detail: string,
-    action: () => void,
-    actionLabel: string = 'Acció'
-  ) {
-    this.showToast(severity, summary, detail, undefined, false, action);
   }
 }
