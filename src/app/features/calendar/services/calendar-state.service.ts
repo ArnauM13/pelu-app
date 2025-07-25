@@ -127,6 +127,7 @@ export class CalendarStateService {
   navigateToDate(dateString: string): void {
     const date = new Date(dateString);
     if (!isNaN(date.getTime())) {
+      // Set the selected date as the view date (first day of the calendar)
       this.viewDateSignal.set(date);
     }
   }

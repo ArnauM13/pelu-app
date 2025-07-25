@@ -205,4 +205,25 @@ export class ServiceColorsService {
     const serviceColor = this.getServiceColor(serviceName);
     return `service-bg-${serviceColor.id}`;
   }
+
+  /**
+   * Obté el color per a cites d'avui
+   */
+  getTodayColor(): string {
+    return 'var(--appointment-today-color, #10b981)';
+  }
+
+  /**
+   * Obté el color per a cites passades
+   */
+  getPastColor(): string {
+    return 'var(--appointment-past-color, #6b7280)';
+  }
+
+  /**
+   * Obté el color per a cites futures
+   */
+  getFutureColor(): string {
+    return 'var(--appointment-future-color, #3b82f6)';
+  }
 }

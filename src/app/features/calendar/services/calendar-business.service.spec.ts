@@ -36,11 +36,13 @@ describe('CalendarBusinessService', () => {
       expect(service.isBusinessDay(0)).toBe(false); // Sunday
     });
 
-    it('should get business days for week', () => {
-      const monday = new Date('2024-01-15'); // Monday
-      const businessDays = service.getBusinessDaysForWeek(monday);
+    it('should get business days for week starting from selected date', () => {
+      const selectedDate = new Date('2024-01-15'); // Monday
+      const businessDays = service.getBusinessDaysForWeek(selectedDate);
 
       expect(businessDays.length).toBeGreaterThan(0);
+      // The first day should be the selected date
+      expect(businessDays[0].toDateString()).toBe(selectedDate.toDateString());
       businessDays.forEach(day => {
         expect(service.isBusinessDay(day.getDay())).toBe(true);
       });

@@ -1,8 +1,14 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastConfig, ToastData } from '../components/toast/toast.component';
 
 export type ToastSeverity = 'success' | 'error' | 'info' | 'warn' | 'secondary' | 'contrast';
+
+export interface ToastState {
+  messages: ToastConfig[];
+  isVisible: boolean;
+  activeToasts: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +16,38 @@ export type ToastSeverity = 'success' | 'error' | 'info' | 'warn' | 'secondary' 
 export class ToastService {
   private readonly messageService = inject(MessageService);
   private readonly defaultToastKey = 'pelu-toast';
+
+  // Internal state signals
+  private readonly toastStateSignal = signal<ToastState>({
+    messages: [],
+    isVisible: false,
+    activeToasts: 0,
+  });
+
+  private readonly toastHistorySignal = signal<ToastConfig[]>([]);
+  private readonly maxHistorySize = 50;
+
+  // Public computed signals
+  readonly toastState = computed(() => this.toastStateSignal());
+  readonly activeToasts = computed(() => this.toastState().activeToasts);
+  readonly isVisible = computed(() => this.toastState().isVisible);
+  readonly toastHistory = computed(() => this.toastHistorySignal());
+  readonly hasActiveToasts = computed(() => this.activeToasts() > 0);
+  readonly recentToasts = computed(() =>
+    this.toastHistory().slice(-5).reverse()
+  );
+
+  // Toast statistics
+  readonly toastStats = computed(() => {
+    const history = this.toastHistory();
+    return {
+      total: history.length,
+      success: history.filter(t => t.severity === 'success').length,
+      error: history.filter(t => t.severity === 'error').length,
+      info: history.filter(t => t.severity === 'info').length,
+      warning: history.filter(t => t.severity === 'warn').length,
+    };
+  });
 
   showToast(config: ToastConfig) {
     const defaultConfig: Partial<ToastConfig> = {
@@ -23,6 +61,12 @@ export class ToastService {
 
     const finalConfig = { ...defaultConfig, ...config };
 
+    // Update internal state
+    this.updateToastState(finalConfig);
+
+    // Add to history
+    this.addToHistory(finalConfig);
+
     this.messageService.add({
       severity: finalConfig.severity,
       summary: finalConfig.summary,
@@ -33,6 +77,29 @@ export class ToastService {
       key: finalConfig.key,
       data: finalConfig.data,
     });
+  }
+
+  private updateToastState(config: ToastConfig) {
+    const currentState = this.toastStateSignal();
+    const newMessages = [...currentState.messages, config];
+
+    this.toastStateSignal.set({
+      messages: newMessages,
+      isVisible: true,
+      activeToasts: currentState.activeToasts + 1,
+    });
+  }
+
+  private addToHistory(config: ToastConfig) {
+    const currentHistory = this.toastHistorySignal();
+    const newHistory = [...currentHistory, config];
+
+    // Keep only the last maxHistorySize items
+    if (newHistory.length > this.maxHistorySize) {
+      newHistory.splice(0, newHistory.length - this.maxHistorySize);
+    }
+
+    this.toastHistorySignal.set(newHistory);
   }
 
   // Quick helper methods
@@ -99,7 +166,7 @@ export class ToastService {
       data: {
         appointmentId,
         showViewButton: true,
-        customIcon: '📅',
+        actionLabel: 'Veure cita',
       },
     });
   }
@@ -108,10 +175,9 @@ export class ToastService {
     this.showToast({
       severity: 'info',
       summary: 'Cita eliminada',
-      detail: `La cita per a ${appointmentName || 'el client'} s'ha eliminat correctament`,
-      data: {
-        customIcon: '🗑️',
-      },
+      detail: appointmentName
+        ? `La cita de ${appointmentName} s'ha eliminat correctament`
+        : 'La cita s\'ha eliminat correctament',
     });
   }
 
@@ -119,10 +185,9 @@ export class ToastService {
     this.showToast({
       severity: 'success',
       summary: 'Cita actualitzada',
-      detail: `La cita per a ${appointmentName || 'el client'} s'ha actualitzat correctament`,
-      data: {
-        customIcon: '✏️',
-      },
+      detail: appointmentName
+        ? `La cita de ${appointmentName} s'ha actualitzat correctament`
+        : 'La cita s\'ha actualitzat correctament',
     });
   }
 
@@ -130,11 +195,13 @@ export class ToastService {
     this.showToast({
       severity: 'success',
       summary: 'Cita creada',
-      detail: `La cita per a ${appointmentName || 'el client'} s'ha creat correctament`,
+      detail: appointmentName
+        ? `La cita de ${appointmentName} s'ha creat correctament`
+        : 'La cita s\'ha creat correctament',
       data: {
         appointmentId,
         showViewButton: true,
-        customIcon: '✅',
+        actionLabel: 'Veure cita',
       },
     });
   }
@@ -144,9 +211,6 @@ export class ToastService {
       severity: 'error',
       summary: 'Error de validació',
       detail: message,
-      data: {
-        customIcon: '⚠️',
-      },
     });
   }
 
@@ -154,10 +218,7 @@ export class ToastService {
     this.showToast({
       severity: 'error',
       summary: 'Error de connexió',
-      detail: 'No s\'ha pogut connectar amb el servidor',
-      data: {
-        customIcon: '🌐',
-      },
+      detail: 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.',
     });
   }
 
@@ -165,25 +226,18 @@ export class ToastService {
     this.showToast({
       severity: 'error',
       summary: 'Accés denegat',
-      detail: 'No tens permisos per realitzar aquesta acció',
-      data: {
-        customIcon: '🚫',
-      },
+      detail: 'No tens permisos per realitzar aquesta acció.',
     });
   }
 
   showLoginRequired() {
     this.showToast({
       severity: 'warn',
-      summary: 'Sessió requerida',
-      detail: 'Has d\'iniciar sessió per continuar',
-      data: {
-        customIcon: '🔐',
-      },
+      summary: 'Inici de sessió requerit',
+      detail: 'Has d\'iniciar sessió per realitzar aquesta acció.',
     });
   }
 
-  // Generic methods for backward compatibility
   showGenericSuccess(message: string) {
     this.showToast({
       severity: 'success',
@@ -216,7 +270,6 @@ export class ToastService {
     });
   }
 
-  // Advanced methods
   showStickyToast(config: ToastConfig) {
     this.showToast({ ...config, sticky: true });
   }
@@ -243,11 +296,7 @@ export class ToastService {
   }
 
   showMultipleToasts(configs: ToastConfig[]) {
-    configs.forEach((config, index) => {
-      setTimeout(() => {
-        this.showToast(config);
-      }, index * 500);
-    });
+    configs.forEach(config => this.showToast(config));
   }
 
   showToastWithDuration(config: ToastConfig, duration: number) {
@@ -265,12 +314,39 @@ export class ToastService {
     });
   }
 
-  // Clear methods
   clearToast(key?: string) {
     this.messageService.clear(key || this.defaultToastKey);
+
+    // Update internal state
+    const currentState = this.toastStateSignal();
+    this.toastStateSignal.set({
+      ...currentState,
+      activeToasts: Math.max(0, currentState.activeToasts - 1),
+      isVisible: currentState.activeToasts > 1,
+    });
   }
 
   clearAllToasts() {
     this.messageService.clear();
+
+    // Reset internal state
+    this.toastStateSignal.set({
+      messages: [],
+      isVisible: false,
+      activeToasts: 0,
+    });
+  }
+
+  // New methods for signal-based functionality
+  clearHistory() {
+    this.toastHistorySignal.set([]);
+  }
+
+  getToastStats() {
+    return this.toastStats();
+  }
+
+  hasRecentToasts() {
+    return this.recentToasts().length > 0;
   }
 }

@@ -26,7 +26,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { AppointmentSlotData } from '../slots/appointment-slot.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { BookingService } from '../../../core/services/booking.service';
+import { BookingService, Booking } from '../../../core/services/booking.service';
 import { RoleService } from '../../../core/services/role.service';
 import { CalendarCoreService } from '../services/calendar-core.service';
 import { CalendarBusinessService } from '../services/calendar-business.service';
@@ -43,6 +43,7 @@ import {
   DragPreviewData,
 } from '../components';
 import { Router } from '@angular/router';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -72,6 +73,7 @@ export interface AppointmentEvent {
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
     CalendarDragPreviewComponent,
+    ButtonComponent,
   ],
   providers: [
     CalendarUtils,
@@ -96,6 +98,7 @@ export class CalendarComponent {
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -103,8 +106,8 @@ export class CalendarComponent {
 
   // Output signals
   readonly dateSelected = output<{ date: string; time: string }>();
-  readonly onEditAppointment = output<AppointmentEvent>();
-  readonly onDeleteAppointment = output<AppointmentEvent>();
+  readonly editAppointment = output<AppointmentEvent>();
+  readonly deleteAppointment = output<AppointmentEvent>();
   readonly bookingsLoaded = output<boolean>();
 
   // Public computed signals from state service
@@ -342,7 +345,7 @@ export class CalendarComponent {
     };
   });
 
-  constructor(private serviceColorsService: ServiceColorsService) {
+  constructor() {
     // Initialize coordinate service with business configuration
     this.initializeCoordinateService();
 
@@ -693,11 +696,11 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
   }
 
-  onAppointmentDeleted(appointment: any) {
-    console.log('Appointment deleted:', appointment);
+  onAppointmentDeleted(booking: Booking) {
+    console.log('Appointment deleted:', booking);
 
     // Remove the appointment from the state
-    this.stateService.removeAppointment(appointment.id);
+    this.stateService.removeAppointment(booking.id || '');
 
     // Close the popup immediately
     this.stateService.closeAppointmentDetail();
@@ -705,11 +708,24 @@ export class CalendarComponent {
     // Silently refresh appointments without showing loader
     this.appointmentService.silentRefreshBookings();
 
-    // Emit the delete event to parent if needed
-    this.onDeleteAppointment.emit(appointment);
+    // Convert Booking to AppointmentEvent and emit to parent
+    const appointmentEvent: AppointmentEvent = {
+      id: booking.id || '',
+      title: booking.nom || 'Appointment',
+      start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
+      end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
+      duration: booking.duration,
+      serviceName: booking.servei,
+      clientName: booking.nom,
+      isPublicBooking: false,
+      isOwnBooking: true,
+      canDrag: true,
+      canViewDetails: true,
+    };
+    this.deleteAppointment.emit(appointmentEvent);
   }
 
-  onAppointmentEditRequested(appointment: any) {
+  onAppointmentEditRequested(booking: Booking) {
     const currentUser = this.authService.user();
     if (!currentUser?.uid) {
       console.warn('No user found');
@@ -717,22 +733,38 @@ export class CalendarComponent {
     }
 
     // All appointments are now bookings, so use the direct ID with token
-    if (appointment.editToken) {
-      this.router.navigate(['/appointments', appointment.id], {
+    if (booking.editToken) {
+      this.router.navigate(['/appointments', booking.id || ''], {
         queryParams: {
-          token: appointment.editToken,
+          token: booking.editToken,
           edit: 'true',
         },
       });
     } else {
       // Fallback for appointments without editToken (shouldn't happen)
       const clientId = currentUser.uid;
-      const uniqueId = `${clientId}-${appointment.id}`;
+      const uniqueId = `${clientId}-${booking.id || ''}`;
       this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
     }
 
     // Close the popup
     this.stateService.closeAppointmentDetail();
+
+    // Convert Booking to AppointmentEvent and emit to parent
+    const appointmentEvent: AppointmentEvent = {
+      id: booking.id || '',
+      title: booking.nom || 'Appointment',
+      start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
+      end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
+      duration: booking.duration,
+      serviceName: booking.servei,
+      clientName: booking.nom,
+      isPublicBooking: false,
+      isOwnBooking: true,
+      canDrag: true,
+      canViewDetails: true,
+    };
+    this.editAppointment.emit(appointmentEvent);
   }
 
   isLunchBreakStart(time: string): boolean {
