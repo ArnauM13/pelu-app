@@ -46,8 +46,8 @@ describe('CalendarHeaderComponent', () => {
 
   it('should emit dateChange event', () => {
     spyOn(component.dateChange, 'emit');
-    const mockEvent = { target: { value: '2024-01-15' } };
-    component.onDateChange(mockEvent);
+    const mockDate = '2024-01-15';
+    component.onDateChange(mockDate);
     expect(component.dateChange.emit).toHaveBeenCalledWith('2024-01-15');
   });
 
@@ -64,8 +64,8 @@ describe('CalendarHeaderComponent', () => {
 
   it('should not emit dateChange when value is empty', () => {
     spyOn(component.dateChange, 'emit');
-    const mockEvent = { target: { value: '' } };
-    component.onDateChange(mockEvent);
+    const mockDate = '';
+    component.onDateChange(mockDate);
     expect(component.dateChange.emit).not.toHaveBeenCalled();
   });
 });
