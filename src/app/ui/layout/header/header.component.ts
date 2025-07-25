@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonModule } from 'primeng/button';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
 import {
   ProfileDropdownComponent,
@@ -15,6 +16,7 @@ import { UserService } from '../../../core/services/user.service';
     CommonModule,
     RouterModule,
     TranslateModule,
+    ButtonModule,
     LanguageSelectorComponent,
     ProfileDropdownComponent,
   ],
@@ -57,6 +59,10 @@ export class HeaderComponent {
     if (this.#router.url !== '/') {
       this.#router.navigate(['/']);
     }
+  }
+
+  navigateToPlayground() {
+    this.#router.navigate(['/playground']);
   }
 
   async onLogout() {
