@@ -16,14 +16,14 @@
         </div>
 
         <div class="form-field">
-          <pelu-input-text
+          <pelu-input-password
             label="COMMON.PASSWORD"
             placeholder="COMMON.PASSWORD"
-            type="password"
+            [toggleMask]="true"
             formControlName="password"
-            (input)="onPasswordChange($event)"
+            (valueChange)="onPasswordChange($event)"
           >
-          </pelu-input-text>
+          </pelu-input-password>
         </div>
 
         @if (hasRepeatPassword()) {
@@ -31,9 +31,9 @@
             <pelu-input-password
               label="COMMON.REPEAT_PASSWORD"
               placeholder="COMMON.REPEAT_PASSWORD"
-              type="password"
+              [toggleMask]="true"
               formControlName="repeatPassword"
-              (input)="onRepeatPasswordChange($event)"
+              (valueChange)="onRepeatPasswordChange($event)"
             >
             </pelu-input-password>
           </div>

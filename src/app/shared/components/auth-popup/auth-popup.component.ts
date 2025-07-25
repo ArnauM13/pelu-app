@@ -21,6 +21,7 @@ import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextComponent } from "../inputs/input-text/input-text.component";
+import { InputPasswordComponent } from "../inputs/input-password/input-password.component";
 
 export interface AuthPopupConfig {
   mode: 'login' | 'register';
@@ -41,7 +42,8 @@ export interface AuthPopupConfig {
     RouterModule,
     ButtonModule,
     TranslateModule,
-    InputTextComponent
+    InputTextComponent,
+    InputPasswordComponent
 ],
   templateUrl: './auth-popup.component.html',
   styleUrls: ['./auth-popup.component.scss'],
@@ -192,13 +194,11 @@ export class AuthPopupComponent implements OnDestroy {
     }
   }
 
-  onPasswordChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+  onPasswordChange(value: string) {
     this.passwordValueSignal.set(value);
   }
 
-  onRepeatPasswordChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+  onRepeatPasswordChange(value: string) {
     this.repeatPasswordValueSignal.set(value);
   }
 
