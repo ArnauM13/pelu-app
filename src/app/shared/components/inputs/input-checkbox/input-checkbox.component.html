@@ -1,14 +1,26 @@
 <div class="flex items-center gap-2">
-  <p-checkbox
-    [inputId]="getElementId()"
-    [binary]="true"
-    [disabled]="disabled()"
-    [invalid]="invalid()"
-    [size]="size()"
-    [variant]="variant()"
-    [ngModel]="value()"
-    (ngModelChange)="onCheckboxChange($event)"
-  />
+  @if (size()) {
+    <p-checkbox
+      [inputId]="getElementId()"
+      [binary]="true"
+      [disabled]="disabled()"
+      [invalid]="invalid()"
+      [size]="size()!"
+      [variant]="variant()"
+      [ngModel]="value()"
+      (ngModelChange)="onCheckboxChange($event)"
+    />
+  } @else {
+    <p-checkbox
+      [inputId]="getElementId()"
+      [binary]="true"
+      [disabled]="disabled()"
+      [invalid]="invalid()"
+      [variant]="variant()"
+      [ngModel]="value()"
+      (ngModelChange)="onCheckboxChange($event)"
+    />
+  }
   <label [for]="getElementId()" class="checkbox-label">
     {{ label() | translate }}
   </label>

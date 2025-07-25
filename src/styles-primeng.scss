@@ -20,7 +20,8 @@
 .p-calendar,
 .p-inputnumber,
 .p-password,
-.p-password-input {
+.p-password-input,
+.p-select {
   // Base styles - WHITE BACKGROUND
   background-color: white !important;
   border: 1px solid var(--border-color) !important;
@@ -72,6 +73,37 @@
     color: var(--text-color-muted) !important;
     opacity: 1 !important;
   }
+
+  .p-icon {
+    cursor: pointer !important;
+  }
+}
+
+.p-select-overlay {
+  background: white !important;
+
+  .p-select-list-container .p-select-option {
+    color: var(--text-color-light) !important;
+    font-weight: 500 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
+    background-color: var(--primary-color-alpha-10) !important;
+    color: var(--primary-color) !important;
+  }
+}
+
+.p-checkbox {
+  .p-checkbox-box {
+    background-color: white !important;
+    border-color: var(--border-color) !important;
+  }
+}
+
+.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
+  background-color: #41b3ff !important;
 }
 
 // ===== DROPDOWN & MULTISELECT STYLES =====
