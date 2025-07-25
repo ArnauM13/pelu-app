@@ -35,23 +35,23 @@ export interface DayHeaderData {
 
       .day-name {
         font-weight: 600;
-        color: #3b82f6;
+        color: #000000;
         font-size: 0.8rem;
       }
 
       .day-date {
-        color: #6c757d;
+        color: #000000;
         font-size: 0.7rem;
       }
 
       .day-header.past .day-name,
       .day-header.past .day-date {
-        color: #999;
+        color: #666666;
       }
 
       .day-header.disabled .day-name,
       .day-header.disabled .day-date {
-        color: #ccc;
+        color: #999999;
       }
     `,
   ],
