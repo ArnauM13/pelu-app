@@ -1,10 +1,10 @@
 # Guia d'Estil - Components de Botó
 
-Aquest document explica com el component de botó estandarditzat manté l'estil de l'aplicació.
+Aquest document explica com el component de botó estandarditzat manté l'estil de l'aplicació utilitzant directament `p-button` de PrimeNG.
 
 ## Estil de l'Aplicació
 
-El component `pelu-button` utilitza l'estil personalitzat de l'aplicació definit a `styles-primeng.scss`, que inclou:
+El component `p-button` utilitza directament l'estil personalitzat de l'aplicació definit a `styles-primeng.scss`, que inclou:
 
 ### Variables CSS Principals
 
@@ -155,67 +155,82 @@ Cada severitat té el seu propi gradient i colors:
 ### 1. Utilitzant Classes CSS
 
 ```html
-<pelu-button
+<p-button
   label="Botó Personalitzat"
   class="my-custom-button"
   severity="primary">
-</pelu-button>
+</p-button>
 ```
 
 ```scss
 .my-custom-button {
   .p-button {
+    // Sobrescriure propietats específiques mantenint el sistema de disseny
     background: var(--gradient-success) !important;
     border-color: var(--success-color) !important;
+    box-shadow: var(--box-shadow-hover) !important;
   }
 }
 ```
 
-### 2. Utilitzant Estils Inline
+### 2. Utilitzant Estils Globals
 
-```html
-<pelu-button
-  label="Botó amb Estil Inline"
-  [style]="'background: linear-gradient(45deg, #ff6b6b, #4ecdc4);'">
-</pelu-button>
-```
-
-### 3. Modificant Variables Globals
-
-Per canviar l'estil de tots els botons, modifica les variables CSS a `styles-primeng.scss`:
+Per a canvis aplicació-amplada, modifica `styles-primeng.scss`:
 
 ```scss
-:root {
-  --primary-color: #your-color;
-  --gradient-primary: linear-gradient(135deg, #your-color 0%, #your-dark-color 100%);
+// Canviar el gradient per defecte de tots els botons
+.p-button {
+  background: var(--gradient-custom) !important;
+}
+
+// Canviar l'estil d'un tipus específic de botó
+.p-button.p-button-success {
+  background: var(--gradient-success-custom) !important;
 }
 ```
 
-## Consistència amb Altres Components
+## Estils Específics per Components
 
-El component de botó manté la mateixa filosofia d'estil que altres components de l'aplicació:
+### Header Playground Button
 
-- **Inputs**: Mateixos colors, borders i efectes de focus
-- **Dropdowns**: Mateixos gradients i transicions
-- **Cards**: Mateixos shadows i border-radius
-- **Datepickers**: Mateixos colors de fons i borders
+```scss
+.playground-button {
+  .p-button {
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 0.5rem !important;
+    border-radius: 8px !important;
+    font-size: 1.2rem !important;
+    
+    .p-button-icon {
+      font-size: 1.2rem !important;
+      line-height: 1 !important;
+    }
+  }
+}
+```
 
-## Avantatges de l'Estil Unificat
+## Consells d'Estil
 
-1. **Consistència Visual**: Tots els components tenen la mateixa aparença
-2. **Mantenibilitat**: Canvis centrals a `styles-primeng.scss`
-3. **Accessibilitat**: Focus states i contrast adequats
-4. **Responsivitat**: Optimitzat per a dispositius mòbils
-5. **Performance**: Estils optimitzats i eficients
+1. **Mantén la consistència**: Utilitza sempre les variables CSS definides
+2. **Respecta el sistema de disseny**: No sobrescriguis colors sense raó
+3. **Pensa en l'accessibilitat**: Mantén contrast adequat
+4. **Testa en mòbils**: Assegura't que els botons siguin touch-friendly
+5. **Utilitza les variants adequades**: Filled per accions principals, outlined per secundàries
 
 ## Troubleshooting
 
-### El botó no té l'estil correcte
-1. Verifica que `styles-primeng.scss` està importat a `styles.scss`
-2. Comprova que les variables CSS estan definides
-3. Assegura't que no hi ha conflictes amb altres estils
+### El botó no té l'estil esperat
+- Verifica que `styles-primeng.scss` estigui importat
+- Comprova que les variables CSS estiguin definides
+- Assegura't que no hi hagi conflictes amb altres estils
 
-### Estils no s'apliquen en producció
-1. Verifica que el build inclou `styles-primeng.scss`
-2. Comprova que les variables CSS estan disponibles en producció
-3. Assegura't que no hi ha purging de CSS no utilitzat 
+### El botó no és responsiu
+- Verifica els media queries a `styles-primeng.scss`
+- Comprova que les mides mínimes estiguin definides
+- Testa en diferents dispositius
+
+### Problemes amb icones
+- Assegura't que Prime Icons estigui instal·lat
+- Verifica que la classe de la icona sigui correcta
+- Comprova que l'`iconPos` estigui ben configurat 

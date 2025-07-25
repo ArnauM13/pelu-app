@@ -1,23 +1,11 @@
-.pelu-button {
-  // PrimeNG handles most styling through the global styles-primeng.scss
-  // This class is mainly for potential custom overrides and responsive design
-
-  // Ensure proper display
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  // Ensure the button inherits the application's styling
-  .p-button {
-    // The global styles in styles-primeng.scss will handle all the styling
-    // This ensures consistency with the application's design system
-  }
-}
+// El component utilitza directament p-button de PrimeNG
+// Els estils globals a styles-primeng.scss s'apliquen automàticament
+// Aquest fitxer es manté per a possibles personalitzacions específiques
 
 // Responsive design
 @media (max-width: 768px) {
-  .pelu-button {
-    // Ensure buttons are touch-friendly on mobile
+  :host {
+    // Assegurar que els botons siguin touch-friendly en mòbils
     .p-button {
       min-height: 48px !important;
       font-size: 1rem !important;

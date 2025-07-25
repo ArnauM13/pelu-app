@@ -9,46 +9,46 @@
     <div class="demo-section">
       <h2>Botons Bàsics</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Botó Primari"
-          (clicked)="onButtonClick('primary')"
+          (onClick)="onButtonClick('primary')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Botó Secundari"
           severity="secondary"
-          (clicked)="onButtonClick('secondary')"
+          (onClick)="onButtonClick('secondary')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Botó d'Èxit"
           severity="success"
-          (clicked)="onButtonClick('success')"
+          (onClick)="onButtonClick('success')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Botó d'Informació"
           severity="info"
-          (clicked)="onButtonClick('info')"
+          (onClick)="onButtonClick('info')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Botó d'Advertència"
           severity="warn"
-          (clicked)="onButtonClick('warn')"
+          (onClick)="onButtonClick('warn')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Botó de Perill"
           severity="danger"
-          (clicked)="onButtonClick('danger')"
+          (onClick)="onButtonClick('danger')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -56,32 +56,32 @@
     <div class="demo-section">
       <h2>Variants de Botó</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Filled (per defecte)"
-          (clicked)="onButtonClick('filled')"
+          (onClick)="onButtonClick('filled')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Outlined"
           variant="outlined"
-          (clicked)="onButtonClick('outlined')"
+          (onClick)="onButtonClick('outlined')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Text"
           variant="text"
-          (clicked)="onButtonClick('text')"
+          (onClick)="onButtonClick('text')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Link"
           [link]="true"
-          (clicked)="onButtonClick('link')"
+          (onClick)="onButtonClick('link')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -89,19 +89,19 @@
     <div class="demo-section">
       <h2>Mides de Botó</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Petit"
-          [size]="'small'"
-          (clicked)="onButtonClick('small')"
+          size="small"
+          (onClick)="onButtonClick('small')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Gran"
-          [size]="'large'"
-          (clicked)="onButtonClick('large')"
+          size="large"
+          (onClick)="onButtonClick('large')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -109,37 +109,37 @@
     <div class="demo-section">
       <h2>Botons amb Icones</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Guardar"
           icon="pi pi-check"
-          (clicked)="onButtonClick('save')"
+          (onClick)="onButtonClick('save')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Eliminar"
           icon="pi pi-trash"
           iconPos="right"
           severity="danger"
-          (clicked)="onButtonClick('delete')"
+          (onClick)="onButtonClick('delete')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Actualitzar"
           icon="pi pi-refresh"
           iconPos="top"
           severity="info"
-          (clicked)="onButtonClick('refresh')"
+          (onClick)="onButtonClick('refresh')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           icon="pi pi-home"
-          [ariaLabel]="'Inici'"
-          (clicked)="onButtonClick('home')"
+          [attr.aria-label]="'Inici'"
+          (onClick)="onButtonClick('home')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -147,34 +147,34 @@
     <div class="demo-section">
       <h2>Estats del Botó</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Cargant..."
           icon="pi pi-spinner"
           [loading]="loading()"
-          (clicked)="onButtonClick('loading')"
+          (onClick)="onButtonClick('loading')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Deshabilitat"
           [disabled]="true"
-          (clicked)="onButtonClick('disabled')"
+          (onClick)="onButtonClick('disabled')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Elevat"
           [raised]="true"
-          (clicked)="onButtonClick('raised')"
+          (onClick)="onButtonClick('raised')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Arrodonit"
           [rounded]="true"
-          (clicked)="onButtonClick('rounded')"
+          (onClick)="onButtonClick('rounded')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -182,12 +182,12 @@
     <div class="demo-section">
       <h2>Botons Fluids</h2>
       <div class="button-group fluid">
-        <pelu-button
+        <p-button
           label="Botó Fluid"
           [fluid]="true"
-          (clicked)="onButtonClick('fluid')"
+          (onClick)="onButtonClick('fluid')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -195,22 +195,22 @@
     <div class="demo-section">
       <h2>Botons de Formulari</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Enviar"
           type="submit"
           icon="pi pi-send"
-          (clicked)="onButtonClick('submit')"
+          (onClick)="onButtonClick('submit')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Netejar"
           type="reset"
           severity="secondary"
           icon="pi pi-times"
-          (clicked)="onButtonClick('reset')"
+          (onClick)="onButtonClick('reset')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
 
@@ -218,33 +218,33 @@
     <div class="demo-section">
       <h2>Exemples Complexos</h2>
       <div class="button-group">
-        <pelu-button
+        <p-button
           label="Crear Cita"
           icon="pi pi-calendar-plus"
           severity="success"
           [raised]="true"
-          [size]="'large'"
-          (clicked)="onButtonClick('create-appointment')"
+          size="large"
+          (onClick)="onButtonClick('create-appointment')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Cancel·lar Cita"
           icon="pi pi-times"
           severity="danger"
           variant="outlined"
-          (clicked)="onButtonClick('cancel-appointment')"
+          (onClick)="onButtonClick('cancel-appointment')"
         >
-        </pelu-button>
+        </p-button>
 
-        <pelu-button
+        <p-button
           label="Editar Perfil"
           icon="pi pi-user-edit"
           severity="info"
           variant="text"
-          (clicked)="onButtonClick('edit-profile')"
+          (onClick)="onButtonClick('edit-profile')"
         >
-        </pelu-button>
+        </p-button>
       </div>
     </div>
   </div>

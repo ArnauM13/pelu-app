@@ -16,7 +16,7 @@ export class ButtonComponent {
   readonly icon = input<string>('');
   readonly iconPos = input<'left' | 'right' | 'top' | 'bottom'>('left');
   readonly severity = input<'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'help' | 'danger' | 'contrast'>('primary');
-  readonly variant = input<'filled' | 'outlined' | 'text'>('filled');
+  readonly variant = input<'outlined' | 'text'>('outlined');
   readonly size = input<'small' | 'large'>('small');
   readonly disabled = input<boolean>(false);
   readonly loading = input<boolean>(false);
@@ -25,10 +25,7 @@ export class ButtonComponent {
   readonly link = input<boolean>(false);
   readonly fluid = input<boolean>(false);
   readonly type = input<'button' | 'submit' | 'reset'>('button');
-  readonly name = input<string>('');
-  readonly id = input<string>('');
   readonly class = input<string>('');
-  readonly style = input<string>('');
   readonly ariaLabel = input<string>('');
 
   // Unique ID generated once
@@ -39,7 +36,7 @@ export class ButtonComponent {
 
   // Get unique ID
   getElementId(): string {
-    return this.id() || this.uniqueId;
+    return this.uniqueId;
   }
 
   // Event handler for button click

@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonComponent } from './button.component';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'pelu-buttons-demo',
-  imports: [CommonModule, TranslateModule, ButtonComponent],
+  imports: [CommonModule, TranslateModule, ButtonModule],
   templateUrl: './buttons-demo.component.html',
   styleUrls: ['./buttons-demo.component.scss'],
 })
