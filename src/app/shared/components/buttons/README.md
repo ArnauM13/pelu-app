@@ -1,311 +1,307 @@
 # Pelu Button Component
 
-A standardized button component that wraps PrimeNG's ButtonModule, providing a consistent API and user experience across the application.
+Un component de botó estandarditzat que utilitza directament el component `p-button` de PrimeNG, proporcionant una API consistent i una experiència d'usuari uniforme a tota l'aplicació.
 
-## Features
+## Característiques
 
-- ✅ **All PrimeNG Button features** supported
-- ✅ **Consistent API** following the same pattern as input components
-- ✅ **Application styling** maintained through `styles-primeng.scss`
-- ✅ **TypeScript support** with proper typing
-- ✅ **Accessibility** features included
-- ✅ **Responsive design** with mobile-friendly touch targets
-- ✅ **Multiple variants** (filled, outlined, text, link)
-- ✅ **Multiple severities** (primary, secondary, success, info, warn, help, danger, contrast)
-- ✅ **Multiple sizes** (small, large)
-- ✅ **Icon support** with positioning options
-- ✅ **Loading states** with spinner
-- ✅ **Form integration** (submit, reset, button types)
-- ✅ **Custom gradients** and hover effects matching the app theme
+- ✅ **Totes les funcions de PrimeNG Button** suportades
+- ✅ **API consistent** seguint el mateix patró que els components d'input
+- ✅ **Estil de l'aplicació** mantingut a través de `styles-primeng.scss`
+- ✅ **Suport TypeScript** amb tipat adequat
+- ✅ **Accessibilitat** inclosa
+- ✅ **Disseny responsiu** amb objectius tàctils adaptats a mòbils
+- ✅ **Múltiples variants** (filled, outlined, text, link)
+- ✅ **Múltiples severitats** (primary, secondary, success, info, warn, help, danger, contrast)
+- ✅ **Múltiples mides** (small, large)
+- ✅ **Suport d'icones** amb opcions de posicionament
+- ✅ **Estats de càrrega** amb spinner
+- ✅ **Integració de formularis** (submit, reset, button types)
+- ✅ **Gradients personalitzats** i efectes hover que coincideixen amb el tema de l'app
 
-## Installation
+## Instal·lació
 
-The component is automatically available when importing from the shared components:
+El component està automàticament disponible quan s'importa des dels components compartits:
 
 ```typescript
 import { ButtonComponent } from '@shared/components';
 ```
 
-## Application Styling
+## Estil de l'Aplicació
 
-The button component automatically inherits the application's custom styling system defined in `styles-primeng.scss`. This ensures:
+El component de botó utilitza directament el component `p-button` de PrimeNG i hereta automàticament l'estil personalitzat de l'aplicació definit a `styles-primeng.scss`. Això assegura:
 
-- **Consistent appearance** across all components
-- **Custom gradients** and color schemes
-- **Smooth transitions** and hover effects
-- **Proper focus states** for accessibility
-- **Responsive design** for mobile devices
+- **Aparició consistent** a tots els components
+- **Gradients personalitzats** i esquemes de colors
+- **Transicions suaus** i efectes hover
+- **Estats de focus adequats** per a l'accessibilitat
+- **Disseny responsiu** per a dispositius mòbils
 
-The styling includes custom CSS variables that match the application's design system:
+L'estil inclou variables CSS personalitzades que coincideixen amb el sistema de disseny de l'aplicació:
 - `--gradient-primary`, `--gradient-secondary`, `--gradient-success`, etc.
 - `--primary-color`, `--secondary-color`, `--success-color`, etc.
 - `--border-radius`, `--box-shadow`, `--box-shadow-hover`, etc.
 
-## Basic Usage
+## Ús Bàsic
 
 ```html
-<!-- Basic button -->
-<pelu-button
-  label="Click me"
-  (clicked)="onButtonClick($event)">
-</pelu-button>
+<!-- Botó bàsic -->
+<p-button
+  label="Clica'm"
+  (onClick)="onButtonClick($event)">
+</p-button>
 
-<!-- Button with icon -->
-<pelu-button
-  label="Save"
+<!-- Botó amb icona -->
+<p-button
+  label="Desar"
   icon="pi pi-check"
   severity="success"
-  (clicked)="onSave()">
-</pelu-button>
+  (onClick)="onSave()">
+</p-button>
 
-<!-- Disabled button -->
-<pelu-button
-  label="Disabled"
+<!-- Botó deshabilitat -->
+<p-button
+  label="Deshabilitat"
   [disabled]="true">
-</pelu-button>
+</p-button>
 ```
 
-## API Reference
+## Referència de l'API
 
 ### Inputs
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `label` | `string` | `''` | Text to display on the button |
-| `icon` | `string` | `''` | Icon class (e.g., 'pi pi-check') |
-| `iconPos` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'left'` | Position of the icon relative to the label |
-| `severity` | `'primary' \| 'secondary' \| 'success' \| 'info' \| 'warn' \| 'help' \| 'danger' \| 'contrast'` | `'primary'` | Visual severity of the button |
-| `variant` | `'filled' \| 'outlined' \| 'text'` | `'filled'` | Visual variant of the button |
-| `size` | `'small' \| 'large'` | `'small'` | Size of the button |
-| `disabled` | `boolean` | `false` | Whether the button is disabled |
-| `loading` | `boolean` | `false` | Whether to show loading spinner |
-| `raised` | `boolean` | `false` | Whether to show elevation shadow |
-| `rounded` | `boolean` | `false` | Whether to use rounded corners |
-| `link` | `boolean` | `false` | Whether to render as a link |
-| `fluid` | `boolean` | `false` | Whether to span full width |
-| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | HTML button type |
-| `name` | `string` | `''` | HTML name attribute |
-| `id` | `string` | `''` | HTML id attribute |
-| `class` | `string` | `''` | Additional CSS classes |
-| `style` | `string` | `''` | Inline styles |
-| `ariaLabel` | `string` | `''` | Accessibility label |
+| Propietat | Tipus | Per defecte | Descripció |
+|-----------|-------|-------------|------------|
+| `label` | `string` | `''` | Text a mostrar al botó |
+| `icon` | `string` | `''` | Classe d'icona (ex: 'pi pi-check') |
+| `iconPos` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'left'` | Posició de la icona relativa a l'etiqueta |
+| `severity` | `'primary' \| 'secondary' \| 'success' \| 'info' \| 'warn' \| 'help' \| 'danger' \| 'contrast'` | `'primary'` | Severitat visual del botó |
+| `variant` | `'outlined' \| 'text'` | `'outlined'` | Variant visual del botó |
+| `size` | `'small' \| 'large'` | `'small'` | Mida del botó |
+| `disabled` | `boolean` | `false` | Si el botó està deshabilitat |
+| `loading` | `boolean` | `false` | Si mostrar el spinner de càrrega |
+| `raised` | `boolean` | `false` | Si mostrar ombra d'elevació |
+| `rounded` | `boolean` | `false` | Si utilitzar cantonades arrodonides |
+| `link` | `boolean` | `false` | Si renderitzar com a enllaç |
+| `fluid` | `boolean` | `false` | Si abastir tota l'amplada |
+| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | Tipus de botó HTML |
+| `class` | `string` | `''` | Classes CSS addicionals |
+| `ariaLabel` | `string` | `''` | Etiqueta d'accessibilitat |
 
 ### Outputs
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `clicked` | `Event` | Emitted when the button is clicked |
+| Propietat | Tipus | Descripció |
+|-----------|------|-------------|
+| `clicked` | `Event` | Emès quan es fa clic al botó |
 
-## Examples
+## Exemples
 
-### Basic Buttons
+### Botons Bàsics
 
 ```html
-<!-- Primary button -->
-<pelu-button label="Primary"></pelu-button>
+<!-- Botó primari -->
+<p-button label="Primari"></p-button>
 
-<!-- Secondary button -->
-<pelu-button 
-  label="Secondary" 
+<!-- Botó secundari -->
+<p-button 
+  label="Secundari" 
   severity="secondary">
-</pelu-button>
+</p-button>
 
-<!-- Success button -->
-<pelu-button 
-  label="Success" 
+<!-- Botó d'èxit -->
+<p-button 
+  label="Èxit" 
   severity="success">
-</pelu-button>
+</p-button>
 
-<!-- Danger button -->
-<pelu-button 
-  label="Danger" 
+<!-- Botó de perill -->
+<p-button 
+  label="Perill" 
   severity="danger">
-</pelu-button>
+</p-button>
 ```
 
-### Button Variants
+### Variants de Botó
 
 ```html
-<!-- Filled (default) -->
-<pelu-button label="Filled"></pelu-button>
+<!-- Filled (per defecte) -->
+<p-button label="Filled"></p-button>
 
 <!-- Outlined -->
-<pelu-button 
+<p-button 
   label="Outlined" 
   variant="outlined">
-</pelu-button>
+</p-button>
 
 <!-- Text -->
-<pelu-button 
+<p-button 
   label="Text" 
   variant="text">
-</pelu-button>
+</p-button>
 
 <!-- Link -->
-<pelu-button 
+<p-button 
   label="Link" 
   [link]="true">
-</pelu-button>
+</p-button>
 ```
 
-### Button Sizes
+### Mides de Botó
 
 ```html
-<!-- Small (default) -->
-<pelu-button 
-  label="Small" 
-  [size]="'small'">
-</pelu-button>
+<!-- Petit -->
+<p-button 
+  label="Petit" 
+  size="small">
+</p-button>
 
-<!-- Large -->
-<pelu-button 
-  label="Large" 
-  [size]="'large'">
-</pelu-button>
+<!-- Gran -->
+<p-button 
+  label="Gran" 
+  size="large">
+</p-button>
 ```
 
-### Buttons with Icons
+### Botons amb Icones
 
 ```html
-<!-- Icon on the left (default) -->
-<pelu-button 
-  label="Save" 
+<!-- Icona a l'esquerra (per defecte) -->
+<p-button 
+  label="Desar" 
   icon="pi pi-check">
-</pelu-button>
+</p-button>
 
-<!-- Icon on the right -->
-<pelu-button 
-  label="Delete" 
+<!-- Icona a la dreta -->
+<p-button 
+  label="Eliminar" 
   icon="pi pi-trash" 
   iconPos="right" 
   severity="danger">
-</pelu-button>
+</p-button>
 
-<!-- Icon only -->
-<pelu-button 
+<!-- Només icona -->
+<p-button 
   icon="pi pi-home" 
-  [ariaLabel]="'Home'">
-</pelu-button>
+  [attr.aria-label]="'Inici'">
+</p-button>
 
-<!-- Icon on top -->
-<pelu-button 
-  label="Refresh" 
+<!-- Icona a dalt -->
+<p-button 
+  label="Actualitzar" 
   icon="pi pi-refresh" 
   iconPos="top">
-</pelu-button>
+</p-button>
 ```
 
-### Button States
+### Estats del Botó
 
 ```html
-<!-- Loading state -->
-<pelu-button 
-  label="Loading..." 
+<!-- Estat de càrrega -->
+<p-button 
+  label="Carregant..." 
   icon="pi pi-spinner" 
   [loading]="true">
-</pelu-button>
+</p-button>
 
-<!-- Disabled state -->
-<pelu-button 
-  label="Disabled" 
+<!-- Estat deshabilitat -->
+<p-button 
+  label="Deshabilitat" 
   [disabled]="true">
-</pelu-button>
+</p-button>
 
-<!-- Raised (with shadow) -->
-<pelu-button 
-  label="Raised" 
+<!-- Elevat (amb ombra) -->
+<p-button 
+  label="Elevat" 
   [raised]="true">
-</pelu-button>
+</p-button>
 
-<!-- Rounded -->
-<pelu-button 
-  label="Rounded" 
+<!-- Arrodonit -->
+<p-button 
+  label="Arrodonit" 
   [rounded]="true">
-</pelu-button>
+</p-button>
 ```
 
-### Form Buttons
+### Botons de Formulari
 
 ```html
-<!-- Submit button -->
-<pelu-button 
-  label="Submit" 
+<!-- Botó d'enviar -->
+<p-button 
+  label="Enviar" 
   type="submit" 
   icon="pi pi-send">
-</pelu-button>
+</p-button>
 
-<!-- Reset button -->
-<pelu-button 
-  label="Reset" 
+<!-- Botó de reiniciar -->
+<p-button 
+  label="Reiniciar" 
   type="reset" 
   severity="secondary" 
   icon="pi pi-times">
-</pelu-button>
+</p-button>
 ```
 
-### Complex Examples
+### Exemples Complexos
 
 ```html
-<!-- Create appointment button -->
-<pelu-button
+<!-- Botó de crear cita -->
+<p-button
   label="Crear Cita"
   icon="pi pi-calendar-plus"
   severity="success"
   [raised]="true"
-  [size]="'large'"
-  (clicked)="createAppointment()">
-</pelu-button>
+  size="large"
+  (onClick)="createAppointment()">
+</p-button>
 
-<!-- Cancel appointment button -->
-<pelu-button
+<!-- Botó de cancel·lar cita -->
+<p-button
   label="Cancel·lar Cita"
   icon="pi pi-times"
   severity="danger"
   variant="outlined"
-  (clicked)="cancelAppointment()">
-</pelu-button>
+  (onClick)="cancelAppointment()">
+</p-button>
 
-<!-- Edit profile button -->
-<pelu-button
+<!-- Botó d'editar perfil -->
+<p-button
   label="Editar Perfil"
   icon="pi pi-user-edit"
   severity="info"
   variant="text"
-  (clicked)="editProfile()">
-</pelu-button>
+  (onClick)="editProfile()">
+</p-button>
 ```
 
-## Styling
+## Estil
 
-The component uses the application's custom styling system defined in `styles-primeng.scss`, which maintains consistency with the overall design. The styling includes:
+El component utilitza directament el component `p-button` de PrimeNG i hereta automàticament l'estil personalitzat de l'aplicació definit a `styles-primeng.scss`, que manté la consistència amb el disseny general. L'estil inclou:
 
-- **Custom gradients** and color schemes matching the application theme
-- **Consistent spacing** and typography
-- **Hover effects** with smooth transitions
-- **Focus states** with proper accessibility indicators
-- **Responsive design** optimized for mobile devices
+- **Gradients personalitzats** i esquemes de colors que coincideixen amb el tema de l'aplicació
+- **Espaiat consistent** i tipografia
+- **Efectes hover** amb transicions suaus
+- **Estats de focus** amb indicadors d'accessibilitat adequats
+- **Disseny responsiu** optimitzat per a dispositius mòbils
 
-Custom styles can be applied using:
+Els estils personalitzats es poden aplicar utilitzant:
 
-1. **CSS Classes**: Use the `class` input to add custom CSS classes
-2. **Inline Styles**: Use the `style` input for inline styles
-3. **Global Overrides**: Override styles in `styles-primeng.scss` for application-wide changes
+1. **Classes CSS**: Utilitza la propietat `class` per afegir classes CSS personalitzades
+2. **Estils globals**: Sobrescriu estils a `styles-primeng.scss` per a canvis aplicació-amplada
 
-### Custom Styling Example
+### Exemple d'Estil Personalitzat
 
 ```html
-<pelu-button
-  label="Custom Button"
+<p-button
+  label="Botó Personalitzat"
   class="my-custom-button"
   severity="success"
   [raised]="true">
-</pelu-button>
+</p-button>
 ```
 
 ```scss
 .my-custom-button {
   .p-button {
-    // Override specific properties while maintaining the app's design system
+    // Sobrescriure propietats específiques mantenint el sistema de disseny de l'app
     background: var(--gradient-success) !important;
     border-color: var(--success-color) !important;
     box-shadow: var(--box-shadow-hover) !important;
@@ -313,56 +309,48 @@ Custom styles can be applied using:
 }
 ```
 
-## Accessibility
+## Accessibilitat
 
-The component includes several accessibility features:
+El component manté totes les funcions d'accessibilitat de PrimeNG:
 
-- **ARIA Labels**: Use `ariaLabel` for icon-only buttons
-- **Keyboard Navigation**: Full keyboard support
-- **Screen Reader Support**: Proper semantic markup
-- **Focus Management**: Visible focus indicators
-- **Touch Targets**: Minimum 44px height on mobile
+- **Navegació per teclat** completament suportada
+- **Etiquetes ARIA** adequades
+- **Estats de focus** visibles
+- **Contrast de colors** adequat
+- **Suport per a lectors de pantalla**
 
-## Migration from Existing Buttons
+## Migració
 
-### From PrimeNG p-button
+Si tens botons existents que utilitzen el component wrapper anterior, pots migrar-los fàcilment:
 
+### Abans (Component wrapper)
 ```html
-<!-- Before -->
-<p-button label="Save" icon="pi pi-check" severity="success"></p-button>
-
-<!-- After -->
-<pelu-button 
-  label="Save" 
-  icon="pi pi-check" 
-  severity="success">
+<pelu-button
+  label="Desar"
+  icon="pi pi-check"
+  severity="success"
+  (clicked)="onSave()">
 </pelu-button>
 ```
 
-### From Custom Button Classes
-
+### Després (p-button directe)
 ```html
-<!-- Before -->
-<button class="btn btn-primary">Save</button>
-
-<!-- After -->
-<pelu-button label="Save" severity="primary"></pelu-button>
+<p-button
+  label="Desar"
+  icon="pi pi-check"
+  severity="success"
+  (onClick)="onSave()">
+</p-button>
 ```
 
-## Demo
+### Canvis principals:
+- `pelu-button` → `p-button`
+- `(clicked)` → `(onClick)`
+- `[ariaLabel]` → `[attr.aria-label]`
+- `[size]="'small'"` → `size="small"`
 
-See the `ButtonsDemoComponent` for a comprehensive showcase of all button features and variants.
+## Referències
 
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Dependencies
-
-- Angular 17+
-- PrimeNG 20+
-- Prime Icons 
+- [Documentació oficial de PrimeNG Button](https://primeng.org/button)
+- [Guia d'estil de l'aplicació](STYLING_GUIDE.md)
+- [Exemples de migració](MIGRATION_EXAMPLE.md) 

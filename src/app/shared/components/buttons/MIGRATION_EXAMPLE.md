@@ -1,10 +1,10 @@
-# Migration Examples
+# Exemples de Migració
 
-This document shows how to migrate from existing button implementations to the new standardized `pelu-button` component.
+Aquest document mostra com migrar des d'implementacions de botons existents al nou component estandarditzat que utilitza directament `p-button` de PrimeNG.
 
-## From PrimeNG p-button
+## Des de PrimeNG p-button
 
-### Before (Landing Page)
+### Abans (Pàgina d'inici)
 ```html
 <div class="hero-buttons">
   <button
@@ -22,30 +22,30 @@ This document shows how to migrate from existing button implementations to the n
 </div>
 ```
 
-### After (Using pelu-button)
+### Després (Utilitzant p-button directe)
 ```html
 <div class="hero-buttons">
-  <pelu-button
+  <p-button
     [label]="'LANDING.SERVICES' | translate"
     severity="secondary"
-    [size]="'large'"
+    size="large"
     class="btn-services"
-    (clicked)="navigateToServices()">
-  </pelu-button>
-  <pelu-button
+    (onClick)="navigateToServices()">
+  </p-button>
+  <p-button
     [label]="'LANDING.BOOK_NOW' | translate"
     severity="primary"
-    [size]="'large'"
+    size="large"
     [raised]="true"
     class="btn-primary"
-    (clicked)="navigateToBooking()">
-  </pelu-button>
+    (onClick)="navigateToBooking()">
+  </p-button>
 </div>
 ```
 
-## From Custom Button Classes
+## Des de Classes de Botó Personalitzades
 
-### Before (Auth Popup)
+### Abans (Auth Popup)
 ```html
 <button pButton type="submit" class="auth-button" [disabled]="form()!.invalid">
   {{ config().submitButtonText }}
@@ -62,28 +62,28 @@ This document shows how to migrate from existing button implementations to the n
 </button>
 ```
 
-### After (Using pelu-button)
+### Després (Utilitzant p-button directe)
 ```html
-<pelu-button
+<p-button
   [label]="config().submitButtonText"
   type="submit"
   [disabled]="form()!.invalid"
   class="auth-button"
-  (clicked)="onSubmit()">
-</pelu-button>
+  (onClick)="onSubmit()">
+</p-button>
 
-<pelu-button
+<p-button
   [label]="config().googleButtonText"
   icon="pi pi-google"
   severity="secondary"
   class="google-auth-button"
-  (clicked)="onGoogleAuth()">
-</pelu-button>
+  (onClick)="onGoogleAuth()">
+</p-button>
 ```
 
-## From Actions Buttons
+## Des de Actions Buttons
 
-### Before (Actions Buttons Component)
+### Abans (Actions Buttons Component)
 ```html
 <button
   class="btn"
@@ -97,23 +97,23 @@ This document shows how to migrate from existing button implementations to the n
 </button>
 ```
 
-### After (Using pelu-button)
+### Després (Utilitzant p-button directe)
 ```html
-<pelu-button
+<p-button
   [label]="action.label"
   [icon]="action.icon"
   [severity]="action.type"
   [disabled]="action.disabled"
-  [size]="'small'"
+  size="small"
   [pTooltip]="action.tooltip ? (action.tooltip | translate) : (action.label | translate)"
   pTooltipPosition="left"
-  (clicked)="onActionClick(action, $event)">
-</pelu-button>
+  (onClick)="onActionClick(action, $event)">
+</p-button>
 ```
 
-## From Logger Demo
+## Des de Logger Demo
 
-### Before
+### Abans
 ```html
 <p-button label="Info Log" severity="info" (onClick)="showInfoLog()" size="small">
 </p-button>
@@ -128,65 +128,143 @@ This document shows how to migrate from existing button implementations to the n
 </p-button>
 ```
 
-### After
+### Després (Ja utilitza p-button directe)
 ```html
-<pelu-button 
+<p-button 
   label="Info Log" 
   severity="info" 
-  [size]="'small'"
-  (clicked)="showInfoLog()">
-</pelu-button>
-<pelu-button 
+  size="small"
+  (onClick)="showInfoLog()">
+</p-button>
+<p-button 
   label="Warning Log" 
   severity="warn" 
-  [size]="'small'"
-  (clicked)="showWarningLog()">
-</pelu-button>
-<pelu-button
+  size="small"
+  (onClick)="showWarningLog()">
+</p-button>
+<p-button
   label="Debug Log"
   severity="secondary"
-  [size]="'small'"
-  (clicked)="showDebugLog()">
-</pelu-button>
+  size="small"
+  (onClick)="showDebugLog()">
+</p-button>
 ```
 
-## Key Changes
+## Canvis Principals
 
-### 1. Component Name
-- **Before**: `<p-button>` or `<button pButton>`
-- **After**: `<pelu-button>`
+### 1. Nom del Component
+- **Abans**: `<p-button>` o `<button pButton>`
+- **Després**: `<p-button>` (directe)
 
-### 2. Event Handling
-- **Before**: `(onClick)="handler()"`
-- **After**: `(clicked)="handler()"`
+### 2. Gestió d'Events
+- **Abans**: `(onClick)="handler()"`
+- **Després**: `(onClick)="handler()"` (mateix)
 
-### 3. Size Property
-- **Before**: `size="small"`
-- **After**: `[size]="'small'"`
+### 3. Propietat de Mida
+- **Abans**: `size="small"`
+- **Després**: `size="small"` (mateix)
 
-### 4. Router Integration
-- **Before**: `routerLink="/path"`
-- **After**: Use `(clicked)` event and handle navigation in component
+### 4. Integració amb Router
+- **Abans**: `routerLink="/path"`
+- **Després**: Utilitza `(onClick)` event i gestiona la navegació al component
 
-### 5. Custom Classes
-- **Before**: `class="btn-primary"`
-- **After**: `class="btn-primary"` (still supported)
+### 5. Classes Personalitzades
+- **Abans**: `class="btn-primary"`
+- **Després**: `class="btn-primary"` (encara suportat)
 
-## Benefits of Migration
+### 6. Etiquetes ARIA
+- **Abans**: `[ariaLabel]="'Home'"`
+- **Després**: `[attr.aria-label]="'Home'"`
 
-1. **Consistent API**: All buttons follow the same pattern as other input components
-2. **Type Safety**: Full TypeScript support with proper typing
-3. **Maintainability**: Centralized button logic and styling
-4. **Accessibility**: Built-in accessibility features
-5. **Future-Proof**: Easy to update all buttons at once
+## Guia de Migració Pas a Pas
 
-## Migration Checklist
+### Pas 1: Identificar Botons Existents
+```bash
+# Buscar tots els usos de botons
+grep -r "pButton\|pelu-button" src/
+```
 
-- [ ] Replace `<p-button>` with `<pelu-button>`
-- [ ] Replace `<button pButton>` with `<pelu-button>`
-- [ ] Update event handlers from `(onClick)` to `(clicked)`
-- [ ] Update size property to use binding syntax
-- [ ] Handle router navigation in component methods
-- [ ] Test all button interactions
-- [ ] Verify accessibility features
-- [ ] Update any custom styling if needed 
+### Pas 2: Actualitzar Imports
+```typescript
+// Abans
+import { ButtonComponent } from '@shared/components/buttons';
+
+// Després
+import { ButtonModule } from 'primeng/button';
+
+@Component({
+  imports: [
+    // ... altres imports
+    ButtonModule,
+  ],
+})
+```
+
+### Pas 3: Actualitzar Templates
+```html
+<!-- Abans -->
+<pelu-button
+  label="Desar"
+  icon="pi pi-check"
+  severity="success"
+  (clicked)="onSave()">
+</pelu-button>
+
+<!-- Després -->
+<p-button
+  label="Desar"
+  icon="pi pi-check"
+  severity="success"
+  (onClick)="onSave()">
+</p-button>
+```
+
+### Pas 4: Actualitzar Estils
+```scss
+// Abans
+.pelu-button {
+  .p-button {
+    // estils personalitzats
+  }
+}
+
+// Després
+.my-custom-button {
+  .p-button {
+    // estils personalitzats
+  }
+}
+```
+
+### Pas 5: Verificar Funcionalitat
+- Testa tots els botons migrats
+- Verifica que els events funcionin correctament
+- Comprova que els estils s'apliquen adequadament
+- Testa en dispositius mòbils
+
+## Checklist de Migració
+
+- [ ] Identificar tots els botons que necessiten migració
+- [ ] Actualitzar imports als components
+- [ ] Canviar `pelu-button` per `p-button`
+- [ ] Canviar `(clicked)` per `(onClick)`
+- [ ] Canviar `[ariaLabel]` per `[attr.aria-label]`
+- [ ] Canviar `[size]="'small'"` per `size="small"`
+- [ ] Actualitzar estils CSS si cal
+- [ ] Testar funcionalitat
+- [ ] Verificar accessibilitat
+- [ ] Testar en dispositius mòbils
+
+## Avantatges de la Migració
+
+1. **Performance**: Menys capes d'abstracció
+2. **Mantenibilitat**: Directament amb PrimeNG
+3. **Consistència**: Mateix component que altres parts de l'app
+4. **Actualitzacions**: Beneficis directes de les actualitzacions de PrimeNG
+5. **Documentació**: Accés directe a la documentació oficial de PrimeNG
+
+## Recursos
+
+- [Documentació oficial de PrimeNG Button](https://primeng.org/button)
+- [Guia d'estil de l'aplicació](STYLING_GUIDE.md)
+- [Exemples de components](buttons-demo.component.html) 
