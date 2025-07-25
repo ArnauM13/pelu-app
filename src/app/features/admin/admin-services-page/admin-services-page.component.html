@@ -228,6 +228,15 @@
                 >
                 </pelu-input-checkbox>
               </div>
+              <div class="form-field">
+                <pelu-input-toggleswitch
+                  [label]="'ADMIN.SERVICES.MARK_AS_FAVORITE'"
+                  [value]="formData().favorite || false"
+                  (valueChange)="formData().favorite = $event"
+                  helpText="Aquest servei apareixerà destacat a la llista"
+                >
+                </pelu-input-toggleswitch>
+              </div>
             </div>
           </div>
         </div>
@@ -366,6 +375,27 @@
                   >
                   </pelu-input-number>
                 </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
+              <div class="form-field">
+                <pelu-input-checkbox
+                  [label]="'ADMIN.SERVICES.MARK_AS_POPULAR'"
+                  [value]="formData().popular || false"
+                  (valueChange)="formData().popular = $event"
+                >
+                </pelu-input-checkbox>
+              </div>
+              <div class="form-field">
+                <pelu-input-toggleswitch
+                  [label]="'ADMIN.SERVICES.MARK_AS_FAVORITE'"
+                  [value]="formData().favorite || false"
+                  (valueChange)="formData().favorite = $event"
+                  helpText="Aquest servei apareixerà destacat a la llista"
+                >
+                </pelu-input-toggleswitch>
               </div>
             </div>
           </div>
