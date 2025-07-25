@@ -6,6 +6,7 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextComponent } from '../inputs';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
+import { ButtonComponent } from '../buttons/button.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -30,6 +31,7 @@ export interface BookingDetails {
     TranslateModule,
     InputTextComponent,
     PopularBadgeComponent,
+    ButtonComponent,
   ],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss'],

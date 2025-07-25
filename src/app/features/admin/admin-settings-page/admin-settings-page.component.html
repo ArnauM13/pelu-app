@@ -184,26 +184,30 @@
         </div>
       </div>
       <div class="settings-actions">
-        <p-button
+        <pelu-button
           type="submit"
           [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate"
           [loading]="saving()"
           icon="pi pi-save"
-        ></p-button>
-        <p-button
+          severity="primary"
+        >
+        </pelu-button>
+        <pelu-button
           type="button"
           severity="secondary"
           [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate"
           icon="pi pi-refresh"
-          (click)="resetToDefaults()"
-        ></p-button>
-        <p-button
+          (clicked)="resetToDefaults()"
+        >
+        </pelu-button>
+        <pelu-button
           type="button"
           severity="secondary"
           [label]="'COMMON.ACTIONS.CANCEL' | translate"
           icon="pi pi-times"
-          (click)="setViewMode()"
-        ></p-button>
+          (clicked)="setViewMode()"
+        >
+        </pelu-button>
       </div>
     </form>
 

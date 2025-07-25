@@ -11,6 +11,521 @@
   --primary-color-alpha-90: rgba(58, 90, 138, 0.9);
 }
 
+// ===== UNIFIED BUTTON STYLES =====
+// Global styles for all PrimeNG buttons to maintain consistent appearance
+.p-button {
+  padding: 0.5rem 1rem !important;
+  border-radius: var(--border-radius, 8px) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  border: 1px solid transparent !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: var(--box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+  background: var(--gradient-primary, linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)) !important;
+  color: var(--text-color-white, white) !important;
+  border-color: var(--primary-color, #3b82f6) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  min-height: 44px !important;
+
+  // Shimmer effect
+  &::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.5s !important;
+  }
+
+  &:hover::before {
+    left: 100% !important;
+  }
+
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--box-shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+
+  &:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
+  }
+
+  &:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+  }
+
+  // Secondary button
+  &.p-button-secondary {
+    background: linear-gradient(135deg, #5fa8d3 0%, #a9d6e5 100%) !important;
+    color: white !important;
+    border-color: #5fa8d3 !important;
+
+    &:hover {
+      background: linear-gradient(135deg, #4895b6 0%, #5fa8d3 100%) !important;
+      border-color: #4895b6 !important;
+    }
+  }
+
+  // Success button
+  &.p-button-success {
+    background: var(--gradient-success, linear-gradient(135deg, #10b981 0%, #059669 100%)) !important;
+    color: var(--text-color-white, white) !important;
+    border-color: var(--success-color, #10b981) !important;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        var(--success-color-dark, #059669) 0%,
+        var(--success-color, #10b981) 100%
+      ) !important;
+      border-color: var(--success-color-dark, #059669) !important;
+    }
+  }
+
+  // Warning button
+  &.p-button-warn {
+    background: var(--gradient-warning, linear-gradient(135deg, #f59e0b 0%, #d97706 100%)) !important;
+    color: var(--text-color-white, white) !important;
+    border-color: var(--warning-color, #f59e0b) !important;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        var(--warning-color-dark, #d97706) 0%,
+        var(--warning-color, #f59e0b) 100%
+      ) !important;
+      border-color: var(--warning-color-dark, #d97706) !important;
+    }
+  }
+
+  // Danger button
+  &.p-button-danger {
+    background: var(--gradient-error, linear-gradient(135deg, #ef4444 0%, #dc2626 100%)) !important;
+    color: var(--text-color-white, white) !important;
+    border-color: var(--error-color, #ef4444) !important;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        var(--error-color-dark, #dc2626) 0%,
+        var(--error-color, #ef4444) 100%
+      ) !important;
+      border-color: var(--error-color-dark, #dc2626) !important;
+    }
+  }
+
+  // Info button
+  &.p-button-info {
+    background: var(--gradient-info, linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)) !important;
+    color: var(--text-color-white, white) !important;
+    border-color: var(--info-color, #3b82f6) !important;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        var(--info-color-dark, #1d4ed8) 0%,
+        var(--info-color, #3b82f6) 100%
+      ) !important;
+      border-color: var(--info-color-dark, #1d4ed8) !important;
+    }
+  }
+
+  // Contrast button
+  &.p-button-contrast {
+    background: var(--gradient-contrast, linear-gradient(135deg, #1f2937 0%, #111827 100%)) !important;
+    color: var(--text-color-white, white) !important;
+    border-color: var(--contrast-color, #1f2937) !important;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        var(--contrast-color-dark, #111827) 0%,
+        var(--contrast-color, #1f2937) 100%
+      ) !important;
+      border-color: var(--contrast-color-dark, #111827) !important;
+    }
+  }
+
+  // Outlined variants
+  &.p-button-outlined {
+    background: transparent !important;
+    border-width: 2px !important;
+    color: var(--primary-color, #3b82f6) !important;
+    border-color: var(--primary-color, #3b82f6) !important;
+
+    &.p-button-primary {
+      color: var(--primary-color, #3b82f6) !important;
+      border-color: var(--primary-color, #3b82f6) !important;
+
+      .p-button-icon {
+        color: var(--primary-color, #3b82f6) !important;
+      }
+
+      &:hover {
+        background: var(--primary-color, #3b82f6) !important;
+        color: white !important;
+
+        .p-button-icon {
+          color: white !important;
+        }
+      }
+    }
+
+    &.p-button-secondary {
+      color: var(--secondary-color, #6b7280) !important;
+      border-color: var(--secondary-color, #6b7280) !important;
+
+      .p-button-icon {
+        color: var(--secondary-color, #6b7280) !important;
+      }
+
+      &:hover {
+        background: var(--secondary-color, #6b7280) !important;
+        color: white !important;
+
+        .p-button-icon {
+          color: white !important;
+        }
+      }
+    }
+
+    &.p-button-success {
+      color: var(--success-color, #10b981) !important;
+      border-color: var(--success-color, #10b981) !important;
+
+      .p-button-icon {
+        color: var(--success-color, #10b981) !important;
+      }
+
+      &:hover {
+        background: var(--success-color, #10b981) !important;
+        color: white !important;
+
+        .p-button-icon {
+          color: white !important;
+        }
+      }
+    }
+
+    &.p-button-warning {
+      color: var(--warning-color, #f59e0b) !important;
+      border-color: var(--warning-color, #f59e0b) !important;
+
+      .p-button-icon {
+        color: var(--warning-color, #f59e0b) !important;
+      }
+
+      &:hover {
+        background: var(--warning-color, #f59e0b) !important;
+        color: white !important;
+
+        .p-button-icon {
+          color: white !important;
+        }
+      }
+    }
+
+         &.p-button-danger {
+       color: var(--error-color, #ef4444) !important;
+       border-color: var(--error-color, #ef4444) !important;
+
+       .p-button-icon {
+         color: var(--error-color, #ef4444) !important;
+       }
+
+       &:hover {
+         background: var(--error-color, #ef4444) !important;
+         color: white !important;
+
+         .p-button-icon {
+           color: white !important;
+         }
+       }
+     }
+
+     &.p-button-info {
+       color: var(--info-color, #3b82f6) !important;
+       border-color: var(--info-color, #3b82f6) !important;
+
+       .p-button-icon {
+         color: var(--info-color, #3b82f6) !important;
+       }
+
+       &:hover {
+         background: var(--info-color, #3b82f6) !important;
+         color: white !important;
+
+         .p-button-icon {
+           color: white !important;
+         }
+       }
+     }
+
+     &.p-button-contrast {
+       color: var(--contrast-color, #1f2937) !important;
+       border-color: var(--contrast-color, #1f2937) !important;
+
+       .p-button-icon {
+         color: var(--contrast-color, #1f2937) !important;
+       }
+
+       &:hover {
+         background: var(--contrast-color, #1f2937) !important;
+         color: white !important;
+
+         .p-button-icon {
+           color: white !important;
+         }
+       }
+     }
+
+     &.p-button-help {
+       color: var(--help-color, #8b5cf6) !important;
+       border-color: var(--help-color, #8b5cf6) !important;
+
+       .p-button-icon {
+         color: var(--help-color, #8b5cf6) !important;
+       }
+
+       &:hover {
+         background: var(--help-color, #8b5cf6) !important;
+         color: white !important;
+
+         .p-button-icon {
+           color: white !important;
+         }
+       }
+     }
+   }
+
+  // Text variants
+  &.p-button-text {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--primary-color, #3b82f6) !important;
+
+    &.p-button-primary {
+      color: var(--primary-color, #3b82f6) !important;
+
+      &:hover {
+        background: var(--primary-color-alpha-10) !important;
+      }
+
+      .p-button-icon {
+        color: var(--primary-color, #3b82f6) !important;
+      }
+    }
+
+    &.p-button-secondary {
+      color: var(--secondary-color, #6b7280) !important;
+
+      &:hover {
+        background: var(--secondary-color-alpha-10) !important;
+      }
+
+      .p-button-icon {
+        color: var(--secondary-color, #6b7280) !important;
+      }
+    }
+
+    &.p-button-success {
+      color: var(--success-color, #10b981) !important;
+
+      &:hover {
+        background: var(--success-color-alpha-10) !important;
+      }
+
+      .p-button-icon {
+        color: var(--success-color, #10b981) !important;
+      }
+    }
+
+    &.p-button-warning {
+      color: var(--warning-color, #f59e0b) !important;
+
+      &:hover {
+        background: var(--warning-color-alpha-10) !important;
+      }
+
+      .p-button-icon {
+        color: var(--warning-color, #f59e0b) !important;
+      }
+    }
+
+    &.p-button-danger {
+      color: var(--error-color, #ef4444) !important;
+
+      &:hover {
+        background: var(--error-color-alpha-10) !important;
+      }
+
+      .p-button-icon {
+        color: var(--error-color, #ef4444) !important;
+      }
+    }
+  }
+
+  // Link variant
+  &.p-button-link {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.5rem 1rem !important;
+    color: var(--primary-color, #3b82f6) !important;
+
+    &:hover {
+      text-decoration: underline !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  // Sizes
+  &.p-button-sm {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+    min-height: 36px !important;
+  }
+
+  &.p-button-lg {
+    padding: 1rem 2rem !important;
+    font-size: 1rem !important;
+    min-height: 52px !important;
+  }
+
+  // Fluid (full width)
+  &.p-button-fluid {
+    width: 100% !important;
+  }
+
+  // Rounded
+  &.p-button-rounded {
+    border-radius: 50px !important;
+  }
+
+  // Raised
+  &.p-button-raised {
+    box-shadow: var(--box-shadow-elevated, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
+
+    &:hover {
+      box-shadow: var(--box-shadow-elevated-hover, 0 6px 20px rgba(0, 0, 0, 0.2)) !important;
+    }
+  }
+
+  // Loading state
+  &.p-button-loading {
+    position: relative !important;
+    color: transparent !important;
+
+    .p-button-icon {
+      position: absolute !important;
+      left: 50% !important;
+      top: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      color: inherit !important;
+    }
+  }
+
+  // Icon styles - based on PrimeNG documentation
+  .p-button-icon {
+    font-size: 1rem !important;
+    color: inherit !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+
+  // Icon positioning
+  &.p-button-icon-left .p-button-icon {
+    order: -1 !important;
+    margin-right: 0.5rem !important;
+  }
+
+  &.p-button-icon-right .p-button-icon {
+    order: 1 !important;
+    margin-left: 0.5rem !important;
+  }
+
+  &.p-button-icon-top .p-button-icon {
+    order: -1 !important;
+    margin-bottom: 0.5rem !important;
+    align-self: flex-start !important;
+  }
+
+  &.p-button-icon-bottom .p-button-icon {
+    order: 1 !important;
+    margin-top: 0.5rem !important;
+    align-self: flex-end !important;
+  }
+
+  // Icon-only buttons
+  &.p-button-icon-only {
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+
+    .p-button-icon {
+      margin: 0 !important;
+      font-size: 1.25rem !important;
+    }
+  }
+
+  // Ensure icons are visible in all button variants
+  &.p-button-primary .p-button-icon,
+  &.p-button-secondary .p-button-icon,
+  &.p-button-success .p-button-icon,
+  &.p-button-warn .p-button-icon,
+  &.p-button-danger .p-button-icon,
+  &.p-button-info .p-button-icon,
+  &.p-button-contrast .p-button-icon {
+    color: inherit !important;
+  }
+
+  // Text variant icons
+  &.p-button-text .p-button-icon {
+    color: inherit !important;
+  }
+
+  // Outlined variant icons
+  &.p-button-outlined .p-button-icon {
+    color: inherit !important;
+  }
+}
+
+.p-button-primary,
+.p-button-secondary,
+.p-button-primary:enabled,
+.p-button-secondary:enabled {
+  color: #fff !important;
+}
+
+.p-button-primary .p-button-label,
+.p-button-secondary .p-button-label {
+  color: #fff !important;
+}
+
 // ===== UNIFIED INPUT STYLES =====
 // All text inputs, dropdowns, calendars, etc. share these base styles
 .p-inputtext,
@@ -76,6 +591,19 @@
 
   .p-icon {
     cursor: pointer !important;
+  }
+
+  // Ensure PrimeIcons are properly displayed
+  .pi {
+    font-family: 'PrimeIcons' !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    display: inline-block !important;
   }
 }
 

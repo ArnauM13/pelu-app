@@ -39,9 +39,15 @@
           </div>
         }
 
-        <button pButton type="submit" class="auth-button" [disabled]="form()!.invalid">
-          {{ config().submitButtonText }}
-        </button>
+        <pelu-button
+          type="submit"
+          [label]="config().submitButtonText"
+          [disabled]="form()!.invalid"
+          severity="primary"
+          [fluid]="true"
+          class="auth-button"
+        >
+        </pelu-button>
       </form>
     }
 
@@ -49,16 +55,16 @@
       <span>{{ 'COMMON.OR' | translate }}</span>
     </div>
 
-    <button
-      pButton
+    <pelu-button
       type="button"
       [label]="config().googleButtonText"
       icon="pi pi-google"
+      severity="secondary"
+      [fluid]="true"
       class="google-auth-button"
-      (click)="onGoogleAuth()"
+      (clicked)="onGoogleAuth()"
     >
-      {{ config().googleButtonText }}
-    </button>
+    </pelu-button>
 
     <div class="auth-link">
       <p>

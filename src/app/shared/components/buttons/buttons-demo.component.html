@@ -214,35 +214,117 @@
       </div>
     </div>
 
-    <!-- Complex Examples -->
+    <!-- All Outlined Button Types -->
     <div class="demo-section">
-      <h2>Exemples Complexos</h2>
+      <h2>Tots els Tipus de Botó Outlined</h2>
       <div class="button-group">
         <p-button
-          label="Crear Cita"
-          icon="pi pi-calendar-plus"
-          severity="success"
-          [raised]="true"
-          size="large"
-          (onClick)="onButtonClick('create-appointment')"
-        >
-        </p-button>
-
-        <p-button
-          label="Cancel·lar Cita"
-          icon="pi pi-times"
-          severity="danger"
+          label="Outlined Primari"
           variant="outlined"
-          (onClick)="onButtonClick('cancel-appointment')"
+          severity="primary"
+          (onClick)="onButtonClick('outlined-primary')"
         >
         </p-button>
 
         <p-button
-          label="Editar Perfil"
-          icon="pi pi-user-edit"
+          label="Outlined Secundari"
+          variant="outlined"
+          severity="secondary"
+          (onClick)="onButtonClick('outlined-secondary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Èxit"
+          variant="outlined"
+          severity="success"
+          (onClick)="onButtonClick('outlined-success')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Advertència"
+          variant="outlined"
+          severity="warn"
+          (onClick)="onButtonClick('outlined-warn')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Perill"
+          variant="outlined"
+          severity="danger"
+          (onClick)="onButtonClick('outlined-danger')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Info"
+          variant="outlined"
           severity="info"
+          (onClick)="onButtonClick('outlined-info')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Contrast"
+          variant="outlined"
+          severity="contrast"
+          (onClick)="onButtonClick('outlined-contrast')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Help"
+          variant="outlined"
+          severity="help"
+          (onClick)="onButtonClick('outlined-help')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- All Text Button Types -->
+    <div class="demo-section">
+      <h2>Tots els Tipus de Botó Text</h2>
+      <div class="button-group">
+        <p-button
+          label="Text Primari"
           variant="text"
-          (onClick)="onButtonClick('edit-profile')"
+          severity="primary"
+          (onClick)="onButtonClick('text-primary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Secundari"
+          variant="text"
+          severity="secondary"
+          (onClick)="onButtonClick('text-secondary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Èxit"
+          variant="text"
+          severity="success"
+          (onClick)="onButtonClick('text-success')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Advertència"
+          variant="text"
+          severity="warn"
+          (onClick)="onButtonClick('text-warn')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Perill"
+          variant="text"
+          severity="danger"
+          (onClick)="onButtonClick('text-danger')"
         >
         </p-button>
       </div>

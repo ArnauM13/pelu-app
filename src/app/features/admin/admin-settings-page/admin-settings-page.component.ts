@@ -17,6 +17,7 @@ import { InputTextComponent } from '../../../shared/components/inputs/input-text
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
   selector: 'app-admin-settings-page',
@@ -34,6 +35,7 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
     InputNumberComponent,
     InputCheckboxComponent,
     InputSelectComponent,
+    ButtonComponent,
   ],
   templateUrl: './admin-settings-page.component.html',
   styleUrls: ['./admin-settings-page.component.scss'],
