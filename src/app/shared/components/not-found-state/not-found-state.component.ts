@@ -19,7 +19,7 @@ export interface NotFoundStateConfig {
       <h2>{{ config.title | translate }}</h2>
       <p>{{ config.message | translate }}</p>
       @if (config.showButton !== false && config.buttonText) {
-        <button class="not-found-btn" (click)="onButtonClick.emit()">
+        <button class="not-found-btn" (click)="buttonClick.emit()">
           {{ config.buttonText | translate }}
         </button>
       }
@@ -111,5 +111,5 @@ export interface NotFoundStateConfig {
 })
 export class NotFoundStateComponent {
   @Input() config!: NotFoundStateConfig;
-  @Output() onButtonClick = new EventEmitter<void>();
+  @Output() buttonClick = new EventEmitter<void>();
 }

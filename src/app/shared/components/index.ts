@@ -29,6 +29,9 @@ export type { AlertData } from './alert-popup';
 // Input components
 export * from './inputs';
 
+// Button components
+export * from './buttons';
+
 // Service card component
 export { ServiceCardComponent } from './service-card/service-card.component';
 export type { ServiceCardConfig } from './service-card/service-card.component';

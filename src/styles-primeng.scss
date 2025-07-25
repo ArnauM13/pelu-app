@@ -1,0 +1,410 @@
+// PrimeNG Global Styles - Unified and Simplified
+// All inputs should have white backgrounds and consistent styling
+
+:root {
+  // Primary color alpha variants for overlays and highlights
+  --primary-color-alpha-10: rgba(58, 90, 138, 0.1);
+  --primary-color-alpha-20: rgba(58, 90, 138, 0.2);
+  --primary-color-alpha-30: rgba(58, 90, 138, 0.3);
+  --primary-color-alpha-50: rgba(58, 90, 138, 0.5);
+  --primary-color-alpha-70: rgba(58, 90, 138, 0.7);
+  --primary-color-alpha-90: rgba(58, 90, 138, 0.9);
+}
+
+// ===== UNIFIED INPUT STYLES =====
+// All text inputs, dropdowns, calendars, etc. share these base styles
+.p-inputtext,
+.p-inputtextarea,
+.p-dropdown,
+.p-multiselect,
+.p-calendar,
+.p-inputnumber,
+.p-password,
+.p-password-input {
+  // Base styles - WHITE BACKGROUND
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-color-secondary) !important; // Gris #6b7280
+  font-size: 0.95rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 44px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+
+  // Hover state
+  &:hover {
+    background-color: white !important;
+    border-color: var(--border-color-hover) !important;
+  }
+
+  // Focus state
+  &:focus {
+    background-color: white !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
+    outline: none !important;
+  }
+
+  // Disabled state
+  &:disabled {
+    background-color: var(--surface-color-disabled) !important;
+    color: var(--text-color-muted) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+  }
+
+  // Invalid state
+  &.ng-invalid.ng-touched {
+    background-color: white !important;
+    border-color: var(--error-color) !important;
+    box-shadow: 0 0 0 3px var(--error-color-alpha-10) !important;
+  }
+
+  // Valid state
+  &.ng-valid.ng-touched {
+    background-color: white !important;
+    border-color: var(--success-color) !important;
+  }
+
+  // Placeholder
+  &::placeholder {
+    color: var(--text-color-muted) !important;
+    opacity: 1 !important;
+  }
+}
+
+// ===== DROPDOWN & MULTISELECT STYLES =====
+.p-dropdown,
+.p-multiselect {
+  // Container styles
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  min-height: 44px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+  &:hover {
+    background-color: white !important;
+    border-color: var(--border-color-hover) !important;
+  }
+
+  &:focus-within {
+    background-color: white !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
+  }
+
+  // Label/display text
+  .p-dropdown-label,
+  .p-multiselect-label {
+    background-color: transparent !important;
+    color: var(--text-color-secondary) !important; // Gris #6b7280
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+
+  // Trigger button
+  .p-dropdown-trigger,
+  .p-multiselect-trigger {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-color-muted) !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin-right: 0.5rem !important;
+    transition: color 0.2s ease !important;
+
+    &:hover {
+      background: transparent !important;
+      color: var(--primary-color) !important;
+    }
+
+    .pi {
+      font-size: 1rem !important;
+      color: inherit !important;
+    }
+  }
+
+  // Panel/Dropdown menu
+  .p-dropdown-panel,
+  .p-multiselect-panel {
+    background-color: white !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-lg) !important;
+    box-shadow: var(--box-shadow-elevated) !important;
+    z-index: 99999 !important; // Extremely high z-index to appear above everything including popups
+    margin-top: 0.25rem !important;
+    position: relative !important;
+
+    // Items in dropdown
+    .p-dropdown-item,
+    .p-multiselect-item {
+      background-color: white !important;
+      color: var(--text-color-secondary) !important; // Gris #6b7280
+      padding: 0.75rem 1rem !important;
+      transition: all 0.2s ease !important;
+      border: none !important;
+
+      &:hover {
+        background-color: var(--surface-color-hover) !important;
+        color: var(--text-color-secondary) !important;
+      }
+
+      // Selected item
+      &.p-highlight {
+        background-color: var(--primary-color) !important; // Blau #3a5a8a
+        color: white !important;
+        font-weight: 600 !important;
+      }
+    }
+
+    // Empty message
+    .p-dropdown-empty-message,
+    .p-multiselect-empty-message {
+      background-color: white !important;
+      color: var(--text-color-muted) !important;
+      padding: 0.75rem 1rem !important;
+      text-align: center !important;
+    }
+  }
+}
+
+// ===== DIALOG STYLES =====
+.p-dialog,
+.p-confirmdialog {
+  z-index: 9999 !important; // Very high z-index to ensure it appears above everything
+
+  // Dialog container
+  .p-dialog-header {
+    background-color: white !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1.5rem !important;
+
+    .p-dialog-title {
+      color: var(--text-color) !important;
+      font-size: 1.25rem !important;
+      font-weight: 600 !important;
+    }
+
+    .p-dialog-header-icon {
+      background: transparent !important;
+      border: none !important;
+      color: var(--text-color-muted) !important;
+      width: 2rem !important;
+      height: 2rem !important;
+      border-radius: 50% !important;
+      transition: all 0.2s ease !important;
+
+      &:hover {
+        background-color: var(--surface-color-hover) !important;
+        color: var(--text-color) !important;
+      }
+
+      .pi {
+        font-size: 1rem !important;
+      }
+    }
+  }
+
+  .p-dialog-content {
+    background-color: white !important;
+    color: var(--text-color) !important;
+    padding: 1.5rem !important;
+  }
+
+  .p-dialog-footer {
+    background-color: white !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding: 1.5rem !important;
+  }
+}
+
+// ===== TOAST STYLES =====
+.p-toast {
+  .p-toast-message {
+    background-color: white !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-lg) !important;
+    box-shadow: var(--box-shadow-elevated) !important;
+    margin-bottom: 1rem !important;
+
+    .p-toast-message-content {
+      padding: 1rem !important;
+      color: var(--text-color) !important;
+    }
+
+    .p-toast-icon {
+      color: var(--text-color-muted) !important;
+      font-size: 1.25rem !important;
+    }
+
+    .p-toast-message-text {
+      color: var(--text-color) !important;
+      margin: 0 0 0 0.5rem !important;
+    }
+
+    .p-toast-summary {
+      font-weight: 600 !important;
+      color: var(--text-color) !important;
+    }
+
+    .p-toast-detail {
+      color: var(--text-color-secondary) !important; // Gris #6b7280
+      margin-top: 0.25rem !important;
+    }
+
+    .p-toast-icon-close {
+      background: transparent !important;
+      border: none !important;
+      color: var(--text-color-muted) !important;
+      width: 2rem !important;
+      height: 2rem !important;
+      border-radius: 50% !important;
+      transition: all 0.2s ease !important;
+
+      &:hover {
+        background-color: var(--surface-color-hover) !important;
+        color: var(--text-color) !important;
+      }
+    }
+  }
+
+  // Toast variants
+  .p-toast-message-success {
+    border-left: 4px solid var(--success-color) !important;
+  }
+
+  .p-toast-message-error {
+    border-left: 4px solid var(--error-color) !important;
+  }
+
+  .p-toast-message-warn {
+    border-left: 4px solid var(--warning-color) !important;
+  }
+
+  .p-toast-message-info {
+    border-left: 4px solid var(--primary-color) !important; // Blau #3a5a8a
+  }
+}
+
+// ===== MENU STYLES =====
+.p-menu {
+  background-color: white !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--box-shadow-elevated) !important;
+  padding: 0.5rem !important;
+  z-index: 99999 !important; // Extremely high z-index to appear above everything including popups
+
+  .p-menuitem {
+    .p-menuitem-link {
+      background-color: transparent !important;
+      color: var(--text-color-secondary) !important; // Gris #6b7280
+      padding: 0.75rem 1rem !important;
+      border-radius: var(--border-radius) !important;
+      transition: all 0.2s ease !important;
+      text-decoration: none !important;
+
+      &:hover {
+        background-color: var(--surface-color-hover) !important;
+        color: var(--text-color-secondary) !important;
+      }
+
+      &:focus {
+        background-color: var(--primary-color-alpha-10) !important;
+        color: var(--primary-color) !important;
+        outline: none !important;
+      }
+
+      .p-menuitem-icon {
+        color: var(--text-color-muted) !important;
+        margin-right: 0.5rem !important;
+      }
+
+      .p-menuitem-text {
+        color: inherit !important;
+        font-size: 0.95rem !important;
+      }
+    }
+
+    &.p-highlight .p-menuitem-link {
+      background-color: var(--primary-color) !important; // Blau #3a5a8a
+      color: white !important;
+    }
+  }
+}
+
+// ===== RTL SUPPORT =====
+[dir="rtl"] {
+  .p-dropdown,
+  .p-multiselect {
+    .p-dropdown-trigger,
+    .p-multiselect-trigger {
+      margin-right: 0 !important;
+      margin-left: 0.5rem !important;
+    }
+  }
+
+  .p-calendar {
+    .p-datepicker-trigger {
+      margin-left: 0 !important;
+      margin-right: 0.5rem !important;
+    }
+  }
+
+  .p-menu {
+    .p-menuitem-link {
+      .p-menuitem-icon {
+        margin-right: 0 !important;
+        margin-left: 0.5rem !important;
+      }
+    }
+  }
+}
+
+// ===== UTILITY CLASSES =====
+.p-component {
+  font-family: inherit !important;
+}
+
+.p-disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+// ===== ANIMATIONS =====
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.p-dropdown-panel,
+.p-multiselect-panel,
+.p-menu,
+.p-toast {
+  animation: fadeIn 0.2s ease-out !important;
+}
+
+.p-dialog {
+  animation: slideIn 0.3s ease-out !important;
+}

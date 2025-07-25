@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed, effect } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import {
   Firestore,
   doc,

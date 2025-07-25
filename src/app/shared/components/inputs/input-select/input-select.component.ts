@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 
 export interface SelectOption {
   label: string;
@@ -19,54 +19,20 @@ export interface SelectOption {
 }
 
 export interface InputSelectConfig {
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  autofocus?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
   helpText?: string;
   errorText?: string;
   successText?: string;
-  showLabel?: boolean;
   showHelpText?: boolean;
   showErrorText?: boolean;
   showSuccessText?: boolean;
-  loading?: boolean;
-  value?: string | number | (string | number)[];
-  options: SelectOption[];
-  multiple?: boolean;
-  clearable?: boolean;
-  searchable?: boolean;
-  size?: 'small' | 'medium' | 'large';
-  maxVisibleOptions?: number;
-  optionLabel?: string;
-  optionValue?: string;
-  optionDisabled?: string;
-  optionGroup?: string;
-  filter?: boolean;
-  filterBy?: string;
-  filterMatchMode?: string;
-  filterPlaceholder?: string;
-  showClear?: boolean;
-  editable?: boolean;
-  appendTo?: string;
-  scrollHeight?: string;
-  virtualScroll?: boolean;
-  virtualScrollItemSize?: number;
-  virtualScrollOptions?: any;
 }
 
 @Component({
   selector: 'pelu-input-select',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule],
   templateUrl: './input-select.component.html',
   styleUrls: ['./input-select.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -76,66 +42,87 @@ export interface InputSelectConfig {
   ],
 })
 export class InputSelectComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<InputSelectConfig>();
-  readonly value = input<string | undefined>(undefined);
+  // Reactive inputs (signals)
+  readonly value = input<string | number | undefined>(undefined);
   readonly formControlName = input<string>('');
 
-  // Output signals
-  readonly valueChange = output<string | undefined>();
-  readonly focusEvent = output<FocusEvent>();
-  readonly blurEvent = output<FocusEvent>();
+  // Component inputs
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
+  readonly helpText = input<string>('');
+  readonly errorText = input<string>('');
+  readonly successText = input<string>('');
 
-  // Internal state
-  private readonly internalValue = signal<string | undefined>(undefined);
+  // Select specific properties
+  readonly options = input.required<SelectOption[]>();
+  readonly multiple = input<boolean>(false);
+  readonly clearable = input<boolean>(false);
+  readonly searchable = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly editable = input<boolean>(false);
+  readonly checkmark = input<boolean>(false);
+  readonly filter = input<boolean>(true);
+  readonly filterBy = input<string>('label');
+  readonly filterMatchMode = input<'contains' | 'startsWith' | 'endsWith' | 'equals' | 'notEquals' | 'in' | 'lt' | 'lte' | 'gt' | 'gte'>('contains');
+  readonly filterPlaceholder = input<string>('');
+  readonly showClear = input<boolean>(false);
+  readonly appendTo = input<string>('body');
+  readonly scrollHeight = input<string>('200px');
+  readonly virtualScroll = input<boolean>(false);
+  readonly virtualScrollItemSize = input<number>(38);
+  readonly optionLabel = input<string>('label');
+  readonly optionValue = input<string>('value');
+  readonly optionDisabled = input<string>('disabled');
+  readonly group = input<boolean>(false);
 
-  // Computed properties
-  readonly displayValue = computed(() => this.value() ?? this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(
-    () => this.config().showSuccessText !== false && this.hasSuccess()
-  );
-  readonly isMultiple = computed(() => this.config().multiple || false);
-  readonly elementId = computed(
-    () => this.config().id || `select-${Math.random().toString(36).substr(2, 9)}`
-  );
+  // Unique ID generated once
+  private readonly uniqueId = 'select-' + Math.random().toString(36).substr(2, 9);
 
-  private onChange = (value: string | undefined) => {};
+  // Outputs
+  readonly valueChange = output<string | number | undefined>();
+
+  // Template content projections
+  @ContentChild('selectedItem') selectedItemTemplate?: TemplateRef<{ $implicit: SelectOption }>;
+  @ContentChild('item') itemTemplate?: TemplateRef<{ $implicit: SelectOption }>;
+  @ContentChild('group') groupTemplate?: TemplateRef<{ $implicit: { label: string; value: string; items: SelectOption[] } }>;
+  @ContentChild('dropdownicon') dropdownIconTemplate?: TemplateRef<void>;
+  @ContentChild('header') headerTemplate?: TemplateRef<void>;
+  @ContentChild('footer') footerTemplate?: TemplateRef<void>;
+  @ContentChild('emptyMessage') emptyMessageTemplate?: TemplateRef<void>;
+
+  // ControlValueAccessor callbacks
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private onChange = (value: string | number | undefined) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const currentValue = this.value();
-      if (currentValue !== undefined && currentValue !== null) {
-        this.internalValue.set(currentValue);
-      }
-    });
+  // Get unique ID
+  getElementId(): string {
+    return this.uniqueId;
   }
 
-  // Event handlers
-  onValueChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const value = target.value || undefined;
-    this.internalValue.set(value);
-    this.onChange(value);
-    this.valueChange.emit(value);
+  // Event handler for select changes
+  onSelectChange(value: string | number | null) {
+    const selectedValue = value === null ? undefined : value;
+    this.onChange(selectedValue);
+    this.valueChange.emit(selectedValue);
   }
 
-  onFocus(event: FocusEvent) {
-    this.focusEvent.emit(event);
+  // Event handler for blur
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onBlurHandler(event: Event) {
+    this.onTouched();
   }
 
-  onBlur(event: FocusEvent) {
-    this.blurEvent.emit(event);
+  // ControlValueAccessor methods
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  writeValue(value: string | number | undefined): void {
+    // PrimeNG handles this automatically
   }
 
-  // ControlValueAccessor implementation
-  registerOnChange(fn: (value: string | undefined) => void): void {
+  registerOnChange(fn: (value: string | number | undefined) => void): void {
     this.onChange = fn;
   }
 
@@ -143,11 +130,8 @@ export class InputSelectComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  writeValue(value: string | undefined): void {
-    this.internalValue.set(value);
-  }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDisabledState(isDisabled: boolean): void {
-    // Handle disabled state if needed
+    // PrimeNG handles disabled state automatically
   }
 }

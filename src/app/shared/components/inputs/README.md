@@ -111,18 +111,15 @@ Component per a contrasenyes amb opció de mostrar/amagar.
 
 ### 5. **Input Number** (`pelu-input-number`)
 
-Component per a entrades numèriques amb validació.
+Component per a entrades numèriques amb validació basat en PrimeNG InputNumber.
 
 ```typescript
 <pelu-input-number
-  [config]="{
-    label: 'Edat',
-    placeholder: 'Introdueix la teva edat',
-    min: 0,
-    max: 120,
-    step: 1,
-    showLabel: true
-  }"
+  [label]="'Edat'"
+  [placeholder]="'Introdueix la teva edat'"
+  [min]="0"
+  [max]="120"
+  [step]="1"
   [value]="formData.age"
   (valueChange)="onAgeChange($event)">
 </pelu-input-number>
@@ -132,6 +129,9 @@ Component per a entrades numèriques amb validació.
 - Configuració de min/max/step
 - Validació de rangs
 - Suport per decimals
+- Suport per moneda i percentatges
+- Botons de increment/decrement opcionals
+- Formatació automàtica segons locale
 
 ### 6. **Input Date** (`pelu-input-date`)
 
@@ -158,20 +158,17 @@ Component per a selecció de dates amb picker integrat.
 
 ### 7. **Input Select** (`pelu-input-select`)
 
-Component per a selecció d'opcions amb suport per colors i icones.
+Component per a selecció d'opcions amb suport per colors i icones basat en PrimeNG Select.
 
 ```typescript
 <pelu-input-select
-  [config]="{
-    label: 'Categoria',
-    placeholder: 'Selecciona una categoria',
-    options: [
-      { value: 'haircut', label: 'Tall de cabell', color: '#3B82F6' },
-      { value: 'coloring', label: 'Coloració', color: '#EF4444' },
-      { value: 'styling', label: 'Estil', color: '#10B981' }
-    ],
-    showLabel: true
-  }"
+  [label]="'Categoria'"
+  [placeholder]="'Selecciona una categoria'"
+  [options]="[
+    { value: 'haircut', label: 'Tall de cabell', color: '#3B82F6' },
+    { value: 'coloring', label: 'Coloració', color: '#EF4444' },
+    { value: 'styling', label: 'Estil', color: '#10B981' }
+  ]"
   [value]="formData.category"
   (valueChange)="onCategoryChange($event)">
 </pelu-input-select>
@@ -180,8 +177,91 @@ Component per a selecció d'opcions amb suport per colors i icones.
 **Característiques**:
 - Suport per colors i icones
 - Opcions dinàmiques
-- Búsqueda integrada
+- Búsqueda integrada amb filtre
 - Multi-selecció opcional
+- Suport per grups d'opcions
+- Virtual scrolling per grans llistes
+- Estats de càrrega
+- Opció editable
+- **Plantilles personalitzables** per estilitzar elements
+
+#### **Plantilles Disponibles**
+
+El component suporta plantilles per personalitzar l'aparença:
+
+```typescript
+<pelu-input-select
+  [label]="'Servei amb Icones'"
+  [options]="serviceOptions"
+  [filter]="true"
+  [showClear]="true"
+>
+  <!-- Template per l'element seleccionat -->
+  <ng-template #selectedItem let-selectedOption>
+    <div class="flex items-center gap-2">
+      <div class="w-4 h-4 rounded-full" [style.background-color]="selectedOption.color"></div>
+      <span class="font-medium">{{ selectedOption.label }}</span>
+      <span class="text-sm text-gray-500">({{ selectedOption.duration }}min)</span>
+    </div>
+  </ng-template>
+
+  <!-- Template per les opcions del dropdown -->
+  <ng-template #item let-service>
+    <div class="flex items-center justify-between w-full">
+      <div class="flex items-center gap-3">
+        <div class="w-4 h-4 rounded-full" [style.background-color]="service.color"></div>
+        <div>
+          <div class="font-medium">{{ service.label }}</div>
+          <div class="text-sm text-gray-500">{{ service.description }}</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="font-bold text-lg">{{ service.price }}€</div>
+        <div class="text-sm text-gray-500">{{ service.duration }}min</div>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Template per l'icona del dropdown -->
+  <ng-template #dropdownicon>
+    <i class="pi pi-scissors text-blue-500"></i>
+  </ng-template>
+
+  <!-- Template per l'encapçalament -->
+  <ng-template #header>
+    <div class="p-3 bg-blue-50 border-b border-blue-200">
+      <h4 class="font-semibold text-blue-800">Serveis Disponibles</h4>
+      <p class="text-sm text-blue-600">Selecciona el servei que desitges</p>
+    </div>
+  </ng-template>
+
+  <!-- Template per el peu -->
+  <ng-template #footer>
+    <div class="p-3 bg-gray-50 border-t border-gray-200">
+      <button class="w-full px-3 py-2 text-sm bg-blue-500 text-white rounded">
+        <i class="pi pi-plus mr-2"></i>Afegir Nou Servei
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- Template per missatge buit -->
+  <ng-template #emptyMessage>
+    <div class="p-4 text-center text-gray-500">
+      <i class="pi pi-search text-2xl mb-2"></i>
+      <p>No s'han trobat serveis</p>
+    </div>
+  </ng-template>
+</pelu-input-select>
+```
+
+**Plantilles disponibles**:
+- `#selectedItem` - Personalitza l'element seleccionat
+- `#item` - Personalitza les opcions del dropdown
+- `#group` - Personalitza els grups d'opcions
+- `#dropdownicon` - Personalitza la icona del dropdown
+- `#header` - Afegeix un encapçalament al dropdown
+- `#footer` - Afegeix un peu al dropdown
+- `#emptyMessage` - Personalitza el missatge quan no hi ha resultats
 
 ### 8. **Input Checkbox** (`pelu-input-checkbox`)
 

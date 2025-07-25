@@ -469,7 +469,7 @@ Per a contrasenyes amb opció de mostrar/amagar.
 
 ##### 5. **Input Number** (`pelu-input-number`)
 
-Per a entrades numèriques amb validació.
+Per a entrades numèriques amb validació basat en PrimeNG InputNumber.
 
 ##### 6. **Input Date** (`pelu-input-date`)
 
@@ -477,7 +477,7 @@ Per a selecció de dates amb picker integrat.
 
 ##### 7. **Input Select** (`pelu-input-select`)
 
-Per a selecció d'opcions amb suport per colors i icones.
+Per a selecció d'opcions amb suport per colors i icones basat en PrimeNG Select.
 
 ##### 8. **Input Checkbox** (`pelu-input-checkbox`)
 

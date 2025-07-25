@@ -1,81 +1,31 @@
 <div class="input-text-container">
   <!-- Label -->
-  @if (showLabel()) {
+  @if (label() && label().trim()) {
     <label
-      [for]="config().id || config().name"
+      [for]="getElementId()"
       class="input-text-label"
-      [class.required]="config().required"
-    >
-      {{ config().label || '' | translate }}
+      [class.required]="required()">
+      {{ label() | translate }}
     </label>
   }
 
-  <!-- Native input with PrimeNG classes -->
-  <input
-    [type]="config().type"
-    [id]="config().id || config().name"
-    [name]="config().name"
-    [placeholder]="config().placeholder || '' | translate"
-    [required]="config().required"
-    [disabled]="config().disabled"
-    [readonly]="config().readonly"
-    [min]="config().min"
-    [max]="config().max"
-    [step]="config().step"
-    [pattern]="config().pattern"
-    [autocomplete]="config().autocomplete"
-    [size]="config().size"
-    [attr.maxlength]="config().maxlength"
-    [attr.minlength]="config().minlength"
-    [spellcheck]="config().spellcheck"
-    [tabindex]="config().tabindex"
-    [style]="config().style"
-    [value]="displayValue()"
-    (input)="onInput($event)"
-    (change)="onChangeHandler($event)"
-    (focus)="onFocus($event)"
-    (blur)="onBlur($event)"
-    (keydown)="onKeydown($event)"
-    (keyup)="onKeyup($event)"
-    (keypress)="onKeypress($event)"
-    class="p-inputtext"
-    [class]="config().class || ''"
-    [class.p-invalid]="hasError()"
-    [class.p-valid]="hasSuccess()"
-  />
-
-  <!-- Clear button -->
-  @if (isClearable()) {
-    <button
-      type="button"
-      class="input-clear"
-      (click)="onClear()"
-      [title]="'COMMON.CLEAR' | translate"
-    >
-      <i class="pi pi-times"></i>
-    </button>
-  }
-
-  <!-- Help text -->
-  @if (showHelpText()) {
-    <div class="input-help">
-      {{ config().helpText || '' | translate }}
-    </div>
-  }
-
-  <!-- Error text -->
-  @if (showErrorText()) {
-    <div class="input-error">
-      <span class="error-icon">⚠</span>
-      <span class="error-text">{{ config().errorText || '' | translate }}</span>
-    </div>
-  }
-
-  <!-- Success text -->
-  @if (showSuccessText()) {
-    <div class="input-success">
-      <span class="success-icon">✓</span>
-      <span class="success-text">{{ config().successText || '' | translate }}</span>
-    </div>
-  }
+  <!-- PrimeNG InputText -->
+  <div class="input-wrapper">
+    <input
+      [id]="getElementId()"
+      pInputText
+      [type]="type()"
+      [placeholder]="displayPlaceholder() | translate"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      [pSize]="size()"
+      [variant]="variant()"
+      [invalid]="invalid()"
+      [fluid]="fluid()"
+      [ngModel]="value()"
+      (ngModelChange)="onInputChange($event)"
+      (blur)="onInputBlur()"
+      class="pelu-input-text"
+    />
+  </div>
 </div>

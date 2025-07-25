@@ -1,56 +1,59 @@
-<div class="input-date-container">
+<div class="input-date-container" [class.inline-mode]="inline()">
   <!-- Label -->
-  @if (showLabel()) {
+  @if (label() && label().trim()) {
     <label
-      [for]="config().id || config().name"
+      [for]="getElementId()"
       class="input-date-label"
-      [class.required]="config().required">
-      {{ (config().label || '') | translate }}
+      [class.required]="required()">
+      {{ label() | translate }}
     </label>
   }
 
-  <!-- Native input with PrimeNG classes -->
-  <input
-    type="date"
-    [id]="config().id || config().name"
-    [name]="config().name"
-    [placeholder]="(config().placeholder || '') | translate"
-    [required]="config().required || false"
-    [disabled]="config().disabled || false"
-    [readonly]="config().readonlyInput || false"
-    [tabindex]="config().tabindex"
-    [style]="config().style"
-    [min]="config().min"
-    [max]="config().max"
-    [value]="displayValue()"
-    (input)="onInput($event)"
-    (change)="onChangeHandler($event)"
-    (focus)="onFocus($event)"
-    (blur)="onBlur($event)"
-    class="p-inputtext"
-    [class]="config().class || ''"
-    [class.p-invalid]="hasError()"
-    [class.p-valid]="hasSuccess()"
-  />
-
-  <!-- Help text -->
-  @if (showHelpText()) {
-    <div class="input-help">
-      {{ (config().helpText || '') | translate }}
-    </div>
-  }
-
-  <!-- Error text -->
-  @if (showErrorText()) {
-    <div class="input-error">
-      {{ (config().errorText || '') | translate }}
-    </div>
-  }
-
-  <!-- Success text -->
-  @if (showSuccessText()) {
-    <div class="input-success">
-      {{ (config().successText || '') | translate }}
-    </div>
-  }
+  <!-- PrimeNG DatePicker -->
+  <div class="datepicker-wrapper">
+    <p-datepicker
+      [inputId]="getElementId()"
+      [placeholder]="(placeholder() || 'INPUTS.DATE_PLACEHOLDER') | translate"
+      [disabled]="disabled()"
+      [dateFormat]="dateFormat()"
+      [showIcon]="showIcon()"
+      [iconDisplay]="'input'"
+      [showButtonBar]="showButtonBar()"
+      [showTime]="showTime()"
+      [timeOnly]="timeOnly()"
+      [hourFormat]="hourFormat()"
+      [selectionMode]="selectionMode()"
+      [inline]="inline()"
+      [readonlyInput]="readonlyInput()"
+      [showOnFocus]="showOnFocus()"
+      [minDate]="computedMinDate()"
+      [maxDate]="maxDate()"
+      [ngModel]="displayValue()"
+      (ngModelChange)="onDateChange($event)"
+      class="pelu-datepicker"
+      [attr.data-time-only]="timeOnly()"
+    >
+      <!-- Custom icon for time-only picker -->
+      @if (timeOnly()) {
+        <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+          <svg
+            class="custom-clock-icon"
+            (click)="clickCallBack($event)"
+            (keydown.enter)="clickCallBack($event)"
+            (keydown.space)="clickCallBack($event)"
+            tabindex="0"
+            role="button"
+            aria-label="Seleccionar hora"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </ng-template>
+      }
+    </p-datepicker>
+  </div>
 </div>

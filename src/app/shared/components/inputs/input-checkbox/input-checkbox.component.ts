@@ -1,39 +1,15 @@
-import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
-
-export interface InputCheckboxConfig {
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  autofocus?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
-  helpText?: string;
-  errorText?: string;
-  successText?: string;
-  showLabel?: boolean;
-  showHelpText?: boolean;
-  showErrorText?: boolean;
-  showSuccessText?: boolean;
-  value?: boolean;
-  binary?: boolean;
-  indeterminate?: boolean;
-  labelPosition?: 'left' | 'right';
-}
 
 @Component({
     selector: 'pelu-input-checkbox',
     imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, CheckboxModule],
     templateUrl: './input-checkbox.component.html',
     styleUrls: ['./input-checkbox.component.scss'],
+    encapsulation: ViewEncapsulation.None,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -43,65 +19,41 @@ export interface InputCheckboxConfig {
     ]
 })
 export class InputCheckboxComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<InputCheckboxConfig>();
+  // Reactive inputs (signals)
   readonly value = input<boolean>(false);
   readonly formControlName = input<string>('');
 
-  // Output signals
+  // Component inputs
+  readonly label = input.required<string>();
+  readonly size = input<'small' | 'large'>('small');
+  readonly variant = input<'outlined' | 'filled'>('outlined');
+  readonly disabled = input<boolean>(false);
+  readonly invalid = input<boolean>(false);
+
+  // Unique ID generated once
+  private readonly uniqueId = 'checkbox-' + Math.random().toString(36).substr(2, 9);
+
+  // Outputs
   readonly valueChange = output<boolean>();
-  readonly focusEvent = output<FocusEvent>();
-  readonly blurEvent = output<FocusEvent>();
 
-  // Internal state
-  private readonly internalValue = signal<boolean>(false);
-
-  // Computed properties
-  readonly displayValue = computed(() => this.value() ?? this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(
-    () => this.config().showSuccessText !== false && this.hasSuccess()
-  );
-  readonly elementId = computed(
-    () => this.config().id || `checkbox-${Math.random().toString(36).substr(2, 9)}`
-  );
-
+  // ControlValueAccessor callbacks
   private onChange = (value: boolean) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const currentValue = this.value();
-      if (currentValue !== undefined && currentValue !== null) {
-        this.internalValue.set(currentValue);
-      }
-    });
+  // Get unique ID
+  getElementId(): string {
+    return this.uniqueId;
   }
 
-  // Event handlers
-  onCheckboxChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const checked = target.checked;
-    this.internalValue.set(checked);
+  // Event handler for checkbox changes
+  onCheckboxChange(checked: boolean) {
     this.onChange(checked);
     this.valueChange.emit(checked);
   }
 
-  onFocus(event: FocusEvent) {
-    this.focusEvent.emit(event);
-  }
-
-  onBlur(event: FocusEvent) {
-    this.blurEvent.emit(event);
-  }
-
+  // ControlValueAccessor methods
   writeValue(value: boolean): void {
-    this.internalValue.set(value);
+    // PrimeNG handles this automatically
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
@@ -112,7 +64,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(): void {
+  setDisabledState(isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }

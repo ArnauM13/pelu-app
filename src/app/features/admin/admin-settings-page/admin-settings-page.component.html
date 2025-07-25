@@ -98,12 +98,9 @@
         <!-- Business Info -->
         <div class="settings-group">
           <pelu-input-text
-            [config]="{
-              type: 'text',
-              label: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
-              placeholder: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.BUSINESS_NAME'"
+            [placeholder]="'ADMIN.SETTINGS_PAGE.BUSINESS_NAME'"
+            [readonly]="true"
             [value]="settingsForm.get('businessName')?.value"
             (valueChange)="settingsForm.get('businessName')?.setValue($event)"
           >
@@ -112,14 +109,11 @@
         <!-- Appointment Duration -->
         <div class="settings-group">
           <pelu-input-number
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION',
-              min: 15,
-              max: 480,
-              step: 15,
-              suffix: ' min',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION'"
+            [min]="15"
+            [max]="480"
+            [step]="15"
+            [suffix]="' min'"
             [value]="settingsForm.get('appointmentDuration')?.value"
             (valueChange)="settingsForm.get('appointmentDuration')?.setValue($event)"
           >
@@ -128,12 +122,9 @@
         <!-- Max Appointments -->
         <div class="settings-group">
           <pelu-input-number
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS',
-              min: 1,
-              max: 100,
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS'"
+            [min]="1"
+            [max]="100"
             [value]="settingsForm.get('maxAppointments')?.value"
             (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)"
           >
@@ -142,10 +133,7 @@
         <!-- Auto Confirm -->
         <div class="settings-group">
           <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM'"
             [value]="settingsForm.get('autoConfirm')?.value"
             (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)"
           >
@@ -154,10 +142,7 @@
         <!-- Notifications -->
         <div class="settings-group">
           <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS'"
             [value]="settingsForm.get('sendNotifications')?.value"
             (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)"
           >
@@ -166,10 +151,7 @@
         <!-- Maintenance Mode -->
         <div class="settings-group">
           <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE',
-              showLabel: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE'"
             [value]="settingsForm.get('maintenanceMode')?.value"
             (valueChange)="settingsForm.get('maintenanceMode')?.setValue($event)"
           >
@@ -178,13 +160,10 @@
         <!-- Language -->
         <div class="settings-group">
           <pelu-input-select
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
-              placeholder: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
-              options: languageOptions,
-              showLabel: true,
-              clearable: true,
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE'"
+            [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE'"
+            [options]="languageOptions"
+            [showClear]="true"
             [value]="settingsForm.get('defaultLanguage')?.value"
             (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)"
           >
@@ -193,14 +172,11 @@
         <!-- Currency -->
         <div class="settings-group">
           <pelu-input-select
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.CURRENCY',
-              placeholder: 'ADMIN.SETTINGS_PAGE.CURRENCY',
-              options: currencyOptions,
-              showLabel: true,
-              clearable: true,
-              helpText: 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP',
-            }"
+            [label]="'ADMIN.SETTINGS_PAGE.CURRENCY'"
+            [placeholder]="'ADMIN.SETTINGS_PAGE.CURRENCY'"
+            [options]="currencyOptions"
+            [showClear]="true"
+            [helpText]="'ADMIN.SETTINGS_PAGE.CURRENCY_HELP'"
             [value]="settingsForm.get('currency')?.value"
             (valueChange)="settingsForm.get('currency')?.setValue($event)"
           >

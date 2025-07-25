@@ -1,50 +1,24 @@
-import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
 
 export interface InputDateConfig {
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  autofocus?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
   helpText?: string;
   errorText?: string;
   successText?: string;
-  showLabel?: boolean;
   showHelpText?: boolean;
   showErrorText?: boolean;
   showSuccessText?: boolean;
-  clearable?: boolean;
-  value?: Date | string;
-  min?: Date | string;
-  max?: Date | string;
-  dateFormat?: string;
-  showIcon?: boolean;
-  showButtonBar?: boolean;
-  showTime?: boolean;
-  timeOnly?: boolean;
-  hourFormat?: 12 | 24;
-  selectionMode?: 'single' | 'multiple' | 'range';
-  numberOfMonths?: number;
-  inline?: boolean;
-  readonlyInput?: boolean;
-  showOnFocus?: boolean;
 }
 
 @Component({
   selector: 'pelu-input-date',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, DatePickerModule],
   templateUrl: './input-date.component.html',
   styleUrls: ['./input-date.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -54,99 +28,101 @@ export interface InputDateConfig {
   ],
 })
 export class InputDateComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<InputDateConfig>();
+  // Reactive inputs (signals)
   readonly value = input<Date | string | null>(null);
   readonly formControlName = input<string>('');
 
-  // Output signals
+  // Component inputs
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
+
+  // DatePicker specific properties
+  readonly dateFormat = input<string>('dd/mm/yy');
+  readonly showIcon = input<boolean>(true);
+  readonly showButtonBar = input<boolean>(false);
+  readonly showTime = input<boolean>(false);
+  readonly timeOnly = input<boolean>(false);
+  readonly hourFormat = input<'12' | '24'>('24');
+  readonly selectionMode = input<'single' | 'multiple' | 'range'>('single');
+  readonly numberOfMonths = input<number>(1);
+  readonly inline = input<boolean>(false);
+  readonly readonlyInput = input<boolean>(false);
+  readonly showOnFocus = input<boolean>(true);
+  readonly minDate = input<Date | null>(null);
+  readonly maxDate = input<Date | null>(null);
+  readonly preventPastMonths = input<boolean>(false);
+
+  // Computed minDate that prevents past months when enabled
+  readonly computedMinDate = computed(() => {
+    if (this.preventPastMonths()) {
+      // Set to today's date to prevent selecting past dates
+      return new Date();
+    }
+    return this.minDate();
+  });
+
+  // Unique ID generated once
+  private readonly uniqueId = 'date-' + Math.random().toString(36).substr(2, 9);
+
+  // Outputs
   readonly valueChange = output<Date | string | null>();
-  readonly focusEvent = output<FocusEvent>();
-  readonly blurEvent = output<FocusEvent>();
 
-  // Internal state
-  private readonly internalValue = signal<Date | string | null>(null);
-
-  // Computed properties
-  readonly displayValue = computed(() => this.value() ?? this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(
-    () => this.config().showSuccessText !== false && this.hasSuccess()
-  );
-  readonly elementId = computed(
-    () => this.config().id || `date-${Math.random().toString(36).substr(2, 9)}`
-  );
-
+  // ControlValueAccessor callbacks
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onChange = (value: Date | string | null) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const currentValue = this.value();
-      if (currentValue !== undefined && currentValue !== null) {
-        this.internalValue.set(currentValue);
+  // Computed value that handles empty strings and converts them to null
+  readonly displayValue = computed(() => {
+    const currentValue = this.value();
+
+    // Handle all falsy values and empty strings
+    if (!currentValue || currentValue === '' || currentValue === null || currentValue === undefined) {
+      return null;
+    }
+
+    // If it's already a Date object, return it
+    if (currentValue instanceof Date) {
+      return currentValue;
+    }
+
+    // If it's a string, try to parse it as a date
+    if (typeof currentValue === 'string') {
+      const parsedDate = new Date(currentValue);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      } else {
+        return null;
       }
-    });
-  }
-
-  // Event handlers
-  onDateSelect(date: Date | string | null) {
-    if (date === null) {
-      this.internalValue.set(null);
-      this.onChange(null);
-      this.valueChange.emit(null);
-      return;
     }
 
-    const dateValue = typeof date === 'string' ? new Date(date) : date;
-    this.internalValue.set(dateValue);
-    this.onChange(dateValue);
-    this.valueChange.emit(dateValue);
+    return null;
+  });
+
+  constructor() {
+    // No need for complex synchronization - let PrimeNG handle it natively
   }
 
-  onInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const value = target.value;
-    if (value) {
-      const dateValue = new Date(value);
-      this.onDateSelect(dateValue);
-    } else {
-      this.onDateSelect(null);
-    }
+  // Get unique ID
+  getElementId(): string {
+    return this.uniqueId;
   }
 
-  onChangeHandler(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const value = target.value;
-    if (value) {
-      const dateValue = new Date(value);
-      this.onDateSelect(dateValue);
-    } else {
-      this.onDateSelect(null);
-    }
+  // Event handler for date changes
+  onDateChange(date: Date | string | null) {
+    this.onChange(date);
+    this.valueChange.emit(date);
   }
 
-  onFocus(event: FocusEvent) {
-    this.focusEvent.emit(event);
-  }
 
-  onBlur(event: FocusEvent) {
-    this.blurEvent.emit(event);
-  }
 
-  onClear(): void {
-    this.internalValue.set(null);
-    this.onChange(null);
-    this.valueChange.emit(null);
-  }
-
+  // ControlValueAccessor methods
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   writeValue(value: Date | string | null): void {
-    this.internalValue.set(value);
+    // PrimeNG handles this automatically through the input signal
   }
 
   registerOnChange(fn: (value: Date | string | null) => void): void {
@@ -157,7 +133,8 @@ export class InputDateComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setDisabledState(isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }

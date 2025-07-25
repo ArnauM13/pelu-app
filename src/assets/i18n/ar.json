@@ -249,7 +249,8 @@
     "APPOINTMENTS": "المواعيد",
     "PROFILE": "الملف الشخصي",
     "ADMIN_DASHBOARD": "لوحة الإدارة",
-    "ADMIN_SETTINGS": "الإعدادات"
+    "ADMIN_SETTINGS": "الإعدادات",
+    "PLAYGROUND": "ملعب"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
@@ -438,6 +439,7 @@
       "SELECT_CATEGORY": "اختر الفئة",
       "SELECT_ICON": "اختر الأيقونة",
       "MARK_AS_POPULAR": "تحديد كشائع",
+      "MARK_AS_FAVORITE": "تحديد كمفضل",
       "NO_SERVICES_IN_CATEGORY": "لا توجد خدمات في هذه الفئة",
       "SERVICE_CREATED": "تم إنشاء الخدمة",
       "SERVICE_CREATED_MESSAGE": "تم إنشاء الخدمة بنجاح",
@@ -613,5 +615,20 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "اختر اللغة"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "أدخل رقماً",
+    "TEXT_PLACEHOLDER": "أدخل نصاً",
+    "TEXT_EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
+    "TEXT_PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+    "PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+    "PASSWORD_PROMPT_LABEL": "اختر كلمة مرور",
+    "PASSWORD_WEAK_LABEL": "بسيطة جداً",
+    "PASSWORD_MEDIUM_LABEL": "تعقيد متوسط",
+    "PASSWORD_STRONG_LABEL": "كلمة مرور معقدة",
+    "TEXTAREA_PLACEHOLDER": "أدخل نصاً...",
+    "SELECT_PLACEHOLDER": "اختر خياراً",
+    "SELECT_FILTER_PLACEHOLDER": "ابحث...",
+    "DATE_PLACEHOLDER": "اختر تاريخاً"
   }
 }

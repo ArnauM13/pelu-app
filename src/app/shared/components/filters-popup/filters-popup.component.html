@@ -13,10 +13,7 @@
       <div class="filters-grid">
         <div class="filter-group">
           <pelu-input-date
-            [config]="{
-              label: 'COMMON.FILTERS.FILTER_BY_DATE',
-              showLabel: true,
-            }"
+            label="COMMON.FILTERS.FILTER_BY_DATE"
             [value]="filterDateValue()"
             (valueChange)="onDateChangeHandler($event)"
           >
