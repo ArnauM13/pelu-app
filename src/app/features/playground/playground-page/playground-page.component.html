@@ -5,22 +5,43 @@
   </div>
 
   <div class="playground-content">
-    <!-- Inputs Demo Section -->
-    <section class="demo-section">
-      <h2>📝 Components d'Input</h2>
-      <p>Demostració dels components d'input unificats amb diferents variants i configuracions.</p>
+    <!-- Custom Tab Navigation -->
+    <div class="tab-navigation">
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('inputs')"
+        (click)="setActiveTab('inputs')">
+        📝 Inputs
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('buttons')"
+        (click)="setActiveTab('buttons')">
+        🔘 Botons
+      </button>
+    </div>
 
-      <pelu-inputs-demo></pelu-inputs-demo>
-    </section>
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Inputs Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('inputs')">
+        <div class="demo-section">
+          <h2>📝 Components d'Input</h2>
+          <p>Demostració dels components d'input unificats amb diferents variants i configuracions.</p>
 
-    <!-- Future demo sections can be added here -->
-    <!--
-    <section class="demo-section">
-      <h2>🔘 Components de Botons</h2>
-      <p>Demostració dels components de botons.</p>
+          <pelu-inputs-demo></pelu-inputs-demo>
+        </div>
+      </div>
 
-      <pelu-buttons-demo></pelu-buttons-demo>
-    </section>
-    -->
+      <!-- Buttons Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('buttons')">
+        <div class="demo-section">
+          <h2>🔘 Components de Botons</h2>
+          <p>Demostració dels components de botons amb diferents variants i estats.</p>
+
+          <pelu-buttons-demo></pelu-buttons-demo>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

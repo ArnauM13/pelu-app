@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
+import { ButtonComponent } from '../buttons/button.component';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 import {
@@ -32,6 +33,7 @@ export interface ServiceSelectionDetails {
     SelectModule,
     TranslateModule,
     PopularBadgeComponent,
+    ButtonComponent,
   ],
   templateUrl: './service-selection-popup.component.html',
   styleUrls: ['./service-selection-popup.component.scss'],

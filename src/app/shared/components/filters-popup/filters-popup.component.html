@@ -34,9 +34,13 @@
         </div>
       </div>
       <div class="reset-section">
-        <button class="reset-btn" (click)="onResetHandler()">
-          {{ 'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate }}
-        </button>
+        <pelu-button
+  [label]="'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate"
+  severity="secondary"
+  variant="outlined"
+  (clicked)="onResetHandler()"
+>
+</pelu-button>
       </div>
     </div>
   }
