@@ -12,6 +12,7 @@ import { ServicesPageComponent } from './features/services/services-page/service
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
 import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
+import { PlaygroundPageComponent } from './features/playground/playground-page/playground-page.component';
 
 export const routes: Routes = [
   // Public routes
@@ -62,6 +63,12 @@ export const routes: Routes = [
     component: ServicesPageComponent,
     canActivate: [authGuard],
     data: { viewTransitionName: 'services' },
+  },
+  {
+    path: 'playground',
+    component: PlaygroundPageComponent,
+    canActivate: [authGuard],
+    data: { viewTransitionName: 'playground' },
   },
 
   // Admin pages - accessible only to admins
