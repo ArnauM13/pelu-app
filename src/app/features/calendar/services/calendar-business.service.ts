@@ -86,8 +86,14 @@ export class CalendarBusinessService {
    * Get business days for a week
    */
   getBusinessDaysForWeek(viewDate: Date): Date[] {
-    const start = startOfWeek(viewDate, { weekStartsOn: 1 }); // Monday
-    const end = endOfWeek(viewDate, { weekStartsOn: 1 });
+    // Start from the selected date instead of Monday of the week
+    const start = new Date(viewDate);
+    start.setHours(0, 0, 0, 0);
+    
+    // End 6 days after the start date to show a full week
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    
     const allDays = eachDayOfInterval({ start, end });
 
     // Filter to show only business days

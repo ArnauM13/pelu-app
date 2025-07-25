@@ -47,8 +47,8 @@ export class CalendarWithFooterComponent {
 
   // Output signals
   readonly dateSelected = output<{ date: string; time: string }>();
-  readonly editAppointment = output<any>();
-  readonly deleteAppointment = output<any>();
+  readonly editAppointment = output<AppointmentEvent | any>();
+  readonly deleteAppointment = output<AppointmentEvent | any>();
 
   // Internal state
   private readonly calendarLoadedSignal = signal<boolean>(false);
