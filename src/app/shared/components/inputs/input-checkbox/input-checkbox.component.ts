@@ -25,7 +25,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
 
   // Component inputs
   readonly label = input.required<string>();
-  readonly size = input<'small' | 'large'>('small');
+  readonly size = input<'small' | 'large' | undefined>(undefined);
   readonly variant = input<'outlined' | 'filled'>('outlined');
   readonly disabled = input<boolean>(false);
   readonly invalid = input<boolean>(false);
@@ -52,7 +52,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   }
 
   // ControlValueAccessor methods
-  writeValue(value: boolean): void {
+  writeValue(): void {
     // PrimeNG handles this automatically
   }
 
@@ -64,7 +64,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  setDisabledState(): void {
     // PrimeNG handles disabled state automatically
   }
 }
