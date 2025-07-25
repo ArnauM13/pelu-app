@@ -138,6 +138,9 @@ export class AppointmentsPageComponent {
     filtered = this.applyClientFilter(filtered);
     filtered = this.applyServiceFilter(filtered);
 
+    // Sort by date and time (newest first)
+    filtered = this.sortAppointmentsByDateTime(filtered);
+
     return filtered;
   });
 
@@ -174,18 +177,21 @@ export class AppointmentsPageComponent {
   readonly totalAppointments = computed(() => this.appointments().length);
   readonly todayAppointments = computed(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
-    return this.appointments().filter(a => a.data === today);
+    const todayAppointments = this.appointments().filter(a => a.data === today);
+    return this.sortAppointmentsByDateTime(todayAppointments);
   });
   readonly upcomingAppointments = computed(() => {
     const now = new Date();
-    return this.appointments().filter(a => {
+    const upcomingAppointments = this.appointments().filter(a => {
       const appointmentDateTime = new Date(a.data + 'T' + (a.hora || '23:59'));
       return appointmentDateTime > now;
     });
+    return this.sortAppointmentsByDateTime(upcomingAppointments);
   });
   readonly myAppointments = computed(() => {
     const currentUserId = this.getCurrentUserId();
-    return this.appointments().filter(a => a.uid === currentUserId);
+    const myAppointments = this.appointments().filter(a => a.uid === currentUserId);
+    return this.sortAppointmentsByDateTime(myAppointments);
   });
 
   readonly hasActiveFilters = computed(() => {
@@ -256,6 +262,23 @@ export class AppointmentsPageComponent {
       const serviceDateTime = createLocalDateTime(filterService, '00:00');
 
       return appointmentDateTime.getTime() === serviceDateTime.getTime();
+    });
+  }
+
+  private sortAppointmentsByDateTime(appointments: Booking[]): Booking[] {
+    return appointments.sort((a, b) => {
+      // Create datetime objects for comparison
+      const createLocalDateTime = (dateStr: string, timeStr: string) => {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const [hour, minute] = timeStr.split(':').map(Number);
+        return new Date(year, month - 1, day, hour, minute);
+      };
+
+      const dateTimeA = createLocalDateTime(a.data || '', a.hora || '00:00');
+      const dateTimeB = createLocalDateTime(b.data || '', b.hora || '00:00');
+
+      // Sort in descending order (newest first)
+      return dateTimeB.getTime() - dateTimeA.getTime();
     });
   }
 
@@ -374,7 +397,8 @@ export class AppointmentsPageComponent {
 
   getAppointmentsForDate(date: Date): Booking[] {
     const dateString = format(date, 'yyyy-MM-dd');
-    return this.appointments().filter(appointment => appointment.data === dateString);
+    const appointmentsForDate = this.appointments().filter(appointment => appointment.data === dateString);
+    return this.sortAppointmentsByDateTime(appointmentsForDate);
   }
 
   formatDateForDisplay(date: Date): string {

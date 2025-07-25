@@ -17,6 +17,7 @@ import { InputTextComponent } from '../../../shared/components/inputs/input-text
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
+import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
@@ -35,6 +36,7 @@ import { ButtonComponent } from '../../../shared/components/buttons/button.compo
     InputNumberComponent,
     InputCheckboxComponent,
     InputSelectComponent,
+    InputDateComponent,
     ButtonComponent,
   ],
   templateUrl: './admin-settings-page.component.html',
@@ -111,6 +113,39 @@ export class AdminSettingsPageComponent implements OnInit {
     this.isEditModeSignal.set(true);
   }
 
+  toggleEditMode() {
+    if (this.isEditMode()) {
+      this.setViewMode();
+    } else {
+      this.setEditMode();
+    }
+  }
+
+  // Time handling methods
+  getTimeValue(timeString: string | null): Date | null {
+    if (!timeString) return null;
+
+    const [hours, minutes] = timeString.split(':').map(Number);
+    if (isNaN(hours) || isNaN(minutes)) return null;
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  }
+
+  onTimeChange(date: Date | string | null, fieldName: string) {
+    if (!date || !(date instanceof Date)) {
+      this.settingsForm.get(fieldName)?.setValue('');
+      return;
+    }
+
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const timeString = `${hours}:${minutes}`;
+
+    this.settingsForm.get(fieldName)?.setValue(timeString);
+  }
+
   // Helper methods for display
   getLanguageLabel(value: string): string {
     const option = this.languageOptions.find(opt => opt.value === value);
@@ -124,15 +159,26 @@ export class AdminSettingsPageComponent implements OnInit {
 
   private initializeForm() {
     const currentSettings = this.settings();
+    const businessHoursString = this.businessSettingsService.getBusinessHoursString();
+    const lunchBreak = this.businessSettingsService.getLunchBreak();
+
     this.settingsForm = this.fb.group({
       businessName: [currentSettings.businessName],
+      businessHoursStart: [businessHoursString.start],
+      businessHoursEnd: [businessHoursString.end],
+      lunchBreakStart: [lunchBreak.start],
+      lunchBreakEnd: [lunchBreak.end],
       appointmentDuration: [currentSettings.appointmentDuration],
       maxAppointments: [currentSettings.maxAppointmentsPerDay],
       autoConfirm: [currentSettings.autoConfirmAppointments],
       sendNotifications: [currentSettings.sendNotifications],
-      maintenanceMode: [currentSettings.maintenanceMode],
       defaultLanguage: [currentSettings.language],
       currency: [currentSettings.currency],
+      // New booking parameters
+      preventCancellation: [currentSettings.preventCancellation],
+      cancellationTimeLimit: [currentSettings.cancellationTimeLimit],
+      bookingAdvanceDays: [currentSettings.bookingAdvanceDays],
+      bookingAdvanceTime: [currentSettings.bookingAdvanceTime],
     });
   }
 
@@ -159,16 +205,28 @@ export class AdminSettingsPageComponent implements OnInit {
           this.currencyService.setCurrentCurrency(formValue.currency);
         }
 
-        // Save settings using the business settings service
+        // Save business hours and lunch break
+        await this.businessSettingsService.updateBusinessHoursString({
+          start: formValue.businessHoursStart,
+          end: formValue.businessHoursEnd,
+          lunchStart: formValue.lunchBreakStart,
+          lunchEnd: formValue.lunchBreakEnd,
+        });
+
+        // Save other settings using the business settings service
         await this.businessSettingsService.saveSettings({
           businessName: formValue.businessName,
           appointmentDuration: formValue.appointmentDuration,
           maxAppointmentsPerDay: formValue.maxAppointments,
           autoConfirmAppointments: formValue.autoConfirm,
           sendNotifications: formValue.sendNotifications,
-          maintenanceMode: formValue.maintenanceMode,
           language: formValue.defaultLanguage,
           currency: formValue.currency,
+          // New booking parameters
+          preventCancellation: formValue.preventCancellation,
+          cancellationTimeLimit: formValue.cancellationTimeLimit,
+          bookingAdvanceDays: formValue.bookingAdvanceDays,
+          bookingAdvanceTime: formValue.bookingAdvanceTime,
         });
 
         this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
@@ -206,17 +264,13 @@ export class AdminSettingsPageComponent implements OnInit {
         maxAppointments: 20,
         autoConfirm: false,
         sendNotifications: true,
-        maintenanceMode: false,
         defaultLanguage: 'ca',
+        preventCancellation: false,
+        cancellationTimeLimit: 24,
+        bookingAdvanceDays: 30,
+        bookingAdvanceTime: 30,
       });
     }
-  }
-
-  toggleMaintenanceMode() {
-    const currentSettings = this.settings();
-    this.businessSettingsService.saveSettings({
-      maintenanceMode: !currentSettings.maintenanceMode,
-    });
   }
 
   getWorkingDaysLabels(): string {
@@ -231,5 +285,15 @@ export class AdminSettingsPageComponent implements OnInit {
 
   formatTime(hour: number): string {
     return `${hour.toString().padStart(2, '0')}:00`;
+  }
+
+  getBusinessHoursDisplay(): string {
+    const businessHours = this.businessSettingsService.getBusinessHoursString();
+    return `${businessHours.start} - ${businessHours.end}`;
+  }
+
+  getLunchBreakDisplay(): string {
+    const lunchBreak = this.businessSettingsService.getLunchBreak();
+    return `${lunchBreak.start} - ${lunchBreak.end}`;
   }
 }

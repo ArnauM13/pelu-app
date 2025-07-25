@@ -30,7 +30,10 @@ export interface AppState {
   // Business state
   businessName: string;
   businessHours: any;
-  maintenanceMode: boolean;
+  preventCancellation: boolean;
+  cancellationTimeLimit: number;
+  bookingAdvanceDays: number;
+  bookingAdvanceTime: number;
 
   // Toast state
   activeToasts: number;
@@ -73,7 +76,10 @@ export class AppStateService {
     showLoader: false,
     businessName: 'PeluApp',
     businessHours: { start: 8, end: 20 },
-    maintenanceMode: false,
+    preventCancellation: false,
+    cancellationTimeLimit: 24,
+    bookingAdvanceDays: 30,
+    bookingAdvanceTime: 30,
     activeToasts: 0,
     hasRecentToasts: false,
   });
@@ -115,7 +121,10 @@ export class AppStateService {
   // Business state
   readonly businessName = computed(() => this.appState().businessName);
   readonly businessHours = computed(() => this.appState().businessHours);
-  readonly maintenanceMode = computed(() => this.appState().maintenanceMode);
+  readonly preventCancellation = computed(() => this.appState().preventCancellation);
+  readonly cancellationTimeLimit = computed(() => this.appState().cancellationTimeLimit);
+  readonly bookingAdvanceDays = computed(() => this.appState().bookingAdvanceDays);
+  readonly bookingAdvanceTime = computed(() => this.appState().bookingAdvanceTime);
 
   // Toast state
   readonly activeToasts = computed(() => this.appState().activeToasts);
@@ -123,7 +132,7 @@ export class AppStateService {
 
   // Computed convenience signals
   readonly isReady = computed(() =>
-    this.isInitialized() && !this.isLoading() && !this.maintenanceMode()
+    this.isInitialized() && !this.isLoading()
   );
 
   readonly canAccessAppointments = computed(() =>
@@ -189,7 +198,10 @@ export class AppStateService {
       const businessState = {
         businessName: settings.businessName,
         businessHours: settings.businessHours,
-        maintenanceMode: settings.maintenanceMode,
+        preventCancellation: settings.preventCancellation,
+        cancellationTimeLimit: settings.cancellationTimeLimit,
+        bookingAdvanceDays: settings.bookingAdvanceDays,
+        bookingAdvanceTime: settings.bookingAdvanceTime,
       };
 
       this.updateBusinessState(businessState);

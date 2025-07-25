@@ -18,6 +18,7 @@ import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
+import { BookingValidationService } from './booking-validation.service';
 import { nanoid } from 'nanoid';
 import { isPastDateTime } from '../../shared/services/appointment-utils';
 
@@ -69,6 +70,7 @@ export class BookingService {
   private readonly roleService = inject(RoleService);
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
+  private readonly bookingValidationService = inject(BookingValidationService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -116,9 +118,10 @@ export class BookingService {
         throw new Error('Authentication required for complete bookings');
       }
 
-      // Validate that the booking is not in the past
-      if (isPastDateTime(bookingData.data || '', bookingData.hora || '')) {
-        throw new Error('ERROR_PAST_BOOKING');
+      // Validate booking using the new validation service
+      const bookingDate = new Date(bookingData.data || '');
+      if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '')) {
+        throw new Error('ERROR_BOOKING_NOT_ALLOWED');
       }
 
       const booking = {
@@ -209,9 +212,12 @@ export class BookingService {
         throw new Error('Access denied');
       }
 
-      // Validate that the updated booking is not in the past
-      if (updates.data && updates.hora && isPastDateTime(updates.data, updates.hora)) {
-        throw new Error('ERROR_PAST_BOOKING');
+      // Validate that the updated booking is allowed
+      if (updates.data && updates.hora) {
+        const bookingDate = new Date(updates.data);
+        if (!this.bookingValidationService.canBookAppointment(bookingDate, updates.hora)) {
+          throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+        }
       }
 
       // Prepare update data
@@ -581,6 +587,14 @@ export class BookingService {
 
       if (currentBooking.uid !== currentUser.uid) {
         throw new Error('Access denied');
+      }
+
+      // Check if booking can be cancelled
+      if (currentBooking.data && currentBooking.hora) {
+        const bookingDate = new Date(currentBooking.data);
+        if (!this.bookingValidationService.canCancelBooking(bookingDate, currentBooking.hora)) {
+          throw new Error('ERROR_CANCELLATION_NOT_ALLOWED');
+        }
       }
 
       // Delete from Firestore
