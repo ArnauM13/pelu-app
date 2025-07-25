@@ -699,41 +699,6 @@ pelu-appointments-list {
   box-shadow: var(--box-shadow-hover);
 }
 
-// Calendar Header Styling
-.calendar-container ::ng-deep .p-calendar .p-datepicker-header {
-  background: var(--primary-color);
-  color: white;
-  padding: 1.5rem;
-  text-align: center;
-  border-radius: 12px 12px 0 0;
-}
-
-.calendar-container ::ng-deep .p-calendar .p-datepicker-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-}
-
-.calendar-container ::ng-deep .p-calendar .p-datepicker-prev,
-.calendar-container ::ng-deep .p-calendar .p-datepicker-next {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.calendar-container ::ng-deep .p-calendar .p-datepicker-prev:hover,
-.calendar-container ::ng-deep .p-calendar .p-datepicker-next:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
-}
-
 // Calendar Subtitle
 .calendar-subtitle {
   color: var(--text-color-light);
@@ -853,20 +818,6 @@ pelu-appointments-list {
   .appointment-indicators {
     gap: 0.125rem;
   }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-header {
-    padding: 1rem;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-title {
-    font-size: 1.2rem;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-prev,
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-next {
-    width: 35px;
-    height: 35px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -888,14 +839,6 @@ pelu-appointments-list {
   .appointment-dot {
     width: 5px;
     height: 5px;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-header {
-    padding: 0.75rem;
-  }
-
-  .calendar-container ::ng-deep .p-calendar .p-datepicker-title {
-    font-size: 1rem;
   }
 }
 
