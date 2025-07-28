@@ -14,20 +14,17 @@ class MockTranslateLoader implements TranslateLoader {
 // Test wrapper component to provide input signals
 @Component({
   template: `
-    <pelu-appointments-stats
-      [stats]="stats()"
-      (onQuickFilterChange)="onQuickFilterChange($event)">
+    <pelu-appointments-stats [stats]="stats()" (onQuickFilterChange)="onQuickFilterChange($event)">
     </pelu-appointments-stats>
   `,
   imports: [AppointmentsStatsComponent],
-  standalone: true
 })
 class TestWrapperComponent {
   stats = signal<AppointmentStats>({
     total: 10,
     today: 3,
     upcoming: 7,
-    mine: 5
+    mine: 5,
   });
 
   onQuickFilterChange(filter: 'all' | 'today' | 'upcoming' | 'mine') {}
@@ -40,18 +37,26 @@ describe('AppointmentsStatsComponent', () => {
   let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
-    const translateSpy = jasmine.createSpyObj('TranslateService', ['get', 'instant', 'addLangs', 'getBrowserLang', 'use', 'reloadLang', 'setDefaultLang', 'getDefaultLang', 'getLangs']);
+    const translateSpy = jasmine.createSpyObj('TranslateService', [
+      'get',
+      'instant',
+      'addLangs',
+      'getBrowserLang',
+      'use',
+      'reloadLang',
+      'setDefaultLang',
+      'getDefaultLang',
+      'getLangs',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [
         TestWrapperComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
-      providers: [
-        { provide: TranslateService, useValue: translateSpy }
-      ]
+      providers: [{ provide: TranslateService, useValue: translateSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
@@ -84,9 +89,9 @@ describe('AppointmentsStatsComponent', () => {
     const compiled = fixture.nativeElement;
 
     expect(compiled.textContent).toContain('10'); // total
-    expect(compiled.textContent).toContain('3');  // today
-    expect(compiled.textContent).toContain('7');  // upcoming
-    expect(compiled.textContent).toContain('5');  // mine
+    expect(compiled.textContent).toContain('3'); // today
+    expect(compiled.textContent).toContain('7'); // upcoming
+    expect(compiled.textContent).toContain('5'); // mine
   });
 
   it('should emit quick filter change when stat card is clicked', () => {

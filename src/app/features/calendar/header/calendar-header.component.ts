@@ -1,55 +1,47 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { format } from 'date-fns';
+import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
   selector: 'pelu-calendar-header',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputDateComponent, ButtonComponent],
   templateUrl: './calendar-header.component.html',
-  styleUrls: ['./calendar-header.component.scss']
+  styleUrls: ['./calendar-header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
 })
 export class CalendarHeaderComponent {
-  @Input() viewDateInfo: string = '';
-  @Input() businessDaysInfo: string = '';
-  @Input() mainTitle: string = '';
-  @Input() canNavigateToPreviousWeek: boolean = true;
-  @Input() currentViewDate: Date = new Date();
+  // Input signals
+  readonly viewDateInfo = input<string>('');
+  readonly businessDaysInfo = input<string>('');
+  readonly mainTitle = input<string>('');
+  readonly canNavigateToPreviousWeek = input<boolean>(true);
+  readonly currentViewDate = input<Date>(new Date());
 
-  @Output() today = new EventEmitter<void>();
-  @Output() previousWeek = new EventEmitter<void>();
-  @Output() nextWeek = new EventEmitter<void>();
-  @Output() dateChange = new EventEmitter<string>();
+  // Output signals
+  readonly today = output<void>();
+  readonly dateChange = output<string>();
 
-  get currentDateString(): string {
-    return format(this.currentViewDate, 'yyyy-MM-dd');
-  }
+  // Computed properties
+  readonly currentDateString = computed(() =>
+    format(this.currentViewDate(), 'yyyy-MM-dd')
+  );
 
-  get todayString(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
+  readonly todayDate = computed(() => new Date());
 
-  onToday() {
+  emitToday() {
     this.today.emit();
   }
 
-  onPreviousWeek() {
-    this.previousWeek.emit();
-  }
-
-  onNextWeek() {
-    this.nextWeek.emit();
-  }
-
-  onDateChange(event: any): void {
-    const value = event.target.value;
-    if (value) {
-      this.dateChange.emit(value);
+  onDateChange(date: Date | string | null): void {
+    if (date instanceof Date) {
+      const dateString = format(date, 'yyyy-MM-dd');
+      this.dateChange.emit(dateString);
+    } else if (typeof date === 'string') {
+      this.dateChange.emit(date);
     }
   }
 }

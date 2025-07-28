@@ -4,11 +4,8 @@ import { CalendarDayHeaderComponent, DayHeaderData } from './calendar-day-header
 
 // Test host component to provide required inputs
 @Component({
-  template: `
-    <pelu-calendar-day-header [data]="testData"></pelu-calendar-day-header>
-  `,
-  standalone: true,
-  imports: [CalendarDayHeaderComponent]
+  template: ` <pelu-calendar-day-header [data]="testData"></pelu-calendar-day-header> `,
+  imports: [CalendarDayHeaderComponent],
 })
 class TestHostComponent {
   testData: DayHeaderData = {
@@ -16,7 +13,7 @@ class TestHostComponent {
     dayName: 'Dilluns',
     dayDate: '15/01',
     isPast: false,
-    isDisabled: false
+    isDisabled: false,
   };
 }
 
@@ -30,14 +27,13 @@ describe('CalendarDayHeaderComponent', () => {
     dayName: 'Dilluns',
     dayDate: '15/01',
     isPast: false,
-    isDisabled: false
+    isDisabled: false,
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent]
-    })
-    .compileComponents();
+      imports: [TestHostComponent],
+    }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
     hostComponent = hostFixture.componentInstance;

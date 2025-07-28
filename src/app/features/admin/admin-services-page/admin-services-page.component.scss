@@ -3,7 +3,11 @@
 /* ===== FONS I LAYOUT PRINCIPAL ===== */
 .admin-services-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
   padding: 2rem 1rem;
   position: relative;
   overflow: hidden;
@@ -49,8 +53,6 @@
       font-size: 1rem;
       line-height: 1.5;
     }
-
-
   }
 
   .header-actions {
@@ -114,7 +116,11 @@
         border-color: var(--primary-color, #3b82f6);
 
         &:hover {
-          background: linear-gradient(135deg, var(--primary-color-dark, #2563eb) 0%, var(--primary-color, #3b82f6) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary-color-dark, #2563eb) 0%,
+            var(--primary-color, #3b82f6) 100%
+          );
           border-color: var(--primary-color-dark, #2563eb);
         }
       }
@@ -125,7 +131,11 @@
         border-color: var(--secondary-color, #6b7280);
 
         &:hover {
-          background: linear-gradient(135deg, var(--secondary-color-dark, #4b5563) 0%, var(--secondary-color, #6b7280) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--secondary-color-dark, #4b5563) 0%,
+            var(--secondary-color, #6b7280) 100%
+          );
           border-color: var(--secondary-color-dark, #4b5563);
         }
       }
@@ -136,7 +146,11 @@
         border-color: var(--success-color, #10b981);
 
         &:hover {
-          background: linear-gradient(135deg, var(--success-color-dark, #059669) 0%, var(--success-color, #10b981) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--success-color-dark, #059669) 0%,
+            var(--success-color, #10b981) 100%
+          );
           border-color: var(--success-color-dark, #059669);
         }
       }
@@ -147,7 +161,11 @@
         border-color: var(--warning-color, #f59e0b);
 
         &:hover {
-          background: linear-gradient(135deg, var(--warning-color-dark, #d97706) 0%, var(--warning-color, #f59e0b) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--warning-color-dark, #d97706) 0%,
+            var(--warning-color, #f59e0b) 100%
+          );
           border-color: var(--warning-color-dark, #d97706);
         }
       }
@@ -329,7 +347,8 @@
 }
 
 // Form styles
-.service-form, .category-form {
+.service-form,
+.category-form {
   // Ensure select dropdowns appear above popup actions
   ::ng-deep .p-dropdown-panel {
     z-index: 1001 !important;
@@ -538,7 +557,11 @@
     color: var(--text-color-white, white);
 
     &:hover {
-      background: linear-gradient(135deg, var(--primary-color-dark, #2563eb) 0%, var(--primary-color, #3b82f6) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--primary-color-dark, #2563eb) 0%,
+        var(--primary-color, #3b82f6) 100%
+      );
     }
   }
 
@@ -547,7 +570,11 @@
     color: var(--text-color-white, white);
 
     &:hover {
-      background: linear-gradient(135deg, var(--secondary-color-dark, #4b5563) 0%, var(--secondary-color, #6b7280) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--secondary-color-dark, #4b5563) 0%,
+        var(--secondary-color, #6b7280) 100%
+      );
     }
   }
 
@@ -556,7 +583,11 @@
     color: var(--text-color-white, white);
 
     &:hover {
-      background: linear-gradient(135deg, var(--danger-color-dark, #dc2626) 0%, var(--danger-color, #ef4444) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--danger-color-dark, #dc2626) 0%,
+        var(--danger-color, #ef4444) 100%
+      );
     }
   }
 
@@ -565,7 +596,11 @@
     color: var(--text-color-white, white);
 
     &:hover {
-      background: linear-gradient(135deg, var(--success-color-dark, #059669) 0%, var(--success-color, #10b981) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--success-color-dark, #059669) 0%,
+        var(--success-color, #10b981) 100%
+      );
     }
   }
 
@@ -574,7 +609,11 @@
     color: var(--text-color-white, white);
 
     &:hover {
-      background: linear-gradient(135deg, var(--warning-color-dark, #d97706) 0%, var(--warning-color, #f59e0b) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--warning-color-dark, #d97706) 0%,
+        var(--warning-color, #f59e0b) 100%
+      );
     }
   }
 
@@ -646,5 +685,3 @@
   position: fixed !important;
   pointer-events: none !important;
 }
-
-

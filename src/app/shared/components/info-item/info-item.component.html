@@ -7,6 +7,6 @@
     @if (hasStatus()) {
       <span class="status-dot"></span>
     }
-    {{ (data().statusText || data().value) | translate }}
+    {{ data().statusText || data().value | translate }}
   </div>
 </div>

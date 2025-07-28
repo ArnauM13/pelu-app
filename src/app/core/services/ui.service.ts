@@ -10,7 +10,7 @@ export interface LoaderConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UIService {
   private readonly platformId = inject(PLATFORM_ID);
@@ -25,7 +25,7 @@ export class UIService {
   private readonly configSignal = signal<LoaderConfig>({
     message: 'COMMON.STATUS.LOADING',
     showSpinner: true,
-    overlay: true
+    overlay: true,
   });
 
   // Public computed signals for responsive
@@ -72,11 +72,9 @@ export class UIService {
 
   private setupScrollToTop(): void {
     // Automatically scroll to top on navigation
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.scrollToTop();
-      });
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+      this.scrollToTop();
+    });
   }
 
   scrollToTop(): void {
@@ -84,7 +82,7 @@ export class UIService {
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   }
@@ -101,7 +99,7 @@ export class UIService {
       if (element) {
         element.scrollIntoView({
           behavior: 'smooth',
-          block: 'start'
+          block: 'start',
         });
       }
     }
@@ -115,7 +113,7 @@ export class UIService {
         message: 'COMMON.STATUS.LOADING',
         showSpinner: true,
         overlay: true,
-        ...config
+        ...config,
       });
     }
     this.isLoadingSignal.set(true);

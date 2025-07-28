@@ -1,180 +1,151 @@
-import { Component, input, output, signal, computed, effect, forwardRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerModule } from 'primeng/datepicker';
 
 export interface InputDateConfig {
-  placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  autofocus?: boolean;
-  tabindex?: number;
-  name?: string;
-  id?: string;
-  class?: string;
-  style?: string;
   helpText?: string;
   errorText?: string;
   successText?: string;
-  showLabel?: boolean;
   showHelpText?: boolean;
   showErrorText?: boolean;
   showSuccessText?: boolean;
-  icon?: string;
-  iconPosition?: 'left' | 'right';
-  clearable?: boolean;
-  loading?: boolean;
-  value?: string;
-  min?: string;
-  max?: string;
 }
 
 @Component({
   selector: 'pelu-input-date',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, DatePickerModule],
   templateUrl: './input-date.component.html',
   styleUrls: ['./input-date.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => InputDateComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class InputDateComponent implements ControlValueAccessor {
-  // Input signals
-  readonly config = input.required<InputDateConfig>();
-  readonly value = input<string>('');
+  // Reactive inputs (signals)
+  readonly value = input<Date | string | null>(null);
   readonly formControlName = input<string>('');
 
-  // Output signals
-  readonly valueChange = output<string>();
-  readonly focus = output<FocusEvent>();
-  readonly blur = output<FocusEvent>();
-  readonly input = output<Event>();
-  readonly change = output<Event>();
-  readonly keydown = output<KeyboardEvent>();
-  readonly keyup = output<KeyboardEvent>();
-  readonly keypress = output<KeyboardEvent>();
+  // Component inputs
+  readonly label = input<string>('');
+  readonly placeholder = input<string>('');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
 
-  // Internal state
-  private readonly internalValue = signal<string>('');
-  private readonly isFocused = signal<boolean>(false);
-  private readonly isTouched = signal<boolean>(false);
+  // DatePicker specific properties
+  readonly dateFormat = input<string>('dd/mm/yy');
+  readonly showIcon = input<boolean>(true);
+  readonly showButtonBar = input<boolean>(false);
+  readonly showTime = input<boolean>(false);
+  readonly timeOnly = input<boolean>(false);
+  readonly hourFormat = input<'12' | '24'>('24');
+  readonly selectionMode = input<'single' | 'multiple' | 'range'>('single');
+  readonly numberOfMonths = input<number>(1);
+  readonly inline = input<boolean>(false);
+  readonly readonlyInput = input<boolean>(false);
+  readonly showOnFocus = input<boolean>(true);
+  readonly minDate = input<Date | null>(null);
+  readonly maxDate = input<Date | null>(null);
+  readonly preventPastMonths = input<boolean>(false);
 
-  // Computed properties
-  readonly displayValue = computed(() => this.value() || this.internalValue());
-  readonly hasError = computed(() => !!this.config().errorText);
-  readonly hasSuccess = computed(() => !!this.config().successText);
-  readonly hasHelp = computed(() => !!this.config().helpText);
-  readonly showLabel = computed(() => this.config().showLabel !== false && !!this.config().label);
-  readonly showHelpText = computed(() => this.config().showHelpText !== false && this.hasHelp());
-  readonly showErrorText = computed(() => this.config().showErrorText !== false && this.hasError());
-  readonly showSuccessText = computed(() => this.config().showSuccessText !== false && this.hasSuccess());
-  readonly hasIcon = computed(() => !!this.config().icon);
-  readonly isClearable = computed(() => this.config().clearable && !!this.displayValue());
-  readonly inputClasses = computed(() => {
-    const classes = ['input-date'];
-
-    if (this.config().class) {
-      classes.push(this.config().class || '');
+  // Computed minDate that prevents past months when enabled or applies minDate restriction
+  readonly computedMinDate = computed(() => {
+    if (this.preventPastMonths()) {
+      // Set to today's date to prevent selecting past dates
+      return new Date();
     }
-
-    if (this.isFocused()) {
-      classes.push('focused');
-    }
-
-    if (this.hasError()) {
-      classes.push('error');
-    }
-
-    if (this.hasSuccess()) {
-      classes.push('success');
-    }
-
-    if (this.config().disabled) {
-      classes.push('disabled');
-    }
-
-    if (this.hasIcon()) {
-      classes.push(`icon-${this.config().iconPosition || 'left'}`);
-    }
-
-    return classes.join(' ');
+    // Always apply minDate restriction if it's provided
+    const minDate = this.minDate();
+    return minDate;
   });
 
-  private onChange = (value: any) => {};
+  // Unique ID generated once
+  private readonly uniqueId = 'date-' + Math.random().toString(36).substr(2, 9);
+
+  // Outputs
+  readonly valueChange = output<Date | string | null>();
+
+  // ControlValueAccessor callbacks
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private onChange = (value: Date | string | null) => {};
   private onTouched = () => {};
 
-  constructor() {
-    effect(() => {
-      const value = this.value();
-      if (value !== undefined && value !== null) {
-        this.internalValue.set(value);
+  // Computed value that handles empty strings and converts them to null
+  readonly displayValue = computed(() => {
+    const currentValue = this.value();
+
+    // Handle all falsy values and empty strings
+    if (!currentValue || currentValue === '' || currentValue === null || currentValue === undefined) {
+      return null;
+    }
+
+    // If it's already a Date object, return it
+    if (currentValue instanceof Date) {
+      return currentValue;
+    }
+
+    // If it's a string, try to parse it as a date
+    if (typeof currentValue === 'string') {
+      const parsedDate = new Date(currentValue);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      } else {
+        return null;
       }
-    }, { allowSignalWrites: true });
+    }
+
+    return null;
+  });
+
+  constructor() {
+    // No need for complex synchronization - let PrimeNG handle it natively
   }
 
-  onInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const value = target.value;
-
-    this.internalValue.set(value);
-    this.onChange(value);
-    this.valueChange.emit(value);
-    this.input.emit(event);
+  // Get unique ID
+  getElementId(): string {
+    return this.uniqueId;
   }
 
-  onChangeHandler(event: Event): void {
-    this.change.emit(event);
+  // Event handler for date changes
+  onDateChange(date: Date | string | null) {
+    // Validate against minDate if provided
+    if (date instanceof Date && this.minDate()) {
+      const minDate = this.minDate();
+      if (minDate && date < minDate) {
+        // If selected date is before minDate, don't emit the change
+        return;
+      }
+    }
+
+    this.onChange(date);
+    this.valueChange.emit(date);
   }
 
-  onFocus(event: FocusEvent): void {
-    this.isFocused.set(true);
-    this.focus.emit(event);
+
+
+  // ControlValueAccessor methods
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  writeValue(value: Date | string | null): void {
+    // PrimeNG handles this automatically through the input signal
   }
 
-  onBlur(event: FocusEvent): void {
-    this.isFocused.set(false);
-    this.isTouched.set(true);
-    this.onTouched();
-    this.blur.emit(event);
-  }
-
-  onKeydown(event: KeyboardEvent): void {
-    this.keydown.emit(event);
-  }
-
-  onKeyup(event: KeyboardEvent): void {
-    this.keyup.emit(event);
-  }
-
-  onKeypress(event: KeyboardEvent): void {
-    this.keypress.emit(event);
-  }
-
-  onClear(): void {
-    this.internalValue.set('');
-    this.onChange('');
-    this.valueChange.emit('');
-  }
-
-  writeValue(value: any): void {
-    this.internalValue.set(value || '');
-  }
-
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: Date | string | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDisabledState(isDisabled: boolean): void {
+    // PrimeNG handles disabled state automatically
   }
 }

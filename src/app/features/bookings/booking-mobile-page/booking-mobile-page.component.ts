@@ -1,4 +1,4 @@
-import { Component, signal, computed, effect, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,22 +6,37 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
-import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import {
+  addDays,
+  format,
+  isSameDay,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  subMonths,
+} from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
-import { BookingPopupComponent, BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
+import {
+  BookingPopupComponent,
+  BookingDetails,
+} from '../../../shared/components/booking-popup/booking-popup.component';
 
-import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
-import { BookingService } from '../../../core/services/booking.service';
+import {
+  FirebaseServicesService,
+  FirebaseService,
+} from '../../../core/services/firebase-services.service';
+import { Booking, BookingService } from '../../../core/services/booking.service';
 import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
-import { ResponsiveService } from '../../../core/services/responsive.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { ServiceTranslationService } from '../../../core/services/service-translation.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 interface TimeSlot {
   time: string;
@@ -41,7 +56,6 @@ interface DaySlot {
 
 @Component({
   selector: 'pelu-booking-mobile-page',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -55,7 +69,7 @@ interface DaySlot {
     CurrencyPipe,
   ],
   templateUrl: './booking-mobile-page.component.html',
-  styleUrls: ['./booking-mobile-page.component.scss']
+  styleUrls: ['./booking-mobile-page.component.scss'],
 })
 export class BookingMobilePageComponent {
   // Inject services
@@ -66,16 +80,22 @@ export class BookingMobilePageComponent {
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
   private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly businessSettingsService = inject(BusinessSettingsService);
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date | null>(null);
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
-  private readonly appointmentsSignal = signal<any[]>([]);
+  private readonly appointmentsSignal = signal<Booking[]>([]);
   private readonly viewModeSignal = signal<'week' | 'month'>('week');
 
   private readonly showBookingPopupSignal = signal<boolean>(false);
 
-  private readonly bookingDetailsSignal = signal<BookingDetails>({date: '', time: '', clientName: '', email: ''});
+  private readonly bookingDetailsSignal = signal<BookingDetails>({
+    date: '',
+    time: '',
+    clientName: '',
+    email: '',
+  });
   private readonly showLoginPromptSignal = signal<boolean>(false);
 
   // Public computed signals
@@ -92,10 +112,10 @@ export class BookingMobilePageComponent {
   readonly isAdmin = computed(() => this.roleService.isAdmin());
 
   // Business configuration
-  readonly businessHours = { start: '08:00', end: '20:00' };
-  readonly lunchBreak = { start: '13:00', end: '14:00' };
-  readonly businessDays = [1, 2, 3, 4, 5, 6]; // Monday to Saturday
-  readonly slotDuration = 30;
+  readonly businessHours = computed(() => this.businessSettingsService.getBusinessHoursString());
+  readonly lunchBreak = computed(() => this.businessSettingsService.getLunchBreak());
+  readonly businessDays = computed(() => this.businessSettingsService.getWorkingDays());
+  readonly slotDuration = computed(() => this.businessSettingsService.getAppointmentDuration());
 
   // Available services
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
@@ -134,7 +154,7 @@ export class BookingMobilePageComponent {
   readonly daySlots = computed(() => {
     return this.currentViewDays().map(day => ({
       date: day,
-      timeSlots: this.generateTimeSlots(day)
+      timeSlots: this.generateTimeSlots(day),
     }));
   });
 
@@ -153,7 +173,7 @@ export class BookingMobilePageComponent {
     return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
   });
 
-    constructor() {
+  constructor() {
     this.loadServices();
     this.loadAppointments();
 
@@ -194,19 +214,20 @@ export class BookingMobilePageComponent {
     const dayOfWeek = date.getDay();
 
     // Check if it's a business day
-    if (!this.businessDays.includes(dayOfWeek)) {
+    if (!this.businessDays().includes(dayOfWeek)) {
       return slots;
     }
 
-    const startHour = parseInt(this.businessHours.start.split(':')[0]);
-    const endHour = parseInt(this.businessHours.end.split(':')[0]);
-    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
-    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+    const businessHours = this.businessHours();
+    const slotDuration = this.slotDuration();
+
+    const startHour = parseInt(businessHours.start.split(':')[0]);
+    const endHour = parseInt(businessHours.end.split(':')[0]);
     const now = new Date();
     const isToday = isSameDay(date, now);
 
     for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += this.slotDuration) {
+      for (let minute = 0; minute < 60; minute += slotDuration) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const slotDate = new Date(date);
         slotDate.setHours(hour, minute, 0, 0);
@@ -235,7 +256,7 @@ export class BookingMobilePageComponent {
           serviceName: booking?.serviceName || booking?.servei,
           serviceIcon: this.getServiceIcon(booking?.serviceId),
           bookingId: booking?.id,
-          notes: booking?.notes
+          notes: booking?.notes,
         });
       }
     }
@@ -250,21 +271,19 @@ export class BookingMobilePageComponent {
 
     return bookings.some(booking => {
       // Check if booking is confirmed and matches the date and time
-      return booking.status === 'confirmed' &&
-             booking.data === dateString &&
-             booking.hora === timeString;
+      return (
+        booking.status === 'confirmed' && booking.data === dateString && booking.hora === timeString
+      );
     });
   }
 
-  private getBookingForSlot(date: Date, time: string): any {
+  private getBookingForSlot(date: Date, time: string): Booking | undefined {
     const dateString = format(date, 'yyyy-MM-dd');
     const bookings = this.bookingService.bookings();
 
     return bookings.find(booking => {
       // Check if booking is confirmed and matches the date and time
-      return booking.status === 'confirmed' &&
-             booking.data === dateString &&
-             booking.hora === time;
+      return booking.status === 'confirmed' && booking.data === dateString && booking.hora === time;
     });
   }
 
@@ -274,10 +293,11 @@ export class BookingMobilePageComponent {
     return service?.icon || '🔧';
   }
 
-    private isTimeSlotEnabled(hour: number, minute: number): boolean {
+  private isTimeSlotEnabled(hour: number, _minute: number): boolean {
     // Check lunch break
-    const lunchStart = parseInt(this.lunchBreak.start.split(':')[0]);
-    const lunchEnd = parseInt(this.lunchBreak.end.split(':')[0]);
+    const lunchBreak = this.lunchBreak();
+    const lunchStart = parseInt(lunchBreak.start.split(':')[0]);
+    const lunchEnd = parseInt(lunchBreak.end.split(':')[0]);
 
     if (hour >= lunchStart && hour < lunchEnd) {
       return false;
@@ -298,15 +318,18 @@ export class BookingMobilePageComponent {
     const dayOfWeek = date.getDay();
 
     // Check if it's a business day
-    if (!this.businessDays.includes(dayOfWeek)) {
+    if (!this.businessDays().includes(dayOfWeek)) {
       return slots;
     }
 
-    const startHour = parseInt(this.businessHours.start.split(':')[0]);
-    const endHour = parseInt(this.businessHours.end.split(':')[0]);
+    const businessHours = this.businessHours();
+    const slotDuration = this.slotDuration();
+
+    const startHour = parseInt(businessHours.start.split(':')[0]);
+    const endHour = parseInt(businessHours.end.split(':')[0]);
 
     for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += this.slotDuration) {
+      for (let minute = 0; minute < 60; minute += slotDuration) {
         if (this.isTimeSlotEnabled(hour, minute)) {
           const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
           slots.push(timeString);
@@ -325,7 +348,10 @@ export class BookingMobilePageComponent {
     if (daySlots && daySlots.timeSlots.length > 0) {
       const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
       if (availableSlots.length === 0) {
-        this.toastService.showWarning('Totes les hores estan ocupades', 'Aquest dia no té cap hora disponible per reservar.');
+        this.toastService.showWarning(
+          'Totes les hores estan ocupades',
+          'Aquest dia no té cap hora disponible per reservar.'
+        );
       }
     }
   }
@@ -398,7 +424,7 @@ export class BookingMobilePageComponent {
         notes: '',
         status: 'confirmed' as const,
         editToken: '', // Will be generated automatically
-        uid: this.authService.user()?.uid || null
+        uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
@@ -417,7 +443,7 @@ export class BookingMobilePageComponent {
       }
 
       this.showBookingPopupSignal.set(false);
-      this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+      this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
       // Don't show toast - the booking service already handles success/error toasts
@@ -426,7 +452,7 @@ export class BookingMobilePageComponent {
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({date: '', time: '', clientName: '', email: ''});
+    this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
   onClientNameChanged(name: string) {
@@ -501,7 +527,7 @@ export class BookingMobilePageComponent {
       time: timeSlot.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
-      service: this.selectedService() || undefined
+      service: this.selectedService() || undefined,
     };
 
     this.bookingDetailsSignal.set(bookingDetails);
@@ -536,7 +562,7 @@ export class BookingMobilePageComponent {
   }
 
   isBusinessDay(date: Date): boolean {
-    return this.businessDays.includes(date.getDay());
+    return this.businessDays().includes(date.getDay());
   }
 
   isPastDate(date: Date): boolean {
@@ -549,10 +575,12 @@ export class BookingMobilePageComponent {
 
   isCurrentMonth(date: Date): boolean {
     const currentDate = this.selectedDate() || new Date();
-    return date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+    return (
+      date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear()
+    );
   }
 
-    canSelectDate(date: Date): boolean {
+  canSelectDate(date: Date): boolean {
     // In week view, all business days in the week should be selectable regardless of month
     // In month view, only days of the current month should be selectable
     if (this.viewMode() === 'week') {
@@ -564,7 +592,8 @@ export class BookingMobilePageComponent {
       const currentYear = currentDate.getFullYear();
 
       // Check if date is in the current month and year
-      const isInCurrentMonth = date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      const isInCurrentMonth =
+        date.getMonth() === currentMonth && date.getFullYear() === currentYear;
 
       return !this.isPastDate(date) && this.isBusinessDay(date) && isInCurrentMonth;
     }
@@ -633,7 +662,7 @@ export class BookingMobilePageComponent {
       // Show a message if no available dates found
       this.toastService.showWarning(
         'No hi ha dates disponibles',
-        'No s\'han trobat dates disponibles en els propers 30 dies'
+        "No s'han trobat dates disponibles en els propers 30 dies"
       );
     }
   }
@@ -654,7 +683,7 @@ export class BookingMobilePageComponent {
     // Find the first business day in the week
     for (let i = 0; i < 7; i++) {
       const day = addDays(weekStart, i);
-      if (this.businessDays.includes(day.getDay())) {
+      if (this.businessDays().includes(day.getDay())) {
         return day;
       }
     }
@@ -666,7 +695,7 @@ export class BookingMobilePageComponent {
     // Find the last business day in the week
     for (let i = 6; i >= 0; i--) {
       const day = addDays(weekEnd, -i);
-      if (this.businessDays.includes(day.getDay())) {
+      if (this.businessDays().includes(day.getDay())) {
         return day;
       }
     }
@@ -694,6 +723,10 @@ export class BookingMobilePageComponent {
     const hasService = !!this.selectedService();
     const hasDate = !!this.selectedDate();
 
-    return !hasDate ? 'BOOKING.SELECT_DATE_FIRST' : !hasService ? 'BOOKING.SELECT_SERVICE_FIRST' : 'BOOKING.SELECTION_REQUIRED';
+    return !hasDate
+      ? 'BOOKING.SELECT_DATE_FIRST'
+      : !hasService
+        ? 'BOOKING.SELECT_SERVICE_FIRST'
+        : 'BOOKING.SELECTION_REQUIRED';
   }
 }

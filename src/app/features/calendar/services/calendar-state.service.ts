@@ -11,7 +11,7 @@ export interface CalendarState {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarStateService {
   private readonly businessService = inject(CalendarBusinessService);
@@ -127,6 +127,7 @@ export class CalendarStateService {
   navigateToDate(dateString: string): void {
     const date = new Date(dateString);
     if (!isNaN(date.getTime())) {
+      // Set the selected date as the view date (first day of the calendar)
       this.viewDateSignal.set(date);
     }
   }
@@ -156,7 +157,7 @@ export class CalendarStateService {
       selectedDay: this.selectedDay(),
       showDetailPopup: this.showDetailPopup(),
       selectedAppointment: this.selectedAppointment(),
-      appointments: this.appointments()
+      appointments: this.appointments(),
     };
   }
 }

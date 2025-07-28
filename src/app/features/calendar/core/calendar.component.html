@@ -21,11 +21,22 @@
 
     <!-- Calendar Body -->
     <div class="calendar-body">
+
+      <!-- Previous Week Button -->
+      <pelu-button
+        icon="pi pi-chevron-left"
+        [disabled]="!canNavigateToPreviousWeek()"
+        ariaLabel="COMMON.VIEWS.CALENDAR.PREVIOUS_WEEK"
+        size="small"
+        severity="secondary"
+        variant="outlined"
+        class="nav-btn"
+        (clicked)="previousWeek()"
+      />
+
       <div class="horizontal-week-view" [style.--calendar-slot-count]="timeSlots().length">
         <!-- Time Column -->
-        <pelu-calendar-time-column
-          [timeSlots]="timeColumnSlots()">
-        </pelu-calendar-time-column>
+        <pelu-calendar-time-column [timeSlots]="timeColumnSlots()"> </pelu-calendar-time-column>
 
         <!-- Day Columns Container -->
         <div class="day-columns-container">
@@ -37,27 +48,39 @@
               (dropZoneMouseEnter)="onDropZoneMouseEnter($event, dayColumn.date)"
               (dropZoneMouseMove)="onDropZoneMouseMove($event, dayColumn.date)"
               (dropZoneDrop)="onDropZoneDrop($event, dayColumn.date)"
-              (dropZoneDragOver)="onDropZoneDragOver($event)">
+              (dropZoneDragOver)="onDropZoneDragOver($event)"
+            >
             </pelu-calendar-day-column>
           }
         </div>
       </div>
+
+      <!-- Next Week Button -->
+      <pelu-button
+        icon="pi pi-chevron-right"
+        ariaLabel="COMMON.VIEWS.CALENDAR.NEXT_WEEK"
+        size="small"
+        severity="secondary"
+        variant="outlined"
+        class="nav-btn"
+        (clicked)="nextWeek()"
+      />
+
     </div>
 
-  <!-- Appointment Detail Popup -->
-  <pelu-appointment-detail-popup
-    [open]="showDetailPopup()"
-    [booking]="selectedAppointment()"
-    (closed)="onAppointmentDetailPopupClosed()"
-    (deleted)="onAppointmentDeleted($event)"
-    (editRequested)="onAppointmentEditRequested($event)">
-  </pelu-appointment-detail-popup>
+    <!-- Appointment Detail Popup -->
+    <pelu-appointment-detail-popup
+      [open]="showDetailPopup()"
+      [booking]="selectedAppointment()"
+      (closed)="onAppointmentDetailPopupClosed()"
+      (deleted)="onAppointmentDeleted($event)"
+      (editRequested)="onAppointmentEditRequested($event)"
+    >
+    </pelu-appointment-detail-popup>
 
-  <!-- Global Drag Preview for Cross-Day Dragging -->
-  @if (dragPreviewData()) {
-    <pelu-calendar-drag-preview
-      [data]="dragPreviewData()!">
-    </pelu-calendar-drag-preview>
-  }
+    <!-- Global Drag Preview for Cross-Day Dragging -->
+    @if (dragPreviewData()) {
+      <pelu-calendar-drag-preview [data]="dragPreviewData()!"> </pelu-calendar-drag-preview>
+    }
   }
 </div>

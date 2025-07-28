@@ -14,7 +14,7 @@ describe('AppointmentDetailPopupComponent', () => {
     servei: 'Corte de pelo',
     serviceName: 'SERVICES.NAMES.MALE_HAIRCUT',
     duration: 60,
-    userId: 'user1'
+    userId: 'user1',
   };
 
   beforeEach(async () => {
@@ -63,7 +63,7 @@ describe('AppointmentDetailPopupComponent', () => {
     expect(typeof component.formatTime).toBe('function');
   });
 
-  it('should emit closed event when onClose is called', (done) => {
+  it('should emit closed event when onClose is called', done => {
     spyOn(component.closed, 'emit');
     component.onClose();
 

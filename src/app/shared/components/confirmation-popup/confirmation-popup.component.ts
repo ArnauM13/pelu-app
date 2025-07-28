@@ -13,7 +13,6 @@ export interface ConfirmationData {
 
 @Component({
   selector: 'pelu-confirmation-popup',
-  standalone: true,
   imports: [CommonModule, TranslateModule, ButtonModule],
   template: `
     @if (isOpen()) {
@@ -40,15 +39,14 @@ export interface ConfirmationData {
           </div>
 
           <div class="popup-footer">
-            <button
-              class="btn-secondary"
-              (click)="onCancel()">
+            <button class="btn-secondary" (click)="onCancel()">
               {{ data()?.cancelText || 'COMMON.ACTIONS.CANCEL' | translate }}
             </button>
             <button
               class="btn-primary"
               [class.btn-danger]="data()?.severity === 'danger'"
-              (click)="onConfirm()">
+              (click)="onConfirm()"
+            >
               {{ data()?.confirmText || 'COMMON.ACTIONS.CONFIRM' | translate }}
             </button>
           </div>
@@ -56,7 +54,7 @@ export interface ConfirmationData {
       </div>
     }
   `,
-  styleUrls: ['./confirmation-popup.component.scss']
+  styleUrls: ['./confirmation-popup.component.scss'],
 })
 export class ConfirmationPopupComponent {
   // Input signals

@@ -7,7 +7,7 @@ describe('PopupModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PopupModalComponent]
+      imports: [PopupModalComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PopupModalComponent);
@@ -40,7 +40,7 @@ describe('PopupModalComponent', () => {
     const sameElement = document.createElement('div');
     const mockEvent = {
       target: sameElement,
-      currentTarget: sameElement
+      currentTarget: sameElement,
     } as unknown as Event;
 
     component.onBackdropClick(mockEvent);
@@ -53,7 +53,7 @@ describe('PopupModalComponent', () => {
 
     const mockEvent = {
       target: document.createElement('div'),
-      currentTarget: document.createElement('div')
+      currentTarget: document.createElement('div'),
     } as unknown as Event;
 
     component.onBackdropClick(mockEvent);

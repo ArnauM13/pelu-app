@@ -76,6 +76,12 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // Col·lecció de configuració del sistema
+    match /system/{document} {
+      // Només administradors poden llegir i escriure configuració del sistema
+      allow read, write: if isAdmin();
+    }
+
     // Regla per defecte: denegar tot el que no estigui explícitament permès
     match /{document=**} {
       allow read, write: if false;

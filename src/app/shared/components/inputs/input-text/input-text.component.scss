@@ -11,13 +11,20 @@
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.2;
-  width: 100%;
 
   &.required::after {
     content: ' *';
     color: #dc2626;
     font-weight: bold;
   }
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-height: 2.5rem;
 }
 
 .input-text-icon {
@@ -134,15 +141,21 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Responsive design
 @media (max-width: 768px) {
-  .input-text-field {
+  .input-wrapper {
+    gap: 0.75rem;
+  }
+
+  .input-text-label {
     font-size: 1rem; // Prevent zoom on iOS
   }
 }
-
-

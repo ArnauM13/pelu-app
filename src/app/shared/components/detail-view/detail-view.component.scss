@@ -2,15 +2,14 @@
 .detail-view-container {
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   display: flex;
   position: relative;
 }
 
 // Loading and Not Found States
 /* Loading styles now handled by global loader component */
-
-
 
 .not-found-section {
   display: flex;
@@ -286,7 +285,11 @@
     }
 
     .btn-secondary:hover {
-      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--secondary-color-dark) 0%,
+        var(--secondary-color) 100%
+      );
       border-color: var(--secondary-color-dark);
     }
 
@@ -297,8 +300,8 @@
     }
 
     .btn-danger:hover {
-      background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
-      border-color: #B91C1C;
+      background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
+      border-color: #b91c1c;
     }
   }
 
@@ -478,8 +481,6 @@
   }
 }
 
-
-
 // Action Buttons
 .action-btn {
   display: flex;
@@ -540,7 +541,11 @@
     border: 1px solid var(--border-color);
 
     &:hover {
-      background: linear-gradient(135deg, var(--secondary-color-dark) 0%, var(--secondary-color) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--secondary-color-dark) 0%,
+        var(--secondary-color) 100%
+      );
     }
   }
 
@@ -590,8 +595,6 @@
   .info-column {
     overflow-y: auto;
   }
-
-
 
   .profile-header,
   .appointment-header {
@@ -843,7 +846,9 @@
       font-family: inherit;
       resize: vertical;
       min-height: 80px;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
       background-color: white;
       color: var(--text-color);
 
@@ -910,68 +915,6 @@
   }
 }
 
-// Toast Styles
-.p-toast-message-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.p-toast-message-icon {
-  flex-shrink: 0;
-  font-size: 1.5rem;
-}
-
-.p-toast-message-text {
-  flex: 1;
-
-  .p-toast-summary {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  .p-toast-detail {
-    font-size: 0.9rem;
-    opacity: 0.9;
-  }
-}
-
-.p-toast-message-actions {
-  margin-top: 0.75rem;
-
-  .p-toast-message-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-  }
-}
-
-.p-toast-icon-close {
-  background: none;
-  border: none;
-  color: inherit;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
 // Appointment Action Buttons
 .status-header {
   display: flex;
@@ -983,8 +926,6 @@
     margin: 0;
   }
 }
-
-
 
 // Actions Column specific styles
 .actions-column {

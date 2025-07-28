@@ -14,11 +14,15 @@ export interface BusinessSettings {
   maxAppointmentsPerDay: number;
   autoConfirmAppointments: boolean;
   sendNotifications: boolean;
-  maintenanceMode: boolean;
   backupFrequency: string;
   language: string;
   timezone: string;
   currency: string;
+  // New booking parameters
+  preventCancellation: boolean;
+  cancellationTimeLimit: number; // in hours
+  bookingAdvanceDays: number; // days in advance bookings can be made
+  bookingAdvanceTime: number; // minutes before appointment time that booking is allowed
 }
 
 export interface CurrencyInfo {
@@ -35,22 +39,26 @@ const DEFAULT_SETTINGS: BusinessSettings = {
     start: 8,
     end: 20,
     lunchStart: 13,
-    lunchEnd: 14
+    lunchEnd: 14,
   },
   workingDays: [1, 2, 3, 4, 5, 6], // Monday to Saturday
   appointmentDuration: 60,
   maxAppointmentsPerDay: 20,
   autoConfirmAppointments: false,
   sendNotifications: true,
-  maintenanceMode: false,
   backupFrequency: 'daily',
   language: 'ca',
   timezone: 'Europe/Madrid',
-  currency: 'EUR'
+  currency: 'EUR',
+  // New booking parameters
+  preventCancellation: false,
+  cancellationTimeLimit: 24, // in hours
+  bookingAdvanceDays: 30, // days in advance bookings can be made (1 month)
+  bookingAdvanceTime: 30, // minutes before appointment time that booking is allowed
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfigService {
   private readonly firestore = inject(Firestore);
@@ -76,28 +84,67 @@ export class ConfigService {
   readonly maxAppointmentsPerDay = computed(() => this.settings().maxAppointmentsPerDay);
   readonly autoConfirmAppointments = computed(() => this.settings().autoConfirmAppointments);
   readonly sendNotifications = computed(() => this.settings().sendNotifications);
-  readonly maintenanceMode = computed(() => this.settings().maintenanceMode);
   readonly language = computed(() => this.settings().language);
   readonly currency = computed(() => this.settings().currency);
+  readonly preventCancellation = computed(() => this.settings().preventCancellation);
+  readonly cancellationTimeLimit = computed(() => this.settings().cancellationTimeLimit);
+  readonly bookingAdvanceDays = computed(() => this.settings().bookingAdvanceDays);
+  readonly bookingAdvanceTime = computed(() => this.settings().bookingAdvanceTime);
 
   // Currency information mapping
   private readonly currencies: Record<string, CurrencyInfo> = {
-    'EUR': { code: 'EUR', symbol: '€', name: 'Euro', position: 'after', decimalPlaces: 2 },
-    'USD': { code: 'USD', symbol: '$', name: 'US Dollar', position: 'before', decimalPlaces: 2 },
-    'GBP': { code: 'GBP', symbol: '£', name: 'British Pound', position: 'before', decimalPlaces: 2 },
-    'CHF': { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc', position: 'before', decimalPlaces: 2 },
-    'SEK': { code: 'SEK', symbol: 'SEK', name: 'Swedish Krona', position: 'after', decimalPlaces: 2 },
-    'NOK': { code: 'NOK', symbol: 'NOK', name: 'Norwegian Krone', position: 'after', decimalPlaces: 2 },
-    'DKK': { code: 'DKK', symbol: 'DKK', name: 'Danish Krone', position: 'after', decimalPlaces: 2 },
-    'PLN': { code: 'PLN', symbol: 'PLN', name: 'Polish Złoty', position: 'after', decimalPlaces: 2 },
-    'HUF': { code: 'HUF', symbol: 'HUF', name: 'Hungarian Forint', position: 'after', decimalPlaces: 0 },
-    'RON': { code: 'RON', symbol: 'RON', name: 'Romanian Leu', position: 'after', decimalPlaces: 2 },
-    'BGN': { code: 'BGN', symbol: 'BGN', name: 'Bulgarian Lev', position: 'after', decimalPlaces: 2 },
-    'HRK': { code: 'HRK', symbol: 'HRK', name: 'Croatian Kuna', position: 'after', decimalPlaces: 2 },
-    'MAD': { code: 'MAD', symbol: 'MAD', name: 'Moroccan Dirham', position: 'after', decimalPlaces: 2 },
-    'DZD': { code: 'DZD', symbol: 'DZD', name: 'Algerian Dinar', position: 'after', decimalPlaces: 2 },
-    'TND': { code: 'TND', symbol: 'TND', name: 'Tunisian Dinar', position: 'after', decimalPlaces: 3 },
-    'EGP': { code: 'EGP', symbol: 'EGP', name: 'Egyptian Pound', position: 'after', decimalPlaces: 2 }
+    EUR: { code: 'EUR', symbol: '€', name: 'Euro', position: 'after', decimalPlaces: 2 },
+    USD: { code: 'USD', symbol: '$', name: 'US Dollar', position: 'before', decimalPlaces: 2 },
+    GBP: { code: 'GBP', symbol: '£', name: 'British Pound', position: 'before', decimalPlaces: 2 },
+    CHF: { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc', position: 'before', decimalPlaces: 2 },
+    SEK: { code: 'SEK', symbol: 'SEK', name: 'Swedish Krona', position: 'after', decimalPlaces: 2 },
+    NOK: {
+      code: 'NOK',
+      symbol: 'NOK',
+      name: 'Norwegian Krone',
+      position: 'after',
+      decimalPlaces: 2,
+    },
+    DKK: { code: 'DKK', symbol: 'DKK', name: 'Danish Krone', position: 'after', decimalPlaces: 2 },
+    PLN: { code: 'PLN', symbol: 'PLN', name: 'Polish Złoty', position: 'after', decimalPlaces: 2 },
+    HUF: {
+      code: 'HUF',
+      symbol: 'HUF',
+      name: 'Hungarian Forint',
+      position: 'after',
+      decimalPlaces: 0,
+    },
+    RON: { code: 'RON', symbol: 'RON', name: 'Romanian Leu', position: 'after', decimalPlaces: 2 },
+    BGN: { code: 'BGN', symbol: 'BGN', name: 'Bulgarian Lev', position: 'after', decimalPlaces: 2 },
+    HRK: { code: 'HRK', symbol: 'HRK', name: 'Croatian Kuna', position: 'after', decimalPlaces: 2 },
+    MAD: {
+      code: 'MAD',
+      symbol: 'MAD',
+      name: 'Moroccan Dirham',
+      position: 'after',
+      decimalPlaces: 2,
+    },
+    DZD: {
+      code: 'DZD',
+      symbol: 'DZD',
+      name: 'Algerian Dinar',
+      position: 'after',
+      decimalPlaces: 2,
+    },
+    TND: {
+      code: 'TND',
+      symbol: 'TND',
+      name: 'Tunisian Dinar',
+      position: 'after',
+      decimalPlaces: 3,
+    },
+    EGP: {
+      code: 'EGP',
+      symbol: 'EGP',
+      name: 'Egyptian Pound',
+      position: 'after',
+      decimalPlaces: 2,
+    },
   };
 
   constructor() {
@@ -213,8 +260,20 @@ export class ConfigService {
     return this.sendNotifications();
   }
 
-  isMaintenanceMode(): boolean {
-    return this.maintenanceMode();
+  isPreventCancellation(): boolean {
+    return this.preventCancellation();
+  }
+
+  getCancellationTimeLimit(): number {
+    return this.cancellationTimeLimit();
+  }
+
+  getBookingAdvanceDays(): number {
+    return this.bookingAdvanceDays();
+  }
+
+  getBookingAdvanceTime(): number {
+    return this.bookingAdvanceTime();
   }
 
   getLanguage(): string {
@@ -262,7 +321,7 @@ export class ConfigService {
   getCurrencyOptions(): { label: string; value: string }[] {
     return Object.values(this.currencies).map(currency => ({
       label: `${currency.name} (${currency.symbol})`,
-      value: currency.code
+      value: currency.code,
     }));
   }
 

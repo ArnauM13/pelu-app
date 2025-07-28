@@ -6,19 +6,14 @@ import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobil
 
 @Component({
   selector: 'pelu-booking-wrapper',
-  standalone: true,
-  imports: [
-    CommonModule,
-    BookingPageComponent,
-    BookingMobilePageComponent
-  ],
+  imports: [CommonModule, BookingPageComponent, BookingMobilePageComponent],
   template: `
     @if (isMobile()) {
       <pelu-booking-mobile-page />
     } @else {
       <pelu-booking-page />
     }
-  `
+  `,
 })
 export class BookingWrapperComponent {
   private readonly responsiveService = inject(ResponsiveService);

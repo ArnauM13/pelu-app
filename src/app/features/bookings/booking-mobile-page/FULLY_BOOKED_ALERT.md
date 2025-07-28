@@ -11,11 +11,13 @@
 ### **🎯 Comportament de l'Alerta**
 
 **Quan apareix**:
+
 - L'usuari selecciona un dia
 - El dia té totes les hores ocupades (no hi ha cap hora disponible)
 - L'alerta apareix immediatament sota de la selecció de dia
 
 **Quan desapareix**:
+
 - L'usuari selecciona un altre dia amb hores disponibles
 - L'usuari navega a una altra setmana
 
@@ -24,12 +26,14 @@
 **Ubicació**: Sota de la selecció de dia, abans de la selecció de servei
 
 **Disseny**:
+
 - **Icona**: ⚠️ (advertència)
 - **Color**: Groc/taronja per indicar advertència
 - **Estil**: Card amb gradient groc i bordes taronja
 - **Responsiu**: S'adapta a mòbils i tablets
 
 **Contingut**:
+
 - **Títol**: "Dia completament ocupat"
 - **Missatge**: "Aquest dia té totes les hores ocupades. Si us plau, selecciona una altra data o prova amb una altra setmana."
 
@@ -38,6 +42,7 @@
 ### **1. Lògica de Detecció**
 
 **Computed Property per detectar dies completament ocupats**:
+
 ```typescript
 readonly selectedDaySlots = computed(() => {
   if (!this.selectedDate()) return null;
@@ -47,7 +52,7 @@ readonly selectedDaySlots = computed(() => {
 readonly isSelectedDayFullyBooked = computed(() => {
   const daySlots = this.selectedDaySlots();
   if (!daySlots) return false;
-  
+
   // Check if all time slots are occupied
   const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
   return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
@@ -55,6 +60,7 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ```
 
 **Lògica de verificació**:
+
 - Obté les franjes temporals del dia seleccionat
 - Filtra les franjes disponibles
 - Si no hi ha franjes disponibles i hi ha franjes temporals, el dia està completament ocupat
@@ -62,28 +68,31 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ### **2. Template HTML**
 
 **Alerta condicional**:
+
 ```html
 <!-- Alert for fully booked day -->
 @if (selectedDate() && isSelectedDayFullyBooked()) {
-  <pelu-card class="alert-card fully-booked-alert">
-    <div class="alert-content">
-      <div class="alert-icon">⚠️</div>
-      <div class="alert-text">
-        <h4>{{ 'BOOKING.FULLY_BOOKED_TITLE' | translate }}</h4>
-        <p>{{ 'BOOKING.FULLY_BOOKED_MESSAGE' | translate }}</p>
-      </div>
+<pelu-card class="alert-card fully-booked-alert">
+  <div class="alert-content">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-text">
+      <h4>{{ 'BOOKING.FULLY_BOOKED_TITLE' | translate }}</h4>
+      <p>{{ 'BOOKING.FULLY_BOOKED_MESSAGE' | translate }}</p>
     </div>
-  </pelu-card>
+  </div>
+</pelu-card>
 }
 ```
 
 **Condicions d'aparició**:
+
 - `selectedDate()`: Hi ha un dia seleccionat
 - `isSelectedDayFullyBooked()`: El dia seleccionat està completament ocupat
 
 ### **3. Estils CSS**
 
 **Estils de l'alerta**:
+
 ```scss
 .fully-booked-alert {
   margin-bottom: 1.5rem;
@@ -149,6 +158,7 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ```
 
 **Característiques del disseny**:
+
 - **Colors**: Gradients grocs i taronja per advertència
 - **Bordres**: Taronja per destacar
 - **Ombra**: Subtil per donar profunditat
@@ -159,24 +169,28 @@ readonly isSelectedDayFullyBooked = computed(() => {
 **Afegides a tots els idiomes**:
 
 **Català**:
+
 ```json
 "FULLY_BOOKED_TITLE": "Dia completament ocupat",
 "FULLY_BOOKED_MESSAGE": "Aquest dia té totes les hores ocupades. Si us plau, selecciona una altra data o prova amb una altra setmana."
 ```
 
 **Anglès**:
+
 ```json
 "FULLY_BOOKED_TITLE": "Fully booked day",
 "FULLY_BOOKED_MESSAGE": "This day has all hours occupied. Please select another date or try with another week."
 ```
 
 **Castellà**:
+
 ```json
 "FULLY_BOOKED_TITLE": "Día completamente ocupado",
 "FULLY_BOOKED_MESSAGE": "Este día tiene todas las horas ocupadas. Por favor, selecciona otra fecha o prueba con otra semana."
 ```
 
 **Àrab**:
+
 ```json
 "FULLY_BOOKED_TITLE": "يوم مشغول بالكامل",
 "FULLY_BOOKED_MESSAGE": "هذا اليوم مشغول بالكامل. يرجى اختيار تاريخ آخر أو تجربة أسبوع آخر."
@@ -185,11 +199,13 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ## 🎯 Flux d'Usuari
 
 ### **Escenari 1: Dia amb hores disponibles**
+
 1. L'usuari selecciona un dia
 2. No apareix cap alerta
 3. L'usuari pot seleccionar servei i hora normalment
 
 ### **Escenari 2: Dia completament ocupat**
+
 1. L'usuari selecciona un dia
 2. Apareix l'alerta sota del dia seleccionat
 3. L'usuari veu el missatge d'advertència
@@ -199,6 +215,7 @@ readonly isSelectedDayFullyBooked = computed(() => {
    - Continuar veient les hores ocupades (per admins)
 
 ### **Escenari 3: Canvi de dia**
+
 1. L'usuari té seleccionat un dia completament ocupat
 2. L'usuari selecciona un altre dia amb hores disponibles
 3. L'alerta desapareix automàticament
@@ -220,11 +237,13 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ## 📱 Comportament Responsiu
 
 ### **Desktop/Tablet**:
+
 - Alerta amb espai generós
 - Icona i text ben proporcionats
 - Marge inferior adequat
 
 ### **Mòbil**:
+
 - Alerta compacta
 - Icona més petita
 - Text adaptat a pantalles petites
@@ -233,17 +252,20 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ## 🎨 Disseny Visual
 
 ### **Colors**:
+
 - **Fons**: Gradient groc suau (`#fef3c7` a `#fde68a`)
 - **Bordres**: Taronja (`#f59e0b`)
 - **Icona**: Taronja fosc (`#d97706`)
 - **Text**: Marró fosc (`#92400e`)
 
 ### **Tipografia**:
+
 - **Títol**: 1.1rem, font-weight: 600
 - **Missatge**: 0.95rem, line-height: 1.4
 - **Mòbil**: Mides reduïdes proporcionalment
 
 ### **Efectes**:
+
 - **Ombra**: Subtil per donar profunditat
 - **Gradient**: Suau per un aspecte modern
 - **Transicions**: Suaus per canvis d'estat
@@ -251,12 +273,14 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ## 🔧 Manteniment
 
 ### **Canvis Futurs**:
+
 - Afegir opció per desactivar l'alerta
 - Personalitzar missatges per tipus d'usuari
 - Afegir suggeriments de dies alternatius
 - Integrar amb notificacions push
 
 ### **Optimitzacions**:
+
 - Cache de dies completament ocupats
 - Lazy loading de franjes temporals
 - Debounce en canvis de dia
@@ -264,21 +288,25 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ## 🎉 Beneficis Obtinguts
 
 ### **✅ Experiència d'Usuari Millorada**
+
 - Informació clara sobre disponibilitat
 - Reducció de confusió
 - Guia visual per l'usuari
 
 ### **✅ Interfície Intuitiva**
+
 - Alerta no intrusiva
 - Missatge clar i accionable
 - Disseny consistent amb l'aplicació
 
 ### **✅ Accesibilitat**
+
 - Colors amb contrast adequat
 - Text descriptiu
 - Icona visual clara
 
 ### **✅ Multilingüe**
+
 - Suport complet per 4 idiomes
 - Traduccions naturals
 - Consistència entre idiomes
@@ -286,16 +314,19 @@ readonly isSelectedDayFullyBooked = computed(() => {
 ## 📚 Notes Tècniques
 
 ### **Performance**:
+
 - Computed properties per eficiència
 - Verificació només quan cal
 - No impacta en la velocitat de càrrega
 
 ### **Compatibilitat**:
+
 - Funciona amb tots els navegadors moderns
 - Responsiu per tots els dispositius
 - Compatible amb lectors de pantalla
 
 ### **Escalabilitat**:
+
 - Fàcil d'afegir nous idiomes
 - Estructura modular
-- Reutilitzable en altres components 
+- Reutilitzable en altres components

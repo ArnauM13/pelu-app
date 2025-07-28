@@ -1,0 +1,333 @@
+<div class="buttons-demo-container">
+  <div class="demo-header">
+    <h1>Components de Botó Unificats</h1>
+    <p>Demostració dels components de botó amb PrimeNG</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- Basic Buttons -->
+    <div class="demo-section">
+      <h2>Botons Bàsics</h2>
+      <div class="button-group">
+        <p-button
+          label="Botó Primari"
+          (onClick)="onButtonClick('primary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Botó Secundari"
+          severity="secondary"
+          (onClick)="onButtonClick('secondary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Botó d'Èxit"
+          severity="success"
+          (onClick)="onButtonClick('success')"
+        >
+        </p-button>
+
+        <p-button
+          label="Botó d'Informació"
+          severity="info"
+          (onClick)="onButtonClick('info')"
+        >
+        </p-button>
+
+        <p-button
+          label="Botó d'Advertència"
+          severity="warn"
+          (onClick)="onButtonClick('warn')"
+        >
+        </p-button>
+
+        <p-button
+          label="Botó de Perill"
+          severity="danger"
+          (onClick)="onButtonClick('danger')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Button Variants -->
+    <div class="demo-section">
+      <h2>Variants de Botó</h2>
+      <div class="button-group">
+        <p-button
+          label="Filled (per defecte)"
+          (onClick)="onButtonClick('filled')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined"
+          variant="outlined"
+          (onClick)="onButtonClick('outlined')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text"
+          variant="text"
+          (onClick)="onButtonClick('text')"
+        >
+        </p-button>
+
+        <p-button
+          label="Link"
+          [link]="true"
+          (onClick)="onButtonClick('link')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Button Sizes -->
+    <div class="demo-section">
+      <h2>Mides de Botó</h2>
+      <div class="button-group">
+        <p-button
+          label="Petit"
+          size="small"
+          (onClick)="onButtonClick('small')"
+        >
+        </p-button>
+
+        <p-button
+          label="Gran"
+          size="large"
+          (onClick)="onButtonClick('large')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Button with Icons -->
+    <div class="demo-section">
+      <h2>Botons amb Icones</h2>
+      <div class="button-group">
+        <p-button
+          label="Guardar"
+          icon="pi pi-check"
+          (onClick)="onButtonClick('save')"
+        >
+        </p-button>
+
+        <p-button
+          label="Eliminar"
+          icon="pi pi-trash"
+          iconPos="right"
+          severity="danger"
+          (onClick)="onButtonClick('delete')"
+        >
+        </p-button>
+
+        <p-button
+          label="Actualitzar"
+          icon="pi pi-refresh"
+          iconPos="top"
+          severity="info"
+          (onClick)="onButtonClick('refresh')"
+        >
+        </p-button>
+
+        <p-button
+          icon="pi pi-home"
+          [attr.aria-label]="'Inici'"
+          (onClick)="onButtonClick('home')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Button States -->
+    <div class="demo-section">
+      <h2>Estats del Botó</h2>
+      <div class="button-group">
+        <p-button
+          label="Cargant..."
+          icon="pi pi-spinner"
+          [loading]="loading()"
+          (onClick)="onButtonClick('loading')"
+        >
+        </p-button>
+
+        <p-button
+          label="Deshabilitat"
+          [disabled]="true"
+          (onClick)="onButtonClick('disabled')"
+        >
+        </p-button>
+
+        <p-button
+          label="Elevat"
+          [raised]="true"
+          (onClick)="onButtonClick('raised')"
+        >
+        </p-button>
+
+        <p-button
+          label="Arrodonit"
+          [rounded]="true"
+          (onClick)="onButtonClick('rounded')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Fluid Buttons -->
+    <div class="demo-section">
+      <h2>Botons Fluids</h2>
+      <div class="button-group fluid">
+        <p-button
+          label="Botó Fluid"
+          [fluid]="true"
+          (onClick)="onButtonClick('fluid')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Form Buttons -->
+    <div class="demo-section">
+      <h2>Botons de Formulari</h2>
+      <div class="button-group">
+        <p-button
+          label="Enviar"
+          type="submit"
+          icon="pi pi-send"
+          (onClick)="onButtonClick('submit')"
+        >
+        </p-button>
+
+        <p-button
+          label="Netejar"
+          type="reset"
+          severity="secondary"
+          icon="pi pi-times"
+          (onClick)="onButtonClick('reset')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- All Outlined Button Types -->
+    <div class="demo-section">
+      <h2>Tots els Tipus de Botó Outlined</h2>
+      <div class="button-group">
+        <p-button
+          label="Outlined Primari"
+          variant="outlined"
+          severity="primary"
+          (onClick)="onButtonClick('outlined-primary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Secundari"
+          variant="outlined"
+          severity="secondary"
+          (onClick)="onButtonClick('outlined-secondary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Èxit"
+          variant="outlined"
+          severity="success"
+          (onClick)="onButtonClick('outlined-success')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Advertència"
+          variant="outlined"
+          severity="warn"
+          (onClick)="onButtonClick('outlined-warn')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Perill"
+          variant="outlined"
+          severity="danger"
+          (onClick)="onButtonClick('outlined-danger')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Info"
+          variant="outlined"
+          severity="info"
+          (onClick)="onButtonClick('outlined-info')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Contrast"
+          variant="outlined"
+          severity="contrast"
+          (onClick)="onButtonClick('outlined-contrast')"
+        >
+        </p-button>
+
+        <p-button
+          label="Outlined Help"
+          variant="outlined"
+          severity="help"
+          (onClick)="onButtonClick('outlined-help')"
+        >
+        </p-button>
+      </div>
+    </div>
+
+    <!-- All Text Button Types -->
+    <div class="demo-section">
+      <h2>Tots els Tipus de Botó Text</h2>
+      <div class="button-group">
+        <p-button
+          label="Text Primari"
+          variant="text"
+          severity="primary"
+          (onClick)="onButtonClick('text-primary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Secundari"
+          variant="text"
+          severity="secondary"
+          (onClick)="onButtonClick('text-secondary')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Èxit"
+          variant="text"
+          severity="success"
+          (onClick)="onButtonClick('text-success')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Advertència"
+          variant="text"
+          severity="warn"
+          (onClick)="onButtonClick('text-warn')"
+        >
+        </p-button>
+
+        <p-button
+          label="Text Perill"
+          variant="text"
+          severity="danger"
+          (onClick)="onButtonClick('text-danger')"
+        >
+        </p-button>
+      </div>
+    </div>
+  </div>
+</div>

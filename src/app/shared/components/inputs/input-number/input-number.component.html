@@ -1,105 +1,58 @@
 <div class="input-number-container">
   <!-- Label -->
-  @if (showLabel()) {
+  @if (label()) {
     <label
-      [for]="config().id || config().name"
+      [for]="getElementId()"
       class="input-number-label"
-      [class.required]="config().required">
-      {{ (config().label || '') | translate }}
+      [class.required]="required()">
+      {{ label() | translate }}
     </label>
   }
 
-  <!-- Input wrapper -->
-  <div class="input-number-wrapper" [class]="inputClasses()">
-    <!-- Left icon -->
-    @if (hasIcon() && config().iconPosition !== 'right') {
-      <div class="input-number-icon left">
-        <i [class]="config().icon"></i>
-      </div>
-    }
-
-    <!-- Prefix -->
-    @if (hasPrefix()) {
-      <div class="input-number-prefix">
-        {{ config().prefix }}
-      </div>
-    }
-
-    <!-- Loading spinner -->
-    @if (config().loading) {
-      <div class="input-number-loading">
-        <div class="spinner"></div>
-      </div>
-    }
-
-    <!-- Main input -->
-    <input
-      type="number"
-      [id]="config().id || config().name"
-      [name]="config().name"
-      [placeholder]="(config().placeholder || '') | translate"
-      [required]="config().required"
-      [disabled]="config().disabled"
-      [readonly]="config().readonly"
-      [autofocus]="config().autofocus"
-      [tabindex]="config().tabindex"
-      [style]="config().style"
-      [min]="config().min"
-      [max]="config().max"
-      [step]="config().step"
-      [value]="displayValue()"
-      (input)="onInput($event)"
-      (change)="onChangeHandler($event)"
-      (focus)="onFocus($event)"
-      (blur)="onBlur($event)"
-      (keydown)="onKeydown($event)"
-      (keyup)="onKeyup($event)"
-      (keypress)="onKeypress($event)"
-      class="input-number-field">
-
-    <!-- Suffix -->
-    @if (hasSuffix()) {
-      <div class="input-number-suffix">
-        {{ config().suffix }}
-      </div>
-    }
-
-    <!-- Right icon or clear button -->
-    @if (hasIcon() && config().iconPosition === 'right') {
-      <div class="input-number-icon right">
-        <i [class]="config().icon"></i>
-      </div>
-    } @else if (isClearable()) {
-      <button
-        type="button"
-        class="input-number-clear"
-        (click)="onClear()"
-        [title]="'COMMON.CLEAR' | translate">
-        <i class="pi pi-times"></i>
-      </button>
-    }
-  </div>
+  <!-- PrimeNG InputNumber -->
+  <p-inputnumber
+    [inputId]="getElementId()"
+    [placeholder]="(placeholder() || 'INPUTS.NUMBER_PLACEHOLDER') | translate"
+    [required]="required()"
+    [disabled]="disabled()"
+    [readonly]="readonly()"
+    [autofocus]="autofocus()"
+    [step]="step()"
+    [mode]="mode()"
+    [currency]="currency()"
+    [currencyDisplay]="currencyDisplay()"
+    [locale]="locale()"
+    [prefix]="prefix()"
+    [suffix]="suffix()"
+    [showButtons]="showButtons()"
+    [buttonLayout]="buttonLayout()"
+    [useGrouping]="useGrouping()"
+    [showClear]="showClear()"
+    [ngModel]="displayValue()"
+    (ngModelChange)="onNumberChange($event)"
+    (onInput)="onNumberChange($event.value)"
+    (onBlur)="onBlurHandler($event)"
+    class="pelu-inputnumber"
+  />
 
   <!-- Help text -->
-  @if (showHelpText()) {
-    <div class="input-number-help">
-      {{ (config().helpText || '') | translate }}
+  @if (helpText()) {
+    <div class="input-help">
+      {{ (helpText() || '') | translate }}
     </div>
   }
 
   <!-- Error text -->
-  @if (showErrorText()) {
-    <div class="input-number-error">
-      <span class="error-icon">⚠</span>
-      <span class="error-text">{{ (config().errorText || '') | translate }}</span>
+  @if (errorText()) {
+    <div class="input-error">
+      {{ (errorText() || '') | translate }}
     </div>
   }
 
   <!-- Success text -->
-  @if (showSuccessText()) {
-    <div class="input-number-success">
-      <span class="success-icon">✓</span>
-      <span class="success-text">{{ (config().successText || '') | translate }}</span>
+  @if (successText()) {
+    <div class="input-success">
+      {{ (successText() || '') | translate }}
     </div>
   }
 </div>

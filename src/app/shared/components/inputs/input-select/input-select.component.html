@@ -1,166 +1,111 @@
-<div [class]="selectClasses()" [attr.data-select-id]="elementId()">
+<div class="input-select-container">
   <!-- Label -->
-  @if (showLabel()) {
-  <label
-    [for]="elementId()"
-    class="select-label">
-    {{ config().label || '' | translate }}
-    @if (config().required) {
-      <span class="required-indicator">*</span>
-    }
-  </label>
+  @if (label()) {
+    <label
+      [for]="getElementId()"
+      class="input-select-label"
+      [class.required]="required()">
+      {{ label() | translate }}
+    </label>
   }
 
-  <!-- Select container -->
-  <div class="select-container">
-    <!-- Native select for accessibility -->
-    <select
-      [id]="elementId()"
-      [name]="config().name"
-      [disabled]="config().disabled"
-      [required]="config().required"
-      [autofocus]="config().autofocus"
-      [tabindex]="config().tabindex"
-      [multiple]="isMultiple()"
-      [value]="displayValue()"
-      (change)="onSelectChange($event)"
-      (focus)="onFocus($event)"
-      (blur)="onBlur($event)"
-      class="select-native">
-
-      @if (config().placeholder && !isMultiple()) {
-      <option value="" disabled selected>{{ config().placeholder || '' | translate }}</option>
-      }
-
-      @for (option of config().options; track option.value) {
-      <option
-        [value]="option.value"
-        [disabled]="option.disabled">
-        {{ option.label | translate }}
-      </option>
-      }
-    </select>
-
-    <!-- Custom select display -->
-    <div class="select-display" (click)="onToggleOpen()">
-      <div class="select-value">
-        @if (selectedOption()?.color) {
-        <span class="selected-color-dot" [style.background-color]="selectedOption()?.color"></span>
-        }
-        @if (selectedOption()?.icon) {
-        <span class="selected-icon">{{ selectedOption()?.icon }}</span>
-        }
-        <span class="selected-text">{{ displayText() | translate }}</span>
-      </div>
-
-      <!-- Clear button -->
-      @if (isClearable()) {
-      <button
-        type="button"
-        class="clear-button"
-        (click)="onClear(); $event.stopPropagation()"
-        [title]="'COMMON.CLEAR' | translate">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/>
-        </svg>
-      </button>
-      }
-
-      <!-- Dropdown arrow -->
-      <div class="select-arrow">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7 10l5 5 5-5z" fill="currentColor"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Dropdown options -->
-    @if (isOpen()) {
-    <div class="select-dropdown" [ngStyle]="dropdownStyle()">
-      <!-- Search input -->
-      @if (isSearchable()) {
-      <div class="search-container">
-        <input
-          type="text"
-          [placeholder]="'COMMON.SEARCH' | translate"
-          [value]="searchTerm()"
-          (input)="onSearchInput($event)"
-          class="search-input"
-          (click)="$event.stopPropagation()">
-      </div>
-      }
-
-      <!-- Options list -->
-      <div class="options-container">
-        @for (option of filteredOptions(); track option.value) {
-        <div
-          class="option-item"
-          [class.selected]="isMultiple() ?
-            (displayValue() || []).includes(option.value) :
-            displayValue() === option.value"
-          [class.disabled]="option.disabled"
-          (click)="onOptionClick(option)">
-
-          @if (isMultiple()) {
-          <div class="option-checkbox">
-            <input
-              type="checkbox"
-              [checked]="(displayValue() || []).includes(option.value)"
-              [disabled]="option.disabled"
-              (click)="$event.stopPropagation()"
-              (change)="onOptionClick(option)">
-          </div>
-          }
-
-          <div class="option-content">
-            @if (option.color) {
-            <span class="option-color-dot" [style.background-color]="option.color"></span>
-            }
-
-            <span class="option-label">{{ option.label | translate }}</span>
-
-            @if (option.icon) {
-            <span class="option-icon">{{ option.icon }}</span>
-            }
-          </div>
-        </div>
-        }
-
-        @if (filteredOptions().length === 0) {
-        <div class="no-options">
-          {{ 'COMMON.NO_OPTIONS' | translate }}
-        </div>
-        }
-      </div>
-    </div>
+  <!-- PrimeNG Select -->
+  <p-select
+    [inputId]="getElementId()"
+    [options]="options()"
+    [placeholder]="(placeholder() || 'INPUTS.SELECT_PLACEHOLDER') | translate"
+    [required]="required()"
+    [disabled]="disabled()"
+    [readonly]="readonly()"
+    [loading]="loading()"
+    [editable]="editable()"
+    [checkmark]="checkmark()"
+    [filter]="filter()"
+    [filterBy]="filterBy()"
+    [filterMatchMode]="filterMatchMode()"
+    [filterPlaceholder]="(filterPlaceholder() || 'INPUTS.SELECT_FILTER_PLACEHOLDER') | translate"
+    [showClear]="showClear()"
+    [appendTo]="appendTo()"
+    [scrollHeight]="scrollHeight()"
+    [virtualScroll]="virtualScroll()"
+    [virtualScrollItemSize]="virtualScrollItemSize()"
+    [optionLabel]="optionLabel()"
+    [optionValue]="optionValue()"
+    [optionDisabled]="optionDisabled()"
+    [group]="group()"
+    [(ngModel)]="value"
+    (onChange)="onSelectChange($event.value)"
+    (onBlur)="onBlurHandler($event)"
+    class="w-full"
+  >
+    <!-- Selected Item Template -->
+    @if (selectedItemTemplate) {
+      <ng-template #selectedItem let-selectedOption>
+        <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: selectedOption }"></ng-container>
+      </ng-template>
     }
-  </div>
+
+    <!-- Item Template -->
+    @if (itemTemplate) {
+      <ng-template #item let-option>
+        <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: option }"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Group Template -->
+    @if (groupTemplate) {
+      <ng-template #group let-group>
+        <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: group }"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Dropdown Icon Template -->
+    @if (dropdownIconTemplate) {
+      <ng-template #dropdownicon>
+        <ng-container *ngTemplateOutlet="dropdownIconTemplate"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Header Template -->
+    @if (headerTemplate) {
+      <ng-template #header>
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Footer Template -->
+    @if (footerTemplate) {
+      <ng-template #footer>
+        <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Empty Message Template -->
+    @if (emptyMessageTemplate) {
+      <ng-template #emptyMessage>
+        <ng-container *ngTemplateOutlet="emptyMessageTemplate"></ng-container>
+      </ng-template>
+    }
+  </p-select>
 
   <!-- Help text -->
-  @if (showHelpText()) {
-  <div class="help-text">
-    {{ config().helpText || '' | translate }}
-  </div>
+  @if (helpText()) {
+    <div class="input-help">
+      {{ (helpText() || '') | translate }}
+    </div>
   }
 
   <!-- Error text -->
-  @if (showErrorText()) {
-  <div class="error-text">
-    {{ config().errorText || '' | translate }}
-  </div>
+  @if (errorText()) {
+    <div class="input-error">
+      {{ (errorText() || '') | translate }}
+    </div>
   }
 
   <!-- Success text -->
-  @if (showSuccessText()) {
-  <div class="success-text">
-    {{ config().successText || '' | translate }}
-  </div>
-  }
-
-  <!-- Loading indicator -->
-  @if (config().loading) {
-  <div class="loading-indicator">
-    <div class="spinner"></div>
-  </div>
+  @if (successText()) {
+    <div class="input-success">
+      {{ (successText() || '') | translate }}
+    </div>
   }
 </div>

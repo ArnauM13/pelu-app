@@ -3,8 +3,8 @@
   [class.clickable]="isClickable()"
   [class.selected]="isSelected()"
   [class.compact]="isCompact()"
-  (click)="onCardClick()">
-
+  (click)="onCardClick()"
+>
   <div class="service-header">
     <div class="service-icon">{{ service.icon }}</div>
     <div class="service-info">
@@ -15,16 +15,15 @@
             size: 'small',
             variant: 'default',
             showIcon: true,
-            showText: false
-          }">
+            showText: false,
+          }"
+        >
         </pelu-popular-badge>
       }
     </div>
     @if (config.showActions) {
       <div class="service-actions">
-        <pelu-actions-buttons
-          [context]="actionContext">
-        </pelu-actions-buttons>
+        <pelu-actions-buttons [context]="actionContext"> </pelu-actions-buttons>
       </div>
     }
   </div>
@@ -39,7 +38,9 @@
     @if (config.showDuration) {
       <div class="meta-item">
         <span class="meta-label">⏱️&nbsp;{{ 'ADMIN.SERVICES.DURATION_MINUTES' | translate }}:</span>
-        <span class="meta-value">{{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
+        <span class="meta-value"
+          >{{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span
+        >
       </div>
     }
     @if (config.showPrice) {

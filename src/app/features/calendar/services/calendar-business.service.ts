@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { startOfWeek, endOfWeek, eachDayOfInterval, addMinutes, isSameDay } from 'date-fns';
 import { AppointmentEvent } from '../core/calendar.component';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 export interface BusinessConfig {
   hours: {
@@ -18,44 +19,62 @@ export interface BusinessConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CalendarBusinessService {
+  private readonly businessSettingsService = inject(BusinessSettingsService);
+
   private readonly businessConfig: BusinessConfig = {
     hours: {
       start: 8,
-      end: 20
+      end: 20,
     },
     days: {
       start: 1, // Monday
-      end: 6    // Saturday
+      end: 6, // Saturday
     },
     lunchBreak: {
       start: 13,
-      end: 15
-    }
+      end: 15,
+    },
   };
 
   /**
    * Get business configuration
    */
   getBusinessConfig(): BusinessConfig {
-    return this.businessConfig;
+    const businessHours = this.businessSettingsService.getBusinessHours();
+    const workingDays = this.businessSettingsService.getWorkingDays();
+    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+
+    return {
+      hours: {
+        start: businessHours.start,
+        end: businessHours.end,
+      },
+      days: {
+        start: Math.min(...workingDays),
+        end: Math.max(...workingDays),
+      },
+      lunchBreak: {
+        start: lunchBreak.start,
+        end: lunchBreak.end,
+      },
+    };
   }
 
   /**
    * Check if a day of week is a business day
    */
   isBusinessDay(dayOfWeek: number): boolean {
-    return dayOfWeek >= this.businessConfig.days.start && dayOfWeek <= this.businessConfig.days.end;
+    return this.businessSettingsService.isWorkingDay(dayOfWeek);
   }
 
   /**
    * Check if a time is during lunch break
    */
   isLunchBreak(time: string): boolean {
-    const [hour] = time.split(':').map(Number);
-    return hour >= this.businessConfig.lunchBreak.start && hour < this.businessConfig.lunchBreak.end;
+    return this.businessSettingsService.isLunchBreak(time);
   }
 
   /**
@@ -68,24 +87,30 @@ export class CalendarBusinessService {
     }
 
     // All other times during business hours are bookable
+    const businessHours = this.businessSettingsService.getBusinessHours();
     const [hour] = time.split(':').map(Number);
-    return hour >= this.businessConfig.hours.start && hour < this.businessConfig.hours.end;
+    return hour >= businessHours.start && hour < businessHours.end;
   }
 
   /**
    * Check if a time is the start of lunch break
    */
   isLunchBreakStart(time: string): boolean {
-    const [hour, minute] = time.split(':').map(Number);
-    return hour === this.businessConfig.lunchBreak.start && minute === 0;
+    return this.businessSettingsService.isLunchBreakStart(time);
   }
 
   /**
    * Get business days for a week
    */
   getBusinessDaysForWeek(viewDate: Date): Date[] {
-    const start = startOfWeek(viewDate, { weekStartsOn: 1 }); // Monday
-    const end = endOfWeek(viewDate, { weekStartsOn: 1 });
+    // Start from the selected date instead of Monday of the week
+    const start = new Date(viewDate);
+    start.setHours(0, 0, 0, 0);
+
+    // End 6 days after the start date to show a full week
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
     const allDays = eachDayOfInterval({ start, end });
 
     // Filter to show only business days
@@ -100,12 +125,12 @@ export class CalendarBusinessService {
    */
   generateTimeSlots(): string[] {
     const slots: string[] = [];
-    const startHour = this.businessConfig.hours.start;
-    const endHour = this.businessConfig.hours.end;
+    const businessHours = this.businessSettingsService.getBusinessHours();
+    const slotDuration = this.businessSettingsService.getAppointmentDuration();
 
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (let minutes of [0, 30]) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    for (let hour = businessHours.start; hour < businessHours.end; hour++) {
+      for (let minute = 0; minute < 60; minute += slotDuration) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         slots.push(timeString);
       }
     }
@@ -119,27 +144,25 @@ export class CalendarBusinessService {
   getAppropriateViewDate(): Date {
     const today = new Date();
     const currentDayOfWeek = today.getDay();
+    const workingDays = this.businessSettingsService.getWorkingDays();
 
     // If today is outside business days, jump to next business week
-    if (currentDayOfWeek < this.businessConfig.days.start || currentDayOfWeek > this.businessConfig.days.end) {
-      let daysToAdd: number;
+    if (!this.businessSettingsService.isWorkingDay(currentDayOfWeek)) {
+      let daysToAdd = 1;
 
-      if (currentDayOfWeek < this.businessConfig.days.start) {
-        // Before business days (Sunday, Monday) - jump to next Tuesday
-        daysToAdd = this.businessConfig.days.start - currentDayOfWeek;
-      } else {
-        // After business days (Sunday) - jump to next Tuesday
-        daysToAdd = 7 - currentDayOfWeek + this.businessConfig.days.start;
+      // Find the next business day
+      while (daysToAdd <= 7) {
+        const nextDay = new Date(today);
+        nextDay.setDate(today.getDate() + daysToAdd);
+        if (this.businessSettingsService.isWorkingDay(nextDay.getDay())) {
+          return nextDay;
+        }
+        daysToAdd++;
       }
-
-      const nextBusinessDay = new Date(today);
-      nextBusinessDay.setDate(today.getDate() + daysToAdd);
-
-      return nextBusinessDay;
-    } else {
-      // If today is a business day, show current week
-      return today;
     }
+
+    // If today is a business day, show current week
+    return today;
   }
 
   /**
@@ -178,9 +201,18 @@ export class CalendarBusinessService {
    * Get business days info string
    */
   getBusinessDaysInfo(): string {
-    const dayNames = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-    const startDay = dayNames[this.businessConfig.days.start];
-    const endDay = dayNames[this.businessConfig.days.end];
+    const dayNames = [
+      'Diumenge',
+      'Dilluns',
+      'Dimarts',
+      'Dimecres',
+      'Dijous',
+      'Divendres',
+      'Dissabte',
+    ];
+    const workingDays = this.businessSettingsService.getWorkingDays();
+    const startDay = dayNames[Math.min(...workingDays)];
+    const endDay = dayNames[Math.max(...workingDays)];
     return `${startDay} - ${endDay}`;
   }
 
@@ -188,13 +220,17 @@ export class CalendarBusinessService {
    * Get business hours info string
    */
   getBusinessHoursInfo(): string {
-    return `${this.businessConfig.hours.start}:00 - ${this.businessConfig.hours.end}:00`;
+    const businessHours = this.businessSettingsService.getBusinessHoursString();
+    return `${businessHours.start} - ${businessHours.end}`;
   }
 
   /**
    * Check if can navigate to previous week
    */
-  canNavigateToPreviousWeek(currentViewDate: Date = new Date(), appointments: AppointmentEvent[] = []): boolean {
+  canNavigateToPreviousWeek(
+    currentViewDate: Date = new Date(),
+    appointments: AppointmentEvent[] = []
+  ): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     // Calcular la data d'inici de la setmana anterior
@@ -235,7 +271,9 @@ export class CalendarBusinessService {
         if (!appointment.start) return false;
 
         const appointmentStart = new Date(appointment.start);
-        const appointmentEnd = appointment.end ? new Date(appointment.end) : addMinutes(appointmentStart, appointment.duration || 60);
+        const appointmentEnd = appointment.end
+          ? new Date(appointment.end)
+          : addMinutes(appointmentStart, appointment.duration || 60);
 
         // Check for overlap
         return appointmentStart < addMinutes(slotStart, 30) && appointmentEnd > slotStart;

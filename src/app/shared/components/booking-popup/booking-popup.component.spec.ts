@@ -25,9 +25,23 @@ describe('BookingPopupComponent', () => {
   let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
-    const translateSpy = jasmine.createSpyObj('TranslateService', ['get', 'instant', 'addLangs', 'getBrowserLang', 'use', 'reloadLang', 'setDefaultLang', 'getDefaultLang', 'getLangs']);
+    const translateSpy = jasmine.createSpyObj('TranslateService', [
+      'get',
+      'instant',
+      'addLangs',
+      'getBrowserLang',
+      'use',
+      'reloadLang',
+      'setDefaultLang',
+      'getDefaultLang',
+      'getLangs',
+    ]);
     const servicesSpy = jasmine.createSpyObj('ServicesService', ['getServiceName']);
-    const authSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated', 'userDisplayName']);
+    const authSpy = jasmine.createSpyObj('AuthService', [
+      'user',
+      'isAuthenticated',
+      'userDisplayName',
+    ]);
     const currencySpy = jasmine.createSpyObj('CurrencyService', ['formatPrice']);
     const toastSpy = jasmine.createSpyObj('ToastService', ['showAppointmentCreated']);
 
@@ -35,17 +49,17 @@ describe('BookingPopupComponent', () => {
       imports: [
         BookingPopupComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: TranslateService, useValue: translateSpy },
         { provide: ServicesService, useValue: servicesSpy },
         { provide: AuthService, useValue: authSpy },
         { provide: CurrencyService, useValue: currencySpy },
-        { provide: ToastService, useValue: toastSpy }
+        { provide: ToastService, useValue: toastSpy },
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BookingPopupComponent);
@@ -84,7 +98,7 @@ describe('BookingPopupComponent', () => {
       displayName: null,
       phoneNumber: null,
       photoURL: null,
-      providerId: 'password'
+      providerId: 'password',
     });
     authService.isAuthenticated.and.returnValue(true);
     authService.userDisplayName.and.returnValue('Test User');
@@ -215,7 +229,7 @@ describe('BookingPopupComponent', () => {
         price: 25,
         duration: 30,
         category: 'haircut' as const,
-        icon: '✂️'
+        icon: '✂️',
       };
       component.getServiceName(mockService);
       expect(servicesService.getServiceName).toHaveBeenCalledWith(mockService);
@@ -252,4 +266,3 @@ describe('BookingPopupComponent', () => {
     });
   });
 });
-
