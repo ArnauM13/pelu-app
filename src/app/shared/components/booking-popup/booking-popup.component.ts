@@ -1,6 +1,6 @@
 import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -26,6 +26,7 @@ export interface BookingDetails {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     ButtonModule,
     SelectModule,
     TranslateModule,
@@ -43,6 +44,7 @@ export class BookingPopupComponent {
   #authService = inject(AuthService);
   #toastService = inject(ToastService);
   #serviceTranslationService = inject(ServiceTranslationService);
+  #fb = inject(FormBuilder);
 
   // Input signals
   readonly open = input<boolean>(false);
@@ -60,9 +62,9 @@ export class BookingPopupComponent {
   readonly clientNameChanged = output<string>();
   readonly emailChanged = output<string>();
 
-  // Internal state signals
-  readonly clientName = signal<string>('');
-  readonly email = signal<string>('');
+  // Reactive Form
+  private readonly formSignal = signal<FormGroup | null>(null);
+  readonly form = computed(() => this.formSignal());
 
   // Computed properties
   readonly isAuthenticated = computed(() => this.#authService.isAuthenticated());
@@ -70,15 +72,11 @@ export class BookingPopupComponent {
   readonly currentUserEmail = computed(() => this.#authService.user()?.email || '');
 
   readonly canConfirm = computed(() => {
+    const form = this.form();
     const details = this.bookingDetails();
-    const name = this.clientName() || details.clientName;
-    const email = this.email() || details.email;
     const hasService = details.service !== undefined;
 
-    // Email is always required (for both authenticated and anonymous users)
-    const hasValidEmail = email.trim() !== '' && this.isValidEmail(email);
-
-    return name.trim() !== '' && hasService && hasValidEmail;
+    return form?.valid && hasService;
   });
 
   readonly totalPrice = computed(() => {
@@ -86,53 +84,46 @@ export class BookingPopupComponent {
     return service ? service.price : 0;
   });
 
-  // Input configurations
-  readonly clientNameConfig = {
-    type: 'text' as const,
-    label: 'COMMON.CLIENT_NAME',
-    placeholder: 'COMMON.ENTER_CLIENT_NAME',
-    required: true,
-    icon: 'pi pi-user',
-    iconPosition: 'left' as const,
-  };
-
-  readonly emailConfig = {
-    type: 'email' as const,
-    label: 'COMMON.EMAIL',
-    placeholder: 'COMMON.ENTER_EMAIL',
-    required: true,
-    icon: 'pi pi-envelope',
-    iconPosition: 'left' as const,
-    autocomplete: 'email',
-  };
-
   constructor() {
+    this.initializeForm();
+
     // Initialize form with authenticated user data if available
-    effect(
-      () => {
-        if (this.isAuthenticated()) {
-          this.clientName.set(this.currentUserName() || '');
-          this.email.set(this.currentUserEmail() || '');
+    effect(() => {
+      if (this.isAuthenticated()) {
+        const form = this.form();
+        if (form) {
+          form.patchValue({
+            clientName: this.currentUserName() || '',
+            email: this.currentUserEmail() || ''
+          });
         }
       }
-    );
+    });
   }
 
-  // Email validation
-  isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  private initializeForm() {
+    const form = this.#fb.group({
+      clientName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]]
+    });
+
+    this.formSignal.set(form);
   }
 
-  // Update methods
-  updateClientName(value: string) {
-    this.clientName.set(value);
-    this.clientNameChanged.emit(value);
+  // Helper methods for form validation
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.form()?.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
-  updateEmail(value: string) {
-    this.email.set(value);
-    this.emailChanged.emit(value);
+  getFieldError(fieldName: string): string {
+    const field = this.form()?.get(fieldName);
+    if (field && field.errors) {
+      if (field.errors['required']) return 'Aquest camp és obligatori';
+      if (field.errors['email']) return 'Format d\'email invàlid';
+      if (field.errors['minlength']) return `Mínim ${field.errors['minlength'].requiredLength} caràcters`;
+    }
+    return '';
   }
 
   // Format methods
@@ -179,25 +170,15 @@ export class BookingPopupComponent {
   }
 
   onConfirm() {
+    const form = this.form();
+    if (!form?.valid) {
+      this.#toastService.showValidationError('formulari');
+      return;
+    }
+
     const details = this.bookingDetails();
     const service = details.service;
-    const clientName = this.clientName() || details.clientName;
-    const email = this.email() || details.email;
-
-    if (!clientName.trim()) {
-      this.#toastService.showValidationError('nom del client');
-      return;
-    }
-
-    if (!email.trim()) {
-      this.#toastService.showValidationError('email');
-      return;
-    }
-
-    if (!this.isValidEmail(email)) {
-      this.#toastService.showValidationError('email vàlid');
-      return;
-    }
+    const formValue = form.value;
 
     if (!service) {
       this.#toastService.showValidationError('servei');
@@ -206,14 +187,13 @@ export class BookingPopupComponent {
 
     const confirmedDetails: BookingDetails = {
       ...details,
-      clientName: clientName.trim(),
-      email: email.trim().toLowerCase(),
+      clientName: formValue.clientName.trim(),
+      email: formValue.email.trim().toLowerCase(),
       service: service,
     };
 
-    // Clean up state
-    this.clientName.set('');
-    this.email.set('');
+    // Clean up form
+    form.reset();
 
     this.confirmed.emit(confirmedDetails);
   }

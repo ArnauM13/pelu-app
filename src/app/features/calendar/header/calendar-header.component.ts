@@ -1,19 +1,22 @@
-import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { format } from 'date-fns';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
   selector: 'pelu-calendar-header',
-  imports: [CommonModule, FormsModule, InputDateComponent, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, InputDateComponent, ButtonComponent],
   templateUrl: './calendar-header.component.html',
   styleUrls: ['./calendar-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })
 export class CalendarHeaderComponent {
+  // Inject FormBuilder
+  private readonly fb = inject(FormBuilder);
+
   // Input signals
   readonly viewDateInfo = input<string>('');
   readonly businessDaysInfo = input<string>('');
@@ -25,12 +28,29 @@ export class CalendarHeaderComponent {
   readonly today = output<void>();
   readonly dateChange = output<string>();
 
+  // Reactive Form
+  readonly dateForm: FormGroup;
+
   // Computed properties
   readonly currentDateString = computed(() =>
     format(this.currentViewDate(), 'yyyy-MM-dd')
   );
 
   readonly todayDate = computed(() => new Date());
+
+  constructor() {
+    // Initialize reactive form
+    this.dateForm = this.fb.group({
+      date: [this.currentViewDate()]
+    });
+
+    // Subscribe to form changes
+    this.dateForm.valueChanges.subscribe(values => {
+      if (values.date) {
+        this.onDateChange(values.date);
+      }
+    });
+  }
 
   emitToday() {
     this.today.emit();

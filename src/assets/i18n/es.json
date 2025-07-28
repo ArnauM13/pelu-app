@@ -443,6 +443,13 @@
       "ERROR_CREATING_SERVICE": "Error al crear el servicio",
       "DELETE_CONFIRMATION": "Confirmar eliminación",
       "DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar el servicio \"{{name}}\"?",
+      "POPULAR_STATUS_UPDATED": "Estado popular actualizado",
+      "POPULAR_STATUS_MESSAGE": "El servicio \"{{name}}\" ahora está marcado como {{status}}",
+      "POPULAR_STATUS_ERROR_MESSAGE": "Error al actualizar el estado popular del servicio",
+      "STATUS": {
+        "POPULAR": "popular",
+        "NO_POPULAR": "no popular"
+      },
       "MIGRATE_SERVICES": "Migrar Servicios",
       "CREATE_SAMPLE_SERVICES": "Crear Servicios de Ejemplo",
       "REFRESH": "Actualizar",

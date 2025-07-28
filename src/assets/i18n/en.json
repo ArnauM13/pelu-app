@@ -445,6 +445,13 @@
       "ERROR_CREATING_SERVICE": "Error creating service",
       "DELETE_CONFIRMATION": "Confirm deletion",
       "DELETE_CONFIRMATION_MESSAGE": "Are you sure you want to delete the service \"{{name}}\"?",
+      "POPULAR_STATUS_UPDATED": "Popular status updated",
+      "POPULAR_STATUS_MESSAGE": "The service \"{{name}}\" is now marked as {{status}}",
+      "POPULAR_STATUS_ERROR_MESSAGE": "Error updating service popular status",
+      "STATUS": {
+        "POPULAR": "popular",
+        "NO_POPULAR": "not popular"
+      },
       "MIGRATE_SERVICES": "Migrate Services",
       "CREATE_SAMPLE_SERVICES": "Create Sample Services",
       "REFRESH": "Refresh",
