@@ -245,13 +245,13 @@ export class CalendarComponent {
     });
   });
 
-  // Computed appointment positions - this is now stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
+  // Computed appointment positions - now reactive to booking duration
   readonly appointmentPositions = computed(() => {
     const appointments = this.allEvents();
     return this.calendarCoreService.getAppointmentPositions(appointments);
   });
 
-  // Computed time slots for time column
+  // Computed time slots for time column - reactive to slot duration
   readonly timeColumnSlots = computed((): TimeSlot[] => {
     return this.timeSlots().map(time => ({
       time,
@@ -260,7 +260,7 @@ export class CalendarComponent {
     }));
   });
 
-  // Computed day columns data
+  // Computed day columns data - reactive to booking duration
   readonly dayColumnsData = computed((): DayColumnData[] => {
     return this.weekDays().map(day => {
       const timeSlots = this.timeSlots().map(time => ({
@@ -287,17 +287,18 @@ export class CalendarComponent {
         this.calendarCoreService.targetTime() &&
         this.calendarCoreService.draggedAppointment() &&
         this.isSameDay(day, this.calendarCoreService.targetDate()!)
-          ? {
-              top: this.calendarCoreService.calculateAppointmentPositionFromTime(
+          ? (() => {
+              const position = this.calendarCoreService.calculateAppointmentPositionFromTime(
                 this.calendarCoreService.targetTime()!,
-                this.calendarCoreService.draggedAppointment()!.duration || 60
-              ).top,
-              height: this.calendarCoreService.calculateAppointmentPositionFromTime(
-                this.calendarCoreService.targetTime()!,
-                this.calendarCoreService.draggedAppointment()!.duration || 60
-              ).height,
-              isValid: this.calendarCoreService.isValidDrop(),
-            }
+                this.calendarCoreService.draggedAppointment()!.duration || this.calendarCoreService.reactiveBookingDuration()
+              );
+
+              return {
+                top: position.top,
+                height: position.height,
+                isValid: this.calendarCoreService.isValidDrop(),
+              };
+            })()
           : null;
 
       return {
@@ -379,7 +380,7 @@ export class CalendarComponent {
   isTimeSlotAvailable(
     date: Date,
     time: string,
-    requestedDuration: number = this.SLOT_DURATION_MINUTES
+    requestedDuration: number = this.calendarCoreService.reactiveBookingDuration()
   ): boolean {
     const events = this.allEvents();
     return this.calendarCoreService.isTimeSlotAvailable(date, time, events, requestedDuration);
@@ -449,7 +450,7 @@ export class CalendarComponent {
       const appointmentStart = new Date(appointment.start);
       const appointmentEnd = appointment.end
         ? new Date(appointment.end)
-        : addMinutes(appointmentStart, appointment.duration || 60);
+        : addMinutes(appointmentStart, appointment.duration || this.calendarCoreService.reactiveBookingDuration());
       return appointmentStart <= slotTime && slotTime < appointmentEnd;
     });
   }
@@ -875,6 +876,38 @@ export class CalendarComponent {
   }
 
   /**
+   * Update the booking duration for the calendar grid
+   * This will automatically recalculate all appointment positions
+   */
+  updateBookingDuration(durationMinutes: number): void {
+    this.calendarCoreService.updateBookingDuration(durationMinutes);
+  }
+
+  /**
+   * Get the current booking duration
+   */
+  getCurrentBookingDuration(): number {
+    return this.calendarCoreService.reactiveBookingDuration();
+  }
+
+  /**
+   * Update the slot duration for the calendar grid
+   * This will automatically recalculate all time slots and positions
+   */
+  updateSlotDuration(durationMinutes: number): void {
+    this.calendarCoreService.updateGridConfiguration({
+      slotDurationMinutes: durationMinutes
+    });
+  }
+
+  /**
+   * Get the current slot duration
+   */
+  getCurrentSlotDuration(): number {
+    return this.calendarCoreService.reactiveSlotDuration();
+  }
+
+  /**
    * Initialize the calendar core service with business configuration
    */
   private initializeCoordinateService(): void {
@@ -884,8 +917,7 @@ export class CalendarComponent {
 
     this.calendarCoreService.updateGridConfiguration({
       slotHeightPx: 30,
-      pixelsPerMinute: 1,
-      slotDurationMinutes: 30,
+      // pixelsPerMinute and slotDurationMinutes are now updated reactively
       businessStartHour: businessConfig.hours.start,
       businessEndHour: businessConfig.hours.end,
       lunchBreakStart: businessConfig.lunchBreak.start,
@@ -896,5 +928,35 @@ export class CalendarComponent {
       'Calendar core service initialized with config:',
       this.calendarCoreService.gridConfiguration()
     );
+  }
+
+  /**
+   * Demo method to show reactive positioning with different booking durations
+   * This demonstrates how the grid automatically recalculates positions
+   */
+  demoReactivePositioning(): void {
+    console.log('Demo: Testing reactive positioning with different booking durations');
+
+    // Test with 30-minute bookings
+    this.updateBookingDuration(30);
+    console.log('Updated to 30-minute bookings');
+
+    // Test with 60-minute bookings
+    setTimeout(() => {
+      this.updateBookingDuration(60);
+      console.log('Updated to 60-minute bookings');
+    }, 2000);
+
+    // Test with 90-minute bookings
+    setTimeout(() => {
+      this.updateBookingDuration(90);
+      console.log('Updated to 90-minute bookings');
+    }, 4000);
+
+    // Reset to default
+    setTimeout(() => {
+      this.updateBookingDuration(60);
+      console.log('Reset to default 60-minute bookings');
+    }, 6000);
   }
 }
