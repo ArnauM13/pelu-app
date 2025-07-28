@@ -38,6 +38,7 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly readonly = input<boolean>(false);
+  readonly enabled = input<boolean>(true);
 
   // DatePicker specific properties
   readonly dateFormat = input<string>('dd/mm/yy');
@@ -115,6 +116,11 @@ export class InputDateComponent implements ControlValueAccessor {
 
   // Event handler for date changes
   onDateChange(date: Date | string | null) {
+    // Don't allow changes if component is not enabled
+    if (!this.enabled()) {
+      return;
+    }
+
     // Validate against minDate if provided
     if (date instanceof Date && this.minDate()) {
       const minDate = this.minDate();

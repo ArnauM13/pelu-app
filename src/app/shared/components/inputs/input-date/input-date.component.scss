@@ -279,7 +279,6 @@
        // Disabled days (past dates when preventPastMonths is true)
        &.p-datepicker-day.p-disabled {
          color: var(--text-color-muted) !important;
-         cursor: not-allowed !important;
          opacity: 0.3 !important;
        }
      }
@@ -540,10 +539,6 @@
     line-height: 1 !important;
   }
 }
-
-
-
-
 
 // Global styles for time picker
 :global(.p-timepicker) {

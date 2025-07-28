@@ -13,7 +13,7 @@ import { InputCheckboxComponent } from '../../../shared/components/inputs/input-
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
-import { configureTestBed, resetMocks } from '../../../testing/test-setup';
+import { resetMocks } from '../../../../testing/test-setup';
 
 describe('AdminSettingsPageComponent', () => {
   let component: AdminSettingsPageComponent;
