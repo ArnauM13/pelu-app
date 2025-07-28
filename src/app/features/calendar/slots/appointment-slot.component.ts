@@ -92,10 +92,18 @@ export class AppointmentSlotComponent {
   private readonly DRAG_THRESHOLD = 8; // pixels - increased to prevent accidental drags
   private isDragging = false;
 
-  // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
+  // Computed position - using the same method as blocking slots for consistency
   readonly position = computed(() => {
     if (!this.data() || !this.data()!.appointment) return { top: 0, height: 0 };
-    return this.calendarCoreService.calculateAppointmentPosition(this.data()!.appointment!);
+
+    const appointment = this.data()!.appointment!;
+    const startDate = new Date(appointment.start);
+    const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+
+    return this.calendarCoreService.calculateAppointmentPositionFromTime(
+      timeString,
+      appointment.duration || this.calendarCoreService.reactiveBookingDuration()
+    );
   });
 
   // Computed service color

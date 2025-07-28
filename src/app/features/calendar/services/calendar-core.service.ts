@@ -1,10 +1,11 @@
-import { Injectable, computed, signal, inject } from '@angular/core';
+import { Injectable, computed, signal, inject, effect } from '@angular/core';
 import { addMinutes, format, parseISO, isSameDay } from 'date-fns';
 import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarStateService } from './calendar-state.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 // Interfaces for coordinate and time management
 export interface CoordinatePosition {
@@ -25,6 +26,7 @@ export interface GridConfiguration {
   businessEndHour: number;
   lunchBreakStart: number;
   lunchBreakEnd: number;
+  bookingDurationMinutes: number; // New: reactive booking duration
 }
 
 export interface AppointmentPosition {
@@ -50,15 +52,17 @@ export class CalendarCoreService {
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
+  private readonly businessSettingsService = inject(BusinessSettingsService);
 
   // ===== GRID CONFIGURATION =====
   private readonly slotHeightPxSignal = signal<number>(30);
-  private readonly pixelsPerMinuteSignal = signal<number>(1);
-  private readonly slotDurationMinutesSignal = signal<number>(30);
+  private readonly pixelsPerMinuteSignal = signal<number>(1); // Will be calculated reactively
+  private readonly slotDurationMinutesSignal = signal<number>(30); // Initial value, will be updated reactively
   private readonly businessStartHourSignal = signal<number>(8);
   private readonly businessEndHourSignal = signal<number>(20);
   private readonly lunchBreakStartSignal = signal<number>(13);
   private readonly lunchBreakEndSignal = signal<number>(15);
+  private readonly bookingDurationMinutesSignal = signal<number>(60); // New: reactive booking duration
 
   readonly gridConfiguration = computed(
     (): GridConfiguration => ({
@@ -69,8 +73,24 @@ export class CalendarCoreService {
       businessEndHour: this.businessEndHourSignal(),
       lunchBreakStart: this.lunchBreakStartSignal(),
       lunchBreakEnd: this.lunchBreakEndSignal(),
+      bookingDurationMinutes: this.bookingDurationMinutesSignal(), // New: reactive booking duration
     })
   );
+
+  // ===== REACTIVE POSITIONING COMPUTED SIGNALS =====
+  // These computed signals automatically recalculate when grid configuration changes
+  readonly reactiveSlotHeight = computed(() => this.gridConfiguration().slotHeightPx);
+  readonly reactivePixelsPerMinute = computed(() => this.gridConfiguration().pixelsPerMinute);
+  readonly reactiveSlotDuration = computed(() => this.gridConfiguration().slotDurationMinutes);
+  readonly reactiveBookingDuration = computed(() => this.gridConfiguration().bookingDurationMinutes);
+
+  // Reactive computed signals that update based on business settings
+  readonly reactiveSlotDurationFromSettings = computed(() => this.businessSettingsService.getAppointmentDuration());
+  readonly reactivePixelsPerMinuteFromSettings = computed(() => {
+    const slotHeight = this.reactiveSlotHeight();
+    const slotDuration = this.reactiveSlotDurationFromSettings();
+    return slotHeight / slotDuration; // pixels per minute
+  });
 
   // ===== DRAG & DROP STATE =====
   private readonly isDraggingSignal = signal<boolean>(false);
@@ -104,7 +124,33 @@ export class CalendarCoreService {
     })
   );
 
-  // ===== CONFIGURATION METHODS =====
+  constructor() {
+    // Set up effect to log grid configuration changes for debugging
+    effect(() => {
+      const config = this.gridConfiguration();
+      console.log('Grid configuration updated:', config);
+    });
+
+        // Set up effect to update slot duration and pixels per minute reactively
+    effect(() => {
+      const appointmentDuration = this.businessSettingsService.getAppointmentDuration();
+      const slotHeight = this.slotHeightPxSignal();
+      const pixelsPerMinute = slotHeight / appointmentDuration;
+
+      console.log('Updating reactive values:', {
+        appointmentDuration,
+        slotHeight,
+        pixelsPerMinute,
+        currentSlotDuration: this.slotDurationMinutesSignal(),
+        currentPixelsPerMinute: this.pixelsPerMinuteSignal()
+      });
+
+      this.slotDurationMinutesSignal.set(appointmentDuration);
+      this.pixelsPerMinuteSignal.set(pixelsPerMinute);
+    });
+  }
+
+  // ===== GRID CONFIGURATION METHODS =====
   updateGridConfiguration(config: Partial<GridConfiguration>): void {
     if (config.slotHeightPx !== undefined) {
       this.slotHeightPxSignal.set(config.slotHeightPx);
@@ -127,17 +173,25 @@ export class CalendarCoreService {
     if (config.lunchBreakEnd !== undefined) {
       this.lunchBreakEndSignal.set(config.lunchBreakEnd);
     }
+    if (config.bookingDurationMinutes !== undefined) {
+      this.bookingDurationMinutesSignal.set(config.bookingDurationMinutes);
+    }
+  }
+
+  // New method to update booking duration specifically
+  updateBookingDuration(durationMinutes: number): void {
+    this.bookingDurationMinutesSignal.set(durationMinutes);
   }
 
   // ===== COORDINATE CONVERSION METHODS =====
   coordinateToTime(yPosition: number): string {
     const config = this.gridConfiguration();
+    const slotHeight = this.reactiveSlotHeight();
 
-    // Calculate which time slot we're in (each slot is 30 minutes = 30 pixels)
-    const slotIndex = Math.round(yPosition / config.slotHeightPx);
+    // Calculate which time slot we're in
+    const slotIndex = Math.round(yPosition / slotHeight);
 
     // Calculate total minutes from business start
-    // Since we now show ALL time slots including lunch break, no need to adjust for lunch break
     const totalMinutes = config.businessStartHour * 60 + slotIndex * config.slotDurationMinutes;
 
     const hours = Math.floor(totalMinutes / 60);
@@ -166,14 +220,14 @@ export class CalendarCoreService {
 
   timeToCoordinate(time: string): number {
     const config = this.gridConfiguration();
+    const slotHeight = this.reactiveSlotHeight();
     const [hours, minutes] = time.split(':').map(Number);
 
     // Calculate minutes since business start
-    // Since we now show ALL time slots including lunch break, no need to adjust for lunch break
     const minutesSinceStart = (hours - config.businessStartHour) * 60 + minutes;
 
     const slotIndex = minutesSinceStart / config.slotDurationMinutes;
-    return slotIndex * config.slotHeightPx;
+    return slotIndex * slotHeight;
   }
 
   coordinateToTimePosition(position: CoordinatePosition, targetDate: Date): TimePosition {
@@ -194,33 +248,17 @@ export class CalendarCoreService {
   // ===== TIME ALIGNMENT METHODS =====
   alignTimeToGrid(time: string): string {
     const config = this.gridConfiguration();
+    const slotDuration = this.reactiveSlotDuration();
     const [hours, minutes] = time.split(':').map(Number);
 
-    // Always align to 30-minute slots (0 or 30 minutes)
-    const roundedMinutes =
-      Math.round(minutes / config.slotDurationMinutes) * config.slotDurationMinutes;
+    // Align to slot duration
+    const roundedMinutes = Math.round(minutes / slotDuration) * slotDuration;
 
     let finalHours = hours;
     let finalMinutes = roundedMinutes;
 
     if (finalMinutes >= 60) {
       finalHours += 1;
-      finalMinutes = 0;
-    }
-
-    // Clamp to business hours
-    if (finalHours < config.businessStartHour) {
-      finalHours = config.businessStartHour;
-      finalMinutes = 0;
-    }
-    if (finalHours >= config.businessEndHour) {
-      finalHours = config.businessEndHour - 1;
-      finalMinutes = 30;
-    }
-
-    // Skip lunch break hours
-    if (finalHours >= config.lunchBreakStart && finalHours < config.lunchBreakEnd) {
-      finalHours = config.lunchBreakEnd;
       finalMinutes = 0;
     }
 
@@ -237,7 +275,7 @@ export class CalendarCoreService {
     const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
 
     const top = this.timeToCoordinate(timeString);
-    const height = (appointment.duration || 60) * this.gridConfiguration().pixelsPerMinute;
+    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinute();
 
     return { top, height };
   }
@@ -247,7 +285,32 @@ export class CalendarCoreService {
     durationMinutes: number
   ): { top: number; height: number } {
     const top = this.timeToCoordinate(startTime);
-    const height = durationMinutes * this.gridConfiguration().pixelsPerMinute;
+    const height = durationMinutes * this.reactivePixelsPerMinute();
+
+    console.log('calculateAppointmentPositionFromTime:', {
+      startTime,
+      durationMinutes,
+      top,
+      height,
+      reactivePixelsPerMinute: this.reactivePixelsPerMinute(),
+      gridConfig: this.gridConfiguration()
+    });
+
+    return { top, height };
+  }
+
+  // New method for reactive position calculation with current booking duration
+  calculateReactiveAppointmentPosition(appointment: AppointmentEvent): AppointmentPosition {
+    if (!appointment.start) {
+      return { top: 0, height: 0 };
+    }
+
+    const startDate = new Date(appointment.start);
+    const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+
+    const top = this.timeToCoordinate(timeString);
+    // Use the reactive booking duration for height calculation
+    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinute();
 
     return { top, height };
   }
@@ -257,7 +320,7 @@ export class CalendarCoreService {
 
     appointments.forEach(appointment => {
       const key = appointment.id || `${appointment.title}-${appointment.start}`;
-      positions.set(key, this.calculateAppointmentPosition(appointment));
+      positions.set(key, this.calculateReactiveAppointmentPosition(appointment));
     });
 
     return positions;
@@ -279,7 +342,7 @@ export class CalendarCoreService {
     date: Date,
     time: string,
     appointments: AppointmentEvent[],
-    requestedDuration: number = this.gridConfiguration().slotDurationMinutes
+    requestedDuration: number = this.reactiveBookingDuration() // Use reactive booking duration
   ): boolean {
     const [hour, minute] = time.split(':').map(Number);
     const slotStart = new Date(date);
@@ -297,7 +360,7 @@ export class CalendarCoreService {
       const appointmentStart = new Date(appointment.start);
       const appointmentEnd = appointment.end
         ? new Date(appointment.end)
-        : addMinutes(appointmentStart, appointment.duration || 60);
+        : addMinutes(appointmentStart, appointment.duration || this.reactiveBookingDuration());
 
       return appointmentStart < slotEnd && appointmentEnd > slotStart;
     });
@@ -306,13 +369,17 @@ export class CalendarCoreService {
   // ===== TIME SLOT GENERATION =====
   getAvailableTimeSlots(): string[] {
     const config = this.gridConfiguration();
+    const slotDuration = this.reactiveSlotDuration();
     const slots: string[] = [];
 
     let currentHour = config.businessStartHour;
     let currentMinute = 0;
 
     while (currentHour < config.businessEndHour) {
-      currentMinute += config.slotDurationMinutes;
+      const timeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+      slots.push(timeString);
+
+      currentMinute += slotDuration;
       if (currentMinute >= 60) {
         currentHour += 1;
         currentMinute = 0;
@@ -324,50 +391,38 @@ export class CalendarCoreService {
 
   getNextAvailableTimeSlot(time: string): string {
     const config = this.gridConfiguration();
+    const slotDuration = this.reactiveSlotDuration();
     const [hours, minutes] = time.split(':').map(Number);
 
     let nextHours = hours;
-    let nextMinutes = minutes + config.slotDurationMinutes;
+    let nextMinutes = minutes + slotDuration;
 
     if (nextMinutes >= 60) {
       nextHours += 1;
       nextMinutes = 0;
     }
 
-    const nextTime = `${nextHours.toString().padStart(2, '0')}:${nextMinutes.toString().padStart(2, '0')}`;
-
-    return nextTime;
+    return `${nextHours.toString().padStart(2, '0')}:${nextMinutes.toString().padStart(2, '0')}`;
   }
 
   // ===== LUNCH BREAK CALCULATIONS =====
   getLunchBreakOffset(): number {
     const config = this.gridConfiguration();
-    const lunchBreakStartMinutes = config.lunchBreakStart * 60;
-    const businessStartMinutes = config.businessStartHour * 60;
-    const minutesSinceStart = lunchBreakStartMinutes - businessStartMinutes;
-
-    return minutesSinceStart * config.pixelsPerMinute;
+    const lunchBreakStartTime = `${config.lunchBreakStart.toString().padStart(2, '0')}:00`;
+    return this.timeToCoordinate(lunchBreakStartTime);
   }
 
   getLunchBreakHeight(): number {
     const config = this.gridConfiguration();
     const lunchBreakDuration = (config.lunchBreakEnd - config.lunchBreakStart) * 60;
-
-    return lunchBreakDuration * config.pixelsPerMinute;
+    return lunchBreakDuration * this.reactivePixelsPerMinute();
   }
 
   getLunchBreakPosition(): { top: number; height: number } {
-    const config = this.gridConfiguration();
-    const lunchBreakStartMinutes = config.lunchBreakStart * 60;
-    const businessStartMinutes = config.businessStartHour * 60;
-    const minutesSinceStart = lunchBreakStartMinutes - businessStartMinutes;
-
-    const top = (minutesSinceStart / config.slotDurationMinutes) * config.slotHeightPx;
-    const height =
-      (((config.lunchBreakEnd - config.lunchBreakStart) * 60) / config.slotDurationMinutes) *
-      config.slotHeightPx;
-
-    return { top, height };
+    return {
+      top: this.getLunchBreakOffset(),
+      height: this.getLunchBreakHeight(),
+    };
   }
 
   getLunchBreakTimeRange(): { start: string; end: string } {
@@ -384,18 +439,15 @@ export class CalendarCoreService {
     originalPosition: { top: number; left: number },
     originalDate: Date
   ): void {
-    console.log('startDrag called with:', { appointment, originalPosition, originalDate });
-
+    console.log('Starting drag for appointment:', appointment);
     this.isDraggingSignal.set(true);
     this.draggedAppointmentSignal.set(appointment);
     this.originalPositionSignal.set(originalPosition);
     this.currentPositionSignal.set(originalPosition);
     this.originalDateSignal.set(originalDate);
-
-    this.targetDateSignal.set(originalDate);
-    this.targetTimeSignal.set(this.extractTimeFromAppointment(appointment));
-
-    console.log('Drag state initialized');
+    this.targetDateSignal.set(null);
+    this.targetTimeSignal.set(null);
+    this.isValidDropSignal.set(true);
   }
 
   updateDragPosition(position: { top: number; left: number }): void {
@@ -403,24 +455,17 @@ export class CalendarCoreService {
   }
 
   updateTargetDateTime(position: { top: number; left: number }, dayColumn: Date): void {
-    console.log('updateTargetDateTime called with:', { position, dayColumn });
-
-    const coordinatePosition: CoordinatePosition = { x: position.left, y: position.top };
-    const timePosition: TimePosition = this.coordinateToTimePosition(coordinatePosition, dayColumn);
-
-    console.log('Calculated time position:', timePosition);
-
+    const timePosition = this.coordinateToTimePosition({ x: position.left, y: position.top }, dayColumn);
+    this.targetDateSignal.set(dayColumn);
     this.targetTimeSignal.set(timePosition.time);
-    this.targetDateSignal.set(timePosition.date);
 
-    const draggedAppointment = this.draggedAppointment();
-    if (draggedAppointment) {
+    // Validate drop position
+    if (this.draggedAppointment()) {
       const isValid = this.isValidDropPosition(
-        draggedAppointment,
-        timePosition.date,
+        this.draggedAppointment()!,
+        dayColumn,
         timePosition.time
       );
-      console.log('Drop position valid:', isValid);
       this.isValidDropSignal.set(isValid);
     }
   }
@@ -429,27 +474,36 @@ export class CalendarCoreService {
     const originalDate = this.originalDate();
     const targetDate = this.targetDate();
 
-    if (!originalDate || !targetDate) return false;
+    if (!originalDate || !targetDate) {
+      return false;
+    }
 
     return !isSameDay(originalDate, targetDate);
   }
 
   async endDrag(): Promise<boolean> {
-    const draggedAppointment = this.draggedAppointment();
+    const appointment = this.draggedAppointment();
     const targetDate = this.targetDate();
     const targetTime = this.targetTime();
 
-    if (!draggedAppointment || !targetDate || !targetTime) {
-      this.resetDragState();
+    if (!appointment || !targetDate || !targetTime) {
+      this.cancelDrag();
       return false;
     }
 
-    if (this.isValidDropPosition(draggedAppointment, targetDate, targetTime)) {
-      await this.moveAppointment(draggedAppointment, targetDate, targetTime);
+    const isValid = this.isValidDropPosition(appointment, targetDate, targetTime);
+    if (!isValid) {
+      this.cancelDrag();
+      return false;
+    }
+
+    try {
+      await this.moveAppointment(appointment, targetDate, targetTime);
       this.resetDragState();
       return true;
-    } else {
-      this.resetDragState();
+    } catch (error) {
+      console.error('Failed to move appointment:', error);
+      this.cancelDrag();
       return false;
     }
   }
@@ -460,14 +514,10 @@ export class CalendarCoreService {
 
   // ===== PRIVATE HELPER METHODS =====
   private extractTimeFromAppointment(appointment: AppointmentEvent): string {
-    if (!appointment.start) return '08:00';
+    if (!appointment.start) return '00:00';
 
-    try {
-      const date = new Date(appointment.start);
-      return format(date, 'HH:mm');
-    } catch {
-      return '08:00';
-    }
+    const startDate = new Date(appointment.start);
+    return `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
   }
 
   private isValidDropPosition(
@@ -475,40 +525,35 @@ export class CalendarCoreService {
     targetDate: Date,
     targetTime: string
   ): boolean {
-    const appointments = this.stateService.appointments();
+    // Check if target time is within business hours
+    if (!this.isTimeSlotBookable(targetTime)) {
+      return false;
+    }
 
-    const appointmentEvents: AppointmentEvent[] = appointments
-      .map(app => ({
-        id: app.id,
-        title: app.nom,
-        start: `${app.data}T${app.hora}:00`,
-        duration: app.duration || 60,
-        serviceName: app.serviceName,
-        clientName: app.nom,
-      }))
-      .filter(app => app.id !== appointment.id);
+    // Check if the appointment duration fits in the target time slot
+    const appointmentDuration = appointment.duration || this.reactiveBookingDuration();
+    const targetEndTime = addMinutes(new Date(targetDate), appointmentDuration);
+    const targetEndTimeString = `${targetEndTime.getHours().toString().padStart(2, '0')}:${targetEndTime.getMinutes().toString().padStart(2, '0')}`;
 
-    const alignedTime = this.alignTimeToGrid(targetTime);
+    if (!this.isTimeSlotBookable(targetEndTimeString)) {
+      return false;
+    }
 
-    const newStartDate = new Date(targetDate);
-    const [hours, minutes] = alignedTime.split(':').map(Number);
-    newStartDate.setHours(hours, minutes, 0, 0);
+    // Check for conflicts with existing appointments
+    const existingAppointments = this.bookingService.bookings();
+    const conflictingAppointment = existingAppointments.find(existing => {
+      if (!existing.data || !existing.hora || existing.id === appointment.id) return false;
 
-    const newAppointment: AppointmentEvent = {
-      ...appointment,
-      start: newStartDate.toISOString().slice(0, 16).replace('T', 'T'),
-      end: addMinutes(newStartDate, appointment.duration || 60)
-        .toISOString()
-        .slice(0, 16)
-        .replace('T', 'T'),
-    };
+      const existingStart = new Date(`${existing.data}T${existing.hora}`);
+      const existingEnd = addMinutes(existingStart, existing.duration || 60);
+      const targetStart = new Date(targetDate);
+      targetStart.setHours(parseInt(targetTime.split(':')[0]), parseInt(targetTime.split(':')[1]), 0, 0);
+      const targetEnd = addMinutes(targetStart, appointmentDuration);
 
-    return this.isTimeSlotAvailable(
-      targetDate,
-      alignedTime,
-      appointmentEvents,
-      appointment.duration || 60
-    );
+      return existingStart < targetEnd && existingEnd > targetStart;
+    });
+
+    return !conflictingAppointment;
   }
 
   private async moveAppointment(
@@ -516,51 +561,19 @@ export class CalendarCoreService {
     targetDate: Date,
     targetTime: string
   ): Promise<void> {
-    console.log('moveAppointment called with:', { appointment, targetDate, targetTime });
+    const [hours, minutes] = targetTime.split(':').map(Number);
+    const newStartDate = new Date(targetDate);
+    newStartDate.setHours(hours, minutes, 0, 0);
 
-    const user = this.authService.user();
-    if (!user) {
-      console.error('No user found for appointment update');
-      return;
-    }
+    const updatedAppointment: AppointmentEvent = {
+      ...appointment,
+      start: newStartDate.toISOString(),
+      end: addMinutes(newStartDate, appointment.duration || this.reactiveBookingDuration()).toISOString(),
+    };
 
-    if (!appointment.id) {
-      console.error('Invalid appointment ID for update');
-      return;
-    }
-
-    const alignedTime = this.alignTimeToGrid(targetTime);
-    const formattedDate = format(targetDate, 'yyyy-MM-dd');
-
-    console.log('Updating booking with:', {
-      bookingId: appointment.id,
-      data: formattedDate,
-      hora: alignedTime,
-    });
-
-    try {
-      // Update the booking in Firebase
-      const success = await this.bookingService.updateBooking(appointment.id, {
-        data: formattedDate,
-        hora: alignedTime,
-      });
-
-      if (success) {
-        // Refresh bookings to update the UI
-        await this.bookingService.refreshBookings();
-
-        this.toastService.showSuccess(
-          'Cita moguda',
-          `S'ha mogut la cita de ${appointment.title} a ${format(targetDate, 'dd/MM')} a les ${alignedTime}`
-        );
-
-        console.log('Booking updated successfully');
-      } else {
-        console.error('Failed to update booking');
-      }
-    } catch (error) {
-      console.error('Error updating booking:', error);
-    }
+    // Update the appointment in the booking service
+    await this.bookingService.updateBooking(appointment.id!, updatedAppointment);
+    this.toastService.showSuccess('Cita actualizada correctamente');
   }
 
   private resetDragState(): void {
