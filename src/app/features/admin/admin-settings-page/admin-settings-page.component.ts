@@ -54,6 +54,7 @@ export class AdminSettingsPageComponent implements OnInit {
 
   // Mode management
   private readonly isEditModeSignal = signal(false);
+  private originalFormValues: any = null;
 
   // Use the business settings service
   settings = computed(() => this.businessSettingsService.settings());
@@ -108,9 +109,16 @@ export class AdminSettingsPageComponent implements OnInit {
   // Mode management methods
   setViewMode() {
     this.isEditModeSignal.set(false);
+    // Restore original form values if canceling edit mode
+    if (this.originalFormValues) {
+      this.settingsForm.patchValue(this.originalFormValues);
+      this.originalFormValues = null;
+    }
   }
 
   setEditMode() {
+    // Save current form values before entering edit mode
+    this.originalFormValues = this.settingsForm.value;
     this.isEditModeSignal.set(true);
   }
 
@@ -122,29 +130,8 @@ export class AdminSettingsPageComponent implements OnInit {
     }
   }
 
-  // Time handling methods
-  getTimeValue(timeString: string | null): Date | null {
-    if (!timeString) return null;
-
-    const [hours, minutes] = timeString.split(':').map(Number);
-    if (isNaN(hours) || isNaN(minutes)) return null;
-
-    const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
-    return date;
-  }
-
-  onTimeChange(date: Date | string | null, fieldName: string) {
-    if (!date || !(date instanceof Date)) {
-      this.settingsForm.get(fieldName)?.setValue('');
-      return;
-    }
-
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const timeString = `${hours}:${minutes}`;
-
-    this.settingsForm.get(fieldName)?.setValue(timeString);
+  cancelEditMode() {
+    this.setViewMode();
   }
 
   // Helper methods for display
@@ -186,9 +173,40 @@ export class AdminSettingsPageComponent implements OnInit {
   async loadSettings() {
     try {
       await this.businessSettingsService.loadSettings();
+      // Update form with new settings and clear original values
+      this.updateFormWithCurrentSettings();
     } catch (error) {
       console.error('Error loading settings:', error);
       this.toastService.showError('Error', 'Error al carregar la configuració');
+    }
+  }
+
+  private updateFormWithCurrentSettings() {
+    if (this.settingsForm) {
+      const currentSettings = this.settings();
+      const businessHoursString = this.businessSettingsService.getBusinessHoursString();
+      const lunchBreak = this.businessSettingsService.getLunchBreak();
+
+      this.settingsForm.patchValue({
+        businessName: currentSettings.businessName,
+        businessHoursStart: businessHoursString.start,
+        businessHoursEnd: businessHoursString.end,
+        lunchBreakStart: lunchBreak.start,
+        lunchBreakEnd: lunchBreak.end,
+        appointmentDuration: currentSettings.appointmentDuration,
+        maxAppointments: currentSettings.maxAppointmentsPerDay,
+        autoConfirm: currentSettings.autoConfirmAppointments,
+        sendNotifications: currentSettings.sendNotifications,
+        defaultLanguage: currentSettings.language,
+        currency: currentSettings.currency,
+        preventCancellation: currentSettings.preventCancellation,
+        cancellationTimeLimit: currentSettings.cancellationTimeLimit,
+        bookingAdvanceDays: currentSettings.bookingAdvanceDays,
+        bookingAdvanceTime: currentSettings.bookingAdvanceTime,
+      });
+
+      // Clear original form values since we're loading fresh data
+      this.originalFormValues = null;
     }
   }
 
@@ -231,6 +249,9 @@ export class AdminSettingsPageComponent implements OnInit {
         });
 
         this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
+
+        // Clear original form values since changes are now permanent
+        this.originalFormValues = null;
 
         // Switch back to view mode after saving
         this.setViewMode();
