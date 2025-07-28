@@ -256,7 +256,6 @@ export class CalendarComponent {
     return this.timeSlots().map(time => ({
       time,
       isBlocked: this.isTimeSlotBlocked(time),
-      isLunchBreakStart: this.isLunchBreakStart(time),
       isDisabled: this.isTimeSlotBlocked(time),
     }));
   });
@@ -273,7 +272,7 @@ export class CalendarComponent {
           !this.isTimeSlotBlocked(time) &&
           !this.isPastDate(day) &&
           !this.isPastTimeSlot(day, time),
-        isLunchBreak: this.isTimeSlotBlocked(time),
+        isLunchBreak: this.isLunchBreak(time),
         isPastDate: this.isPastDate(day),
         isPastTime: this.isPastTimeSlot(day, time),
         isClickable: this.isTimeSlotAvailable(day, time),
@@ -281,15 +280,6 @@ export class CalendarComponent {
           this.isPastDate(day) || this.isPastTimeSlot(day, time) || this.isTimeSlotBlocked(time),
         tooltip: this.getTimeSlotTooltip(day, time),
       }));
-
-      const lunchBreak =
-        this.calendarCoreService.getLunchBreakPosition().height > 0
-          ? {
-              top: this.calendarCoreService.getLunchBreakPosition().top,
-              height: this.calendarCoreService.getLunchBreakPosition().height,
-              timeRange: this.calendarCoreService.getLunchBreakTimeRange(),
-            }
-          : null;
 
       const dropIndicator =
         this.calendarCoreService.isDragging() &&
@@ -318,7 +308,6 @@ export class CalendarComponent {
         isDisabled: this.isPastDate(day),
         timeSlots,
         appointments: this.getAppointmentsForDay(day),
-        lunchBreak,
         dropIndicator,
         isDragOver: this.calendarCoreService.isDragging(),
         isDropValid:
@@ -437,22 +426,16 @@ export class CalendarComponent {
         serviceId: '',
       };
 
-      // Removed localStorage saving - now using Firebase
-
       this.stateService.openAppointmentDetail(convertedAppointment);
     }
   }
 
-  // Removed localStorage saving - now using Firebase
-
   isLunchBreak(time: string): boolean {
-    return this.calendarCoreService.isLunchBreak(time);
+    return this.businessService.isLunchBreak(time);
   }
 
   isTimeSlotBlocked(time: string): boolean {
-    return (
-      this.businessService.isLunchBreak(time) || !this.businessService.isTimeSlotBookable(time)
-    );
+    return !this.businessService.isTimeSlotBookable(time);
   }
 
   getAppointmentForTimeSlot(date: Date, time: string) {
@@ -767,10 +750,6 @@ export class CalendarComponent {
     this.editAppointment.emit(appointmentEvent);
   }
 
-  isLunchBreakStart(time: string): boolean {
-    return this.businessService.isLunchBreakStart(time);
-  }
-
   reloadAppointments() {
     // Silently refresh appointments without showing loader
     this.appointmentService.silentRefreshBookings();
@@ -892,14 +871,6 @@ export class CalendarComponent {
       } else {
         return `${hours}h ${remainingMinutes}min`;
       }
-    }
-  }
-
-  private convertToCalendarEvent(appointment: any): AppointmentEvent {
-    if (appointment.originalAppointment) {
-      return appointment.originalAppointment;
-    } else {
-      return appointment;
     }
   }
 

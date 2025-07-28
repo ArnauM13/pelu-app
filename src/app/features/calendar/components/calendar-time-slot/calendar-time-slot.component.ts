@@ -94,11 +94,19 @@ export interface TimeSlotData {
       }
 
       .time-slot.lunch-break {
-        background: #fff3cd;
-        color: #856404;
-        cursor: not-allowed;
-        opacity: 0.8;
-        position: relative;
+        background: rgba(255, 243, 205, 0.6) !important;
+        color: #856404 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+        position: relative !important;
+        transform: none !important;
+        scale: none !important;
+        box-shadow: none !important;
+        border-color: #f1f3f4 !important;
+        pointer-events: auto !important;
+        transition: none !important;
+        filter: blur(0.3px) !important;
+        animation: none !important;
       }
 
       .time-slot.lunch-break::after {
@@ -116,6 +124,17 @@ export interface TimeSlotData {
           rgba(253, 203, 110, 0.3) 4px
         );
         pointer-events: none;
+      }
+
+      /* Prevent hover effects on lunch break slots */
+      .time-slot.lunch-break:hover {
+        background: #fff3cd !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border-color: #f1f3f4 !important;
+        opacity: 0.8 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
       }
 
       .time-slot.past-date {

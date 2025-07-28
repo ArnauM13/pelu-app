@@ -21,7 +21,7 @@ import { InputDateComponent } from '../../../shared/components/inputs/input-date
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
-  selector: 'app-admin-settings-page',
+  selector: 'pelu-admin-settings-page',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,6 +65,7 @@ export class AdminSettingsPageComponent implements OnInit {
   // Computed properties
   readonly isEditMode = computed(() => this.isEditModeSignal());
 
+  // TODO: posar el calendari de dilluns a diumenge
   workingDaysOptions = [
     { label: 'Dilluns', value: 1 },
     { label: 'Dimarts', value: 2 },

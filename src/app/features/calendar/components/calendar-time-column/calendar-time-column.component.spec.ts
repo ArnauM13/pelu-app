@@ -9,12 +9,12 @@ import { CalendarTimeColumnComponent, TimeSlot } from './calendar-time-column.co
 })
 class TestHostComponent {
   testTimeSlots: TimeSlot[] = [
-    { time: '08:00', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
-    { time: '08:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
-    { time: '12:00', isBlocked: true, isLunchBreakStart: true, isDisabled: true },
-    { time: '12:30', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
-    { time: '13:00', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
-    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
+    { time: '08:00', isBlocked: false, isDisabled: false },
+    { time: '08:30', isBlocked: false, isDisabled: false },
+    { time: '12:00', isBlocked: true, isDisabled: true },
+    { time: '12:30', isBlocked: true, isDisabled: true },
+    { time: '13:00', isBlocked: true, isDisabled: true },
+    { time: '13:30', isBlocked: false, isDisabled: false },
   ];
 }
 
@@ -24,12 +24,12 @@ describe('CalendarTimeColumnComponent', () => {
   let hostFixture: ComponentFixture<TestHostComponent>;
 
   const mockTimeSlots: TimeSlot[] = [
-    { time: '08:00', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
-    { time: '08:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
-    { time: '12:00', isBlocked: true, isLunchBreakStart: true, isDisabled: true },
-    { time: '12:30', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
-    { time: '13:00', isBlocked: true, isLunchBreakStart: false, isDisabled: true },
-    { time: '13:30', isBlocked: false, isLunchBreakStart: false, isDisabled: false },
+    { time: '08:00', isBlocked: false, isDisabled: false },
+    { time: '08:30', isBlocked: false, isDisabled: false },
+    { time: '12:00', isBlocked: true, isDisabled: true },
+    { time: '12:30', isBlocked: true, isDisabled: true },
+    { time: '13:00', isBlocked: true, isDisabled: true },
+    { time: '13:30', isBlocked: false, isDisabled: false },
   ];
 
   beforeEach(async () => {

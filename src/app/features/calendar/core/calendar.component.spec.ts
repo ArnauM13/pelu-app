@@ -48,7 +48,6 @@ describe('CalendarComponent', () => {
       'isPastDate',
       'isPastTimeSlot',
       'isLunchBreak',
-      'isLunchBreakStart',
       'isTimeSlotBookable',
       'canNavigateToPreviousWeek',
       'isBusinessDay',
@@ -102,7 +101,6 @@ describe('CalendarComponent', () => {
     businessSpy.isPastDate.and.returnValue(false);
     businessSpy.isPastTimeSlot.and.returnValue(false);
     businessSpy.isLunchBreak.and.returnValue(false);
-    businessSpy.isLunchBreakStart.and.returnValue(false);
     businessSpy.isTimeSlotBookable.and.returnValue(true);
     businessSpy.canNavigateToPreviousWeek.and.returnValue(true);
     businessSpy.isBusinessDay.and.returnValue(true);
