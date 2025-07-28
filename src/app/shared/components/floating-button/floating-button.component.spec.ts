@@ -7,7 +7,7 @@ describe('FloatingButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FloatingButtonComponent]
+      imports: [FloatingButtonComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FloatingButtonComponent);
@@ -76,7 +76,7 @@ describe('FloatingButtonComponent', () => {
       ariaLabel: 'Add new item',
       isActive: true,
       variant: 'primary',
-      size: 'medium'
+      size: 'medium',
     };
 
     expect(config.icon).toBe('➕');
@@ -91,7 +91,7 @@ describe('FloatingButtonComponent', () => {
     const config: FloatingButtonConfig = {
       icon: '➕',
       tooltip: 'Add new item',
-      ariaLabel: 'Add new item'
+      ariaLabel: 'Add new item',
     };
 
     expect(config.icon).toBe('➕');
@@ -131,7 +131,7 @@ describe('FloatingButtonComponent', () => {
       icon: '➕',
       tooltip: 'Active button',
       ariaLabel: 'Active button',
-      isActive: true
+      isActive: true,
     };
 
     expect(activeConfig.isActive).toBe(true);
@@ -142,7 +142,7 @@ describe('FloatingButtonComponent', () => {
       icon: '➕',
       tooltip: 'Inactive button',
       ariaLabel: 'Inactive button',
-      isActive: false
+      isActive: false,
     };
 
     expect(inactiveConfig.isActive).toBe(false);

@@ -26,7 +26,7 @@ const mockAuthService = {
   login: jasmine.createSpy('login').and.returnValue(Promise.resolve()),
   logout: jasmine.createSpy('logout').and.returnValue(Promise.resolve()),
   saveCurrentUserLanguage: jasmine.createSpy('saveCurrentUserLanguage'),
-  userDisplayName: jasmine.createSpy('userDisplayName').and.returnValue('')
+  userDisplayName: jasmine.createSpy('userDisplayName').and.returnValue(''),
 };
 
 // Mock TranslationService
@@ -35,7 +35,9 @@ const mockTranslationService = {
   get$: jasmine.createSpy('get$').and.returnValue(of('translated text')),
   currentLanguage: jasmine.createSpy('currentLanguage').and.returnValue('ca'),
   setLanguage: jasmine.createSpy('setLanguage'),
-  currentLanguageInfo: jasmine.createSpy('currentLanguageInfo').and.returnValue({ code: 'ca', name: 'Català' }),
+  currentLanguageInfo: jasmine
+    .createSpy('currentLanguageInfo')
+    .and.returnValue({ code: 'ca', name: 'Català' }),
   availableLanguages: [],
   isLanguageAvailable: jasmine.createSpy('isLanguageAvailable').and.returnValue(true),
   isRTL: jasmine.createSpy('isRTL').and.returnValue(false),
@@ -43,7 +45,7 @@ const mockTranslationService = {
   getBrowserLanguage: jasmine.createSpy('getBrowserLanguage').and.returnValue('ca'),
   saveUserLanguagePreference: jasmine.createSpy('saveUserLanguagePreference'),
   getUserLanguagePreference: jasmine.createSpy('getUserLanguagePreference').and.returnValue('ca'),
-  restoreUserLanguagePreference: jasmine.createSpy('restoreUserLanguagePreference')
+  restoreUserLanguagePreference: jasmine.createSpy('restoreUserLanguagePreference'),
 };
 
 describe('LoginPageComponent', () => {
@@ -58,15 +60,15 @@ describe('LoginPageComponent', () => {
         LoginPageComponent,
         HttpClientModule,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: Auth, useValue: mockAuth },
         { provide: AuthService, useValue: mockAuthService },
         { provide: TranslationService, useValue: mockTranslationService },
-        provideRouter([])
-      ]
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPageComponent);

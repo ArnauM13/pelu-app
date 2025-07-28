@@ -55,7 +55,9 @@
   font-size: 0.9rem;
   background-color: white;
   color: #1f2937;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   height: 40px;
   min-height: 40px;
   box-sizing: border-box;
@@ -100,85 +102,6 @@
 .service-dropdown {
   width: 100%;
   flex: 1;
-}
-
-.service-dropdown ::ng-deep .p-select {
-  width: 100%;
-  border: 1px solid var(--surface-border);
-  border-radius: 8px;
-  background: var(--surface-card);
-  transition: all 0.2s ease;
-  box-shadow: var(--box-shadow);
-}
-
-.service-dropdown ::ng-deep .p-select:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--box-shadow-hover);
-}
-
-.service-dropdown ::ng-deep .p-select:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-color-alpha-20);
-}
-
-.service-dropdown ::ng-deep .p-select-label {
-  padding: 0.75rem 1rem;
-  color: var(--text-color);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.service-dropdown ::ng-deep .p-select-trigger {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-color-secondary);
-  border-left: 1px solid var(--surface-border);
-  transition: all 0.2s ease;
-}
-
-.service-dropdown ::ng-deep .p-select-panel {
-  border: 1px solid var(--surface-border);
-  border-radius: 8px;
-  background: var(--surface-card);
-  box-shadow: var(--box-shadow);
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.service-dropdown ::ng-deep .p-select-items-wrapper {
-  padding: 0.5rem 0;
-}
-
-.service-dropdown ::ng-deep .p-select-item {
-  padding: 0.75rem 1rem;
-  color: var(--text-color);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-}
-
-.service-dropdown ::ng-deep .p-select-item:hover {
-  background: var(--primary-color-alpha-10);
-  color: var(--primary-color);
-}
-
-.service-dropdown ::ng-deep .p-select-item.p-highlight {
-  background: var(--primary-color);
-  color: white;
 }
 
 .service-option,
@@ -273,19 +196,8 @@
     min-height: 35px;
   }
 
-  .service-dropdown ::ng-deep .p-select {
-    font-size: 1rem;
-  }
-
-  .service-dropdown ::ng-deep .p-select-label {
-    font-size: 1rem;
-  }
-
-  .service-dropdown ::ng-deep .p-select-item {
-    font-size: 1rem;
-  }
-
-  .service-option, .service-option-selected {
+  .service-option,
+  .service-option-selected {
     height: 35px;
     min-height: 35px;
   }

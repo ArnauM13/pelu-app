@@ -10,7 +10,7 @@ class MockTranslateLoader implements TranslateLoader {
       'COMMON.FILTER_BY_DATE': 'Filter by Date',
       'COMMON.FILTER_BY_CLIENT': 'Filter by Client',
       'COMMON.SEARCH_BY_NAME': 'Search by name',
-      'COMMON.CLEAR_FILTERS_BUTTON': 'Clear Filters'
+      'COMMON.CLEAR_FILTERS_BUTTON': 'Clear Filters',
     });
   }
 }
@@ -24,9 +24,9 @@ describe('FiltersInlineComponent', () => {
       imports: [
         FiltersInlineComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ]
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FiltersInlineComponent);

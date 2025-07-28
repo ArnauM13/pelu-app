@@ -17,20 +17,22 @@ describe('CalendarWithFooterComponent', () => {
       imports: [CalendarWithFooterComponent],
       providers: [
         { provide: CalendarBusinessService, useValue: businessSpy },
-        { provide: TranslateService, useValue: translateSpy }
-      ]
+        { provide: TranslateService, useValue: translateSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CalendarWithFooterComponent);
     component = fixture.componentInstance;
-    businessService = TestBed.inject(CalendarBusinessService) as jasmine.SpyObj<CalendarBusinessService>;
+    businessService = TestBed.inject(
+      CalendarBusinessService
+    ) as jasmine.SpyObj<CalendarBusinessService>;
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
 
     // Setup default spy returns
     businessService.getBusinessConfig.and.returnValue({
       hours: { start: 8, end: 20 },
       lunchBreak: { start: 13, end: 15 },
-      days: { start: 1, end: 5 }
+      days: { start: 1, end: 5 },
     });
     translateService.instant.and.returnValue('Translated text');
   });
@@ -129,7 +131,7 @@ describe('CalendarWithFooterComponent', () => {
       startHour: '08',
       endHour: '20',
       lunchStart: '13',
-      lunchEnd: '15'
+      lunchEnd: '15',
     });
   });
 });

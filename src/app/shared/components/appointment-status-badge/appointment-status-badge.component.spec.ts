@@ -1,6 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService, TranslateStore, TranslateLoader } from '@ngx-translate/core';
-import { AppointmentStatusBadgeComponent, AppointmentStatusData, AppointmentStatusConfig } from './appointment-status-badge.component';
+import {
+  TranslateModule,
+  TranslateService,
+  TranslateStore,
+  TranslateLoader,
+} from '@ngx-translate/core';
+import {
+  AppointmentStatusBadgeComponent,
+  AppointmentStatusData,
+  AppointmentStatusConfig,
+} from './appointment-status-badge.component';
 import { of } from 'rxjs';
 
 // Mock TranslateLoader
@@ -17,25 +26,35 @@ describe('AppointmentStatusBadgeComponent', () => {
 
   const mockAppointmentData: AppointmentStatusData = {
     date: '2024-01-15',
-    time: '10:00'
+    time: '10:00',
   };
 
   const mockConfig: AppointmentStatusConfig = {
     size: 'medium',
     variant: 'default',
     showIcon: true,
-    showDot: true
+    showDot: true,
   };
 
   beforeEach(async () => {
-    const translateSpy = jasmine.createSpyObj('TranslateService', ['get', 'instant', 'addLangs', 'getBrowserLang', 'use', 'reloadLang', 'setDefaultLang', 'getDefaultLang', 'getLangs']);
+    const translateSpy = jasmine.createSpyObj('TranslateService', [
+      'get',
+      'instant',
+      'addLangs',
+      'getBrowserLang',
+      'use',
+      'reloadLang',
+      'setDefaultLang',
+      'getDefaultLang',
+      'getLangs',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [
         AppointmentStatusBadgeComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: TranslateService, useValue: translateSpy },
@@ -44,10 +63,10 @@ describe('AppointmentStatusBadgeComponent', () => {
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppointmentStatusBadgeComponent);
@@ -93,7 +112,9 @@ describe('AppointmentStatusBadgeComponent', () => {
 
   it('should be a standalone component', () => {
     expect(AppointmentStatusBadgeComponent.prototype.constructor).toBeDefined();
-    expect(AppointmentStatusBadgeComponent.prototype.constructor.name).toBe('AppointmentStatusBadgeComponent');
+    expect(AppointmentStatusBadgeComponent.prototype.constructor.name).toBe(
+      'AppointmentStatusBadgeComponent'
+    );
   });
 
   it('should have component metadata', () => {
@@ -312,7 +333,7 @@ describe('AppointmentStatusBadgeComponent', () => {
         size: 'large',
         variant: 'outlined',
         showIcon: true,
-        showDot: true
+        showDot: true,
       };
 
       component.config = fullConfig;
@@ -326,7 +347,7 @@ describe('AppointmentStatusBadgeComponent', () => {
     it('should handle config with minimal properties', () => {
       const minimalConfig: AppointmentStatusConfig = {
         size: 'small',
-        variant: 'default'
+        variant: 'default',
       };
 
       component.config = minimalConfig;
@@ -338,7 +359,7 @@ describe('AppointmentStatusBadgeComponent', () => {
 
     it('should handle undefined config properties', () => {
       const incompleteConfig: AppointmentStatusConfig = {
-        size: 'medium'
+        size: 'medium',
       };
 
       component.config = incompleteConfig;
@@ -396,7 +417,7 @@ describe('AppointmentStatusBadgeComponent', () => {
 
     it('should handle undefined data properties gracefully', () => {
       const incompleteData: AppointmentStatusData = {
-        date: ''
+        date: '',
       };
       component.appointmentData = incompleteData;
       expect(() => fixture.detectChanges()).not.toThrow();
@@ -412,7 +433,7 @@ describe('AppointmentStatusBadgeComponent', () => {
     it('should handle AppointmentStatusData interface correctly', () => {
       const testData: AppointmentStatusData = {
         date: '2024-01-15',
-        time: '10:00'
+        time: '10:00',
       };
 
       expect(testData.date).toBe('2024-01-15');
@@ -421,7 +442,7 @@ describe('AppointmentStatusBadgeComponent', () => {
 
     it('should handle AppointmentStatusData without optional properties', () => {
       const testData: AppointmentStatusData = {
-        date: '2024-01-15'
+        date: '2024-01-15',
       };
 
       expect(testData.date).toBe('2024-01-15');
@@ -433,7 +454,7 @@ describe('AppointmentStatusBadgeComponent', () => {
         size: 'large',
         variant: 'outlined',
         showIcon: true,
-        showDot: true
+        showDot: true,
       };
 
       expect(testConfig.size).toBe('large');
@@ -470,7 +491,9 @@ describe('AppointmentStatusBadgeComponent', () => {
     });
 
     it('should have proper component selector', () => {
-      expect(AppointmentStatusBadgeComponent.prototype.constructor.name).toBe('AppointmentStatusBadgeComponent');
+      expect(AppointmentStatusBadgeComponent.prototype.constructor.name).toBe(
+        'AppointmentStatusBadgeComponent'
+      );
     });
 
     it('should have proper component imports', () => {

@@ -5,12 +5,12 @@ export interface LoaderConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoaderService {
   private readonly isLoadingSignal = signal<boolean>(false);
   private readonly configSignal = signal<LoaderConfig>({
-    message: 'COMMON.STATUS.LOADING'
+    message: 'COMMON.STATUS.LOADING',
   });
 
   // Public signals
@@ -24,7 +24,7 @@ export class LoaderService {
     if (config) {
       this.configSignal.set({
         message: 'COMMON.STATUS.LOADING',
-        ...config
+        ...config,
       });
     }
     this.isLoadingSignal.set(true);

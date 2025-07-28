@@ -25,7 +25,7 @@ const mockAuthService = {
   registre: jasmine.createSpy('registre').and.returnValue(Promise.resolve()),
   login: jasmine.createSpy('login').and.returnValue(Promise.resolve()),
   saveCurrentUserLanguage: jasmine.createSpy('saveCurrentUserLanguage'),
-  userDisplayName: jasmine.createSpy('userDisplayName').and.returnValue('')
+  userDisplayName: jasmine.createSpy('userDisplayName').and.returnValue(''),
 };
 
 describe('LogoutButtonComponent', () => {
@@ -39,14 +39,14 @@ describe('LogoutButtonComponent', () => {
         LogoutButtonComponent,
         HttpClientModule,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: Auth, useValue: mockAuth },
         { provide: AuthService, useValue: mockAuthService },
-        provideRouter([])
-      ]
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LogoutButtonComponent);

@@ -1,11 +1,23 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import { Firestore, collection, addDoc, doc, getDoc, updateDoc, deleteDoc, getDocs, serverTimestamp, query, orderBy } from '@angular/fire/firestore';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  serverTimestamp,
+  query,
+  orderBy,
+} from '@angular/fire/firestore';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
-import { v4 as uuidv4 } from 'uuid';
+
 
 export interface FirebaseService {
   id?: string;
@@ -16,6 +28,7 @@ export interface FirebaseService {
   category: string; // Now supports any string category
   icon: string;
   popular?: boolean;
+  favorite?: boolean;
   active?: boolean;
   createdAt?: any;
   updatedAt?: any;
@@ -32,7 +45,7 @@ export interface ServiceCategory {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FirebaseServicesService {
   private readonly firestore = inject(Firestore);
@@ -68,7 +81,7 @@ export class FirebaseServicesService {
     { id: 'coloring', name: 'SERVICES.CATEGORIES.COLORING', icon: '🎨' },
     { id: 'special', name: 'SERVICES.CATEGORIES.SPECIAL', icon: '⭐' },
     { id: 'kids', name: 'SERVICES.CATEGORIES.KIDS', icon: '👶' },
-    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' }
+    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' },
   ];
 
   // Dynamic categories signal
@@ -77,7 +90,7 @@ export class FirebaseServicesService {
   // Combined categories computed
   readonly serviceCategories = computed(() => [
     ...this._staticCategories,
-    ...this._customCategories()
+    ...this._customCategories(),
   ]);
 
   // Computed signals for filtered services
@@ -95,7 +108,7 @@ export class FirebaseServicesService {
 
     return categories.map(category => ({
       ...category,
-      services: services.filter(service => service.category === category.id)
+      services: services.filter(service => service.category === category.id),
     }));
   });
 
@@ -133,9 +146,10 @@ export class FirebaseServicesService {
       const querySnapshot = await getDocs(q);
 
       const services: FirebaseService[] = [];
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const service = { id: doc.id, ...doc.data() } as FirebaseService;
-        if (service.active !== false) { // Only active services
+        if (service.active !== false) {
+          // Only active services
           services.push(service);
         }
       });
@@ -146,13 +160,12 @@ export class FirebaseServicesService {
 
       this.logger.info('Services loaded from Firebase', {
         component: 'FirebaseServicesService',
-        method: 'loadServices'
+        method: 'loadServices',
       });
-
     } catch (error) {
       this.logger.firebaseError(error, 'loadServices', {
         component: 'FirebaseServicesService',
-        method: 'loadServices'
+        method: 'loadServices',
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error loading services';
@@ -166,7 +179,10 @@ export class FirebaseServicesService {
   /**
    * Create a new service (admin only)
    */
-  async createService(serviceData: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>, showToast: boolean = true): Promise<FirebaseService | null> {
+  async createService(
+    serviceData: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>,
+    showToast: boolean = true
+  ): Promise<FirebaseService | null> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -186,7 +202,7 @@ export class FirebaseServicesService {
         active: true,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        createdBy: currentUser.uid
+        createdBy: currentUser.uid,
       };
 
       // Save to Firestore
@@ -195,7 +211,7 @@ export class FirebaseServicesService {
       // Create new service with ID
       const newService: FirebaseService = {
         ...service,
-        id: docRef.id
+        id: docRef.id,
       };
 
       // Update local state
@@ -212,7 +228,7 @@ export class FirebaseServicesService {
       this.logger.info('Service created', {
         component: 'FirebaseServicesService',
         method: 'createService',
-        userId: currentUser.uid
+        userId: currentUser.uid,
       });
 
       return newService;
@@ -220,7 +236,7 @@ export class FirebaseServicesService {
       this.logger.firebaseError(error, 'createService', {
         component: 'FirebaseServicesService',
         method: 'createService',
-        userId: this.authService.user()?.uid
+        userId: this.authService.user()?.uid,
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating service';
@@ -237,7 +253,12 @@ export class FirebaseServicesService {
   /**
    * Update an existing service (admin only)
    */
-  async updateService(serviceId: string, updates: Partial<FirebaseService>, showToast: boolean = true, showLoader: boolean = true): Promise<boolean> {
+  async updateService(
+    serviceId: string,
+    updates: Partial<FirebaseService>,
+    showToast: boolean = true,
+    showLoader: boolean = true
+  ): Promise<boolean> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -257,7 +278,7 @@ export class FirebaseServicesService {
       // Prepare update data
       const updateData = {
         ...updates,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       };
 
       // Update in Firestore
@@ -266,11 +287,7 @@ export class FirebaseServicesService {
 
       // Update local state
       this._services.update(services =>
-        services.map(service =>
-          service.id === serviceId
-            ? { ...service, ...updates }
-            : service
-        )
+        services.map(service => (service.id === serviceId ? { ...service, ...updates } : service))
       );
       this._lastSync.set(Date.now());
 
@@ -284,7 +301,7 @@ export class FirebaseServicesService {
       this.logger.info('Service updated', {
         component: 'FirebaseServicesService',
         method: 'updateService',
-        userId: currentUser.uid
+        userId: currentUser.uid,
       });
 
       return true;
@@ -292,7 +309,7 @@ export class FirebaseServicesService {
       this.logger.firebaseError(error, 'updateService', {
         component: 'FirebaseServicesService',
         method: 'updateService',
-        userId: this.authService.user()?.uid
+        userId: this.authService.user()?.uid,
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating service';
@@ -330,13 +347,11 @@ export class FirebaseServicesService {
       const docRef = doc(this.firestore, 'services', serviceId);
       await updateDoc(docRef, {
         active: false,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
 
       // Remove from local state
-      this._services.update(services =>
-        services.filter(service => service.id !== serviceId)
-      );
+      this._services.update(services => services.filter(service => service.id !== serviceId));
       this._lastSync.set(Date.now());
       this.saveServicesToCache(this._services());
 
@@ -349,7 +364,7 @@ export class FirebaseServicesService {
       this.logger.info('Service deleted', {
         component: 'FirebaseServicesService',
         method: 'deleteService',
-        userId: currentUser.uid
+        userId: currentUser.uid,
       });
 
       return true;
@@ -357,7 +372,7 @@ export class FirebaseServicesService {
       this.logger.firebaseError(error, 'deleteService', {
         component: 'FirebaseServicesService',
         method: 'deleteService',
-        userId: this.authService.user()?.uid
+        userId: this.authService.user()?.uid,
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting service';
@@ -395,7 +410,7 @@ export class FirebaseServicesService {
     } catch (error) {
       this.logger.firebaseError(error, 'getServiceById', {
         component: 'FirebaseServicesService',
-        method: 'getServiceById'
+        method: 'getServiceById',
       });
       return null;
     }
@@ -456,7 +471,10 @@ export class FirebaseServicesService {
         throw new Error('Authentication required');
       }
 
-      const sampleServices: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>[] = [
+      const sampleServices: Omit<
+        FirebaseService,
+        'id' | 'createdAt' | 'updatedAt' | 'createdBy'
+      >[] = [
         {
           name: 'Tall Masculí',
           description: 'Corte clàssic o modern segons les teves preferències',
@@ -465,7 +483,7 @@ export class FirebaseServicesService {
           category: 'haircut',
           icon: '✂️',
           popular: true,
-          active: true
+          active: true,
         },
         {
           name: 'Tall + Afaitat',
@@ -475,7 +493,7 @@ export class FirebaseServicesService {
           category: 'haircut',
           icon: '✂️',
           popular: true,
-          active: true
+          active: true,
         },
         {
           name: 'Afaitat de Barba',
@@ -484,7 +502,7 @@ export class FirebaseServicesService {
           duration: 20,
           category: 'beard',
           icon: '🧔',
-          active: true
+          active: true,
         },
         {
           name: 'Arreglada de Barba',
@@ -493,7 +511,7 @@ export class FirebaseServicesService {
           duration: 15,
           category: 'beard',
           icon: '🧔',
-          active: true
+          active: true,
         },
         {
           name: 'Lavada i Tractament',
@@ -502,7 +520,7 @@ export class FirebaseServicesService {
           duration: 25,
           category: 'treatment',
           icon: '💆',
-          active: true
+          active: true,
         },
         {
           name: 'Coloració',
@@ -512,7 +530,7 @@ export class FirebaseServicesService {
           category: 'treatment',
           icon: '💆',
           popular: true,
-          active: true
+          active: true,
         },
         {
           name: 'Pentinat Especial',
@@ -522,7 +540,7 @@ export class FirebaseServicesService {
           category: 'styling',
           icon: '💇',
           popular: true,
-          active: true
+          active: true,
         },
         {
           name: 'Tall Infantil',
@@ -531,8 +549,8 @@ export class FirebaseServicesService {
           duration: 25,
           category: 'haircut',
           icon: '👶',
-          active: true
-        }
+          active: true,
+        },
       ];
 
       let createdCount = 0;
@@ -545,7 +563,7 @@ export class FirebaseServicesService {
         } catch (error) {
           this.logger.error(`Error creating sample service: ${serviceData.name}`, {
             component: 'FirebaseServicesService',
-            method: 'createSampleServices'
+            method: 'createSampleServices',
           });
         }
       }
@@ -555,7 +573,7 @@ export class FirebaseServicesService {
         this.logger.info('Sample services created', {
           component: 'FirebaseServicesService',
           method: 'createSampleServices',
-          data: { count: createdCount }
+          data: { count: createdCount },
         });
       }
 
@@ -564,10 +582,11 @@ export class FirebaseServicesService {
       this.logger.firebaseError(error, 'createSampleServices', {
         component: 'FirebaseServicesService',
         method: 'createSampleServices',
-        userId: this.authService.user()?.uid
+        userId: this.authService.user()?.uid,
       });
 
-      const errorMessage = error instanceof Error ? error.message : 'Error creating sample services';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error creating sample services';
       this._error.set(errorMessage);
       this.toastService.showGenericError('COMMON.ERROR_CREATING_SAMPLE_SERVICES');
       return false;
@@ -582,7 +601,7 @@ export class FirebaseServicesService {
   private shouldUseCache(): boolean {
     const lastSync = this.lastSync();
     const now = Date.now();
-    return lastSync > 0 && (now - lastSync) < this.CACHE_DURATION;
+    return lastSync > 0 && now - lastSync < this.CACHE_DURATION;
   }
 
   /**
@@ -595,7 +614,7 @@ export class FirebaseServicesService {
     } catch (error) {
       this.logger.warn('Failed to save services to cache', {
         component: 'FirebaseServicesService',
-        method: 'saveServicesToCache'
+        method: 'saveServicesToCache',
       });
     }
   }
@@ -614,19 +633,19 @@ export class FirebaseServicesService {
         const now = Date.now();
 
         // Check if cache is still valid
-        if ((now - timestamp) < this.CACHE_DURATION) {
+        if (now - timestamp < this.CACHE_DURATION) {
           this._services.set(services);
           this._lastSync.set(timestamp);
           this.logger.info('Services loaded from cache', {
             component: 'FirebaseServicesService',
-            method: 'loadServicesFromCache'
+            method: 'loadServicesFromCache',
           });
         }
       }
     } catch (error) {
       this.logger.warn('Failed to load services from cache', {
         component: 'FirebaseServicesService',
-        method: 'loadServicesFromCache'
+        method: 'loadServicesFromCache',
       });
     }
   }
@@ -641,7 +660,7 @@ export class FirebaseServicesService {
     } catch (error) {
       this.logger.warn('Failed to clear cache', {
         component: 'FirebaseServicesService',
-        method: 'clearCache'
+        method: 'clearCache',
       });
     }
   }
@@ -657,7 +676,7 @@ export class FirebaseServicesService {
       const querySnapshot = await getDocs(categoriesRef);
 
       const customCategories: ServiceCategory[] = [];
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const category = { id: doc.id, ...doc.data() } as ServiceCategory;
         customCategories.push(category);
       });
@@ -666,7 +685,7 @@ export class FirebaseServicesService {
     } catch (error) {
       this.logger.firebaseError(error, 'loadCustomCategories', {
         component: 'FirebaseServicesService',
-        method: 'loadCustomCategories'
+        method: 'loadCustomCategories',
       });
       // Set empty array if there's an error
       this._customCategories.set([]);
@@ -683,7 +702,7 @@ export class FirebaseServicesService {
       const querySnapshot = await getDocs(categoriesRef);
 
       const customCategories: ServiceCategory[] = [];
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const category = { id: doc.id, ...doc.data() } as ServiceCategory;
         customCategories.push(category);
       });
@@ -693,7 +712,7 @@ export class FirebaseServicesService {
     } catch (error) {
       this.logger.firebaseError(error, 'getAllCategories', {
         component: 'FirebaseServicesService',
-        method: 'getAllCategories'
+        method: 'getAllCategories',
       });
       // Return only static categories if there's an error
       return this._staticCategories;
@@ -703,7 +722,10 @@ export class FirebaseServicesService {
   /**
    * Create a new custom category (admin only)
    */
-  async createCategory(categoryData: { name: string; icon: string; id: string }, showToast: boolean = true): Promise<ServiceCategory | null> {
+  async createCategory(
+    categoryData: { name: string; icon: string; id: string },
+    showToast: boolean = true
+  ): Promise<ServiceCategory | null> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -729,7 +751,7 @@ export class FirebaseServicesService {
         ...categoryData,
         custom: true,
         createdAt: serverTimestamp(),
-        createdBy: currentUser.uid
+        createdBy: currentUser.uid,
       };
 
       // Save to Firestore
@@ -738,7 +760,7 @@ export class FirebaseServicesService {
       // Create new category with ID
       const newCategory: ServiceCategory = {
         ...category,
-        id: docRef.id
+        id: docRef.id,
       };
 
       // Update local categories
@@ -750,7 +772,7 @@ export class FirebaseServicesService {
       this.logger.info('Category created', {
         component: 'FirebaseServicesService',
         method: 'createCategory',
-        userId: currentUser.uid
+        userId: currentUser.uid,
       });
 
       return newCategory;
@@ -758,7 +780,7 @@ export class FirebaseServicesService {
       this.logger.firebaseError(error, 'createCategory', {
         component: 'FirebaseServicesService',
         method: 'createCategory',
-        userId: this.authService.user()?.uid
+        userId: this.authService.user()?.uid,
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating category';
@@ -775,7 +797,11 @@ export class FirebaseServicesService {
   /**
    * Update a custom category (admin only)
    */
-  async updateCategory(categoryId: string, updates: Partial<ServiceCategory>, showToast: boolean = true): Promise<boolean> {
+  async updateCategory(
+    categoryId: string,
+    updates: Partial<ServiceCategory>,
+    showToast: boolean = true
+  ): Promise<boolean> {
     try {
       // Check admin permissions
       if (!this.hasAdminAccess()) {
@@ -794,15 +820,13 @@ export class FirebaseServicesService {
       const docRef = doc(this.firestore, 'serviceCategories', categoryId);
       await updateDoc(docRef, {
         ...updates,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
 
       // Update local categories
       this._customCategories.update(categories =>
         categories.map(category =>
-          category.id === categoryId
-            ? { ...category, ...updates }
-            : category
+          category.id === categoryId ? { ...category, ...updates } : category
         )
       );
 
@@ -813,7 +837,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
         userId: currentUser.uid,
-        data: { categoryId }
+        data: { categoryId },
       });
 
       return true;
@@ -822,7 +846,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
         userId: this.authService.user()?.uid,
-        data: { categoryId }
+        data: { categoryId },
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating category';
@@ -855,18 +879,20 @@ export class FirebaseServicesService {
       }
 
       // Check if category is being used by any services
-      const servicesUsingCategory = this.services().filter(service => service.category === categoryId);
+      const servicesUsingCategory = this.services().filter(
+        service => service.category === categoryId
+      );
       if (servicesUsingCategory.length > 0) {
-        throw new Error(`Cannot delete category: ${servicesUsingCategory.length} services are using it`);
+        throw new Error(
+          `Cannot delete category: ${servicesUsingCategory.length} services are using it`
+        );
       }
 
       // Delete from Firestore
       await deleteDoc(doc(this.firestore, 'serviceCategories', categoryId));
 
       // Update local categories
-      this._customCategories.update(categories =>
-        categories.filter(cat => cat.id !== categoryId)
-      );
+      this._customCategories.update(categories => categories.filter(cat => cat.id !== categoryId));
 
       if (showToast) {
         this.toastService.showSuccess('COMMON.CATEGORY_DELETED_SUCCESS');
@@ -875,7 +901,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
         userId: currentUser.uid,
-        data: { categoryId }
+        data: { categoryId },
       });
 
       return true;
@@ -884,7 +910,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
         userId: this.authService.user()?.uid,
-        data: { categoryId }
+        data: { categoryId },
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting category';

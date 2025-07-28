@@ -7,9 +7,8 @@ describe('CalendarLoaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarLoaderComponent]
-    })
-    .compileComponents();
+      imports: [CalendarLoaderComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CalendarLoaderComponent);
     component = fixture.componentInstance;
@@ -23,8 +22,12 @@ describe('CalendarLoaderComponent', () => {
   it('should display loading content', () => {
     const compiled = fixture.nativeElement;
 
-    expect(compiled.querySelector('.calendar-loader-title').textContent).toContain('Carregant calendari...');
-    expect(compiled.querySelector('.calendar-loader-message').textContent).toContain('Recuperant cites i configuracions');
+    expect(compiled.querySelector('.calendar-loader-title').textContent).toContain(
+      'Carregant calendari...'
+    );
+    expect(compiled.querySelector('.calendar-loader-message').textContent).toContain(
+      'Recuperant cites i configuracions'
+    );
   });
 
   it('should have spinner element', () => {

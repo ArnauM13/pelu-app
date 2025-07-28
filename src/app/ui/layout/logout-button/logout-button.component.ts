@@ -6,10 +6,9 @@ import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'pelu-logout-button',
-  standalone: true,
   imports: [CommonModule, TranslateModule],
   templateUrl: './logout-button.component.html',
-  styleUrls: ['./logout-button.component.scss']
+  styleUrls: ['./logout-button.component.scss'],
 })
 export class LogoutButtonComponent {
   private authService = inject(AuthService);

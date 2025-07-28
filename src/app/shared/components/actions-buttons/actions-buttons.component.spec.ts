@@ -1,7 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
 import { ActionsButtonsComponent } from './actions-buttons.component';
-import { ActionsService, ActionConfig, ActionContext } from '../../../core/services/actions.service';
+import {
+  ActionsService,
+  ActionConfig,
+  ActionContext,
+} from '../../../core/services/actions.service';
 
 describe('ActionsButtonsComponent', () => {
   let component: ActionsButtonsComponent;
@@ -15,46 +19,43 @@ describe('ActionsButtonsComponent', () => {
     type: 'primary',
     disabled: false,
     tooltip: 'Test tooltip',
-    onClick: () => {}
+    onClick: () => {},
   };
 
   const mockContext: ActionContext = {
     type: 'appointment',
-    item: { id: 'test-id' }
+    item: { id: 'test-id' },
   };
 
   beforeEach(async () => {
     const mockActionsService = {
       getActions: jasmine.createSpy('getActions').and.returnValue([mockActionConfig]),
-      executeAction: jasmine.createSpy('executeAction')
+      executeAction: jasmine.createSpy('executeAction'),
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        ActionsButtonsComponent,
-        TranslateModule.forRoot()
-      ],
+      imports: [ActionsButtonsComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: ActionsService,
-          useValue: mockActionsService
+          useValue: mockActionsService,
         },
         {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) })
-          }
+            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+          },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
             set: (key: string, value: any) => {},
-            has: (key: string) => true
-          }
-        }
-      ]
+            has: (key: string) => true,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ActionsButtonsComponent);
@@ -245,7 +246,7 @@ describe('ActionsButtonsComponent', () => {
       const multipleActions = [
         { ...mockActionConfig, id: 'action1', icon: '🔧' },
         { ...mockActionConfig, id: 'action2', icon: '📝', type: 'secondary' },
-        { ...mockActionConfig, id: 'action3', icon: '❌', type: 'danger' }
+        { ...mockActionConfig, id: 'action3', icon: '❌', type: 'danger' },
       ];
       (actionsService.getActions as jasmine.Spy).and.returnValue(multipleActions);
 
@@ -352,7 +353,7 @@ describe('ActionsButtonsComponent', () => {
         type: 'primary',
         disabled: false,
         tooltip: 'Test tooltip',
-        onClick: () => {}
+        onClick: () => {},
       };
 
       expect(testAction.id).toBe('test-id');
@@ -366,7 +367,7 @@ describe('ActionsButtonsComponent', () => {
     it('should handle ActionContext interface correctly', () => {
       const testContext: ActionContext = {
         type: 'appointment',
-        item: { id: 'test-id', name: 'Test Appointment' }
+        item: { id: 'test-id', name: 'Test Appointment' },
       };
 
       expect(testContext.type).toBe('appointment');

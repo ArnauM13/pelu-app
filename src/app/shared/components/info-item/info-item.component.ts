@@ -12,10 +12,9 @@ export interface InfoItemData {
 
 @Component({
   selector: 'pelu-info-item',
-  standalone: true,
   imports: [CommonModule, TranslateModule],
   templateUrl: './info-item.component.html',
-  styleUrls: ['./info-item.component.scss']
+  styleUrls: ['./info-item.component.scss'],
 })
 export class InfoItemComponent {
   // Input signals

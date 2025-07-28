@@ -5,7 +5,8 @@
   (save)="saveAppointment()"
   (cancelEdit)="cancelEditing()"
   (delete)="deleteAppointment()"
-  (updateForm)="updateForm($event.field, $event.value)">
+  (updateForm)="updateForm($event.field, $event.value)"
+>
 </pelu-detail-view>
 
 <!-- Appointment Detail Popup (hidden from detail page) -->
@@ -13,7 +14,8 @@
   [open]="false"
   [booking]="null"
   [hideViewDetailButton]="true"
-  (closed)="onPopupClosed()">
+  (closed)="onPopupClosed()"
+>
 </pelu-appointment-detail-popup>
 
 <!-- Delete Confirmation Alert -->
@@ -21,5 +23,6 @@
   [isOpen]="showDeleteAlert()"
   [data]="deleteAlertData()"
   (confirmed)="onDeleteConfirmed()"
-  (cancelled)="onDeleteCancelled()">
+  (cancelled)="onDeleteCancelled()"
+>
 </pelu-alert-popup>

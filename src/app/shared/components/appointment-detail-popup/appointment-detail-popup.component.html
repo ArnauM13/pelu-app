@@ -62,7 +62,10 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ 'APPOINTMENTS.STATUS' | translate }}:</span>
-                  <span class="info-value status-badge" [style.color]="getStatusColor(getStatus(currentBooking()!))">
+                  <span
+                    class="info-value status-badge"
+                    [style.color]="getStatusColor(getStatus(currentBooking()!))"
+                  >
                     {{ getStatusText(getStatus(currentBooking()!)) }}
                   </span>
                 </div>
@@ -98,8 +101,6 @@
               🗑️ {{ 'COMMON.ACTIONS.DELETE' | translate }}
             </button>
           }
-
-
         </div>
       } @else {
         <div class="not-found-container">
@@ -120,5 +121,6 @@
   [isOpen]="showConfirmationPopup()"
   [data]="confirmationData()"
   (confirmed)="onConfirmDelete()"
-  (cancelled)="onConfirmationCancelled()">
+  (cancelled)="onConfirmationCancelled()"
+>
 </pelu-confirmation-popup>

@@ -6,7 +6,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 
-  return new Promise<boolean>((resolve) => {
+  return new Promise<boolean>(resolve => {
     if (userService.isInitialized()) {
       const isAuth = userService.isAuthenticated();
       const isAdmin = userService.hasAdminAccess();
@@ -50,7 +50,7 @@ export const adminPermissionGuard = (requiredPermission: string): CanActivateFn 
     const userService = inject(UserService);
     const router = inject(Router);
 
-    return new Promise<boolean>((resolve) => {
+    return new Promise<boolean>(resolve => {
       if (userService.isInitialized()) {
         const isAuth = userService.isAuthenticated();
         const hasPermission = userService.hasPermission(requiredPermission);

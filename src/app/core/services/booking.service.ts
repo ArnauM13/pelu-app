@@ -1,10 +1,24 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Firestore, collection, addDoc, doc, getDoc, updateDoc, deleteDoc, query, where, getDocs, serverTimestamp, orderBy } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  getDocs,
+  serverTimestamp,
+  orderBy,
+  FieldValue,
+} from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
-import { v4 as uuidv4 } from 'uuid';
+import { BookingValidationService } from './booking-validation.service';
 import { nanoid } from 'nanoid';
 import { isPastDateTime } from '../../shared/services/appointment-utils';
 
@@ -22,8 +36,8 @@ export interface Booking {
   status?: 'draft' | 'confirmed' | 'cancelled' | 'completed';
   editToken: string;
   uid?: string | null;
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: Date | string | FieldValue;
+  updatedAt?: Date | string | FieldValue;
   // Campos legacy per compatibilitat
   title?: string;
   start?: string;
@@ -34,7 +48,6 @@ export interface Booking {
 }
 
 // Interfície per a reserves públiques (sense detalls privats)
-
 
 export interface BookingForm {
   nom: string;
@@ -48,10 +61,8 @@ export interface BookingForm {
   notes?: string;
 }
 
-
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookingService {
   private readonly firestore = inject(Firestore);
@@ -59,6 +70,7 @@ export class BookingService {
   private readonly roleService = inject(RoleService);
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
+  private readonly bookingValidationService = inject(BookingValidationService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -72,7 +84,9 @@ export class BookingService {
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly error = computed(() => this.errorSignal());
   readonly isInitialized = computed(() => this.isInitializedSignal());
-  readonly hasCachedData = computed(() => this.bookingsSignal().length > 0 && this.isInitializedSignal());
+  readonly hasCachedData = computed(
+    () => this.bookingsSignal().length > 0 && this.isInitializedSignal()
+  );
 
   constructor() {
     // Only load bookings if we don't have cached data
@@ -89,12 +103,12 @@ export class BookingService {
     }, 1000); // Check every second
   }
 
-
-
   /**
    * Create a complete booking with all required information
    */
-  async createBooking(bookingData: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>): Promise<Booking | null> {
+  async createBooking(
+    bookingData: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<Booking | null> {
     try {
       this.isLoadingSignal.set(true);
       this.errorSignal.set(null);
@@ -104,9 +118,10 @@ export class BookingService {
         throw new Error('Authentication required for complete bookings');
       }
 
-      // Validate that the booking is not in the past
-      if (isPastDateTime(bookingData.data || '', bookingData.hora || '')) {
-        throw new Error('ERROR_PAST_BOOKING');
+      // Validate booking using the new validation service
+      const bookingDate = new Date(bookingData.data || '');
+      if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '')) {
+        throw new Error('ERROR_BOOKING_NOT_ALLOWED');
       }
 
       const booking = {
@@ -130,7 +145,7 @@ export class BookingService {
         servei: bookingData.servei || bookingData.serviceName || '',
         preu: bookingData.preu || bookingData.price || 0,
         userId: bookingData.userId || currentUser.uid,
-        clientName: bookingData.clientName || bookingData.nom || ''
+        clientName: bookingData.clientName || bookingData.nom || '',
       };
 
       // Save to Firestore
@@ -139,7 +154,7 @@ export class BookingService {
       // Create new booking with ID
       const newBooking: Booking = {
         ...booking,
-        id: docRef.id
+        id: docRef.id,
       };
 
       // Update local state
@@ -156,7 +171,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'createBooking',
         userId: currentUser?.uid,
-        data: { bookingData: { ...bookingData, email: '[REDACTED]' } }
+        data: { bookingData: { ...bookingData, email: '[REDACTED]' } },
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating booking';
@@ -197,15 +212,18 @@ export class BookingService {
         throw new Error('Access denied');
       }
 
-      // Validate that the updated booking is not in the past
-      if (updates.data && updates.hora && isPastDateTime(updates.data, updates.hora)) {
-        throw new Error('ERROR_PAST_BOOKING');
+      // Validate that the updated booking is allowed
+      if (updates.data && updates.hora) {
+        const bookingDate = new Date(updates.data);
+        if (!this.bookingValidationService.canBookAppointment(bookingDate, updates.hora)) {
+          throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+        }
       }
 
       // Prepare update data
       const updateData = {
         ...updates,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       };
 
       // Update in Firestore
@@ -215,9 +233,7 @@ export class BookingService {
       // Update local state
       this.bookingsSignal.update(bookings =>
         bookings.map(booking =>
-          booking.id === bookingId
-            ? { ...booking, ...updates, updatedAt: new Date() }
-            : booking
+          booking.id === bookingId ? { ...booking, ...updates, updatedAt: new Date() } : booking
         )
       );
 
@@ -230,7 +246,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'updateBooking',
         userId: currentUser?.uid,
-        data: { bookingId, updates: { ...updates, email: '[REDACTED]' } }
+        data: { bookingId, updates: { ...updates, email: '[REDACTED]' } },
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating booking';
@@ -247,8 +263,6 @@ export class BookingService {
       this.isLoadingSignal.set(false);
     }
   }
-
-
 
   /**
    * Load bookings based on user role:
@@ -287,7 +301,7 @@ export class BookingService {
       this.logger.firebaseError(error, 'loadBookings', {
         component: 'BookingService',
         method: 'loadBookings',
-        userId: currentUser?.uid
+        userId: currentUser?.uid,
       });
 
       this.errorSignal.set(error instanceof Error ? error.message : 'Error loading bookings');
@@ -301,7 +315,7 @@ export class BookingService {
    * Wait for authentication to be initialized
    */
   private async waitForAuthInitialization(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const checkAuth = () => {
         if (this.authService.isInitialized()) {
           resolve();
@@ -313,7 +327,7 @@ export class BookingService {
     });
   }
 
-    /**
+  /**
    * Load all bookings with full details for Super Admin
    */
   private async loadAllBookingsForAdmin(): Promise<void> {
@@ -325,7 +339,7 @@ export class BookingService {
     const bookingsSnapshot = await getDocs(bookingsQuery);
     const bookings: Booking[] = [];
 
-    bookingsSnapshot.forEach((doc) => {
+    bookingsSnapshot.forEach(doc => {
       const bookingData = doc.data();
 
       const booking: Booking = {
@@ -350,7 +364,7 @@ export class BookingService {
         servei: bookingData['servei'] || bookingData['serviceName'] || '',
         preu: bookingData['preu'] || bookingData['price'] || 0,
         userId: bookingData['userId'] || bookingData['uid'] || '',
-        clientName: bookingData['clientName'] || bookingData['nom'] || ''
+        clientName: bookingData['clientName'] || bookingData['nom'] || '',
       };
       bookings.push(booking);
     });
@@ -358,7 +372,7 @@ export class BookingService {
     this.bookingsSignal.set(bookings);
   }
 
-        /**
+  /**
    * Load user's own bookings
    */
   private async loadUserBookings(userId: string): Promise<void> {
@@ -373,7 +387,7 @@ export class BookingService {
       const userBookingsSnapshot = await getDocs(userBookingsQuery);
       const userBookings: Booking[] = [];
 
-      userBookingsSnapshot.forEach((doc) => {
+      userBookingsSnapshot.forEach(doc => {
         const bookingData = doc.data();
 
         const booking: Booking = {
@@ -398,7 +412,7 @@ export class BookingService {
           servei: bookingData['servei'] || bookingData['serviceName'] || '',
           preu: bookingData['preu'] || bookingData['price'] || 0,
           userId: bookingData['userId'] || bookingData['uid'] || '',
-          clientName: bookingData['clientName'] || bookingData['nom'] || ''
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
         };
         userBookings.push(booking);
       });
@@ -419,7 +433,7 @@ export class BookingService {
       this.logger.firebaseError(error, 'loadUserBookings', {
         component: 'BookingService',
         method: 'loadUserBookings',
-        userId: userId
+        userId: userId,
       });
 
       // If user query fails, try loading all bookings (admin fallback)
@@ -427,7 +441,7 @@ export class BookingService {
     }
   }
 
-      /**
+  /**
    * Load only public booking info for invited users
    */
   private async loadPublicBookingsOnly(): Promise<void> {
@@ -441,7 +455,7 @@ export class BookingService {
       const allBookingsSnapshot = await getDocs(allBookingsQuery);
       const publicBookings: Booking[] = [];
 
-      allBookingsSnapshot.forEach((doc) => {
+      allBookingsSnapshot.forEach(doc => {
         const bookingData = doc.data();
 
         // Only include confirmed bookings for public view
@@ -459,7 +473,7 @@ export class BookingService {
             nom: 'Ocupat',
             serviceName: 'Servei reservat',
             editToken: bookingData['editToken'],
-            uid: bookingData['uid']
+            uid: bookingData['uid'],
           };
           publicBookings.push(publicBooking);
         }
@@ -480,7 +494,7 @@ export class BookingService {
       // Log detallat de l'error
       this.logger.firebaseError(error, 'loadPublicBookingsOnly', {
         component: 'BookingService',
-        method: 'loadPublicBookingsOnly'
+        method: 'loadPublicBookingsOnly',
       });
 
       this.bookingsSignal.set([]);
@@ -525,7 +539,7 @@ export class BookingService {
           servei: bookingData['servei'] || bookingData['serviceName'] || '',
           preu: bookingData['preu'] || bookingData['price'] || 0,
           userId: bookingData['userId'] || bookingData['uid'] || '',
-          clientName: bookingData['clientName'] || bookingData['nom'] || ''
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
         };
 
         // Verify ownership
@@ -545,7 +559,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'getBookingById',
         userId: currentUser?.uid,
-        data: { bookingId }
+        data: { bookingId },
       });
 
       return null;
@@ -575,14 +589,20 @@ export class BookingService {
         throw new Error('Access denied');
       }
 
+      // Check if booking can be cancelled
+      if (currentBooking.data && currentBooking.hora) {
+        const bookingDate = new Date(currentBooking.data);
+        if (!this.bookingValidationService.canCancelBooking(bookingDate, currentBooking.hora)) {
+          throw new Error('ERROR_CANCELLATION_NOT_ALLOWED');
+        }
+      }
+
       // Delete from Firestore
       const docRef = doc(this.firestore, 'bookings', bookingId);
       await deleteDoc(docRef);
 
       // Update local state
-      this.bookingsSignal.update(bookings =>
-        bookings.filter(booking => booking.id !== bookingId)
-      );
+      this.bookingsSignal.update(bookings => bookings.filter(booking => booking.id !== bookingId));
 
       return true;
     } catch (error) {
@@ -593,7 +613,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'deleteBooking',
         userId: currentUser?.uid,
-        data: { bookingId }
+        data: { bookingId },
       });
 
       this.errorSignal.set(error instanceof Error ? error.message : 'Error deleting booking');
@@ -684,8 +704,6 @@ export class BookingService {
     return currentUser?.uid === booking.uid;
   }
 
-
-
   /**
    * Refresh bookings from server
    */
@@ -722,7 +740,7 @@ export class BookingService {
       this.logger.firebaseError(error, 'silentRefreshBookings', {
         component: 'BookingService',
         method: 'silentRefreshBookings',
-        userId: currentUser?.uid
+        userId: currentUser?.uid,
       });
 
       this.errorSignal.set(error instanceof Error ? error.message : 'Error loading bookings');

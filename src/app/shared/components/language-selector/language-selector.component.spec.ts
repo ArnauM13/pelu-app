@@ -13,31 +13,28 @@ describe('LanguageSelectorComponent', () => {
   let mockAuthService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    mockTranslationService = jasmine.createSpyObj('TranslationService', [
-      'getCurrentLanguageInfo',
-      'setLanguage'
-    ], {
-      availableLanguages: [
-        { code: 'ca', name: 'Català', flag: '🇨🇦' },
-        { code: 'es', name: 'Español', flag: '🇪🇸' },
-        { code: 'en', name: 'English', flag: '🇬🇧' },
-        { code: 'ar', name: 'العربية', flag: '🇸🇦' }
-      ]
-    });
+    mockTranslationService = jasmine.createSpyObj(
+      'TranslationService',
+      ['getCurrentLanguageInfo', 'setLanguage'],
+      {
+        availableLanguages: [
+          { code: 'ca', name: 'Català', flag: '🇨🇦' },
+          { code: 'es', name: 'Español', flag: '🇪🇸' },
+          { code: 'en', name: 'English', flag: '🇬🇧' },
+          { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+        ],
+      }
+    );
 
     mockAuthService = jasmine.createSpyObj('AuthService', ['saveCurrentUserLanguage']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        LanguageSelectorComponent,
-        TranslateModule.forRoot(),
-        HttpClientModule
-      ],
+      imports: [LanguageSelectorComponent, TranslateModule.forRoot(), HttpClientModule],
       providers: [
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: AuthService, useValue: mockAuthService },
-        HttpClient
-      ]
+        HttpClient,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LanguageSelectorComponent);
@@ -75,7 +72,7 @@ describe('LanguageSelectorComponent', () => {
       { code: 'ca', name: 'Català', flag: '🇨🇦' },
       { code: 'es', name: 'Español', flag: '🇪🇸' },
       { code: 'en', name: 'English', flag: '🇬🇧' },
-      { code: 'ar', name: 'العربية', flag: '🇸🇦' }
+      { code: 'ar', name: 'العربية', flag: '🇸🇦' },
     ]);
   });
 
@@ -108,7 +105,7 @@ describe('LanguageSelectorComponent', () => {
 
     // Simulate click outside
     const mockEvent = {
-      target: document.createElement('div')
+      target: document.createElement('div'),
     } as unknown as Event;
 
     component.onDocumentClick(mockEvent);
@@ -123,7 +120,7 @@ describe('LanguageSelectorComponent', () => {
     const mockElement = document.createElement('div');
     mockElement.className = 'language-selector';
     const mockEvent = {
-      target: mockElement
+      target: mockElement,
     } as unknown as Event;
 
     component.onDocumentClick(mockEvent);
@@ -141,7 +138,7 @@ describe('LanguageSelectorComponent', () => {
     mockParent.appendChild(mockChild);
 
     const mockEvent = {
-      target: mockChild
+      target: mockChild,
     } as unknown as Event;
 
     component.onDocumentClick(mockEvent);

@@ -159,6 +159,8 @@
     "BOOKING_NOT_FOUND": "Reserva no encontrada",
     "BOOKING_NOT_FOUND_MESSAGE": "No se pudo encontrar la reserva que buscas",
     "ERROR_PAST_BOOKING": "No se pueden crear reservas en el pasado",
+    "ERROR_BOOKING_NOT_ALLOWED": "No se puede hacer la reserva en esta fecha/hora",
+    "ERROR_CANCELLATION_NOT_ALLOWED": "No se puede cancelar la reserva en este momento",
     "PAST_DATE": "Fecha pasada",
     "PAST_TIME": "Hora pasada",
     "ERRORS": {
@@ -249,7 +251,8 @@
     "APPOINTMENTS": "Citas",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Panel de admin",
-    "ADMIN_SETTINGS": "Configuración"
+    "ADMIN_SETTINGS": "Configuración",
+    "PLAYGROUND": "Playground"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
@@ -419,6 +422,7 @@
       "SELECT_CATEGORY": "Seleccionar categoría",
       "SELECT_ICON": "Seleccionar icono",
       "MARK_AS_POPULAR": "Marcar como popular",
+      "MARK_AS_FAVORITE": "Marcar como favorito",
       "NO_SERVICES_IN_CATEGORY": "No hay servicios en esta categoría",
       "SERVICE_CREATED": "Servicio creado",
       "SERVICE_CREATED_MESSAGE": "El servicio se ha creado correctamente",
@@ -509,12 +513,27 @@
       "SUBTITLE": "Gestiona los parámetros de la aplicación",
       "VIEW_MODE": "Modo consulta",
       "EDIT_MODE": "Modo edición",
+      "BUSINESS_INFO": "Información del negocio",
       "BUSINESS_NAME": "Nombre del negocio",
+      "BUSINESS_HOURS": "Horario comercial",
+      "BUSINESS_HOURS_START": "Hora de inicio",
+      "BUSINESS_HOURS_END": "Hora de cierre",
+      "LUNCH_BREAK": "Pausa para comer",
+      "LUNCH_BREAK_START": "Inicio pausa para comer",
+      "LUNCH_BREAK_END": "Fin pausa para comer",
+      "APPOINTMENT_SETTINGS": "Configuración de reservas",
       "APPOINTMENT_DURATION": "Duración de las reservas",
       "MAX_APPOINTMENTS": "Máximo de reservas por día",
       "AUTO_CONFIRM": "Confirmación automática",
       "SEND_NOTIFICATIONS": "Enviar notificaciones",
-      "MAINTENANCE_MODE": "Modo mantenimiento",
+      "PREVENT_CANCELLATION": "No permitir cancelación",
+      "CANCELLATION_TIME_LIMIT": "Tiempo límite para cancelar",
+      "CANCELLATION_TIME_LIMIT_HELP": "Tiempo en horas antes de la reserva que se puede cancelar",
+      "BOOKING_SYSTEM_SETTINGS": "Configuración de reservas y sistema",
+      "BOOKING_ADVANCE_DAYS": "Días de margen para reservar",
+      "BOOKING_ADVANCE_DAYS_HELP": "Días de antelación con los que se puede hacer una reserva",
+      "BOOKING_ADVANCE_TIME": "Tiempo de margen para reservar",
+      "BOOKING_ADVANCE_TIME_HELP": "Tiempo en minutos antes de la hora de la reserva que se puede reservar",
       "DEFAULT_LANGUAGE": "Idioma por defecto",
       "CURRENCY": "Moneda",
       "CURRENCY_HELP": "La moneda se aplicará a todos los precios de la aplicación",
@@ -624,11 +643,11 @@
     "BUSINESS_HOURS": "Horario comercial",
     "TIME_SLOT_AVAILABLE": "Horario disponible",
     "TIME_SLOT_BUSY": "Horario ocupado",
-                    "FOOTER": {
-                  "INFO_NOTE": "Haz clic en cualquier horario disponible para hacer una reserva",
-                  "WEEKEND_INFO": "Los fines de semana tienen horarios especiales. Contáctanos para más información.",
-                  "BUSINESS_HOURS_INFO": "Horario de atención: Lunes a Viernes de {{startHour}}:00 a {{endHour}}:00, Pausa para comer de {{lunchStart}}:00 a {{lunchEnd}}:00"
-                }
+    "FOOTER": {
+      "INFO_NOTE": "Haz clic en cualquier horario disponible para hacer una reserva",
+      "WEEKEND_INFO": "Los fines de semana tienen horarios especiales. Contáctanos para más información.",
+      "BUSINESS_HOURS_INFO": "Horario de atención: Lunes a Viernes de {{startHour}}:00 a {{endHour}}:00, Pausa para comer de {{lunchStart}}:00 a {{lunchEnd}}:00"
+    }
   },
   "SERVICES": {
     "ALL_SERVICES": "Todos los servicios",
@@ -700,5 +719,20 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "Seleccionar idioma"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "Introduce un número",
+    "TEXT_PLACEHOLDER": "Introduce texto",
+    "TEXT_EMAIL_PLACEHOLDER": "Introduce tu email",
+    "TEXT_PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+    "PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+    "PASSWORD_PROMPT_LABEL": "Elige una contraseña",
+    "PASSWORD_WEAK_LABEL": "Demasiado simple",
+    "PASSWORD_MEDIUM_LABEL": "Complejidad media",
+    "PASSWORD_STRONG_LABEL": "Contraseña compleja",
+    "TEXTAREA_PLACEHOLDER": "Introduce texto...",
+    "SELECT_PLACEHOLDER": "Selecciona una opción",
+    "SELECT_FILTER_PLACEHOLDER": "Buscar...",
+    "DATE_PLACEHOLDER": "Selecciona una fecha"
   }
 }
