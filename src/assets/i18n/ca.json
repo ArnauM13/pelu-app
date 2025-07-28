@@ -462,6 +462,13 @@
       "ERROR_CREATING_SERVICE": "Error al crear el servei",
       "DELETE_CONFIRMATION": "Confirmar eliminació",
       "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar el servei \"{{name}}\"?",
+      "POPULAR_STATUS_UPDATED": "Estat popular actualitzat",
+      "POPULAR_STATUS_MESSAGE": "El servei \"{{name}}\" ara està marcat com a {{status}}",
+      "POPULAR_STATUS_ERROR_MESSAGE": "Error al actualitzar l'estat popular del servei",
+      "STATUS": {
+        "POPULAR": "popular",
+        "NO_POPULAR": "no popular"
+      },
       "MIGRATE_SERVICES": "Migrar Serveis",
       "CREATE_SAMPLE_SERVICES": "Crear Serveis d'Exemple",
       "REFRESH": "Actualitzar",

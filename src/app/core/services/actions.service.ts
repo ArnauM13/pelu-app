@@ -129,7 +129,7 @@ export class ActionsService {
       id: 'toggle-popular',
       label: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
       icon: service.popular ? '⭐' : '☆',
-      type: service.popular ? 'success' : 'secondary',
+      type: 'success',
       tooltip: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
       onClick: item => {
         // This will be handled by the context callback if provided

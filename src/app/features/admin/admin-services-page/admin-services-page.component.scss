@@ -685,3 +685,11 @@
   position: fixed !important;
   pointer-events: none !important;
 }
+
+.error-message {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+  font-weight: 500;
+}

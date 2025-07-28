@@ -1,10 +1,9 @@
 <div class="filters-inline">
-  <div class="filters-grid">
+  <form [formGroup]="filtersForm" class="filters-grid">
     <div class="filter-group">
       <pelu-input-date
         label="COMMON.FILTERS.FILTER_BY_DATE"
-        [value]="filterDateValue()"
-        (valueChange)="onDateChangeHandler($event)"
+        formControlName="date"
       >
       </pelu-input-date>
     </div>
@@ -12,8 +11,7 @@
       <pelu-input-text
         label='COMMON.FILTERS.FILTER_BY_CLIENT'
         placeholder='COMMON.FILTERS.FILTER_BY_CLIENT'
-        [value]="filterClientValue()"
-        (valueChange)="onClientChangeHandler($event.toString())"
+        formControlName="client"
       >
       </pelu-input-text>
     </div>
@@ -22,19 +20,18 @@
         [label]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
         [placeholder]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
         [options]="serviceOptions()"
-        [value]="filterServiceValue()"
-        (valueChange)="onServiceChangeHandler($event?.toString())"
+        formControlName="service"
       >
       </pelu-input-select>
     </div>
     <div class="reset-group">
       <pelu-button
-  [label]="'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate"
-  severity="secondary"
-  variant="outlined"
-  (clicked)="onResetHandler()"
->
-</pelu-button>
+        [label]="'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate"
+        severity="secondary"
+        variant="outlined"
+        (clicked)="onResetHandler()"
+      >
+      </pelu-button>
     </div>
-  </div>
+  </form>
 </div>

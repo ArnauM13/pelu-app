@@ -6,17 +6,18 @@
       label="COMMON.TIME.TODAY"
       (clicked)="emitToday()"
     />
-    <pelu-input-date
-      [value]="currentViewDate()"
-      [dateFormat]="'dd/mm/yy'"
-      [showIcon]="true"
-      [showButtonBar]="true"
-      [inline]="false"
-      [minDate]="todayDate()"
-      [preventPastMonths]="true"
-      (valueChange)="onDateChange($event)"
-    >
-    </pelu-input-date>
+    <form [formGroup]="dateForm">
+      <pelu-input-date
+        formControlName="date"
+        [dateFormat]="'dd/mm/yy'"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        [inline]="false"
+        [minDate]="todayDate()"
+        [preventPastMonths]="true"
+      >
+      </pelu-input-date>
+    </form>
   </div>
 
   <div class="calendar-title">

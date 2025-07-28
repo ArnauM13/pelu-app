@@ -477,6 +477,13 @@
       "ERROR_CREATING_SERVICE": "خطأ في إنشاء الخدمة",
       "DELETE_CONFIRMATION": "تأكيد الحذف",
       "DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من حذف الخدمة \"{{name}}\"؟",
+      "POPULAR_STATUS_UPDATED": "تم تحديث حالة الشعبية",
+      "POPULAR_STATUS_MESSAGE": "الخدمة \"{{name}}\" الآن محددة كـ {{status}}",
+      "POPULAR_STATUS_ERROR_MESSAGE": "خطأ في تحديث حالة الشعبية للخدمة",
+      "STATUS": {
+        "POPULAR": "شائع",
+        "NO_POPULAR": "غير شائع"
+      },
       "MIGRATE_SERVICES": "ترحيل الخدمات",
       "CREATE_SAMPLE_SERVICES": "إنشاء خدمات نموذجية",
       "REFRESH": "تحديث",

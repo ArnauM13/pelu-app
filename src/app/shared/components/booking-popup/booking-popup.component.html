@@ -69,38 +69,48 @@
         <div class="service-selection-section">
           <h4>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h4>
 
-          <!-- Client Name -->
-          <div class="form-group">
-            <label>{{ 'COMMON.CLIENT_NAME' | translate }}</label>
-            @if (isAuthenticated()) {
-              <div class="readonly-field">{{ currentUserName() }}</div>
-            } @else {
-              <pelu-input-text
-                label='COMMON.CLIENT_NAME'
-                placeholder='COMMON.CLIENT_NAME'
-                value]="clientName() || bookingDetails().clientName"
-                (valueChange)="updateClientName($event.toString())"
-              >
-              </pelu-input-text>
-            }
-          </div>
+          @if (form()) {
+            <form [formGroup]="form()!" (ngSubmit)="onConfirm()">
+              <!-- Client Name -->
+              <div class="form-group">
+                @if (isAuthenticated()) {
+                  <div class="readonly-field">{{ currentUserName() }}</div>
+                } @else {
+                  <pelu-input-text
+                    formControlName="clientName"
+                    [label]="'COMMON.CLIENT_NAME'"
+                    [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
+                    [required]="true"
+                    [invalid]="isFieldInvalid('clientName')"
+                    (valueChange)="clientNameChanged.emit($event)">
+                  </pelu-input-text>
+                  @if (isFieldInvalid('clientName')) {
+                    <div class="error-message">{{ getFieldError('clientName') }}</div>
+                  }
+                }
+              </div>
 
-          <!-- Email -->
-          <div class="form-group">
-            <label>{{ 'COMMON.EMAIL' | translate }}</label>
-            @if (isAuthenticated()) {
-              <div class="readonly-field">{{ currentUserEmail() }}</div>
-            } @else {
-              <pelu-input-text
-                label='COMMON.EMAIL'
-                placeholder='COMMON.EMAIL'
-                type='email'
-                [value]="email() || bookingDetails().email"
-                (valueChange)="updateEmail($event.toString())"
-              >
-              </pelu-input-text>
-            }
-          </div>
+              <!-- Email -->
+              <div class="form-group">
+                @if (isAuthenticated()) {
+                  <div class="readonly-field">{{ currentUserEmail() }}</div>
+                } @else {
+                  <pelu-input-text
+                    formControlName="email"
+                    [label]="'COMMON.EMAIL'"
+                    [placeholder]="'COMMON.ENTER_EMAIL'"
+                    type="email"
+                    [required]="true"
+                    [invalid]="isFieldInvalid('email')"
+                    (valueChange)="emailChanged.emit($event)">
+                  </pelu-input-text>
+                  @if (isFieldInvalid('email')) {
+                    <div class="error-message">{{ getFieldError('email') }}</div>
+                  }
+                }
+              </div>
+            </form>
+          }
         </div>
 
         <!-- Total Price Display -->
