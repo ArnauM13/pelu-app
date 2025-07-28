@@ -271,18 +271,7 @@ export class CalendarCoreService {
     return hours >= config.businessStartHour && hours < config.businessEndHour;
   }
 
-  isLunchBreak(time: string): boolean {
-    const config = this.gridConfiguration();
-    const [hours] = time.split(':').map(Number);
-
-    return hours >= config.lunchBreakStart && hours < config.lunchBreakEnd;
-  }
-
   isTimeSlotBookable(time: string): boolean {
-    if (this.isLunchBreak(time)) {
-      return false;
-    }
-
     return this.isWithinBusinessHours(time);
   }
 
@@ -297,10 +286,6 @@ export class CalendarCoreService {
     slotStart.setHours(hour, minute, 0, 0);
 
     const slotEnd = addMinutes(slotStart, requestedDuration);
-
-    if (this.isLunchBreak(time)) {
-      return false;
-    }
 
     if (!this.isTimeSlotBookable(time)) {
       return false;
@@ -327,12 +312,6 @@ export class CalendarCoreService {
     let currentMinute = 0;
 
     while (currentHour < config.businessEndHour) {
-      const time = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-
-      if (!this.isLunchBreak(time)) {
-        slots.push(time);
-      }
-
       currentMinute += config.slotDurationMinutes;
       if (currentMinute >= 60) {
         currentHour += 1;
@@ -356,10 +335,6 @@ export class CalendarCoreService {
     }
 
     const nextTime = `${nextHours.toString().padStart(2, '0')}:${nextMinutes.toString().padStart(2, '0')}`;
-
-    if (this.isLunchBreak(nextTime)) {
-      return `${config.lunchBreakEnd.toString().padStart(2, '0')}:00`;
-    }
 
     return nextTime;
   }
