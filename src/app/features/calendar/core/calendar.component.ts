@@ -32,7 +32,6 @@ import { CalendarCoreService } from '../services/calendar-core.service';
 import { CalendarBusinessService } from '../services/calendar-business.service';
 import { CalendarStateService } from '../services/calendar-state.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { CalendarHeaderComponent } from '../header/calendar-header.component';
 import {
   CalendarLoaderComponent,
   CalendarTimeColumnComponent,
@@ -42,8 +41,10 @@ import {
   DayColumnData,
   DragPreviewData,
 } from '../components';
+import { CalendarHeaderComponent } from '../header/calendar-header.component';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -68,12 +69,13 @@ export interface AppointmentEvent {
     FormsModule,
     TranslateModule,
     AppointmentDetailPopupComponent,
-    CalendarHeaderComponent,
     CalendarLoaderComponent,
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
     CalendarDragPreviewComponent,
+    CalendarHeaderComponent,
     ButtonComponent,
+    InputDateComponent,
   ],
   providers: [
     CalendarUtils,
@@ -125,6 +127,17 @@ export class CalendarComponent {
       this.isInitializedSignal() &&
       this.calendarMountedSignal()
   );
+
+  // Date picker property
+  readonly selectedDate = signal<Date | null>(null);
+
+  // Today's date as a computed signal to avoid creating new instances
+  readonly todayDate = computed(() => {
+    const today = new Date();
+    // Set time to start of day for consistent comparison
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
@@ -365,16 +378,19 @@ export class CalendarComponent {
       }
     }, 800);
 
-    // Set up a periodic check for localStorage changes (fallback)
-    // Removed localStorage checking - now using Firebase
-
     // Effect to emit booking loaded state
     effect(() => {
       this.bookingsLoaded.emit(this.isBookingsLoaded());
     });
-  }
 
-  // Removed localStorage methods - now using Firebase via AppointmentService
+    // Effect to initialize and sync selectedDate with viewDate
+    effect(() => {
+      const currentViewDate = this.viewDate();
+      if (currentViewDate && !this.selectedDate()) {
+        this.selectedDate.set(currentViewDate);
+      }
+    });
+  }
 
   // Methods that delegate to services
   isTimeSlotAvailable(
@@ -794,10 +810,22 @@ export class CalendarComponent {
     }
   }
 
-  // Removed localStorage change checking - now using Firebase
-
-  onDateChange(dateString: string) {
-    this.stateService.navigateToDate(dateString);
+  onDateChange(event: Date | string | null): void {
+    if (event instanceof Date) {
+      const dateString = dateFnsFormat(event, 'yyyy-MM-dd');
+      this.stateService.navigateToDate(dateString);
+      this.selectedDate.set(event);
+    } else if (typeof event === 'string') {
+      this.stateService.navigateToDate(event);
+      // Convert string to Date for the selectedDate signal
+      const date = new Date(event);
+      if (!isNaN(date.getTime())) {
+        this.selectedDate.set(date);
+      }
+    } else {
+      // Clear the selected date
+      this.selectedDate.set(null);
+    }
   }
 
   // Drag & Drop methods
