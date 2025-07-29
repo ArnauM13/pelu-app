@@ -1,13 +1,14 @@
 import { Component, input, output, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
   selector: 'pelu-calendar-header',
-  imports: [CommonModule, ReactiveFormsModule, InputDateComponent, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, InputDateComponent, ButtonComponent],
   templateUrl: './calendar-header.component.html',
   styleUrls: ['./calendar-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,14 +19,16 @@ export class CalendarHeaderComponent {
   private readonly fb = inject(FormBuilder);
 
   // Input signals
+  readonly mainTitle = input<string>('');
   readonly viewDateInfo = input<string>('');
   readonly businessDaysInfo = input<string>('');
-  readonly mainTitle = input<string>('');
   readonly canNavigateToPreviousWeek = input<boolean>(true);
   readonly currentViewDate = input<Date>(new Date());
 
   // Output signals
   readonly today = output<void>();
+  readonly previousWeek = output<void>();
+  readonly nextWeek = output<void>();
   readonly dateChange = output<string>();
 
   // Reactive Form
@@ -54,6 +57,14 @@ export class CalendarHeaderComponent {
 
   emitToday() {
     this.today.emit();
+  }
+
+  emitPreviousWeek() {
+    this.previousWeek.emit();
+  }
+
+  emitNextWeek() {
+    this.nextWeek.emit();
   }
 
   onDateChange(date: Date | string | null): void {

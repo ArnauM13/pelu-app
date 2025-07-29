@@ -20,6 +20,27 @@
     >
     </pelu-calendar-header>
 
+    <!-- View Mode Controls -->
+    <div class="view-mode-controls">
+      <div class="view-mode-buttons">
+        @for (option of viewModeOptions; track option.value) {
+          <pelu-button
+            [label]="option.label"
+            [icon]="option.icon"
+            [severity]="isViewModeActive(option.value) ? 'primary' : 'secondary'"
+            [variant]="isViewModeActive(option.value) ? 'filled' : 'outlined'"
+            size="small"
+            (clicked)="changeViewMode(option.value)"
+            [class.active]="isViewModeActive(option.value)"
+          >
+          </pelu-button>
+        }
+      </div>
+      <div class="view-mode-info">
+        <span class="current-view">{{ getCurrentViewModeName() }}</span>
+      </div>
+    </div>
+
     <!-- Calendar Body -->
     <div class="calendar-body">
 
