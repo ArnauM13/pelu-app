@@ -173,9 +173,14 @@ describe('CalendarComponent', () => {
     expect(component.dateSelected.emit).toHaveBeenCalledWith({ date: '2024-01-01', time: '10:00' });
   });
 
-  it('should emit onEditAppointment when editAppointment is called', () => {
-    spyOn(component.onEditAppointment, 'emit');
-    const appointment = { id: '1', title: 'Test', start: '2024-01-01T10:00:00' };
+  it('should emit editAppointment when editAppointment is called', () => {
+    spyOn(component.editAppointment, 'emit');
+    const appointment = { 
+      id: '1', 
+      title: 'Test', 
+      start: '2024-01-01T10:00:00',
+      editToken: 'test-token' // Add required editToken property
+    };
 
     // Mock auth service to return a user
     authService.user.and.returnValue({
@@ -200,18 +205,23 @@ describe('CalendarComponent', () => {
 
     component.onAppointmentEditRequested(appointment);
 
-    // The method doesn't emit onEditAppointment, it navigates instead
+    // The method doesn't emit editAppointment, it navigates instead
     // So we should test that it doesn't emit (which is the current behavior)
-    expect(component.onEditAppointment.emit).not.toHaveBeenCalled();
+    expect(component.editAppointment.emit).not.toHaveBeenCalled();
   });
 
-  it('should emit onDeleteAppointment when deleteAppointment is called', () => {
-    spyOn(component.onDeleteAppointment, 'emit');
-    const appointment = { id: '1', title: 'Test', start: '2024-01-01T10:00:00' };
+  it('should emit deleteAppointment when deleteAppointment is called', () => {
+    spyOn(component.deleteAppointment, 'emit');
+    const appointment = { 
+      id: '1', 
+      title: 'Test', 
+      start: '2024-01-01T10:00:00',
+      editToken: 'test-token' // Add required editToken property
+    };
 
     component.onAppointmentDeleted(appointment);
 
-    expect(component.onDeleteAppointment.emit).toHaveBeenCalledWith(appointment);
+    expect(component.deleteAppointment.emit).toHaveBeenCalledWith(appointment);
   });
 
   it('should format duration correctly', () => {

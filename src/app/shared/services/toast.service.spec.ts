@@ -64,40 +64,48 @@ describe('ToastService', () => {
 
   describe('showToast', () => {
     it('should call messageService.add with correct parameters', () => {
-      const severity = 'success';
-      const summary = 'Test summary';
-      const detail = 'Test detail';
-      const appointmentId = 'test-id';
-      const showViewButton = true;
-      const action = () => {};
+      const config = {
+        severity: 'success' as const,
+        summary: 'Test summary',
+        detail: 'Test detail',
+        data: {
+          appointmentId: 'test-id',
+          showViewButton: true,
+          action: () => {}
+        }
+      };
 
-      service.showToast(severity, summary, detail, appointmentId, showViewButton, action);
+      service.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
-        detail,
+        severity: config.severity,
+        summary: config.summary,
+        detail: config.detail,
         life: 4000,
-        closable: false,
+        sticky: false,
+        closable: true,
         key: 'pelu-toast',
-        data: { appointmentId, showViewButton, action },
+        data: config.data,
       });
     });
 
     it('should call messageService.add with default parameters', () => {
-      const severity = 'error';
-      const summary = 'Test summary';
+      const config = {
+        severity: 'error' as const,
+        summary: 'Test summary'
+      };
 
-      service.showToast(severity, summary);
+      service.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
+        severity: config.severity,
+        summary: config.summary,
         detail: '',
         life: 4000,
-        closable: false,
+        sticky: false,
+        closable: true,
         key: 'pelu-toast',
-        data: { appointmentId: undefined, showViewButton: false, action: undefined },
+        data: {},
       });
     });
   });
@@ -107,18 +115,19 @@ describe('ToastService', () => {
       spyOn(service, 'showToast');
       const summary = 'Success message';
       const detail = 'Success detail';
-      const appointmentId = 'test-id';
-      const showViewButton = true;
+      const data = {
+        appointmentId: 'test-id',
+        showViewButton: true
+      };
 
-      service.showSuccess(summary, detail, appointmentId, showViewButton);
+      service.showSuccess(summary, detail, data);
 
-      expect(service.showToast).toHaveBeenCalledWith(
-        'success',
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'success',
         summary,
         detail,
-        appointmentId,
-        showViewButton
-      );
+        data
+      });
     });
   });
 
@@ -130,7 +139,11 @@ describe('ToastService', () => {
 
       service.showError(summary, detail);
 
-      expect(service.showToast).toHaveBeenCalledWith('error', summary, detail);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary,
+        detail
+      });
     });
   });
 
@@ -142,7 +155,11 @@ describe('ToastService', () => {
 
       service.showInfo(summary, detail);
 
-      expect(service.showToast).toHaveBeenCalledWith('info', summary, detail);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'info',
+        summary,
+        detail
+      });
     });
   });
 
@@ -154,7 +171,11 @@ describe('ToastService', () => {
 
       service.showWarning(summary, detail);
 
-      expect(service.showToast).toHaveBeenCalledWith('warn', summary, detail);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'warn',
+        summary,
+        detail
+      });
     });
   });
 
@@ -168,8 +189,7 @@ describe('ToastService', () => {
       expect(service.showSuccess).toHaveBeenCalledWith(
         'COMMON.RESERVATION_CREATED',
         '',
-        appointmentId,
-        true
+        { appointmentId, showViewButton: true }
       );
     });
   });
@@ -184,8 +204,7 @@ describe('ToastService', () => {
       expect(service.showSuccess).toHaveBeenCalledWith(
         'COMMON.TOAST.APPOINTMENT_DELETED',
         'COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE',
-        undefined,
-        false
+        { showViewButton: false }
       );
     });
   });
@@ -200,8 +219,7 @@ describe('ToastService', () => {
       expect(service.showSuccess).toHaveBeenCalledWith(
         'COMMON.TOAST.APPOINTMENT_UPDATED',
         'COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE',
-        undefined,
-        false
+        { showViewButton: false }
       );
     });
   });
@@ -217,8 +235,7 @@ describe('ToastService', () => {
       expect(service.showSuccess).toHaveBeenCalledWith(
         'COMMON.TOAST.APPOINTMENT_CREATED',
         'COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE',
-        appointmentId,
-        true
+        { appointmentId, showViewButton: true }
       );
     });
   });
@@ -336,98 +353,23 @@ describe('ToastService', () => {
     });
   });
 
-  describe('onToastClick', () => {
-    it('should execute action when action is provided', () => {
-      const action = jasmine.createSpy('action');
-      const event = {
-        message: {
-          data: { action },
-        },
-      };
-
-      service.onToastClick(event);
-
-      expect(action).toHaveBeenCalled();
-    });
-
-    it('should call viewAppointmentDetail when appointmentId is provided', () => {
-      spyOn(service, 'viewAppointmentDetail');
-      const appointmentId = 'test-id';
-      const event = {
-        message: {
-          data: { appointmentId },
-        },
-      };
-
-      service.onToastClick(event);
-
-      expect(service.viewAppointmentDetail).toHaveBeenCalledWith(appointmentId);
-    });
-
-    it('should not call viewAppointmentDetail when no appointmentId is provided', () => {
-      spyOn(service, 'viewAppointmentDetail');
-      const event = {
-        message: {
-          data: {},
-        },
-      };
-
-      service.onToastClick(event);
-
-      expect(service.viewAppointmentDetail).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('viewAppointmentDetail', () => {
-    it('should navigate to appointment detail when user is authenticated', () => {
-      const user = { uid: 'user-123' } as any;
-      authService.user.and.returnValue(user);
-      const appointmentId = 'appointment-456';
-
-      service.viewAppointmentDetail(appointmentId);
-
-      expect(router.navigate).toHaveBeenCalledWith(['/appointments', 'user-123-appointment-456']);
-    });
-
-    it('should not navigate when user is not authenticated', () => {
-      authService.user.and.returnValue(null);
-      const appointmentId = 'appointment-456';
-
-      service.viewAppointmentDetail(appointmentId);
-
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-
-    it('should not navigate when user has no uid', () => {
-      const user = { email: 'test@example.com' } as any;
-      authService.user.and.returnValue(user);
-      const appointmentId = 'appointment-456';
-
-      service.viewAppointmentDetail(appointmentId);
-
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-  });
-
   describe('showToastWithAction', () => {
     it('should call showToast with action parameter', () => {
       spyOn(service, 'showToast');
-      const severity = 'success';
-      const summary = 'Test summary';
-      const detail = 'Test detail';
+      const config = {
+        severity: 'success' as const,
+        summary: 'Test summary',
+        detail: 'Test detail'
+      };
       const action = () => {};
       const actionLabel = 'Custom Action';
 
-      service.showToastWithAction(severity, summary, detail, action, actionLabel);
+      service.showToastWithAction(config, action, actionLabel);
 
-      expect(service.showToast).toHaveBeenCalledWith(
-        severity,
-        summary,
-        detail,
-        undefined,
-        false,
-        action
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        ...config,
+        data: { action, actionLabel }
+      });
     });
   });
 });

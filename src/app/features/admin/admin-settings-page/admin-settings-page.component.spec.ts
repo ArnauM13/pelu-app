@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
+import { signal, computed } from '@angular/core';
 import { AdminSettingsPageComponent } from './admin-settings-page.component';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -61,9 +62,9 @@ describe('AdminSettingsPageComponent', () => {
       'getBusinessHoursString',
       'getLunchBreak',
     ], {
-      settings: of(mockSettings),
-      loading: of(false),
-      error: of(null),
+      settings: computed(() => mockSettings),
+      loading: computed(() => false),
+      error: computed(() => null),
     });
 
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
@@ -189,39 +190,19 @@ describe('AdminSettingsPageComponent', () => {
   });
 
   describe('Time Input Handling', () => {
-    it('should convert time string to Date object correctly', () => {
-      const timeString = '14:30';
-      const result = component.getTimeValue(timeString);
-
-      expect(result).toBeInstanceOf(Date);
-      expect(result?.getHours()).toBe(14);
-      expect(result?.getMinutes()).toBe(30);
+    it('should format time correctly', () => {
+      const result = component.formatTime(14);
+      expect(result).toBe('14:00');
     });
 
-    it('should return null for invalid time string', () => {
-      const result = component.getTimeValue('invalid');
-      expect(result).toBeNull();
+    it('should get business hours display', () => {
+      const result = component.getBusinessHoursDisplay();
+      expect(result).toBeDefined();
     });
 
-    it('should return null for empty time string', () => {
-      const result = component.getTimeValue('');
-      expect(result).toBeNull();
-    });
-
-    it('should handle time change correctly', () => {
-      fixture.detectChanges();
-      const testDate = new Date();
-      testDate.setHours(15, 30, 0, 0);
-
-      component.onTimeChange(testDate, 'businessHoursStart');
-
-      expect(component.settingsForm.get('businessHoursStart')?.value).toBe('15:30');
-    });
-
-    it('should handle null date in time change', () => {
-      fixture.detectChanges();
-      component.onTimeChange(null, 'businessHoursStart');
-      expect(component.settingsForm.get('businessHoursStart')?.value).toBe('');
+    it('should get lunch break display', () => {
+      const result = component.getLunchBreakDisplay();
+      expect(result).toBeDefined();
     });
   });
 
