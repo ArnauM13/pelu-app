@@ -229,14 +229,6 @@
                     >
                     </pelu-input-checkbox>
                   </div>
-                  <div class="form-field">
-                    <pelu-input-toggleswitch
-                      formControlName="favorite"
-                      [label]="'ADMIN.SERVICES.MARK_AS_FAVORITE'"
-                      helpText="Aquest servei apareixerà destacat a la llista"
-                    >
-                    </pelu-input-toggleswitch>
-                  </div>
                 </div>
               </div>
             </form>
@@ -418,14 +410,6 @@
                     >
                     </pelu-input-checkbox>
                   </div>
-                  <div class="form-field">
-                    <pelu-input-toggleswitch
-                      formControlName="favorite"
-                      [label]="'ADMIN.SERVICES.MARK_AS_FAVORITE'"
-                      helpText="Aquest servei apareixerà destacat a la llista"
-                    >
-                    </pelu-input-toggleswitch>
-                  </div>
                 </div>
               </div>
             </form>
@@ -454,7 +438,7 @@
   <!-- Categories Manager Dialog -->
   @if (showCategoriesManagerDialog()) {
     <div class="service-dialog-overlay" (click)="closeCategoriesManager()">
-      <div class="service-dialog" (click)="$event.stopPropagation()">
+      <div class="service-dialog categories-manager-dialog" (click)="$event.stopPropagation()">
         <div class="popup-header">
           <h2>{{ 'ADMIN.SERVICES.CATEGORIES.MANAGE_CATEGORIES' | translate }}</h2>
           <pelu-button
@@ -480,35 +464,50 @@
               </pelu-button>
             </div>
 
-            <div class="categories-list">
+            <div class="categories-grid">
               @for (category of serviceCategories(); track category.id) {
-                <div class="category-item">
+                <div class="category-card" [class.static-category]="!category.custom">
                   <div class="category-info">
                     <span class="category-icon">{{ category.icon }}</span>
-                    <span class="category-name">{{ category.name }}</span>
-                    <span class="category-id">({{ category.id }})</span>
+                    <div class="category-details">
+                      <h4>{{ category.name }}</h4>
+                      <div class="category-id">{{ category.id }}</div>
+                      @if (!category.custom) {
+                        <span class="static-badge">{{ 'ADMIN.SERVICES.CATEGORIES.STATIC_CATEGORY' | translate }}</span>
+                      }
+                    </div>
                   </div>
                   <div class="category-actions">
-                    <pelu-button
-                      label="✏️"
-                      variant="text"
-                      severity="secondary"
-                      [rounded]="true"
-                      (clicked)="showEditCategory(category)"
-                    >
-                    </pelu-button>
-                    <pelu-button
-                      label="🗑️"
-                      variant="text"
-                      severity="danger"
-                      [rounded]="true"
-                      (clicked)="deleteCategory(category)"
-                    >
-                    </pelu-button>
+                    @if (category.custom) {
+                      <pelu-button
+                        label="✏️"
+                        variant="text"
+                        severity="secondary"
+                        [rounded]="true"
+                        (clicked)="showEditCategory(category)"
+                      >
+                      </pelu-button>
+                      <pelu-button
+                        label="🗑️"
+                        variant="text"
+                        severity="danger"
+                        [rounded]="true"
+                        (clicked)="deleteCategory(category)"
+                      >
+                      </pelu-button>
+                    } @else {
+                      <span class="static-message">{{ 'ADMIN.SERVICES.CATEGORIES.CANNOT_EDIT_STATIC' | translate }}</span>
+                    }
                   </div>
                 </div>
               }
             </div>
+
+            @if (serviceCategories().length === 0) {
+              <div class="empty-categories">
+                <p>{{ 'ADMIN.SERVICES.CATEGORIES.NO_CATEGORIES' | translate }}</p>
+              </div>
+            }
           </div>
         </div>
       </div>
