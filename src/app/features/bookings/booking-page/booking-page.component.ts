@@ -1,14 +1,9 @@
 import { Component, signal, computed, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
-import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
-import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
+import { FooterComponent, FooterConfig } from '../../../shared/components/footer/footer.component';
 import {
   BookingPopupComponent,
   BookingDetails,
@@ -17,43 +12,38 @@ import {
   ServiceSelectionPopupComponent,
   ServiceSelectionDetails,
 } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
-import { UserService } from '../../../core/services/user.service';
-import { RoleService } from '../../../core/services/role.service';
+import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
 import {
   FirebaseServicesService,
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { ToastService } from '../../../shared/services/toast.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
 @Component({
   selector: 'pelu-booking-page',
   imports: [
     CommonModule,
-    FormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    TooltipModule,
     TranslateModule,
-    CalendarWithFooterComponent,
+    CalendarComponent,
+    FooterComponent,
     BookingPopupComponent,
     ServiceSelectionPopupComponent,
+    PopupDialogComponent,
   ],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss'],
 })
 export class BookingPageComponent {
-  @ViewChild('calendarComponent') calendarComponent!: CalendarWithFooterComponent;
+  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
 
   private readonly router = inject(Router);
-  private readonly userService = inject(UserService);
-  private readonly roleService = inject(RoleService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
-  private readonly toastService = inject(ToastService);
+  private readonly translateService = inject(TranslateService);
+  private readonly businessSettingsService = inject(BusinessSettingsService);
 
   // Signals
   readonly showServiceSelectionPopupSignal = signal(false);
@@ -82,24 +72,51 @@ export class BookingPageComponent {
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
 
-  // Info items for the page
-  readonly infoItems: InfoItemData[] = [
-    {
-      icon: '📅',
-      label: 'BOOKING.SELECT_DATE',
-      value: 'BOOKING.SELECT_DATE_DESCRIPTION',
-    },
-    {
-      icon: '⏰',
-      label: 'BOOKING.SELECT_TIME',
-      value: 'BOOKING.SELECT_TIME_DESCRIPTION',
-    },
-    {
-      icon: '✂️',
-      label: 'BOOKING.SELECT_SERVICE',
-      value: 'BOOKING.SELECT_SERVICE_DESCRIPTION',
-    },
-  ];
+  // Calendar footer configuration
+  readonly calendarFooterConfig = computed((): FooterConfig => {
+    const today = new Date();
+    const isWeekend = today.getDay() === 0 || today.getDay() === 6;
+    const businessHours = this.businessSettingsService.getBusinessHours();
+    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+
+    return {
+      showInfoNote: false,
+      showBusinessHours: true,
+      businessHours: {
+        start: businessHours.start,
+        end: businessHours.end
+      },
+      lunchBreak: {
+        start: lunchBreak.start,
+        end: lunchBreak.end
+      },
+      isWeekend: isWeekend,
+      showWeekendInfo: true,
+      variant: 'default',
+      theme: 'light',
+    };
+  });
+
+  // Login prompt dialog configuration
+  readonly loginPromptDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('BOOKING.SUCCESS_TITLE'),
+    size: 'medium',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CONTINUE'),
+        type: 'cancel' as const,
+        action: () => this.onLoginPromptClose()
+      },
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.LOGIN'),
+        type: 'confirm' as const,
+        action: () => this.onLoginPromptLogin()
+      }
+    ]
+  }));
 
   constructor() {
     this.loadServices();
@@ -117,12 +134,10 @@ export class BookingPageComponent {
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
-      // Don't show toast for loading errors - they're not user-initiated actions
     }
   }
 
   onTimeSlotSelected(event: { date: string; time: string }) {
-    // Show service selection popup first
     const details: ServiceSelectionDetails = {
       date: event.date,
       time: event.time,
@@ -134,21 +149,8 @@ export class BookingPageComponent {
     this.showServiceSelectionPopupSignal.set(true);
   }
 
-  onEditAppointment(event: any) {
-    // Navigate to appointment detail or edit page
-    if (event && event.id) {
-      this.router.navigate(['/appointments', event.id]);
-    }
-  }
-
-  onDeleteAppointment(event: any) {
-    // Handle appointment deletion
-    console.log('Delete appointment:', event);
-  }
-
   async onBookingConfirmed(details: BookingDetails) {
     try {
-      // Create booking using the booking service
       const bookingData = {
         nom: details.clientName,
         email: details.email,
@@ -160,32 +162,26 @@ export class BookingPageComponent {
         price: details.service?.price || 0,
         notes: '',
         status: 'confirmed' as const,
-        editToken: '', // Will be generated automatically
+        editToken: '',
         uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
 
-      if (booking) {
-        // Show login prompt for anonymous users
-        if (!this.isAuthenticated()) {
-          this.showLoginPromptSignal.set(true);
-        }
+      if (booking && !this.isAuthenticated()) {
+        this.showLoginPromptSignal.set(true);
       }
 
       this.showBookingPopupSignal.set(false);
       this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
-      // Don't show toast - the booking service already handles success/error toasts
     }
   }
 
   onServiceSelected(event: { details: ServiceSelectionDetails; service: FirebaseService }) {
-    // Close service selection popup
     this.showServiceSelectionPopupSignal.set(false);
 
-    // Show booking confirmation popup with selected service
     const bookingDetails: BookingDetails = {
       date: event.details.date,
       time: event.details.time,
@@ -216,7 +212,6 @@ export class BookingPageComponent {
     this.bookingDetailsSignal.update(details => ({ ...details, email: email }));
   }
 
-  // Login prompt handlers
   onLoginPromptClose() {
     this.showLoginPromptSignal.set(false);
   }
@@ -225,6 +220,4 @@ export class BookingPageComponent {
     this.showLoginPromptSignal.set(false);
     this.router.navigate(['/login']);
   }
-
-  // Removed test method
 }
