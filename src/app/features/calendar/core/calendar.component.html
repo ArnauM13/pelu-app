@@ -5,7 +5,7 @@
   }
 
   <!-- Calendar Content (only show when bookings are loaded) -->
-  @if (isBookingsLoaded()) {
+  @else {
     <!-- Calendar Header -->
     <pelu-calendar-header
       [mainTitle]="'Setmana del ' + formatPopupDate(format(viewDate(), 'yyyy-MM-dd'))"
@@ -17,7 +17,8 @@
       (previousWeek)="previousWeek()"
       (nextWeek)="nextWeek()"
       (dateChange)="onDateChange($event)"
-    />
+    >
+    </pelu-calendar-header>
 
     <!-- Calendar Body -->
     <div class="calendar-body">
@@ -66,6 +67,25 @@
         (clicked)="nextWeek()"
       />
 
+    </div>
+
+    <!-- Date Picker Section -->
+    <div class="date-picker-section">
+      <pelu-button
+        label="Avui"
+        icon="pi pi-calendar"
+        size="small"
+        severity="primary"
+        class="today-btn"
+        (clicked)="today()"
+      />
+      <pelu-input-date
+        [(ngModel)]="selectedDate"
+        [showButtonBar]="true"
+        [minDate]="todayDate()"
+        (valueChange)="onDateChange($event)"
+        placeholder="Selecciona una data"
+      />
     </div>
 
     <!-- Appointment Detail Popup -->
