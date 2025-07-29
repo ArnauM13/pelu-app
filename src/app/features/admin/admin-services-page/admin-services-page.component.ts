@@ -23,7 +23,6 @@ import { InputTextareaComponent } from '../../../shared/components/inputs/input-
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
-import { InputToggleSwitchComponent } from '../../../shared/components/inputs/input-toggleswitch/input-toggleswitch.component';
 
 import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
@@ -75,7 +74,6 @@ interface ServiceCategory {
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
-    InputToggleSwitchComponent,
   ],
   templateUrl: './admin-services-page.component.html',
   styleUrls: ['./admin-services-page.component.scss'],
@@ -101,13 +99,16 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly _showAlertDialog = signal<boolean>(false);
   private readonly _alertData = signal<AlertData | null>(null);
 
-  // Reactive Forms
+  // Service popular status signals - reactive state for each service
+  private readonly _servicePopularStatus = signal<Map<string, boolean>>(new Map());
+
+  // Form signals
   private readonly serviceFormSignal = signal<FormGroup | null>(null);
   private readonly categoryFormSignal = signal<FormGroup | null>(null);
   readonly serviceForm = computed(() => this.serviceFormSignal());
   readonly categoryForm = computed(() => this.categoryFormSignal());
 
-  // Public computed signals - Use Firebase service directly
+  // Computed signals
   readonly services = computed(() => this.firebaseServicesService.services());
   readonly isLoading = computed(() => this.firebaseServicesService.isLoading());
   readonly showCreateDialog = computed(() => this._showCreateDialog());
@@ -117,119 +118,68 @@ export class AdminServicesPageComponent implements OnInit {
   readonly showEditCategoryDialog = computed(() => this._showEditCategoryDialog());
   readonly showCategoriesManagerDialog = computed(() => this._showCategoriesManagerDialog());
   readonly selectedCategory = computed(() => this._selectedCategory());
-  readonly showAlertDialog = computed(() => this._showAlertDialog());
+  readonly showAlertDialog = computed(() => this._alertData());
   readonly alertData = computed(() => this._alertData());
 
-  // Admin access computed
+  // Admin access signals
   readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
 
-  // Service categories computed
+  // Service categories
   readonly serviceCategories = computed(() => this.firebaseServicesService.serviceCategories());
 
-  // Category options for dropdown
+  // Category options for form
   readonly categoryOptions = computed(() =>
     this.serviceCategories().map(category => ({
-      label: category.custom
-        ? category.name
-        : this.translateService.instant(`SERVICES.CATEGORIES.${category.id.toUpperCase()}`),
+      label: this.translateService.instant(category.name),
       value: category.id,
-      icon: category.icon,
+      icon: category.icon
     }))
   );
 
-  // Icon options with enhanced information for templates
+  // Icon options
   readonly iconOptions = [
-    {
-      label: '✂️ Talla',
-      value: '✂️',
-      description: 'Tall de cabell professional',
-      category: 'Cabell',
-      color: '#3b82f6',
-      popular: true
-    },
-    {
-      label: '🧔 Barba',
-      value: '🧔',
-      description: 'Arreglat i modelat de barba',
-      category: 'Barba',
-      color: '#8b5cf6',
-      popular: false
-    },
-    {
-      label: '💆 Tractament',
-      value: '💆',
-      description: 'Tractaments capil·lars',
-      category: 'Tractament',
-      color: '#10b981',
-      popular: true
-    },
-    {
-      label: '💇 Estilitzat',
-      value: '💇',
-      description: 'Estilització i arreglat',
-      category: 'Estil',
-      color: '#f59e0b',
-      popular: false
-    },
-    {
-      label: '🎨 Coloració',
-      value: '🎨',
-      description: 'Coloració i tintat',
-      category: 'Color',
-      color: '#ec4899',
-      popular: true
-    },
-    {
-      label: '💅 Manicure',
-      value: '💅',
-      description: 'Arreglat d\'ungles',
-      category: 'Manicure',
-      color: '#f97316',
-      popular: false
-    },
-    {
-      label: '🧖 Tractament Facial',
-      value: '🧖',
-      description: 'Tractaments facials',
-      category: 'Facial',
-      color: '#06b6d4',
-      popular: false
-    },
-    {
-      label: '💆 Massatge',
-      value: '💆',
-      description: 'Massatges relaxants',
-      category: 'Massatge',
-      color: '#8b5cf6',
-      popular: false
-    },
-    {
-      label: '🎭 Maquillatge',
-      value: '🎭',
-      description: 'Maquillatge professional',
-      category: 'Maquillatge',
-      color: '#ec4899',
-      popular: false
-    },
-    {
-      label: '💇‍♀️ Perruqueria',
-      value: '💇‍♀️',
-      description: 'Serveis deenery',
-      category: 'Perruqueria',
-      color: '#10b981',
-      popular: false
-    }
+    { label: '✂️ Talla', value: '✂️' },
+    { label: '🧔 Barba', value: '🧔' },
+    { label: '💆 Tractament', value: '💆' },
+    { label: '💇 Estil', value: '💇' },
+    { label: '🎨 Coloració', value: '🎨' },
+    { label: '⭐ Especial', value: '⭐' },
+    { label: '👶 Nens', value: '👶' },
+    { label: '🔧 General', value: '🔧' },
+    { label: '💇‍♀️ Dona', value: '💇‍♀️' },
+    { label: '💇‍♂️ Home', value: '💇‍♂' },
+    { label: '💅 Manicura', value: '💅' },
+    { label: '💄 Maquillatge', value: '💄' },
+    { label: '🧴 Productes', value: '🧴' },
+    { label: '✨ Glamour', value: '✨' },
+    { label: '🌟 Premium', value: '🌟' },
+    { label: '💎 Luxe', value: '💎' },
+    { label: '🎯 Express', value: '🎯' },
+    { label: '🕐 Ràpid', value: '🕐' },
+    { label: '🌿 Natural', value: '🌿' },
+    { label: '🔥 Tendència', value: '🔥' },
   ];
 
-  // Services by category computed
-  readonly servicesByCategory = computed(() => this.firebaseServicesService.servicesByCategory());
+  // Services by category with reactive popular status
+  readonly servicesByCategory = computed(() => {
+    const services = this.firebaseServicesService.servicesByCategory();
+    const popularStatus = this._servicePopularStatus();
+
+    return services.map(category => ({
+      ...category,
+      services: category.services.map(service => ({
+        ...service,
+        popular: popularStatus.get(service.id!) ?? service.popular
+      }))
+    }));
+  });
 
   constructor() {
-    this.initializeForms();
   }
 
   ngOnInit() {
+    this.initializeForms();
     this.loadServices();
   }
 
@@ -242,8 +192,7 @@ export class AdminServicesPageComponent implements OnInit {
       duration: [30, [Validators.required, Validators.min(5), Validators.max(480)]],
       category: ['haircut', [Validators.required]],
       icon: ['✂️', [Validators.required]],
-      popular: [false],
-      favorite: [false]
+      popular: [false]
     });
 
     // Initialize category form
@@ -290,6 +239,14 @@ export class AdminServicesPageComponent implements OnInit {
 
   async loadServices(): Promise<void> {
     await this.firebaseServicesService.loadServices();
+
+    // Initialize popular status signals after services are loaded
+    const services = this.services();
+    const statusMap = new Map<string, boolean>();
+    services.forEach(service => {
+      statusMap.set(service.id!, service.popular ?? false);
+    });
+    this._servicePopularStatus.set(statusMap);
   }
 
   showCreateService(): void {
@@ -313,8 +270,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: service.duration,
         category: service.category,
         icon: service.icon,
-        popular: service.popular,
-        favorite: service.favorite
+        popular: service.popular
       });
     }
   }
@@ -474,8 +430,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: 30,
         category: 'haircut',
         icon: '✂️',
-        popular: false,
-        favorite: false
+        popular: false
       });
     }
   }
@@ -672,15 +627,26 @@ export class AdminServicesPageComponent implements OnInit {
 
   async togglePopularStatus(service: FirebaseService): Promise<void> {
     try {
+      const newPopularStatus = !service.popular;
+
+      // Update the reactive signal immediately for instant UI feedback
+      this._servicePopularStatus.update(statusMap => {
+        const newMap = new Map(statusMap);
+        newMap.set(service.id!, newPopularStatus);
+        return newMap;
+      });
+
+      // Prepare the update data
       const updatedService = {
         ...service,
-        popular: !service.popular,
+        popular: newPopularStatus,
         updatedAt: new Date()
       };
 
-      await this.firebaseServicesService.updateService(service.id!, updatedService);
+      // Update in Firebase (without showing loader to avoid page reload feeling)
+      await this.firebaseServicesService.updateService(service.id!, updatedService, false, false);
 
-      const status = updatedService.popular ? 'popular' : 'no popular';
+      const status = newPopularStatus ? 'POPULAR' : 'NO_POPULAR';
       this.toastService.showSuccess(
         this.translateService.instant('ADMIN.SERVICES.POPULAR_STATUS_UPDATED'),
         this.translateService.instant('ADMIN.SERVICES.POPULAR_STATUS_MESSAGE', {
@@ -690,6 +656,14 @@ export class AdminServicesPageComponent implements OnInit {
       );
     } catch (error) {
       console.error('Error updating popular status:', error);
+
+      // Revert the signal on error
+      this._servicePopularStatus.update(statusMap => {
+        const newMap = new Map(statusMap);
+        newMap.set(service.id!, service.popular ?? false);
+        return newMap;
+      });
+
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
         this.translateService.instant('ADMIN.SERVICES.POPULAR_STATUS_ERROR_MESSAGE')
