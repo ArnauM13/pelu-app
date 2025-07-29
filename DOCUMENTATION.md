@@ -256,7 +256,7 @@ El calendari proporciona una visualització interactiva de les cites i horaris a
 #### Components del Calendari
 
 - `CalendarComponent`: Component principal del calendari
-- `CalendarHeaderComponent`: Capçalera amb controls de navegació
+- `CalendarHeaderComponent`: REMOVED - Capçalera amb controls de navegació
 - `CalendarDayColumnComponent`: Columna per dia
 - `CalendarTimeSlotComponent`: Slot d'hora individual
 - `CalendarDragPreviewComponent`: Vista prèvia en drag & drop

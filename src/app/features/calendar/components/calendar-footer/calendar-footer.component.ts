@@ -1,4 +1,4 @@
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -10,15 +10,34 @@ export interface CalendarFooterAlert {
   show: boolean;
 }
 
+export interface CalendarFooterConfig {
+  showInfoNote?: boolean;
+  infoNoteText?: string;
+  alerts?: CalendarFooterAlert[];
+  businessHours?: {
+    start: number;
+    end: number;
+  };
+  lunchBreak?: {
+    start: number;
+    end: number;
+  };
+  isWeekend?: boolean;
+}
+
 @Component({
   selector: 'pelu-calendar-footer',
   imports: [CommonModule, TranslateModule],
   template: `
     <div class="calendar-footer">
       <!-- Info note just below calendar -->
-      <div class="footer-info">
-        <p class="info-note">📅 {{ 'CALENDAR.FOOTER.INFO_NOTE' | translate }}</p>
-      </div>
+      @if (config().showInfoNote !== false) {
+        <div class="footer-info">
+          <p class="info-note">
+            📅 {{ config().infoNoteText || ('CALENDAR.FOOTER.INFO_NOTE' | translate) }}
+          </p>
+        </div>
+      }
 
       <!-- Alerts section -->
       @if (hasAlerts()) {
@@ -31,12 +50,49 @@ export interface CalendarFooterAlert {
           }
         </div>
       }
+
+      <!-- Business hours info -->
+      @if (showBusinessHoursInfo()) {
+        <div class="business-hours-info">
+          <div class="alert-item alert-info">
+            <span class="alert-icon">🕐</span>
+            <span class="alert-message">
+              {{ 'CALENDAR.FOOTER.BUSINESS_HOURS_INFO' | translate: {
+                startHour: formatHour(config().businessHours?.start || 8),
+                endHour: formatHour(config().businessHours?.end || 20),
+                lunchStart: formatHour(config().lunchBreak?.start || 13),
+                lunchEnd: formatHour(config().lunchBreak?.end || 15)
+              } }}
+            </span>
+          </div>
+        </div>
+      }
+
+      <!-- Weekend info -->
+      @if (config().isWeekend) {
+        <div class="weekend-info">
+          <div class="alert-item alert-info">
+            <span class="alert-icon">📅</span>
+            <span class="alert-message">
+              {{ 'CALENDAR.FOOTER.WEEKEND_INFO' | translate }}
+            </span>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [
     `
-      .footer-info {
+      .calendar-footer {
         margin-top: 1rem;
+        padding: 1rem;
+        background: var(--surface-color);
+        border-radius: var(--border-radius-lg);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--box-shadow);
+      }
+
+      .footer-info {
         margin-bottom: 1rem;
       }
 
@@ -49,8 +105,12 @@ export interface CalendarFooterAlert {
       }
 
       .footer-alerts {
-        margin-top: 1rem;
-        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .business-hours-info,
+      .weekend-info {
+        margin-bottom: 0.5rem;
       }
 
       .alert-item {
@@ -101,11 +161,11 @@ export interface CalendarFooterAlert {
       @media (max-width: 768px) {
         .calendar-footer {
           margin-top: 0.75rem;
-          margin-bottom: 1.5rem;
+          padding: 0.75rem;
         }
 
         .footer-info {
-          margin-bottom: 1rem;
+          margin-bottom: 0.75rem;
         }
 
         .alert-item {
@@ -122,10 +182,27 @@ export interface CalendarFooterAlert {
 })
 export class CalendarFooterComponent {
   // Input signals
-  readonly alerts = input<CalendarFooterAlert[]>([]);
+  readonly config = input<CalendarFooterConfig>({
+    showInfoNote: true,
+    alerts: [],
+    businessHours: { start: 8, end: 20 },
+    lunchBreak: { start: 13, end: 15 },
+    isWeekend: false,
+  });
 
   // Computed signals
-  readonly visibleAlerts = computed(() => this.alerts().filter(alert => alert.show));
+  readonly visibleAlerts = computed(() =>
+    this.config().alerts?.filter(alert => alert.show) || []
+  );
 
   readonly hasAlerts = computed(() => this.visibleAlerts().length > 0);
+
+  readonly showBusinessHoursInfo = computed(() =>
+    this.config().businessHours !== undefined
+  );
+
+  // Helper method to format hours
+  formatHour(hour: number): string {
+    return hour.toString().padStart(2, '0');
+  }
 }

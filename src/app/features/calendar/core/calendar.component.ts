@@ -41,7 +41,6 @@ import {
   DayColumnData,
   DragPreviewData,
 } from '../components';
-import { CalendarHeaderComponent } from '../header/calendar-header.component';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
@@ -61,9 +60,6 @@ export interface AppointmentEvent {
   canViewDetails?: boolean;
 }
 
-// Calendar view modes
-export type CalendarViewMode = 'week' | 'month' | 'day';
-
 @Component({
   selector: 'pelu-calendar-component',
   imports: [
@@ -76,7 +72,6 @@ export type CalendarViewMode = 'week' | 'month' | 'day';
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
     CalendarDragPreviewComponent,
-    CalendarHeaderComponent,
     ButtonComponent,
     InputDateComponent,
   ],
@@ -114,7 +109,6 @@ export class CalendarComponent {
   readonly editAppointment = output<AppointmentEvent>();
   readonly deleteAppointment = output<AppointmentEvent>();
   readonly bookingsLoaded = output<boolean>();
-  readonly viewModeChanged = output<CalendarViewMode>();
 
   // Public computed signals from state service
   readonly viewDate = this.stateService.viewDate;
@@ -135,10 +129,6 @@ export class CalendarComponent {
   // Date picker property
   readonly selectedDate = signal<Date | null>(null);
 
-  // View mode management
-  private readonly currentViewModeSignal = signal<CalendarViewMode>('week');
-  readonly currentViewMode = computed(() => this.currentViewModeSignal());
-
   // Today's date as a computed signal to avoid creating new instances
   readonly todayDate = computed(() => {
     const today = new Date();
@@ -155,13 +145,6 @@ export class CalendarComponent {
   readonly SLOT_DURATION_MINUTES = this.calendarCoreService.gridConfiguration().slotDurationMinutes;
   readonly PIXELS_PER_MINUTE = this.calendarCoreService.gridConfiguration().pixelsPerMinute;
   readonly SLOT_HEIGHT_PX = this.calendarCoreService.gridConfiguration().slotHeightPx;
-
-  // View mode options
-  readonly viewModeOptions = [
-    { label: 'Setmana', value: 'week', icon: 'pi pi-calendar' },
-    { label: 'Mes', value: 'month', icon: 'pi pi-calendar-plus' },
-    { label: 'Dia', value: 'day', icon: 'pi pi-calendar-times' },
-  ];
 
   // Computed events that combines input events with Firebase bookings
   readonly allEvents = computed((): AppointmentEvent[] => {
@@ -841,31 +824,6 @@ export class CalendarComponent {
       // Clear the selected date
       this.selectedDate.set(null);
     }
-  }
-
-  /**
-   * Change the calendar view mode
-   */
-  changeViewMode(mode: CalendarViewMode): void {
-    this.currentViewModeSignal.set(mode);
-    this.viewModeChanged.emit(mode);
-    this.cdr.detectChanges();
-  }
-
-  /**
-   * Get the current view mode display name
-   */
-  getCurrentViewModeName(): string {
-    const mode = this.currentViewMode();
-    const option = this.viewModeOptions.find(opt => opt.value === mode);
-    return option?.label || 'Setmana';
-  }
-
-  /**
-   * Check if a view mode is currently active
-   */
-  isViewModeActive(mode: CalendarViewMode): boolean {
-    return this.currentViewMode() === mode;
   }
 
   // Drag & Drop methods

@@ -1,7 +1,6 @@
 // Calendar Feature - Main Exports
 export * from './core';
 export * from './slots';
-export * from './header';
 export * from './components';
 
 // Export services individually to avoid naming conflicts
