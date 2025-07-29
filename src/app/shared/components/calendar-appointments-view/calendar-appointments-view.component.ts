@@ -7,11 +7,9 @@ import {
   CalendarComponent,
   AppointmentEvent,
 } from '../../../features/calendar/core/calendar.component';
-import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
-import { isFutureAppointment } from '../../services';
 import { Booking } from '../../../core/services/booking.service';
 
 @Component({
@@ -23,7 +21,6 @@ import { Booking } from '../../../core/services/booking.service';
     TooltipModule,
     CardComponent,
     CalendarComponent,
-    CalendarWithFooterComponent,
     AppointmentStatusBadgeComponent,
     NotFoundStateComponent,
     LoadingStateComponent,
@@ -49,14 +46,14 @@ import { Booking } from '../../../core/services/booking.service';
         </div>
 
         <div class="calendar-container">
-          <pelu-calendar-with-footer
+          <pelu-calendar-component
             [mini]="false"
             [events]="calendarEvents()"
             (dateSelected)="onDateSelected.emit($event)"
-            (onEditAppointment)="onCalendarEditBooking($event)"
-            (onDeleteAppointment)="onCalendarDeleteBooking($event)"
+            (editAppointment)="onCalendarEditBooking($event)"
+            (deleteAppointment)="onCalendarDeleteBooking($event)"
           >
-          </pelu-calendar-with-footer>
+          </pelu-calendar-component>
         </div>
 
         @if (selectedDate()) {
@@ -376,14 +373,16 @@ import { Booking } from '../../../core/services/booking.service';
   ],
 })
 export class CalendarAppointmentsViewComponent {
-  bookings = input.required<Booking[]>();
-  selectedDate = input<string | null>(null);
-  isLoading = input<boolean>(false);
+  // Input signals
+  readonly bookings = input.required<Booking[]>();
+  readonly selectedDate = input<string | null>(null);
+  readonly isLoading = input<boolean>(false);
 
-  onDateSelected = output<{ date: string; time: string }>();
-  onViewBooking = output<Booking>();
-  onEditBooking = output<Booking>();
-  onDeleteBooking = output<Booking>();
+  // Output signals
+  readonly onDateSelected = output<{ date: string; time: string }>();
+  readonly onViewBooking = output<Booking>();
+  readonly onEditBooking = output<Booking>();
+  readonly onDeleteBooking = output<Booking>();
 
   // Internal event handlers that convert AppointmentEvent to Booking
   onCalendarEditBooking(appointmentEvent: AppointmentEvent) {
@@ -398,99 +397,64 @@ export class CalendarAppointmentsViewComponent {
     this.onDeleteBooking.emit(booking);
   }
 
-  private convertAppointmentEventToBooking(appointmentEvent: AppointmentEvent): Booking {
-    // Find the original booking from the bookings array
-    const originalBooking = this.bookings().find(booking => {
-      if (appointmentEvent.id && booking.id === appointmentEvent.id) {
-        return true;
-      }
+  // Computed properties
+  readonly calendarEvents = computed(() => {
+    return this.bookings().map(booking => ({
+      id: booking.id || '',
+      title: booking.nom || 'Appointment',
+      start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
+      end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
+      duration: booking.duration || 60,
+      serviceName: booking.serviceName || booking.servei || '',
+      clientName: booking.nom || 'Client',
+      isPublicBooking: false,
+      isOwnBooking: true,
+      canDrag: true,
+      canViewDetails: true,
+    }));
+  });
 
-      // Match by date, time and name
-      const eventDate = appointmentEvent.start.split('T')[0];
-      const eventTime = appointmentEvent.start.split('T')[1]?.substring(0, 5);
+  readonly loadingConfig = {
+    message: 'Loading calendar...',
+    showSpinner: true,
+  };
 
-      return (
-        booking.data === eventDate &&
-        booking.hora === eventTime &&
-        booking.nom === appointmentEvent.title
-      );
-    });
+  readonly notFoundConfig = {
+    title: 'No appointments found',
+    message: 'There are no appointments to display in the calendar view.',
+    icon: '📅',
+    showAction: false,
+  };
 
-    if (originalBooking) {
-      return originalBooking;
-    }
-
-    // Fallback: create a new booking from the event
+  // Helper methods
+  convertAppointmentEventToBooking(appointmentEvent: AppointmentEvent): Booking {
     return {
       id: appointmentEvent.id || '',
       nom: appointmentEvent.title || appointmentEvent.clientName || '',
-      email: '',
-      data: appointmentEvent.start.split('T')[0],
-      hora: appointmentEvent.start.split('T')[1]?.substring(0, 5) || '',
-      serviceName: appointmentEvent.serviceName || '',
-      serviceId: '',
+      data: appointmentEvent.start ? appointmentEvent.start.split('T')[0] : '',
+      hora: appointmentEvent.start ? appointmentEvent.start.split('T')[1]?.substring(0, 5) || '' : '',
       duration: appointmentEvent.duration || 60,
-      price: 0,
-      notes: '',
-      status: 'confirmed',
-      editToken: '',
-      uid: null,
-      createdAt: new Date(),
-      title: appointmentEvent.title || appointmentEvent.clientName || '',
-      start: appointmentEvent.start,
+      serviceName: appointmentEvent.serviceName || '',
       servei: appointmentEvent.serviceName || '',
+      notes: '',
       preu: 0,
       userId: '',
-      clientName: appointmentEvent.clientName || '',
+      serviceId: '',
     };
   }
-
-  readonly isFutureAppointment = isFutureAppointment;
-
-  get notFoundConfig() {
-    return {
-      icon: '📅',
-      title: 'COMMON.NO_APPOINTMENTS',
-      message: 'COMMON.NO_APPOINTMENTS_SCHEDULED',
-      showButton: false,
-    };
-  }
-
-  get loadingConfig() {
-    return {
-      message: 'COMMON.LOADING',
-      spinnerSize: 'large' as const,
-      showMessage: true,
-      fullHeight: false,
-    };
-  }
-
-  calendarEvents = computed((): AppointmentEvent[] => {
-    return this.bookings().map(booking => ({
-      id: booking.id,
-      title: booking.nom,
-      start: booking.data + (booking.hora ? 'T' + booking.hora : ''),
-      duration: booking.duration || 60,
-      serviceName: booking.serviceName,
-      clientName: booking.nom,
-    }));
-  });
 
   getBookingsForDate(date: string): Booking[] {
     return this.bookings().filter(booking => booking.data === date);
   }
 
-  isToday(date: string): boolean {
-    const today = new Date().toISOString().split('T')[0];
-    return date === today;
-  }
-
-  formatTime(time: string): string {
+  formatTime(time: string | undefined): string {
+    if (!time) return '';
     return time;
   }
 
-  formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('ca-ES');
+  isToday(date: string): boolean {
+    const today = new Date().toISOString().split('T')[0];
+    return date === today;
   }
 
   formatDateForDisplay(date: string): string {

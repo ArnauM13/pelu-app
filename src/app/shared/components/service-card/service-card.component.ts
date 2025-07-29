@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -7,18 +7,6 @@ import { CurrencyPipe } from '../../pipes/currency.pipe';
 import { ActionsButtonsComponent } from '../actions-buttons';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
-
-export interface ServiceCardConfig {
-  showActions?: boolean;
-  showPopularBadge?: boolean;
-  showCategory?: boolean;
-  showDuration?: boolean;
-  showPrice?: boolean;
-  showDescription?: boolean;
-  clickable?: boolean;
-  selected?: boolean;
-  compact?: boolean;
-}
 
 @Component({
   selector: 'pelu-service-card',
@@ -34,49 +22,56 @@ export interface ServiceCardConfig {
   styleUrls: ['./service-card.component.scss'],
 })
 export class ServiceCardComponent {
-  @Input() service!: FirebaseService;
-  @Input() config: ServiceCardConfig = {
-    showActions: false,
-    showPopularBadge: true,
-    showCategory: true,
-    showDuration: true,
-    showPrice: true,
-    showDescription: true,
-    clickable: false,
-    selected: false,
-    compact: false,
-  };
+  // Input signals with default values
+  readonly service = input.required<FirebaseService>();
 
-  @Output() cardClick = new EventEmitter<FirebaseService>();
-  @Output() editClick = new EventEmitter<FirebaseService>();
-  @Output() deleteClick = new EventEmitter<FirebaseService>();
-  @Output() togglePopularClick = new EventEmitter<FirebaseService>();
+  // Display options
+  readonly showActions = input<boolean>(false);
+  readonly showPopularBadge = input<boolean>(true);
+  readonly showCategory = input<boolean>(true);
+  readonly showDuration = input<boolean>(true);
+  readonly showPrice = input<boolean>(true);
+  readonly showDescription = input<boolean>(true);
 
-  constructor(private actionsService: ActionsService) {}
+  // Interaction options
+  readonly clickable = input<boolean>(false);
+  readonly selected = input<boolean>(false);
+  readonly compact = input<boolean>(false);
 
-  readonly isClickable = computed(() => this.config.clickable);
-  readonly isSelected = computed(() => this.config.selected);
-  readonly isCompact = computed(() => this.config.compact);
+  // Output signals
+  readonly cardClick = output<FirebaseService>();
+  readonly editClick = output<FirebaseService>();
+  readonly deleteClick = output<FirebaseService>();
+  readonly togglePopularClick = output<FirebaseService>();
 
+  // Injected services
+  private readonly actionsService = inject(ActionsService);
+
+  // Computed signals for reactive template
+  readonly isClickable = computed(() => this.clickable());
+  readonly isSelected = computed(() => this.selected());
+  readonly isCompact = computed(() => this.compact());
+
+  // Event handlers
   onCardClick(): void {
-    if (this.config.clickable) {
-      this.cardClick.emit(this.service);
+    if (this.clickable()) {
+      this.cardClick.emit(this.service());
     }
   }
 
   onEditClick(event: Event): void {
     event.stopPropagation();
-    this.editClick.emit(this.service);
+    this.editClick.emit(this.service());
   }
 
   onDeleteClick(event: Event): void {
     event.stopPropagation();
-    this.deleteClick.emit(this.service);
+    this.deleteClick.emit(this.service());
   }
 
   onTogglePopularClick(event: Event): void {
     event.stopPropagation();
-    this.togglePopularClick.emit(this.service);
+    this.togglePopularClick.emit(this.service());
   }
 
   getCategoryName(category: string): string {
@@ -96,10 +91,10 @@ export class ServiceCardComponent {
   get actionContext(): ActionContext {
     return {
       type: 'service',
-      item: this.service,
-      onEdit: () => this.editClick.emit(this.service),
-      onDelete: () => this.deleteClick.emit(this.service),
-      onTogglePopular: () => this.togglePopularClick.emit(this.service),
+      item: this.service(),
+      onEdit: () => this.editClick.emit(this.service()),
+      onDelete: () => this.deleteClick.emit(this.service()),
+      onTogglePopular: () => this.togglePopularClick.emit(this.service()),
     };
   }
 }

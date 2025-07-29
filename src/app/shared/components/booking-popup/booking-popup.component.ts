@@ -6,7 +6,7 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextComponent } from '../inputs';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
-import { ButtonComponent } from '../buttons/button.component';
+import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../popup-dialog/popup-dialog.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -32,7 +32,7 @@ export interface BookingDetails {
     TranslateModule,
     InputTextComponent,
     PopularBadgeComponent,
-    ButtonComponent,
+    PopupDialogComponent,
   ],
   templateUrl: './booking-popup.component.html',
   styleUrls: ['./booking-popup.component.scss'],
@@ -83,6 +83,28 @@ export class BookingPopupComponent {
     const service = this.bookingDetails().service;
     return service ? service.price : 0;
   });
+
+  // Popup dialog configuration
+  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.#translate.instant('COMMON.ACTIONS.CONFIRM_BOOKING'),
+    size: 'large',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.#translate.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'cancel' as const,
+        action: () => this.onClose()
+      },
+      {
+        label: this.#translate.instant('COMMON.ACTIONS.CONFIRM'),
+        type: 'confirm' as const,
+        disabled: !this.canConfirm(),
+        action: () => this.onConfirm()
+      }
+    ]
+  }));
 
   constructor() {
     this.initializeForm();
@@ -167,6 +189,14 @@ export class BookingPopupComponent {
 
   onClose() {
     this.cancelled.emit();
+  }
+
+  onClientNameChange(value: string) {
+    this.clientNameChanged.emit(value);
+  }
+
+  onEmailChange(value: string) {
+    this.emailChanged.emit(value);
   }
 
   onConfirm() {

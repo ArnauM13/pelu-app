@@ -124,9 +124,15 @@ export class InputDateComponent implements ControlValueAccessor {
     // Validate against minDate if provided
     if (date instanceof Date && this.minDate()) {
       const minDate = this.minDate();
-      if (minDate && date < minDate) {
-        // If selected date is before minDate, don't emit the change
-        return;
+      if (minDate) {
+        // Compare only the date part (without time) to avoid time-related issues
+        const selectedDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const minDateOnly = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+
+        if (selectedDateOnly < minDateOnly) {
+          // If selected date is before minDate, don't emit the change
+          return;
+        }
       }
     }
 

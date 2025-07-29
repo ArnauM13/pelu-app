@@ -1,126 +1,76 @@
-@if (isOpen()) {
-  <div class="appointment-detail-popup-overlay" (click)="onClose()">
-    <div class="appointment-detail-popup" (click)="$event.stopPropagation()">
-      @if (isLoading()) {
-        <div class="loading-container">
-          <div class="loading-spinner"></div>
-          <p>{{ 'COMMON.LOADING' | translate }}</p>
-        </div>
-      } @else if (loadError()) {
-        <div class="error-container">
-          <div class="error-icon">❌</div>
-          <h3>{{ 'COMMON.ERROR' | translate }}</h3>
-          <p>{{ 'COMMON.ERROR_LOADING_BOOKING' | translate }}</p>
-          <button class="btn btn-primary" (click)="onClose()">
-            {{ 'COMMON.ACTIONS.CLOSE' | translate }}
-          </button>
-        </div>
-      } @else if (currentBooking()) {
-        <div class="popup-header">
-          <h2>{{ 'COMMON.BOOKING_DETAILS' | translate }}</h2>
-          <button class="close-button" (click)="onClose()">✕</button>
-        </div>
-
-        <div class="popup-content">
-          <div class="booking-info">
-            <div class="client-section">
-              <h3>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h3>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.NAME' | translate }}:</span>
-                  <span class="info-value">{{ getClientName(currentBooking()!) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.EMAIL' | translate }}:</span>
-                  <span class="info-value">{{ getClientEmail(currentBooking()!) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="booking-section">
-              <h3>{{ 'COMMON.BOOKING_INFORMATION' | translate }}</h3>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.DATE' | translate }}:</span>
-                  <span class="info-value">{{ formatDate(currentBooking()!.data || '') }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.TIME' | translate }}:</span>
-                  <span class="info-value">{{ formatTime(currentBooking()!.hora || '') }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.SERVICE' | translate }}:</span>
-                  <span class="info-value">{{ getServiceName(currentBooking()!) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.DURATION' | translate }}:</span>
-                  <span class="info-value">{{ getDuration(currentBooking()!) }} min</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ 'COMMON.PRICE' | translate }}:</span>
-                  <span class="info-value">{{ getPrice(currentBooking()!) }}€</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ 'APPOINTMENTS.STATUS' | translate }}:</span>
-                  <span
-                    class="info-value status-badge"
-                    [style.color]="getStatusColor(getStatus(currentBooking()!))"
-                  >
-                    {{ getStatusText(getStatus(currentBooking()!)) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            @if (getNotes(currentBooking()!)) {
-              <div class="notes-section">
-                <h3>{{ 'COMMON.NOTES' | translate }}</h3>
-                <div class="notes-content">
-                  {{ getNotes(currentBooking()!) }}
-                </div>
-              </div>
-            }
+<pelu-popup-dialog
+  [isOpen]="isOpen()"
+  [config]="dialogConfig()"
+  (closed)="onClose()"
+>
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  } @else if (loadError()) {
+    <div class="error-container">
+      <div class="error-icon">❌</div>
+      <h3>{{ 'COMMON.ERROR' | translate }}</h3>
+      <p>{{ 'COMMON.ERROR_LOADING_BOOKING' | translate }}</p>
+    </div>
+  } @else if (currentBooking()) {
+    <div class="booking-info">
+      <div class="client-section">
+        <h3>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.NAME' | translate }}:</span>
+            <span class="info-value">{{ getClientName(currentBooking()!) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.EMAIL' | translate }}:</span>
+            <span class="info-value">{{ getClientEmail(currentBooking()!) }}</span>
           </div>
         </div>
+      </div>
 
-        <div class="popup-actions">
-          @if (!hideViewDetailButton()) {
-            <button class="btn btn-secondary" (click)="onViewDetail()">
-              👁️ {{ 'COMMON.VIEW_DETAIL' | translate }}
-            </button>
-          }
-
-          @if (canEdit() && isFuture()) {
-            <button class="btn btn-primary" (click)="onEdit()">
-              ✏️ {{ 'COMMON.ACTIONS.EDIT' | translate }}
-            </button>
-          }
-
-          @if (canDelete() && isFuture()) {
-            <button class="btn btn-danger" (click)="onDelete()">
-              🗑️ {{ 'COMMON.ACTIONS.DELETE' | translate }}
-            </button>
-          }
+      <div class="booking-section">
+        <h3>{{ 'COMMON.BOOKING_INFORMATION' | translate }}</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.DATE' | translate }}:</span>
+            <span class="info-value">{{ formatBookingDate(currentBooking()!.data || '') }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.HOURS' | translate }}:</span>
+            <span class="info-value">{{ currentBooking()!.hora || '' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.SERVICE' | translate }}:</span>
+            <span class="info-value">{{ getServiceName(currentBooking()!) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.DURATION' | translate }}:</span>
+            <span class="info-value">{{ formatDuration(currentBooking()!.duration || 60) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">{{ 'COMMON.PRICE' | translate }}:</span>
+            <span class="info-value">{{ formatPrice(currentBooking()!.price || 0) }}</span>
+          </div>
         </div>
-      } @else {
-        <div class="not-found-container">
-          <div class="not-found-icon">📅</div>
-          <h3>{{ 'COMMON.BOOKING_NOT_FOUND' | translate }}</h3>
-          <p>{{ 'COMMON.BOOKING_NOT_FOUND_MESSAGE' | translate }}</p>
-          <button class="btn btn-primary" (click)="onClose()">
-            {{ 'COMMON.ACTIONS.CLOSE' | translate }}
-          </button>
+      </div>
+
+      @if (currentBooking()!.notes) {
+        <div class="notes-section">
+          <h3>{{ 'COMMON.NOTES' | translate }}</h3>
+          <p class="notes-text">{{ currentBooking()!.notes }}</p>
         </div>
       }
     </div>
-  </div>
-}
+  }
 
-<!-- Confirmation Popup -->
-<pelu-confirmation-popup
-  [isOpen]="showConfirmationPopup()"
-  [data]="confirmationData()"
-  (confirmed)="onConfirmDelete()"
-  (cancelled)="onConfirmationCancelled()"
->
-</pelu-confirmation-popup>
+  <!-- Confirmation Popup -->
+  <pelu-confirmation-popup
+    [isOpen]="showConfirmationPopup()"
+    [data]="confirmationData()"
+    (confirmed)="onConfirmationConfirmed()"
+    (cancelled)="onConfirmationCancelled()"
+  >
+  </pelu-confirmation-popup>
+</pelu-popup-dialog>
