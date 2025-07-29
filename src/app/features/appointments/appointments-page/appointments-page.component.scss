@@ -2,6 +2,25 @@
 
 // CSS Variables - Now using global variables from styles.scss
 
+// Calendar Layout
+.calendar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+.calendar-section {
+  flex: 1;
+}
+
+// Responsive adjustments for calendar layout
+@media (max-width: 768px) {
+  .calendar-layout {
+    gap: 0.5rem;
+  }
+}
+
 // Background styles like landing page and services page
 :host {
   background: linear-gradient(
@@ -622,14 +641,12 @@ pelu-appointments-list {
 
 .calendar-container ::ng-deep .p-calendar .p-datepicker td.p-datepicker-today > span {
   background: var(--primary-color);
-  color: white;
   font-weight: 700;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .calendar-container ::ng-deep .p-calendar .p-datepicker td.p-datepicker-current-day > span {
   background: var(--primary-color-dark);
-  color: white;
   font-weight: 700;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }

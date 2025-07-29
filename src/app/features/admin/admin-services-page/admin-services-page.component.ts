@@ -23,6 +23,7 @@ import { InputTextareaComponent } from '../../../shared/components/inputs/input-
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
+import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../../../shared/components/popup-dialog/popup-dialog.component';
 
 import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
@@ -74,6 +75,7 @@ interface ServiceCategory {
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
+    PopupDialogComponent,
   ],
   templateUrl: './admin-services-page.component.html',
   styleUrls: ['./admin-services-page.component.scss'],
@@ -174,6 +176,106 @@ export class AdminServicesPageComponent implements OnInit {
       }))
     }));
   });
+
+  // Computed properties for popup configurations
+  readonly createServiceDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('ADMIN.SERVICES.CREATE_SERVICE'),
+    size: 'large',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'cancel' as const,
+        action: () => this.cancelDialog()
+      },
+      {
+        label: this.translateService.instant('ADMIN.SERVICES.CREATE_SERVICE'),
+        type: 'confirm' as const,
+        disabled: !this.serviceForm()?.valid,
+        action: () => this.createService()
+      }
+    ]
+  }));
+
+  readonly editServiceDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('ADMIN.SERVICES.EDIT_SERVICE'),
+    size: 'large',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'cancel' as const,
+        action: () => this.cancelDialog()
+      },
+      {
+        label: this.translateService.instant('ADMIN.SERVICES.UPDATE_SERVICE'),
+        type: 'confirm' as const,
+        disabled: !this.serviceForm()?.valid,
+        action: () => this.updateService()
+      }
+    ]
+  }));
+
+  readonly categoriesManagerDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.MANAGE_CATEGORIES'),
+    size: 'large',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CLOSE'),
+        type: 'close' as const,
+        action: () => this.closeCategoriesManager()
+      }
+    ]
+  }));
+
+  readonly createCategoryDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATE_CATEGORY'),
+    size: 'medium',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'cancel' as const,
+        action: () => this.cancelCategoryDialog()
+      },
+      {
+        label: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATE_CATEGORY'),
+        type: 'confirm' as const,
+        disabled: !this.categoryForm()?.valid,
+        action: () => this.createCategory()
+      }
+    ]
+  }));
+
+  readonly editCategoryDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.EDIT_CATEGORY'),
+    size: 'medium',
+    showCloseButton: true,
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'cancel' as const,
+        action: () => this.cancelCategoryDialog()
+      },
+      {
+        label: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.EDIT_CATEGORY'),
+        type: 'confirm' as const,
+        disabled: !this.categoryForm()?.valid,
+        action: () => this.updateCategory()
+      }
+    ]
+  }));
 
   constructor() {
   }
