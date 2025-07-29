@@ -1,11 +1,47 @@
 <div class="calendar-header">
-  <!-- Date Input -->
-  <div class="date-input-container">
+  <!-- Calendar Navigation -->
+  <div class="calendar-navigation">
+    <!-- Previous Week Button -->
     <pelu-button
+      icon="pi pi-chevron-left"
+      [disabled]="!canNavigateToPreviousWeek()"
+      ariaLabel="COMMON.VIEWS.CALENDAR.PREVIOUS_WEEK"
+      size="small"
+      severity="secondary"
+      variant="outlined"
+      (clicked)="emitPreviousWeek()"
+    />
+
+    <!-- Today Button -->
+    <pelu-button
+      label="Avui"
       icon="pi pi-calendar"
-      label="COMMON.TIME.TODAY"
+      size="small"
+      severity="primary"
+      variant="outlined"
       (clicked)="emitToday()"
     />
+
+    <!-- Next Week Button -->
+    <pelu-button
+      icon="pi pi-chevron-right"
+      ariaLabel="COMMON.VIEWS.CALENDAR.NEXT_WEEK"
+      size="small"
+      severity="secondary"
+      variant="outlined"
+      (clicked)="emitNextWeek()"
+    />
+  </div>
+
+  <!-- Calendar Title -->
+  <div class="calendar-title">
+    <div class="title-main">{{ mainTitle() }}</div>
+    <div class="title-info">{{ viewDateInfo() }}</div>
+    <div class="title-config">{{ businessDaysInfo() }}</div>
+  </div>
+
+  <!-- Date Input -->
+  <div class="date-input-container">
     <form [formGroup]="dateForm">
       <pelu-input-date
         formControlName="date"
@@ -20,9 +56,10 @@
     </form>
   </div>
 
-  <div class="calendar-title">
-    <div class="title-main">{{ mainTitle() }}</div>
-    <div class="title-info">{{ viewDateInfo() }}</div>
-    <div class="title-config">{{ businessDaysInfo() }}</div>
+  <!-- Info message -->
+  <div class="calendar-info">
+    <p class="info-message">
+      📅 {{ 'CALENDAR.FOOTER.INFO_NOTE' | translate }}
+    </p>
   </div>
 </div>
