@@ -31,11 +31,11 @@ The calendar services have been simplified to remove unnecessary complexity whil
 
 ### ❌ **Removed - Unnecessary Services**
 
-#### **CalendarHeaderService** (DELETED)
+#### **CalendarHeaderService** (REMOVED)
 - **Why removed**: Component simplified to use direct signals
 - **Replacement**: Static literals and direct event emission in component
 
-#### **CalendarHeaderFactoryService** (DELETED)
+#### **CalendarHeaderFactoryService** (REMOVED)
 - **Why removed**: Component simplified to use direct data binding
 - **Replacement**: Direct input/output signals in component
 
@@ -60,7 +60,7 @@ The calendar services have been simplified to remove unnecessary complexity whil
 
 ```
 Calendar Components
-├── CalendarHeaderComponent (simplified - no services)
+├── CalendarHeaderComponent (REMOVED)
 ├── CalendarComponent
 │   ├── CalendarStateService (state management)
 │   ├── CalendarCoreService (core functionality)
