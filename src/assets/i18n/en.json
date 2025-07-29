@@ -743,5 +743,13 @@
     "SELECT_PLACEHOLDER": "Select an option",
     "SELECT_FILTER_PLACEHOLDER": "Search...",
     "DATE_PLACEHOLDER": "Select a date"
+  },
+  "NO_DATE_SET": "No date set",
+  "VIEW_CALENDAR_APPOINTMENTS": "View appointments in calendar format",
+  "BOOKINGS_FOR_DATE": "Bookings for date",
+  "FOOTER": {
+    "INFO_NOTE": "Click on any available time slot to make a booking",
+    "WEEKEND_INFO": "Weekends have special schedules. Contact us for more information.",
+    "BUSINESS_HOURS_INFO": "Business hours: Monday to Friday from {{startHour}}:00 to {{endHour}}:00, Lunch break from {{lunchStart}}:00 to {{lunchEnd}}:00"
   }
 }

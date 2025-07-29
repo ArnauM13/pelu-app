@@ -681,5 +681,10 @@
   },
   "NO_DATE_SET": "Data no establerta",
   "VIEW_CALENDAR_APPOINTMENTS": "Visualitza les cites en format calendari",
-  "BOOKINGS_FOR_DATE": "Reserves per a la data"
+  "BOOKINGS_FOR_DATE": "Reserves per a la data",
+  "FOOTER": {
+    "INFO_NOTE": "Clica sobre qualsevol horari disponible per fer una reserva",
+    "WEEKEND_INFO": "Els caps de setmana tenen horaris especials. Contacta amb nosaltres per més informació.",
+    "BUSINESS_HOURS_INFO": "Horari d'atenció: Dilluns a Divendres de {{startHour}}:00 a {{endHour}}:00, Pausa per dinar de {{lunchStart}}:00 a {{lunchEnd}}:00"
+  }
 }
