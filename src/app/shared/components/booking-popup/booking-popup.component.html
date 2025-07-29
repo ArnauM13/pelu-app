@@ -1,138 +1,97 @@
-@if (open()) {
-  <div class="booking-popup-overlay" (click)="onBackdropClick($event)">
-    <div class="booking-popup" (click)="$event.stopPropagation()">
-      <div class="popup-header">
-        <h3>✅ {{ 'COMMON.ACTIONS.CONFIRM_BOOKING' | translate }}</h3>
-        <pelu-button
-  label="×"
-  variant="text"
-  severity="secondary"
-  [rounded]="true"
-  class="close-btn"
-  (clicked)="onClose()"
+<pelu-popup-dialog
+  [isOpen]="open()"
+  [config]="dialogConfig()"
+  (closed)="onClose()"
 >
-</pelu-button>
-      </div>
-
-      <div class="popup-body">
-        <!-- Date and Time Summary -->
-        <div class="selection-summary">
-          <div class="summary-item">
-            <span class="summary-label">📅 {{ 'COMMON.DATE' | translate }}:</span>
-            <span class="summary-value">{{ formatDate(bookingDetails().date) }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">⏰ {{ 'COMMON.HOURS' | translate }}:</span>
-            <span class="summary-value">{{ bookingDetails().time }}</span>
-          </div>
-        </div>
-
-        <!-- Service Display -->
-        @if (bookingDetails().service) {
-          <div class="service-selection-section">
-            <h4>{{ 'COMMON.SELECTION.SELECTED_SERVICE' | translate }}</h4>
-            <div class="service-card selected">
-              <div class="service-header">
-                <div class="service-icon">{{ bookingDetails().service!.icon }}</div>
-                <div class="service-info">
-                  <div class="service-name">{{ getServiceName(bookingDetails().service!) }}</div>
-                  <div class="service-description">
-                    {{ formatDuration(bookingDetails().service!.duration) }}
-                  </div>
-                </div>
-                <div class="service-price">{{ formatPrice(bookingDetails().service!.price) }}</div>
-              </div>
-              <div class="service-details">
-                <div class="service-meta">
-                  <span class="service-duration">
-                    ⏱️ {{ formatDuration(bookingDetails().service!.duration) }}
-                  </span>
-                  @if (bookingDetails().service!.popular) {
-                    <pelu-popular-badge
-                      [config]="{
-                        size: 'small',
-                        variant: 'default',
-                        showIcon: true,
-                        showText: true,
-                        text: 'SERVICES.POPULAR',
-                      }"
-                    >
-                    </pelu-popular-badge>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Client Information Section -->
-        <div class="service-selection-section">
-          <h4>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h4>
-
-          @if (form()) {
-            <form [formGroup]="form()!" (ngSubmit)="onConfirm()">
-              <!-- Client Name -->
-              <div class="form-group">
-                @if (isAuthenticated()) {
-                  <div class="readonly-field">{{ currentUserName() }}</div>
-                } @else {
-                  <pelu-input-text
-                    formControlName="clientName"
-                    [label]="'COMMON.CLIENT_NAME'"
-                    [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
-                    [required]="true"
-                    [invalid]="isFieldInvalid('clientName')"
-                    (valueChange)="clientNameChanged.emit($event)">
-                  </pelu-input-text>
-                  @if (isFieldInvalid('clientName')) {
-                    <div class="error-message">{{ getFieldError('clientName') }}</div>
-                  }
-                }
-              </div>
-
-              <!-- Email -->
-              <div class="form-group">
-                @if (isAuthenticated()) {
-                  <div class="readonly-field">{{ currentUserEmail() }}</div>
-                } @else {
-                  <pelu-input-text
-                    formControlName="email"
-                    [label]="'COMMON.EMAIL'"
-                    [placeholder]="'COMMON.ENTER_EMAIL'"
-                    type="email"
-                    [required]="true"
-                    [invalid]="isFieldInvalid('email')"
-                    (valueChange)="emailChanged.emit($event)">
-                  </pelu-input-text>
-                  @if (isFieldInvalid('email')) {
-                    <div class="error-message">{{ getFieldError('email') }}</div>
-                  }
-                }
-              </div>
-            </form>
-          }
-        </div>
-
-        <!-- Total Price Display -->
-        <div class="total-price-section">
-          <div class="total-price-card">
-            <div class="total-price-header">
-              <span class="total-label">{{ 'COMMON.TOTAL_PRICE' | translate }}</span>
-              <span class="total-amount">{{ formatPrice(totalPrice()) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="popup-footer">
-        <pelu-button
-  [label]="'COMMON.ACTIONS.CONFIRM' | translate"
-  severity="primary"
-  [disabled]="!canConfirm()"
-  (clicked)="onConfirm()"
->
-</pelu-button>
-      </div>
+  <!-- Date and Time Summary -->
+  <div class="selection-summary">
+    <div class="summary-item">
+      <span class="summary-label">📅 {{ 'COMMON.DATE' | translate }}:</span>
+      <span class="summary-value">{{ formatDate(bookingDetails().date) }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">⏰ {{ 'COMMON.HOURS' | translate }}:</span>
+      <span class="summary-value">{{ bookingDetails().time }}</span>
     </div>
   </div>
-}
+
+  <!-- Service Display -->
+  @if (bookingDetails().service) {
+    <div class="service-selection-section">
+      <h4>{{ 'COMMON.SELECTION.SELECTED_SERVICE' | translate }}</h4>
+      <div class="service-card selected">
+        <div class="service-header">
+          <div class="service-icon">{{ bookingDetails().service!.icon }}</div>
+          <div class="service-info">
+            <div class="service-name">{{ getServiceName(bookingDetails().service!) }}</div>
+            <div class="service-description">
+              {{ formatDuration(bookingDetails().service!.duration) }}
+            </div>
+          </div>
+          <div class="service-price">{{ formatPrice(bookingDetails().service!.price) }}</div>
+        </div>
+        <div class="service-details">
+          <div class="service-meta">
+            <span class="service-duration">
+              ⏱️ {{ formatDuration(bookingDetails().service!.duration) }}
+            </span>
+            @if (bookingDetails().service!.popular) {
+              <pelu-popular-badge
+                [config]="{
+                  size: 'small',
+                  variant: 'default',
+                  showIcon: true,
+                  showText: true,
+                  text: 'SERVICES.POPULAR',
+                }"
+              >
+              </pelu-popular-badge>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Client Information Section -->
+  <div class="service-selection-section">
+    <h4>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h4>
+    @if (form()) {
+      <form [formGroup]="form()!" (ngSubmit)="onConfirm()">
+        <div class="form-grid">
+          <div class="form-field">
+            <pelu-input-text
+              formControlName="clientName"
+              [label]="'COMMON.NAME'"
+              [placeholder]="'COMMON.NAME_PLACEHOLDER'"
+              [required]="true"
+              (valueChange)="onClientNameChange($event)"
+            >
+            </pelu-input-text>
+          </div>
+          <div class="form-field">
+            <pelu-input-text
+              formControlName="email"
+              [label]="'COMMON.EMAIL'"
+              [placeholder]="'COMMON.EMAIL_PLACEHOLDER'"
+              type="email"
+              [required]="true"
+              (valueChange)="onEmailChange($event)"
+            >
+            </pelu-input-text>
+          </div>
+        </div>
+      </form>
+    }
+  </div>
+
+  <!-- Total Price Display -->
+  @if (totalPrice() > 0) {
+    <div class="total-price-section">
+      <div class="total-price">
+        <span class="total-label">{{ 'COMMON.TOTAL' | translate }}:</span>
+        <span class="total-amount">{{ formatPrice(totalPrice()) }}</span>
+      </div>
+    </div>
+  }
+</pelu-popup-dialog>

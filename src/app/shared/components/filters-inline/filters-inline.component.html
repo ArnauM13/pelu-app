@@ -26,10 +26,11 @@
     </div>
     <div class="reset-group">
       <pelu-button
-        [label]="'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate"
-        severity="secondary"
-        variant="outlined"
-        (clicked)="onResetHandler()"
+        label="COMMON.FILTERS.CLEAR_FILTERS_BUTTON"
+        severity="danger"
+        icon="pi pi-trash"
+        iconPos="right"
+        (onClick)="onResetHandler()"
       >
       </pelu-button>
     </div>
