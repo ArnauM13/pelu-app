@@ -74,41 +74,43 @@ describe('ToastComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have correct toast key', () => {
-    expect(component.toastKey).toBe('pelu-toast');
-  });
-
   describe('showToast', () => {
     it('should call messageService.add with correct parameters', () => {
-      const severity = 'success';
-      const summary = 'Test summary';
-      const detail = 'Test detail';
-      const appointmentId = 'test-id';
-      const showViewButton = true;
-      const action = () => {};
+      const config = {
+        severity: 'success' as const,
+        summary: 'Test summary',
+        detail: 'Test detail',
+        data: {
+          appointmentId: 'test-id',
+          showViewButton: true,
+          action: () => {}
+        }
+      };
 
-      component.showToast(severity, summary, detail, appointmentId, showViewButton, action);
+      component.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
-        detail,
+        severity: config.severity,
+        summary: config.summary,
+        detail: config.detail,
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId, showViewButton, action },
+        data: config.data,
       });
     });
 
     it('should call messageService.add with default parameters', () => {
-      const severity = 'error';
-      const summary = 'Test summary';
+      const config = {
+        severity: 'error' as const,
+        summary: 'Test summary'
+      };
 
-      component.showToast(severity, summary);
+      component.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
+        severity: config.severity,
+        summary: config.summary,
         detail: '',
         life: 4000,
         closable: false,

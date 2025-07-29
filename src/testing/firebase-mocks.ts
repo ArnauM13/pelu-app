@@ -10,7 +10,7 @@ import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 
 // Mock user object
-export const mockUser: any = {
+export const mockUser: Partial<User> = {
   uid: 'test-uid-123',
   email: 'test@example.com',
   displayName: 'Test User',
@@ -109,10 +109,12 @@ export const authMock = {
     })
   ),
   signOut: jasmine.createSpy('signOut').and.returnValue(Promise.resolve()),
-  onAuthStateChanged: jasmine.createSpy('onAuthStateChanged').and.callFake((callback: any) => {
-    callback({ uid: 'mock-user-id', email: 'mock@example.com' });
-    return () => {}; // Return unsubscribe function
-  }),
+  onAuthStateChanged: jasmine
+    .createSpy('onAuthStateChanged')
+    .and.callFake((callback: (user: User | null) => void) => {
+      callback({ uid: 'mock-user-id', email: 'mock@example.com' } as User);
+      return () => {}; // Return unsubscribe function
+    }),
   createUserWithEmailAndPassword: jasmine
     .createSpy('createUserWithEmailAndPassword')
     .and.returnValue(

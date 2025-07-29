@@ -6,9 +6,6 @@ import { of, throwError } from 'rxjs';
 describe('BusinessSettingsService', () => {
   let service: BusinessSettingsService;
   let firestore: jasmine.SpyObj<Firestore>;
-  let docSpy: jasmine.SpyObj<any>;
-  let getDocSpy: jasmine.SpyObj<any>;
-  let setDocSpy: jasmine.SpyObj<any>;
 
   const mockSettings: BusinessSettings = {
     businessName: 'Test Salon',
@@ -41,14 +38,6 @@ describe('BusinessSettingsService', () => {
 
   beforeEach(() => {
     const firestoreSpy = jasmine.createSpyObj('Firestore', ['collection']);
-    docSpy = jasmine.createSpyObj('doc', ['get', 'set']);
-    getDocSpy = jasmine.createSpyObj('getDoc', ['data']);
-    setDocSpy = jasmine.createSpyObj('setDoc', ['then']);
-
-    // Mock Firestore methods
-    (doc as jasmine.Spy).and.returnValue(docSpy);
-    (getDoc as jasmine.Spy).and.returnValue(Promise.resolve({ data: () => mockSettings }));
-    (setDoc as jasmine.Spy).and.returnValue(Promise.resolve());
 
     TestBed.configureTestingModule({
       providers: [

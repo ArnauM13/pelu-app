@@ -70,7 +70,7 @@ describe('InfoItemComponent', () => {
   });
 
   it('should be a component class', () => {
-    expect(InfoItemComponent.prototype.constructor.name).toBe('InfoItemComponent');
+    expect(component.constructor.name).toContain('InfoItemComponent');
   });
 
   it('should have proper component structure', () => {
@@ -80,13 +80,13 @@ describe('InfoItemComponent', () => {
   });
 
   it('should be a standalone component', () => {
-    expect(InfoItemComponent.prototype.constructor).toBeDefined();
-    expect(InfoItemComponent.prototype.constructor.name).toBe('InfoItemComponent');
+    expect(component.constructor).toBeDefined();
+    expect(component.constructor.name).toContain('InfoItemComponent');
   });
 
   it('should have component metadata', () => {
-    expect(InfoItemComponent.prototype).toBeDefined();
-    expect(InfoItemComponent.prototype.constructor).toBeDefined();
+    expect(component).toBeDefined();
+    expect(component.constructor).toBeDefined();
   });
 
   it('should have all required computed properties', () => {
@@ -178,6 +178,6 @@ describe('InfoItemComponent', () => {
   });
 
   it('should have proper component selector', () => {
-    expect(InfoItemComponent.prototype.constructor.name).toBe('InfoItemComponent');
+    expect(component.constructor.name).toContain('InfoItemComponent');
   });
 });

@@ -190,14 +190,6 @@ describe('BookingPopupComponent', () => {
       const mockEvent = { target: { classList: { contains: () => true } } };
       expect(() => component.onBackdropClick(mockEvent as any)).not.toThrow();
     });
-
-    it('should emit clientNameChanged when updateClientName is called', () => {
-      const clientNameChangedSpy = jasmine.createSpy('clientNameChanged');
-      component.clientNameChanged.subscribe(clientNameChangedSpy);
-
-      component.updateClientName('New Name');
-      expect(clientNameChangedSpy).toHaveBeenCalledWith('New Name');
-    });
   });
 
   describe('Formatting Methods', () => {

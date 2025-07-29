@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarWithFooterComponent } from './calendar-with-footer.component';
 import { CalendarBusinessService } from '../services/calendar-business.service';
 import { TranslateService } from '@ngx-translate/core';
+import { provideMockFirebase } from '../../../../testing/firebase-mocks';
 
 describe('CalendarWithFooterComponent', () => {
   let component: CalendarWithFooterComponent;
@@ -10,12 +11,16 @@ describe('CalendarWithFooterComponent', () => {
   let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
-    const businessSpy = jasmine.createSpyObj('CalendarBusinessService', ['getBusinessConfig']);
+    const businessSpy = jasmine.createSpyObj('CalendarBusinessService', [
+      'getBusinessConfig',
+      'getAppropriateViewDate'
+    ]);
     const translateSpy = jasmine.createSpyObj('TranslateService', ['instant']);
 
     await TestBed.configureTestingModule({
       imports: [CalendarWithFooterComponent],
       providers: [
+        ...provideMockFirebase(),
         { provide: CalendarBusinessService, useValue: businessSpy },
         { provide: TranslateService, useValue: translateSpy },
       ],
@@ -34,6 +39,7 @@ describe('CalendarWithFooterComponent', () => {
       lunchBreak: { start: 13, end: 15 },
       days: { start: 1, end: 5 },
     });
+    businessService.getAppropriateViewDate.and.returnValue(new Date());
     translateService.instant.and.returnValue('Translated text');
   });
 
@@ -57,22 +63,22 @@ describe('CalendarWithFooterComponent', () => {
     expect(component.dateSelected.emit).toHaveBeenCalledWith(event);
   });
 
-  it('should emit onEditAppointment when calendar emits', () => {
-    spyOn(component.onEditAppointment, 'emit');
+  it('should emit editAppointment when calendar emits', () => {
+    spyOn(component.editAppointment, 'emit');
     const appointment = { id: '1', title: 'Test', start: '2024-01-01T10:00:00' };
 
-    component.onEditAppointment.emit(appointment);
+    component.editAppointment.emit(appointment);
 
-    expect(component.onEditAppointment.emit).toHaveBeenCalledWith(appointment);
+    expect(component.editAppointment.emit).toHaveBeenCalledWith(appointment);
   });
 
-  it('should emit onDeleteAppointment when calendar emits', () => {
-    spyOn(component.onDeleteAppointment, 'emit');
+  it('should emit deleteAppointment when calendar emits', () => {
+    spyOn(component.deleteAppointment, 'emit');
     const appointment = { id: '1', title: 'Test', start: '2024-01-01T10:00:00' };
 
-    component.onDeleteAppointment.emit(appointment);
+    component.deleteAppointment.emit(appointment);
 
-    expect(component.onDeleteAppointment.emit).toHaveBeenCalledWith(appointment);
+    expect(component.deleteAppointment.emit).toHaveBeenCalledWith(appointment);
   });
 
   it('should update calendar loaded state when onBookingsLoaded is called', () => {
@@ -96,28 +102,28 @@ describe('CalendarWithFooterComponent', () => {
     // Mock today as weekend
     const originalDate = Date;
     const mockDate = new Date('2024-01-06'); // Saturday
-    spyOn(window, 'Date').and.returnValue(mockDate as any);
+    spyOn(window, 'Date').and.returnValue(mockDate as unknown as string);
 
     const alerts = component.footerAlerts();
 
     expect(alerts.some(alert => alert.id === 'weekend-info')).toBe(true);
 
     // Restore original Date
-    (window as any).Date = originalDate;
+    (window as unknown as { Date: typeof Date }).Date = originalDate;
   });
 
   it('should not include weekend info when it is not weekend', () => {
     // Mock today as weekday
     const originalDate = Date;
     const mockDate = new Date('2024-01-08'); // Monday
-    spyOn(window, 'Date').and.returnValue(mockDate as any);
+    spyOn(window, 'Date').and.returnValue(mockDate as unknown as string);
 
     const alerts = component.footerAlerts();
 
     expect(alerts.some(alert => alert.id === 'weekend-info')).toBe(false);
 
     // Restore original Date
-    (window as any).Date = originalDate;
+    (window as unknown as { Date: typeof Date }).Date = originalDate;
   });
 
   it('should translate business hours info correctly', () => {

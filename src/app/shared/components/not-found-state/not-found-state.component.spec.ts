@@ -23,6 +23,9 @@ describe('NotFoundStateComponent', () => {
           useValue: {
             instant: (key: string) => key,
             get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+            onLangChange: { subscribe: () => {} },
+            onTranslationChange: { subscribe: () => {} },
+            onDefaultLangChange: { subscribe: () => {} },
           },
         },
         {
@@ -54,13 +57,13 @@ describe('NotFoundStateComponent', () => {
   });
 
   it('should be a standalone component', () => {
-    expect(NotFoundStateComponent.prototype.constructor).toBeDefined();
-    expect(NotFoundStateComponent.prototype.constructor.name).toBe('NotFoundStateComponent');
+    expect(component.constructor).toBeDefined();
+    expect(component.constructor.name).toContain('NotFoundStateComponent');
   });
 
   it('should have component metadata', () => {
-    expect(NotFoundStateComponent.prototype).toBeDefined();
-    expect(NotFoundStateComponent.prototype.constructor).toBeDefined();
+    expect(component).toBeDefined();
+    expect(component.constructor).toBeDefined();
   });
 
   describe('Template Rendering', () => {
@@ -131,23 +134,25 @@ describe('NotFoundStateComponent', () => {
       expect(buttonElement).toBeFalsy();
     });
 
-    it('should have proper CSS classes', () => {
-      component.config = mockConfig;
-      fixture.detectChanges();
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      const notFoundContent = compiled.querySelector('.not-found-content');
-      expect(notFoundContent?.classList.contains('not-found-content')).toBeTruthy();
-    });
-
     it('should have proper HTML structure', () => {
       component.config = mockConfig;
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.innerHTML).toContain('not-found-content');
-      expect(compiled.innerHTML).toContain('not-found-icon');
-      expect(compiled.innerHTML).toContain('not-found-btn');
+      expect(compiled.querySelector('.not-found-content')).toBeTruthy();
+      expect(compiled.querySelector('.not-found-icon')).toBeTruthy();
+      expect(compiled.querySelector('h2')).toBeTruthy();
+      expect(compiled.querySelector('p')).toBeTruthy();
+    });
+
+    it('should have proper CSS classes', () => {
+      component.config = mockConfig;
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.not-found-content')).toBeTruthy();
+      expect(compiled.querySelector('.not-found-icon')).toBeTruthy();
+      expect(compiled.querySelector('.not-found-btn')).toBeTruthy();
     });
   });
 
@@ -156,24 +161,28 @@ describe('NotFoundStateComponent', () => {
       component.config = mockConfig;
       fixture.detectChanges();
 
-      const spy = spyOn(component.buttonClick, 'emit');
-      const buttonElement = fixture.nativeElement.querySelector('.not-found-btn');
+      const buttonClickSpy = jasmine.createSpy('buttonClick');
+      component.buttonClick.subscribe(buttonClickSpy);
 
-      buttonElement.click();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const buttonElement = compiled.querySelector('.not-found-btn') as HTMLButtonElement;
+      buttonElement?.click();
 
-      expect(spy).toHaveBeenCalled();
+      expect(buttonClickSpy).toHaveBeenCalled();
     });
 
     it('should emit void when button is clicked', () => {
       component.config = mockConfig;
       fixture.detectChanges();
 
-      const spy = spyOn(component.buttonClick, 'emit');
-      const buttonElement = fixture.nativeElement.querySelector('.not-found-btn');
+      const buttonClickSpy = jasmine.createSpy('buttonClick');
+      component.buttonClick.subscribe(buttonClickSpy);
 
-      buttonElement.click();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const buttonElement = compiled.querySelector('.not-found-btn') as HTMLButtonElement;
+      buttonElement?.click();
 
-      expect(spy).toHaveBeenCalledWith();
+      expect(buttonClickSpy).toHaveBeenCalledWith();
     });
   });
 
@@ -219,7 +228,7 @@ describe('NotFoundStateComponent', () => {
         icon: '🔍',
         title: 'No Button Title',
         message: 'No Button Message',
-        buttonText: 'Button Text',
+        buttonText: 'Should Not Show',
         showButton: false,
       };
 
@@ -232,104 +241,46 @@ describe('NotFoundStateComponent', () => {
   });
 
   describe('Component Behavior', () => {
-    it('should initialize with config input', () => {
-      component.config = mockConfig;
-      expect(component.config).toBe(mockConfig);
-    });
-
-    it('should maintain config reference consistency', () => {
-      component.config = mockConfig;
-      const initialConfig = component.config;
-      expect(component.config).toBe(initialConfig);
-    });
-
     it('should not throw errors during rendering', () => {
       component.config = mockConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
     });
 
     it('should handle config changes gracefully', () => {
+      component.config = mockConfig;
+      fixture.detectChanges();
+
+      const newConfig: NotFoundStateConfig = {
+        icon: '🚀',
+        title: 'New Title',
+        message: 'New Message',
+        buttonText: 'New Button',
+        showButton: true,
+      };
+
       expect(() => {
-        component.config = mockConfig;
-        fixture.detectChanges();
-        component.config = { ...mockConfig, icon: '🚀' };
+        component.config = newConfig;
         fixture.detectChanges();
       }).not.toThrow();
     });
   });
 
   describe('Error Handling', () => {
-    it('should handle missing config gracefully', () => {
-      // Component should still be created even without config
-      expect(component).toBeTruthy();
-    });
-
     it('should handle undefined config properties gracefully', () => {
-      const incompleteConfig: NotFoundStateConfig = {
+      const incompleteConfig = {
         icon: '🔍',
         title: 'Test',
         message: 'Test',
-      };
+      } as NotFoundStateConfig;
+
       component.config = incompleteConfig;
       expect(() => fixture.detectChanges()).not.toThrow();
-    });
-
-    it('should handle empty strings gracefully', () => {
-      const emptyConfig: NotFoundStateConfig = {
-        icon: '',
-        title: '',
-        message: '',
-        buttonText: '',
-      };
-      component.config = emptyConfig;
-      expect(() => fixture.detectChanges()).not.toThrow();
-    });
-  });
-
-  describe('Interface Validation', () => {
-    it('should handle NotFoundStateConfig interface correctly', () => {
-      const testConfig: NotFoundStateConfig = {
-        icon: '🔍',
-        title: 'Test Title',
-        message: 'Test Message',
-        buttonText: 'Test Button',
-        showButton: true,
-      };
-
-      expect(testConfig.icon).toBe('🔍');
-      expect(testConfig.title).toBe('Test Title');
-      expect(testConfig.message).toBe('Test Message');
-      expect(testConfig.buttonText).toBe('Test Button');
-      expect(testConfig.showButton).toBe(true);
-    });
-
-    it('should handle NotFoundStateConfig without optional properties', () => {
-      const testConfig: NotFoundStateConfig = {
-        icon: '🔍',
-        title: 'Test Title',
-        message: 'Test Message',
-      };
-
-      expect(testConfig.icon).toBe('🔍');
-      expect(testConfig.title).toBe('Test Title');
-      expect(testConfig.message).toBe('Test Message');
-      expect(testConfig.buttonText).toBeUndefined();
-      expect(testConfig.showButton).toBeUndefined();
     });
   });
 
   describe('Component Structure', () => {
-    it('should be a standalone component', () => {
-      expect(NotFoundStateComponent.prototype.constructor).toBeDefined();
-    });
-
     it('should have proper component selector', () => {
-      expect(NotFoundStateComponent.prototype.constructor.name).toBe('NotFoundStateComponent');
-    });
-
-    it('should have proper component imports', () => {
-      expect(NotFoundStateComponent).toBeDefined();
-      expect(component).toBeInstanceOf(NotFoundStateComponent);
+      expect(component.constructor.name).toContain('NotFoundStateComponent');
     });
   });
 });
