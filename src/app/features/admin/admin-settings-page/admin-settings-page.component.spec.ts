@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
-import { signal, computed } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { computed } from '@angular/core';
 import { AdminSettingsPageComponent } from './admin-settings-page.component';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 import { CurrencyService } from '../../../core/services/currency.service';
