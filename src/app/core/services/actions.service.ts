@@ -288,7 +288,9 @@ export class ActionsService {
   }
 
   private editAppointment(appointment: Booking): void {
-    this.#router.navigate(['/appointments', appointment.id, 'edit']);
+    this.#router.navigate(['/appointments', appointment.id], {
+      queryParams: { edit: 'true' }
+    });
   }
 
   private deleteAppointment(appointment: Booking): void {

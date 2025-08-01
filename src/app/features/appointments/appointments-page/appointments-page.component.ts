@@ -14,7 +14,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
 import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
-import { FooterComponent, FooterConfig } from '../../../shared/components/footer/footer.component';
+import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
 import {
   AppointmentsStatsComponent,
@@ -54,7 +54,6 @@ interface ViewState {
     TranslateModule,
     DatePickerModule,
     CalendarComponent,
-    FooterComponent,
     CardComponent,
     FiltersInlineComponent,
     AppointmentsStatsComponent,
@@ -305,7 +304,31 @@ export class AppointmentsPageComponent {
   editAppointment(appointment: AppointmentEvent): void {
     const originalBooking = this.findOriginalBooking(appointment);
     if (originalBooking) {
-      this.router.navigate(['/appointments', originalBooking.id, 'edit']);
+      this.router.navigate(['/appointments', originalBooking.id], {
+        queryParams: { edit: 'true' }
+      });
+    }
+  }
+
+  // List actions (for Booking objects)
+  async deleteBookingFromList(booking: Booking): Promise<void> {
+    try {
+      if (booking.id) {
+        await this.appointmentService.deleteBooking(booking.id);
+        this.toastService.showAppointmentDeleted(booking.nom || '');
+        window.dispatchEvent(new CustomEvent('appointmentDeleted'));
+      }
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
+    }
+  }
+
+  editBookingFromList(booking: Booking): void {
+    if (booking.id) {
+      this.router.navigate(['/appointments', booking.id], {
+        queryParams: { edit: 'true' }
+      });
     }
   }
 
