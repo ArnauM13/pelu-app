@@ -43,7 +43,6 @@ import {
 } from '../components';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
-import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -54,6 +53,7 @@ export interface AppointmentEvent {
   duration?: number; // in minutes, default 60 if not specified
   serviceName?: string;
   clientName?: string;
+  uid?: string; // User ID who owns this appointment
   isPublicBooking?: boolean;
   isOwnBooking?: boolean;
   canDrag?: boolean;
@@ -73,7 +73,6 @@ export interface AppointmentEvent {
     CalendarDayColumnComponent,
     CalendarDragPreviewComponent,
     ButtonComponent,
-    InputDateComponent,
   ],
   providers: [
     CalendarUtils,
@@ -202,6 +201,7 @@ export class CalendarComponent {
         duration: duration,
         serviceName: c.serviceName || c.servei || '',
         clientName: c.nom || 'Client',
+        uid: c.uid || '', // Include the user ID
         isPublicBooking: isPublicBooking,
         isOwnBooking: isOwnBooking,
         canDrag: isAdmin || isOwnBooking,
@@ -409,21 +409,34 @@ export class CalendarComponent {
   }
 
   openAppointmentPopup(appointmentEvent: AppointmentEvent) {
+    // Check permissions before opening the popup
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+
+    // If user is not admin, check if they can view this appointment
+    if (!isAdmin) {
+      const isOwnBooking = appointmentEvent.isOwnBooking;
+      const canViewDetails = appointmentEvent.canViewDetails;
+
+      // If user cannot view details, don't open the popup
+      if (!canViewDetails || !isOwnBooking) {
+        console.log('User cannot view details for this appointment');
+        return;
+      }
+    }
+
     // Convert AppointmentEvent to the format expected by the popup
     const originalAppointment = this.findOriginalAppointment(appointmentEvent);
 
     if (originalAppointment) {
       // Use the original appointment data which has the correct format
       // Assegurem-nos que té l'userId correcte
-      const currentUser = this.authService.user();
       if (currentUser?.uid && !originalAppointment.userId) {
         originalAppointment.userId = currentUser.uid;
       }
       this.stateService.openAppointmentDetail(originalAppointment);
     } else {
       // Fallback: convert AppointmentEvent to the expected format
-      const currentUser = this.authService.user();
-
       // Generate a unique ID if not available
       const appointmentId = appointmentEvent.id || uuidv4();
 
