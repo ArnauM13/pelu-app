@@ -79,6 +79,8 @@
         [bookings]="filteredAppointments()"
         [hasActiveFilters]="hasActiveFilters()"
         (onViewBooking)="viewAppointmentDetail($event)"
+        (onEditBooking)="editBookingFromList($event)"
+        (onDeleteBooking)="deleteBookingFromList($event)"
         (onClearFilters)="clearAllFilters()"
       >
       </pelu-appointments-list>
