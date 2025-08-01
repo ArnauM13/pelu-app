@@ -23,10 +23,9 @@ import { BookingService } from '../../../core/services/booking.service';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
-import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
 
 @Component({
-  selector: 'pelu-booking-page',
+  selector: 'pelu-booking-mobile-page',
   imports: [
     CommonModule,
     FormsModule,
@@ -37,12 +36,11 @@ import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobil
     PopupDialogComponent,
     ButtonComponent,
     InputDateComponent,
-    BookingMobilePageComponent,
   ],
-  templateUrl: './booking-page.component.html',
-  styleUrls: ['./booking-page.component.scss'],
+  templateUrl: './booking-mobile-page.component.html',
+  styleUrls: ['./booking-mobile-page.component.scss'],
 })
-export class BookingPageComponent {
+export class BookingMobilePageComponent {
   @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
 
   private readonly router = inject(Router);
@@ -51,12 +49,6 @@ export class BookingPageComponent {
   private readonly bookingService = inject(BookingService);
   private readonly translateService = inject(TranslateService);
   private readonly businessSettingsService = inject(BusinessSettingsService);
-
-  // Mobile detection
-  readonly isMobile = computed(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth <= 768;
-  });
 
   // Signals
   readonly showServiceSelectionPopupSignal = signal(false);
@@ -135,12 +127,6 @@ export class BookingPageComponent {
     // Listen for service updates to refresh services
     window.addEventListener('serviceUpdated', () => {
       this.loadServices();
-    });
-
-    // Listen for window resize to update mobile detection
-    window.addEventListener('resize', () => {
-      // Trigger recomputation of isMobile
-      this.isMobile();
     });
   }
 

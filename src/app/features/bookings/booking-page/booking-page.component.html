@@ -1,15 +1,43 @@
-<div class="booking-page">
-  <!-- Calendar Section -->
-  <div class="calendar-section">
-    <pelu-calendar-component
-      #calendarComponent
-      [mini]="false"
-      [events]="[]"
-      (dateSelected)="onTimeSlotSelected($event)"
-    >
-    </pelu-calendar-component>
+<!-- Show mobile component on mobile devices -->
+@if (isMobile()) {
+  <pelu-booking-mobile-page></pelu-booking-mobile-page>
+} @else {
+  <!-- Desktop version -->
+  <div class="booking-page">
+    <!-- Date Selection Controls -->
+    <div class="date-controls">
+      <pelu-button
+        label="Avui"
+        icon="pi pi-calendar"
+        size="small"
+        severity="primary"
+        class="today-btn"
+        (clicked)="onTodayClicked()"
+      />
+      <pelu-input-date
+        [(ngModel)]="selectedDate"
+        [showButtonBar]="true"
+        [minDate]="todayDate()"
+        (valueChange)="onDateChange($event)"
+        placeholder="Selecciona una data"
+      />
+      <div class="week-indicator">
+        {{ getWeekInfo() }}
+      </div>
+    </div>
+
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+      <pelu-calendar-component
+        #calendarComponent
+        [mini]="false"
+        [events]="[]"
+        (dateSelected)="onTimeSlotSelected($event)"
+      >
+      </pelu-calendar-component>
+    </div>
   </div>
-</div>
+}
 
 <!-- Service Selection Popup -->
 <pelu-service-selection-popup

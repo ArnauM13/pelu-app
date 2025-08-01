@@ -1,0 +1,111 @@
+<div class="booking-mobile-page">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <h1 class="page-title">{{ 'BOOKING.PAGE_TITLE' | translate }}</h1>
+    <p class="page-subtitle">{{ 'BOOKING.PAGE_SUBTITLE' | translate }}</p>
+  </div>
+
+  <!-- Mobile Date Selection Controls -->
+  <div class="mobile-date-controls">
+    <div class="date-row">
+      <pelu-button
+        label="Avui"
+        icon="pi pi-calendar"
+        size="small"
+        severity="primary"
+        class="today-btn"
+        (clicked)="onTodayClicked()"
+      />
+      <div class="week-indicator">
+        {{ getWeekInfo() }}
+      </div>
+    </div>
+
+    <div class="date-picker-row">
+      <pelu-input-date
+        [(ngModel)]="selectedDate"
+        [showButtonBar]="true"
+        [minDate]="todayDate()"
+        (valueChange)="onDateChange($event)"
+        placeholder="Selecciona una data"
+        class="mobile-date-picker"
+      />
+    </div>
+  </div>
+
+  <!-- Mobile Calendar Section -->
+  <div class="mobile-calendar-section">
+    <pelu-calendar-component
+      #calendarComponent
+      [mini]="true"
+      [events]="[]"
+      (dateSelected)="onTimeSlotSelected($event)"
+    >
+    </pelu-calendar-component>
+  </div>
+
+  <!-- Mobile Quick Actions -->
+  <div class="mobile-quick-actions">
+    <div class="action-card">
+      <div class="action-icon">📅</div>
+      <div class="action-text">
+        <h3>{{ 'BOOKING.QUICK_ACTIONS.SELECT_DATE' | translate }}</h3>
+        <p>{{ 'BOOKING.QUICK_ACTIONS.SELECT_DATE_DESC' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="action-card">
+      <div class="action-icon">⏰</div>
+      <div class="action-text">
+        <h3>{{ 'BOOKING.QUICK_ACTIONS.SELECT_TIME' | translate }}</h3>
+        <p>{{ 'BOOKING.QUICK_ACTIONS.SELECT_TIME_DESC' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="action-card">
+      <div class="action-icon">✂️</div>
+      <div class="action-text">
+        <h3>{{ 'BOOKING.QUICK_ACTIONS.CHOOSE_SERVICE' | translate }}</h3>
+        <p>{{ 'BOOKING.QUICK_ACTIONS.CHOOSE_SERVICE_DESC' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Selection Popup -->
+<pelu-service-selection-popup
+  [open]="showServiceSelectionPopup()"
+  [selectionDetails]="serviceSelectionDetails()"
+  (serviceSelected)="onServiceSelected($event)"
+  (cancelled)="onServiceSelectionCancelled()"
+>
+</pelu-service-selection-popup>
+
+<!-- Booking Confirmation Popup -->
+<pelu-booking-popup
+  [open]="showBookingPopup()"
+  [bookingDetails]="bookingDetails()"
+  [availableServices]="availableServices()"
+  (confirmed)="onBookingConfirmed($event)"
+  (cancelled)="onBookingCancelled()"
+  (clientNameChanged)="onClientNameChanged($event)"
+  (emailChanged)="onEmailChanged($event)"
+>
+</pelu-booking-popup>
+
+<!-- Login Prompt for Anonymous Users -->
+<pelu-popup-dialog
+  [isOpen]="showLoginPrompt()"
+  [config]="loginPromptDialogConfig()"
+  (closed)="onLoginPromptClose()"
+>
+  <div class="prompt-body">
+    <div class="success-icon">✅</div>
+    <p class="success-message">
+      {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
+    </p>
+    <p class="email-notice">
+      {{ 'BOOKING.EMAIL_NOTICE' | translate }}
+    </p>
+  </div>
+</pelu-popup-dialog>
