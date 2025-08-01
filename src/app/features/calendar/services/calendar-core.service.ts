@@ -6,6 +6,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { RoleService } from '../../../core/services/role.service';
 
 // Interfaces for coordinate and time management
 export interface CoordinatePosition {
@@ -53,6 +54,7 @@ export class CalendarCoreService {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly roleService = inject(RoleService);
 
   // ===== GRID CONFIGURATION =====
   private readonly slotHeightPxSignal = signal<number>(30);
@@ -440,6 +442,26 @@ export class CalendarCoreService {
     originalDate: Date
   ): void {
     console.log('Starting drag for appointment:', appointment);
+
+    // Check permissions before allowing drag
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+
+    if (!currentUser?.uid) {
+      console.log('No authenticated user, cannot drag');
+      return;
+    }
+
+    // Check if user can drag this appointment
+    const isOwnBooking = appointment.uid === currentUser.uid;
+    const canDrag = isAdmin || isOwnBooking;
+
+    if (!canDrag) {
+      console.log('User cannot drag this appointment');
+      this.toastService.showError('No tens permisos per moure aquesta cita');
+      return;
+    }
+
     this.isDraggingSignal.set(true);
     this.draggedAppointmentSignal.set(appointment);
     this.originalPositionSignal.set(originalPosition);
