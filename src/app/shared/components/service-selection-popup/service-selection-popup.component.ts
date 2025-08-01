@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
-import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 import {
@@ -91,15 +91,9 @@ export class ServiceSelectionPopupComponent {
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
     title: this.translateService.instant('COMMON.SELECTION.SELECT_SERVICE'),
     size: 'large',
-    showCloseButton: true,
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      {
-        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
-        type: 'cancel' as const,
-        action: () => this.onCancel()
-      },
       {
         label: this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
         type: 'confirm' as const,

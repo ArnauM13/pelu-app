@@ -6,7 +6,7 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextComponent } from '../inputs';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
-import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -88,15 +88,9 @@ export class BookingPopupComponent {
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
     title: this.#translate.instant('COMMON.ACTIONS.CONFIRM_BOOKING'),
     size: 'large',
-    showCloseButton: true,
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      {
-        label: this.#translate.instant('COMMON.ACTIONS.CANCEL'),
-        type: 'cancel' as const,
-        action: () => this.onClose()
-      },
       {
         label: this.#translate.instant('COMMON.ACTIONS.CONFIRM'),
         type: 'confirm' as const,

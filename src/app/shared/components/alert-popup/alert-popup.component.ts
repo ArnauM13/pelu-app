@@ -1,7 +1,7 @@
 import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 
 export interface AlertData {
   title?: string;
@@ -50,15 +50,9 @@ export class AlertPopupComponent {
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
     title: this.getTitle(),
     size: 'small',
-    showCloseButton: true,
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      ...(this.data()?.showCancel !== false ? [{
-        label: this.getCancelText(),
-        type: 'cancel' as const,
-        action: () => this.onCancel()
-      }] : []),
       {
         label: this.getConfirmText(),
         type: 'confirm' as const,
