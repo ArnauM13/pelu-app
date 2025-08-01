@@ -1,7 +1,7 @@
 import { Component, input, output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 
 export interface ConfirmationData {
   title: string;
@@ -54,15 +54,9 @@ export class ConfirmationPopupComponent {
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
     title: this.data()?.title || this.translateService.instant('COMMON.CONFIRMATION.TITLE'),
     size: 'small',
-    showCloseButton: true,
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      {
-        label: this.data()?.cancelText || this.translateService.instant('COMMON.ACTIONS.CANCEL'),
-        type: 'cancel' as const,
-        action: () => this.onCancel()
-      },
       {
         label: this.data()?.confirmText || this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
         type: this.getConfirmButtonType(),
@@ -80,13 +74,13 @@ export class ConfirmationPopupComponent {
     this.cancelled.emit();
   }
 
-  private getConfirmButtonType(): PopupDialogActionType {
+  private getConfirmButtonType(): FooterActionType {
     const severity = this.data()?.severity || 'info';
     switch (severity) {
       case 'danger':
-        return 'danger';
+        return 'delete';
       case 'warning':
-        return 'primary';
+        return 'confirm';
       default:
         return 'confirm';
     }
