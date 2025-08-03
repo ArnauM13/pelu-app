@@ -63,6 +63,8 @@
       "INACTIVE": "غير نشط",
       "RESERVED": "محجوز"
     },
+    "ADMIN_WARNING_TITLE": "وضع المدير",
+    "ADMIN_WARNING_MESSAGE": "أنت تشاهد موعداً لمستخدم آخر. كمدير، يمكنك تعديل وحذف هذا الموعد.",
     "TIME": {
       "HOUR": "ساعة",
       "TODAY": "اليوم",

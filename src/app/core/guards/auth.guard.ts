@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { UserService } from '../services/user.service';
+import { BookingService } from '../services/booking.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
@@ -63,4 +64,45 @@ export const publicGuard: CanActivateFn = (route, state) => {
       }, 100);
     }
   });
+};
+
+export const tokenGuard: CanActivateFn = async (route, state) => {
+  const userService = inject(UserService);
+  const bookingService = inject(BookingService);
+  const router = inject(Router);
+
+  // Check if user is authenticated first
+  if (userService.isInitialized()) {
+    const isAuth = userService.isAuthenticated();
+    if (isAuth) {
+      // If authenticated, allow access
+      return true;
+    }
+  }
+
+  // If not authenticated, check for token in query parameters
+  const token = route.queryParams['token'];
+  if (!token) {
+    // No token provided, redirect to login
+    router.navigate(['/login']);
+    return false;
+  }
+
+  try {
+    // Validate the token without requiring authentication
+    const booking = await bookingService.validateToken(token);
+    if (booking) {
+      // Token is valid, allow access
+      return true;
+    } else {
+      // Invalid token, redirect to login
+      router.navigate(['/login']);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error validating token:', error);
+    // Error validating token, redirect to login
+    router.navigate(['/login']);
+    return false;
+  }
 };

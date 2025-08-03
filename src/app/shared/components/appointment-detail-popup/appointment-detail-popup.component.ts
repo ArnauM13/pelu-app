@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -7,8 +7,10 @@ import {
   ConfirmationPopupComponent,
   ConfirmationData,
 } from '../confirmation-popup/confirmation-popup.component';
-import { PopupDialogComponent, PopupDialogConfig, PopupDialogActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { AdminWarningPopupComponent } from '../admin-warning-popup/admin-warning-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
+import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
 import { format, parseISO } from 'date-fns';
@@ -17,7 +19,7 @@ import { isFutureAppointment } from '../../services';
 
 @Component({
   selector: 'pelu-appointment-detail-popup',
-  imports: [CommonModule, ButtonModule, TranslateModule, ConfirmationPopupComponent, PopupDialogComponent],
+  imports: [CommonModule, ButtonModule, TranslateModule, ConfirmationPopupComponent, PopupDialogComponent, AdminWarningPopupComponent],
   templateUrl: './appointment-detail-popup.component.html',
   styleUrls: ['./appointment-detail-popup.component.scss'],
 })
@@ -25,6 +27,7 @@ export class AppointmentDetailPopupComponent implements OnInit {
   // Inject services
   #router = inject(Router);
   #authService = inject(AuthService);
+  #roleService = inject(RoleService);
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #bookingService = inject(BookingService);
@@ -50,6 +53,10 @@ export class AppointmentDetailPopupComponent implements OnInit {
   readonly showConfirmationPopup = signal<boolean>(false);
   readonly confirmationData = signal<ConfirmationData | null>(null);
 
+  // Admin warning popup state
+  readonly showAdminWarningPopup = signal<boolean>(false);
+  readonly adminWarningBookingOwner = signal<string>('');
+
   // Computed properties
   readonly isOpen = computed(() => this.open() && !this.isClosing());
   readonly currentBooking = computed(() => this.booking() || this.loadedBooking());
@@ -61,10 +68,15 @@ export class AppointmentDetailPopupComponent implements OnInit {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
+    const isAdmin = this.#roleService.isAdmin();
+
+    // Admin can edit any booking
+    if (isAdmin) return true;
+
     // Check if user owns the booking or if it's an anonymous booking
     const isOwner = booking.uid === currentUser.uid || !booking.uid;
 
-    // Only allow editing if it's a future appointment
+    // Only allow editing if it's a future appointment and user owns the booking
     return isOwner && this.isFuture();
   });
 
@@ -75,10 +87,15 @@ export class AppointmentDetailPopupComponent implements OnInit {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
+    const isAdmin = this.#roleService.isAdmin();
+
+    // Admin can delete any booking
+    if (isAdmin) return true;
+
     // Check if user owns the booking or if it's an anonymous booking
     const isOwner = booking.uid === currentUser.uid || !booking.uid;
 
-    // Only allow deletion if it's a future appointment
+    // Only allow deletion if it's a future appointment and user owns the booking
     return isOwner && this.isFuture();
   });
 
@@ -89,27 +106,35 @@ export class AppointmentDetailPopupComponent implements OnInit {
     return isFutureAppointment({ data: booking.data || '', hora: booking.hora || '' });
   });
 
+  readonly showAdminWarning = computed(() => {
+    const booking = this.currentBooking();
+    if (!booking) return false;
+
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) return false;
+
+    const isAdmin = this.#roleService.isAdmin();
+    const isOwner = booking.uid === currentUser.uid || !booking.uid;
+
+    // Show warning if admin is viewing someone else's booking
+    return isAdmin && !isOwner;
+  });
+
   // Popup dialog configuration
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
     title: this.#translateService.instant('COMMON.BOOKING_DETAILS'),
     size: 'medium',
-    showCloseButton: true,
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      {
-        label: this.#translateService.instant('COMMON.ACTIONS.CLOSE'),
-        type: 'close' as const,
-        action: () => this.onClose()
-      },
       ...(this.canEdit() ? [{
         label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
-        type: 'edit' as const,
+        type: 'edit' as FooterActionType,
         action: () => this.onEdit()
       }] : []),
       ...(this.canDelete() ? [{
         label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
-        type: 'delete' as const,
+        type: 'delete' as FooterActionType,
         action: () => this.onDelete()
       }] : [])
     ]
@@ -120,6 +145,21 @@ export class AppointmentDetailPopupComponent implements OnInit {
     if (this.bookingId()) {
       this.loadBookingFromFirebase();
     }
+
+    // Watch for changes in the popup state and admin warning
+    effect(() => {
+      const isOpen = this.isOpen();
+      if (isOpen && this.showAdminWarning()) {
+        const booking = this.currentBooking();
+        if (booking) {
+          this.adminWarningBookingOwner.set(booking.nom || 'Usuari anònim');
+          this.showAdminWarningPopup.set(true);
+        }
+      } else if (!isOpen) {
+        this.showAdminWarningPopup.set(false);
+        this.adminWarningBookingOwner.set('');
+      }
+    });
   }
 
   // Methods
@@ -128,7 +168,7 @@ export class AppointmentDetailPopupComponent implements OnInit {
       this.isLoading.set(true);
       this.loadError.set(false);
 
-      const booking = await this.#bookingService.getBookingById(this.bookingId()!);
+      const booking = await this.#bookingService.getBookingByIdWithToken(this.bookingId()!);
       if (booking && booking.id) {
         this.loadedBooking.set(booking);
       } else {
@@ -150,6 +190,10 @@ export class AppointmentDetailPopupComponent implements OnInit {
     // Close confirmation popup if open
     this.showConfirmationPopup.set(false);
     this.confirmationData.set(null);
+
+    // Close admin warning popup
+    this.showAdminWarningPopup.set(false);
+    this.adminWarningBookingOwner.set('');
 
     // Emit immediately to avoid timing issues
     this.closed.emit();
@@ -255,6 +299,12 @@ export class AppointmentDetailPopupComponent implements OnInit {
     }
   }
 
+  // Admin warning popup methods
+  onAdminWarningClosed(): void {
+    this.showAdminWarningPopup.set(false);
+    this.adminWarningBookingOwner.set('');
+  }
+
   // Helper methods
   getClientName(booking: Booking): string {
     return booking.nom || booking.clientName || 'N/A';
@@ -294,12 +344,8 @@ export class AppointmentDetailPopupComponent implements OnInit {
   }
 
   onConfirmationConfirmed(): void {
-    const booking = this.currentBooking();
-    if (booking) {
-      this.deleted.emit(booking);
-    }
-    this.showConfirmationPopup.set(false);
-    this.confirmationData.set(null);
+    // Call the actual delete method
+    this.onConfirmDelete();
   }
 
   getNotes(booking: Booking): string {

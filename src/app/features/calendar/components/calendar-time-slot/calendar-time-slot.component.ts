@@ -138,10 +138,10 @@ export interface TimeSlotData {
       }
 
       .time-slot.past-date {
-        background: #f8f9fa;
-        color: #6c757d;
+        background: #e9ecef;
+        color: #495057;
         cursor: default;
-        opacity: 0.7;
+        opacity: 0.8;
         position: relative;
       }
 
@@ -155,16 +155,16 @@ export interface TimeSlotData {
         background: linear-gradient(
           45deg,
           transparent 30%,
-          rgba(173, 181, 189, 0.05) 50%,
+          rgba(108, 117, 125, 0.1) 50%,
           transparent 70%
         );
       }
 
       .time-slot.past-time {
-        background: #f8f9fa;
-        color: #6c757d;
+        background: #dee2e6;
+        color: #495057;
         cursor: not-allowed;
-        opacity: 0.6;
+        opacity: 0.7;
         position: relative;
         pointer-events: none;
       }

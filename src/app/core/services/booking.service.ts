@@ -347,13 +347,23 @@ export class BookingService {
       const currentUser = this.authService.user();
       const isAdmin = this.roleService.isAdmin();
 
+      console.log('🔍 loadBookings - Debug info:', {
+        currentUser: currentUser?.uid,
+        isAdmin: isAdmin,
+        userRole: this.roleService.userRole(),
+        isLoadingRole: this.roleService.isLoadingRole()
+      });
+
       if (isAdmin) {
+        console.log('👑 Loading all bookings for admin');
         // Super Admin: Load all bookings with full details
         await this.loadAllBookingsForAdmin();
       } else if (currentUser?.uid) {
+        console.log('👤 Loading user bookings for:', currentUser.uid);
         // Authenticated User: Load own bookings
         await this.loadUserBookings(currentUser.uid);
       } else {
+        console.log('👥 Loading public bookings only');
         // Invited User: Load only public booking info
         await this.loadPublicBookingsOnly();
       }
@@ -926,13 +936,23 @@ export class BookingService {
       const currentUser = this.authService.user();
       const isAdmin = this.roleService.isAdmin();
 
+      console.log('🔄 silentRefreshBookings - Debug info:', {
+        currentUser: currentUser?.uid,
+        isAdmin: isAdmin,
+        userRole: this.roleService.userRole(),
+        isLoadingRole: this.roleService.isLoadingRole()
+      });
+
       if (isAdmin) {
+        console.log('👑 Silent refresh: Loading all bookings for admin');
         // Super Admin: Load all bookings with full details
         await this.loadAllBookingsForAdmin();
       } else if (currentUser?.uid) {
+        console.log('👤 Silent refresh: Loading user bookings for:', currentUser.uid);
         // Authenticated User: Load own bookings
         await this.loadUserBookings(currentUser.uid);
       } else {
+        console.log('👥 Silent refresh: Loading public bookings only');
         // Invited User: Load only public booking info
         await this.loadPublicBookingsOnly();
       }

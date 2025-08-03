@@ -74,3 +74,11 @@
   >
   </pelu-confirmation-popup>
 </pelu-popup-dialog>
+
+<!-- Admin Warning Popup -->
+<pelu-admin-warning-popup
+  [isOpen]="showAdminWarningPopup()"
+  [bookingOwnerName]="adminWarningBookingOwner()"
+  (closed)="onAdminWarningClosed()"
+>
+</pelu-admin-warning-popup>

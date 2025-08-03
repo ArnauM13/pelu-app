@@ -62,6 +62,8 @@
       "ACTIVE": "Activo",
       "INACTIVE": "Inactivo"
     },
+    "ADMIN_WARNING_TITLE": "Modo Administrador",
+    "ADMIN_WARNING_MESSAGE": "Estás viendo una cita de otro usuario. Como administrador, puedes editar y eliminar esta cita.",
     "TIME": {
       "HOUR": "Hora",
       "TODAY": "Hoy",

@@ -21,6 +21,7 @@ import {
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { ResponsiveService } from '../../../core/services/responsive.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
@@ -51,12 +52,10 @@ export class BookingPageComponent {
   private readonly bookingService = inject(BookingService);
   private readonly translateService = inject(TranslateService);
   private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly responsiveService = inject(ResponsiveService);
 
-  // Mobile detection
-  readonly isMobile = computed(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth <= 768;
-  });
+  // Mobile detection using centralized service
+  readonly isMobile = computed(() => this.responsiveService.isMobile());
 
   // Signals
   readonly showServiceSelectionPopupSignal = signal(false);
@@ -135,12 +134,6 @@ export class BookingPageComponent {
     // Listen for service updates to refresh services
     window.addEventListener('serviceUpdated', () => {
       this.loadServices();
-    });
-
-    // Listen for window resize to update mobile detection
-    window.addEventListener('resize', () => {
-      // Trigger recomputation of isMobile
-      this.isMobile();
     });
   }
 

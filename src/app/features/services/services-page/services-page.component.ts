@@ -1,6 +1,6 @@
-import { Component, computed, OnInit, signal, inject } from '@angular/core';
+import { Component, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,8 +10,19 @@ import {
   FirebaseServicesService,
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
-import { PopularBadgeComponent } from '../../../shared/components/popular-badge/popular-badge.component';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { UserService } from '../../../core/services/user.service';
+
+interface ServiceCategory {
+  id: string;
+  name: string;
+  icon: string;
+  custom?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 @Component({
   selector: 'pelu-services-page',
@@ -22,8 +33,9 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     CardModule,
     TranslateModule,
     TagModule,
-    PopularBadgeComponent,
-    CurrencyPipe,
+    LoadingStateComponent,
+    ServiceCardComponent,
+    ButtonComponent,
   ],
   templateUrl: './services-page.component.html',
   styleUrls: ['./services-page.component.scss'],
@@ -32,18 +44,23 @@ export class ServicesPageComponent implements OnInit {
   // Inject services
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly translateService = inject(TranslateService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
 
   // Public computed signals - Use Firebase service directly
   readonly services = computed(() => this.firebaseServicesService.services());
   readonly isLoading = computed(() => this.firebaseServicesService.isLoading());
   readonly year = computed(() => new Date().getFullYear());
 
+  // Admin access computed
+  readonly isAdmin = computed(() => this.userService.isAdmin());
+
   // Services by category computed - only show categories with services
   readonly servicesByCategory = computed(
     () =>
       this.firebaseServicesService
         .serviceCategories()
-        .map((category: any) => ({
+        .map((category: ServiceCategory) => ({
           ...category,
           services: this.getServicesByCategory(category.id),
         }))
@@ -67,12 +84,17 @@ export class ServicesPageComponent implements OnInit {
     }
   }
 
+  // Navigation method for admin button
+  navigateToAdminServices(): void {
+    this.router.navigate(['/admin/services']);
+  }
+
   // Get services and categories from the centralized service
   get allServices(): FirebaseService[] {
     return this.firebaseServicesService.services();
   }
 
-  get allServiceCategories(): any[] {
+  get allServiceCategories(): ServiceCategory[] {
     return this.firebaseServicesService.serviceCategories() || [];
   }
 

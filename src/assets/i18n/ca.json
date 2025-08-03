@@ -61,6 +61,12 @@
       "RESERVED": "Reservada",
       "DRAFT": "Esborrany"
     },
+    "ADMIN_WARNING_TITLE": "Mode Administrador",
+    "ADMIN_WARNING_MESSAGE": "Estàs visualitzant una cita d'un altre usuari. Com a administrador, pots editar i eliminar aquesta cita.",
+    "BOOKING_OWNER": "Propietari de la reserva",
+    "ADMIN_WARNING_DETAIL_1": "Pots veure tots els detalls de la reserva",
+    "ADMIN_WARNING_DETAIL_2": "Pots modificar la reserva si és necessari",
+    "ADMIN_WARNING_DETAIL_3": "Pots eliminar la reserva si cal",
     "TIME": {
       "HOUR": "Hora",
       "TODAY": "Avui",
@@ -382,6 +388,16 @@
       "TODAY": "Avui",
       "TOMORROW": "Demà",
       "NEXT_AVAILABLE": "Pròxim disponible"
+    },
+    "PAGE_TITLE": "Reservar cita",
+    "PAGE_SUBTITLE": "Selecciona una data i hora per reservar la teva cita",
+    "QUICK_ACTIONS": {
+      "SELECT_DATE": "Selecciona una data",
+      "SELECT_DATE_DESC": "Tria el dia que més t'ajudi per a la teva cita",
+      "SELECT_TIME": "Selecciona una hora",
+      "SELECT_TIME_DESC": "Escull l'hora que millor t'ajudi",
+      "CHOOSE_SERVICE": "Tria un servei",
+      "CHOOSE_SERVICE_DESC": "Selecciona el servei que necessites"
     }
   },
   "PROFILE": {
