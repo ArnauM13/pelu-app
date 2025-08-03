@@ -28,7 +28,6 @@ export interface FirebaseService {
   category: string; // Now supports any string category
   icon: string;
   popular?: boolean;
-  favorite?: boolean;
   active?: boolean;
   createdAt?: any;
   updatedAt?: any;
@@ -295,9 +294,6 @@ export class FirebaseServicesService {
       window.dispatchEvent(new CustomEvent('serviceUpdated'));
       this.saveServicesToCache(this._services());
 
-      if (showToast) {
-        this.toastService.showSuccess('COMMON.SERVICE_UPDATED_SUCCESS');
-      }
       this.logger.info('Service updated', {
         component: 'FirebaseServicesService',
         method: 'updateService',

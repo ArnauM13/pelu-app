@@ -15,7 +15,7 @@
 
 .input-date-label {
   font-weight: 600;
-  color: var(--text-color-light, #374151);
+  color: var(--text-color, #000000);
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.2;
@@ -263,7 +263,7 @@
          border: 2px solid var(--primary-color) !important;
        }
 
-                                               // Selected date - deixar que PrimeNG gestioni el comportament natiu
+        // Selected date - deixar que PrimeNG gestioni el comportament natiu
          &.p-highlight {
            background-color: var(--primary-color) !important;
            color: white !important;
@@ -279,7 +279,6 @@
        // Disabled days (past dates when preventPastMonths is true)
        &.p-datepicker-day.p-disabled {
          color: var(--text-color-muted) !important;
-         cursor: not-allowed !important;
          opacity: 0.3 !important;
        }
      }
@@ -288,7 +287,6 @@
     .p-datepicker-buttonbar {
       border-top: 1px solid var(--border-color) !important;
       padding: 1rem 0 0 0 !important;
-      margin: 1rem -1rem -1rem -1rem !important;
       display: flex !important;
       gap: 0.5rem !important;
       justify-content: flex-end !important;
@@ -306,16 +304,6 @@
 
         &:hover {
           background-color: var(--primary-color-dark) !important;
-        }
-
-        &.p-button-secondary {
-          background-color: var(--surface-color-secondary) !important;
-          color: var(--text-color-secondary) !important; // Gris #6b7280
-          border: 1px solid var(--border-color) !important;
-
-          &:hover {
-            background-color: var(--border-color) !important;
-          }
         }
       }
     }
@@ -540,10 +528,6 @@
     line-height: 1 !important;
   }
 }
-
-
-
-
 
 // Global styles for time picker
 :global(.p-timepicker) {

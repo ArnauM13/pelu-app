@@ -374,13 +374,4 @@ export class BusinessSettingsService {
     const lunchBreak = this.lunchBreakNumeric();
     return hour >= lunchBreak.start && hour < lunchBreak.end;
   }
-
-  /**
-   * Check if a time is the start of lunch break
-   */
-  isLunchBreakStart(time: string): boolean {
-    const [hour, minute] = time.split(':').map(Number);
-    const lunchBreak = this.lunchBreakNumeric();
-    return hour === lunchBreak.start && minute === 0;
-  }
 }

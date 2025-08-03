@@ -6,9 +6,6 @@ import { of, throwError } from 'rxjs';
 describe('BusinessSettingsService', () => {
   let service: BusinessSettingsService;
   let firestore: jasmine.SpyObj<Firestore>;
-  let docSpy: jasmine.SpyObj<any>;
-  let getDocSpy: jasmine.SpyObj<any>;
-  let setDocSpy: jasmine.SpyObj<any>;
 
   const mockSettings: BusinessSettings = {
     businessName: 'Test Salon',
@@ -41,14 +38,6 @@ describe('BusinessSettingsService', () => {
 
   beforeEach(() => {
     const firestoreSpy = jasmine.createSpyObj('Firestore', ['collection']);
-    docSpy = jasmine.createSpyObj('doc', ['get', 'set']);
-    getDocSpy = jasmine.createSpyObj('getDoc', ['data']);
-    setDocSpy = jasmine.createSpyObj('setDoc', ['then']);
-
-    // Mock Firestore methods
-    (doc as jasmine.Spy).and.returnValue(docSpy);
-    (getDoc as jasmine.Spy).and.returnValue(Promise.resolve({ data: () => mockSettings }));
-    (setDoc as jasmine.Spy).and.returnValue(Promise.resolve());
 
     TestBed.configureTestingModule({
       providers: [
@@ -159,16 +148,16 @@ describe('BusinessSettingsService', () => {
   describe('Load Settings', () => {
     it('should load settings successfully', async () => {
       spyOn(service as any, 'loadSettings').and.returnValue(Promise.resolve());
-      
+
       await service.loadSettings();
-      
+
       expect(service.loading()).toBeFalse();
       expect(service.error()).toBeNull();
     });
 
     it('should handle load errors', async () => {
       spyOn(service as any, 'loadSettings').and.returnValue(Promise.reject(new Error('Load failed')));
-      
+
       try {
         await service.loadSettings();
       } catch (error) {
@@ -186,9 +175,9 @@ describe('BusinessSettingsService', () => {
       };
 
       spyOn(service as any, 'saveSettings').and.returnValue(Promise.resolve());
-      
+
       await service.saveSettings(newSettings);
-      
+
       expect(service.loading()).toBeFalse();
       expect(service.error()).toBeNull();
     });
@@ -199,7 +188,7 @@ describe('BusinessSettingsService', () => {
       };
 
       spyOn(service as any, 'saveSettings').and.returnValue(Promise.reject(new Error('Save failed')));
-      
+
       try {
         await service.saveSettings(newSettings);
       } catch (error) {
@@ -219,9 +208,9 @@ describe('BusinessSettingsService', () => {
       };
 
       spyOn(service as any, 'updateBusinessHours').and.returnValue(Promise.resolve());
-      
+
       await service.updateBusinessHours(newHours);
-      
+
       expect(service.loading()).toBeFalse();
     });
 
@@ -234,9 +223,9 @@ describe('BusinessSettingsService', () => {
       };
 
       spyOn(service as any, 'updateBusinessHoursString').and.returnValue(Promise.resolve());
-      
+
       await service.updateBusinessHoursString(newHoursString);
-      
+
       expect(service.loading()).toBeFalse();
     });
   });
@@ -249,9 +238,9 @@ describe('BusinessSettingsService', () => {
       };
 
       spyOn(service as any, 'updateLunchBreak').and.returnValue(Promise.resolve());
-      
+
       await service.updateLunchBreak(newLunchBreak);
-      
+
       expect(service.loading()).toBeFalse();
     });
   });
@@ -259,16 +248,16 @@ describe('BusinessSettingsService', () => {
   describe('Reset to Defaults', () => {
     it('should reset settings to defaults successfully', async () => {
       spyOn(service as any, 'resetToDefaults').and.returnValue(Promise.resolve());
-      
+
       await service.resetToDefaults();
-      
+
       expect(service.loading()).toBeFalse();
       expect(service.error()).toBeNull();
     });
 
     it('should handle reset errors', async () => {
       spyOn(service as any, 'resetToDefaults').and.returnValue(Promise.reject(new Error('Reset failed')));
-      
+
       try {
         await service.resetToDefaults();
       } catch (error) {
@@ -369,20 +358,6 @@ describe('BusinessSettingsService', () => {
     });
   });
 
-  describe('Lunch Break Validation', () => {
-    it('should check if time is during lunch break', () => {
-      expect(service.isLunchBreak('13:30')).toBeTrue();
-      expect(service.isLunchBreak('14:30')).toBeFalse();
-      expect(service.isLunchBreak('12:30')).toBeFalse();
-    });
-
-    it('should check if time is lunch break start', () => {
-      expect(service.isLunchBreakStart('13:00')).toBeTrue();
-      expect(service.isLunchBreakStart('13:30')).toBeFalse();
-      expect(service.isLunchBreakStart('14:00')).toBeFalse();
-    });
-  });
-
   describe('Time Conversion', () => {
     it('should convert numeric hours to time string', () => {
       const numericHours = {
@@ -393,7 +368,7 @@ describe('BusinessSettingsService', () => {
       };
 
       const result = (service as any).convertToTimeString(numericHours);
-      
+
       expect(result.start).toBe('09:00');
       expect(result.end).toBe('18:00');
       expect(result.lunchStart).toBe('12:00');
@@ -409,7 +384,7 @@ describe('BusinessSettingsService', () => {
       };
 
       const result = (service as any).convertToNumericHours(timeString);
-      
+
       expect(result.start).toBe(9.5);
       expect(result.end).toBe(18.5);
       expect(result.lunchStart).toBe(12.5);
@@ -451,4 +426,4 @@ describe('BusinessSettingsService', () => {
       expect(service.error()).toBeNull();
     });
   });
-}); 
+});

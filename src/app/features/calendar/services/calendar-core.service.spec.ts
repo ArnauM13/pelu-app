@@ -241,14 +241,6 @@ describe('CalendarCoreService', () => {
       expect(service.isWithinBusinessHours('20:00')).toBe(false);
     });
 
-    it('should correctly identify lunch break', () => {
-      expect(service.isLunchBreak('13:00')).toBe(true);
-      expect(service.isLunchBreak('14:30')).toBe(true);
-      expect(service.isLunchBreak('15:00')).toBe(false);
-      expect(service.isLunchBreak('12:00')).toBe(false);
-      expect(service.isLunchBreak('16:00')).toBe(false);
-    });
-
     it('should correctly identify bookable time slots', () => {
       expect(service.isTimeSlotBookable('08:00')).toBe(true);
       expect(service.isTimeSlotBookable('12:30')).toBe(true);

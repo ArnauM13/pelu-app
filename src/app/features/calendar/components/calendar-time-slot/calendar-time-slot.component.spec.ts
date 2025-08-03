@@ -25,10 +25,6 @@ class TestHostComponent {
     isDisabled: false,
     tooltip: 'Available slot',
   };
-
-  onClicked(event: any) {
-    // Handle click event
-  }
 }
 
 describe('CalendarTimeSlotComponent', () => {

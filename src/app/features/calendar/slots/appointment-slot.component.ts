@@ -6,7 +6,6 @@ import {
   ChangeDetectionStrategy,
   inject,
   ElementRef,
-  HostListener,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -35,6 +34,7 @@ export interface AppointmentSlotData {
         [class.dragging]="isBeingDragged()"
         [class.public-booking]="data()!.appointment!.isPublicBooking"
         [class.no-drag]="!data()!.appointment!.canDrag"
+        [class.no-click]="!data()!.appointment!.canViewDetails"
         (mousedown)="onMouseDown($event)"
         (mousemove)="onMouseMove($event)"
         (mouseup)="onMouseUp($event)"
@@ -92,10 +92,18 @@ export class AppointmentSlotComponent {
   private readonly DRAG_THRESHOLD = 8; // pixels - increased to prevent accidental drags
   private isDragging = false;
 
-  // Computed position - this is stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
+  // Computed position - using the same method as blocking slots for consistency
   readonly position = computed(() => {
     if (!this.data() || !this.data()!.appointment) return { top: 0, height: 0 };
-    return this.calendarCoreService.calculateAppointmentPosition(this.data()!.appointment!);
+
+    const appointment = this.data()!.appointment!;
+    const startDate = new Date(appointment.start);
+    const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+
+    return this.calendarCoreService.calculateAppointmentPositionFromTime(
+      timeString,
+      appointment.duration || this.calendarCoreService.reactiveBookingDuration()
+    );
   });
 
   // Computed service color
@@ -165,10 +173,20 @@ export class AppointmentSlotComponent {
 
     console.log('Mouse down on appointment:', this.data()?.appointment);
     console.log('Can drag:', this.data()?.appointment?.canDrag);
+    console.log('Can view details:', this.data()?.appointment?.canViewDetails);
+
+    // Check if this appointment can be viewed
+    if (!this.data()?.appointment?.canViewDetails) {
+      // If it can't be viewed, don't do anything
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
 
     // Check if this appointment can be dragged
     if (!this.data()?.appointment?.canDrag) {
-      // If it can't be dragged, just handle as click
+      // If it can't be dragged, show a tooltip and handle as click
+      this.showDragPermissionTooltip(event);
       this.onAppointmentClick(event);
       return;
     }
@@ -220,7 +238,7 @@ export class AppointmentSlotComponent {
     }
   }
 
-  private startDrag(event: MouseEvent) {
+  private startDrag(_event: MouseEvent) {
     // Mark that drag has started
     this.isDragging = true;
     this.hasDragStarted.set(true);
@@ -240,11 +258,11 @@ export class AppointmentSlotComponent {
     document.addEventListener('mouseup', this.onGlobalMouseUp);
   }
 
-  onMouseEnter(event: MouseEvent) {
+  onMouseEnter(_event: MouseEvent) {
     this.isMouseOver.set(true);
   }
 
-  onMouseLeave(event: MouseEvent) {
+  onMouseLeave(_event: MouseEvent) {
     this.isMouseOver.set(false);
   }
 
@@ -257,7 +275,7 @@ export class AppointmentSlotComponent {
     }
   };
 
-  private onGlobalMouseUp = async (event: MouseEvent) => {
+  private onGlobalMouseUp = async (_event: MouseEvent) => {
     // Remove global event listeners
     document.removeEventListener('mousemove', this.onGlobalMouseMove);
     document.removeEventListener('mouseup', this.onGlobalMouseUp);
@@ -275,6 +293,43 @@ export class AppointmentSlotComponent {
       this.isDragging = false;
     }, 100);
   };
+
+  private showDragPermissionTooltip(event: MouseEvent) {
+    // Create a temporary tooltip to show why dragging is not allowed
+    const tooltip = document.createElement('div');
+    tooltip.textContent = 'No tens permisos per moure aquesta cita';
+    tooltip.style.cssText = `
+      position: fixed;
+      top: ${event.clientY - 30}px;
+      left: ${event.clientX + 10}px;
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 10000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    `;
+
+    document.body.appendChild(tooltip);
+
+    // Show tooltip
+    setTimeout(() => {
+      tooltip.style.opacity = '1';
+    }, 10);
+
+    // Remove tooltip after 2 seconds
+    setTimeout(() => {
+      tooltip.style.opacity = '0';
+      setTimeout(() => {
+        if (document.body.contains(tooltip)) {
+          document.body.removeChild(tooltip);
+        }
+      }, 200);
+    }, 2000);
+  }
 
   // Format duration for display
   formatDuration(minutes: number): string {

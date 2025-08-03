@@ -129,7 +129,7 @@ export class ActionsService {
       id: 'toggle-popular',
       label: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
       icon: service.popular ? '⭐' : '☆',
-      type: service.popular ? 'success' : 'secondary',
+      type: 'success',
       tooltip: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
       onClick: item => {
         // This will be handled by the context callback if provided
@@ -288,7 +288,9 @@ export class ActionsService {
   }
 
   private editAppointment(appointment: Booking): void {
-    this.#router.navigate(['/appointments', appointment.id, 'edit']);
+    this.#router.navigate(['/appointments', appointment.id], {
+      queryParams: { edit: 'true' }
+    });
   }
 
   private deleteAppointment(appointment: Booking): void {

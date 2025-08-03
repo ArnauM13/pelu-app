@@ -1,6 +1,6 @@
-import { Component, input, computed, Signal } from '@angular/core';
+import { Component, input, computed, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -11,7 +11,7 @@ import { ButtonComponent } from '../buttons/button.component';
   selector: 'pelu-filters-inline',
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     TranslateModule,
     InputTextComponent,
     InputDateComponent,
@@ -22,6 +22,11 @@ import { ButtonComponent } from '../buttons/button.component';
   styleUrls: ['./filters-inline.component.scss'],
 })
 export class FiltersInlineComponent {
+  // Inject services
+  private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly translationService = inject(TranslationService);
+  private readonly fb = inject(FormBuilder);
+
   // Input signals that can accept either values or signals
   readonly filterDate = input<string | Signal<string>>('');
   readonly filterClient = input<string | Signal<string>>('');
@@ -32,6 +37,9 @@ export class FiltersInlineComponent {
   readonly onClientChange = input<((value: string) => void) | undefined>();
   readonly onServiceChange = input<((value: string) => void) | undefined>();
   readonly onReset = input<(() => void) | undefined>();
+
+  // Reactive Form
+  readonly filtersForm: FormGroup;
 
   // Computed values that handle both signals and static values
   readonly filterDateValue = computed(() => {
@@ -84,30 +92,48 @@ export class FiltersInlineComponent {
     clearable: true,
   }));
 
-  constructor(
-    private serviceColorsService: ServiceColorsService,
-    private translationService: TranslationService
-  ) {}
+  constructor() {
+    // Initialize reactive form
+    this.filtersForm = this.fb.group({
+      date: [''],
+      client: [''],
+      service: ['']
+    });
+
+    // Subscribe to form changes
+    this.filtersForm.valueChanges.subscribe(values => {
+      if (values.date !== this.filterDateValue()) {
+        this.onDateChange()?.(values.date);
+      }
+      if (values.client !== this.filterClientValue()) {
+        this.onClientChange()?.(values.client);
+      }
+      if (values.service !== this.filterServiceValue()) {
+        this.onServiceChange()?.(values.service);
+      }
+    });
+  }
 
   onDateChangeHandler(value: string | Date | null) {
     if (typeof value === 'string') {
-      this.onDateChange()?.(value);
+      this.filtersForm.patchValue({ date: value });
     } else if (value instanceof Date) {
-      this.onDateChange()?.(value.toISOString().split('T')[0]);
+      this.filtersForm.patchValue({ date: value.toISOString().split('T')[0] });
     } else {
-      this.onDateChange()?.('');
+      this.filtersForm.patchValue({ date: '' });
     }
   }
 
   onClientChangeHandler(value: string) {
-    this.onClientChange()?.(value);
+    this.filtersForm.patchValue({ client: value });
   }
 
   onServiceChangeHandler(value: string | undefined) {
-    this.onServiceChange()?.(value || '');
+    this.filtersForm.patchValue({ service: value || '' });
   }
 
   onResetHandler() {
+    this.filtersForm.reset();
     this.onReset()?.();
   }
 }

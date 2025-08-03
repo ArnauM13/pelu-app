@@ -8,7 +8,7 @@ import { InputDateComponent } from '../input-date/input-date.component';
 import { InputCheckboxComponent } from '../input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../input-select/input-select.component';
 import { InputPasswordComponent } from '../input-password/input-password.component';
-import { InputToggleSwitchComponent } from '../input-toggleswitch/input-toggleswitch.component';
+import { PopularBadgeComponent } from '../../popular-badge/popular-badge.component';
 
 @Component({
   selector: 'pelu-inputs-demo',
@@ -22,7 +22,7 @@ import { InputToggleSwitchComponent } from '../input-toggleswitch/input-togglesw
     InputCheckboxComponent,
     InputSelectComponent,
     InputPasswordComponent,
-    InputToggleSwitchComponent,
+    PopularBadgeComponent,
   ],
   templateUrl: './inputs-demo.component.html',
   styleUrls: ['./inputs-demo.component.scss'],
@@ -44,7 +44,6 @@ export class InputsDemoComponent {
     category: '',
     service: '',
     notes: '',
-    favorite: false,
   });
 
   // Select options

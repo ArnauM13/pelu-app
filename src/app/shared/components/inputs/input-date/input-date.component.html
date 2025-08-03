@@ -14,9 +14,9 @@
     <p-datepicker
       [inputId]="getElementId()"
       [placeholder]="(placeholder() || 'INPUTS.DATE_PLACEHOLDER') | translate"
-      [disabled]="disabled()"
+      [disabled]="disabled() || !enabled()"
       [dateFormat]="dateFormat()"
-      [showIcon]="showIcon()"
+      [showIcon]="showIcon() && !readonly()"
       [iconDisplay]="'input'"
       [showButtonBar]="showButtonBar()"
       [showTime]="showTime()"
@@ -24,14 +24,15 @@
       [hourFormat]="hourFormat()"
       [selectionMode]="selectionMode()"
       [inline]="inline()"
-      [readonlyInput]="readonlyInput()"
-      [showOnFocus]="showOnFocus()"
+      [readonlyInput]="readonlyInput() || !enabled()"
+      [showOnFocus]="showOnFocus() && enabled()"
       [minDate]="computedMinDate()"
       [maxDate]="maxDate()"
       [ngModel]="displayValue()"
       (ngModelChange)="onDateChange($event)"
       class="pelu-datepicker"
       [attr.data-time-only]="timeOnly()"
+      [attr.data-enabled]="enabled()"
     >
       <!-- Custom icon for time-only picker -->
       @if (timeOnly()) {

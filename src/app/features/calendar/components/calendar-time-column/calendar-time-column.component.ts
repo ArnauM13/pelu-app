@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 export interface TimeSlot {
   time: string;
   isBlocked: boolean;
-  isLunchBreakStart: boolean;
   isDisabled: boolean;
 }
 
@@ -18,7 +17,6 @@ export interface TimeSlot {
         <div
           class="time-slot-label"
           [class.lunch-break]="timeSlot.isBlocked"
-          [class.lunch-break-start]="timeSlot.isLunchBreakStart"
           [class.disabled]="timeSlot.isDisabled"
         >
           {{ timeSlot.time }}
@@ -71,12 +69,6 @@ export interface TimeSlot {
         background: #fff3cd;
         color: #856404;
         font-weight: 600;
-      }
-
-      .time-slot-label.lunch-break-start {
-        background: #ffeaa7;
-        color: #6c5ce7;
-        font-weight: 700;
       }
 
       .time-slot-label.disabled {

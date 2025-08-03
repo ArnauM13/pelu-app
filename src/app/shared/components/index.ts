@@ -11,6 +11,10 @@ export { LoaderComponent } from './loader';
 export { LoaderService } from './loader';
 export type { LoaderConfig } from './loader';
 
+// Footer component
+export { FooterComponent } from './footer';
+export type { FooterConfig, FooterAlert } from './footer';
+
 // Existing components (if any)
 // Add other shared components here as needed
 
@@ -34,7 +38,6 @@ export * from './buttons';
 
 // Service card component
 export { ServiceCardComponent } from './service-card/service-card.component';
-export type { ServiceCardConfig } from './service-card/service-card.component';
 
 // Actions buttons component
 export { ActionsButtonsComponent } from './actions-buttons';

@@ -10,37 +10,32 @@
   <!-- Advanced Filters Section -->
   @if (showAdvancedFiltersValue()) {
     <div class="advanced-filters-section">
-      <div class="filters-grid">
+      <form [formGroup]="filtersForm" class="filters-grid">
         <div class="filter-group">
           <pelu-input-date
             label="COMMON.FILTERS.FILTER_BY_DATE"
-            [value]="filterDateValue()"
-            (valueChange)="onDateChangeHandler($event)"
+            formControlName="date"
           >
           </pelu-input-date>
         </div>
         <div class="filter-group">
           <pelu-input-text
-            [config]="{
-              type: 'text',
-              label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
-              placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
-              showLabel: true,
-            }"
-            [value]="filterClientValue() || ''"
-            (valueChange)="onClientChangeHandler($event)"
+            label="COMMON.FILTERS.FILTER_BY_CLIENT"
+            placeholder="COMMON.SEARCH.SEARCH_BY_NAME"
+            type="text"
+            formControlName="client"
           >
           </pelu-input-text>
         </div>
-      </div>
+      </form>
       <div class="reset-section">
         <pelu-button
-  [label]="'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate"
-  severity="secondary"
-  variant="outlined"
-  (clicked)="onResetHandler()"
->
-</pelu-button>
+          [label]="'COMMON.FILTERS.CLEAR_FILTERS_BUTTON' | translate"
+          severity="secondary"
+          variant="outlined"
+          (clicked)="onResetHandler()"
+        >
+        </pelu-button>
       </div>
     </div>
   }

@@ -1,14 +1,16 @@
-import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import {
   ConfirmationPopupComponent,
   ConfirmationData,
 } from '../confirmation-popup/confirmation-popup.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { AdminWarningPopupComponent } from '../admin-warning-popup/admin-warning-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { TranslateService } from '@ngx-translate/core';
+import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../services/toast.service';
 import { BookingService, Booking } from '../../../core/services/booking.service';
 import { format, parseISO } from 'date-fns';
@@ -17,7 +19,7 @@ import { isFutureAppointment } from '../../services';
 
 @Component({
   selector: 'pelu-appointment-detail-popup',
-  imports: [CommonModule, ButtonModule, TranslateModule, ConfirmationPopupComponent],
+  imports: [CommonModule, ButtonModule, TranslateModule, ConfirmationPopupComponent, PopupDialogComponent, AdminWarningPopupComponent],
   templateUrl: './appointment-detail-popup.component.html',
   styleUrls: ['./appointment-detail-popup.component.scss'],
 })
@@ -25,6 +27,7 @@ export class AppointmentDetailPopupComponent implements OnInit {
   // Inject services
   #router = inject(Router);
   #authService = inject(AuthService);
+  #roleService = inject(RoleService);
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #bookingService = inject(BookingService);
@@ -50,21 +53,13 @@ export class AppointmentDetailPopupComponent implements OnInit {
   readonly showConfirmationPopup = signal<boolean>(false);
   readonly confirmationData = signal<ConfirmationData | null>(null);
 
-  ngOnInit() {
-    // Load booking from ID if provided
-    if (this.bookingId()) {
-      this.loadBookingFromFirebase();
-    }
-  }
+  // Admin warning popup state
+  readonly showAdminWarningPopup = signal<boolean>(false);
+  readonly adminWarningBookingOwner = signal<string>('');
 
   // Computed properties
-  readonly currentBooking = computed(() => {
-    return this.booking() || this.loadedBooking();
-  });
-
-  readonly isOpen = computed(() => {
-    return this.open() && !this.isClosing();
-  });
+  readonly isOpen = computed(() => this.open() && !this.isClosing());
+  readonly currentBooking = computed(() => this.booking() || this.loadedBooking());
 
   readonly canEdit = computed(() => {
     const booking = this.currentBooking();
@@ -73,10 +68,15 @@ export class AppointmentDetailPopupComponent implements OnInit {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
+    const isAdmin = this.#roleService.isAdmin();
+
+    // Admin can edit any booking
+    if (isAdmin) return true;
+
     // Check if user owns the booking or if it's an anonymous booking
     const isOwner = booking.uid === currentUser.uid || !booking.uid;
 
-    // Only allow editing if it's a future appointment
+    // Only allow editing if it's a future appointment and user owns the booking
     return isOwner && this.isFuture();
   });
 
@@ -87,10 +87,15 @@ export class AppointmentDetailPopupComponent implements OnInit {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
+    const isAdmin = this.#roleService.isAdmin();
+
+    // Admin can delete any booking
+    if (isAdmin) return true;
+
     // Check if user owns the booking or if it's an anonymous booking
     const isOwner = booking.uid === currentUser.uid || !booking.uid;
 
-    // Only allow deletion if it's a future appointment
+    // Only allow deletion if it's a future appointment and user owns the booking
     return isOwner && this.isFuture();
   });
 
@@ -101,13 +106,69 @@ export class AppointmentDetailPopupComponent implements OnInit {
     return isFutureAppointment({ data: booking.data || '', hora: booking.hora || '' });
   });
 
+  readonly showAdminWarning = computed(() => {
+    const booking = this.currentBooking();
+    if (!booking) return false;
+
+    const currentUser = this.#authService.user();
+    if (!currentUser?.uid) return false;
+
+    const isAdmin = this.#roleService.isAdmin();
+    const isOwner = booking.uid === currentUser.uid || !booking.uid;
+
+    // Show warning if admin is viewing someone else's booking
+    return isAdmin && !isOwner;
+  });
+
+  // Popup dialog configuration
+  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.#translateService.instant('COMMON.BOOKING_DETAILS'),
+    size: 'medium',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      ...(this.canEdit() ? [{
+        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
+        type: 'edit' as FooterActionType,
+        action: () => this.onEdit()
+      }] : []),
+      ...(this.canDelete() ? [{
+        label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
+        type: 'delete' as FooterActionType,
+        action: () => this.onDelete()
+      }] : [])
+    ]
+  }));
+
+  ngOnInit() {
+    // Load booking from ID if provided
+    if (this.bookingId()) {
+      this.loadBookingFromFirebase();
+    }
+
+    // Watch for changes in the popup state and admin warning
+    effect(() => {
+      const isOpen = this.isOpen();
+      if (isOpen && this.showAdminWarning()) {
+        const booking = this.currentBooking();
+        if (booking) {
+          this.adminWarningBookingOwner.set(booking.nom || 'Usuari anònim');
+          this.showAdminWarningPopup.set(true);
+        }
+      } else if (!isOpen) {
+        this.showAdminWarningPopup.set(false);
+        this.adminWarningBookingOwner.set('');
+      }
+    });
+  }
+
   // Methods
   async loadBookingFromFirebase(): Promise<void> {
     try {
       this.isLoading.set(true);
       this.loadError.set(false);
 
-      const booking = await this.#bookingService.getBookingById(this.bookingId()!);
+      const booking = await this.#bookingService.getBookingByIdWithToken(this.bookingId()!);
       if (booking && booking.id) {
         this.loadedBooking.set(booking);
       } else {
@@ -129,6 +190,10 @@ export class AppointmentDetailPopupComponent implements OnInit {
     // Close confirmation popup if open
     this.showConfirmationPopup.set(false);
     this.confirmationData.set(null);
+
+    // Close admin warning popup
+    this.showAdminWarningPopup.set(false);
+    this.adminWarningBookingOwner.set('');
 
     // Emit immediately to avoid timing issues
     this.closed.emit();
@@ -234,38 +299,53 @@ export class AppointmentDetailPopupComponent implements OnInit {
     }
   }
 
+  // Admin warning popup methods
+  onAdminWarningClosed(): void {
+    this.showAdminWarningPopup.set(false);
+    this.adminWarningBookingOwner.set('');
+  }
+
   // Helper methods
-  formatDate(dateString: string): string {
-    try {
-      const date = parseISO(dateString);
-      return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ca });
-    } catch {
-      return dateString;
-    }
-  }
-
-  formatTime(timeString: string): string {
-    return timeString;
-  }
-
-  getServiceName(booking: Booking): string {
-    return booking.serviceName || booking.servei || 'Servei general';
-  }
-
-  getPrice(booking: Booking): number {
-    return booking.price || booking.preu || 0;
-  }
-
-  getDuration(booking: Booking): number {
-    return booking.duration || 60;
-  }
-
   getClientName(booking: Booking): string {
-    return booking.nom || booking.title || booking.clientName || '';
+    return booking.nom || booking.clientName || 'N/A';
   }
 
   getClientEmail(booking: Booking): string {
-    return booking.email || '';
+    return booking.email || 'N/A';
+  }
+
+  getServiceName(booking: Booking): string {
+    return booking.serviceName || booking.servei || 'N/A';
+  }
+
+  formatBookingDate(date: string): string {
+    if (!date) return 'N/A';
+    try {
+      return format(parseISO(date), 'EEEE, d MMMM yyyy', { locale: ca });
+    } catch {
+      return date;
+    }
+  }
+
+  formatDuration(duration: number): string {
+    if (duration < 60) {
+      return `${duration} min`;
+    }
+    const hours = Math.floor(duration / 60);
+    const remainingMinutes = duration % 60;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${remainingMinutes}min`;
+  }
+
+  formatPrice(price: number): string {
+    return `${price}€`;
+  }
+
+  onConfirmationConfirmed(): void {
+    // Call the actual delete method
+    this.onConfirmDelete();
   }
 
   getNotes(booking: Booking): string {

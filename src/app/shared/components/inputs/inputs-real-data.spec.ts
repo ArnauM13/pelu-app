@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Import all input components
@@ -47,7 +47,7 @@ class MockTranslateLoader implements TranslateLoader {
 
 // Test component for real data scenarios
 @Component({
-  selector: 'test-real-data',
+  selector: 'pelu-test-real-data',
   standalone: true,
   imports: [
     CommonModule,
@@ -198,6 +198,7 @@ class MockTranslateLoader implements TranslateLoader {
   `
 })
 class TestRealDataComponent {
+  private readonly fb = inject(FormBuilder);
   form: FormGroup;
 
   // Signals to track changes
@@ -272,7 +273,7 @@ class TestRealDataComponent {
     }
   ]);
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
@@ -369,7 +370,7 @@ class TestRealDataComponent {
   }
 
   // Test helper methods
-  setFormValue(controlName: string, value: any) {
+  setFormValue(controlName: string, value: unknown) {
     this.form.get(controlName)?.setValue(value);
   }
 
@@ -447,7 +448,7 @@ describe('Input Components Real Data Tests', () => {
     expect(newServices[0].label).toBe('Tractament');
 
     // Check discounted services
-    const discountedServices = options.filter(service => service.discount > 0);
+    const discountedServices = options.filter(service => service.discount && service.discount > 0);
     expect(discountedServices).toHaveSize(1);
     expect(discountedServices[0].label).toBe('Coloració');
   });
