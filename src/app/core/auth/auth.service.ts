@@ -69,10 +69,10 @@ export class AuthService {
           }, 0);
         }
       );
-    } catch (error) {
+    } catch (error: unknown) {
       // Use setTimeout to avoid signal write conflicts
       setTimeout(() => {
-        this.errorSignal.set('Error initializing authentication');
+        this.errorSignal.set(error instanceof Error ? error.message : 'Error initializing authentication');
         this.isLoadingSignal.set(false);
         this.isInitializedSignal.set(true);
       }, 0);
@@ -137,15 +137,11 @@ export class AuthService {
   }
 
   async logout() {
-    try {
-      this.saveCurrentUserLanguage();
-      await signOut(this.auth);
-      // Wait for the auth state to be updated
-      await this.waitForAuthStateUpdate();
-      this.router.navigate(['/login']);
-    } catch (error) {
-      throw error;
-    }
+    this.saveCurrentUserLanguage();
+    await signOut(this.auth);
+    // Wait for the auth state to be updated
+    await this.waitForAuthStateUpdate();
+    this.router.navigate(['/login']);
   }
 
   private async waitForAuthStateUpdate(): Promise<void> {

@@ -14,10 +14,6 @@ import {
   TimeSlotData,
 } from '../calendar-time-slot/calendar-time-slot.component';
 import {
-  CalendarLunchBreakComponent,
-  LunchBreakData,
-} from '../calendar-lunch-break/calendar-lunch-break.component';
-import {
   CalendarDropIndicatorComponent,
   DropIndicatorData,
 } from '../calendar-drop-indicator/calendar-drop-indicator.component';
@@ -30,7 +26,6 @@ export interface DayColumnData {
   isDisabled: boolean;
   timeSlots: TimeSlotData[];
   appointments: AppointmentEvent[];
-  lunchBreak: LunchBreakData | null;
   dropIndicator: DropIndicatorData | null;
   isDragOver: boolean;
   isDropValid: boolean;
@@ -44,7 +39,6 @@ export interface DayColumnData {
     AppointmentSlotComponent,
     CalendarDayHeaderComponent,
     CalendarTimeSlotComponent,
-    CalendarLunchBreakComponent,
     CalendarDropIndicatorComponent,
   ],
   template: `
@@ -67,11 +61,6 @@ export interface DayColumnData {
         @for (timeSlot of data().timeSlots; track timeSlot.time; let k = $index) {
           <pelu-calendar-time-slot [data]="timeSlot" (clicked)="onTimeSlotClick($event)">
           </pelu-calendar-time-slot>
-        }
-
-        <!-- Lunch Break Overlay -->
-        @if (data().lunchBreak) {
-          <pelu-calendar-lunch-break [data]="data().lunchBreak!"> </pelu-calendar-lunch-break>
         }
 
         <!-- Appointments -->

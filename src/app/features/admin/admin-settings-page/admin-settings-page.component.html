@@ -12,7 +12,7 @@
             [label]="isEditMode() ? 'COMMON.ACTIONS.CANCEL' : 'COMMON.ACTIONS.EDIT' | translate"
             [icon]="isEditMode() ? 'pi pi-times' : 'pi pi-pencil'"
             [severity]="isEditMode() ? 'secondary' : 'primary'"
-            (clicked)="toggleEditMode()"
+            (clicked)="isEditMode() ? cancelEditMode() : setEditMode()"
           >
           </pelu-button>
         </div>
@@ -42,14 +42,15 @@
             <!-- Business Hours Start -->
             <div class="settings-group">
               <pelu-input-date
-                [label]="'ADMIN.SETTINGS_PAGE.BUSINESS_HOURS_START'"
-                [placeholder]="'08:00'"
+                label='ADMIN.SETTINGS_PAGE.BUSINESS_HOURS_START'
+                placeholder='08:00'
                 [timeOnly]="true"
-                [hourFormat]="'24'"
-                [dateFormat]="'HH:mm'"
+                hourFormat='24'
+                dateFormat='HH:mm'
                 [readonly]="!isEditMode()"
-                [value]="getTimeValue(settingsForm.get('businessHoursStart')?.value)"
-                (valueChange)="onTimeChange($event, 'businessHoursStart')"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('businessHoursStart')?.value"
+                (valueChange)="settingsForm.get('businessHoursStart')?.setValue($event)"
               >
               </pelu-input-date>
             </div>
@@ -63,8 +64,9 @@
                 [hourFormat]="'24'"
                 [dateFormat]="'HH:mm'"
                 [readonly]="!isEditMode()"
-                [value]="getTimeValue(settingsForm.get('businessHoursEnd')?.value)"
-                (valueChange)="onTimeChange($event, 'businessHoursEnd')"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('businessHoursEnd')?.value"
+                (valueChange)="settingsForm.get('businessHoursEnd')?.setValue($event)"
               >
               </pelu-input-date>
             </div>
@@ -78,8 +80,9 @@
                 [hourFormat]="'24'"
                 [dateFormat]="'HH:mm'"
                 [readonly]="!isEditMode()"
-                [value]="getTimeValue(settingsForm.get('lunchBreakStart')?.value)"
-                (valueChange)="onTimeChange($event, 'lunchBreakStart')"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('lunchBreakStart')?.value"
+                (valueChange)="settingsForm.get('lunchBreakStart')?.setValue($event)"
               >
               </pelu-input-date>
             </div>
@@ -93,8 +96,9 @@
                 [hourFormat]="'24'"
                 [dateFormat]="'HH:mm'"
                 [readonly]="!isEditMode()"
-                [value]="getTimeValue(settingsForm.get('lunchBreakEnd')?.value)"
-                (valueChange)="onTimeChange($event, 'lunchBreakEnd')"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('lunchBreakEnd')?.value"
+                (valueChange)="settingsForm.get('lunchBreakEnd')?.setValue($event)"
               >
               </pelu-input-date>
             </div>
@@ -136,7 +140,7 @@
             <div class="settings-group">
               <pelu-input-checkbox
                 [label]="'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM'"
-                [disabled]="!isEditMode()"
+                [readonly]="!isEditMode()"
                 [value]="settingsForm.get('autoConfirm')?.value"
                 (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)"
               >
@@ -147,7 +151,7 @@
             <div class="settings-group">
               <pelu-input-checkbox
                 [label]="'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS'"
-                [disabled]="!isEditMode()"
+                [readonly]="!isEditMode()"
                 [value]="settingsForm.get('sendNotifications')?.value"
                 (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)"
               >
@@ -158,7 +162,7 @@
             <div class="settings-group">
               <pelu-input-checkbox
                 [label]="'ADMIN.SETTINGS_PAGE.PREVENT_CANCELLATION'"
-                [disabled]="!isEditMode()"
+                [readonly]="!isEditMode()"
                 [value]="settingsForm.get('preventCancellation')?.value"
                 (valueChange)="settingsForm.get('preventCancellation')?.setValue($event)"
               >
@@ -223,7 +227,7 @@
                 [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE'"
                 [options]="languageOptions"
                 [showClear]="true"
-                [disabled]="!isEditMode()"
+                [readonly]="!isEditMode()"
                 [value]="settingsForm.get('defaultLanguage')?.value"
                 (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)"
               >
@@ -238,7 +242,7 @@
                 [options]="currencyOptions"
                 [showClear]="true"
                 [helpText]="'ADMIN.SETTINGS_PAGE.CURRENCY_HELP'"
-                [disabled]="!isEditMode()"
+                [readonly]="!isEditMode()"
                 [value]="settingsForm.get('currency')?.value"
                 (valueChange)="settingsForm.get('currency')?.setValue($event)"
               >

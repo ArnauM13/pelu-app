@@ -5,20 +5,7 @@
   }
 
   <!-- Calendar Content (only show when bookings are loaded) -->
-  @if (isBookingsLoaded()) {
-    <!-- Calendar Header -->
-    <pelu-calendar-header
-      [mainTitle]="'Setmana del ' + formatPopupDate(format(viewDate(), 'yyyy-MM-dd'))"
-      [viewDateInfo]="getViewDateInfo()"
-      [businessDaysInfo]="getBusinessDaysInfo()"
-      [canNavigateToPreviousWeek]="canNavigateToPreviousWeek()"
-      [currentViewDate]="viewDate()"
-      (today)="today()"
-      (previousWeek)="previousWeek()"
-      (nextWeek)="nextWeek()"
-      (dateChange)="onDateChange($event)"
-    />
-
+  @else {
     <!-- Calendar Body -->
     <div class="calendar-body">
 

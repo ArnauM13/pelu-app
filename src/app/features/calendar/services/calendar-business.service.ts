@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { startOfWeek, endOfWeek, eachDayOfInterval, addMinutes, isSameDay } from 'date-fns';
+import { eachDayOfInterval, addMinutes, isSameDay } from 'date-fns';
 import { AppointmentEvent } from '../core/calendar.component';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
@@ -30,7 +30,7 @@ export class CalendarBusinessService {
       end: 20,
     },
     days: {
-      start: 1, // Monday
+      start: 2, // Tuesday
       end: 6, // Saturday
     },
     lunchBreak: {
@@ -90,13 +90,6 @@ export class CalendarBusinessService {
     const businessHours = this.businessSettingsService.getBusinessHours();
     const [hour] = time.split(':').map(Number);
     return hour >= businessHours.start && hour < businessHours.end;
-  }
-
-  /**
-   * Check if a time is the start of lunch break
-   */
-  isLunchBreakStart(time: string): boolean {
-    return this.businessSettingsService.isLunchBreakStart(time);
   }
 
   /**

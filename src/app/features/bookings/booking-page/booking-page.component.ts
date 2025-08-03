@@ -2,13 +2,9 @@ import { Component, signal, computed, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
-import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
-import { CalendarWithFooterComponent } from '../../../features/calendar/core/calendar-with-footer.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
+import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import {
   BookingPopupComponent,
   BookingDetails,
@@ -17,43 +13,49 @@ import {
   ServiceSelectionPopupComponent,
   ServiceSelectionDetails,
 } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
-import { UserService } from '../../../core/services/user.service';
-import { RoleService } from '../../../core/services/role.service';
+import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
 import {
   FirebaseServicesService,
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { ToastService } from '../../../shared/services/toast.service';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { ResponsiveService } from '../../../core/services/responsive.service';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
+import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
 
 @Component({
   selector: 'pelu-booking-page',
   imports: [
     CommonModule,
     FormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    TooltipModule,
     TranslateModule,
-    CalendarWithFooterComponent,
+    CalendarComponent,
     BookingPopupComponent,
     ServiceSelectionPopupComponent,
+    PopupDialogComponent,
+    ButtonComponent,
+    InputDateComponent,
+    BookingMobilePageComponent,
   ],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss'],
 })
 export class BookingPageComponent {
-  @ViewChild('calendarComponent') calendarComponent!: CalendarWithFooterComponent;
+  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
 
   private readonly router = inject(Router);
-  private readonly userService = inject(UserService);
-  private readonly roleService = inject(RoleService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
-  private readonly toastService = inject(ToastService);
+  private readonly translateService = inject(TranslateService);
+  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly responsiveService = inject(ResponsiveService);
+
+  // Mobile detection using centralized service
+  readonly isMobile = computed(() => this.responsiveService.isMobile());
 
   // Signals
   readonly showServiceSelectionPopupSignal = signal(false);
@@ -72,6 +74,7 @@ export class BookingPageComponent {
   });
   readonly availableServicesSignal = signal<FirebaseService[]>([]);
   readonly showLoginPromptSignal = signal(false);
+  readonly selectedDateSignal = signal<Date | null>(null);
 
   // Computed properties
   readonly showServiceSelectionPopup = computed(() => this.showServiceSelectionPopupSignal());
@@ -81,25 +84,49 @@ export class BookingPageComponent {
   readonly availableServices = computed(() => this.availableServicesSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
+  readonly selectedDate = computed(() => this.selectedDateSignal());
+  readonly todayDate = computed(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
 
-  // Info items for the page
-  readonly infoItems: InfoItemData[] = [
-    {
-      icon: '📅',
-      label: 'BOOKING.SELECT_DATE',
-      value: 'BOOKING.SELECT_DATE_DESCRIPTION',
-    },
-    {
-      icon: '⏰',
-      label: 'BOOKING.SELECT_TIME',
-      value: 'BOOKING.SELECT_TIME_DESCRIPTION',
-    },
-    {
-      icon: '✂️',
-      label: 'BOOKING.SELECT_SERVICE',
-      value: 'BOOKING.SELECT_SERVICE_DESCRIPTION',
-    },
-  ];
+  // Calendar footer configuration
+  readonly calendarFooterConfig = computed((): FooterConfig => {
+    const today = new Date();
+    const isWeekend = today.getDay() === 0 || today.getDay() === 6;
+    const businessHours = this.businessSettingsService.getBusinessHours();
+    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+
+    return {
+      showInfoNote: false,
+      showBusinessHours: true,
+      businessHours: {
+        start: businessHours.start,
+        end: businessHours.end
+      },
+      lunchBreak: {
+        start: lunchBreak.start,
+        end: lunchBreak.end
+      },
+      isWeekend: isWeekend,
+    };
+  });
+
+  // Login prompt dialog configuration
+  readonly loginPromptDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('BOOKING.SUCCESS_TITLE'),
+    size: 'medium',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.LOGIN'),
+        type: 'login',
+        action: () => this.onLoginPromptLogin()
+      }
+    ]
+  }));
 
   constructor() {
     this.loadServices();
@@ -117,12 +144,10 @@ export class BookingPageComponent {
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
-      // Don't show toast for loading errors - they're not user-initiated actions
     }
   }
 
   onTimeSlotSelected(event: { date: string; time: string }) {
-    // Show service selection popup first
     const details: ServiceSelectionDetails = {
       date: event.date,
       time: event.time,
@@ -134,21 +159,8 @@ export class BookingPageComponent {
     this.showServiceSelectionPopupSignal.set(true);
   }
 
-  onEditAppointment(event: any) {
-    // Navigate to appointment detail or edit page
-    if (event && event.id) {
-      this.router.navigate(['/appointments', event.id]);
-    }
-  }
-
-  onDeleteAppointment(event: any) {
-    // Handle appointment deletion
-    console.log('Delete appointment:', event);
-  }
-
   async onBookingConfirmed(details: BookingDetails) {
     try {
-      // Create booking using the booking service
       const bookingData = {
         nom: details.clientName,
         email: details.email,
@@ -160,32 +172,26 @@ export class BookingPageComponent {
         price: details.service?.price || 0,
         notes: '',
         status: 'confirmed' as const,
-        editToken: '', // Will be generated automatically
+        editToken: '',
         uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
 
-      if (booking) {
-        // Show login prompt for anonymous users
-        if (!this.isAuthenticated()) {
-          this.showLoginPromptSignal.set(true);
-        }
+      if (booking && !this.isAuthenticated()) {
+        this.showLoginPromptSignal.set(true);
       }
 
       this.showBookingPopupSignal.set(false);
       this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
-      // Don't show toast - the booking service already handles success/error toasts
     }
   }
 
   onServiceSelected(event: { details: ServiceSelectionDetails; service: FirebaseService }) {
-    // Close service selection popup
     this.showServiceSelectionPopupSignal.set(false);
 
-    // Show booking confirmation popup with selected service
     const bookingDetails: BookingDetails = {
       date: event.details.date,
       time: event.details.time,
@@ -200,12 +206,10 @@ export class BookingPageComponent {
 
   onServiceSelectionCancelled() {
     this.showServiceSelectionPopupSignal.set(false);
-    this.serviceSelectionDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
   onBookingCancelled() {
     this.showBookingPopupSignal.set(false);
-    this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
   onClientNameChanged(name: string) {
@@ -216,15 +220,42 @@ export class BookingPageComponent {
     this.bookingDetailsSignal.update(details => ({ ...details, email: email }));
   }
 
-  // Login prompt handlers
   onLoginPromptClose() {
     this.showLoginPromptSignal.set(false);
   }
 
   onLoginPromptLogin() {
     this.showLoginPromptSignal.set(false);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 
-  // Removed test method
+  onTodayClicked() {
+    this.selectedDateSignal.set(new Date());
+    this.calendarComponent?.today();
+  }
+
+  onDateChange(event: Date | string | null): void {
+    if (event instanceof Date) {
+      this.selectedDateSignal.set(event);
+      this.calendarComponent?.onDateChange(event);
+    }
+  }
+
+  getWeekInfo(): string {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('ca-ES', {
+        day: 'numeric',
+        month: 'short'
+      });
+    };
+
+    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
+  }
 }

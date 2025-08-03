@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
+import { computed } from '@angular/core';
 
 @Component({
     selector: 'pelu-input-checkbox',
@@ -28,7 +29,11 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   readonly size = input<'small' | 'large' | undefined>(undefined);
   readonly variant = input<'outlined' | 'filled'>('outlined');
   readonly disabled = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
   readonly invalid = input<boolean>(false);
+
+  // Computed property for readonly mode
+  readonly isReadonlyMode = computed(() => this.readonly());
 
   // Unique ID generated once
   private readonly uniqueId = 'checkbox-' + Math.random().toString(36).substr(2, 9);
@@ -37,6 +42,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   readonly valueChange = output<boolean>();
 
   // ControlValueAccessor callbacks
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onChange = (value: boolean) => {};
   private onTouched = () => {};
 
@@ -52,7 +58,8 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   }
 
   // ControlValueAccessor methods
-  writeValue(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  writeValue(value: boolean): void {
     // PrimeNG handles this automatically
   }
 

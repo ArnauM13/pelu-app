@@ -170,9 +170,16 @@
               <!-- Badges -->
               <div class="flex flex-col gap-1">
                 @if (service.popular) {
-                  <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-medium">
-                    <i class="pi pi-star mr-1"></i>Popular
-                  </span>
+                  <pelu-popular-badge
+                    [config]="{
+                      size: 'small',
+                      variant: 'default',
+                      showIcon: true,
+                      showText: true,
+                      text: 'SERVICES.POPULAR'
+                    }"
+                  >
+                  </pelu-popular-badge>
                 }
                 @if (service.new) {
                   <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
@@ -339,17 +346,7 @@
        </pelu-input-textarea>
      </div>
 
-     <!-- Input Toggle Switch -->
-     <div class="demo-section">
-       <h2>Input Toggle Switch</h2>
-       <pelu-input-toggleswitch
-         label="Marcar com a favorit"
-         [value]="formData().favorite"
-         (valueChange)="updateField('favorite', $event)"
-         helpText="Aquest servei apareixerà destacat a la llista"
-       >
-       </pelu-input-toggleswitch>
-     </div>
+
 
      <!-- Input Date - Calendar -->
      <div class="demo-section">

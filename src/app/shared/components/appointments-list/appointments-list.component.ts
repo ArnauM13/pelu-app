@@ -24,7 +24,7 @@ import { Booking } from '../../../core/services/booking.service';
   template: `
     @if (bookings().length === 0) {
       <div class="full-screen-empty-state">
-        <pelu-not-found-state [config]="notFoundConfig" (onButtonClick)="onClearFilters.emit()">
+        <pelu-not-found-state [config]="notFoundConfig" (buttonClick)="onClearFilters.emit()">
         </pelu-not-found-state>
       </div>
     } @else {

@@ -58,6 +58,8 @@ export class RoleService {
 
   private async loadUserRole(user: User) {
     try {
+      console.log('🔄 RoleService: Loading user role for:', user.uid);
+
       // Use setTimeout to avoid signal write conflicts
       setTimeout(() => {
         this.isLoadingRoleSignal.set(true);
@@ -69,17 +71,19 @@ export class RoleService {
         doc => {
           if (doc.exists()) {
             const data = doc.data() as UserRole;
+            console.log('✅ RoleService: User role loaded:', data);
             // Use setTimeout to avoid signal write conflicts
             setTimeout(() => {
               this.userRoleSignal.set(data);
               this.isLoadingRoleSignal.set(false);
             }, 0);
           } else {
+            console.log('⚠️ RoleService: User role not found, creating default');
             this.createDefaultUserRole(user);
           }
         },
         error => {
-          console.error('Error loading user role:', error);
+          console.error('❌ RoleService: Error loading user role:', error);
           // Use setTimeout to avoid signal write conflicts
           setTimeout(() => {
             this.isLoadingRoleSignal.set(false);
@@ -88,7 +92,7 @@ export class RoleService {
       );
       (this as any).unsubscribeRole = unsubscribe;
     } catch (error) {
-      console.error('Error in loadUserRole:', error);
+      console.error('❌ RoleService: Error in loadUserRole:', error);
       // Use setTimeout to avoid signal write conflicts
       setTimeout(() => {
         this.isLoadingRoleSignal.set(false);
@@ -97,6 +101,7 @@ export class RoleService {
   }
 
   private async createDefaultUserRole(user: User) {
+    console.log('🆕 RoleService: Creating default user role for:', user.uid);
     const defaultRole: UserRole = {
       uid: user.uid,
       email: user.email || '',
@@ -105,14 +110,17 @@ export class RoleService {
       theme: 'light',
     };
     await this.setUserRole(defaultRole);
+    console.log('✅ RoleService: Default user role created:', defaultRole);
   }
 
   async setUserRole(userRole: UserRole): Promise<void> {
     try {
+      console.log('💾 RoleService: Setting user role:', userRole);
       const userDocRef = doc(this.firestore, 'users', userRole.uid);
       await setDoc(userDocRef, userRole);
+      console.log('✅ RoleService: User role set successfully');
     } catch (error) {
-      console.error('Error setting user role:', error);
+      console.error('❌ RoleService: Error setting user role:', error);
       throw error;
     }
   }

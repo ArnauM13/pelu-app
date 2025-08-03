@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { computed } from '@angular/core';
 import { AdminSettingsPageComponent } from './admin-settings-page.component';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -13,7 +13,7 @@ import { InputCheckboxComponent } from '../../../shared/components/inputs/input-
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
-import { configureTestBed, resetMocks } from '../../../testing/test-setup';
+import { resetMocks } from '../../../../testing/test-setup';
 
 describe('AdminSettingsPageComponent', () => {
   let component: AdminSettingsPageComponent;
@@ -61,9 +61,9 @@ describe('AdminSettingsPageComponent', () => {
       'getBusinessHoursString',
       'getLunchBreak',
     ], {
-      settings: of(mockSettings),
-      loading: of(false),
-      error: of(null),
+      settings: computed(() => mockSettings),
+      loading: computed(() => false),
+      error: computed(() => null),
     });
 
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
@@ -161,14 +161,14 @@ describe('AdminSettingsPageComponent', () => {
   describe('Edit Mode Management', () => {
     it('should toggle edit mode correctly', () => {
       fixture.detectChanges();
-      
+
       // Initially not in edit mode
       expect(component.isEditMode()).toBeFalse();
-      
+
       // Toggle to edit mode
       component.toggleEditMode();
       expect(component.isEditMode()).toBeTrue();
-      
+
       // Toggle back to view mode
       component.toggleEditMode();
       expect(component.isEditMode()).toBeFalse();
@@ -189,39 +189,19 @@ describe('AdminSettingsPageComponent', () => {
   });
 
   describe('Time Input Handling', () => {
-    it('should convert time string to Date object correctly', () => {
-      const timeString = '14:30';
-      const result = component.getTimeValue(timeString);
-      
-      expect(result).toBeInstanceOf(Date);
-      expect(result?.getHours()).toBe(14);
-      expect(result?.getMinutes()).toBe(30);
+    it('should format time correctly', () => {
+      const result = component.formatTime(14);
+      expect(result).toBe('14:00');
     });
 
-    it('should return null for invalid time string', () => {
-      const result = component.getTimeValue('invalid');
-      expect(result).toBeNull();
+    it('should get business hours display', () => {
+      const result = component.getBusinessHoursDisplay();
+      expect(result).toBeDefined();
     });
 
-    it('should return null for empty time string', () => {
-      const result = component.getTimeValue('');
-      expect(result).toBeNull();
-    });
-
-    it('should handle time change correctly', () => {
-      fixture.detectChanges();
-      const testDate = new Date();
-      testDate.setHours(15, 30, 0, 0);
-      
-      component.onTimeChange(testDate, 'businessHoursStart');
-      
-      expect(component.settingsForm.get('businessHoursStart')?.value).toBe('15:30');
-    });
-
-    it('should handle null date in time change', () => {
-      fixture.detectChanges();
-      component.onTimeChange(null, 'businessHoursStart');
-      expect(component.settingsForm.get('businessHoursStart')?.value).toBe('');
+    it('should get lunch break display', () => {
+      const result = component.getLunchBreakDisplay();
+      expect(result).toBeDefined();
     });
   });
 
@@ -255,9 +235,9 @@ describe('AdminSettingsPageComponent', () => {
     it('should save settings successfully', async () => {
       businessSettingsService.updateBusinessHoursString.and.returnValue(Promise.resolve());
       businessSettingsService.saveSettings.and.returnValue(Promise.resolve());
-      
+
       await component.saveSettings();
-      
+
       expect(businessSettingsService.updateBusinessHoursString).toHaveBeenCalled();
       expect(businessSettingsService.saveSettings).toHaveBeenCalled();
       expect(toastService.showSuccess).toHaveBeenCalled();
@@ -266,20 +246,20 @@ describe('AdminSettingsPageComponent', () => {
 
     it('should handle save errors', async () => {
       businessSettingsService.saveSettings.and.returnValue(Promise.reject(new Error('Save failed')));
-      
+
       await component.saveSettings();
-      
+
       expect(toastService.showError).toHaveBeenCalled();
     });
 
     it('should update currency if changed', async () => {
       businessSettingsService.updateBusinessHoursString.and.returnValue(Promise.resolve());
       businessSettingsService.saveSettings.and.returnValue(Promise.resolve());
-      
+
       component.settingsForm.get('currency')?.setValue('USD');
-      
+
       await component.saveSettings();
-      
+
       expect(currencyService.setCurrentCurrency).toHaveBeenCalledWith('USD');
     });
   });
@@ -287,18 +267,18 @@ describe('AdminSettingsPageComponent', () => {
   describe('Reset to Defaults', () => {
     it('should reset settings to defaults', async () => {
       businessSettingsService.resetToDefaults.and.returnValue(Promise.resolve());
-      
+
       await component.resetToDefaults();
-      
+
       expect(businessSettingsService.resetToDefaults).toHaveBeenCalled();
       expect(toastService.showInfo).toHaveBeenCalled();
     });
 
     it('should handle reset errors', async () => {
       businessSettingsService.resetToDefaults.and.returnValue(Promise.reject(new Error('Reset failed')));
-      
+
       await component.resetToDefaults();
-      
+
       expect(toastService.showError).toHaveBeenCalled();
     });
   });
@@ -336,7 +316,7 @@ describe('AdminSettingsPageComponent', () => {
     });
 
     it('should show edit button in header', () => {
-      const editButton = fixture.nativeElement.querySelector('[data-testid="edit-button"]') || 
+      const editButton = fixture.nativeElement.querySelector('[data-testid="edit-button"]') ||
                         fixture.nativeElement.querySelector('pelu-button');
       expect(editButton).toBeTruthy();
     });
@@ -349,7 +329,7 @@ describe('AdminSettingsPageComponent', () => {
       // Switch to edit mode
       component.setEditMode();
       fixture.detectChanges();
-      
+
       saveActions = fixture.nativeElement.querySelector('.settings-actions');
       expect(saveActions).toBeTruthy();
     });
@@ -455,24 +435,24 @@ describe('AdminSettingsPageComponent', () => {
   describe('Error Handling', () => {
     it('should handle business settings service errors', () => {
       businessSettingsService.loadSettings.and.returnValue(Promise.reject(new Error('Load failed')));
-      
+
       fixture.detectChanges();
-      
+
       expect(toastService.showError).toHaveBeenCalled();
     });
 
     it('should handle invalid form submission', () => {
       fixture.detectChanges();
       component.setEditMode();
-      
+
       // Make form invalid
       component.settingsForm.get('businessName')?.setValue('');
-      
+
       const saveSpy = spyOn(businessSettingsService, 'saveSettings');
-      
+
       component.saveSettings();
-      
+
       expect(saveSpy).not.toHaveBeenCalled();
     });
   });
-}); 
+});

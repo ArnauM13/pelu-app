@@ -20,7 +20,7 @@ import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { BookingValidationService } from './booking-validation.service';
 import { nanoid } from 'nanoid';
-import { isPastDateTime } from '../../shared/services/appointment-utils';
+
 
 export interface Booking {
   id?: string;
@@ -208,7 +208,11 @@ export class BookingService {
         throw new Error('Booking not found');
       }
 
-      if (currentBooking.uid !== currentUser.uid) {
+      // Check if user is admin or owns the booking
+      const isAdmin = this.roleService.isAdmin();
+      const isOwner = currentBooking.uid === currentUser.uid;
+
+      if (!isAdmin && !isOwner) {
         throw new Error('Access denied');
       }
 
@@ -265,6 +269,69 @@ export class BookingService {
   }
 
   /**
+   * Update booking with token validation (for unauthenticated users)
+   */
+  async updateBookingWithToken(bookingId: string, updates: Partial<Booking>, token: string): Promise<boolean> {
+    try {
+      this.isLoadingSignal.set(true);
+      this.errorSignal.set(null);
+
+      // Validate token first
+      const booking = await this.validateToken(token);
+      if (!booking || booking.id !== bookingId) {
+        throw new Error('Invalid token or booking not found');
+      }
+
+      // Validate that the updated booking is allowed
+      if (updates.data && updates.hora) {
+        const bookingDate = new Date(updates.data);
+        if (!this.bookingValidationService.canBookAppointment(bookingDate, updates.hora)) {
+          throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+        }
+      }
+
+      // Prepare update data
+      const updateData = {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      };
+
+      // Update in Firestore
+      const docRef = doc(this.firestore, 'bookings', bookingId);
+      await updateDoc(docRef, updateData);
+
+      // Update local state if available
+      this.bookingsSignal.update(bookings =>
+        bookings.map(booking =>
+          booking.id === bookingId ? { ...booking, ...updates, updatedAt: new Date() } : booking
+        )
+      );
+
+      return true;
+    } catch (error) {
+      // Log error without user context since this is for unauthenticated access
+      this.logger.firebaseError(error, 'updateBookingWithToken', {
+        component: 'BookingService',
+        method: 'updateBookingWithToken',
+        data: { bookingId, updates: { ...updates, email: '[REDACTED]' } },
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Error updating booking';
+      this.errorSignal.set(errorMessage);
+
+      // Show translated error message
+      if (errorMessage === 'ERROR_PAST_BOOKING') {
+        this.toastService.showGenericError('COMMON.ERROR_PAST_BOOKING');
+      } else {
+        this.toastService.showGenericError('Error updating booking');
+      }
+      return false;
+    } finally {
+      this.isLoadingSignal.set(false);
+    }
+  }
+
+  /**
    * Load bookings based on user role:
    * - Super Admin: All bookings with full details
    * - User/Invited: Only public booking info (time slots occupied)
@@ -280,13 +347,23 @@ export class BookingService {
       const currentUser = this.authService.user();
       const isAdmin = this.roleService.isAdmin();
 
+      console.log('🔍 loadBookings - Debug info:', {
+        currentUser: currentUser?.uid,
+        isAdmin: isAdmin,
+        userRole: this.roleService.userRole(),
+        isLoadingRole: this.roleService.isLoadingRole()
+      });
+
       if (isAdmin) {
+        console.log('👑 Loading all bookings for admin');
         // Super Admin: Load all bookings with full details
         await this.loadAllBookingsForAdmin();
       } else if (currentUser?.uid) {
+        console.log('👤 Loading user bookings for:', currentUser.uid);
         // Authenticated User: Load own bookings
         await this.loadUserBookings(currentUser.uid);
       } else {
+        console.log('👥 Loading public bookings only');
         // Invited User: Load only public booking info
         await this.loadPublicBookingsOnly();
       }
@@ -502,9 +579,9 @@ export class BookingService {
   }
 
   /**
-   * Get booking by ID
+   * Get booking by ID with token validation
    */
-  async getBookingById(bookingId: string): Promise<Booking | null> {
+  async getBookingByIdWithToken(bookingId: string, token?: string): Promise<Booking | null> {
     try {
       const currentUser = this.authService.user();
       if (!currentUser?.uid) {
@@ -542,8 +619,12 @@ export class BookingService {
           clientName: bookingData['clientName'] || bookingData['nom'] || '',
         };
 
-        // Verify ownership
-        if (booking.uid !== currentUser.uid) {
+        // Verify access: either ownership, valid token, or admin role
+        const isOwner = booking.uid === currentUser.uid;
+        const hasValidToken = token && booking.editToken === token;
+        const isAdmin = this.roleService.isAdmin();
+
+        if (!isOwner && !hasValidToken && !isAdmin) {
           throw new Error('Access denied');
         }
 
@@ -555,15 +636,146 @@ export class BookingService {
       const currentUser = this.authService.user();
 
       // Log detallat de l'error
-      this.logger.firebaseError(error, 'getBookingById', {
+      this.logger.firebaseError(error, 'getBookingByIdWithToken', {
         component: 'BookingService',
-        method: 'getBookingById',
+        method: 'getBookingByIdWithToken',
         userId: currentUser?.uid,
-        data: { bookingId },
+        data: { bookingId, hasToken: !!token },
       });
 
       return null;
     }
+  }
+
+  /**
+   * Get booking by edit token (requires authentication)
+   */
+  async getBookingByToken(token: string): Promise<Booking | null> {
+    try {
+      const currentUser = this.authService.user();
+      if (!currentUser?.uid) {
+        throw new Error('Authentication required');
+      }
+
+      // First try to find in cached bookings
+      const cachedBooking = this.bookingsSignal().find(booking => booking.editToken === token);
+      if (cachedBooking) {
+        return cachedBooking;
+      }
+
+      // If not in cache, search in Firebase
+      const bookingsRef = collection(this.firestore, 'bookings');
+      const q = query(bookingsRef, where('editToken', '==', token));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docSnap = querySnapshot.docs[0];
+        const bookingData = docSnap.data();
+
+        const booking: Booking = {
+          id: docSnap.id,
+          nom: bookingData['nom'] || '',
+          email: bookingData['email'] || '',
+          data: bookingData['data'] || '',
+          hora: bookingData['hora'] || '',
+          serviceName: bookingData['serviceName'] || '',
+          serviceId: bookingData['serviceId'] || '',
+          duration: bookingData['duration'] || 60,
+          price: bookingData['price'] || 0,
+          notes: bookingData['notes'] || '',
+          status: bookingData['status'] || 'draft',
+          editToken: bookingData['editToken'],
+          uid: bookingData['uid'],
+          createdAt: bookingData['createdAt'],
+          updatedAt: bookingData['updatedAt'],
+          // Campos legacy
+          title: bookingData['title'] || bookingData['nom'] || '',
+          start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
+          servei: bookingData['servei'] || bookingData['serviceName'] || '',
+          preu: bookingData['preu'] || bookingData['price'] || 0,
+          userId: bookingData['userId'] || bookingData['uid'] || '',
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
+        };
+
+        return booking;
+      }
+
+      return null;
+    } catch (error) {
+      const currentUser = this.authService.user();
+
+      // Log detallat de l'error
+      this.logger.firebaseError(error, 'getBookingByToken', {
+        component: 'BookingService',
+        method: 'getBookingByToken',
+        userId: currentUser?.uid,
+        data: { token },
+      });
+
+      return null;
+    }
+  }
+
+  /**
+   * Validate token without requiring authentication (for guards)
+   */
+  async validateToken(token: string): Promise<Booking | null> {
+    try {
+      // Search in Firebase directly without authentication check
+      const bookingsRef = collection(this.firestore, 'bookings');
+      const q = query(bookingsRef, where('editToken', '==', token));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docSnap = querySnapshot.docs[0];
+        const bookingData = docSnap.data();
+
+        const booking: Booking = {
+          id: docSnap.id,
+          nom: bookingData['nom'] || '',
+          email: bookingData['email'] || '',
+          data: bookingData['data'] || '',
+          hora: bookingData['hora'] || '',
+          serviceName: bookingData['serviceName'] || '',
+          serviceId: bookingData['serviceId'] || '',
+          duration: bookingData['duration'] || 60,
+          price: bookingData['price'] || 0,
+          notes: bookingData['notes'] || '',
+          status: bookingData['status'] || 'draft',
+          editToken: bookingData['editToken'],
+          uid: bookingData['uid'],
+          createdAt: bookingData['createdAt'],
+          updatedAt: bookingData['updatedAt'],
+          // Campos legacy
+          title: bookingData['title'] || bookingData['nom'] || '',
+          start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
+          servei: bookingData['servei'] || bookingData['serviceName'] || '',
+          preu: bookingData['preu'] || bookingData['price'] || 0,
+          userId: bookingData['userId'] || bookingData['uid'] || '',
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
+        };
+
+        return booking;
+      }
+
+      return null;
+    } catch (error) {
+      // Log error without user context since this is for unauthenticated access
+      this.logger.firebaseError(error, 'validateToken', {
+        component: 'BookingService',
+        method: 'validateToken',
+        data: { token },
+      });
+
+      return null;
+    }
+  }
+
+  /**
+   * Get booking by ID (legacy method - only checks ownership)
+   */
+  async getBookingById(bookingId: string): Promise<Booking | null> {
+    return this.getBookingByIdWithToken(bookingId);
   }
 
   /**
@@ -585,7 +797,11 @@ export class BookingService {
         throw new Error('Booking not found');
       }
 
-      if (currentBooking.uid !== currentUser.uid) {
+      // Check if user is admin or owns the booking
+      const isAdmin = this.roleService.isAdmin();
+      const isOwner = currentBooking.uid === currentUser.uid;
+
+      if (!isAdmin && !isOwner) {
         throw new Error('Access denied');
       }
 
@@ -720,13 +936,23 @@ export class BookingService {
       const currentUser = this.authService.user();
       const isAdmin = this.roleService.isAdmin();
 
+      console.log('🔄 silentRefreshBookings - Debug info:', {
+        currentUser: currentUser?.uid,
+        isAdmin: isAdmin,
+        userRole: this.roleService.userRole(),
+        isLoadingRole: this.roleService.isLoadingRole()
+      });
+
       if (isAdmin) {
+        console.log('👑 Silent refresh: Loading all bookings for admin');
         // Super Admin: Load all bookings with full details
         await this.loadAllBookingsForAdmin();
       } else if (currentUser?.uid) {
+        console.log('👤 Silent refresh: Loading user bookings for:', currentUser.uid);
         // Authenticated User: Load own bookings
         await this.loadUserBookings(currentUser.uid);
       } else {
+        console.log('👥 Silent refresh: Loading public bookings only');
         // Invited User: Load only public booking info
         await this.loadPublicBookingsOnly();
       }

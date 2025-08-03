@@ -56,12 +56,6 @@ describe('CalendarBusinessService', () => {
       expect(service.isLunchBreak('15:00')).toBe(false);
       expect(service.isLunchBreak('12:30')).toBe(false);
     });
-
-    it('should check if time is lunch break start', () => {
-      expect(service.isLunchBreakStart('13:00')).toBe(true);
-      expect(service.isLunchBreakStart('13:30')).toBe(false);
-      expect(service.isLunchBreakStart('14:00')).toBe(false);
-    });
   });
 
   describe('Time Slots', () => {

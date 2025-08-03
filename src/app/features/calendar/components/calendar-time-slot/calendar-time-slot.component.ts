@@ -94,11 +94,19 @@ export interface TimeSlotData {
       }
 
       .time-slot.lunch-break {
-        background: #fff3cd;
-        color: #856404;
-        cursor: not-allowed;
-        opacity: 0.8;
-        position: relative;
+        background: rgba(255, 243, 205, 0.6) !important;
+        color: #856404 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+        position: relative !important;
+        transform: none !important;
+        scale: none !important;
+        box-shadow: none !important;
+        border-color: #f1f3f4 !important;
+        pointer-events: auto !important;
+        transition: none !important;
+        filter: blur(0.3px) !important;
+        animation: none !important;
       }
 
       .time-slot.lunch-break::after {
@@ -118,11 +126,22 @@ export interface TimeSlotData {
         pointer-events: none;
       }
 
+      /* Prevent hover effects on lunch break slots */
+      .time-slot.lunch-break:hover {
+        background: #fff3cd !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border-color: #f1f3f4 !important;
+        opacity: 0.8 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+      }
+
       .time-slot.past-date {
-        background: #f8f9fa;
-        color: #6c757d;
+        background: #e9ecef;
+        color: #495057;
         cursor: default;
-        opacity: 0.7;
+        opacity: 0.8;
         position: relative;
       }
 
@@ -136,16 +155,16 @@ export interface TimeSlotData {
         background: linear-gradient(
           45deg,
           transparent 30%,
-          rgba(173, 181, 189, 0.05) 50%,
+          rgba(108, 117, 125, 0.1) 50%,
           transparent 70%
         );
       }
 
       .time-slot.past-time {
-        background: #f8f9fa;
-        color: #6c757d;
+        background: #dee2e6;
+        color: #495057;
         cursor: not-allowed;
-        opacity: 0.6;
+        opacity: 0.7;
         position: relative;
         pointer-events: none;
       }

@@ -32,7 +32,6 @@ import { CalendarCoreService } from '../services/calendar-core.service';
 import { CalendarBusinessService } from '../services/calendar-business.service';
 import { CalendarStateService } from '../services/calendar-state.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { CalendarHeaderComponent } from '../header/calendar-header.component';
 import {
   CalendarLoaderComponent,
   CalendarTimeColumnComponent,
@@ -54,6 +53,7 @@ export interface AppointmentEvent {
   duration?: number; // in minutes, default 60 if not specified
   serviceName?: string;
   clientName?: string;
+  uid?: string; // User ID who owns this appointment
   isPublicBooking?: boolean;
   isOwnBooking?: boolean;
   canDrag?: boolean;
@@ -68,7 +68,6 @@ export interface AppointmentEvent {
     FormsModule,
     TranslateModule,
     AppointmentDetailPopupComponent,
-    CalendarHeaderComponent,
     CalendarLoaderComponent,
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
@@ -97,7 +96,6 @@ export class CalendarComponent {
   readonly calendarCoreService = inject(CalendarCoreService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Input signals
@@ -125,6 +123,17 @@ export class CalendarComponent {
       this.isInitializedSignal() &&
       this.calendarMountedSignal()
   );
+
+  // Date picker property
+  readonly selectedDate = signal<Date | null>(null);
+
+  // Today's date as a computed signal to avoid creating new instances
+  readonly todayDate = computed(() => {
+    const today = new Date();
+    // Set time to start of day for consistent comparison
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
@@ -191,6 +200,7 @@ export class CalendarComponent {
         duration: duration,
         serviceName: c.serviceName || c.servei || '',
         clientName: c.nom || 'Client',
+        uid: c.uid || '', // Include the user ID
         isPublicBooking: isPublicBooking,
         isOwnBooking: isOwnBooking,
         canDrag: isAdmin || isOwnBooking,
@@ -245,23 +255,22 @@ export class CalendarComponent {
     });
   });
 
-  // Computed appointment positions - this is now stable and won't cause ExpressionChangedAfterItHasBeenCheckedError
+  // Computed appointment positions - now reactive to booking duration
   readonly appointmentPositions = computed(() => {
     const appointments = this.allEvents();
     return this.calendarCoreService.getAppointmentPositions(appointments);
   });
 
-  // Computed time slots for time column
+  // Computed time slots for time column - reactive to slot duration
   readonly timeColumnSlots = computed((): TimeSlot[] => {
     return this.timeSlots().map(time => ({
       time,
       isBlocked: this.isTimeSlotBlocked(time),
-      isLunchBreakStart: this.isLunchBreakStart(time),
       isDisabled: this.isTimeSlotBlocked(time),
     }));
   });
 
-  // Computed day columns data
+  // Computed day columns data - reactive to booking duration
   readonly dayColumnsData = computed((): DayColumnData[] => {
     return this.weekDays().map(day => {
       const timeSlots = this.timeSlots().map(time => ({
@@ -273,7 +282,7 @@ export class CalendarComponent {
           !this.isTimeSlotBlocked(time) &&
           !this.isPastDate(day) &&
           !this.isPastTimeSlot(day, time),
-        isLunchBreak: this.isTimeSlotBlocked(time),
+        isLunchBreak: this.isLunchBreak(time),
         isPastDate: this.isPastDate(day),
         isPastTime: this.isPastTimeSlot(day, time),
         isClickable: this.isTimeSlotAvailable(day, time),
@@ -282,32 +291,24 @@ export class CalendarComponent {
         tooltip: this.getTimeSlotTooltip(day, time),
       }));
 
-      const lunchBreak =
-        this.calendarCoreService.getLunchBreakPosition().height > 0
-          ? {
-              top: this.calendarCoreService.getLunchBreakPosition().top,
-              height: this.calendarCoreService.getLunchBreakPosition().height,
-              timeRange: this.calendarCoreService.getLunchBreakTimeRange(),
-            }
-          : null;
-
       const dropIndicator =
         this.calendarCoreService.isDragging() &&
         this.calendarCoreService.targetDate() &&
         this.calendarCoreService.targetTime() &&
         this.calendarCoreService.draggedAppointment() &&
         this.isSameDay(day, this.calendarCoreService.targetDate()!)
-          ? {
-              top: this.calendarCoreService.calculateAppointmentPositionFromTime(
+          ? (() => {
+              const position = this.calendarCoreService.calculateAppointmentPositionFromTime(
                 this.calendarCoreService.targetTime()!,
-                this.calendarCoreService.draggedAppointment()!.duration || 60
-              ).top,
-              height: this.calendarCoreService.calculateAppointmentPositionFromTime(
-                this.calendarCoreService.targetTime()!,
-                this.calendarCoreService.draggedAppointment()!.duration || 60
-              ).height,
-              isValid: this.calendarCoreService.isValidDrop(),
-            }
+                this.calendarCoreService.draggedAppointment()!.duration || this.calendarCoreService.reactiveBookingDuration()
+              );
+
+              return {
+                top: position.top,
+                height: position.height,
+                isValid: this.calendarCoreService.isValidDrop(),
+              };
+            })()
           : null;
 
       return {
@@ -318,7 +319,6 @@ export class CalendarComponent {
         isDisabled: this.isPastDate(day),
         timeSlots,
         appointments: this.getAppointmentsForDay(day),
-        lunchBreak,
         dropIndicator,
         isDragOver: this.calendarCoreService.isDragging(),
         isDropValid:
@@ -368,29 +368,29 @@ export class CalendarComponent {
     });
 
     // Mark calendar as mounted after a delay to ensure complete rendering
-    setTimeout(() => {
-      if (this.isInitializedSignal()) {
-        this.calendarMountedSignal.set(true);
-        this.cdr.detectChanges();
-      }
-    }, 800);
-
-    // Set up a periodic check for localStorage changes (fallback)
-    // Removed localStorage checking - now using Firebase
+    if (this.isInitializedSignal()) {
+      this.calendarMountedSignal.set(true);
+    }
 
     // Effect to emit booking loaded state
     effect(() => {
       this.bookingsLoaded.emit(this.isBookingsLoaded());
     });
-  }
 
-  // Removed localStorage methods - now using Firebase via AppointmentService
+    // Effect to initialize and sync selectedDate with viewDate
+    effect(() => {
+      const currentViewDate = this.viewDate();
+      if (currentViewDate && !this.selectedDate()) {
+        this.selectedDate.set(currentViewDate);
+      }
+    });
+  }
 
   // Methods that delegate to services
   isTimeSlotAvailable(
     date: Date,
     time: string,
-    requestedDuration: number = this.SLOT_DURATION_MINUTES
+    requestedDuration: number = this.calendarCoreService.reactiveBookingDuration()
   ): boolean {
     const events = this.allEvents();
     return this.calendarCoreService.isTimeSlotAvailable(date, time, events, requestedDuration);
@@ -405,21 +405,34 @@ export class CalendarComponent {
   }
 
   openAppointmentPopup(appointmentEvent: AppointmentEvent) {
+    // Check permissions before opening the popup
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+
+    // If user is not admin, check if they can view this appointment
+    if (!isAdmin) {
+      const isOwnBooking = appointmentEvent.isOwnBooking;
+      const canViewDetails = appointmentEvent.canViewDetails;
+
+      // If user cannot view details, don't open the popup
+      if (!canViewDetails || !isOwnBooking) {
+        console.log('User cannot view details for this appointment');
+        return;
+      }
+    }
+
     // Convert AppointmentEvent to the format expected by the popup
     const originalAppointment = this.findOriginalAppointment(appointmentEvent);
 
     if (originalAppointment) {
       // Use the original appointment data which has the correct format
       // Assegurem-nos que té l'userId correcte
-      const currentUser = this.authService.user();
       if (currentUser?.uid && !originalAppointment.userId) {
         originalAppointment.userId = currentUser.uid;
       }
       this.stateService.openAppointmentDetail(originalAppointment);
     } else {
       // Fallback: convert AppointmentEvent to the expected format
-      const currentUser = this.authService.user();
-
       // Generate a unique ID if not available
       const appointmentId = appointmentEvent.id || uuidv4();
 
@@ -437,22 +450,16 @@ export class CalendarComponent {
         serviceId: '',
       };
 
-      // Removed localStorage saving - now using Firebase
-
       this.stateService.openAppointmentDetail(convertedAppointment);
     }
   }
 
-  // Removed localStorage saving - now using Firebase
-
   isLunchBreak(time: string): boolean {
-    return this.calendarCoreService.isLunchBreak(time);
+    return this.businessService.isLunchBreak(time);
   }
 
   isTimeSlotBlocked(time: string): boolean {
-    return (
-      this.businessService.isLunchBreak(time) || !this.businessService.isTimeSlotBookable(time)
-    );
+    return !this.businessService.isTimeSlotBookable(time);
   }
 
   getAppointmentForTimeSlot(date: Date, time: string) {
@@ -466,7 +473,7 @@ export class CalendarComponent {
       const appointmentStart = new Date(appointment.start);
       const appointmentEnd = appointment.end
         ? new Date(appointment.end)
-        : addMinutes(appointmentStart, appointment.duration || 60);
+        : addMinutes(appointmentStart, appointment.duration || this.calendarCoreService.reactiveBookingDuration());
       return appointmentStart <= slotTime && slotTime < appointmentEnd;
     });
   }
@@ -603,6 +610,14 @@ export class CalendarComponent {
   }
 
   canNavigateToPreviousWeek(): boolean {
+    const isAdmin = this.roleService.isAdmin();
+
+    // If user is admin, allow navigation to past weeks
+    if (isAdmin) {
+      return true;
+    }
+
+    // For non-admin users, use the business logic to prevent navigation to past weeks
     return this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
   }
 
@@ -626,6 +641,17 @@ export class CalendarComponent {
   }
 
   previousWeek() {
+    const isAdmin = this.roleService.isAdmin();
+
+    // If user is not admin, check if navigation to previous week is allowed
+    if (!isAdmin) {
+      const canNavigate = this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
+      if (!canNavigate) {
+        console.log('Non-admin user cannot navigate to past weeks');
+        return;
+      }
+    }
+
     this.stateService.previousWeek();
   }
 
@@ -709,6 +735,10 @@ export class CalendarComponent {
     this.appointmentService.silentRefreshBookings();
 
     // Convert Booking to AppointmentEvent and emit to parent
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+    const isOwnBooking = !!(currentUser?.uid && booking.uid === currentUser.uid);
+
     const appointmentEvent: AppointmentEvent = {
       id: booking.id || '',
       title: booking.nom || 'Appointment',
@@ -717,10 +747,11 @@ export class CalendarComponent {
       duration: booking.duration,
       serviceName: booking.servei,
       clientName: booking.nom,
+      uid: booking.uid || '',
       isPublicBooking: false,
-      isOwnBooking: true,
-      canDrag: true,
-      canViewDetails: true,
+      isOwnBooking: isOwnBooking,
+      canDrag: isAdmin || isOwnBooking,
+      canViewDetails: isAdmin || isOwnBooking,
     };
     this.deleteAppointment.emit(appointmentEvent);
   }
@@ -751,6 +782,9 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
 
     // Convert Booking to AppointmentEvent and emit to parent
+    const isAdmin = this.roleService.isAdmin();
+    const isOwnBooking = !!(currentUser?.uid && booking.uid === currentUser.uid);
+
     const appointmentEvent: AppointmentEvent = {
       id: booking.id || '',
       title: booking.nom || 'Appointment',
@@ -759,16 +793,13 @@ export class CalendarComponent {
       duration: booking.duration,
       serviceName: booking.servei,
       clientName: booking.nom,
+      uid: booking.uid || '',
       isPublicBooking: false,
-      isOwnBooking: true,
-      canDrag: true,
-      canViewDetails: true,
+      isOwnBooking: isOwnBooking,
+      canDrag: isAdmin || isOwnBooking,
+      canViewDetails: isAdmin || isOwnBooking,
     };
     this.editAppointment.emit(appointmentEvent);
-  }
-
-  isLunchBreakStart(time: string): boolean {
-    return this.businessService.isLunchBreakStart(time);
   }
 
   reloadAppointments() {
@@ -793,31 +824,59 @@ export class CalendarComponent {
       // Load bookings with cache support
       await this.appointmentService.getBookingsWithCache();
 
-      // Mark as initialized after a small delay to ensure smooth transition
-      setTimeout(() => {
-        this.isInitializedSignal.set(true);
-
-        // Wait for the next tick to ensure the calendar is rendered
-        setTimeout(() => {
-          this.calendarMountedSignal.set(true);
-          this.cdr.detectChanges();
-        }, 100);
-
-        this.cdr.detectChanges();
-      }, 500);
+      this.isInitializedSignal.set(true);
+      this.calendarMountedSignal.set(true);
     } catch (error) {
       console.error('Error loading bookings:', error);
       // Still mark as initialized to show the calendar even if there's an error
       this.isInitializedSignal.set(true);
       this.calendarMountedSignal.set(true);
-      this.cdr.detectChanges();
     }
   }
 
-  // Removed localStorage change checking - now using Firebase
+  onDateChange(event: Date | string | null): void {
+    const isAdmin = this.roleService.isAdmin();
 
-  onDateChange(dateString: string) {
-    this.stateService.navigateToDate(dateString);
+    if (event instanceof Date) {
+      const dateString = dateFnsFormat(event, 'yyyy-MM-dd');
+
+      // For non-admin users, check if the selected date is in the past
+      if (!isAdmin) {
+        const selectedDate = new Date(dateString);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+          console.log('Non-admin user cannot navigate to past dates');
+          return;
+        }
+      }
+
+      this.stateService.navigateToDate(dateString);
+      this.selectedDate.set(event);
+    } else if (typeof event === 'string') {
+      // For non-admin users, check if the selected date is in the past
+      if (!isAdmin) {
+        const selectedDate = new Date(event);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+          console.log('Non-admin user cannot navigate to past dates');
+          return;
+        }
+      }
+
+      this.stateService.navigateToDate(event);
+      // Convert string to Date for the selectedDate signal
+      const date = new Date(event);
+      if (!isNaN(date.getTime())) {
+        this.selectedDate.set(date);
+      }
+    } else {
+      // Clear the selected date
+      this.selectedDate.set(null);
+    }
   }
 
   // Drag & Drop methods
@@ -895,12 +954,36 @@ export class CalendarComponent {
     }
   }
 
-  private convertToCalendarEvent(appointment: any): AppointmentEvent {
-    if (appointment.originalAppointment) {
-      return appointment.originalAppointment;
-    } else {
-      return appointment;
-    }
+  /**
+   * Update the booking duration for the calendar grid
+   * This will automatically recalculate all appointment positions
+   */
+  updateBookingDuration(durationMinutes: number): void {
+    this.calendarCoreService.updateBookingDuration(durationMinutes);
+  }
+
+  /**
+   * Get the current booking duration
+   */
+  getCurrentBookingDuration(): number {
+    return this.calendarCoreService.reactiveBookingDuration();
+  }
+
+  /**
+   * Update the slot duration for the calendar grid
+   * This will automatically recalculate all time slots and positions
+   */
+  updateSlotDuration(durationMinutes: number): void {
+    this.calendarCoreService.updateGridConfiguration({
+      slotDurationMinutes: durationMinutes
+    });
+  }
+
+  /**
+   * Get the current slot duration
+   */
+  getCurrentSlotDuration(): number {
+    return this.calendarCoreService.reactiveSlotDuration();
   }
 
   /**
@@ -913,8 +996,7 @@ export class CalendarComponent {
 
     this.calendarCoreService.updateGridConfiguration({
       slotHeightPx: 30,
-      pixelsPerMinute: 1,
-      slotDurationMinutes: 30,
+      // pixelsPerMinute and slotDurationMinutes are now updated reactively
       businessStartHour: businessConfig.hours.start,
       businessEndHour: businessConfig.hours.end,
       lunchBreakStart: businessConfig.lunchBreak.start,
@@ -925,5 +1007,35 @@ export class CalendarComponent {
       'Calendar core service initialized with config:',
       this.calendarCoreService.gridConfiguration()
     );
+  }
+
+  /**
+   * Demo method to show reactive positioning with different booking durations
+   * This demonstrates how the grid automatically recalculates positions
+   */
+  demoReactivePositioning(): void {
+    console.log('Demo: Testing reactive positioning with different booking durations');
+
+    // Test with 30-minute bookings
+    this.updateBookingDuration(30);
+    console.log('Updated to 30-minute bookings');
+
+    // Test with 60-minute bookings
+    setTimeout(() => {
+      this.updateBookingDuration(60);
+      console.log('Updated to 60-minute bookings');
+    }, 2000);
+
+    // Test with 90-minute bookings
+    setTimeout(() => {
+      this.updateBookingDuration(90);
+      console.log('Updated to 90-minute bookings');
+    }, 4000);
+
+    // Reset to default
+    setTimeout(() => {
+      this.updateBookingDuration(60);
+      console.log('Reset to default 60-minute bookings');
+    }, 6000);
   }
 }
