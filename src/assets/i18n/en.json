@@ -63,6 +63,8 @@
       "INACTIVE": "Inactive",
       "RESERVED": "Reserved"
     },
+    "ADMIN_WARNING_TITLE": "Admin Mode",
+    "ADMIN_WARNING_MESSAGE": "You are viewing an appointment from another user. As an administrator, you can edit and delete this appointment.",
     "TIME": {
       "HOUR": "Hour",
       "TODAY": "Today",

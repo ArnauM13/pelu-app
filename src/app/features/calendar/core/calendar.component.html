@@ -55,25 +55,6 @@
 
     </div>
 
-    <!-- Date Picker Section -->
-    <div class="date-picker-section">
-      <pelu-button
-        label="Avui"
-        icon="pi pi-calendar"
-        size="small"
-        severity="primary"
-        class="today-btn"
-        (clicked)="today()"
-      />
-      <pelu-input-date
-        [(ngModel)]="selectedDate"
-        [showButtonBar]="true"
-        [minDate]="todayDate()"
-        (valueChange)="onDateChange($event)"
-        placeholder="Selecciona una data"
-      />
-    </div>
-
     <!-- Appointment Detail Popup -->
     <pelu-appointment-detail-popup
       [open]="showDetailPopup()"

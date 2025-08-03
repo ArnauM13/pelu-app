@@ -226,9 +226,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     const cita = this.appointment();
     if (!cita) return false;
 
-    // Verificar que l'usuari actual és el propietari
+    // Check if user is authenticated
     const currentUser = this.#authService.user();
-    if (!currentUser?.uid) return false;
+    const hasToken = !!this.#route.snapshot.queryParams['token'];
+
+    // If user is not authenticated, they can only edit if they have a valid token
+    if (!currentUser?.uid) {
+      return hasToken && cita.editToken;
+    }
 
     // Verificar propietat
     const isOwner = cita.uid === currentUser.uid;
@@ -247,9 +252,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     const cita = this.appointment();
     if (!cita) return false;
 
-    // Verificar que l'usuari actual és el propietari
+    // Check if user is authenticated
     const currentUser = this.#authService.user();
-    if (!currentUser?.uid) return false;
+    const hasToken = !!this.#route.snapshot.queryParams['token'];
+
+    // If user is not authenticated, they cannot delete (only view and edit)
+    if (!currentUser?.uid) {
+      return false;
+    }
 
     // Verificar propietat
     const isOwner = cita.uid === currentUser.uid;
@@ -383,57 +393,38 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   private async loadBookingByToken(token: string) {
     try {
+      // Check if user is authenticated
       const currentUser = this.#authService.user();
 
-      // If user is authenticated, try to load from their bookings first
-      if (currentUser?.uid) {
-        const userBookings = this.#bookingService.bookings();
-        const userBooking = userBookings.find(booking => booking.editToken === token);
+      let booking: Booking | null;
 
-        if (userBooking) {
-          const appointment = this.convertBookingToAppointment(userBooking);
-          this.#appointmentSignal.set(appointment);
-          this.#editFormSignal.set({
-            nom: appointment.nom || '',
-            data: appointment.data || '',
-            hora: appointment.hora || '',
-            notes: appointment.notes || '',
-            servei: appointment.servei || '',
-            preu: appointment.preu || 0,
-            duration: appointment.duration || 0,
-            serviceName: appointment.serviceName || '',
-            serviceId: appointment.serviceId || '',
-          });
-          this.#loadingSignal.set(false);
-          return;
-        }
+      if (currentUser?.uid) {
+        // User is authenticated, use the authenticated method
+        booking = await this.#bookingService.getBookingByToken(token);
+      } else {
+        // User is not authenticated, use the validation method
+        booking = await this.#bookingService.validateToken(token);
       }
 
-      // Load booking by token for authenticated users
-      const booking = await this.#bookingService.getBookingById(token);
       if (!booking) {
         this.#notFoundSignal.set(true);
         this.#loadingSignal.set(false);
         return;
       }
 
-      // Convertir la reserva al format de cita
       const appointment = this.convertBookingToAppointment(booking);
-
-      if (appointment) {
-        this.#appointmentSignal.set(appointment);
-        this.#editFormSignal.set({
-          nom: appointment.nom || '',
-          data: appointment.data || '',
-          hora: appointment.hora || '',
-          notes: appointment.notes || '',
-          servei: appointment.servei || '',
-          preu: appointment.preu || 0,
-          duration: appointment.duration || 0,
-          serviceName: appointment.serviceName || '',
-          serviceId: appointment.serviceId || '',
-        });
-      }
+      this.#appointmentSignal.set(appointment);
+      this.#editFormSignal.set({
+        nom: appointment.nom || '',
+        data: appointment.data || '',
+        hora: appointment.hora || '',
+        notes: appointment.notes || '',
+        servei: appointment.servei || '',
+        preu: appointment.preu || 0,
+        duration: appointment.duration || 0,
+        serviceName: appointment.serviceName || '',
+        serviceId: appointment.serviceId || '',
+      });
       this.#loadingSignal.set(false);
     } catch (error) {
       console.error('Error loading booking by token:', error);
@@ -444,6 +435,10 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   private async loadAppointmentById(uniqueId: string) {
     try {
+      // Get token from query params if available
+      const token = this.#route.snapshot.queryParams['token'];
+      const currentUser = this.#authService.user();
+
       // Check if it's the old format (clientId-appointmentId) for backward compatibility
       if (uniqueId.includes('-') && !uniqueId.startsWith('booking-')) {
         const parts = uniqueId.split('-');
@@ -451,14 +446,40 @@ export class AppointmentDetailPageComponent implements OnInit {
           const clientId = parts[0];
           const appointmentId = parts[1];
 
+          // If user is not authenticated, we can't verify client ID ownership
+          if (!currentUser?.uid) {
+            // For unauthenticated users, we can only access via token
+            if (!token) {
+              throw new Error('Authentication required or valid token needed');
+            }
+            // Try to load by token instead
+            const booking = await this.#bookingService.validateToken(token);
+            if (booking && booking.id === appointmentId) {
+              this.#appointmentSignal.set(booking);
+              this.#editFormSignal.set({
+                nom: booking.nom || '',
+                data: booking.data || '',
+                hora: booking.hora || '',
+                notes: booking.notes || '',
+                servei: booking.servei || '',
+                preu: booking.preu || 0,
+                duration: booking.duration || 0,
+                serviceName: booking.serviceName || '',
+                serviceId: booking.serviceId || '',
+              });
+              return;
+            } else {
+              throw new Error('Access denied');
+            }
+          }
+
           // Verify that the client ID matches the current user
-          const currentUser = this.#authService.user();
-          if (!currentUser?.uid || currentUser.uid !== clientId) {
+          if (currentUser.uid !== clientId) {
             throw new Error('Access denied');
           }
 
-          // Load from Firebase using the appointment ID
-          const appointment = await this.#appointmentService.getBookingById(appointmentId);
+          // Load from Firebase using the appointment ID with token validation
+          const appointment = await this.#bookingService.getBookingByIdWithToken(appointmentId, token);
 
           if (!appointment) {
             this.#notFoundSignal.set(true);
@@ -481,18 +502,40 @@ export class AppointmentDetailPageComponent implements OnInit {
         }
       }
 
-      // If it's a direct ID (new format), try to load it directly
-      const currentUser = this.#authService.user();
+      // If it's a direct ID (new format), try to load it directly with token validation
       if (!currentUser?.uid) {
-        throw new Error('Authentication required');
+        // For unauthenticated users, we can only access via token
+        if (!token) {
+          throw new Error('Authentication required or valid token needed');
+        }
+
+        // Try to load by token
+        const booking = await this.#bookingService.validateToken(token);
+        if (booking && booking.id === uniqueId) {
+          this.#appointmentSignal.set(booking);
+          this.#editFormSignal.set({
+            nom: booking.nom || '',
+            data: booking.data || '',
+            hora: booking.hora || '',
+            notes: booking.notes || '',
+            servei: booking.servei || '',
+            preu: booking.preu || 0,
+            duration: booking.duration || 0,
+            serviceName: booking.serviceName || '',
+            serviceId: booking.serviceId || '',
+          });
+          return;
+        } else {
+          throw new Error('Access denied');
+        }
       }
 
-      // Load from Firebase (bookings collection) - try booking service first
-      let appointment = await this.#bookingService.getBookingById(uniqueId);
+      // Load from Firebase (bookings collection) with token validation
+      let appointment = await this.#bookingService.getBookingByIdWithToken(uniqueId, token);
 
       if (!appointment) {
-        // Fallback to appointment service
-        appointment = await this.#appointmentService.getBookingById(uniqueId);
+        // Fallback to appointment service (legacy) - also use token validation
+        appointment = await this.#appointmentService.getBookingByIdWithToken(uniqueId, token);
       }
 
       if (!appointment) {
@@ -607,13 +650,16 @@ export class AppointmentDetailPageComponent implements OnInit {
       serviceId: form.serviceId || '',
     };
 
-    // Only authenticated users can update bookings
-    if (!currentUser?.uid) {
-      this.#toastService.showError("No s'ha pogut guardar la reserva. Si us plau, inicia sessió.");
-      return;
-    }
+    let success = false;
 
-    const success = await this.#bookingService.updateBooking(cita.id!, updates);
+    // Check if user is authenticated
+    if (currentUser?.uid) {
+      // Authenticated user - use regular update method
+      success = await this.#bookingService.updateBooking(cita.id!, updates);
+    } else {
+      // Unauthenticated user - use token-based update method
+      success = await this.#bookingService.updateBookingWithToken(cita.id!, updates, token);
+    }
 
     if (success) {
       // Actualitzar l'estat local

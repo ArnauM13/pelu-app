@@ -38,9 +38,6 @@
 .mobile-header {
   padding: 1rem 1.5rem 0.5rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 
   .page-title {
     margin: 0 0 0.5rem 0;
@@ -307,17 +304,5 @@
         font-size: 1.25rem;
       }
     }
-  }
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .mobile-quick-actions .action-card {
-    background: rgba(30, 30, 30, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .mobile-calendar-section pelu-calendar-component ::ng-deep .calendar-container {
-    background: rgba(30, 30, 30, 0.95);
   }
 }

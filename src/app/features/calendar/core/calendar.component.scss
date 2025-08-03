@@ -341,9 +341,10 @@
 }
 
 .day-card.past {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+  background: #f8f9fa;
 }
 
 .day-events {
@@ -611,11 +612,11 @@
 }
 
 .time-slot.disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
-  background: #f8f9fa;
-  color: #6c757d;
+  background: #e9ecef;
+  color: #495057;
   position: relative;
 }
 
@@ -629,7 +630,7 @@
   background: linear-gradient(
     45deg,
     transparent 30%,
-    rgba(173, 181, 189, 0.2) 50%,
+    rgba(108, 117, 125, 0.15) 50%,
     transparent 70%
   );
 }
@@ -863,16 +864,4 @@
   gap: 0.5rem;
 }
 
-// Date Picker Section Styles
-.date-picker-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-}
 
-.today-btn {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}

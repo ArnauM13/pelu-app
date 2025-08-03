@@ -96,7 +96,6 @@ export class CalendarComponent {
   readonly calendarCoreService = inject(CalendarCoreService);
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly serviceColorsService = inject(ServiceColorsService);
 
   // Input signals
@@ -369,12 +368,9 @@ export class CalendarComponent {
     });
 
     // Mark calendar as mounted after a delay to ensure complete rendering
-    setTimeout(() => {
-      if (this.isInitializedSignal()) {
-        this.calendarMountedSignal.set(true);
-        this.cdr.detectChanges();
-      }
-    }, 800);
+    if (this.isInitializedSignal()) {
+      this.calendarMountedSignal.set(true);
+    }
 
     // Effect to emit booking loaded state
     effect(() => {
@@ -614,6 +610,14 @@ export class CalendarComponent {
   }
 
   canNavigateToPreviousWeek(): boolean {
+    const isAdmin = this.roleService.isAdmin();
+
+    // If user is admin, allow navigation to past weeks
+    if (isAdmin) {
+      return true;
+    }
+
+    // For non-admin users, use the business logic to prevent navigation to past weeks
     return this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
   }
 
@@ -637,6 +641,17 @@ export class CalendarComponent {
   }
 
   previousWeek() {
+    const isAdmin = this.roleService.isAdmin();
+
+    // If user is not admin, check if navigation to previous week is allowed
+    if (!isAdmin) {
+      const canNavigate = this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
+      if (!canNavigate) {
+        console.log('Non-admin user cannot navigate to past weeks');
+        return;
+      }
+    }
+
     this.stateService.previousWeek();
   }
 
@@ -720,6 +735,10 @@ export class CalendarComponent {
     this.appointmentService.silentRefreshBookings();
 
     // Convert Booking to AppointmentEvent and emit to parent
+    const currentUser = this.authService.user();
+    const isAdmin = this.roleService.isAdmin();
+    const isOwnBooking = !!(currentUser?.uid && booking.uid === currentUser.uid);
+
     const appointmentEvent: AppointmentEvent = {
       id: booking.id || '',
       title: booking.nom || 'Appointment',
@@ -728,10 +747,11 @@ export class CalendarComponent {
       duration: booking.duration,
       serviceName: booking.servei,
       clientName: booking.nom,
+      uid: booking.uid || '',
       isPublicBooking: false,
-      isOwnBooking: true,
-      canDrag: true,
-      canViewDetails: true,
+      isOwnBooking: isOwnBooking,
+      canDrag: isAdmin || isOwnBooking,
+      canViewDetails: isAdmin || isOwnBooking,
     };
     this.deleteAppointment.emit(appointmentEvent);
   }
@@ -762,6 +782,9 @@ export class CalendarComponent {
     this.stateService.closeAppointmentDetail();
 
     // Convert Booking to AppointmentEvent and emit to parent
+    const isAdmin = this.roleService.isAdmin();
+    const isOwnBooking = !!(currentUser?.uid && booking.uid === currentUser.uid);
+
     const appointmentEvent: AppointmentEvent = {
       id: booking.id || '',
       title: booking.nom || 'Appointment',
@@ -770,10 +793,11 @@ export class CalendarComponent {
       duration: booking.duration,
       serviceName: booking.servei,
       clientName: booking.nom,
+      uid: booking.uid || '',
       isPublicBooking: false,
-      isOwnBooking: true,
-      canDrag: true,
-      canViewDetails: true,
+      isOwnBooking: isOwnBooking,
+      canDrag: isAdmin || isOwnBooking,
+      canViewDetails: isAdmin || isOwnBooking,
     };
     this.editAppointment.emit(appointmentEvent);
   }
@@ -800,33 +824,49 @@ export class CalendarComponent {
       // Load bookings with cache support
       await this.appointmentService.getBookingsWithCache();
 
-      // Mark as initialized after a small delay to ensure smooth transition
-      setTimeout(() => {
-        this.isInitializedSignal.set(true);
-
-        // Wait for the next tick to ensure the calendar is rendered
-        setTimeout(() => {
-          this.calendarMountedSignal.set(true);
-          this.cdr.detectChanges();
-        }, 100);
-
-        this.cdr.detectChanges();
-      }, 500);
+      this.isInitializedSignal.set(true);
+      this.calendarMountedSignal.set(true);
     } catch (error) {
       console.error('Error loading bookings:', error);
       // Still mark as initialized to show the calendar even if there's an error
       this.isInitializedSignal.set(true);
       this.calendarMountedSignal.set(true);
-      this.cdr.detectChanges();
     }
   }
 
   onDateChange(event: Date | string | null): void {
+    const isAdmin = this.roleService.isAdmin();
+
     if (event instanceof Date) {
       const dateString = dateFnsFormat(event, 'yyyy-MM-dd');
+
+      // For non-admin users, check if the selected date is in the past
+      if (!isAdmin) {
+        const selectedDate = new Date(dateString);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+          console.log('Non-admin user cannot navigate to past dates');
+          return;
+        }
+      }
+
       this.stateService.navigateToDate(dateString);
       this.selectedDate.set(event);
     } else if (typeof event === 'string') {
+      // For non-admin users, check if the selected date is in the past
+      if (!isAdmin) {
+        const selectedDate = new Date(event);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+          console.log('Non-admin user cannot navigate to past dates');
+          return;
+        }
+      }
+
       this.stateService.navigateToDate(event);
       // Convert string to Date for the selectedDate signal
       const date = new Date(event);
