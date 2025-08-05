@@ -8,7 +8,7 @@
         <div class="form-field">
           <pelu-input-text
             label='COMMON.EMAIL'
-            placeholder='COMMON.EMAIL'
+            placeholder='AUTH.EMAIL_PLACEHOLDER'
             type='email'
             formControlName="email"
           >
@@ -18,7 +18,7 @@
         <div class="form-field">
           <pelu-input-password
             label="AUTH.PASSWORD"
-            placeholder="AUTH.PASSWORD"
+            placeholder="AUTH.PASSWORD_PLACEHOLDER"
             [toggleMask]="true"
             formControlName="password"
             (valueChange)="onPasswordChange($event)"
@@ -30,7 +30,7 @@
           <div class="form-field">
             <pelu-input-password
               label="AUTH.REPEAT_PASSWORD"
-              placeholder="AUTH.REPEAT_PASSWORD"
+              placeholder="AUTH.PASSWORD_PLACEHOLDER"
               [toggleMask]="true"
               formControlName="repeatPassword"
               (valueChange)="onRepeatPasswordChange($event)"
