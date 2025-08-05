@@ -73,8 +73,8 @@ export class ServicesMigrationService {
             duration: service.duration,
             category: service.category,
             icon: service.icon,
-            popular: service.popular || false,
-            active: true,
+            isPopular: service.isPopular || false,
+            isActive: true,
           };
 
           const result = await this.firebaseServicesService.createService(firebaseService);
