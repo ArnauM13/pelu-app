@@ -21,6 +21,7 @@ import { AppointmentDetailData } from '../../../core/interfaces/booking.interfac
 import { ServicesService } from '../../../core/services/services.service';
 import { Service } from '../../../core/services/services.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
+import { ResponsiveService } from '../../../core/services/responsive.service';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
@@ -52,12 +53,16 @@ export class AppointmentDetailPageComponent implements OnInit {
   private currencyService = inject(CurrencyService);
   private appointmentDetailService = inject(AppointmentDetailService);
   private servicesService = inject(ServicesService);
+  private responsiveService = inject(ResponsiveService);
 
   // Public computed signals from service
   readonly booking = this.appointmentDetailService.booking;
   readonly isLoading = this.appointmentDetailService.isLoading;
   readonly canEdit = this.appointmentDetailService.canEdit;
   readonly canDelete = this.appointmentDetailService.canDelete;
+
+  // Mobile detection
+  readonly isMobile = computed(() => this.responsiveService.isMobile());
 
   // Service data
   private loadedService = signal<Service | null>(null);
@@ -253,7 +258,11 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   goBack(): void {
-    this.location.back();
+    if (this.responsiveService.isMobile()) {
+      this.router.navigate(['/bookings']);
+    } else {
+      this.location.back();
+    }
   }
 
   // Utility methods

@@ -17,7 +17,7 @@
 
   <!-- Popular Services Section -->
   @if (popularServices().length > 0) {
-    <div class="services-section">
+    <div class="services-section mb-4">
       <h4>⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
       <div class="services-grid">
         @for (service of popularServices(); track service.id) {

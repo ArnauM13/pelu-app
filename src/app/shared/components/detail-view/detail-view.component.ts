@@ -319,7 +319,8 @@ export class DetailViewComponent {
         notes: appointment.notes || ''
       });
     }
-    this.#appointmentManagementService.saveAppointment();
+    // Remove duplicate saveAppointment call - let the parent component handle it
+    // this.#appointmentManagementService.saveAppointment();
   }
 
   onCancelEdit(): void {

@@ -209,11 +209,6 @@
 
 // Small tablets and large phones
 @media (max-width: 768px) {
-  .admin-settings-page.single-screen {
-    padding: 0.5rem;
-    height: 100vh;
-  }
-
   .settings-card {
     padding: 1rem;
     max-width: 100%;
@@ -259,10 +254,6 @@
 
 // Mobile phones
 @media (max-width: 480px) {
-  .admin-settings-page.single-screen {
-    padding: 0.25rem;
-  }
-
   .settings-card {
     padding: 0.75rem;
     border-radius: 12px;
@@ -323,10 +314,6 @@
 
 // Landscape orientation adjustments
 @media (max-height: 600px) and (orientation: landscape) {
-  .admin-settings-page.single-screen {
-    padding: 0.5rem;
-  }
-
   .settings-card {
     max-height: 98vh;
     padding: 1rem;

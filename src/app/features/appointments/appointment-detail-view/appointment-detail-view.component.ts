@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { DetailViewComponent, DetailViewConfig } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
 import { BookingForm } from '../../../core/interfaces/booking.interface';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'pelu-appointment-detail-view',
@@ -22,7 +23,7 @@ import { BookingForm } from '../../../core/interfaces/booking.interface';
       [appointmentId]="appointmentId()"
       (back)="onBack()"
       (edit)="onEdit()"
-      (save)="onSave($event)"
+      (save)="onSave()"
       (cancelEdit)="onCancelEdit()"
       (delete)="onDelete()"
       (updateForm)="onUpdateForm($event)"
@@ -39,6 +40,7 @@ export class AppointmentDetailViewComponent implements OnDestroy {
   #router = inject(Router);
   #route = inject(ActivatedRoute);
   #appointmentManagementService = inject(AppointmentManagementService);
+  #toastService = inject(ToastService);
   #destroy$ = new Subject<void>();
 
   // Computed properties from service
@@ -168,7 +170,7 @@ export class AppointmentDetailViewComponent implements OnDestroy {
     this.#appointmentManagementService.startEditing();
   }
 
-  onSave(_formData: BookingForm): void {
+  onSave(): void {
     this.#appointmentManagementService.saveAppointment();
   }
 
@@ -176,8 +178,17 @@ export class AppointmentDetailViewComponent implements OnDestroy {
     this.#appointmentManagementService.cancelEditing();
   }
 
-  onDelete(): void {
-    this.#appointmentManagementService.deleteAppointment();
+  async onDelete(): Promise<void> {
+    const success = await this.#appointmentManagementService.deleteAppointment();
+    if (success) {
+      // Show success toast
+      this.#toastService.showAppointmentDeleted(this.appointment()?.clientName || 'Client');
+      // Navigate back to appointments list
+      this.#router.navigate(['/appointments']);
+    } else {
+      // Show error toast
+      this.#toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
+    }
   }
 
   onUpdateForm(event: { field: string; value: string | number }): void {

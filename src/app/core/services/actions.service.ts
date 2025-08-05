@@ -301,7 +301,7 @@ export class ActionsService {
         this.#bookingService
           .deleteBooking(appointment.id)
           .then(() => {
-            this.#toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.DELETE_SUCCESS');
+            // Don't show toast here - let the calling component handle it
           })
           .catch(error => {
             this.#toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');

@@ -5,7 +5,6 @@
   padding: 1.5rem;
   background-color: white;
   border-radius: 12px;
-  margin: 0.5rem 0;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-height: 120px;
@@ -61,7 +60,7 @@
 
 @media (max-width: 768px) {
   .filters-inline {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .quick-filters {
