@@ -1,7 +1,6 @@
 <div
   class="detail-view-container"
   [style.view-transition-name]="viewTransitionName()"
-  [style.background]="serviceGradient()"
 >
   <!-- Loading State -->
   @if (isLoading()) {
@@ -19,6 +18,29 @@
   <!-- Main Content -->
   @if (!isLoading() && !notFound() && (user() || appointment())) {
     <div class="detail-view-content" [style.view-transition-name]="contentTransitionName()">
+      <!-- Mobile Header for Appointments -->
+      @if (type() === 'appointment' && appointment()) {
+        <div class="mobile-appointment-header">
+          <pelu-button
+            label="←"
+            [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
+            variant="text"
+            severity="contrast"
+            [rounded]="true"
+            class="mobile-back-btn"
+            (clicked)="onBack()"
+          >
+          </pelu-button>
+
+          <pelu-appointment-status-badge
+            [appointmentData]="{ date: appointment()?.data || '', time: appointment()?.hora || '' }"
+            [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }"
+            class="mobile-status-badge"
+          >
+          </pelu-appointment-status-badge>
+        </div>
+      }
+
       <!-- Header Section -->
       <div class="header-section">
         <!-- Profile Header -->
@@ -87,41 +109,11 @@
 
       <!-- Card Content -->
       <div class="card-content">
-        <!-- Mobile Back Button -->
-        @if (type() === 'appointment' && appointment()) {
-          <div class="mobile-back-section">
-            <pelu-button
-              [label]="'← ' + ('COMMON.ACTIONS.BACK' | translate)"
-              [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
-              variant="text"
-              severity="secondary"
-              class="mobile-back-btn"
-              (clicked)="onBack()"
-            >
-            </pelu-button>
-          </div>
-        }
-
-        <!-- Status Badge (for appointments) -->
-        @if (type() === 'appointment' && appointment()) {
-          <div class="info-section status-section-mobile">
-            <div class="status-header">
-              <h2>{{ 'APPOINTMENTS.STATUS' | translate }}</h2>
-            </div>
-            <pelu-appointment-status-badge
-              [appointmentData]="{ date: appointment()?.data || '', time: appointment()?.hora || '' }"
-              [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }"
-            >
-            </pelu-appointment-status-badge>
-          </div>
-        }
-
         <!-- Edit Form (when editing appointments) - IN-PLACE -->
         @if (type() === 'appointment' && isEditing() && appointment()) {
           <div class="info-section edit-section">
             <h2>
-              {{ 'COMMON.ACTIONS.EDIT' | translate }}
-              {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}
+              {{ 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS' | translate }}
             </h2>
 
             <div class="edit-form">
@@ -141,7 +133,7 @@
                 <!-- Date - EDITABLE -->
                 <div class="form-group">
                   <pelu-input-date
-                    label="COMMON.DATE"
+                    [label]="'COMMON.DATE'"
                     [required]="true"
                     [value]="appointment()?.data || ''"
                     (valueChange)="onUpdateForm('data', $event)"
@@ -152,7 +144,7 @@
                 <!-- Time - EDITABLE -->
                 <div class="form-group">
                   <pelu-input-text
-                    [label]="'COMMON.HOURS'"
+                    [label]="'COMMON.TIME.HOURS'"
                     [placeholder]="'HH:MM'"
                     [required]="true"
                     [value]="appointment()?.hora || ''"
@@ -161,59 +153,14 @@
                   </pelu-input-text>
                 </div>
 
-                <!-- Service - EDITABLE -->
-                <div class="form-group">
-                  <pelu-input-text
-                    [label]="'COMMON.SERVICE'"
-                    [placeholder]="'COMMON.SERVICE'"
-                    [required]="true"
-                    [value]="appointment()?.serviceId || ''"
-                    (valueChange)="onUpdateForm('serviceId', $event)"
-                  >
-                  </pelu-input-text>
-                </div>
-
-                <!-- Service Name - READ ONLY -->
-                <div class="form-group">
-                  <pelu-input-text
-                    [label]="'APPOINTMENTS.SERVICE_FULL_NAME'"
-                    [value]="service()?.name || 'N/A'"
-                    [disabled]="true"
-                    [readonly]="true"
-                  >
-                  </pelu-input-text>
-                </div>
-
-                <!-- Duration - READ ONLY -->
-                <div class="form-group">
-                  <pelu-input-number
-                    [label]="'COMMON.UNITS.DURATION_MINUTES'"
-                    [value]="service()?.duration || 60"
-                    [disabled]="true"
-                    [readonly]="true"
-                  >
-                  </pelu-input-number>
-                </div>
-
-                <!-- Price - READ ONLY -->
-                <div class="form-group">
-                  <pelu-input-number
-                    [label]="'COMMON.PRICE'"
-                    [value]="service()?.price || 0"
-                    [disabled]="true"
-                    [readonly]="true"
-                  >
-                  </pelu-input-number>
-                </div>
-
-                <!-- Notes - READ ONLY -->
+                <!-- Notes - EDITABLE -->
                 <div class="form-group full-width">
                   <pelu-input-textarea
                     [label]="'COMMON.NOTES'"
+                    [placeholder]="'COMMON.NOTES'"
                     [value]="appointment()?.notes || ''"
-                    [disabled]="true"
-                    [readonly]="true"
                     [rows]="3"
+                    (valueChange)="onUpdateForm('notes', $event)"
                   >
                   </pelu-input-textarea>
                 </div>
@@ -222,18 +169,15 @@
               <!-- Action Buttons -->
               <div class="form-actions">
                 <pelu-button
-                  [label]="'COMMON.ACTIONS.SAVE'"
-                  [disabled]="!hasChanges()"
-                  severity="primary"
-                  (clicked)="onSave()"
-                >
-                </pelu-button>
-                <pelu-button
                   [label]="'COMMON.ACTIONS.CANCEL'"
                   severity="secondary"
                   (clicked)="onCancelEdit()"
-                >
-                </pelu-button>
+                />
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.SAVE'"
+                  severity="primary"
+                  (clicked)="onSave()"
+                />
               </div>
             </div>
           </div>

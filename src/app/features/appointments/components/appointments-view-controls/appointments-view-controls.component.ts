@@ -37,6 +37,13 @@ export interface ViewButton {
         gap: 0.5rem;
         z-index: 1000;
       }
+
+      /* Hide view toggle buttons on mobile */
+      @media (max-width: 768px) {
+        .view-toggle-fab {
+          display: none;
+        }
+      }
     `,
   ],
 })

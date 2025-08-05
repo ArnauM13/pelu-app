@@ -327,7 +327,8 @@
       "BOOKING_CONFIRMATION": "Confirm Booking"
     },
     "EDIT_APPOINTMENT_DESCRIPTION": "Modify appointment details",
-    "DELETE_APPOINTMENT_DESCRIPTION": "Permanently delete the appointment"
+    "DELETE_APPOINTMENT_DESCRIPTION": "Permanently delete the appointment",
+    "EDIT_APPOINTMENT_DETAILS": "Edit appointment details"
   },
   "BOOKING": {
     "SELECT_SERVICE": "New booking",

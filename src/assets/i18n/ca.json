@@ -69,6 +69,7 @@
     "ADMIN_WARNING_DETAIL_3": "Pots eliminar la reserva si cal",
     "TIME": {
       "HOUR": "Hora",
+      "HOURS": "Hora",
       "TODAY": "Avui",
       "TOMORROW": "Demà",
       "PAST": "Passat",
@@ -349,7 +350,10 @@
     "DELETE_CONFIRMATION_TITLE": "Eliminar cita",
     "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la cita de {{clientName}} del {{date}}? Aquesta acció no es pot desfer.",
     "EDIT_APPOINTMENT_DESCRIPTION": "Modifica els detalls de la cita",
-    "DELETE_APPOINTMENT_DESCRIPTION": "Elimina permanentment la cita"
+    "DELETE_APPOINTMENT_DESCRIPTION": "Elimina permanentment la cita",
+    "EDIT_APPOINTMENT_DETAILS": "Editar detalls de la cita",
+    "UPDATE_SUCCESS": "Cita actualitzada correctament",
+    "DELETE_SUCCESS": "Cita eliminada correctament"
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nova reserva",

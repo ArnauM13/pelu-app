@@ -97,6 +97,8 @@ export class AppointmentManagementService {
   async loadAppointment(appointmentId: string): Promise<void> {
     try {
       this.isLoadingSignal.set(true);
+      this.appointmentSignal.set(null); // Clear previous appointment
+      this.serviceSignal.set(null); // Clear previous service
 
       const appointment = await this.#bookingService.getBookingByIdWithToken(appointmentId);
       if (appointment) {
@@ -111,16 +113,23 @@ export class AppointmentManagementService {
         // Load available services
         const allServices = this.#servicesService.getAllServices();
         this.availableServicesSignal.set(allServices);
+      } else {
+        // Appointment not found
+        this.appointmentSignal.set(null);
+        this.serviceSignal.set(null);
+        console.warn(`Appointment with ID ${appointmentId} not found`);
       }
     } catch (error) {
       console.error('Error loading appointment:', error);
       this.#toastService.showGenericError('Error loading appointment');
+      this.appointmentSignal.set(null);
+      this.serviceSignal.set(null);
     } finally {
       this.isLoadingSignal.set(false);
     }
   }
 
-  async loadAvailableTimeSlots(date: string): Promise<void> {
+  async loadAvailableTimeSlots(): Promise<void> {
     try {
       // For now, return empty array since getAvailableTimeSlots doesn't exist
       // TODO: Implement when BookingService has this method
@@ -133,7 +142,7 @@ export class AppointmentManagementService {
 
   startEditing(): void {
     this.isEditingSignal.set(true);
-    this.hasChangesSignal.set(false);
+    this.hasChangesSignal.set(true);
   }
 
   cancelEditing(): void {
@@ -156,7 +165,7 @@ export class AppointmentManagementService {
 
     // If date or time changed, reload available time slots
     if (field === 'data' || field === 'hora') {
-      this.loadAvailableTimeSlots(updatedAppointment.data);
+      this.loadAvailableTimeSlots();
     }
   }
 

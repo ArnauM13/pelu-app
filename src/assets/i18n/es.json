@@ -325,7 +325,8 @@
       "QUICK_BOOKING_LABEL": "Añadir nueva cita rápidamente"
     },
     "EDIT_APPOINTMENT_DESCRIPTION": "Modificar detalles de la cita",
-    "DELETE_APPOINTMENT_DESCRIPTION": "Eliminar permanentemente la cita"
+    "DELETE_APPOINTMENT_DESCRIPTION": "Eliminar permanentemente la cita",
+    "EDIT_APPOINTMENT_DETAILS": "Editar detalles de la cita"
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nueva reserva",

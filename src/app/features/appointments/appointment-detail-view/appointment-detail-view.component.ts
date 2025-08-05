@@ -1,7 +1,9 @@
-import { Component, input, computed, inject, effect } from '@angular/core';
+import { Component, input, computed, inject, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { map, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 import { DetailViewComponent, DetailViewConfig } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
@@ -29,7 +31,7 @@ import { BookingForm } from '../../../core/interfaces/booking.interface';
   `,
   styleUrls: ['./appointment-detail-view.component.scss'],
 })
-export class AppointmentDetailViewComponent {
+export class AppointmentDetailViewComponent implements OnDestroy {
   // Input signals
   readonly appointmentId = input<string | null>(null);
 
@@ -37,6 +39,7 @@ export class AppointmentDetailViewComponent {
   #router = inject(Router);
   #route = inject(ActivatedRoute);
   #appointmentManagementService = inject(AppointmentManagementService);
+  #destroy$ = new Subject<void>();
 
   // Computed properties from service
   readonly appointment = this.#appointmentManagementService.appointment;
@@ -134,16 +137,26 @@ export class AppointmentDetailViewComponent {
       }
     });
 
-    // Also load from route parameters if no appointmentId input
+    // Load from route parameters using observable
     effect(() => {
       const appointmentId = this.appointmentId();
       if (!appointmentId) {
-        const routeId = this.#route.snapshot.paramMap.get('id');
-        if (routeId) {
-          this.#appointmentManagementService.loadAppointment(routeId);
-        }
+        // Subscribe to route parameter changes
+        this.#route.paramMap.pipe(
+          map(params => params.get('id')),
+          takeUntil(this.#destroy$)
+        ).subscribe(routeId => {
+          if (routeId) {
+            this.#appointmentManagementService.loadAppointment(routeId);
+          }
+        });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.#destroy$.next();
+    this.#destroy$.complete();
   }
 
   // Event handlers
