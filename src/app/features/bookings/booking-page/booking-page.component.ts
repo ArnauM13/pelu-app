@@ -162,18 +162,13 @@ export class BookingPageComponent {
   async onBookingConfirmed(details: BookingDetails) {
     try {
       const bookingData = {
-        nom: details.clientName,
+        clientName: details.clientName,
         email: details.email,
         data: details.date,
         hora: details.time,
-        serviceName: details.service?.name || '',
         serviceId: details.service?.id || '',
-        duration: details.service?.duration || 60,
-        price: details.service?.price || 0,
         notes: '',
         status: 'confirmed' as const,
-        editToken: '',
-        uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
@@ -192,11 +187,21 @@ export class BookingPageComponent {
   onServiceSelected(event: { details: ServiceSelectionDetails; service: FirebaseService }) {
     this.showServiceSelectionPopupSignal.set(false);
 
+    // Fill from user if missing
+    let clientName = event.details.clientName;
+    let email = event.details.email;
+    if (!clientName && this.isAuthenticated()) {
+      clientName = this.authService.userDisplayName() || '';
+    }
+    if (!email && this.isAuthenticated()) {
+      email = this.authService.user()?.email || '';
+    }
+
     const bookingDetails: BookingDetails = {
       date: event.details.date,
       time: event.details.time,
-      clientName: event.details.clientName,
-      email: event.details.email,
+      clientName,
+      email,
       service: event.service,
     };
 
