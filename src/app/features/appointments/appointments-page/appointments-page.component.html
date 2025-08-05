@@ -11,7 +11,7 @@
       <div class="content-section">
         <pelu-appointments-stats
           [stats]="appointmentStats()"
-          (onQuickFilterChange)="setQuickFilter($event)"
+          (quickFilterChange)="setQuickFilter($event)"
         >
         </pelu-appointments-stats>
       </div>
@@ -35,16 +35,10 @@
           [onClientChange]="setFilterClient"
           [onServiceChange]="setFilterService"
           [onReset]="clearAllFilters"
+          (reset)="clearAllFilters()"
         >
         </pelu-filters-inline>
       </div>
-
-      <!-- View Mode Toggle (main action - right side) -->
-      <pelu-appointments-view-controls
-        [viewButtons]="viewButtons()"
-        (onViewModeChange)="setViewMode($event)"
-      >
-      </pelu-appointments-view-controls>
 
       <!-- Calendar View -->
       @if (viewMode() === 'calendar') {
@@ -94,5 +88,14 @@
         </div>
       }
     </div>
+
+    <!-- TODO -->
+      <!-- View Mode Toggle -->
+      <pelu-appointments-view-controls
+        [viewButtons]="viewButtons()"
+        (onViewModeChange)="setViewMode($event)"
+      >
+      </pelu-appointments-view-controls>
+
   }
 </div>

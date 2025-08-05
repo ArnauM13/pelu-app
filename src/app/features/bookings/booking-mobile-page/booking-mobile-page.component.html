@@ -2,28 +2,62 @@
   <!-- Step 1: Service Selection -->
   @if (currentStep() === 'service') {
     <div class="step-content service-step">
-      <div class="center m-2">
-        <p>{{ 'BOOKING.SELECT_SERVICE_DESCRIPTION' | translate }}</p>
-      </div>
-
-      <div class="services-grid">
-        @for (service of availableServices(); track service.id) {
-          <div
-            class="service-item"
-            [class.selected]="selectedService()?.id === service.id"
-            (click)="onServiceSelected(service)"
-          >
-            <div class="service-icon">{{ service.icon }}</div>
-            <div class="service-info">
-              <div class="service-name">{{ service.name }}</div>
-              <div class="service-duration">
-                {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
+      <!-- Popular Services Section -->
+      @if (popularServices().length > 0) {
+        <div class="services-section">
+          <h4 class="section-title">⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
+          <div class="services-grid">
+            @for (service of popularServices(); track service.id) {
+              <div
+                class="service-item"
+                [class.selected]="selectedService()?.id === service.id"
+                (click)="onServiceSelected(service)"
+              >
+                <div class="service-icon">{{ service.icon }}</div>
+                <div class="service-info">
+                  <div class="service-name">{{ service.name }}</div>
+                  <div class="service-duration">
+                    {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
+                  </div>
+                </div>
+                <div class="service-price">{{ service.price | currency }}</div>
               </div>
-            </div>
-            <div class="service-price">{{ service.price | currency }}</div>
+            }
           </div>
-        }
-      </div>
+        </div>
+      }
+
+      <!-- Other Services Section -->
+      @if (otherServices().length > 0) {
+        <div class="services-section">
+          <h4 class="section-title">{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
+          <div class="services-grid">
+            @for (service of otherServices(); track service.id) {
+              <div
+                class="service-item"
+                [class.selected]="selectedService()?.id === service.id"
+                (click)="onServiceSelected(service)"
+              >
+                <div class="service-icon">{{ service.icon }}</div>
+                <div class="service-info">
+                  <div class="service-name">{{ service.name }}</div>
+                  <div class="service-duration">
+                    {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
+                  </div>
+                </div>
+                <div class="service-price">{{ service.price | currency }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- No Services Available -->
+      @if (availableServices().length === 0) {
+        <div class="no-services">
+          <p>{{ 'COMMON.SELECTION.NO_SERVICES_AVAILABLE' | translate }}</p>
+        </div>
+      }
     </div>
   }
 

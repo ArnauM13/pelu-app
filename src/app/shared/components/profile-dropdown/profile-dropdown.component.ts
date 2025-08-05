@@ -43,7 +43,7 @@ export interface ProfileDropdownItem {
                   class="dropdown-item"
                   [class.danger]="item.type === 'danger'"
                   [class.disabled]="item.disabled"
-                  (click)="onItemClick(item)"
+                  (click)="onItemClick(item, $event)"
                 >
                   @if (item.emoji) {
                     <span class="item-emoji">{{ item.emoji }}</span>
@@ -59,7 +59,7 @@ export interface ProfileDropdownItem {
                   [class.danger]="item.type === 'danger'"
                   [class.disabled]="item.disabled"
                   [disabled]="item.disabled"
-                  (click)="onItemClick(item)"
+                  (click)="onItemClick(item, $event)"
                 >
                   @if (item.emoji) {
                     <span class="item-emoji">{{ item.emoji }}</span>
@@ -149,8 +149,13 @@ export class ProfileDropdownComponent {
     this.isDropdownOpenSignal.set(false);
   }
 
-  onItemClick(item: ProfileDropdownItem) {
+  onItemClick(item: ProfileDropdownItem, event?: Event) {
     if (item.disabled) return;
+
+    // Stop event propagation to prevent bubbling
+    if (event) {
+      event.stopPropagation();
+    }
 
     this.closeDropdown();
 

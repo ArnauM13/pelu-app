@@ -1,4 +1,4 @@
-import { Component, input, computed, Signal, inject } from '@angular/core';
+import { Component, input, output, computed, Signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -37,6 +37,9 @@ export class FiltersInlineComponent {
   readonly onClientChange = input<((value: string) => void) | undefined>();
   readonly onServiceChange = input<((value: string) => void) | undefined>();
   readonly onReset = input<(() => void) | undefined>();
+
+  // Output events
+  readonly reset = output<void>();
 
   // Reactive Form
   readonly filtersForm: FormGroup;
@@ -112,6 +115,25 @@ export class FiltersInlineComponent {
         this.onServiceChange()?.(values.service);
       }
     });
+
+    // Effect to sync external filter values with form
+    effect(() => {
+      const currentDate = this.filterDateValue();
+      const currentClient = this.filterClientValue();
+      const currentService = this.filterServiceValue();
+
+      // Only update if values are different to avoid infinite loops
+      const formValues = this.filtersForm.value;
+      if (formValues.date !== currentDate ||
+          formValues.client !== currentClient ||
+          formValues.service !== currentService) {
+        this.filtersForm.patchValue({
+          date: currentDate,
+          client: currentClient,
+          service: currentService
+        }, { emitEvent: false }); // Prevent triggering valueChanges
+      }
+    });
   }
 
   onDateChangeHandler(value: string | Date | null) {
@@ -133,7 +155,22 @@ export class FiltersInlineComponent {
   }
 
   onResetHandler() {
-    this.filtersForm.reset();
+    // Reset the form to initial state
+    this.filtersForm.patchValue({
+      date: '',
+      client: '',
+      service: ''
+    }, { emitEvent: false });
+
+    // Call the callback to notify parent component
     this.onReset()?.();
+
+    // Emit the reset event
+    this.reset.emit();
+
+    // Force a manual reset of the form controls
+    this.filtersForm.get('date')?.setValue('');
+    this.filtersForm.get('client')?.setValue('');
+    this.filtersForm.get('service')?.setValue('');
   }
 }

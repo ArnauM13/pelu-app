@@ -71,7 +71,8 @@ export class BookingService {
    * Create a complete booking with all required information
    */
   async createBooking(
-    bookingData: Omit<Booking, 'id' | 'createdAt'>
+    bookingData: Omit<Booking, 'id' | 'createdAt'>,
+    showToast: boolean = true
   ): Promise<Booking | null> {
     try {
       this.isLoadingSignal.set(true);
@@ -127,7 +128,9 @@ export class BookingService {
         });
       }
 
-      this.toastService.showAppointmentCreated(bookingData.clientName || 'Client', uniqueId);
+      if (showToast) {
+        this.toastService.showAppointmentCreated(bookingData.clientName || 'Client', uniqueId);
+      }
 
       return newBooking;
     } catch (error) {
@@ -465,7 +468,7 @@ export class BookingService {
       const errorMessage = error instanceof Error ? error.message : 'Error deleting booking';
       this.errorSignal.set(errorMessage);
 
-      this.toastService.showGenericError('Error deleting booking');
+      // Don't show toast here - let the calling component handle it
       return false;
     } finally {
       this.isLoadingSignal.set(false);

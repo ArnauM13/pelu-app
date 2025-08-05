@@ -212,9 +212,7 @@ export class AppointmentManagementService {
       const success = await this.#bookingService.deleteBooking(appointment.id);
 
       if (success) {
-        this.#toastService.showSuccess(
-          this.#translateService.instant('APPOINTMENTS.DELETE_SUCCESS')
-        );
+        // Don't show toast here - let the calling component handle it
         return true;
       } else {
         this.#toastService.showGenericError('Error deleting appointment');

@@ -1,12 +1,11 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
 import { CardComponent } from '../card/card.component';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
-import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { ServiceTranslationService } from '../../../core/services/service-translation.service';
+import { ServicesService } from '../../../core/services/services.service';
 import { isFutureAppointment } from '../../services';
 import { Booking } from '../../../core/interfaces/booking.interface';
 
@@ -24,7 +23,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
   template: `
     @if (bookings().length === 0) {
       <div class="full-screen-empty-state">
-        <pelu-not-found-state [config]="notFoundConfig" (buttonClick)="onClearFilters.emit()">
+        <pelu-not-found-state [config]="notFoundConfig" (buttonClick)="clearFilters.emit()">
         </pelu-not-found-state>
       </div>
     } @else {
@@ -47,7 +46,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
           @for (booking of bookings(); track booking.id) {
             <!-- Service color functionality temporarily disabled - uncomment to restore colored appointments -->
             <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((booking.serviceName || booking.servei || '') + '')" (click)="onViewBooking.emit(booking)"> -->
-            <div class="appointment-item" (click)="onViewBooking.emit(booking)">
+            <div class="appointment-item" (click)="viewBooking.emit(booking)">
               <div class="appointment-info">
                 <div class="client-info">
                   <div class="client-name-row">
@@ -83,10 +82,10 @@ import { Booking } from '../../../core/interfaces/booking.interface';
                         <span class="detail-text">{{ 'COMMON.NO_DATE_SET' | translate }}</span>
                       </div>
                     }
-                    @if (booking.duration) {
+                    @if (getServiceDuration(booking)) {
                       <div class="detail-item">
                         <span class="detail-icon">⏱️</span>
-                        <span class="detail-text">{{ booking.duration }} min</span>
+                        <span class="detail-text">{{ getServiceDuration(booking) }} min</span>
                       </div>
                     }
                     @if (getServiceName(booking)) {
@@ -107,7 +106,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
               <div class="appointment-actions-container">
                 <button
                   class="btn btn-primary"
-                  (click)="$event.stopPropagation(); onViewBooking.emit(booking)"
+                  (click)="$event.stopPropagation(); viewBooking.emit(booking)"
                   [pTooltip]="'COMMON.CLICK_TO_VIEW' | translate"
                   pTooltipPosition="left"
                 >
@@ -116,7 +115,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
                 @if (isFutureAppointment({ data: booking.data || '', hora: booking.hora || '' })) {
                   <button
                     class="btn btn-secondary"
-                    (click)="$event.stopPropagation(); onEditBooking.emit(booking)"
+                    (click)="$event.stopPropagation(); editBooking.emit(booking)"
                     [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
                     pTooltipPosition="left"
                   >
@@ -124,7 +123,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
                   </button>
                   <button
                     class="btn btn-danger"
-                    (click)="$event.stopPropagation(); onDeleteBooking.emit(booking)"
+                    (click)="$event.stopPropagation(); deleteBooking.emit(booking)"
                     [pTooltip]="'COMMON.DELETE_CONFIRMATION' | translate"
                     pTooltipPosition="left"
                   >
@@ -144,19 +143,10 @@ import { Booking } from '../../../core/interfaces/booking.interface';
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 60vh;
         background: var(--surface-color);
         border-radius: 16px;
         box-shadow: var(--box-shadow);
         border: 1px solid var(--border-color);
-        margin: 2rem 0;
-      }
-
-      @media (max-width: 768px) {
-        .full-screen-empty-state {
-          min-height: 50vh;
-          margin: 1rem 0;
-        }
       }
 
       .card-header {
@@ -375,11 +365,6 @@ import { Booking } from '../../../core/interfaces/booking.interface';
       }
 
       @media (max-width: 768px) {
-        .full-screen-empty-state {
-          min-height: 50vh;
-          margin: 1rem 0;
-        }
-
         .empty-state-content {
           padding: 3rem 1rem;
         }
@@ -403,12 +388,14 @@ export class AppointmentsListComponent {
   bookings = input.required<Booking[]>();
   hasActiveFilters = input.required<boolean>();
 
-  onViewBooking = output<Booking>();
-  onEditBooking = output<Booking>();
-  onDeleteBooking = output<Booking>();
-  onClearFilters = output<void>();
+  viewBooking = output<Booking>();
+  editBooking = output<Booking>();
+  deleteBooking = output<Booking>();
+  clearFilters = output<void>();
 
   readonly isFutureAppointment = isFutureAppointment;
+
+  #servicesService = inject(ServicesService);
 
   get notFoundConfig() {
     return {
@@ -422,13 +409,8 @@ export class AppointmentsListComponent {
     };
   }
 
-  constructor(
-    public serviceColorsService: ServiceColorsService,
-    private serviceTranslationService: ServiceTranslationService
-  ) {}
-
   getClientName(booking: Booking): string {
-    return booking.nom || booking.title || booking.clientName || 'Client';
+    return booking.clientName;
   }
 
   isToday(dateString: string): boolean {
@@ -445,11 +427,31 @@ export class AppointmentsListComponent {
     return date.toLocaleDateString();
   }
 
-  getTranslatedServiceName(serviceName: string | undefined): string {
-    return this.serviceTranslationService.translateServiceName(serviceName || '');
+  getServiceName(booking: Booking): string {
+    if (!booking.serviceId) {
+      return '';
+    }
+
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return '';
+    }
+
+    return this.#servicesService.getServiceName(service);
   }
 
-  getServiceName(booking: Booking): string {
-    return booking.serviceName || booking.servei || '';
+  getServiceDuration(booking: Booking): number {
+    if (!booking.serviceId) {
+      return 60; // Default duration
+    }
+
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return 60; // Default duration
+    }
+
+    return service.duration;
   }
 }

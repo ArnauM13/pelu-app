@@ -8,7 +8,7 @@
     var(--background-color) 0%,
     var(--secondary-color-light) 100%
   );
-  padding: 0;
+  padding: 1rem;
   overflow: hidden;
 }
 
@@ -18,8 +18,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   max-width: 900px;
   width: 100%;
-  padding: 2rem 2rem 1.5rem 2rem;
-  margin: 1rem auto;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -163,8 +162,7 @@
 
 @media (max-width: 768px) {
   .dashboard-card {
-    padding: 1.5rem 1rem 1rem 1rem;
-    margin: 0.5rem;
+    padding: 1rem;
   }
 
   .dashboard-header h1 {
@@ -188,7 +186,7 @@
 
 @media (max-width: 480px) {
   .dashboard-card {
-    padding: 1rem 0.75rem 0.75rem 0.75rem;
+    padding: 1rem;
   }
 
   .dashboard-header h1 {

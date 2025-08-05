@@ -162,6 +162,16 @@ export class BookingMobilePageComponent {
   // Available services
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
 
+  // Popular services (services with popular flag)
+  readonly popularServices = computed(() =>
+    this.availableServices().filter(service => service.isPopular === true)
+  );
+
+  // Other services (non-popular services)
+  readonly otherServices = computed(() =>
+    this.availableServices().filter(service => service.isPopular !== true)
+  );
+
   // Week days computation
   readonly weekDays = computed(() => {
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
@@ -353,7 +363,7 @@ export class BookingMobilePageComponent {
         status: 'confirmed' as const,
       };
 
-      const booking = await this.bookingService.createBooking(bookingData);
+      const booking = await this.bookingService.createBooking(bookingData, false);
 
       if (booking) {
         // Store the created booking for the success page
@@ -541,7 +551,7 @@ export class BookingMobilePageComponent {
         status: 'confirmed' as const,
       };
 
-      const booking = await this.bookingService.createBooking(bookingData);
+      const booking = await this.bookingService.createBooking(bookingData, false);
 
       if (booking) {
         // Show login prompt for anonymous users

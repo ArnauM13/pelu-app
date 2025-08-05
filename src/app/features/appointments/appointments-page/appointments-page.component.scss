@@ -33,19 +33,6 @@
   }
 }
 
-// Mobile adaptations for appointments content
-@media (max-width: 768px) {
-  .appointments-content {
-    gap: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .appointments-content {
-    gap: 0.5rem;
-  }
-}
-
 // Background styles like landing page and services page
 :host {
   background: linear-gradient(
@@ -121,7 +108,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin: 2rem 0 2rem 0;
 }
 
 .stat-card {

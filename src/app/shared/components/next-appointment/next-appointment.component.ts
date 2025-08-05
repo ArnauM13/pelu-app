@@ -56,7 +56,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
 
               <div class="duration-info">
                 <span class="duration-icon">⏱️</span>
-                <span class="duration-text">60 min</span>
+                <span class="duration-text">{{ getServiceDuration(booking) }} min</span>
               </div>
             </div>
             <!-- Mobile view detail button -->
@@ -97,7 +97,6 @@ import { Booking } from '../../../core/interfaces/booking.interface';
         box-shadow: var(--box-shadow);
         border: 2px solid var(--border-color);
         transition: all 0.3s ease;
-        margin-bottom: 1rem;
       }
 
       .next-appointment-card:hover {
@@ -315,7 +314,6 @@ import { Booking } from '../../../core/interfaces/booking.interface';
       @media (max-width: 768px) {
         .next-appointment-card {
           padding: 1rem;
-          margin-bottom: 0.75rem;
           border-radius: 12px;
         }
 
@@ -449,7 +447,6 @@ import { Booking } from '../../../core/interfaces/booking.interface';
       @media (max-width: 480px) {
         .next-appointment-card {
           padding: 1rem;
-          margin-bottom: 0.5rem;
         }
 
         .appointment-header {
@@ -661,6 +658,20 @@ export class NextAppointmentComponent {
     }
 
     return this.#servicesService.getServiceName(service);
+  }
+
+  getServiceDuration(booking: Booking): number {
+    if (!booking.serviceId) {
+      return 60; // Default duration
+    }
+
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return 60; // Default duration
+    }
+
+    return service.duration;
   }
 
   getClientName(booking: Booking): string {

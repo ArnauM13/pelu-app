@@ -72,6 +72,13 @@
   }
 }
 
+// Hide mobile appointment header on desktop
+@media (min-width: 769px) {
+  .mobile-appointment-header {
+    display: none !important;
+  }
+}
+
 // Header Section
 .header-section {
   flex-shrink: 0;

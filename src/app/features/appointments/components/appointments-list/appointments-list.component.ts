@@ -105,19 +105,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 60vh;
         background: var(--surface-color);
         border-radius: 16px;
         box-shadow: var(--box-shadow);
         border: 1px solid var(--border-color);
-        margin: 2rem 0;
-      }
-
-      @media (max-width: 768px) {
-        .full-screen-empty-state {
-          min-height: 50vh;
-          margin: 1rem 0;
-        }
       }
 
       .card-header {
@@ -336,11 +327,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
       }
 
       @media (max-width: 768px) {
-        .full-screen-empty-state {
-          min-height: 50vh;
-          margin: 1rem 0;
-        }
-
         .empty-state-content {
           padding: 3rem 1rem;
         }

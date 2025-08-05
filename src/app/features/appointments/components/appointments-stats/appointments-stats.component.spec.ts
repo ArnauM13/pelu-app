@@ -14,7 +14,7 @@ class MockTranslateLoader implements TranslateLoader {
 // Test wrapper component to provide input signals
 @Component({
   template: `
-    <pelu-appointments-stats [stats]="stats()" (onQuickFilterChange)="onQuickFilterChange($event)">
+            <pelu-appointments-stats [stats]="stats()" (quickFilterChange)="onQuickFilterChange($event)">
     </pelu-appointments-stats>
   `,
   imports: [AppointmentsStatsComponent],
@@ -96,7 +96,7 @@ describe('AppointmentsStatsComponent', () => {
 
   it('should emit quick filter change when stat card is clicked', () => {
     const compiled = fixture.nativeElement;
-    const spy = spyOn(component.onQuickFilterChange, 'emit');
+    const spy = spyOn(component.quickFilterChange, 'emit');
 
     // Click on the first stat card (total)
     const firstStatCard = compiled.querySelector('.stat-card');

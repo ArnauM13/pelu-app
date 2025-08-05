@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -14,7 +14,7 @@ export interface AppointmentStats {
   imports: [CommonModule, TranslateModule],
   template: `
     <div class="stats-grid" style="view-transition-name: stats-grid">
-      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('all')">
+              <div class="stat-card clickable" (click)="quickFilterChange.emit('all')">
         <div class="stat-icon">📅</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().total }}</div>
@@ -22,7 +22,7 @@ export interface AppointmentStats {
         </div>
       </div>
 
-      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('today')">
+              <div class="stat-card clickable" (click)="quickFilterChange.emit('today')">
         <div class="stat-icon">🎯</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().today }}</div>
@@ -30,7 +30,7 @@ export interface AppointmentStats {
         </div>
       </div>
 
-      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('upcoming')">
+              <div class="stat-card clickable" (click)="quickFilterChange.emit('upcoming')">
         <div class="stat-icon">⏰</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().upcoming }}</div>
@@ -38,7 +38,7 @@ export interface AppointmentStats {
         </div>
       </div>
 
-      <div class="stat-card clickable" (click)="onQuickFilterChange.emit('mine')">
+              <div class="stat-card clickable" (click)="quickFilterChange.emit('mine')">
         <div class="stat-icon">👨</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().mine }}</div>
@@ -53,7 +53,6 @@ export interface AppointmentStats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
-        margin-bottom: 1rem;
         padding: 0.5rem;
       }
 
@@ -101,7 +100,6 @@ export interface AppointmentStats {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 0.5rem;
-          margin-bottom: 1rem;
           padding: 0.5rem;
         }
 
@@ -181,5 +179,5 @@ export interface AppointmentStats {
 export class AppointmentsStatsComponent {
   stats = input.required<AppointmentStats>();
 
-  onQuickFilterChange = output<'all' | 'today' | 'upcoming' | 'mine'>();
+  quickFilterChange = output<'all' | 'today' | 'upcoming' | 'mine'>();
 }
