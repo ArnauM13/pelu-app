@@ -1,40 +1,9 @@
 <div class="mobile-booking-container">
-  <!-- Step Progress Indicator -->
-  <div class="step-progress">
-    <div class="step-indicator" [class.active]="currentStep() === 'service'" [class.completed]="canProceedToDateTime()">
-      <div class="step-number">1</div>
-      <div class="step-label">{{ 'BOOKING.STEPS.SELECT_SERVICE' | translate }}</div>
-    </div>
-    <div class="step-connector" [class.active]="currentStep() === 'datetime' || currentStep() === 'confirmation'"></div>
-    <div class="step-indicator" [class.active]="currentStep() === 'datetime'" [class.completed]="canProceedToConfirmation()">
-      <div class="step-number">2</div>
-      <div class="step-label">{{ 'BOOKING.STEPS.SELECT_DATETIME' | translate }}</div>
-    </div>
-    <div class="step-connector" [class.active]="currentStep() === 'confirmation'"></div>
-    <div class="step-indicator" [class.active]="currentStep() === 'confirmation'">
-      <div class="step-number">3</div>
-      <div class="step-label">{{ 'BOOKING.STEPS.CONFIRM' | translate }}</div>
-    </div>
-  </div>
-
-  <!-- Navigation Header -->
-  <div class="navigation-header">
-    @if (canGoBack()) {
-      <button class="back-btn" (click)="goBack()">
-        <i class="pi pi-chevron-left"></i>
-        {{ 'COMMON.ACTIONS.BACK' | translate }}
-      </button>
-    }
-    <h1 class="page-title">{{ 'COMMON.ACTIONS.BOOK_APPOINTMENT' | translate }}</h1>
-    <div class="header-spacer"></div>
-  </div>
-
   <!-- Step 1: Service Selection -->
   @if (currentStep() === 'service') {
     <div class="step-content service-step">
-      <div class="step-header">
-        <h2>{{ 'BOOKING.STEPS.SELECT_SERVICE_TITLE' | translate }}</h2>
-        <p>{{ 'BOOKING.STEPS.SELECT_SERVICE_DESCRIPTION' | translate }}</p>
+      <div class="center m-2">
+        <p>{{ 'BOOKING.SELECT_SERVICE_DESCRIPTION' | translate }}</p>
       </div>
 
       <div class="services-grid">
@@ -61,107 +30,61 @@
   <!-- Step 2: Date and Time Selection -->
   @if (currentStep() === 'datetime') {
     <div class="step-content datetime-step">
-      <div class="step-header">
-        <h2>{{ 'BOOKING.STEPS.SELECT_DATETIME_TITLE' | translate }}</h2>
-        <p>{{ 'BOOKING.STEPS.SELECT_DATETIME_DESCRIPTION' | translate }}</p>
-      </div>
-
-      <!-- Selected Service Summary -->
-      @if (selectedService()) {
-        <div class="selected-service-summary">
-          <div class="service-card">
-            <div class="service-icon">{{ selectedService()!.icon }}</div>
-            <div class="service-info">
-              <div class="service-name">{{ selectedService()!.name }}</div>
-              <div class="service-duration">{{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</div>
-            </div>
-            <div class="service-price">{{ selectedService()!.price | currency }}</div>
+      <!-- Calendar Card -->
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
+          <div class="calendar-buttons">
+            <button
+              class="quick-date-btn today-btn"
+              [class.disabled]="!canSelectDate(getToday())"
+              (click)="canSelectDate(getToday()) ? selectToday() : null"
+            >
+              <i class="pi pi-calendar"></i>
+              {{ 'BOOKING.QUICK_SELECTION.TODAY' | translate }}
+            </button>
+            <button class="view-toggle-btn" (click)="toggleViewMode()">
+              @if (viewMode() === 'week') {
+                📅
+              } @else {
+                📆
+              }
+            </button>
           </div>
         </div>
-      }
 
-      <!-- View Mode Toggle -->
-      <div class="view-mode-toggle">
-        <button
-          class="view-mode-btn"
-          [class.active]="viewMode() === 'week'"
-          (click)="viewMode() === 'week' ? null : toggleViewMode()"
-        >
-          {{ 'COMMON.VIEWS.CALENDAR.VIEW_WEEK' | translate }}
-        </button>
-        <button
-          class="view-mode-btn"
-          [class.active]="viewMode() === 'month'"
-          (click)="viewMode() === 'month' ? null : toggleViewMode()"
-        >
-          {{ 'COMMON.VIEWS.CALENDAR.VIEW_MONTH' | translate }}
-        </button>
-      </div>
+        <!-- Period Navigation -->
+        <div class="period-navigation">
+          <button
+            class="nav-btn"
+            [class.disabled]="!canGoToPreviousPeriod()"
+            (click)="canGoToPreviousPeriod() ? previousPeriod() : null"
+          >
+            <i class="pi pi-chevron-left"></i>
+          </button>
 
-      <!-- Period Navigation -->
-      <div class="period-navigation">
-        <button
-          class="nav-btn"
-          [class.disabled]="!canGoToPreviousPeriod()"
-          (click)="canGoToPreviousPeriod() ? previousPeriod() : null"
-        >
-          <i class="pi pi-chevron-left"></i>
-        </button>
+          <div class="current-period">
+            @if (viewMode() === 'week') {
+              <span class="period-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
+              <span class="period-date">
+                {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
+                -
+                {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
+              </span>
+            } @else {
+              <span class="period-label">{{ 'COMMON.MONTH_OF' | translate }}</span>
+              <span class="period-date">
+                {{ formatMonth(selectedDate() || getToday()) }}
+              </span>
+            }
+          </div>
 
-        <div class="current-period">
-          @if (viewMode() === 'week') {
-            <span class="period-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
-            <span class="period-date">
-              {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
-              -
-              {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
-            </span>
-          } @else {
-            <span class="period-label">{{ 'COMMON.MONTH_OF' | translate }}</span>
-            <span class="period-date">
-              {{ formatMonth(selectedDate() || getToday()) }}
-            </span>
-          }
+          <button class="nav-btn" (click)="nextPeriod()">
+            <i class="pi pi-chevron-right"></i>
+          </button>
         </div>
 
-        <button class="nav-btn" (click)="nextPeriod()">
-          <i class="pi pi-chevron-right"></i>
-        </button>
-      </div>
-
-      <!-- Quick Date Selection -->
-      <div class="quick-date-buttons">
-        <button
-          class="quick-date-btn today-btn"
-          [class.disabled]="!canSelectDate(getToday())"
-          (click)="canSelectDate(getToday()) ? selectToday() : null"
-        >
-          <i class="pi pi-calendar"></i>
-          {{ 'BOOKING.QUICK_SELECTION.TODAY' | translate }}
-        </button>
-
-        <button
-          class="quick-date-btn tomorrow-btn"
-          [class.disabled]="!canSelectDate(getTomorrow())"
-          (click)="canSelectDate(getTomorrow()) ? selectTomorrow() : null"
-        >
-          <i class="pi pi-calendar-plus"></i>
-          {{ 'BOOKING.QUICK_SELECTION.TOMORROW' | translate }}
-        </button>
-
-        <button
-          class="quick-date-btn next-available-btn"
-          [class.disabled]="!nextAvailableDate()"
-          (click)="nextAvailableDate() ? selectNextAvailable() : null"
-        >
-          <i class="pi pi-calendar-times"></i>
-          {{ 'BOOKING.QUICK_SELECTION.NEXT_AVAILABLE' | translate }}
-        </button>
-      </div>
-
-      <!-- Day Selection -->
-      <div class="day-selection">
-        <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
+        <!-- Day Selection -->
         <div class="days-grid" [class.month-view]="viewMode() === 'month'">
           @for (day of currentViewDays(); track day) {
             <div
@@ -183,33 +106,30 @@
             </div>
           }
         </div>
-      </div>
 
-      <!-- Alert for fully booked day -->
-      @if (selectedDate() && isSelectedDayFullyBooked()) {
-        <div class="alert-card fully-booked-alert">
-          <div class="alert-content">
-            <div class="alert-icon">⚠️</div>
-            <div class="alert-text">
-              <h4>{{ 'BOOKING.FULLY_BOOKED_TITLE' | translate }}</h4>
-              <p>{{ 'BOOKING.FULLY_BOOKED_MESSAGE' | translate }}</p>
+        <!-- Alert for fully booked day -->
+        @if (selectedDate() && isSelectedDayFullyBooked()) {
+          <div class="alert-card fully-booked-alert">
+            <div class="alert-content">
+              <div class="alert-icon">⚠️</div>
+              <div class="alert-text">
+                <h4>{{ 'BOOKING.FULLY_BOOKED_TITLE' | translate }}</h4>
+                <p>{{ 'BOOKING.FULLY_BOOKED_MESSAGE' | translate }}</p>
+              </div>
             </div>
           </div>
-        </div>
-      }
+        }
+      </div>
 
       <!-- Time Slots for Selected Day -->
       @if (selectedDate()) {
         <div class="time-slots-section">
-          <h3>{{ 'BOOKING.SELECT_TIME' | translate }}</h3>
-          <p class="selected-date">{{ selectedDate() ? formatDay(selectedDate()!) : '' }}</p>
-
           @for (daySlot of daySlots(); track daySlot.date) {
             @if (isSelected(daySlot.date)) {
               @if (hasMorningSlots(daySlot)) {
                 <!-- Morning Time Slots -->
                 <div class="time-section">
-                  <h4 class="time-section-title">{{ 'COMMON.TIME.MORNING' | translate }}</h4>
+                  <h4 class="time-section-title">🌅 {{ 'COMMON.TIME.MORNING' | translate }}</h4>
                   <div class="time-slots-grid">
                     @for (timeSlot of getMorningSlots(daySlot); track timeSlot.time) {
                       <div
@@ -274,7 +194,7 @@
               @if (hasAfternoonSlots(daySlot)) {
                 <!-- Afternoon Time Slots -->
                 <div class="time-section">
-                  <h4 class="time-section-title">{{ 'COMMON.TIME.AFTERNOON' | translate }}</h4>
+                  <h4 class="time-section-title">🌆 {{ 'COMMON.TIME.AFTERNOON' | translate }}</h4>
                   <div class="time-slots-grid">
                     @for (timeSlot of getAfternoonSlots(daySlot); track timeSlot.time) {
                       <div
@@ -339,32 +259,16 @@
           }
         </div>
       }
-
-      <!-- Continue Button -->
-      @if (canProceedToConfirmation()) {
-        <div class="continue-section">
-          <button class="continue-btn" (click)="onContinueToConfirmation()">
-            {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
-            <i class="pi pi-chevron-right"></i>
-          </button>
-        </div>
-      }
     </div>
   }
 
   <!-- Step 3: Confirmation -->
   @if (currentStep() === 'confirmation') {
     <div class="step-content confirmation-step">
-      <div class="step-header">
-        <h2>{{ 'BOOKING.STEPS.CONFIRM_TITLE' | translate }}</h2>
-        <p>{{ 'BOOKING.STEPS.CONFIRM_DESCRIPTION' | translate }}</p>
-      </div>
-
       <!-- Booking Summary -->
       <div class="booking-summary">
         <!-- Date and Time Summary -->
-        <div class="summary-section">
-          <h3>{{ 'BOOKING.SUMMARY.DATE_TIME' | translate }}</h3>
+        <div class="selection-summary">
           <div class="summary-item">
             <span class="summary-label">📅 {{ 'COMMON.DATE' | translate }}:</span>
             <span class="summary-value">{{ selectedDate() ? formatDay(selectedDate()!) : '' }}</span>
@@ -395,7 +299,7 @@
                   <span class="service-duration">
                     ⏱️ {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
                   </span>
-                  @if (selectedService()!.popular) {
+                  @if (selectedService()!.isPopular) {
                     <div class="popular-badge">
                       <span class="badge-icon">🔥</span>
                       <span class="badge-text">{{ 'SERVICES.POPULAR' | translate }}</span>
@@ -411,63 +315,76 @@
         <div class="summary-section">
           <h3>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h3>
           <div class="client-info-form">
-                         <div class="form-field">
-               <label for="client-name">{{ 'COMMON.NAME' | translate }}</label>
-               <input
-                 id="client-name"
-                 type="text"
-                 [placeholder]="'COMMON.NAME_PLACEHOLDER' | translate"
-                 [value]="bookingDetails().clientName"
-                 (input)="onClientNameChanged($event)"
-                 required
-               />
-             </div>
-             <div class="form-field">
-               <label for="client-email">{{ 'COMMON.EMAIL' | translate }}</label>
-               <input
-                 id="client-email"
-                 type="email"
-                 [placeholder]="'COMMON.EMAIL_PLACEHOLDER' | translate"
-                 [value]="bookingDetails().email"
-                 (input)="onEmailChanged($event)"
-                 required
-               />
-            </div>
+            <pelu-input-text
+              [label]="'COMMON.NAME'"
+              [placeholder]="'COMMON.NAME_PLACEHOLDER'"
+              [required]="true"
+              [value]="bookingDetails().clientName"
+              (valueChange)="onClientNameChanged($event)"
+            >
+            </pelu-input-text>
+
+            <pelu-input-text
+              [label]="'COMMON.EMAIL'"
+              [placeholder]="'COMMON.EMAIL_PLACEHOLDER'"
+              type="email"
+              [required]="true"
+              [value]="bookingDetails().email"
+              (valueChange)="onEmailChanged($event)"
+            >
+            </pelu-input-text>
           </div>
         </div>
 
-        <!-- Total Price Display -->
-        @if (selectedService()?.price) {
-          <div class="summary-section">
-            <div class="total-price">
-              <span class="total-label">{{ 'COMMON.TOTAL' | translate }}:</span>
-              <span class="total-amount">{{ selectedService()!.price | currency }}</span>
-            </div>
-          </div>
-        }
-      </div>
 
-      <!-- Confirm Button -->
-      <div class="confirm-section">
-        <button class="confirm-btn" (click)="onConfirmBooking()">
-          {{ 'BOOKING.CONFIRM_BOOKING' | translate }}
-        </button>
       </div>
     </div>
   }
-</div>
 
-<!-- Booking Confirmation Popup -->
-<pelu-booking-popup
-  [open]="showBookingPopup()"
-  [bookingDetails]="bookingDetails()"
-  [availableServices]="availableServices()"
-  (confirmed)="onBookingConfirmed($event)"
-  (cancelled)="onBookingCancelled()"
-  (clientNameChanged)="onClientNameChanged($event)"
-  (emailChanged)="onEmailChanged($event)"
->
-</pelu-booking-popup>
+  <!-- Step 4: Success -->
+  @if (currentStep() === 'success') {
+    <div class="step-content success-step">
+      <div class="success-content">
+        <div class="success-icon">✅</div>
+        <h2>{{ 'BOOKING.SUCCESS_TITLE' | translate }}</h2>
+        <p>{{ 'BOOKING.SUCCESS_MESSAGE' | translate }}</p>
+        <p class="email-notice">{{ 'BOOKING.EMAIL_NOTICE' | translate }}</p>
+
+        <div class="success-actions">
+          <button class="btn-primary" (click)="onViewBookingDetail()">
+            {{ 'BOOKING.VIEW_DETAIL' | translate }}
+          </button>
+          <button class="btn-secondary" (click)="onBackToHome()">
+            {{ 'BOOKING.BACK_TO_HOME' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Bottom Navigation -->
+  @if (currentStep() !== 'success') {
+    <div class="bottom-navigation">
+      <button
+        class="nav-btn back-btn"
+        [class.disabled]="!canGoBack()"
+        (click)="canGoBack() ? goBack() : null"
+      >
+        <i class="pi pi-chevron-left"></i>
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
+      </button>
+
+      <button
+        class="nav-btn next-btn"
+        [class.disabled]="!canProceedToNextStep()"
+        (click)="canProceedToNextStep() ? nextStep() : null"
+      >
+        {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+  }
+</div>
 
 <!-- Login Prompt for Anonymous Users -->
 @if (showLoginPrompt()) {
