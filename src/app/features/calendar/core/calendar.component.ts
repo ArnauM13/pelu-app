@@ -6,7 +6,6 @@ import {
   signal,
   inject,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -26,12 +25,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { AppointmentSlotData } from '../slots/appointment-slot.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { BookingService, Booking } from '../../../core/services/booking.service';
+import { BookingService } from '../../../core/services/booking.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
 import { RoleService } from '../../../core/services/role.service';
 import { CalendarCoreService } from '../services/calendar-core.service';
 import { CalendarBusinessService } from '../services/calendar-business.service';
 import { CalendarStateService } from '../services/calendar-state.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ServicesService } from '../../../core/services/services.service';
 import {
   CalendarLoaderComponent,
   CalendarTimeColumnComponent,
@@ -43,6 +44,7 @@ import {
 } from '../components';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { Service } from '../../../core/services/services.service';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -97,6 +99,11 @@ export class CalendarComponent {
   private readonly businessService = inject(CalendarBusinessService);
   private readonly stateService = inject(CalendarStateService);
   private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly servicesService = inject(ServicesService);
+
+  // Service data for popup
+  private loadedService = signal<Service | null>(null);
+  readonly service = computed(() => this.loadedService());
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -161,11 +168,23 @@ export class CalendarComponent {
     const currentUser = this.authService.user();
     const isAdmin = this.roleService.isAdmin();
 
+    console.log('Calendar allEvents - User info:', {
+      currentUser: currentUser?.email,
+      isAdmin,
+      appointmentsCount: appointments.length,
+      roleService: {
+        userRole: this.roleService.userRole(),
+        isLoadingRole: this.roleService.isLoadingRole(),
+        isClient: this.roleService.isClient(),
+        isAdmin: this.roleService.isAdmin()
+      }
+    });
+
     const events = appointments.map(c => {
       // Ensure proper date and time formatting
       const date = c.data || '';
       const time = c.hora || '00:00';
-      const duration = c.duration || 60;
+      const duration = 60; // Will be fetched from service
 
       // Create proper ISO string for start with local timezone
       const startString = `${date}T${time}:00`;
@@ -187,24 +206,60 @@ export class CalendarComponent {
       const endString = formatLocalDateTime(endDate);
 
       // Check if this is a public booking (not owned by current user)
-      const isOwnBooking = !!(currentUser?.uid && c.uid === currentUser.uid);
-      const isPublicBooking = !isAdmin && !isOwnBooking && c.nom === 'Ocupat';
+      const isOwnBooking = !!(currentUser?.email && c.email === currentUser.email);
+      const isPublicBooking = !isAdmin && !isOwnBooking && c.clientName === 'Ocupat';
+
+      // Get service information
+      let serviceName = '';
+      let serviceDuration = duration;
+
+      if (c.serviceId) {
+        // Try to find the service by ID
+        const allServices = this.servicesService.getAllServices();
+        const service = allServices.find(s => s.id === c.serviceId);
+        if (service) {
+          serviceName = service.name;
+          serviceDuration = service.duration;
+        } else {
+          // If service not found, try to get it asynchronously
+          this.servicesService.getServiceById(c.serviceId).then(service => {
+            if (service) {
+              // Update the appointment with the correct service info
+              // This will trigger a re-computation of allEvents
+              console.log('Service found asynchronously:', service.name);
+            }
+          }).catch(error => {
+            console.warn('Error loading service:', error);
+          });
+        }
+      }
+
+      const canDrag = isAdmin || isOwnBooking;
+      const canViewDetails = isAdmin || isOwnBooking;
+
+      console.log('Appointment permissions:', {
+        clientName: c.clientName,
+        isAdmin,
+        isOwnBooking,
+        canDrag,
+        canViewDetails
+      });
 
       return {
         id: c.id || uuidv4(), // Generate unique ID if not exists
         title: isPublicBooking
           ? this.translateService.instant('COMMON.STATUS.RESERVED')
-          : c.nom || 'Client',
+          : c.clientName || 'Client',
         start: startString,
         end: endString,
-        duration: duration,
-        serviceName: c.serviceName || c.servei || '',
-        clientName: c.nom || 'Client',
-        uid: c.uid || '', // Include the user ID
+        duration: serviceDuration,
+        serviceName: serviceName,
+        clientName: c.clientName || 'Client',
+        uid: c.email || '', // Use email as identifier
         isPublicBooking: isPublicBooking,
         isOwnBooking: isOwnBooking,
-        canDrag: isAdmin || isOwnBooking,
-        canViewDetails: isAdmin || isOwnBooking,
+        canDrag: canDrag,
+        canViewDetails: canViewDetails,
       };
     });
 
@@ -216,7 +271,6 @@ export class CalendarComponent {
     }));
   });
 
-  // ✅ Generate 30-minute time slots from 08:00 to 20:00
   readonly timeSlots = computed(() => {
     return this.businessService.generateTimeSlots();
   });
@@ -367,6 +421,12 @@ export class CalendarComponent {
       this.reloadAppointments();
     });
 
+    // Listen for service updates to refresh service colors
+    window.addEventListener('serviceUpdated', () => {
+      // Force a re-computation of allEvents to update service colors
+      console.log('Service updated, refreshing calendar appointments');
+    });
+
     // Mark calendar as mounted after a delay to ensure complete rendering
     if (this.isInitializedSignal()) {
       this.calendarMountedSignal.set(true);
@@ -416,7 +476,6 @@ export class CalendarComponent {
 
       // If user cannot view details, don't open the popup
       if (!canViewDetails || !isOwnBooking) {
-        console.log('User cannot view details for this appointment');
         return;
       }
     }
@@ -426,10 +485,14 @@ export class CalendarComponent {
 
     if (originalAppointment) {
       // Use the original appointment data which has the correct format
-      // Assegurem-nos que té l'userId correcte
-      if (currentUser?.uid && !originalAppointment.userId) {
-        originalAppointment.userId = currentUser.uid;
+      // Assegurem-nos que té l'email correcte
+      if (currentUser?.email && !originalAppointment.email) {
+        originalAppointment.email = currentUser.email;
       }
+
+      // Load service data before opening popup
+      this.loadServiceData(originalAppointment.serviceId);
+
       this.stateService.openAppointmentDetail(originalAppointment);
     } else {
       // Fallback: convert AppointmentEvent to the expected format
@@ -450,7 +513,25 @@ export class CalendarComponent {
         serviceId: '',
       };
 
+      // Load service data before opening popup
+      this.loadServiceData(convertedAppointment.serviceId);
+
       this.stateService.openAppointmentDetail(convertedAppointment);
+    }
+  }
+
+  private async loadServiceData(serviceId: string): Promise<void> {
+    if (!serviceId) {
+      this.loadedService.set(null);
+      return;
+    }
+
+    try {
+      const service = await this.servicesService.getServiceById(serviceId);
+      this.loadedService.set(service);
+    } catch (error) {
+      console.error('Error loading service:', error);
+      this.loadedService.set(null);
     }
   }
 
@@ -501,9 +582,9 @@ export class CalendarComponent {
       const dateMatches = appDate === eventDate;
       const timeMatches = app.hora === eventTime;
 
-      // Also try to match by title/nom
+      // Also try to match by title/clientName
       const titleMatches =
-        app.nom === appointmentEvent.title || app.nom === appointmentEvent.clientName;
+        app.clientName === appointmentEvent.title || app.clientName === appointmentEvent.clientName;
 
       return dateMatches && timeMatches && titleMatches;
     });
@@ -647,7 +728,6 @@ export class CalendarComponent {
     if (!isAdmin) {
       const canNavigate = this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
       if (!canNavigate) {
-        console.log('Non-admin user cannot navigate to past weeks');
         return;
       }
     }
@@ -720,6 +800,8 @@ export class CalendarComponent {
 
   onAppointmentDetailPopupClosed() {
     this.stateService.closeAppointmentDetail();
+    // Reset service data when popup is closed
+    this.loadedService.set(null);
   }
 
   onAppointmentDeleted(booking: Booking) {
@@ -737,17 +819,17 @@ export class CalendarComponent {
     // Convert Booking to AppointmentEvent and emit to parent
     const currentUser = this.authService.user();
     const isAdmin = this.roleService.isAdmin();
-    const isOwnBooking = !!(currentUser?.uid && booking.uid === currentUser.uid);
+    const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
 
     const appointmentEvent: AppointmentEvent = {
       id: booking.id || '',
-      title: booking.nom || 'Appointment',
+      title: booking.clientName || 'Appointment',
       start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
       end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
-      duration: booking.duration,
-      serviceName: booking.servei,
-      clientName: booking.nom,
-      uid: booking.uid || '',
+      duration: 60, // Will be fetched from service
+      serviceName: 'Service', // Will be fetched from service
+      clientName: booking.clientName,
+      uid: booking.email || '',
       isPublicBooking: false,
       isOwnBooking: isOwnBooking,
       canDrag: isAdmin || isOwnBooking,
@@ -763,43 +845,43 @@ export class CalendarComponent {
       return;
     }
 
-    // All appointments are now bookings, so use the direct ID with token
-    if (booking.editToken) {
-      this.router.navigate(['/appointments', booking.id || ''], {
-        queryParams: {
-          token: booking.editToken,
-          edit: 'true',
-        },
-      });
-    } else {
-      // Fallback for appointments without editToken (shouldn't happen)
-      const clientId = currentUser.uid;
-      const uniqueId = `${clientId}-${booking.id || ''}`;
-      this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
-    }
+    // All appointments are now bookings, so use the direct ID
+    this.router.navigate(['/appointments', booking.id || ''], {
+      queryParams: {
+        edit: 'true',
+      },
+    });
 
     // Close the popup
     this.stateService.closeAppointmentDetail();
 
     // Convert Booking to AppointmentEvent and emit to parent
     const isAdmin = this.roleService.isAdmin();
-    const isOwnBooking = !!(currentUser?.uid && booking.uid === currentUser.uid);
+    const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
 
     const appointmentEvent: AppointmentEvent = {
       id: booking.id || '',
-      title: booking.nom || 'Appointment',
+      title: booking.clientName || 'Appointment',
       start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
       end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
-      duration: booking.duration,
-      serviceName: booking.servei,
-      clientName: booking.nom,
-      uid: booking.uid || '',
+      duration: 60, // Will be fetched from service
+      serviceName: 'Service', // Will be fetched from service
+      clientName: booking.clientName,
+      uid: booking.email || '',
       isPublicBooking: false,
       isOwnBooking: isOwnBooking,
       canDrag: isAdmin || isOwnBooking,
       canViewDetails: isAdmin || isOwnBooking,
     };
     this.editAppointment.emit(appointmentEvent);
+  }
+
+  onViewDetailRequested(booking: Booking) {
+    // Navigate to appointment detail page
+    this.router.navigate(['/appointments', booking.id || '']);
+
+    // Close the popup
+    this.stateService.closeAppointmentDetail();
   }
 
   reloadAppointments() {
@@ -881,11 +963,9 @@ export class CalendarComponent {
 
   // Drag & Drop methods
   onDropZoneMouseEnter(event: MouseEvent, day: Date) {
-    console.log('onDropZoneMouseEnter:', { isDragging: this.calendarCoreService.isDragging() });
     if (this.calendarCoreService.isDragging()) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const relativeY = event.clientY - rect.top;
-      console.log('Mouse enter - relativeY:', relativeY);
       this.calendarCoreService.updateTargetDateTime({ top: relativeY, left: 0 }, day);
     }
   }
@@ -936,7 +1016,32 @@ export class CalendarComponent {
   // Get service CSS class for drag preview
   getServiceCssClass(appointment: AppointmentEvent): string {
     const serviceName = appointment.serviceName || '';
-    return this.serviceColorsService.getServiceCssClass(serviceName);
+    if (!serviceName) {
+      return 'service-color-default';
+    }
+
+    // Try to find service by name first, then by ID
+    const allServices = this.servicesService.getAllServices();
+    let service = allServices.find(s => s.name === serviceName);
+
+    // If not found by name, try by ID (for backward compatibility)
+    if (!service) {
+      service = allServices.find(s => s.id === serviceName);
+    }
+
+    // If still not found, try to find by partial name match
+    if (!service) {
+      service = allServices.find(s =>
+        s.name.toLowerCase().includes(serviceName.toLowerCase()) ||
+        serviceName.toLowerCase().includes(s.name.toLowerCase())
+      );
+    }
+
+    if (!service) {
+      return 'service-color-default';
+    }
+
+    return this.servicesService.getServiceCssClass(service);
   }
 
   // Format duration for display
