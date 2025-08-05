@@ -34,24 +34,22 @@ async function optimizeAssets() {
       const optimizedPngPath = path.join(optimizedDir, file);
       const optimizedWebpPath = path.join(optimizedDir, `${baseName}.webp`);
 
-      await sharp(inputPath)
-        .png({ quality: 80, compressionLevel: 9 })
-        .toFile(optimizedPngPath);
+      await sharp(inputPath).png({ quality: 80, compressionLevel: 9 }).toFile(optimizedPngPath);
 
-      await sharp(inputPath)
-        .webp({ quality: 80 })
-        .toFile(optimizedWebpPath);
+      await sharp(inputPath).webp({ quality: 80 }).toFile(optimizedWebpPath);
 
       const optimizedPngSize = fs.statSync(optimizedPngPath).size;
       const optimizedWebpSize = fs.statSync(optimizedWebpPath).size;
 
-      console.log(`  ✅ Optimized: PNG ${(optimizedPngSize / 1024).toFixed(1)}KB, WebP ${(optimizedWebpSize / 1024).toFixed(1)}KB`);
+      console.log(
+        `  ✅ Optimized: PNG ${(optimizedPngSize / 1024).toFixed(1)}KB, WebP ${(optimizedWebpSize / 1024).toFixed(1)}KB`
+      );
 
       // 2. Create responsive versions
       const sizes = [
         { width: 80, suffix: '@1x' },
         { width: 160, suffix: '@2x' },
-        { width: 240, suffix: '@3x' }
+        { width: 240, suffix: '@3x' },
       ];
 
       for (const size of sizes) {
@@ -72,7 +70,9 @@ async function optimizeAssets() {
         const pngSize = fs.statSync(pngPath).size;
         const webpSize = fs.statSync(webpPath).size;
 
-        console.log(`  📱 ${outputName}: PNG ${(pngSize / 1024).toFixed(1)}KB, WebP ${(webpSize / 1024).toFixed(1)}KB`);
+        console.log(
+          `  📱 ${outputName}: PNG ${(pngSize / 1024).toFixed(1)}KB, WebP ${(webpSize / 1024).toFixed(1)}KB`
+        );
       }
 
       console.log('');
@@ -83,7 +83,6 @@ async function optimizeAssets() {
     console.log(`  - Optimized: ${optimizedDir}/`);
     console.log(`  - Responsive: ${responsiveDir}/`);
     console.log('\n💡 Use the responsive images with <picture> elements for best performance.');
-
   } catch (error) {
     console.error('❌ Error optimizing assets:', error);
     process.exit(1);

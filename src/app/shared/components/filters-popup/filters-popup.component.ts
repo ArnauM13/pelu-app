@@ -1,21 +1,32 @@
-import { Component, input, computed, Signal } from '@angular/core';
+import { Component, input, computed, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FloatingButtonComponent } from '../floating-button/floating-button.component';
+import { FloatingButtonComponent, FloatingButtonConfig } from '../floating-button/floating-button.component';
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
+import { ButtonComponent } from '../buttons/button.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 
 @Component({
   selector: 'pelu-filters-popup',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FloatingButtonComponent, InputTextComponent, InputDateComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    FloatingButtonComponent,
+    InputTextComponent,
+    InputDateComponent,
+    ButtonComponent,
+  ],
   templateUrl: './filters-popup.component.html',
-  styleUrls: ['./filters-popup.component.scss']
+  styleUrls: ['./filters-popup.component.scss'],
 })
 export class FiltersPopupComponent {
+  // Inject FormBuilder
+  private readonly fb = inject(FormBuilder);
+
   // Input signals that can accept either values or signals
-  readonly filterButtons = input.required<any[] | Signal<any[]>>();
+  readonly filterButtons = input.required<FloatingButtonConfig[] | Signal<FloatingButtonConfig[]>>();
   readonly filterDate = input<string | Signal<string>>('');
   readonly filterClient = input<string | Signal<string>>('');
   readonly showAdvancedFilters = input<boolean | Signal<boolean>>(false);
@@ -26,6 +37,9 @@ export class FiltersPopupComponent {
   readonly onClientChange = input<((value: string) => void) | undefined>();
   readonly onReset = input<(() => void) | undefined>();
   readonly onToggleAdvanced = input<(() => void) | undefined>();
+
+  // Reactive Form
+  readonly filtersForm: FormGroup;
 
   // Computed values that handle both signals and static values
   readonly filterButtonsValue = computed(() => {
@@ -48,6 +62,24 @@ export class FiltersPopupComponent {
     return typeof value === 'function' ? value() : value;
   });
 
+  constructor() {
+    // Initialize reactive form
+    this.filtersForm = this.fb.group({
+      date: [''],
+      client: ['']
+    });
+
+    // Subscribe to form changes
+    this.filtersForm.valueChanges.subscribe(values => {
+      if (values.date !== this.filterDateValue()) {
+        this.onDateChange()?.(values.date);
+      }
+      if (values.client !== this.filterClientValue()) {
+        this.onClientChange()?.(values.client);
+      }
+    });
+  }
+
   onFilterClickHandler(index: number) {
     // Check if it's the advanced filters button (last button)
     if (index === this.filterButtonsValue().length - 1) {
@@ -57,15 +89,22 @@ export class FiltersPopupComponent {
     }
   }
 
-  onDateChangeHandler(value: string) {
-    this.onDateChange()?.(value);
+  onDateChangeHandler(value: string | Date | null) {
+    if (typeof value === 'string') {
+      this.filtersForm.patchValue({ date: value });
+    } else if (value instanceof Date) {
+      this.filtersForm.patchValue({ date: value.toISOString().split('T')[0] });
+    } else {
+      this.filtersForm.patchValue({ date: '' });
+    }
   }
 
   onClientChangeHandler(value: string | number) {
-    this.onClientChange()?.(String(value));
+    this.filtersForm.patchValue({ client: String(value) });
   }
 
   onResetHandler() {
+    this.filtersForm.reset();
     this.onReset()?.();
   }
 }

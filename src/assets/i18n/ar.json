@@ -3,6 +3,7 @@
     "SERVICE": "الخدمة",
     "MISSING_FIELDS": "الحقول المطلوبة",
     "WEEK_OF": "أسبوع",
+    "MONTH_OF": "شهر",
     "NO_AVAILABLE_DAYS": "لا توجد أيام متاحة",
     "NO_AVAILABLE_DAYS_MESSAGE": "جميع أيام الأسبوع مشغولة بالكامل. جرب أسبوعاً آخر.",
     "LEGEND": "مفتاح",
@@ -59,8 +60,11 @@
       "AVAILABLE": "متاح",
       "OCCUPIED": "مشغول",
       "ACTIVE": "نشط",
-      "INACTIVE": "غير نشط"
+      "INACTIVE": "غير نشط",
+      "RESERVED": "محجوز"
     },
+    "ADMIN_WARNING_TITLE": "وضع المدير",
+    "ADMIN_WARNING_MESSAGE": "أنت تشاهد موعداً لمستخدم آخر. كمدير، يمكنك تعديل وحذف هذا الموعد.",
     "TIME": {
       "HOUR": "ساعة",
       "TODAY": "اليوم",
@@ -152,12 +156,16 @@
     "CLIENT_INFORMATION": "معلومات العميل",
     "BOOKING_INFORMATION": "معلومات الحجز",
     "NAME": "الاسم",
+    "NAME_PLACEHOLDER": "أدخل اسمك",
+    "EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
     "DURATION": "المدة",
     "PRICE": "السعر",
     "ERROR_LOADING_BOOKING": "خطأ في تحميل الحجز",
     "BOOKING_NOT_FOUND": "لم يتم العثور على الحجز",
     "BOOKING_NOT_FOUND_MESSAGE": "تعذر العثور على الحجز الذي تبحث عنه",
     "ERROR_PAST_BOOKING": "لا يمكن إنشاء حجوزات في الماضي",
+    "ERROR_BOOKING_NOT_ALLOWED": "لا يمكن إجراء الحجز في هذا التاريخ/الوقت",
+    "ERROR_CANCELLATION_NOT_ALLOWED": "لا يمكن إلغاء الحجز في هذا الوقت",
     "PAST_DATE": "تاريخ ماضي",
     "PAST_TIME": "وقت ماضي",
     "ERRORS": {
@@ -190,12 +198,25 @@
       "COMPLETED": "اكتمل الترحيل",
       "MESSAGE": "تم ترحيل {{count}} موعد قديم إلى حسابك. يمكنك الآن عرض تفاصيل جميع مواعيدك."
     },
+    "TOAST": {
+      "APPOINTMENT_CREATED": "تم إنشاء الموعد",
+      "APPOINTMENT_UPDATED": "تم تحديث الموعد",
+      "APPOINTMENT_DELETED": "تم حذف الموعد",
+      "APPOINTMENT_CREATED_MESSAGE": "تم إنشاء الموعد لـ {{name}}",
+      "APPOINTMENT_UPDATED_MESSAGE": "تم تحديث الموعد لـ {{name}}",
+      "APPOINTMENT_DELETED_MESSAGE": "تم حذف الموعد لـ {{name}}",
+      "VALIDATION_ERROR_MESSAGE": "الحقل \"{{field}}\" مطلوب",
+      "NETWORK_ERROR_MESSAGE": "تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+      "LOGIN_REQUIRED_MESSAGE": "يرجى تسجيل الدخول للمتابعة."
+    },
     "NO_ACTIONS_AVAILABLE": "لا توجد إجراءات متاحة",
     "NO_ACTIONS_AVAILABLE_MESSAGE": "لا يمكن تحرير أو حذف هذا الموعد. قد يكون قد مر بالفعل، أو قد لا تكون المالك، أو قد لا تملك الأذونات اللازمة."
   },
   "AUTH": {
     "EMAIL": "البريد الإلكتروني",
+    "EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
     "PASSWORD": "كلمة المرور",
+    "PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
     "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
     "REPEAT_PASSWORD": "إعادة كلمة المرور",
     "FORGOT_PASSWORD": "نسيت كلمة المرور؟",
@@ -233,11 +254,12 @@
   "NAVIGATION": {
     "HOME": "الرئيسية",
     "SERVICES": "الخدمات",
-    "BOOKING": "الحجز",
+    "BOOK": "حجز",
     "APPOINTMENTS": "المواعيد",
     "PROFILE": "الملف الشخصي",
     "ADMIN_DASHBOARD": "لوحة الإدارة",
-    "ADMIN_SETTINGS": "الإعدادات"
+    "ADMIN_SETTINGS": "الإعدادات",
+    "PLAYGROUND": "ملعب"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
@@ -305,11 +327,13 @@
       "BOOKING_CONFIRMATION": "تأكيد الحجز"
     },
     "EDIT_APPOINTMENT_DESCRIPTION": "تعديل تفاصيل الموعد",
-    "DELETE_APPOINTMENT_DESCRIPTION": "حذف الموعد نهائياً"
+    "DELETE_APPOINTMENT_DESCRIPTION": "حذف الموعد نهائياً",
+    "EDIT_APPOINTMENT_DETAILS": "تعديل تفاصيل الموعد"
   },
   "BOOKING": {
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
+    "SELECT_DATE_PLACEHOLDER": "اختر تاريخاً",
     "SELECT_TIME": "اختر الوقت",
     "SELECT_DATE_DESCRIPTION": "اختر التاريخ الذي يناسبك",
     "SELECT_TIME_DESCRIPTION": "اختر الوقت المتاح الذي تفضله",
@@ -318,7 +342,6 @@
     "AVAILABLE_TIMES": "الأوقات المتاحة",
     "NO_AVAILABLE_TIMES": "لا توجد أوقات متاحة",
     "BOOKING_CONFIRMATION": "تأكيد الحجز",
-    "WEEK_OF": "أسبوع",
     "AVAILABLE": "متاح",
     "NO_AVAILABLE_DAYS": "لا توجد أيام متاحة",
     "NO_AVAILABLE_DAYS_MESSAGE": "جميع أيام الأسبوع مشغولة بالكامل. جرب أسبوعاً آخر.",
@@ -349,6 +372,20 @@
       "TODAY": "اليوم",
       "TOMORROW": "غداً",
       "NEXT_AVAILABLE": "التالي المتاح"
+    },
+    "EMAIL": {
+      "SUBJECT": "تأكيد الحجز - {{businessName}}",
+      "GREETING": "مرحباً {{clientName}},",
+      "CONFIRMATION_MESSAGE": "تم تأكيد حجزك بنجاح.",
+      "BOOKING_DETAILS": "تفاصيل الحجز:",
+      "SERVICE": "الخدمة",
+      "DATE": "التاريخ",
+      "TIME": "الوقت",
+      "PRICE": "السعر",
+      "VIEW_EDIT_LINK": "يمكنك عرض وتحرير حجزك هنا:",
+      "THANKS_MESSAGE": "شكراً لثقتك في {{businessName}}.",
+      "SIGNATURE": "مع أطيب التحيات،",
+      "TEAM_SIGNATURE": "فريق {{businessName}}"
     }
   },
   "PROFILE": {
@@ -384,6 +421,7 @@
     "NO_DATA_AVAILABLE": "لا توجد بيانات متاحة"
   },
   "ADMIN": {
+    "MANAGE_SERVICES": "إدارة الخدمات",
     "DASHBOARD_TITLE": "لوحة الإدارة",
     "WELCOME_MESSAGE": "مرحباً بك في لوحة الإدارة",
     "USER_INFO": "معلومات المستخدم",
@@ -403,20 +441,65 @@
       "SUBTITLE": "إدارة معاملات التطبيق",
       "VIEW_MODE": "وضع العرض",
       "EDIT_MODE": "وضع التحرير",
+      "BUSINESS_INFO": "معلومات العمل",
       "BUSINESS_NAME": "اسم العمل",
+      "BUSINESS_HOURS": "ساعات العمل",
+      "BUSINESS_HOURS_START": "وقت الفتح",
+      "BUSINESS_HOURS_END": "وقت الإغلاق",
+      "LUNCH_BREAK": "استراحة الغداء",
+      "LUNCH_BREAK_START": "بداية استراحة الغداء",
+      "LUNCH_BREAK_END": "نهاية استراحة الغداء",
+      "APPOINTMENT_SETTINGS": "إعدادات المواعيد",
       "APPOINTMENT_DURATION": "مدة الموعد",
       "MAX_APPOINTMENTS": "الحد الأقصى للمواعيد يومياً",
       "AUTO_CONFIRM": "تأكيد تلقائي",
       "SEND_NOTIFICATIONS": "إرسال الإشعارات",
-      "MAINTENANCE_MODE": "وضع الصيانة",
+      "PREVENT_CANCELLATION": "منع الإلغاء",
+      "CANCELLATION_TIME_LIMIT": "الحد الزمني للإلغاء",
+      "CANCELLATION_TIME_LIMIT_HELP": "الوقت بالساعات قبل الموعد الذي يمكن إلغاؤه",
+      "BOOKING_SYSTEM_SETTINGS": "إعدادات الحجز والنظام",
+      "BOOKING_ADVANCE_DAYS": "أيام الحجز المسبق",
+      "BOOKING_ADVANCE_DAYS_HELP": "الأيام المسبقة التي يمكن فيها إجراء الحجز",
+      "BOOKING_ADVANCE_TIME": "وقت الحجز المسبق",
+      "BOOKING_ADVANCE_TIME_HELP": "الوقت بالدقائق قبل وقت الموعد الذي يُسمح فيه بالحجز",
       "DEFAULT_LANGUAGE": "اللغة الافتراضية",
       "CURRENCY": "العملة",
       "CURRENCY_HELP": "سيتم تطبيق العملة على جميع الأسعار في التطبيق",
       "SAVE_SETTINGS": "حفظ الإعدادات",
       "RESET_DEFAULTS": "إعادة تعيين إلى الافتراضي",
       "LOADING": "جاري تحميل الإعدادات..."
-    },
-    "SERVICES": {
+    }
+
+  },
+  "CALENDAR": {
+    "TODAY": "اليوم",
+    "THIS_WEEK": "هذا الأسبوع",
+    "THIS_MONTH": "هذا الشهر",
+    "NEXT_MONTH": "الشهر القادم",
+    "VIEW_DAY": "عرض اليوم",
+    "VIEW_WEEK": "عرض الأسبوع",
+    "VIEW_MONTH": "عرض الشهر",
+    "PREVIOUS_WEEK": "الأسبوع السابق",
+    "NEXT_WEEK": "الأسبوع القادم",
+    "GO_TO_TODAY": "اذهب إلى اليوم",
+    "BUSINESS_HOURS": "ساعات العمل",
+    "TIME_SLOT_AVAILABLE": "الوقت متاح",
+    "TIME_SLOT_BUSY": "الوقت مشغول",
+    "FOOTER": {
+      "INFO_NOTE": "انقر على أي وقت متاح للحجز",
+      "WEEKEND_INFO": "عطلات نهاية الأسبوع لها جداول خاصة. اتصل بنا لمزيد من المعلومات.",
+      "BUSINESS_HOURS_INFO": "ساعات العمل: الاثنين إلى الجمعة من {{startHour}}:00 إلى {{endHour}}:00، استراحة الغداء من {{lunchStart}}:00 إلى {{lunchEnd}}:00"
+    }
+  },
+  "SERVICES": {
+    "ALL_SERVICES": "جميع الخدمات",
+    "TITLE": "خدماتنا",
+    "SUBTITLE": "اكتشف مجموعة واسعة من الخدمات المهنية لصورتك",
+    "INFO_NOTE": "صفحة إعلامية - للحجز، قم بزيارة التقويم",
+    "POPULAR": "شائع",
+    "PRICES_NOTE": "أسعار إرشادية. قد تختلف الأسعار حسب تعقيد الخدمة.",
+    "BACK_TO_HOME": "العودة إلى الرئيسية",
+    "MANAGEMENT": {
       "TITLE": "إدارة الخدمات",
       "SUBTITLE": "إنشاء وتحرير وحذف خدمات تصفيف الشعر",
       "ADD_SERVICE": "إضافة خدمة",
@@ -447,6 +530,13 @@
       "ERROR_CREATING_SERVICE": "خطأ في إنشاء الخدمة",
       "DELETE_CONFIRMATION": "تأكيد الحذف",
       "DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من حذف الخدمة \"{{name}}\"؟",
+      "POPULAR_STATUS_UPDATED": "تم تحديث حالة الشعبية",
+      "POPULAR_STATUS_MESSAGE": "الخدمة \"{{name}}\" الآن محددة كـ {{status}}",
+      "POPULAR_STATUS_ERROR_MESSAGE": "خطأ في تحديث حالة الشعبية للخدمة",
+      "STATUS": {
+        "POPULAR": "شائع",
+        "NO_POPULAR": "غير شائع"
+      },
       "MIGRATE_SERVICES": "ترحيل الخدمات",
       "CREATE_SAMPLE_SERVICES": "إنشاء خدمات نموذجية",
       "REFRESH": "تحديث",
@@ -504,6 +594,7 @@
           "ERROR_CREATING_CATEGORY": "خطأ في إنشاء الفئة"
         },
         "EXISTING_CATEGORIES": "الفئات الموجودة",
+        "ADD_CATEGORY": "إضافة فئة",
         "ADD_NEW_CATEGORY": "إضافة فئة جديدة",
         "STATIC_CATEGORY": "فئة ثابتة",
         "CANNOT_EDIT_STATIC": "لا يمكن التحرير (فئة ثابتة)",
@@ -512,38 +603,15 @@
         "ICON_EXAMPLES": "أمثلة على الرموز التعبيرية"
       }
     },
-    "SERVICES_MANAGEMENT": "إدارة الخدمات",
-    "SERVICES_MANAGEMENT_DESCRIPTION": "إنشاء وتحرير وحذف خدمات تصفيف الشعر",
-    "MANAGE_SERVICES": "إدارة الخدمات"
-  },
-  "CALENDAR": {
-    "TODAY": "اليوم",
-    "THIS_WEEK": "هذا الأسبوع",
-    "THIS_MONTH": "هذا الشهر",
-    "NEXT_MONTH": "الشهر القادم",
-    "VIEW_DAY": "عرض اليوم",
-    "VIEW_WEEK": "عرض الأسبوع",
-    "VIEW_MONTH": "عرض الشهر",
-    "PREVIOUS_WEEK": "الأسبوع السابق",
-    "NEXT_WEEK": "الأسبوع القادم",
-    "GO_TO_TODAY": "اذهب إلى اليوم",
-    "BUSINESS_HOURS": "ساعات العمل",
-    "TIME_SLOT_AVAILABLE": "الوقت متاح",
-    "TIME_SLOT_BUSY": "الوقت مشغول"
-  },
-  "SERVICES": {
-    "ALL_SERVICES": "جميع الخدمات",
-    "TITLE": "خدماتنا",
-    "SUBTITLE": "اكتشف مجموعة واسعة من الخدمات المهنية لصورتك",
-    "INFO_NOTE": "صفحة إعلامية - للحجز، قم بزيارة التقويم",
-    "POPULAR": "شائع",
-    "PRICES_NOTE": "أسعار إرشادية. قد تختلف الأسعار حسب تعقيد الخدمة.",
-    "BACK_TO_HOME": "العودة إلى الرئيسية",
     "CATEGORIES": {
       "HAIRCUT": "قص الشعر",
       "BEARD": "اللحية",
       "TREATMENT": "العلاجات",
-      "STYLING": "التصفيف"
+      "STYLING": "التصفيف",
+      "COLORING": "التلوين",
+      "SPECIAL": "خاص",
+      "KIDS": "الأطفال",
+      "DEFAULT": "عام"
     },
     "COLORS": {
       "HAIRCUT": "قص الشعر",
@@ -597,5 +665,28 @@
     "EN": "English",
     "AR": "العربية",
     "SELECT_LANGUAGE": "اختر اللغة"
+  },
+  "INPUTS": {
+    "NUMBER_PLACEHOLDER": "أدخل رقماً",
+    "TEXT_PLACEHOLDER": "أدخل نصاً",
+    "TEXT_EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
+    "TEXT_PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+    "PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+    "PASSWORD_PROMPT_LABEL": "اختر كلمة مرور",
+    "PASSWORD_WEAK_LABEL": "بسيطة جداً",
+    "PASSWORD_MEDIUM_LABEL": "تعقيد متوسط",
+    "PASSWORD_STRONG_LABEL": "كلمة مرور معقدة",
+    "TEXTAREA_PLACEHOLDER": "أدخل نصاً...",
+    "SELECT_PLACEHOLDER": "اختر خياراً",
+    "SELECT_FILTER_PLACEHOLDER": "ابحث...",
+    "DATE_PLACEHOLDER": "اختر تاريخاً"
+  },
+  "NO_DATE_SET": "لم يتم تحديد تاريخ",
+  "VIEW_CALENDAR_APPOINTMENTS": "عرض المواعيد بتنسيق التقويم",
+  "BOOKINGS_FOR_DATE": "الحجوزات للتاريخ",
+  "FOOTER": {
+    "INFO_NOTE": "انقر على أي وقت متاح للحجز",
+    "WEEKEND_INFO": "عطلات نهاية الأسبوع لها جداول خاصة. اتصل بنا لمزيد من المعلومات.",
+    "BUSINESS_HOURS_INFO": "ساعات العمل: الاثنين إلى الجمعة من {{startHour}}:00 إلى {{endHour}}:00، استراحة الغداء من {{lunchStart}}:00 إلى {{lunchEnd}}:00"
   }
 }

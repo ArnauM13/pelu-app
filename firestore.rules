@@ -63,17 +63,20 @@ service cloud.firestore {
       allow update: if resource.data.editToken == request.query.token &&
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nom', 'email', 'data', 'hora', 'serviceId', 'serviceName', 'duration', 'price', 'notes', 'uid', 'updatedAt']));
 
-      // Administradors poden llegir totes les reserves
-      allow read: if isAdmin();
-
-      // Administradors poden actualitzar reserves
-      allow update: if isAdmin();
+      // Administradors poden gestionar totes les reserves (llegir, actualitzar i eliminar)
+      allow read, write: if isAdmin();
     }
 
     // Col·lecció de preferències d'idioma
     match /userPreferences/{userId} {
       // Usuaris poden llegir/escriure només les seves pròpies preferències
       allow read, write: if isOwner(userId);
+    }
+
+    // Col·lecció de configuració del sistema
+    match /system/{document} {
+      // Només administradors poden llegir i escriure configuració del sistema
+      allow read, write: if isAdmin();
     }
 
     // Regla per defecte: denegar tot el que no estigui explícitament permès

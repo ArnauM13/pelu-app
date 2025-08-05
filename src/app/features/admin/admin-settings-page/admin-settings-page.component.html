@@ -1,202 +1,278 @@
 <div class="admin-settings-page single-screen">
   <div class="settings-card">
     <div class="settings-header">
-      <h1>{{ 'ADMIN.SETTINGS_PAGE.TITLE' | translate }}</h1>
-      <p>{{ 'ADMIN.SETTINGS_PAGE.SUBTITLE' | translate }}</p>
-      <div class="mode-toggle">
-        <button
-          type="button"
-          class="mode-btn"
-          [class.active]="!isEditMode()"
-          (click)="setViewMode()">
-          <i class="pi pi-eye"></i>
-          {{ 'ADMIN.SETTINGS_PAGE.VIEW_MODE' | translate }}
-        </button>
-        <button
-          type="button"
-          class="mode-btn"
-          [class.active]="isEditMode()"
-          (click)="setEditMode()">
-          <i class="pi pi-pencil"></i>
-          {{ 'ADMIN.SETTINGS_PAGE.EDIT_MODE' | translate }}
-        </button>
-      </div>
-    </div>
-
-    <!-- View Mode -->
-    <div class="settings-content" *ngIf="!isEditMode()">
-      <div class="settings-grid">
-        <!-- Business Info -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME' | translate }}</label>
-          <div class="readonly-field">{{ settings().businessName }}</div>
+      <div class="header-content">
+        <div class="header-text">
+          <h1>{{ 'ADMIN.SETTINGS_PAGE.TITLE' | translate }}</h1>
+          <p>{{ 'ADMIN.SETTINGS_PAGE.SUBTITLE' | translate }}</p>
         </div>
-        <!-- Appointment Duration -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION' | translate }}</label>
-          <div class="readonly-field">{{ settings().appointmentDuration }} min</div>
-        </div>
-        <!-- Max Appointments -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS' | translate }}</label>
-          <div class="readonly-field">{{ settings().maxAppointmentsPerDay }}</div>
-        </div>
-        <!-- Auto Confirm -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM' | translate }}</label>
-          <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settings().autoConfirmAppointments" [class.pi-times]="!settings().autoConfirmAppointments"></i>
-            {{ settings().autoConfirmAppointments ? 'Sí' : 'No' }}
-          </div>
-        </div>
-        <!-- Notifications -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS' | translate }}</label>
-          <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settings().sendNotifications" [class.pi-times]="!settings().sendNotifications"></i>
-            {{ settings().sendNotifications ? 'Sí' : 'No' }}
-          </div>
-        </div>
-        <!-- Maintenance Mode -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE' | translate }}</label>
-          <div class="readonly-field">
-            <i class="pi" [class.pi-check]="settings().maintenanceMode" [class.pi-times]="!settings().maintenanceMode"></i>
-            {{ settings().maintenanceMode ? 'Sí' : 'No' }}
-          </div>
-        </div>
-        <!-- Language -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE' | translate }}</label>
-          <div class="readonly-field">{{ getLanguageLabel(settings().language) }}</div>
-        </div>
-        <!-- Currency -->
-        <div class="settings-group">
-          <label>{{ 'ADMIN.SETTINGS_PAGE.CURRENCY' | translate }}</label>
-          <div class="readonly-field">{{ getCurrencyLabel(settings().currency) }}</div>
+        <div class="header-actions">
+          <pelu-button
+            type="button"
+            [label]="isEditMode() ? 'COMMON.ACTIONS.CANCEL' : 'COMMON.ACTIONS.EDIT' | translate"
+            [icon]="isEditMode() ? 'pi pi-times' : 'pi pi-pencil'"
+            [severity]="isEditMode() ? 'secondary' : 'primary'"
+            (clicked)="isEditMode() ? cancelEditMode() : setEditMode()"
+          >
+          </pelu-button>
         </div>
       </div>
     </div>
 
-    <!-- Edit Mode -->
-    <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" *ngIf="isEditMode()">
-      <div class="settings-grid">
-        <!-- Business Info -->
-        <div class="settings-group">
-          <pelu-input-text
-            [config]="{
-              type: 'text',
-              label: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
-              placeholder: 'ADMIN.SETTINGS_PAGE.BUSINESS_NAME',
-              showLabel: true
-            }"
-            [value]="settingsForm.get('businessName')?.value"
-            (valueChange)="settingsForm.get('businessName')?.setValue($event)">
-          </pelu-input-text>
-        </div>
-        <!-- Appointment Duration -->
-        <div class="settings-group">
-          <pelu-input-number
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION',
-              min: 15,
-              max: 480,
-              step: 15,
-              suffix: ' min',
-              showLabel: true
-            }"
-            [value]="settingsForm.get('appointmentDuration')?.value"
-            (valueChange)="settingsForm.get('appointmentDuration')?.setValue($event)">
-          </pelu-input-number>
-        </div>
-        <!-- Max Appointments -->
-        <div class="settings-group">
-          <pelu-input-number
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS',
-              min: 1,
-              max: 100,
-              showLabel: true
-            }"
-            [value]="settingsForm.get('maxAppointments')?.value"
-            (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)">
-          </pelu-input-number>
-        </div>
-        <!-- Auto Confirm -->
-        <div class="settings-group">
-          <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM',
-              showLabel: true
-            }"
-            [value]="settingsForm.get('autoConfirm')?.value"
-            (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)">
-          </pelu-input-checkbox>
-        </div>
-        <!-- Notifications -->
-        <div class="settings-group">
-          <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS',
-              showLabel: true
-            }"
-            [value]="settingsForm.get('sendNotifications')?.value"
-            (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)">
-          </pelu-input-checkbox>
-        </div>
-        <!-- Maintenance Mode -->
-        <div class="settings-group">
-          <pelu-input-checkbox
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.MAINTENANCE_MODE',
-              showLabel: true
-            }"
-            [value]="settingsForm.get('maintenanceMode')?.value"
-            (valueChange)="settingsForm.get('maintenanceMode')?.setValue($event)">
-          </pelu-input-checkbox>
-        </div>
-        <!-- Language -->
-        <div class="settings-group">
-          <pelu-input-select
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
-              placeholder: 'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE',
-              options: languageOptions,
-              showLabel: true,
-              clearable: true
-            }"
-            [value]="settingsForm.get('defaultLanguage')?.value"
-            (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)">
-          </pelu-input-select>
-        </div>
-        <!-- Currency -->
-        <div class="settings-group">
-          <pelu-input-select
-            [config]="{
-              label: 'ADMIN.SETTINGS_PAGE.CURRENCY',
-              placeholder: 'ADMIN.SETTINGS_PAGE.CURRENCY',
-              options: currencyOptions,
-              showLabel: true,
-              clearable: true,
-              helpText: 'ADMIN.SETTINGS_PAGE.CURRENCY_HELP'
-            }"
-            [value]="settingsForm.get('currency')?.value"
-            (valueChange)="settingsForm.get('currency')?.setValue($event)">
-          </pelu-input-select>
-        </div>
-      </div>
-      <div class="settings-actions">
-        <p-button type="submit" [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate" [loading]="saving()" icon="pi pi-save"></p-button>
-        <p-button type="button" severity="secondary" [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate" icon="pi pi-refresh" (click)="resetToDefaults()"></p-button>
-        <p-button type="button" severity="secondary" [label]="'COMMON.ACTIONS.CANCEL' | translate" icon="pi pi-times" (click)="setViewMode()"></p-button>
-      </div>
-    </form>
+    <!-- Settings Content -->
+    <div class="settings-content">
+      <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+        <div class="settings-grid">
+          <!-- Column 1: Business Information -->
+          <div class="settings-column">
+            <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_INFO' | translate }}</h3>
 
-    <ng-template [ngIf]="loading()">
-      <div class="loading-container">
-        <p-progressSpinner></p-progressSpinner>
-        <p>{{ 'ADMIN.SETTINGS_PAGE.LOADING' | translate }}</p>
-      </div>
-    </ng-template>
+            <!-- Business Name -->
+            <div class="settings-group">
+              <pelu-input-text
+                [label]="'ADMIN.SETTINGS_PAGE.BUSINESS_NAME'"
+                [placeholder]="'ADMIN.SETTINGS_PAGE.BUSINESS_NAME'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('businessName')?.value"
+                (valueChange)="settingsForm.get('businessName')?.setValue($event)"
+              >
+              </pelu-input-text>
+            </div>
+
+            <!-- Business Hours Start -->
+            <div class="settings-group">
+              <pelu-input-date
+                label='ADMIN.SETTINGS_PAGE.BUSINESS_HOURS_START'
+                placeholder='08:00'
+                [timeOnly]="true"
+                hourFormat='24'
+                dateFormat='HH:mm'
+                [readonly]="!isEditMode()"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('businessHoursStart')?.value"
+                (valueChange)="settingsForm.get('businessHoursStart')?.setValue($event)"
+              >
+              </pelu-input-date>
+            </div>
+
+            <!-- Business Hours End -->
+            <div class="settings-group">
+              <pelu-input-date
+                [label]="'ADMIN.SETTINGS_PAGE.BUSINESS_HOURS_END'"
+                [placeholder]="'20:00'"
+                [timeOnly]="true"
+                [hourFormat]="'24'"
+                [dateFormat]="'HH:mm'"
+                [readonly]="!isEditMode()"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('businessHoursEnd')?.value"
+                (valueChange)="settingsForm.get('businessHoursEnd')?.setValue($event)"
+              >
+              </pelu-input-date>
+            </div>
+
+            <!-- Lunch Break Start -->
+            <div class="settings-group">
+              <pelu-input-date
+                [label]="'ADMIN.SETTINGS_PAGE.LUNCH_BREAK_START'"
+                [placeholder]="'13:00'"
+                [timeOnly]="true"
+                [hourFormat]="'24'"
+                [dateFormat]="'HH:mm'"
+                [readonly]="!isEditMode()"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('lunchBreakStart')?.value"
+                (valueChange)="settingsForm.get('lunchBreakStart')?.setValue($event)"
+              >
+              </pelu-input-date>
+            </div>
+
+            <!-- Lunch Break End -->
+            <div class="settings-group">
+              <pelu-input-date
+                [label]="'ADMIN.SETTINGS_PAGE.LUNCH_BREAK_END'"
+                [placeholder]="'14:00'"
+                [timeOnly]="true"
+                [hourFormat]="'24'"
+                [dateFormat]="'HH:mm'"
+                [readonly]="!isEditMode()"
+                [enabled]="isEditMode()"
+                [value]="settingsForm.get('lunchBreakEnd')?.value"
+                (valueChange)="settingsForm.get('lunchBreakEnd')?.setValue($event)"
+              >
+              </pelu-input-date>
+            </div>
+          </div>
+
+          <!-- Column 2: Appointment Settings -->
+          <div class="settings-column">
+            <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_SETTINGS' | translate }}</h3>
+
+            <!-- Appointment Duration -->
+            <div class="settings-group">
+              <pelu-input-number
+                [label]="'ADMIN.SETTINGS_PAGE.APPOINTMENT_DURATION'"
+                [min]="15"
+                [max]="480"
+                [step]="15"
+                [suffix]="' min'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('appointmentDuration')?.value"
+                (valueChange)="settingsForm.get('appointmentDuration')?.setValue($event)"
+              >
+              </pelu-input-number>
+            </div>
+
+            <!-- Max Appointments -->
+            <div class="settings-group">
+              <pelu-input-number
+                [label]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS'"
+                [min]="1"
+                [max]="100"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('maxAppointments')?.value"
+                (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)"
+              >
+              </pelu-input-number>
+            </div>
+
+            <!-- Auto Confirm -->
+            <div class="settings-group">
+              <pelu-input-checkbox
+                [label]="'ADMIN.SETTINGS_PAGE.AUTO_CONFIRM'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('autoConfirm')?.value"
+                (valueChange)="settingsForm.get('autoConfirm')?.setValue($event)"
+              >
+              </pelu-input-checkbox>
+            </div>
+
+            <!-- Notifications -->
+            <div class="settings-group">
+              <pelu-input-checkbox
+                [label]="'ADMIN.SETTINGS_PAGE.SEND_NOTIFICATIONS'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('sendNotifications')?.value"
+                (valueChange)="settingsForm.get('sendNotifications')?.setValue($event)"
+              >
+              </pelu-input-checkbox>
+            </div>
+
+            <!-- Prevent Cancellation -->
+            <div class="settings-group">
+              <pelu-input-checkbox
+                [label]="'ADMIN.SETTINGS_PAGE.PREVENT_CANCELLATION'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('preventCancellation')?.value"
+                (valueChange)="settingsForm.get('preventCancellation')?.setValue($event)"
+              >
+              </pelu-input-checkbox>
+            </div>
+
+            <!-- Cancellation Time Limit -->
+            <div class="settings-group" *ngIf="settingsForm.get('preventCancellation')?.value">
+              <pelu-input-number
+                [label]="'ADMIN.SETTINGS_PAGE.CANCELLATION_TIME_LIMIT'"
+                [min]="1"
+                [max]="168"
+                [suffix]="' h'"
+                [helpText]="'ADMIN.SETTINGS_PAGE.CANCELLATION_TIME_LIMIT_HELP'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('cancellationTimeLimit')?.value"
+                (valueChange)="settingsForm.get('cancellationTimeLimit')?.setValue($event)"
+              >
+              </pelu-input-number>
+            </div>
+          </div>
+
+          <!-- Column 3: Booking & System Settings -->
+          <div class="settings-column">
+            <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.BOOKING_SYSTEM_SETTINGS' | translate }}</h3>
+
+            <!-- Booking Advance Days -->
+            <div class="settings-group">
+              <pelu-input-number
+                [label]="'ADMIN.SETTINGS_PAGE.BOOKING_ADVANCE_DAYS'"
+                [min]="1"
+                [max]="365"
+                [suffix]="' dies'"
+                [helpText]="'ADMIN.SETTINGS_PAGE.BOOKING_ADVANCE_DAYS_HELP'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('bookingAdvanceDays')?.value"
+                (valueChange)="settingsForm.get('bookingAdvanceDays')?.setValue($event)"
+              >
+              </pelu-input-number>
+            </div>
+
+            <!-- Booking Advance Time -->
+            <div class="settings-group">
+              <pelu-input-number
+                [label]="'ADMIN.SETTINGS_PAGE.BOOKING_ADVANCE_TIME'"
+                [min]="15"
+                [max]="1440"
+                [step]="15"
+                [suffix]="' min'"
+                [helpText]="'ADMIN.SETTINGS_PAGE.BOOKING_ADVANCE_TIME_HELP'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('bookingAdvanceTime')?.value"
+                (valueChange)="settingsForm.get('bookingAdvanceTime')?.setValue($event)"
+              >
+              </pelu-input-number>
+            </div>
+
+            <!-- Language -->
+            <div class="settings-group">
+              <pelu-input-select
+                [label]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE'"
+                [placeholder]="'ADMIN.SETTINGS_PAGE.DEFAULT_LANGUAGE'"
+                [options]="languageOptions"
+                [showClear]="true"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('defaultLanguage')?.value"
+                (valueChange)="settingsForm.get('defaultLanguage')?.setValue($event)"
+              >
+              </pelu-input-select>
+            </div>
+
+            <!-- Currency -->
+            <div class="settings-group">
+              <pelu-input-select
+                [label]="'ADMIN.SETTINGS_PAGE.CURRENCY'"
+                [placeholder]="'ADMIN.SETTINGS_PAGE.CURRENCY'"
+                [options]="currencyOptions"
+                [showClear]="true"
+                [helpText]="'ADMIN.SETTINGS_PAGE.CURRENCY_HELP'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('currency')?.value"
+                (valueChange)="settingsForm.get('currency')?.setValue($event)"
+              >
+              </pelu-input-select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Actions (only visible in edit mode) -->
+        <div class="settings-actions" *ngIf="isEditMode()">
+          <pelu-button
+            type="submit"
+            [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate"
+            [loading]="saving()"
+            [disabled]="saving()"
+            icon="pi pi-save"
+            severity="primary"
+          >
+          </pelu-button>
+          <pelu-button
+            type="button"
+            severity="secondary"
+            [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate"
+            [disabled]="saving()"
+            icon="pi pi-refresh"
+            (clicked)="resetToDefaults()"
+          >
+          </pelu-button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

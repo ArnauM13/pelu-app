@@ -1,6 +1,6 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -8,47 +8,44 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { BusinessSettingsService, BusinessSettings } from '../../../core/services/business-settings.service';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
-
-
+import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
 @Component({
-  selector: 'app-admin-settings-page',
-  standalone: true,
+  selector: 'pelu-admin-settings-page',
   imports: [
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
     ButtonModule,
-    CardComponent,
     InputTextModule,
     InputNumberModule,
     SelectModule,
     CheckboxModule,
     ProgressSpinnerModule,
-    ToastModule,
     InputTextComponent,
     InputNumberComponent,
     InputCheckboxComponent,
-    InputSelectComponent
+    InputSelectComponent,
+    InputDateComponent,
+    ButtonComponent,
   ],
-  providers: [MessageService],
   templateUrl: './admin-settings-page.component.html',
-  styleUrls: ['./admin-settings-page.component.scss']
+  styleUrls: ['./admin-settings-page.component.scss'],
 })
-export class AdminSettingsPageComponent {
+export class AdminSettingsPageComponent implements OnInit {
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private toastService = inject(ToastService);
+
   private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
   private businessSettingsService = inject(BusinessSettingsService);
@@ -57,6 +54,7 @@ export class AdminSettingsPageComponent {
 
   // Mode management
   private readonly isEditModeSignal = signal(false);
+  private originalFormValues: any = null;
 
   // Use the business settings service
   settings = computed(() => this.businessSettingsService.settings());
@@ -68,6 +66,7 @@ export class AdminSettingsPageComponent {
   // Computed properties
   readonly isEditMode = computed(() => this.isEditModeSignal());
 
+  // TODO: posar el calendari de dilluns a diumenge
   workingDaysOptions = [
     { label: 'Dilluns', value: 1 },
     { label: 'Dimarts', value: 2 },
@@ -75,27 +74,27 @@ export class AdminSettingsPageComponent {
     { label: 'Dijous', value: 4 },
     { label: 'Divendres', value: 5 },
     { label: 'Dissabte', value: 6 },
-    { label: 'Diumenge', value: 0 }
+    { label: 'Diumenge', value: 0 },
   ];
 
   backupFrequencyOptions = [
     { label: 'Diari', value: 'daily' },
     { label: 'Setmanal', value: 'weekly' },
-    { label: 'Mensual', value: 'monthly' }
+    { label: 'Mensual', value: 'monthly' },
   ];
 
   languageOptions = [
     { label: 'Català', value: 'ca' },
     { label: 'Español', value: 'es' },
     { label: 'English', value: 'en' },
-    { label: 'العربية', value: 'ar' }
+    { label: 'العربية', value: 'ar' },
   ];
 
   timezoneOptions = [
     { label: 'Madrid (UTC+1)', value: 'Europe/Madrid' },
     { label: 'Barcelona (UTC+1)', value: 'Europe/Madrid' },
     { label: 'Londres (UTC+0)', value: 'Europe/London' },
-    { label: 'Nova York (UTC-5)', value: 'America/New_York' }
+    { label: 'Nova York (UTC-5)', value: 'America/New_York' },
   ];
 
   get currencyOptions() {
@@ -110,10 +109,29 @@ export class AdminSettingsPageComponent {
   // Mode management methods
   setViewMode() {
     this.isEditModeSignal.set(false);
+    // Restore original form values if canceling edit mode
+    if (this.originalFormValues) {
+      this.settingsForm.patchValue(this.originalFormValues);
+      this.originalFormValues = null;
+    }
   }
 
   setEditMode() {
+    // Save current form values before entering edit mode
+    this.originalFormValues = this.settingsForm.value;
     this.isEditModeSignal.set(true);
+  }
+
+  toggleEditMode() {
+    if (this.isEditMode()) {
+      this.setViewMode();
+    } else {
+      this.setEditMode();
+    }
+  }
+
+  cancelEditMode() {
+    this.setViewMode();
   }
 
   // Helper methods for display
@@ -129,28 +147,66 @@ export class AdminSettingsPageComponent {
 
   private initializeForm() {
     const currentSettings = this.settings();
+    const businessHoursString = this.businessSettingsService.getBusinessHoursString();
+    const lunchBreak = this.businessSettingsService.getLunchBreak();
+
     this.settingsForm = this.fb.group({
       businessName: [currentSettings.businessName],
+      businessHoursStart: [businessHoursString.start],
+      businessHoursEnd: [businessHoursString.end],
+      lunchBreakStart: [lunchBreak.start],
+      lunchBreakEnd: [lunchBreak.end],
       appointmentDuration: [currentSettings.appointmentDuration],
       maxAppointments: [currentSettings.maxAppointmentsPerDay],
       autoConfirm: [currentSettings.autoConfirmAppointments],
       sendNotifications: [currentSettings.sendNotifications],
-      maintenanceMode: [currentSettings.maintenanceMode],
       defaultLanguage: [currentSettings.language],
-      currency: [currentSettings.currency]
+      currency: [currentSettings.currency],
+      // New booking parameters
+      preventCancellation: [currentSettings.preventCancellation],
+      cancellationTimeLimit: [currentSettings.cancellationTimeLimit],
+      bookingAdvanceDays: [currentSettings.bookingAdvanceDays],
+      bookingAdvanceTime: [currentSettings.bookingAdvanceTime],
     });
   }
 
   async loadSettings() {
     try {
       await this.businessSettingsService.loadSettings();
+      // Update form with new settings and clear original values
+      this.updateFormWithCurrentSettings();
     } catch (error) {
       console.error('Error loading settings:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Error al carregar la configuració'
+      this.toastService.showError('Error', 'Error al carregar la configuració');
+    }
+  }
+
+  private updateFormWithCurrentSettings() {
+    if (this.settingsForm) {
+      const currentSettings = this.settings();
+      const businessHoursString = this.businessSettingsService.getBusinessHoursString();
+      const lunchBreak = this.businessSettingsService.getLunchBreak();
+
+      this.settingsForm.patchValue({
+        businessName: currentSettings.businessName,
+        businessHoursStart: businessHoursString.start,
+        businessHoursEnd: businessHoursString.end,
+        lunchBreakStart: lunchBreak.start,
+        lunchBreakEnd: lunchBreak.end,
+        appointmentDuration: currentSettings.appointmentDuration,
+        maxAppointments: currentSettings.maxAppointmentsPerDay,
+        autoConfirm: currentSettings.autoConfirmAppointments,
+        sendNotifications: currentSettings.sendNotifications,
+        defaultLanguage: currentSettings.language,
+        currency: currentSettings.currency,
+        preventCancellation: currentSettings.preventCancellation,
+        cancellationTimeLimit: currentSettings.cancellationTimeLimit,
+        bookingAdvanceDays: currentSettings.bookingAdvanceDays,
+        bookingAdvanceTime: currentSettings.bookingAdvanceTime,
       });
+
+      // Clear original form values since we're loading fresh data
+      this.originalFormValues = null;
     }
   }
 
@@ -161,37 +217,47 @@ export class AdminSettingsPageComponent {
         const formValue = this.settingsForm.value;
 
         // Update currency if changed
-        if (formValue.currency && formValue.currency !== this.currencyService.getCurrentCurrency()) {
+        if (
+          formValue.currency &&
+          formValue.currency !== this.currencyService.getCurrentCurrency()
+        ) {
           this.currencyService.setCurrentCurrency(formValue.currency);
         }
 
-        // Save settings using the business settings service
+        // Save business hours and lunch break
+        await this.businessSettingsService.updateBusinessHoursString({
+          start: formValue.businessHoursStart,
+          end: formValue.businessHoursEnd,
+          lunchStart: formValue.lunchBreakStart,
+          lunchEnd: formValue.lunchBreakEnd,
+        });
+
+        // Save other settings using the business settings service
         await this.businessSettingsService.saveSettings({
           businessName: formValue.businessName,
           appointmentDuration: formValue.appointmentDuration,
           maxAppointmentsPerDay: formValue.maxAppointments,
           autoConfirmAppointments: formValue.autoConfirm,
           sendNotifications: formValue.sendNotifications,
-          maintenanceMode: formValue.maintenanceMode,
           language: formValue.defaultLanguage,
-          currency: formValue.currency
+          currency: formValue.currency,
+          // New booking parameters
+          preventCancellation: formValue.preventCancellation,
+          cancellationTimeLimit: formValue.cancellationTimeLimit,
+          bookingAdvanceDays: formValue.bookingAdvanceDays,
+          bookingAdvanceTime: formValue.bookingAdvanceTime,
         });
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Èxit',
-          detail: 'Configuració desada correctament'
-        });
+        this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
+
+        // Clear original form values since changes are now permanent
+        this.originalFormValues = null;
 
         // Switch back to view mode after saving
         this.setViewMode();
       } catch (error) {
         console.error('Error saving settings:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al desar la configuració'
-        });
+        this.toastService.showError('Error', 'Error al desar la configuració');
       } finally {
         this.saving.set(false);
       }
@@ -200,20 +266,15 @@ export class AdminSettingsPageComponent {
 
   resetToDefaults() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.businessSettingsService.resetToDefaults().then(() => {
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Restaurat',
-          detail: 'Configuració restaurada per defecte'
+      this.businessSettingsService
+        .resetToDefaults()
+        .then(() => {
+          this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
+        })
+        .catch(error => {
+          console.error('Error resetting to defaults:', error);
+          this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
         });
-      }).catch(error => {
-        console.error('Error resetting to defaults:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al restaurar la configuració per defecte'
-        });
-      });
     }
   }
 
@@ -225,28 +286,36 @@ export class AdminSettingsPageComponent {
         maxAppointments: 20,
         autoConfirm: false,
         sendNotifications: true,
-        maintenanceMode: false,
-        defaultLanguage: 'ca'
+        defaultLanguage: 'ca',
+        preventCancellation: false,
+        cancellationTimeLimit: 24,
+        bookingAdvanceDays: 30,
+        bookingAdvanceTime: 30,
       });
     }
   }
 
-  toggleMaintenanceMode() {
-    const currentSettings = this.settings();
-    this.businessSettingsService.saveSettings({
-      maintenanceMode: !currentSettings.maintenanceMode
-    });
-  }
-
   getWorkingDaysLabels(): string {
     const workingDays = this.settings().workingDays;
-    return workingDays.map(day => {
-      const option = this.workingDaysOptions.find(opt => opt.value === day);
-      return option ? option.label : day.toString();
-    }).join(', ');
+    return workingDays
+      .map(day => {
+        const option = this.workingDaysOptions.find(opt => opt.value === day);
+        return option ? option.label : day.toString();
+      })
+      .join(', ');
   }
 
   formatTime(hour: number): string {
     return `${hour.toString().padStart(2, '0')}:00`;
+  }
+
+  getBusinessHoursDisplay(): string {
+    const businessHours = this.businessSettingsService.getBusinessHoursString();
+    return `${businessHours.start} - ${businessHours.end}`;
+  }
+
+  getLunchBreakDisplay(): string {
+    const lunchBreak = this.businessSettingsService.getLunchBreak();
+    return `${lunchBreak.start} - ${lunchBreak.end}`;
   }
 }

@@ -10,7 +10,7 @@ class MockTranslateLoader implements TranslateLoader {
       'COMMON.FILTER_BY_DATE': 'Filter by Date',
       'COMMON.FILTER_BY_CLIENT': 'Filter by Client',
       'COMMON.SEARCH_BY_NAME': 'Search by name',
-      'COMMON.CLEAR_FILTERS_BUTTON': 'Clear Filters'
+      'COMMON.CLEAR_FILTERS_BUTTON': 'Clear Filters',
     });
   }
 }
@@ -24,9 +24,9 @@ describe('FiltersInlineComponent', () => {
       imports: [
         FiltersInlineComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ]
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FiltersInlineComponent);
@@ -38,28 +38,27 @@ describe('FiltersInlineComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(component.filterButtons).toBeDefined();
     expect(component.filterDate).toBeDefined();
     expect(component.filterClient).toBeDefined();
-    expect(component.showAdvancedFilters).toBeDefined();
-    expect(component.onFilterClick).toBeDefined();
+    expect(component.filterService).toBeDefined();
     expect(component.onDateChange).toBeDefined();
     expect(component.onClientChange).toBeDefined();
+    expect(component.onServiceChange).toBeDefined();
     expect(component.onReset).toBeDefined();
-    expect(component.onToggleAdvanced).toBeDefined();
   });
 
   it('should have computed properties', () => {
-    expect(component.filterButtonsValue).toBeDefined();
     expect(component.filterDateValue).toBeDefined();
     expect(component.filterClientValue).toBeDefined();
-    expect(component.showAdvancedFiltersValue).toBeDefined();
+    expect(component.filterServiceValue).toBeDefined();
+    expect(component.serviceOptions).toBeDefined();
+    expect(component.serviceFilterConfig).toBeDefined();
   });
 
   it('should have handler methods defined', () => {
-    expect(typeof component.onFilterClickHandler).toBe('function');
     expect(typeof component.onDateChangeHandler).toBe('function');
     expect(typeof component.onClientChangeHandler).toBe('function');
+    expect(typeof component.onServiceChangeHandler).toBe('function');
     expect(typeof component.onResetHandler).toBe('function');
   });
 
@@ -87,18 +86,16 @@ describe('FiltersInlineComponent', () => {
   });
 
   it('should have proper input types', () => {
-    expect(typeof component.filterButtons).toBe('function');
     expect(typeof component.filterDate).toBe('function');
     expect(typeof component.filterClient).toBe('function');
-    expect(typeof component.showAdvancedFilters).toBe('function');
+    expect(typeof component.filterService).toBe('function');
   });
 
   it('should have proper callback types', () => {
-    expect(typeof component.onFilterClick).toBe('function');
     expect(typeof component.onDateChange).toBe('function');
     expect(typeof component.onClientChange).toBe('function');
+    expect(typeof component.onServiceChange).toBe('function');
     expect(typeof component.onReset).toBe('function');
-    expect(typeof component.onToggleAdvanced).toBe('function');
   });
 
   it('should be a component class', () => {

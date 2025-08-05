@@ -1,19 +1,18 @@
 <pelu-detail-view
   [config]="detailConfig()"
   (back)="goBack()"
-  (edit)="startEditing()"
-  (save)="saveAppointment()"
-  (cancelEdit)="cancelEditing()"
   (delete)="deleteAppointment()"
-  (updateForm)="updateForm($event.field, $event.value)">
+>
 </pelu-detail-view>
 
 <!-- Appointment Detail Popup (hidden from detail page) -->
 <pelu-appointment-detail-popup
   [open]="false"
   [booking]="null"
+  [service]="service()"
   [hideViewDetailButton]="true"
-  (closed)="onPopupClosed()">
+  (viewDetailRequested)="onViewDetailRequested($event)"
+>
 </pelu-appointment-detail-popup>
 
 <!-- Delete Confirmation Alert -->
@@ -21,5 +20,6 @@
   [isOpen]="showDeleteAlert()"
   [data]="deleteAlertData()"
   (confirmed)="onDeleteConfirmed()"
-  (cancelled)="onDeleteCancelled()">
+  (cancelled)="onDeleteCancelled()"
+>
 </pelu-alert-popup>

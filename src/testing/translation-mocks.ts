@@ -14,14 +14,14 @@ export const mockTranslateService = {
   getLangs: jasmine.createSpy('getLangs').and.returnValue(['ca', 'es', 'en']),
   onLangChange: new EventEmitter(),
   onDefaultLangChange: new EventEmitter(),
-  onTranslationChange: new EventEmitter()
+  onTranslationChange: new EventEmitter(),
 };
 
 // Mock TranslateStore
 export const mockTranslateStore = {
   onLangChange: new EventEmitter(),
   onDefaultLangChange: new EventEmitter(),
-  onTranslationChange: new EventEmitter()
+  onTranslationChange: new EventEmitter(),
 };
 
 // Mock TranslationService
@@ -33,7 +33,7 @@ export const mockTranslationService = {
   getCurrentLanguageInfo: jasmine.createSpy('getCurrentLanguageInfo').and.returnValue({
     code: 'ca',
     name: 'Català',
-    flag: '🏴󠁥󠁳󠁣󠁴󠁿'
+    flag: '🏴󠁥󠁳󠁣󠁴󠁿',
   }),
   isLanguageAvailable: jasmine.createSpy('isLanguageAvailable').and.returnValue(true),
   isRTL: jasmine.createSpy('isRTL').and.returnValue(false),
@@ -41,7 +41,7 @@ export const mockTranslationService = {
   getBrowserLanguage: jasmine.createSpy('getBrowserLanguage').and.returnValue('ca'),
   saveUserLanguagePreference: jasmine.createSpy('saveUserLanguagePreference'),
   getUserLanguagePreference: jasmine.createSpy('getUserLanguagePreference').and.returnValue('ca'),
-  initializeLanguage: jasmine.createSpy('initializeLanguage')
+  initializeLanguage: jasmine.createSpy('initializeLanguage'),
 };
 
 // Mock ServiceColorsService
@@ -49,7 +49,9 @@ export const mockServiceColorsService = {
   getServiceColor: jasmine.createSpy('getServiceColor').and.returnValue('#007bff'),
   getServiceColorClass: jasmine.createSpy('getServiceColorClass').and.returnValue('primary'),
   getServiceIcon: jasmine.createSpy('getServiceIcon').and.returnValue('scissors'),
-  getServiceTranslation: jasmine.createSpy('getServiceTranslation').and.returnValue('Mocked Service')
+  getServiceTranslation: jasmine
+    .createSpy('getServiceTranslation')
+    .and.returnValue('Mocked Service'),
 };
 
 // Mock AuthService
@@ -57,26 +59,33 @@ export const mockAuthService = {
   currentUser: jasmine.createSpy('currentUser').and.returnValue({
     uid: 'test-user-id',
     email: 'test@example.com',
-    displayName: 'Test User'
+    displayName: 'Test User',
   }),
   signIn: jasmine.createSpy('signIn'),
   signUp: jasmine.createSpy('signUp'),
   signOut: jasmine.createSpy('signOut'),
-  isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true)
+  isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true),
 };
 
 // Mock ServicesService
 export const mockServicesService = {
-  getAllServices: jasmine.createSpy('getAllServices').and.returnValue(of([
-    { id: '1', name: 'Haircut', duration: 60, price: 25 },
-    { id: '2', name: 'Hair Coloring', duration: 120, price: 80 }
-  ])),
-  getServiceById: jasmine.createSpy('getServiceById').and.returnValue(of({
-    id: '1', name: 'Haircut', duration: 60, price: 25
-  })),
+  getAllServices: jasmine.createSpy('getAllServices').and.returnValue(
+    of([
+      { id: '1', name: 'Haircut', duration: 60, price: 25 },
+      { id: '2', name: 'Hair Coloring', duration: 120, price: 80 },
+    ])
+  ),
+  getServiceById: jasmine.createSpy('getServiceById').and.returnValue(
+    of({
+      id: '1',
+      name: 'Haircut',
+      duration: 60,
+      price: 25,
+    })
+  ),
   addService: jasmine.createSpy('addService'),
   updateService: jasmine.createSpy('updateService'),
-  deleteService: jasmine.createSpy('deleteService')
+  deleteService: jasmine.createSpy('deleteService'),
 };
 
 // Mock MessageService
@@ -86,7 +95,7 @@ export const mockMessageService = {
   addAll: jasmine.createSpy('addAll'),
   addOne: jasmine.createSpy('addOne'),
   remove: jasmine.createSpy('remove'),
-  removeAll: jasmine.createSpy('removeAll')
+  removeAll: jasmine.createSpy('removeAll'),
 };
 
 // Mock Router
@@ -95,14 +104,14 @@ export const mockRouter = {
   navigateByUrl: jasmine.createSpy('navigateByUrl'),
   url: '/test',
   events: of({}),
-  routerState: { snapshot: { url: '/test' } }
+  routerState: { snapshot: { url: '/test' } },
 };
 
 // Mock ActivatedRoute
 export const mockActivatedRoute = {
   params: of({}),
   queryParams: of({}),
-  snapshot: { params: {}, queryParams: {} }
+  snapshot: { params: {}, queryParams: {} },
 };
 
 // Mock RoleService
@@ -111,14 +120,16 @@ export const mockRoleService = {
   setRole: jasmine.createSpy('setRole'),
   isClient: jasmine.createSpy('isClient').and.returnValue(true),
   isAdmin: jasmine.createSpy('isAdmin').and.returnValue(false),
-  initializeRoleListener: jasmine.createSpy('initializeRoleListener')
+  initializeRoleListener: jasmine.createSpy('initializeRoleListener'),
 };
 
 // Mock CalendarPositionService
 export const mockCalendarPositionService = {
   calculatePosition: jasmine.createSpy('calculatePosition').and.returnValue({ top: 0, left: 0 }),
-  getTimeSlotPosition: jasmine.createSpy('getTimeSlotPosition').and.returnValue({ top: 0, left: 0 }),
-  getDayPosition: jasmine.createSpy('getDayPosition').and.returnValue({ top: 0, left: 0 })
+  getTimeSlotPosition: jasmine
+    .createSpy('getTimeSlotPosition')
+    .and.returnValue({ top: 0, left: 0 }),
+  getDayPosition: jasmine.createSpy('getDayPosition').and.returnValue({ top: 0, left: 0 }),
 };
 
 // Mock CalendarBusinessService
@@ -127,11 +138,11 @@ export const mockCalendarBusinessService = {
     start: 8,
     end: 20,
     lunchStart: 13,
-    lunchEnd: 14
+    lunchEnd: 14,
   }),
   getBusinessDays: jasmine.createSpy('getBusinessDays').and.returnValue([1, 2, 3, 4, 5, 6]),
   isBusinessDay: jasmine.createSpy('isBusinessDay').and.returnValue(true),
-  isBusinessHour: jasmine.createSpy('isBusinessHour').and.returnValue(true)
+  isBusinessHour: jasmine.createSpy('isBusinessHour').and.returnValue(true),
 };
 
 // Mock CalendarStateService
@@ -141,7 +152,7 @@ export const mockCalendarStateService = {
   selectedTimeSlot: jasmine.createSpy('selectedTimeSlot').and.returnValue(null),
   setSelectedTimeSlot: jasmine.createSpy('setSelectedTimeSlot'),
   appointments: jasmine.createSpy('appointments').and.returnValue([]),
-  setAppointments: jasmine.createSpy('setAppointments')
+  setAppointments: jasmine.createSpy('setAppointments'),
 };
 
 // Mock Firebase Auth
@@ -149,12 +160,12 @@ export const mockAuth = {
   currentUser: Promise.resolve({
     uid: 'test-user-id',
     email: 'test@example.com',
-    displayName: 'Test User'
+    displayName: 'Test User',
   }),
   onAuthStateChanged: jasmine.createSpy('onAuthStateChanged').and.returnValue(() => {}),
   signInWithEmailAndPassword: jasmine.createSpy('signInWithEmailAndPassword'),
   createUserWithEmailAndPassword: jasmine.createSpy('createUserWithEmailAndPassword'),
-  signOut: jasmine.createSpy('signOut')
+  signOut: jasmine.createSpy('signOut'),
 };
 
 // Mock data for tests
@@ -168,7 +179,7 @@ export const mockData = {
       servei: 'Corte de pelo',
       serviceName: 'Haircut',
       duration: 60,
-      userId: 'user1'
+      userId: 'user1',
     },
     {
       id: '2',
@@ -178,17 +189,17 @@ export const mockData = {
       servei: 'Coloración',
       serviceName: 'Hair Coloring',
       duration: 120,
-      userId: 'user2'
-    }
+      userId: 'user2',
+    },
   ],
   services: [
     { id: '1', name: 'Haircut', duration: 60, price: 25 },
-    { id: '2', name: 'Hair Coloring', duration: 120, price: 80 }
+    { id: '2', name: 'Hair Coloring', duration: 120, price: 80 },
   ],
   stats: {
     total: 10,
     today: 3,
     pending: 2,
-    completed: 5
-  }
+    completed: 5,
+  },
 };

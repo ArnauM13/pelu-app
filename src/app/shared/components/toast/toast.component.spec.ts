@@ -18,7 +18,8 @@ class MockTranslateLoader implements TranslateLoader {
 // Mock p-toast component
 @Component({
   selector: 'p-toast',
-  template: '<ng-content></ng-content>'
+  template: '<ng-content></ng-content>',
+  standalone: false,
 })
 class MockPToastComponent {
   @Input() key: string = '';
@@ -46,20 +47,20 @@ describe('ToastComponent', () => {
         ToastComponent,
         // ToastModule, // Eliminat
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       // declarations: [MockPToastComponent], // ja no cal
       providers: [
         { provide: MessageService, useValue: messageServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: AuthService, useValue: authServiceSpy }
+        { provide: AuthService, useValue: authServiceSpy },
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     })
-    // OVERRIDE TEMPLATE: Evitem que es renderitzi p-toast
-    .overrideComponent(ToastComponent, { set: { template: '' } })
-    .compileComponents();
+      // OVERRIDE TEMPLATE: Evitem que es renderitzi p-toast
+      .overrideComponent(ToastComponent, { set: { template: '' } })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ToastComponent);
     component = fixture.componentInstance;
@@ -73,46 +74,48 @@ describe('ToastComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have correct toast key', () => {
-    expect(component.toastKey).toBe('pelu-toast');
-  });
-
   describe('showToast', () => {
     it('should call messageService.add with correct parameters', () => {
-      const severity = 'success';
-      const summary = 'Test summary';
-      const detail = 'Test detail';
-      const appointmentId = 'test-id';
-      const showViewButton = true;
-      const action = () => {};
+      const config = {
+        severity: 'success' as const,
+        summary: 'Test summary',
+        detail: 'Test detail',
+        data: {
+          appointmentId: 'test-id',
+          showViewButton: true,
+          action: () => {}
+        }
+      };
 
-      component.showToast(severity, summary, detail, appointmentId, showViewButton, action);
+      component.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
-        detail,
+        severity: config.severity,
+        summary: config.summary,
+        detail: config.detail,
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId, showViewButton, action }
+        data: config.data,
       });
     });
 
     it('should call messageService.add with default parameters', () => {
-      const severity = 'error';
-      const summary = 'Test summary';
+      const config = {
+        severity: 'error' as const,
+        summary: 'Test summary'
+      };
 
-      component.showToast(severity, summary);
+      component.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
+        severity: config.severity,
+        summary: config.summary,
         detail: '',
         life: 4000,
         closable: false,
         key: 'pelu-toast',
-        data: { appointmentId: undefined, showViewButton: false, action: undefined }
+        data: { appointmentId: undefined, showViewButton: false, action: undefined },
       });
     });
   });
@@ -130,8 +133,8 @@ describe('ToastComponent', () => {
       const action = jasmine.createSpy('action');
       const event = {
         message: {
-          data: { action }
-        }
+          data: { action },
+        },
       };
 
       component.onToastClick(event);
@@ -144,8 +147,8 @@ describe('ToastComponent', () => {
       const appointmentId = 'test-id';
       const event = {
         message: {
-          data: { appointmentId }
-        }
+          data: { appointmentId },
+        },
       };
 
       component.onToastClick(event);
@@ -157,8 +160,8 @@ describe('ToastComponent', () => {
       spyOn(component, 'viewAppointmentDetail');
       const event = {
         message: {
-          data: {}
-        }
+          data: {},
+        },
       };
 
       component.onToastClick(event);
@@ -172,8 +175,8 @@ describe('ToastComponent', () => {
       const appointmentId = 'test-id';
       const event = {
         message: {
-          data: { action, appointmentId }
-        }
+          data: { action, appointmentId },
+        },
       };
 
       component.onToastClick(event);
@@ -201,7 +204,10 @@ describe('ToastComponent', () => {
       component.executeAction(action);
 
       expect(action).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('Error executing toast action:', jasmine.any(Error));
+      expect(console.error).toHaveBeenCalledWith(
+        'Error executing toast action:',
+        jasmine.any(Error)
+      );
     });
   });
 

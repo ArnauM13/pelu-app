@@ -1,0 +1,63 @@
+<div class="playground-container">
+  <div class="playground-header">
+    <h1>🎮 Playground de Components</h1>
+    <p>Pàgina de proves per visualitzar i testar els components de l'aplicació</p>
+  </div>
+
+  <div class="playground-content">
+    <!-- Custom Tab Navigation -->
+    <div class="tab-navigation">
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('inputs')"
+        (click)="setActiveTab('inputs')">
+        📝 Inputs
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('buttons')"
+        (click)="setActiveTab('buttons')">
+        🔘 Botons
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('toasts')"
+        (click)="setActiveTab('toasts')">
+        🎯 Toasts
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Inputs Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('inputs')">
+        <div class="demo-section">
+          <h2>📝 Components d'Input</h2>
+          <p>Demostració dels components d'input unificats amb diferents variants i configuracions.</p>
+
+          <pelu-inputs-demo></pelu-inputs-demo>
+        </div>
+      </div>
+
+      <!-- Buttons Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('buttons')">
+        <div class="demo-section">
+          <h2>🔘 Components de Botons</h2>
+          <p>Demostració dels components de botons amb diferents variants i estats.</p>
+
+          <pelu-buttons-demo></pelu-buttons-demo>
+        </div>
+      </div>
+
+      <!-- Toasts Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('toasts')">
+        <div class="demo-section">
+          <h2>🎯 Sistema de Toasts</h2>
+          <p>Demostració del sistema de toasts unificat amb PrimeNG i personalització completa.</p>
+
+          <pelu-toast-demo></pelu-toast-demo>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

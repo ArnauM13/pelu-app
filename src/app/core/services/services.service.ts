@@ -3,6 +3,7 @@ import { TranslationService } from './translation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { FirebaseServicesService, FirebaseService } from './firebase-services.service';
 
 export interface ServiceColor {
   id: string;
@@ -13,30 +14,18 @@ export interface ServiceColor {
   textColor: string;
 }
 
-export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number; // in minutes
-  category: 'haircut' | 'beard' | 'treatment' | 'styling' | 'coloring' | 'special' | 'kids' | 'default';
-  icon: string;
-  popular?: boolean;
-}
-
-export interface ServiceCategory {
-  id: 'haircut' | 'beard' | 'treatment' | 'styling' | 'coloring' | 'special' | 'kids' | 'default';
-  name: string;
-  icon: string;
-}
+// Re-export FirebaseService interface for backward compatibility
+export type Service = FirebaseService;
+export type ServiceCategory = import('./firebase-services.service').ServiceCategory;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ServicesService {
   // Inject services
   #translationService = inject(TranslationService);
   #translateService = inject(TranslateService);
+  #firebaseServicesService = inject(FirebaseServicesService);
 
   // Service colors configuration
   private readonly serviceColors: ServiceColor[] = [
@@ -46,7 +35,7 @@ export class ServicesService {
       color: 'var(--service-haircut-color)',
       backgroundColor: 'var(--service-haircut-bg)',
       borderColor: 'var(--service-haircut-color)',
-      textColor: 'var(--service-haircut-text)'
+      textColor: 'var(--service-haircut-text)',
     },
     {
       id: 'styling',
@@ -54,7 +43,7 @@ export class ServicesService {
       color: 'var(--service-styling-color)',
       backgroundColor: 'var(--service-styling-bg)',
       borderColor: 'var(--service-styling-color)',
-      textColor: 'var(--service-styling-text)'
+      textColor: 'var(--service-styling-text)',
     },
     {
       id: 'treatment',
@@ -62,7 +51,7 @@ export class ServicesService {
       color: 'var(--service-treatment-color)',
       backgroundColor: 'var(--service-treatment-bg)',
       borderColor: 'var(--service-treatment-color)',
-      textColor: 'var(--service-treatment-text)'
+      textColor: 'var(--service-treatment-text)',
     },
     {
       id: 'coloring',
@@ -70,7 +59,7 @@ export class ServicesService {
       color: 'var(--service-coloring-color)',
       backgroundColor: 'var(--service-coloring-bg)',
       borderColor: 'var(--service-coloring-color)',
-      textColor: 'var(--service-coloring-text)'
+      textColor: 'var(--service-coloring-text)',
     },
     {
       id: 'special',
@@ -78,7 +67,7 @@ export class ServicesService {
       color: 'var(--service-special-color)',
       backgroundColor: 'var(--service-special-bg)',
       borderColor: 'var(--service-special-color)',
-      textColor: 'var(--service-special-text)'
+      textColor: 'var(--service-special-text)',
     },
     {
       id: 'kids',
@@ -86,7 +75,7 @@ export class ServicesService {
       color: 'var(--service-kids-color)',
       backgroundColor: 'var(--service-kids-bg)',
       borderColor: 'var(--service-kids-color)',
-      textColor: 'var(--service-kids-text)'
+      textColor: 'var(--service-kids-text)',
     },
     {
       id: 'default',
@@ -94,178 +83,11 @@ export class ServicesService {
       color: 'var(--service-default-color)',
       backgroundColor: 'var(--service-default-bg)',
       borderColor: 'var(--service-default-color)',
-      textColor: 'var(--service-default-text)'
-    }
+      textColor: 'var(--service-default-text)',
+    },
   ];
 
   private readonly serviceColorMap = new Map<string, ServiceColor>();
-
-  // Service name translation mapping
-  private readonly serviceNameMap = new Map<string, string>([
-    // Catalan service names
-    ['corte de cabell masculí', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['corte + afaitat', 'SERVICES.NAMES.HAIRCUT_BEARD'],
-    ['afaitat de barba', 'SERVICES.NAMES.BEARD_SHAVE'],
-    ['arreglada de barba', 'SERVICES.NAMES.BEARD_TRIM'],
-    ['lavada i tractament', 'SERVICES.NAMES.WASH_TREATMENT'],
-    ['coloració', 'SERVICES.NAMES.COLORING'],
-    ['pentinat especial', 'SERVICES.NAMES.SPECIAL_STYLING'],
-    ['tall infantil', 'SERVICES.NAMES.KIDS_HAIRCUT'],
-    ['servei general', 'SERVICES.NAMES.GENERAL_SERVICE'],
-    ['perruqueria completa', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
-    ['servei de prova', 'SERVICES.NAMES.TEST_SERVICE'],
-
-    // Spanish service names
-    ['corte de cabello masculino', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['corte + afeitado', 'SERVICES.NAMES.HAIRCUT_BEARD'],
-    ['afeitado de barba', 'SERVICES.NAMES.BEARD_SHAVE'],
-    ['arreglada de barba', 'SERVICES.NAMES.BEARD_TRIM'],
-    ['lavada y tratamiento', 'SERVICES.NAMES.WASH_TREATMENT'],
-    ['coloración', 'SERVICES.NAMES.COLORING'],
-    ['peinado especial', 'SERVICES.NAMES.SPECIAL_STYLING'],
-    ['corte infantil', 'SERVICES.NAMES.KIDS_HAIRCUT'],
-    ['servicio general', 'SERVICES.NAMES.GENERAL_SERVICE'],
-    ['peluquería completa', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
-    ['servicio de prueba', 'SERVICES.NAMES.TEST_SERVICE'],
-
-    // English service names
-    ['male haircut', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['haircut + shave', 'SERVICES.NAMES.HAIRCUT_BEARD'],
-    ['beard shave', 'SERVICES.NAMES.BEARD_SHAVE'],
-    ['beard trim', 'SERVICES.NAMES.BEARD_TRIM'],
-    ['wash and treatment', 'SERVICES.NAMES.WASH_TREATMENT'],
-    ['coloring', 'SERVICES.NAMES.COLORING'],
-    ['special styling', 'SERVICES.NAMES.SPECIAL_STYLING'],
-    ['kids haircut', 'SERVICES.NAMES.KIDS_HAIRCUT'],
-    ['general service', 'SERVICES.NAMES.GENERAL_SERVICE'],
-    ['complete hairdressing', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
-    ['test service', 'SERVICES.NAMES.TEST_SERVICE'],
-
-    // Arabic service names
-    ['قص شعر رجالي', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['قص شعر + حلاقة', 'SERVICES.NAMES.HAIRCUT_BEARD'],
-    ['حلاقة اللحية', 'SERVICES.NAMES.BEARD_SHAVE'],
-    ['تشذيب اللحية', 'SERVICES.NAMES.BEARD_TRIM'],
-    ['غسيل وعلاج', 'SERVICES.NAMES.WASH_TREATMENT'],
-    ['تلوين', 'SERVICES.NAMES.COLORING'],
-    ['تصفيف خاص', 'SERVICES.NAMES.SPECIAL_STYLING'],
-    ['قص شعر للأطفال', 'SERVICES.NAMES.KIDS_HAIRCUT'],
-    ['خدمة عامة', 'SERVICES.NAMES.GENERAL_SERVICE'],
-    ['تجميل شعر كامل', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
-    ['خدمة تجريبية', 'SERVICES.NAMES.TEST_SERVICE'],
-
-    // Common variations
-    ['tall de cabell', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['corte', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['haircut', 'SERVICES.NAMES.MALE_HAIRCUT'],
-    ['afaitat', 'SERVICES.NAMES.BEARD_SHAVE'],
-    ['shave', 'SERVICES.NAMES.BEARD_SHAVE'],
-    ['barba', 'SERVICES.NAMES.BEARD_TRIM'],
-    ['beard', 'SERVICES.NAMES.BEARD_TRIM'],
-    ['tractament', 'SERVICES.NAMES.WASH_TREATMENT'],
-    ['treatment', 'SERVICES.NAMES.WASH_TREATMENT'],
-    ['color', 'SERVICES.NAMES.COLORING'],
-    ['pentinat', 'SERVICES.NAMES.SPECIAL_STYLING'],
-    ['styling', 'SERVICES.NAMES.SPECIAL_STYLING'],
-    ['infantil', 'SERVICES.NAMES.KIDS_HAIRCUT'],
-    ['kids', 'SERVICES.NAMES.KIDS_HAIRCUT'],
-    ['completa', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
-    ['complete', 'SERVICES.NAMES.COMPLETE_HAIRDRESSING'],
-    ['prova', 'SERVICES.NAMES.TEST_SERVICE'],
-    ['test', 'SERVICES.NAMES.TEST_SERVICE']
-  ]);
-
-  // Service categories configuration - single source of truth
-  private readonly serviceCategories: ServiceCategory[] = [
-    { id: 'haircut', name: 'SERVICES.CATEGORIES.HAIRCUT', icon: '✂️' },
-    { id: 'beard', name: 'SERVICES.CATEGORIES.BEARD', icon: '🧔' },
-    { id: 'treatment', name: 'SERVICES.CATEGORIES.TREATMENT', icon: '💆' },
-    { id: 'styling', name: 'SERVICES.CATEGORIES.STYLING', icon: '💇' },
-    { id: 'coloring', name: 'SERVICES.CATEGORIES.COLORING', icon: '🎨' },
-    { id: 'special', name: 'SERVICES.CATEGORIES.SPECIAL', icon: '⭐' },
-    { id: 'kids', name: 'SERVICES.CATEGORIES.KIDS', icon: '👶' },
-    { id: 'default', name: 'SERVICES.CATEGORIES.DEFAULT', icon: '🔧' }
-  ];
-
-  // All services - single source of truth
-  private readonly allServices: Service[] = [
-    {
-      id: '1',
-      name: 'SERVICES.NAMES.MALE_HAIRCUT',
-      description: 'Corte clàssic o modern segons les teves preferències',
-      price: 25,
-      duration: 30,
-      category: 'haircut',
-      icon: '✂️',
-      popular: true
-    },
-    {
-      id: '2',
-      name: 'SERVICES.NAMES.HAIRCUT_BEARD',
-      description: 'Corte complet amb afaitat de barba inclòs',
-      price: 35,
-      duration: 45,
-      category: 'haircut',
-      icon: '✂️',
-      popular: true
-    },
-    {
-      id: '3',
-      name: 'SERVICES.NAMES.BEARD_SHAVE',
-      description: 'Afaitat tradicional amb navalla o màquina',
-      price: 15,
-      duration: 20,
-      category: 'beard',
-      icon: '🧔'
-    },
-    {
-      id: '4',
-      name: 'SERVICES.NAMES.BEARD_TRIM',
-      description: 'Perfilat i arreglada de barba',
-      price: 12,
-      duration: 15,
-      category: 'beard',
-      icon: '🧔'
-    },
-    {
-      id: '5',
-      name: 'SERVICES.NAMES.WASH_TREATMENT',
-      description: 'Lavada professional amb productes de qualitat',
-      price: 18,
-      duration: 25,
-      category: 'treatment',
-      icon: '💆'
-    },
-    {
-      id: '6',
-      name: 'SERVICES.NAMES.COLORING',
-      description: 'Coloració completa o retocs',
-      price: 45,
-      duration: 60,
-      category: 'treatment',
-      icon: '💆',
-      popular: true
-    },
-    {
-      id: '7',
-      name: 'SERVICES.NAMES.SPECIAL_STYLING',
-      description: 'Peinat per a esdeveniments especials',
-      price: 30,
-      duration: 40,
-      category: 'styling',
-      icon: '💇',
-      popular: true
-    },
-    {
-      id: '8',
-      name: 'SERVICES.NAMES.KIDS_HAIRCUT',
-      description: 'Corte especialitzat per a nens',
-      price: 18,
-      duration: 25,
-      category: 'haircut',
-      icon: '✂️'
-    }
-  ];
 
   constructor() {
     // Initialize service colors map
@@ -275,51 +97,45 @@ export class ServicesService {
   }
 
   /**
-   * Get all services
+   * Get all services from Firebase
    */
   getAllServices(): Service[] {
-    return this.getServicesWithTranslatedNames();
+    return this.#firebaseServicesService.activeServices();
   }
 
   /**
-   * Get services by category
+   * Get services by category from Firebase
    */
   getServicesByCategory(category: Service['category']): Service[] {
-    return this.getServicesWithTranslatedNames().filter(service => service.category === category);
+    return this.#firebaseServicesService.getServicesByCategory(category);
   }
 
   /**
-   * Get a specific service by ID
+   * Get a specific service by ID from Firebase
    */
-  getServiceById(id: string): Service | undefined {
-    const service = this.allServices.find(service => service.id === id);
-    if (!service) return undefined;
-
-    return {
-      ...service,
-      name: this.getServiceName(service)
-    };
+  async getServiceById(id: string): Promise<Service | null> {
+    return await this.#firebaseServicesService.getServiceById(id);
   }
 
   /**
-   * Get popular services
+   * Get popular services from Firebase
    */
   getPopularServices(): Service[] {
-    return this.getServicesWithTranslatedNames().filter(service => service.popular);
+    return this.#firebaseServicesService.popularServices();
   }
 
   /**
-   * Get all service categories
+   * Get all service categories from Firebase
    */
   getServiceCategories(): ServiceCategory[] {
-    return [...this.serviceCategories];
+    return this.#firebaseServicesService.serviceCategories();
   }
 
   /**
-   * Get category by ID
+   * Get category by ID from Firebase
    */
   getCategoryById(id: string): ServiceCategory | undefined {
-    return this.serviceCategories.find(category => category.id === id);
+    return this.#firebaseServicesService.serviceCategories().find(category => category.id === id);
   }
 
   /**
@@ -339,7 +155,7 @@ export class ServicesService {
 
         const translated = this.#translateService.instant(category.name);
         return translated;
-      } catch (error) {
+      } catch {
         return category.name;
       }
     }
@@ -349,7 +165,7 @@ export class ServicesService {
   }
 
   /**
-   * Get category icon
+   * Get category icon from Firebase
    */
   getCategoryIcon(categoryId: string): string {
     const category = this.getCategoryById(categoryId);
@@ -364,7 +180,7 @@ export class ServicesService {
       // Try to get a known translation key
       const testTranslation = this.#translateService.instant('SERVICES.NAMES.MALE_HAIRCUT');
       return testTranslation !== 'SERVICES.NAMES.MALE_HAIRCUT';
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -390,7 +206,7 @@ export class ServicesService {
         }
 
         return translated;
-      } catch (error) {
+      } catch {
         return service.name;
       }
     }
@@ -403,9 +219,9 @@ export class ServicesService {
    * Get services with translated names
    */
   getServicesWithTranslatedNames(): Service[] {
-    return this.allServices.map(service => ({
+    return this.getAllServices().map(service => ({
       ...service,
-      name: this.getServiceName(service)
+      name: this.getServiceName(service),
     }));
   }
 
@@ -416,14 +232,14 @@ export class ServicesService {
     return this.#translateService.get('SERVICES.NAMES.MALE_HAIRCUT').pipe(
       map(() => {
         // If we can get a translation, the service is ready
-        return this.allServices.map(service => ({
+        return this.getAllServices().map(service => ({
           ...service,
-          name: this.getServiceName(service)
+          name: this.getServiceName(service),
         }));
       }),
       catchError(() => {
         // If translation fails, return services with original names
-        return of(this.allServices);
+        return of(this.getAllServices());
       })
     );
   }
@@ -435,9 +251,10 @@ export class ServicesService {
     const lowerQuery = query.toLowerCase();
     const translatedServices = this.getServicesWithTranslatedNames();
 
-    return translatedServices.filter(service =>
-      service.name.toLowerCase().includes(lowerQuery) ||
-      service.description.toLowerCase().includes(lowerQuery)
+    return translatedServices.filter(
+      service =>
+        service.name.toLowerCase().includes(lowerQuery) ||
+        service.description.toLowerCase().includes(lowerQuery)
     );
   }
 
@@ -445,8 +262,8 @@ export class ServicesService {
    * Get services within a price range
    */
   getServicesByPriceRange(minPrice: number, maxPrice: number): Service[] {
-    return this.getServicesWithTranslatedNames().filter(service =>
-      service.price >= minPrice && service.price <= maxPrice
+    return this.getServicesWithTranslatedNames().filter(
+      service => service.price >= minPrice && service.price <= maxPrice
     );
   }
 
@@ -454,8 +271,8 @@ export class ServicesService {
    * Get services within a duration range
    */
   getServicesByDurationRange(minDuration: number, maxDuration: number): Service[] {
-    return this.getServicesWithTranslatedNames().filter(service =>
-      service.duration >= minDuration && service.duration <= maxDuration
+    return this.getServicesWithTranslatedNames().filter(
+      service => service.duration >= minDuration && service.duration <= maxDuration
     );
   }
 
@@ -469,87 +286,64 @@ export class ServicesService {
       return this.#translationService.get('SERVICES.NAMES.GENERAL_SERVICE');
     }
 
-    const serviceNameLower = serviceName.toLowerCase().trim();
+    // If the service name is already a translation key, translate it directly
+    if (serviceName.startsWith('SERVICES.NAMES.')) {
+      try {
+        // Check if translations are ready
+        if (!this.isTranslationReady()) {
+          return serviceName;
+        }
 
-    // Try to find an exact match first
-    const translationKey = this.serviceNameMap.get(serviceNameLower);
-    if (translationKey) {
-      return this.#translationService.get(translationKey);
-    }
-
-    // Try to find a partial match
-    for (const [key, value] of this.serviceNameMap.entries()) {
-      if (serviceNameLower.includes(key) || key.includes(serviceNameLower)) {
-        return this.#translationService.get(value);
+        const translated = this.#translateService.instant(serviceName);
+        return translated;
+      } catch {
+        return serviceName;
       }
     }
 
-    // If no match found, return the original service name
+    // If no translation key found, return the original service name
     return serviceName;
-  }
-
-  /**
-   * Gets the translation key for a service name
-   */
-  getServiceTranslationKey(serviceName: string): string {
-    if (!serviceName) {
-      return 'SERVICES.NAMES.GENERAL_SERVICE';
-    }
-
-    const serviceNameLower = serviceName.toLowerCase().trim();
-
-    // Try to find an exact match first
-    const translationKey = this.serviceNameMap.get(serviceNameLower);
-    if (translationKey) {
-      return translationKey;
-    }
-
-    // Try to find a partial match
-    for (const [key, value] of this.serviceNameMap.entries()) {
-      if (serviceNameLower.includes(key) || key.includes(serviceNameLower)) {
-        return value;
-      }
-    }
-
-    // If no match found, return the general service key
-    return 'SERVICES.NAMES.GENERAL_SERVICE';
   }
 
   // ===== SERVICE COLOR METHODS =====
 
   /**
-   * Obté el color d'un servei basat en el nom del servei
+   * Obté el color d'un servei basat en la categoria del servei
    */
-  getServiceColor(serviceName: string): ServiceColor {
-    if (!serviceName) {
+  getServiceColor(service: Service): ServiceColor {
+    if (!service || !service.category) {
       return this.getDefaultColor();
     }
 
-    const serviceNameLower = serviceName.toLowerCase();
+    const category = service.category.toLowerCase();
 
-    // Mapeig de noms de serveis a IDs de colors
-    if (serviceNameLower.includes('corte') || serviceNameLower.includes('tall') || serviceNameLower.includes('cabell')) {
+    // Mapeig de categories a IDs de colors
+    if (category === 'haircut') {
       return this.serviceColorMap.get('haircut') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('peinat') || serviceNameLower.includes('pentinat') || serviceNameLower.includes('estil') || serviceNameLower.includes('estilitzat')) {
+    if (category === 'styling') {
       return this.serviceColorMap.get('styling') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('tractament') || serviceNameLower.includes('màscara') || serviceNameLower.includes('hidratació') || serviceNameLower.includes('rentat')) {
+    if (category === 'treatment') {
       return this.serviceColorMap.get('treatment') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('color') || serviceNameLower.includes('tint') || serviceNameLower.includes('coloració')) {
+    if (category === 'coloring') {
       return this.serviceColorMap.get('coloring') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('especial') || serviceNameLower.includes('event') || serviceNameLower.includes('completa')) {
+    if (category === 'special') {
       return this.serviceColorMap.get('special') || this.getDefaultColor();
     }
 
-    if (serviceNameLower.includes('infantil') || serviceNameLower.includes('nen') || serviceNameLower.includes('nena') || serviceNameLower.includes('infant')) {
+    if (category === 'kids') {
       return this.serviceColorMap.get('kids') || this.getDefaultColor();
+    }
+
+    if (category === 'beard') {
+      return this.serviceColorMap.get('haircut') || this.getDefaultColor(); // Beard uses haircut colors
     }
 
     return this.getDefaultColor();
@@ -593,24 +387,24 @@ export class ServicesService {
   /**
    * Obté el nom de la classe CSS per a un servei
    */
-  getServiceCssClass(serviceName: string): string {
-    const serviceColor = this.getServiceColor(serviceName);
+  getServiceCssClass(service: Service): string {
+    const serviceColor = this.getServiceColor(service);
     return `service-color-${serviceColor.id}`;
   }
 
   /**
    * Obté el nom de la classe CSS per al text d'un servei
    */
-  getServiceTextCssClass(serviceName: string): string {
-    const serviceColor = this.getServiceColor(serviceName);
+  getServiceTextCssClass(service: Service): string {
+    const serviceColor = this.getServiceColor(service);
     return `service-text-${serviceColor.id}`;
   }
 
   /**
    * Obté el nom de la classe CSS per al fons d'un servei
    */
-  getServiceBgCssClass(serviceName: string): string {
-    const serviceColor = this.getServiceColor(serviceName);
+  getServiceBgCssClass(service: Service): string {
+    const serviceColor = this.getServiceColor(service);
     return `service-bg-${serviceColor.id}`;
   }
 }

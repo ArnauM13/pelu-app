@@ -2,6 +2,7 @@ import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { RoleService, UserRole } from './role.service';
 import { User } from '@angular/fire/auth';
+import { User as AppUser, UserProfile as AppUserProfile } from '../interfaces/user.interface';
 
 export interface UserProfile {
   auth: User | null;
@@ -20,7 +21,7 @@ export class UserService {
     auth: null,
     role: null,
     isLoading: true,
-    isInitialized: false
+    isInitialized: false,
   });
 
   // Public computed signals
@@ -32,7 +33,9 @@ export class UserService {
 
   // Authentication state
   readonly isAuthenticated = computed(() => !!this.currentUser());
-  readonly userDisplayName = computed(() => this.currentUser()?.displayName || this.currentUser()?.email || '');
+  readonly userDisplayName = computed(
+    () => this.currentUser()?.displayName || this.currentUser()?.email || ''
+  );
   readonly userEmail = computed(() => this.currentUser()?.email || '');
   readonly userId = computed(() => this.currentUser()?.uid || null);
 
@@ -54,20 +57,22 @@ export class UserService {
 
   private initializeUserProfile() {
     // Use effect to react to changes in auth and role signals
-    effect(() => {
-      const auth = this.authService.user();
-      const role = this.roleService.userRole();
-      const authLoading = this.authService.isLoading();
-      const roleLoading = this.roleService.isLoadingRole();
-      const authInitialized = this.authService.isInitialized();
+    effect(
+      () => {
+        const auth = this.authService.user();
+        const role = this.roleService.userRole();
+        const authLoading = this.authService.isLoading();
+        const roleLoading = this.roleService.isLoadingRole();
+        const authInitialized = this.authService.isInitialized();
 
-      this.userProfileSignal.set({
-        auth,
-        role,
-        isLoading: authLoading || roleLoading,
-        isInitialized: authInitialized && !roleLoading
-      });
-    }, { allowSignalWrites: true });
+        this.userProfileSignal.set({
+          auth,
+          role,
+          isLoading: authLoading || roleLoading,
+          isInitialized: authInitialized && !roleLoading,
+        });
+      }
+    );
   }
 
   // Authentication methods (delegated to AuthService)
@@ -95,14 +100,14 @@ export class UserService {
   async promoteToAdmin(uid: string, adminInfo?: any) {
     const updates: Partial<UserRole> = {
       role: 'admin',
-      ...adminInfo
+      ...adminInfo,
     };
     return this.roleService.updateUserRole(uid, updates);
   }
 
   async demoteToClient(uid: string) {
     const updates: Partial<UserRole> = {
-      role: 'client'
+      role: 'client',
     };
     return this.roleService.updateUserRole(uid, updates);
   }

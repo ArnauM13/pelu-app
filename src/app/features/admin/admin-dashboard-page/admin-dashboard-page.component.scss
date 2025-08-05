@@ -1,21 +1,24 @@
 .admin-dashboard.single-screen {
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%);
-  padding: 0;
+  background: linear-gradient(
+    135deg,
+    var(--background-color) 0%,
+    var(--secondary-color-light) 100%
+  );
+  padding: 1rem;
   overflow: hidden;
 }
 
 .dashboard-card {
   background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   max-width: 900px;
   width: 100%;
-  padding: 2rem 2rem 1.5rem 2rem;
-  margin: 1rem auto;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -100,7 +103,7 @@
   background: #f8fafd;
   border-radius: 14px;
   padding: 1.2rem 1.2rem 1rem 1.2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border-left: 4px solid #3498db;
 
   h3 {
@@ -159,8 +162,7 @@
 
 @media (max-width: 768px) {
   .dashboard-card {
-    padding: 1.5rem 1rem 1rem 1rem;
-    margin: 0.5rem;
+    padding: 1rem;
   }
 
   .dashboard-header h1 {
@@ -184,7 +186,7 @@
 
 @media (max-width: 480px) {
   .dashboard-card {
-    padding: 1rem 0.75rem 0.75rem 0.75rem;
+    padding: 1rem;
   }
 
   .dashboard-header h1 {

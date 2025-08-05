@@ -7,11 +7,10 @@
 
 .input-number-label {
   font-weight: 600;
-  color: var(--text-color-light, #374151);
+  color: var(--text-color, #000000);
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.2;
-  width: 100%;
 
   &.required::after {
     content: ' *';
@@ -20,125 +19,184 @@
   }
 }
 
-.input-number-icon {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 100%;
-  color: var(--input-icon-color, #6b7280);
-  pointer-events: none;
-  z-index: 1;
+// InputNumber styling
+.pelu-inputnumber {
+  .p-inputnumber {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: none !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    min-height: 44px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+    font-size: 0.95rem !important;
 
-  &.left {
-    left: 0;
+    &:hover {
+      background-color: var(--surface-color-hover) !important;
+      border-color: var(--border-color-hover) !important;
+    }
+
+    &:focus-within {
+      background-color: var(--surface-color) !important;
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 0 0 3px rgba(58, 90, 138, 0.15) !important;
+    }
+
+    &:disabled {
+      background-color: var(--surface-color-secondary) !important;
+      color: var(--text-color-muted) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6 !important;
+    }
+
+    &.p-invalid {
+      background-color: var(--error-color-light) !important;
+      border-color: var(--error-color) !important;
+    }
+
+    &.p-valid {
+      background-color: var(--success-color-light) !important;
+      border-color: var(--success-color) !important;
+    }
+
+    .p-inputtext {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: var(--text-color) !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: unset !important;
+      font-size: inherit !important;
+      line-height: inherit !important;
+
+      &:hover {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+
+      &:focus {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+
+      // Ensure placeholder is visible
+      &::placeholder {
+        color: var(--text-color-muted) !important;
+        opacity: 1 !important;
+      }
+
+      // Hide placeholder when there's a value
+      &:not(:placeholder-shown) {
+        color: var(--text-color) !important;
+      }
+
+      // Show placeholder when empty
+      &:placeholder-shown {
+        color: var(--text-color-muted) !important;
+      }
+    }
+
+    // InputNumber buttons styling
+    .p-inputnumber-button {
+      background: var(--surface-color-secondary) !important;
+      border: 1px solid var(--border-color) !important;
+      color: var(--text-color) !important;
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      transition: all 0.2s ease !important;
+      border-radius: 0 !important;
+
+      &:first-child {
+        border-top-left-radius: var(--border-radius) !important;
+        border-bottom-left-radius: var(--border-radius) !important;
+      }
+
+      &:last-child {
+        border-top-right-radius: var(--border-radius) !important;
+        border-bottom-right-radius: var(--border-radius) !important;
+      }
+
+      &:hover {
+        background: var(--primary-color) !important;
+        color: white !important;
+        border-color: var(--primary-color) !important;
+      }
+
+      &:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(58, 90, 138, 0.15) !important;
+      }
+
+      .pi {
+        font-size: 0.875rem !important;
+      }
+    }
+
+    // Vertical button layout
+    &.p-inputnumber-vertical {
+      .p-inputnumber-button {
+        width: 100% !important;
+        height: 2rem !important;
+        border-radius: 0 !important;
+
+        &:first-child {
+          border-top-left-radius: var(--border-radius) !important;
+          border-top-right-radius: var(--border-radius) !important;
+          border-bottom-left-radius: 0 !important;
+          border-bottom-right-radius: 0 !important;
+        }
+
+        &:last-child {
+          border-top-left-radius: 0 !important;
+          border-top-right-radius: 0 !important;
+          border-bottom-left-radius: var(--border-radius) !important;
+          border-bottom-right-radius: var(--border-radius) !important;
+        }
+      }
+    }
   }
-
-  &.right {
-    right: 0;
-  }
-
-  i {
-    font-size: 1rem;
-  }
 }
 
-.input-number-loading {
-  position: absolute;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #e5e7eb;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-}
-
-.input-number-prefix,
-.input-number-suffix {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.75rem;
-  color: var(--input-icon-color, #6b7280);
-  font-size: 0.875rem;
-  font-weight: 500;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.input-number-prefix {
-  left: 0;
-}
-
-.input-number-suffix {
-  right: 0;
-}
-
-.input-number-help {
+.input-help {
   font-size: 0.8rem;
   color: #6b7280;
   margin-top: 0.25rem;
   line-height: 1.4;
 }
 
-.input-number-error {
+.input-error {
   font-size: 0.8rem;
   color: #dc2626;
   margin-top: 0.25rem;
   line-height: 1.4;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  .error-icon {
-    font-size: 0.75rem;
-    flex-shrink: 0;
-  }
-
-  .error-text {
-    flex: 1;
-  }
 }
 
-.input-number-success {
+.input-success {
   font-size: 0.8rem;
   color: #16a34a;
   margin-top: 0.25rem;
   line-height: 1.4;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  .success-icon {
-    font-size: 0.75rem;
-    flex-shrink: 0;
-  }
-
-  .success-text {
-    flex: 1;
-  }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 // Responsive design
 @media (max-width: 768px) {
-  .input-number-field {
+  .input-number-label {
     font-size: 1rem; // Prevent zoom on iOS
   }
+
+  .pelu-inputnumber {
+    .p-inputnumber {
+      .p-inputtext {
+        font-size: 1rem !important; // Prevent zoom on iOS
+      }
+    }
+  }
 }
-
-

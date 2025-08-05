@@ -20,7 +20,8 @@ import { ProfileDropdownComponent, ProfileDropdownItem } from './profile-dropdow
         <h3>Profile Dropdown with Custom Items</h3>
         <pelu-profile-dropdown
           [customItems]="customItems()"
-          (itemClicked)="onCustomItemClicked($event)">
+          (itemClicked)="onCustomItemClicked($event)"
+        >
         </pelu-profile-dropdown>
       </div>
 
@@ -29,59 +30,62 @@ import { ProfileDropdownComponent, ProfileDropdownItem } from './profile-dropdow
         <pelu-profile-dropdown
           [showAdminItems]="false"
           [customItems]="customItems()"
-          (itemClicked)="onCustomItemClicked($event)">
+          (itemClicked)="onCustomItemClicked($event)"
+        >
         </pelu-profile-dropdown>
       </div>
     </div>
   `,
-  styles: [`
-    .demo-container {
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
+  styles: [
+    `
+      .demo-container {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-    .demo-section {
-      margin-bottom: 3rem;
-      padding: 1.5rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      background: #f9fafb;
-    }
+      .demo-section {
+        margin-bottom: 3rem;
+        padding: 1.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+      }
 
-    h2 {
-      color: #374151;
-      margin-bottom: 2rem;
-    }
+      h2 {
+        color: #374151;
+        margin-bottom: 2rem;
+      }
 
-    h3 {
-      color: #6b7280;
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
-  `]
+      h3 {
+        color: #6b7280;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+      }
+    `,
+  ],
 })
 export class ProfileDropdownDemoComponent {
   readonly customItems = computed((): ProfileDropdownItem[] => [
     {
       label: 'CUSTOM.HELP',
       icon: 'pi pi-question-circle',
-      onClick: () => this.showHelp()
+      onClick: () => this.showHelp(),
     },
     {
       label: 'CUSTOM.SETTINGS',
       icon: 'pi pi-cog',
-      routerLink: '/settings'
+      routerLink: '/settings',
     },
     {
-      type: 'divider'
+      type: 'divider',
     },
     {
       label: 'CUSTOM.LOGOUT',
       icon: 'pi pi-sign-out',
       type: 'danger',
-      onClick: () => this.customLogout()
-    }
+      onClick: () => this.customLogout(),
+    },
   ]);
 
   showHelp() {

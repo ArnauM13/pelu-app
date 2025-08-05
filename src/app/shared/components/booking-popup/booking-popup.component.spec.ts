@@ -25,9 +25,23 @@ describe('BookingPopupComponent', () => {
   let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
-    const translateSpy = jasmine.createSpyObj('TranslateService', ['get', 'instant']);
+    const translateSpy = jasmine.createSpyObj('TranslateService', [
+      'get',
+      'instant',
+      'addLangs',
+      'getBrowserLang',
+      'use',
+      'reloadLang',
+      'setDefaultLang',
+      'getDefaultLang',
+      'getLangs',
+    ]);
     const servicesSpy = jasmine.createSpyObj('ServicesService', ['getServiceName']);
-    const authSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated', 'userDisplayName']);
+    const authSpy = jasmine.createSpyObj('AuthService', [
+      'user',
+      'isAuthenticated',
+      'userDisplayName',
+    ]);
     const currencySpy = jasmine.createSpyObj('CurrencyService', ['formatPrice']);
     const toastSpy = jasmine.createSpyObj('ToastService', ['showAppointmentCreated']);
 
@@ -35,17 +49,17 @@ describe('BookingPopupComponent', () => {
       imports: [
         BookingPopupComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
       providers: [
         { provide: TranslateService, useValue: translateSpy },
         { provide: ServicesService, useValue: servicesSpy },
         { provide: AuthService, useValue: authSpy },
         { provide: CurrencyService, useValue: currencySpy },
-        { provide: ToastService, useValue: toastSpy }
+        { provide: ToastService, useValue: toastSpy },
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BookingPopupComponent);
@@ -59,8 +73,33 @@ describe('BookingPopupComponent', () => {
     // Setup default mock return values
     translateService.get.and.returnValue(of('translated text'));
     translateService.instant.and.returnValue('translated text');
+    translateService.addLangs.and.returnValue(undefined);
+    translateService.getBrowserLang.and.returnValue('ca');
+    translateService.use.and.returnValue(of({}));
+    translateService.reloadLang.and.returnValue(of({}));
+    translateService.setDefaultLang.and.returnValue(undefined);
+    translateService.getDefaultLang.and.returnValue('ca');
+    translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
     servicesService.getServiceName.and.returnValue('Test Service');
-    authService.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    authService.user.and.returnValue({
+      uid: 'test-uid',
+      email: 'test@example.com',
+      emailVerified: true,
+      isAnonymous: false,
+      metadata: { creationTime: '', lastSignInTime: '' },
+      providerData: [],
+      refreshToken: '',
+      tenantId: null,
+      delete: () => Promise.resolve(),
+      getIdToken: () => Promise.resolve(''),
+      getIdTokenResult: () => Promise.resolve({} as any),
+      reload: () => Promise.resolve(),
+      toJSON: () => ({}),
+      displayName: null,
+      phoneNumber: null,
+      photoURL: null,
+      providerId: 'password',
+    });
     authService.isAuthenticated.and.returnValue(true);
     authService.userDisplayName.and.returnValue('Test User');
     currencyService.formatPrice.and.returnValue('25€');
@@ -151,14 +190,6 @@ describe('BookingPopupComponent', () => {
       const mockEvent = { target: { classList: { contains: () => true } } };
       expect(() => component.onBackdropClick(mockEvent as any)).not.toThrow();
     });
-
-    it('should emit clientNameChanged when updateClientName is called', () => {
-      const clientNameChangedSpy = jasmine.createSpy('clientNameChanged');
-      component.clientNameChanged.subscribe(clientNameChangedSpy);
-
-      component.updateClientName('New Name');
-      expect(clientNameChangedSpy).toHaveBeenCalledWith('New Name');
-    });
   });
 
   describe('Formatting Methods', () => {
@@ -190,7 +221,7 @@ describe('BookingPopupComponent', () => {
         price: 25,
         duration: 30,
         category: 'haircut' as const,
-        icon: '✂️'
+        icon: '✂️',
       };
       component.getServiceName(mockService);
       expect(servicesService.getServiceName).toHaveBeenCalledWith(mockService);
@@ -227,4 +258,3 @@ describe('BookingPopupComponent', () => {
     });
   });
 });
-

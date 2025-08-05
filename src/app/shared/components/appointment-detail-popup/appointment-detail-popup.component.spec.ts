@@ -14,7 +14,7 @@ describe('AppointmentDetailPopupComponent', () => {
     servei: 'Corte de pelo',
     serviceName: 'SERVICES.NAMES.MALE_HAIRCUT',
     duration: 60,
-    userId: 'user1'
+    userId: 'user1',
   };
 
   beforeEach(async () => {
@@ -35,32 +35,35 @@ describe('AppointmentDetailPopupComponent', () => {
 
   it('should have required input signals', () => {
     expect(component.open).toBeDefined();
-    expect(component.appointment).toBeDefined();
+    expect(component.booking).toBeDefined();
+    expect(component.bookingId).toBeDefined();
     expect(component.hideViewDetailButton).toBeDefined();
   });
 
   it('should have required output signals', () => {
     expect(component.closed).toBeDefined();
+    expect(component.deleted).toBeDefined();
+    expect(component.editRequested).toBeDefined();
   });
 
   it('should have computed properties', () => {
-    expect(component.appointmentInfoItems).toBeDefined();
-    expect(component.isToday).toBeDefined();
-    expect(component.isPast).toBeDefined();
-    expect(component.statusBadge).toBeDefined();
+    expect(component.currentBooking).toBeDefined();
+    expect(component.isOpen).toBeDefined();
+    expect(component.canEdit).toBeDefined();
+    expect(component.canDelete).toBeDefined();
+    expect(component.isFuture).toBeDefined();
   });
 
   it('should have required methods', () => {
     expect(typeof component.onClose).toBe('function');
-    expect(typeof component.onViewFullDetail).toBe('function');
-    expect(typeof component.onBackdropClick).toBe('function');
+    expect(typeof component.onEdit).toBe('function');
+    expect(typeof component.onDelete).toBe('function');
+    expect(typeof component.onViewDetail).toBe('function');
     expect(typeof component.formatDate).toBe('function');
     expect(typeof component.formatTime).toBe('function');
-    expect(typeof component.isTodayDate).toBe('function');
-    expect(typeof component.isPastDate).toBe('function');
   });
 
-  it('should emit closed event when onClose is called', (done) => {
+  it('should emit closed event when onClose is called', done => {
     spyOn(component.closed, 'emit');
     component.onClose();
 
@@ -81,15 +84,13 @@ describe('AppointmentDetailPopupComponent', () => {
     expect(result).toBe('10:30');
   });
 
-  it('should check if date is today', () => {
-    const today = new Date().toISOString().split('T')[0];
-    const result = component.isTodayDate(today);
-    expect(typeof result).toBe('boolean');
+  it('should format date correctly', () => {
+    const result = component.formatDate('2024-01-15');
+    expect(result).toBeDefined();
   });
 
-  it('should check if date is past', () => {
-    const pastDate = '2023-01-01';
-    const result = component.isPastDate(pastDate);
-    expect(typeof result).toBe('boolean');
+  it('should format time correctly', () => {
+    const result = component.formatTime('10:30');
+    expect(result).toBe('10:30');
   });
 });

@@ -83,10 +83,38 @@
 .user-actions {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
-.language-selector {
-  margin-right: 0.5rem;
+.playground-button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--border-color, var(--border-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--box-shadow-inset);
+  border-radius: var(--border-radius);
+
+  &:hover {
+    background: var(--surface-color-hover, var(--surface-color));
+    border-color: var(--border-color-hover, var(--border-color));
+    transform: translateY(-1px);
+    box-shadow: var(--box-shadow-inset);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--box-shadow-inset);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: var(--box-shadow-inset);
+  }
 }
 
 // Profile dropdown styles are now in the profile-dropdown component
@@ -107,6 +135,15 @@
     .nav-link {
       font-size: 0.9rem;
     }
+  }
+
+  .user-actions {
+    gap: 0.25rem;
+  }
+
+  .playground-button {
+    width: 35px;
+    height: 35px;
   }
 
   // Profile dropdown responsive styles are now in the profile-dropdown component

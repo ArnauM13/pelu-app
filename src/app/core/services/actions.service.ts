@@ -2,7 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../shared/services/toast.service';
-import { BookingService, Booking } from './booking.service';
+import { BookingService } from './booking.service';
+import { Booking } from '../interfaces/booking.interface';
+import { BookingValidationService } from './booking-validation.service';
 
 export interface ActionConfig {
   id: string;
@@ -30,7 +32,7 @@ export interface ActionContext {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ActionsService {
   // Inject services
@@ -38,6 +40,7 @@ export class ActionsService {
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #bookingService = inject(BookingService);
+  #bookingValidationService = inject(BookingValidationService);
 
   /**
    * Get available actions for a specific context
@@ -78,7 +81,7 @@ export class ActionsService {
         icon: '👁️',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
-        onClick: (item) => this.viewAppointment(item)
+        onClick: item => this.viewAppointment(item),
       });
     }
 
@@ -90,10 +93,10 @@ export class ActionsService {
         icon: '✏️',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
-        onClick: (item) => {
+        onClick: item => {
           // This will be handled by the context callback if provided
           console.log('Edit appointment:', item);
-        }
+        },
       });
     }
 
@@ -105,10 +108,10 @@ export class ActionsService {
         icon: '🗑️',
         type: 'danger',
         tooltip: 'COMMON.DELETE_CONFIRMATION',
-        onClick: (item) => {
+        onClick: item => {
           // This will be handled by the context callback if provided
           console.log('Delete appointment:', item);
-        }
+        },
       });
     }
 
@@ -125,27 +128,27 @@ export class ActionsService {
     // Toggle popular action (first, so it appears first)
     actions.push({
       id: 'toggle-popular',
-      label: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
+      label: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
       icon: service.popular ? '⭐' : '☆',
-      type: service.popular ? 'success' : 'secondary',
-      tooltip: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
-      onClick: (item) => {
+      type: 'success',
+      tooltip: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
+      onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Toggle popular for service:', item);
-      }
+      },
     });
 
     // Edit action
     actions.push({
       id: 'edit',
-      label: 'ADMIN.SERVICES.EDIT_SERVICE',
+      label: 'SERVICES.MANAGEMENT.EDIT_SERVICE',
       icon: '✏️',
       type: 'secondary',
-      tooltip: 'ADMIN.SERVICES.EDIT_SERVICE',
-      onClick: (item) => {
+      tooltip: 'SERVICES.MANAGEMENT.EDIT_SERVICE',
+      onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Edit service:', item);
-      }
+      },
     });
 
     // Delete action
@@ -155,10 +158,10 @@ export class ActionsService {
       icon: '🗑️',
       type: 'danger',
       tooltip: 'COMMON.ACTIONS.DELETE',
-      onClick: (item) => {
+      onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Delete service:', item);
-      }
+      },
     });
 
     return actions;
@@ -179,7 +182,7 @@ export class ActionsService {
         icon: '👤',
         type: 'primary',
         tooltip: 'COMMON.VIEW_PROFILE',
-        onClick: (item) => this.viewUserProfile(item)
+        onClick: item => this.viewUserProfile(item),
       });
     }
 
@@ -191,7 +194,7 @@ export class ActionsService {
         icon: '✏️',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
-        onClick: (item) => this.editUser(item)
+        onClick: item => this.editUser(item),
       });
     }
 
@@ -213,7 +216,7 @@ export class ActionsService {
         icon: '👁️',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
-        onClick: (item) => this.viewBooking(item)
+        onClick: item => this.viewBooking(item),
       });
     }
 
@@ -225,7 +228,7 @@ export class ActionsService {
         icon: '✏️',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
-        onClick: (item) => this.editBooking(item)
+        onClick: item => this.editBooking(item),
       });
     }
 
@@ -237,7 +240,7 @@ export class ActionsService {
         icon: '🗑️',
         type: 'danger',
         tooltip: 'COMMON.DELETE_CONFIRMATION',
-        onClick: (item) => this.deleteBooking(item)
+        onClick: item => this.deleteBooking(item),
       });
     }
 
@@ -260,7 +263,10 @@ export class ActionsService {
    * Check if appointment can be deleted
    */
   private canDeleteAppointment(appointment: Booking): boolean {
-    return this.canEditAppointment(appointment);
+    if (!appointment?.data || !appointment?.hora) return false;
+
+    const appointmentDate = new Date(appointment.data);
+    return this.#bookingValidationService.canCancelBooking(appointmentDate, appointment.hora);
   }
 
   /**
@@ -274,7 +280,7 @@ export class ActionsService {
    * Check if booking can be deleted
    */
   private canDeleteBooking(booking: Booking): boolean {
-    return this.canEditAppointment(booking);
+    return this.canDeleteAppointment(booking);
   }
 
   // Action handlers for appointments
@@ -283,24 +289,23 @@ export class ActionsService {
   }
 
   private editAppointment(appointment: Booking): void {
-    this.#router.navigate(['/appointments', appointment.id, 'edit']);
+    this.#router.navigate(['/appointments', appointment.id], {
+      queryParams: { edit: 'true' }
+    });
   }
 
   private deleteAppointment(appointment: Booking): void {
     // Show confirmation dialog
     if (confirm(this.#translateService.instant('COMMON.DELETE_CONFIRMATION'))) {
       if (appointment.id) {
-        this.#bookingService.deleteBooking(appointment.id).then(() => {
-          this.#toastService.showSuccess(
-            'COMMON.SUCCESS',
-            'APPOINTMENTS.DELETE_SUCCESS'
-          );
-        }).catch(error => {
-          this.#toastService.showError(
-            'COMMON.ERROR',
-            'APPOINTMENTS.DELETE_ERROR'
-          );
-        });
+        this.#bookingService
+          .deleteBooking(appointment.id)
+          .then(() => {
+            // Don't show toast here - let the calling component handle it
+          })
+          .catch(error => {
+            this.#toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
+          });
       }
     }
   }
@@ -344,7 +349,7 @@ export class ActionsService {
     this.deleteAppointment(booking); // Same as appointment for now
   }
 
-      /**
+  /**
    * Execute an action by ID
    */
   executeAction(actionId: string, context: ActionContext): void {

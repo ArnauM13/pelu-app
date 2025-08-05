@@ -13,6 +13,7 @@ import { Firestore } from '@angular/fire/firestore';
 import { UserService } from '../app/core/services/user.service';
 import { CurrencyService } from '../app/core/services/currency.service';
 import { ToastService } from '../app/shared/services/toast.service';
+import { of } from 'rxjs';
 import {
   provideMockFirebase,
   mockAuthService,
@@ -21,30 +22,44 @@ import {
   mockTranslationService,
   mockMessageService,
   mockRouter,
-  mockActivatedRoute
+  mockActivatedRoute,
 } from './firebase-mocks';
 
 // Mock classes per a serveis que depenen de Firebase/AngularFire
 class MockRoleService {
   userRole = { subscribe: () => ({ unsubscribe: () => {} }) };
-  isAdmin() { return false; }
-  isClient() { return true; }
+  isAdmin() {
+    return false;
+  }
+  isClient() {
+    return true;
+  }
   initializeRoleListener() {}
 }
 
 class MockUserService {
   currentUser = { subscribe: () => ({ unsubscribe: () => {} }) };
-  getUser() { return Promise.resolve({ uid: 'test-uid', email: 'test@example.com' }); }
+  getUser() {
+    return Promise.resolve({ uid: 'test-uid', email: 'test@example.com' });
+  }
 }
 
 class MockServicesService {
-  getAllServices() { return Promise.resolve([]); }
-  getServiceName(service: any) { return service?.name || 'Unknown Service'; }
+  getAllServices() {
+    return Promise.resolve([]);
+  }
+  getServiceName(service: any) {
+    return service?.name || 'Unknown Service';
+  }
 }
 
 class MockCurrencyService {
-  getCurrentCurrency() { return 'EUR'; }
-  formatPrice(price: number) { return `${price}€`; }
+  getCurrentCurrency() {
+    return 'EUR';
+  }
+  formatPrice(price: number) {
+    return `${price}€`;
+  }
 }
 
 class MockServiceColorsService {
@@ -55,12 +70,18 @@ class MockServiceColorsService {
       color: '#000000',
       backgroundColor: '#ffffff',
       borderColor: '#000000',
-      textColor: '#000000'
+      textColor: '#000000',
     };
   }
-  getServiceColorClass() { return 'primary'; }
-  getServiceIcon() { return 'scissors'; }
-  getServiceTranslation() { return 'Mocked Service'; }
+  getServiceColorClass() {
+    return 'primary';
+  }
+  getServiceIcon() {
+    return 'scissors';
+  }
+  getServiceTranslation() {
+    return 'Mocked Service';
+  }
 }
 
 /**
@@ -75,12 +96,12 @@ export function configureTestBed(components: any[] = [], additionalProviders: an
     { provide: UserService, useClass: MockUserService },
     { provide: CurrencyService, useClass: MockCurrencyService },
     { provide: ToastService, useValue: { showAppointmentCreated: () => {} } },
-    ...additionalProviders
+    ...additionalProviders,
   ];
 
   return TestBed.configureTestingModule({
     imports: components,
-    providers: allProviders
+    providers: allProviders,
   });
 }
 
@@ -115,7 +136,7 @@ export function resetMocks() {
 export function setupDefaultMocks() {
   // Set up default return values for commonly used mocks
   mockTranslateService.instant.and.returnValue('Mocked Translation');
-  mockTranslateService.get.and.returnValue({ subscribe: () => ({ unsubscribe: () => {} }) });
+  mockTranslateService.get.and.returnValue(of('Mocked Translation'));
   mockTranslateService.addLangs.and.returnValue(undefined);
   mockTranslateService.getBrowserLang.and.returnValue('ca');
 
@@ -141,7 +162,10 @@ export function createTestComponent<T>(componentClass: any, inputs: Record<strin
 /**
  * Create a test component without rendering (for unit tests)
  */
-export function createTestComponentNoRender<T>(componentClass: any, inputs: Record<string, any> = {}): T {
+export function createTestComponentNoRender<T>(
+  componentClass: any,
+  inputs: Record<string, any> = {}
+): T {
   return createTestComponent<T>(componentClass, inputs);
 }
 
@@ -158,7 +182,7 @@ export const mockData = {
       servei: 'Tall de cabell',
       serviceName: 'Tall de cabell',
       duration: 30,
-      clientId: 'client-1'
+      clientId: 'client-1',
     },
     {
       id: '2',
@@ -168,8 +192,8 @@ export const mockData = {
       servei: 'Coloració',
       serviceName: 'Coloració',
       duration: 60,
-      clientId: 'client-2'
-    }
+      clientId: 'client-2',
+    },
   ],
   services: [
     {
@@ -177,16 +201,16 @@ export const mockData = {
       name: 'Tall de cabell',
       duration: 30,
       price: 25,
-      description: 'Tall de cabell bàsic'
+      description: 'Tall de cabell bàsic',
     },
     {
       id: '2',
       name: 'Coloració',
       duration: 60,
       price: 45,
-      description: 'Coloració completa'
-    }
-  ]
+      description: 'Coloració completa',
+    },
+  ],
 };
 
 // Configuració global per als tests
@@ -204,13 +228,13 @@ export function setupTestEnvironment() {
       { provide: UserService, useClass: MockUserService },
       { provide: ServicesService, useClass: MockServicesService },
       { provide: CurrencyService, useClass: MockCurrencyService },
-      { provide: ToastService, useValue: { showAppointmentCreated: () => {} } }
-    ]
+      { provide: ToastService, useValue: { showAppointmentCreated: () => {} } },
+    ],
   });
 
   return {
     messageService: messageServiceSpy,
-    router: routerSpy
+    router: routerSpy,
   };
 }
 
@@ -228,12 +252,12 @@ export function configureTestModule(additionalProviders: any[] = []) {
     { provide: UserService, useClass: MockUserService },
     { provide: ServicesService, useClass: MockServicesService },
     { provide: CurrencyService, useClass: MockCurrencyService },
-    { provide: ToastService, useValue: { showAppointmentCreated: () => {} } }
+    { provide: ToastService, useValue: { showAppointmentCreated: () => {} } },
   ];
 
   return {
     providers: [...baseProviders, ...additionalProviders],
     messageService: messageServiceSpy,
-    router: routerSpy
+    router: routerSpy,
   };
 }

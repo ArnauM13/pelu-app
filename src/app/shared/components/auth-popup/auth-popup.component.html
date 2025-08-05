@@ -4,45 +4,71 @@
     <p class="auth-subtitle">{{ config().subtitle }}</p>
 
     @if (form()) {
-    <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
-      <div class="form-field">
-        <pelu-input-email
-          [config]="emailConfig"
-          formControlName="email">
-        </pelu-input-email>
-      </div>
+      <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-field">
+          <pelu-input-text
+            label='COMMON.EMAIL'
+            placeholder='AUTH.EMAIL_PLACEHOLDER'
+            type='email'
+            formControlName="email"
+          >
+          </pelu-input-text>
+        </div>
 
-      <div class="form-field">
-        <pelu-input-password
-          [config]="passwordConfig"
-          formControlName="password"
-          (input)="onPasswordChange($event)">
-        </pelu-input-password>
-      </div>
+        <div class="form-field">
+          <pelu-input-password
+            label="AUTH.PASSWORD"
+            placeholder="AUTH.PASSWORD_PLACEHOLDER"
+            [toggleMask]="true"
+            formControlName="password"
+            (valueChange)="onPasswordChange($event)"
+          >
+          </pelu-input-password>
+        </div>
 
-      @if (hasRepeatPassword()) {
-      <div class="form-field">
-        <pelu-input-password
-          [config]="repeatPasswordConfig"
-          formControlName="repeatPassword"
-          (input)="onRepeatPasswordChange($event)">
-        </pelu-input-password>
-      </div>
-      }
+        @if (hasRepeatPassword()) {
+          <div class="form-field">
+            <pelu-input-password
+              label="AUTH.REPEAT_PASSWORD"
+              placeholder="AUTH.PASSWORD_PLACEHOLDER"
+              [toggleMask]="true"
+              formControlName="repeatPassword"
+              (valueChange)="onRepeatPasswordChange($event)"
+            >
+            </pelu-input-password>
+          </div>
+        }
 
-      <button pButton type="submit" [label]="config().submitButtonText" class="auth-button" [disabled]="form()!.invalid"></button>
-    </form>
+        <pelu-button
+          type="submit"
+          [label]="config().submitButtonText"
+          [disabled]="form()!.invalid"
+          severity="primary"
+          [fluid]="true"
+        >
+        </pelu-button>
+      </form>
     }
 
     <div class="divider">
       <span>{{ 'COMMON.OR' | translate }}</span>
     </div>
 
-    <button pButton type="button" [label]="config().googleButtonText" icon="pi pi-google"
-            class="google-auth-button" (click)="onGoogleAuth()"></button>
+    <pelu-button
+      type="button"
+      [label]="config().googleButtonText"
+      icon="pi pi-google"
+      severity="secondary"
+      [fluid]="true"
+      (clicked)="onGoogleAuth()"
+    >
+    </pelu-button>
 
     <div class="auth-link">
-      <p>{{ config().linkText }} <a [routerLink]="config().linkRoute" class="link">{{ config().linkLabel }}</a></p>
+      <p>
+        {{ config().linkText }}
+        <a [routerLink]="config().linkRoute" class="link">{{ config().linkLabel }}</a>
+      </p>
     </div>
   </div>
 </div>

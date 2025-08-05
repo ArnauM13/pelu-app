@@ -1,0 +1,88 @@
+.buttons-demo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.demo-header {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.demo-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.demo-section {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+  }
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+
+  &.fluid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  p-button {
+    // Assegurar que els botons tinguin un espaiat consistent
+    display: inline-block;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .buttons-demo-container {
+    padding: 1rem;
+  }
+
+  .demo-header {
+    h1 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  .demo-section {
+    padding: 1.5rem;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .button-group {
+    gap: 0.75rem;
+  }
+}

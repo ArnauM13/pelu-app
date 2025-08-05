@@ -1,18 +1,4 @@
 /* Alert Popup Styles */
-.alert-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease;
-}
 
 .alert-popup {
   background: var(--surface-color);
@@ -154,7 +140,7 @@
 }
 
 .btn-danger:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, var(--error-color) 100%);
+  background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -166,7 +152,7 @@
 }
 
 .btn-warning:hover {
-  background: linear-gradient(135deg, #D97706 0%, var(--warning-color) 100%);
+  background: linear-gradient(135deg, #d97706 0%, var(--warning-color) 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }

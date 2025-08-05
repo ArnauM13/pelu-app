@@ -1,7 +1,7 @@
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 
 export interface ConfirmationData {
   title: string;
@@ -13,50 +13,30 @@ export interface ConfirmationData {
 
 @Component({
   selector: 'pelu-confirmation-popup',
-  standalone: true,
-  imports: [CommonModule, TranslateModule, ButtonModule],
+  imports: [CommonModule, TranslateModule, PopupDialogComponent],
   template: `
-    @if (isOpen()) {
-      <div class="confirmation-overlay" (click)="onBackdropClick($event)">
-        <div class="confirmation-popup" (click)="$event.stopPropagation()">
-          <div class="popup-header">
-            <h3>{{ data()?.title || 'COMMON.CONFIRMATION.TITLE' | translate }}</h3>
-            <button class="close-btn" (click)="onCancel()">×</button>
-          </div>
-
-          <div class="popup-body">
-            <div class="confirmation-icon">
-              @if (data()?.severity === 'danger') {
-                ⚠️
-              } @else if (data()?.severity === 'warning') {
-                ⚠️
-              } @else {
-                ❓
-              }
-            </div>
-            <p class="confirmation-message">
-              {{ data()?.message || 'COMMON.CONFIRMATION.MESSAGE' | translate }}
-            </p>
-          </div>
-
-          <div class="popup-footer">
-            <button
-              class="btn-secondary"
-              (click)="onCancel()">
-              {{ data()?.cancelText || 'COMMON.ACTIONS.CANCEL' | translate }}
-            </button>
-            <button
-              class="btn-primary"
-              [class.btn-danger]="data()?.severity === 'danger'"
-              (click)="onConfirm()">
-              {{ data()?.confirmText || 'COMMON.ACTIONS.CONFIRM' | translate }}
-            </button>
-          </div>
+    <pelu-popup-dialog
+      [isOpen]="isOpen()"
+      [config]="dialogConfig()"
+      (closed)="onCancel()"
+    >
+      <div class="confirmation-content">
+        <div class="confirmation-icon">
+          @if (data()?.severity === 'danger') {
+            ⚠️
+          } @else if (data()?.severity === 'warning') {
+            ⚠️
+          } @else {
+            ❓
+          }
         </div>
+        <p class="confirmation-message">
+          {{ data()?.message || 'COMMON.CONFIRMATION.MESSAGE' | translate }}
+        </p>
       </div>
-    }
+    </pelu-popup-dialog>
   `,
-  styleUrls: ['./confirmation-popup.component.scss']
+  styleUrls: ['./confirmation-popup.component.scss'],
 })
 export class ConfirmationPopupComponent {
   // Input signals
@@ -70,18 +50,39 @@ export class ConfirmationPopupComponent {
   // Services
   private readonly translateService = inject(TranslateService);
 
-  // Methods
-  onBackdropClick(event: Event) {
-    if (event.target === event.currentTarget) {
-      this.onCancel();
-    }
-  }
+  // Dialog configuration
+  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.data()?.title || this.translateService.instant('COMMON.CONFIRMATION.TITLE'),
+    size: 'small',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.data()?.confirmText || this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
+        type: this.getConfirmButtonType(),
+        action: () => this.onConfirm()
+      }
+    ]
+  }));
 
+  // Methods
   onConfirm() {
     this.confirmed.emit();
   }
 
   onCancel() {
     this.cancelled.emit();
+  }
+
+  private getConfirmButtonType(): FooterActionType {
+    const severity = this.data()?.severity || 'info';
+    switch (severity) {
+      case 'danger':
+        return 'delete';
+      case 'warning':
+        return 'confirm';
+      default:
+        return 'confirm';
+    }
   }
 }

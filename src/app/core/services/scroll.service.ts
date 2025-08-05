@@ -3,17 +3,14 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ScrollService {
-
   constructor(private router: Router) {
     // Automatically scroll to top on navigation
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.scrollToTop();
-      });
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+      this.scrollToTop();
+    });
   }
 
   /**
@@ -23,7 +20,7 @@ export class ScrollService {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   }
 
@@ -42,7 +39,7 @@ export class ScrollService {
     if (element) {
       element.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'start',
       });
     }
   }

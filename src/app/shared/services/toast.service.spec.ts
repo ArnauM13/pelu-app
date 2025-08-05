@@ -1,33 +1,61 @@
 import { TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { TranslateService, TranslateStore } from '@ngx-translate/core';
 import { ToastService } from './toast.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { LoggerService } from './logger.service';
 
 describe('ToastService', () => {
   let service: ToastService;
   let messageService: jasmine.SpyObj<MessageService>;
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
+  let translateService: jasmine.SpyObj<TranslateService>;
+  let loggerService: jasmine.SpyObj<LoggerService>;
 
   beforeEach(() => {
     const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add', 'clear']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['user']);
+    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
+      'instant',
+      'get',
+      'use',
+      'setDefaultLang',
+      'addLangs',
+      'getLangs',
+    ]);
+    const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
+      'log',
+      'error',
+      'warn',
+      'info',
+      'debug',
+      'firebaseError',
+    ]);
+
+    // Setup default spy returns
+    translateServiceSpy.instant.and.returnValue('Translated text');
 
     TestBed.configureTestingModule({
       providers: [
         ToastService,
         { provide: MessageService, useValue: messageServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: AuthService, useValue: authServiceSpy }
-      ]
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: TranslateStore, useValue: {} },
+        { provide: LoggerService, useValue: loggerServiceSpy },
+      ],
     });
 
     service = TestBed.inject(ToastService);
     messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    loggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
   });
 
   it('should be created', () => {
@@ -36,40 +64,48 @@ describe('ToastService', () => {
 
   describe('showToast', () => {
     it('should call messageService.add with correct parameters', () => {
-      const severity = 'success';
-      const summary = 'Test summary';
-      const detail = 'Test detail';
-      const appointmentId = 'test-id';
-      const showViewButton = true;
-      const action = () => {};
+      const config = {
+        severity: 'success' as const,
+        summary: 'Test summary',
+        detail: 'Test detail',
+        data: {
+          appointmentId: 'test-id',
+          showViewButton: true,
+          action: () => {}
+        }
+      };
 
-      service.showToast(severity, summary, detail, appointmentId, showViewButton, action);
+      service.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
-        detail,
+        severity: config.severity,
+        summary: config.summary,
+        detail: config.detail,
         life: 4000,
-        closable: false,
+        sticky: false,
+        closable: true,
         key: 'pelu-toast',
-        data: { appointmentId, showViewButton, action }
+        data: config.data,
       });
     });
 
     it('should call messageService.add with default parameters', () => {
-      const severity = 'error';
-      const summary = 'Test summary';
+      const config = {
+        severity: 'error' as const,
+        summary: 'Test summary'
+      };
 
-      service.showToast(severity, summary);
+      service.showToast(config);
 
       expect(messageService.add).toHaveBeenCalledWith({
-        severity,
-        summary,
+        severity: config.severity,
+        summary: config.summary,
         detail: '',
         life: 4000,
-        closable: false,
+        sticky: false,
+        closable: true,
         key: 'pelu-toast',
-        data: { appointmentId: undefined, showViewButton: false, action: undefined }
+        data: {},
       });
     });
   });
@@ -79,12 +115,19 @@ describe('ToastService', () => {
       spyOn(service, 'showToast');
       const summary = 'Success message';
       const detail = 'Success detail';
-      const appointmentId = 'test-id';
-      const showViewButton = true;
+      const data = {
+        appointmentId: 'test-id',
+        showViewButton: true
+      };
 
-      service.showSuccess(summary, detail, appointmentId, showViewButton);
+      service.showSuccess(summary, detail, data);
 
-      expect(service.showToast).toHaveBeenCalledWith('success', summary, detail, appointmentId, showViewButton);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary,
+        detail,
+        data
+      });
     });
   });
 
@@ -96,7 +139,11 @@ describe('ToastService', () => {
 
       service.showError(summary, detail);
 
-      expect(service.showToast).toHaveBeenCalledWith('error', summary, detail);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary,
+        detail
+      });
     });
   });
 
@@ -108,7 +155,11 @@ describe('ToastService', () => {
 
       service.showInfo(summary, detail);
 
-      expect(service.showToast).toHaveBeenCalledWith('info', summary, detail);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'info',
+        summary,
+        detail
+      });
     });
   });
 
@@ -120,7 +171,11 @@ describe('ToastService', () => {
 
       service.showWarning(summary, detail);
 
-      expect(service.showToast).toHaveBeenCalledWith('warn', summary, detail);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'warn',
+        summary,
+        detail
+      });
     });
   });
 
@@ -131,7 +186,11 @@ describe('ToastService', () => {
 
       service.showReservationCreated(appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.RESERVATION_CREATED', '', appointmentId, true);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.RESERVATION_CREATED',
+        '',
+        { appointmentId, showViewButton: true }
+      );
     });
   });
 
@@ -142,7 +201,11 @@ describe('ToastService', () => {
 
       service.showAppointmentDeleted(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('Cita eliminada', `S'ha eliminat la cita de ${appointmentName}`);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.TOAST.APPOINTMENT_DELETED',
+        'COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE',
+        { showViewButton: false }
+      );
     });
   });
 
@@ -153,7 +216,11 @@ describe('ToastService', () => {
 
       service.showAppointmentUpdated(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('Cita actualitzada', `S'ha actualitzat la cita de ${appointmentName}`);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.TOAST.APPOINTMENT_UPDATED',
+        'COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE',
+        { showViewButton: false }
+      );
     });
   });
 
@@ -165,7 +232,11 @@ describe('ToastService', () => {
 
       service.showAppointmentCreated(appointmentName, appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('Cita creada', `S'ha creat la cita per ${appointmentName}`, appointmentId, true);
+      expect(service.showSuccess).toHaveBeenCalledWith(
+        'COMMON.TOAST.APPOINTMENT_CREATED',
+        'COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE',
+        { appointmentId, showViewButton: true }
+      );
     });
   });
 
@@ -176,7 +247,10 @@ describe('ToastService', () => {
 
       service.showValidationError(field);
 
-      expect(service.showError).toHaveBeenCalledWith('Error de validació', `El camp "${field}" és obligatori`);
+      expect(service.showError).toHaveBeenCalledWith(
+        'COMMON.ERRORS.VALIDATION_ERROR',
+        'COMMON.TOAST.VALIDATION_ERROR_MESSAGE'
+      );
     });
   });
 
@@ -186,7 +260,10 @@ describe('ToastService', () => {
 
       service.showNetworkError();
 
-      expect(service.showError).toHaveBeenCalledWith('Error de connexió', 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.');
+      expect(service.showError).toHaveBeenCalledWith(
+        'COMMON.ERRORS.NETWORK_ERROR',
+        'COMMON.TOAST.NETWORK_ERROR_MESSAGE'
+      );
     });
   });
 
@@ -196,7 +273,10 @@ describe('ToastService', () => {
 
       service.showUnauthorizedError();
 
-      expect(service.showError).toHaveBeenCalledWith('Accés denegat', 'No tens permisos per realitzar aquesta acció.');
+      expect(service.showError).toHaveBeenCalledWith(
+        'COMMON.ERRORS.PERMISSION_ERROR',
+        'No tens permisos per realitzar aquesta acció.'
+      );
     });
   });
 
@@ -206,7 +286,10 @@ describe('ToastService', () => {
 
       service.showLoginRequired();
 
-      expect(service.showWarning).toHaveBeenCalledWith('Sessió requerida', 'Si us plau, inicia sessió per continuar.');
+      expect(service.showWarning).toHaveBeenCalledWith(
+        'AUTH.SESSION_REQUIRED',
+        'COMMON.TOAST.LOGIN_REQUIRED_MESSAGE'
+      );
     });
   });
 
@@ -217,7 +300,7 @@ describe('ToastService', () => {
 
       service.showGenericSuccess(message);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('Èxit', message);
+      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.STATUS.STATUS_SUCCESS', message);
     });
   });
 
@@ -228,7 +311,7 @@ describe('ToastService', () => {
 
       service.showGenericError(message);
 
-      expect(service.showError).toHaveBeenCalledWith('Error', message);
+      expect(service.showError).toHaveBeenCalledWith('COMMON.STATUS.STATUS_ERROR', message);
     });
   });
 
@@ -239,7 +322,7 @@ describe('ToastService', () => {
 
       service.showGenericInfo(message);
 
-      expect(service.showInfo).toHaveBeenCalledWith('Informació', message);
+      expect(service.showInfo).toHaveBeenCalledWith('COMMON.STATUS.STATUS_INFO', message);
     });
   });
 
@@ -250,7 +333,7 @@ describe('ToastService', () => {
 
       service.showGenericWarning(message);
 
-      expect(service.showWarning).toHaveBeenCalledWith('Advertència', message);
+      expect(service.showWarning).toHaveBeenCalledWith('COMMON.STATUS.STATUS_WARNING', message);
     });
   });
 
@@ -270,91 +353,23 @@ describe('ToastService', () => {
     });
   });
 
-  describe('onToastClick', () => {
-    it('should execute action when action is provided', () => {
-      const action = jasmine.createSpy('action');
-      const event = {
-        message: {
-          data: { action }
-        }
-      };
-
-      service.onToastClick(event);
-
-      expect(action).toHaveBeenCalled();
-    });
-
-    it('should call viewAppointmentDetail when appointmentId is provided', () => {
-      spyOn(service, 'viewAppointmentDetail');
-      const appointmentId = 'test-id';
-      const event = {
-        message: {
-          data: { appointmentId }
-        }
-      };
-
-      service.onToastClick(event);
-
-      expect(service.viewAppointmentDetail).toHaveBeenCalledWith(appointmentId);
-    });
-
-    it('should not call viewAppointmentDetail when no appointmentId is provided', () => {
-      spyOn(service, 'viewAppointmentDetail');
-      const event = {
-        message: {
-          data: {}
-        }
-      };
-
-      service.onToastClick(event);
-
-      expect(service.viewAppointmentDetail).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('viewAppointmentDetail', () => {
-    it('should navigate to appointment detail when user is authenticated', () => {
-      const user = { uid: 'user-123' } as any;
-      authService.user.and.returnValue(user);
-      const appointmentId = 'appointment-456';
-
-      service.viewAppointmentDetail(appointmentId);
-
-      expect(router.navigate).toHaveBeenCalledWith(['/appointments', 'user-123-appointment-456']);
-    });
-
-    it('should not navigate when user is not authenticated', () => {
-      authService.user.and.returnValue(null);
-      const appointmentId = 'appointment-456';
-
-      service.viewAppointmentDetail(appointmentId);
-
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-
-    it('should not navigate when user has no uid', () => {
-      const user = { email: 'test@example.com' } as any;
-      authService.user.and.returnValue(user);
-      const appointmentId = 'appointment-456';
-
-      service.viewAppointmentDetail(appointmentId);
-
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-  });
-
   describe('showToastWithAction', () => {
     it('should call showToast with action parameter', () => {
       spyOn(service, 'showToast');
-      const severity = 'success';
-      const summary = 'Test summary';
-      const detail = 'Test detail';
+      const config = {
+        severity: 'success' as const,
+        summary: 'Test summary',
+        detail: 'Test detail'
+      };
       const action = () => {};
       const actionLabel = 'Custom Action';
 
-      service.showToastWithAction(severity, summary, detail, action, actionLabel);
+      service.showToastWithAction(config, action, actionLabel);
 
-      expect(service.showToast).toHaveBeenCalledWith(severity, summary, detail, undefined, false, action);
+      expect(service.showToast).toHaveBeenCalledWith({
+        ...config,
+        data: { action, actionLabel }
+      });
     });
   });
 });

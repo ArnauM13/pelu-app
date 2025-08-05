@@ -1,5 +1,14 @@
 import { inject, signal, computed, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged, User, GoogleAuthProvider } from '@angular/fire/auth';
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  User,
+  GoogleAuthProvider,
+} from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { TranslationService } from '../services/translation.service';
 import { RoleService, UserRole } from '../services/role.service';
@@ -22,7 +31,9 @@ export class AuthService {
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly isInitialized = computed(() => this.isInitializedSignal());
   readonly isAuthenticated = computed(() => !!this.userSignal());
-  readonly userDisplayName = computed(() => this.userSignal()?.displayName || this.userSignal()?.email || '');
+  readonly userDisplayName = computed(
+    () => this.userSignal()?.displayName || this.userSignal()?.email || ''
+  );
   readonly error = computed(() => this.errorSignal());
 
   constructor() {
@@ -31,8 +42,9 @@ export class AuthService {
 
   private initializeAuth() {
     try {
-      onAuthStateChanged(this.auth,
-        async (user) => {
+      onAuthStateChanged(
+        this.auth,
+        async user => {
           // Use setTimeout to avoid signal write conflicts
           setTimeout(() => {
             this.userSignal.set(user);
@@ -48,7 +60,7 @@ export class AuthService {
             await this.ensureUserDocument(user);
           }
         },
-        (error) => {
+        error => {
           // Use setTimeout to avoid signal write conflicts
           setTimeout(() => {
             this.errorSignal.set(error.message);
@@ -57,10 +69,10 @@ export class AuthService {
           }, 0);
         }
       );
-    } catch (error) {
+    } catch (error: unknown) {
       // Use setTimeout to avoid signal write conflicts
       setTimeout(() => {
-        this.errorSignal.set('Error initializing authentication');
+        this.errorSignal.set(error instanceof Error ? error.message : 'Error initializing authentication');
         this.isLoadingSignal.set(false);
         this.isInitializedSignal.set(true);
       }, 0);
@@ -76,7 +88,7 @@ export class AuthService {
       email: cred.user.email || '',
       lang: 'ca',
       role: 'client',
-      theme: 'light'
+      theme: 'light',
     });
     return cred;
   }
@@ -91,7 +103,7 @@ export class AuthService {
   async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
-      prompt: 'select_account'
+      prompt: 'select_account',
     });
     const cred = await signInWithPopup(this.auth, provider);
     // Assegura que el document d'usuari existeix i està actualitzat
@@ -105,7 +117,7 @@ export class AuthService {
     const existing = await this.roleService.getUserRole(user.uid);
     const update: Partial<UserRole> = {
       email: user.email || '',
-      uid: user.uid
+      uid: user.uid,
     };
     // Si vols, pots afegir aquí la detecció d'idioma o tema per defecte
     if (!existing) {
@@ -114,7 +126,7 @@ export class AuthService {
         email: user.email || '',
         lang: 'ca',
         role: 'client',
-        theme: 'light'
+        theme: 'light',
       });
     } else {
       // Actualitza només si canvia l'email, lang o theme
@@ -125,19 +137,15 @@ export class AuthService {
   }
 
   async logout() {
-    try {
-      this.saveCurrentUserLanguage();
-      await signOut(this.auth);
-      // Wait for the auth state to be updated
-      await this.waitForAuthStateUpdate();
-      this.router.navigate(['/login']);
-    } catch (error) {
-      throw error;
-    }
+    this.saveCurrentUserLanguage();
+    await signOut(this.auth);
+    // Wait for the auth state to be updated
+    await this.waitForAuthStateUpdate();
+    this.router.navigate(['/login']);
   }
 
   private async waitForAuthStateUpdate(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // If already not authenticated, resolve immediately
       if (!this.isAuthenticated()) {
         resolve();

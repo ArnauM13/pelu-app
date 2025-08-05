@@ -1,54 +1,67 @@
 <div class="services-page">
-  <div class="services-header">
-    <h1>{{ 'SERVICES.TITLE' | translate }}</h1>
-    <p>{{ 'SERVICES.SUBTITLE' | translate }}</p>
-    <p class="info-note">{{ 'SERVICES.INFO_NOTE' | translate }}</p>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>{{ 'SERVICES.TITLE' | translate }}</h1>
+      <p>{{ 'SERVICES.SUBTITLE' | translate }}</p>
+      <p class="info-note">{{ 'SERVICES.INFO_NOTE' | translate }}</p>
+    </div>
+    @if (isAdmin()) {
+      <div class="header-actions">
+        <pelu-button
+          [label]="'ADMIN.MANAGE_SERVICES' | translate"
+          severity="primary"
+          (clicked)="navigateToAdminServices()"
+        >
+        </pelu-button>
+      </div>
+    }
   </div>
 
-  <div class="services-container">
-    <!-- Services by Category -->
-    @for (category of servicesByCategory(); track category.id) {
-      <section class="service-category">
-        <div class="category-header">
-          <span class="category-icon">{{ getCategoryIcon(category.id) }}</span>
-          <h2>{{ getCategoryName(category.id) }}</h2>
-        </div>
-        <div class="services-grid">
-          @for (service of category.services; track service.id) {
-            <div class="service-card" [class.popular-service]="service.popular">
-              <p-card>
-                <ng-template pTemplate="header">
-                  <div class="service-card-header">
-                    <h3>{{ service.name }}</h3>
-                    @if (service.popular) {
-                      <pelu-popular-badge
-                        [config]="{
-                          size: 'medium',
-                          variant: 'filled',
-                          showIcon: true,
-                          showText: true,
-                          text: 'SERVICES.POPULAR'
-                        }">
-                      </pelu-popular-badge>
-                    }
-                  </div>
-                </ng-template>
-                <ng-template pTemplate="content">
-                  <p class="service-description">{{ service.description }}</p>
-                  <div class="service-details">
-                    <div class="service-info">
-                      <span class="duration">⏱️ {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span>
-                    </div>
-                    <div class="service-price">
-                      <span class="price">{{ service.price | currency }}</span>
-                    </div>
-                  </div>
-                </ng-template>
-              </p-card>
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <pelu-loading-state [config]="loadingConfig"></pelu-loading-state>
+  }
+
+  <!-- Services Content -->
+  @if (!isLoading()) {
+    <div class="services-content">
+      <!-- Services by Category -->
+      @for (category of servicesByCategory(); track category.id) {
+        <div class="service-category">
+          <div class="category-header">
+            <div class="category-info">
+              <span class="category-icon">{{ getCategoryIcon(category.id) }}</span>
+              <h2>{{ getCategoryName(category.id) }}</h2>
+              <span class="service-count">({{ category.services.length }})</span>
+            </div>
+          </div>
+
+          <div class="services-grid">
+            @for (service of category.services; track service.id) {
+              <pelu-service-card
+                [service]="service"
+                [showActions]="false"
+                [showPopularBadge]="true"
+                [showCategory]="false"
+                [showDuration]="true"
+                [showPrice]="true"
+                [showDescription]="true"
+                [clickable]="false"
+                [selected]="false"
+                [compact]="false"
+              >
+              </pelu-service-card>
+            }
+          </div>
+
+          @if (category.services.length === 0) {
+            <div class="empty-category">
+              <p>{{ 'SERVICES.MANAGEMENT.NO_SERVICES_IN_CATEGORY' | translate }}</p>
             </div>
           }
         </div>
-      </section>
-    }
-  </div>
+      }
+    </div>
+  }
 </div>

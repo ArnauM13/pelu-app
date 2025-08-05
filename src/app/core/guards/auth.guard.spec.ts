@@ -13,8 +13,8 @@ describe('authGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: Auth, useValue: mockAuth },
-        { provide: Router, useValue: mockRouter }
-      ]
+        { provide: Router, useValue: mockRouter },
+      ],
     });
   });
 

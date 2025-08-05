@@ -1,288 +1,241 @@
-<div class="detail-view-container" [style.view-transition-name]="viewTransitionName" [style.background]="serviceGradient">
+<div
+  class="detail-view-container"
+  [style.view-transition-name]="viewTransitionName()"
+>
   <!-- Loading State -->
-  @if (loading) {
-    <pelu-loading-state
-      [config]="loadingConfig">
-    </pelu-loading-state>
+  @if (isLoading()) {
+    <pelu-loading-state [config]="loadingConfig()"> </pelu-loading-state>
   }
 
   <!-- Not Found State -->
-  @if (notFound) {
+  @if (notFound()) {
     <div class="not-found-section">
-      <pelu-not-found-state
-        [config]="notFoundConfig"
-        (onButtonClick)="onBack()">
+      <pelu-not-found-state [config]="notFoundConfig()" (buttonClick)="onBack()">
       </pelu-not-found-state>
     </div>
   }
 
   <!-- Main Content -->
-  @if (!loading && !notFound && (user || appointment)) {
-  <div class="detail-view-content" [style.view-transition-name]="contentTransitionName">
+  @if (!isLoading() && !notFound() && (user() || appointment())) {
+    <div class="detail-view-content" [style.view-transition-name]="contentTransitionName()">
+      <!-- Mobile Header for Appointments -->
+      @if (type() === 'appointment' && appointment()) {
+        <div class="mobile-appointment-header">
+          <pelu-button
+            label="←"
+            [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
+            variant="text"
+            severity="contrast"
+            [rounded]="true"
+            class="mobile-back-btn"
+            (clicked)="onBack()"
+          >
+          </pelu-button>
 
-    <!-- Header Section -->
-    <div class="header-section">
-      <!-- Profile Header -->
-      @if (type === 'profile' && user) {
-      <div class="profile-header">
-        <div class="avatar-section">
-          <pelu-avatar [data]="avatarData || {}" size="xlarge" class="profile-avatar"></pelu-avatar>
-          <div class="user-info">
-            <h1 class="user-name">{{ displayName }}</h1>
-            <p class="user-email">{{ email }}</p>
-          </div>
+          <pelu-appointment-status-badge
+            [appointmentData]="{ date: appointment()?.data || '', time: appointment()?.hora || '' }"
+            [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }"
+            class="mobile-status-badge"
+          >
+          </pelu-appointment-status-badge>
         </div>
-      </div>
       }
 
-      <!-- Appointment Header - Desktop Only -->
-      @if (type === 'appointment' && appointment) {
-      <div class="appointment-header desktop-only" [style.background]="getAppointmentHeaderGradient()">
-        <div class="appointment-content">
-          <!-- Back Button -->
-          <button class="back-btn-emoji" (click)="onBack()" [title]="'COMMON.ACTIONS.BACK' | translate">
-            ←
-          </button>
+      <!-- Header Section -->
+      <div class="header-section">
+        <!-- Profile Header -->
+        @if (type() === 'profile' && user()) {
+          <div class="profile-header">
+            <div class="avatar-section">
+              <pelu-avatar
+                [data]="avatarData() || {}"
+                size="xlarge"
+                class="profile-avatar"
+              ></pelu-avatar>
+              <div class="user-info">
+                <h1 class="user-name">{{ displayName() }}</h1>
+                <p class="user-email">{{ email() }}</p>
+              </div>
+            </div>
+          </div>
+        }
 
-          <div class="appointment-info">
-            <h1 class="appointment-title">
-              {{ 'COMMON.TIME.APPOINTMENT_TITLE' | translate: { nom: appointment?.nom, data: formatDate(appointment?.data), hora: formatTime(appointment?.hora) } }}
-            </h1>
-            <p class="appointment-subtitle">{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</p>
+        <!-- Appointment Header - Desktop Only -->
+        @if (type() === 'appointment' && appointment()) {
+          <div
+            class="appointment-header desktop-only"
+            [style.background]="appointmentHeaderGradient()"
+          >
+            <div class="appointment-content">
+              <!-- Back Button -->
+              <pelu-button
+                label="←"
+                [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
+                variant="text"
+                severity="contrast"
+                [rounded]="true"
+                class="back-btn-emoji"
+                (clicked)="onBack()"
+              >
+              </pelu-button>
+
+              <div class="appointment-info">
+                <h1 class="appointment-title">
+                  {{
+                    'COMMON.TIME.APPOINTMENT_TITLE'
+                      | translate
+                        : {
+                            nom: appointment()?.clientName,
+                            data: formatDate(appointment()?.data || ''),
+                            hora: formatTime(appointment()?.hora || ''),
+                          }
+                  }}
+                </h1>
+                <p class="appointment-subtitle">
+                  {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}
+                </p>
+              </div>
+              <div class="status-section">
+                <pelu-appointment-status-badge
+                  [appointmentData]="{ date: appointment()?.data || '', time: appointment()?.hora || '' }"
+                  [config]="{ size: 'large', variant: 'default', showIcon: true, showDot: true }"
+                >
+                </pelu-appointment-status-badge>
+              </div>
+            </div>
           </div>
-          <div class="status-section">
-            <pelu-appointment-status-badge
-              [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
-              [config]="{ size: 'large', variant: 'default', showIcon: true, showDot: true }">
-            </pelu-appointment-status-badge>
-          </div>
-        </div>
+        }
       </div>
-      }
-    </div>
 
       <!-- Card Content -->
       <div class="card-content">
-        <!-- Mobile Back Button -->
-        @if (type === 'appointment' && appointment) {
-        <div class="mobile-back-section">
-          <button class="mobile-back-btn" (click)="onBack()" [title]="'COMMON.ACTIONS.BACK' | translate">
-            ← {{ 'COMMON.ACTIONS.BACK' | translate }}
-          </button>
-        </div>
-        }
-
-        <!-- Status Badge (for appointments) -->
-        @if (type === 'appointment' && appointment) {
-        <div class="info-section status-section-mobile">
-          <div class="status-header">
-            <h2>{{ 'APPOINTMENTS.STATUS' | translate }}</h2>
-          </div>
-          <pelu-appointment-status-badge
-            [appointmentData]="{ date: appointment?.data, time: appointment?.hora }"
-            [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }">
-          </pelu-appointment-status-badge>
-        </div>
-        }
-
         <!-- Edit Form (when editing appointments) - IN-PLACE -->
-        @if (type === 'appointment' && isEditing && appointment) {
-        <div class="info-section edit-section">
-          <h2>{{ 'COMMON.ACTIONS.EDIT' | translate }} {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+        @if (type() === 'appointment' && isEditing() && appointment()) {
+          <div class="info-section edit-section">
+            <h2>
+              {{ 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS' | translate }}
+            </h2>
 
-          <div class="edit-form">
-            <div class="form-grid">
-              <!-- Client Name -->
-              <div class="form-group">
-                <pelu-input-text
-                  [config]="{
-                    type: 'text',
-                    label: 'COMMON.CLIENT_NAME',
-                    placeholder: 'COMMON.ENTER_CLIENT_NAME',
-                    required: true,
-                    showLabel: true
-                  }"
-                  [value]="editForm.nom"
-                  (valueChange)="onUpdateForm('nom', $event)">
-                </pelu-input-text>
+            <div class="edit-form">
+              <div class="form-grid">
+                <!-- Client Name - EDITABLE -->
+                <div class="form-group">
+                  <pelu-input-text
+                    [label]="'COMMON.CLIENT_NAME'"
+                    [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
+                    [required]="true"
+                    [value]="appointment()?.clientName || ''"
+                    (valueChange)="onUpdateForm('clientName', $event)"
+                  >
+                  </pelu-input-text>
+                </div>
+
+                <!-- Date - EDITABLE -->
+                <div class="form-group">
+                  <pelu-input-date
+                    [label]="'COMMON.DATE'"
+                    [required]="true"
+                    [value]="appointment()?.data || ''"
+                    (valueChange)="onUpdateForm('data', $event)"
+                  >
+                  </pelu-input-date>
+                </div>
+
+                <!-- Time - EDITABLE -->
+                <div class="form-group">
+                  <pelu-input-text
+                    [label]="'COMMON.TIME.HOURS'"
+                    [placeholder]="'HH:MM'"
+                    [required]="true"
+                    [value]="appointment()?.hora || ''"
+                    (valueChange)="onUpdateForm('hora', $event)"
+                  >
+                  </pelu-input-text>
+                </div>
+
+                <!-- Notes - EDITABLE -->
+                <div class="form-group full-width">
+                  <pelu-input-textarea
+                    [label]="'COMMON.NOTES'"
+                    [placeholder]="'COMMON.NOTES'"
+                    [value]="appointment()?.notes || ''"
+                    [rows]="3"
+                    (valueChange)="onUpdateForm('notes', $event)"
+                  >
+                  </pelu-input-textarea>
+                </div>
               </div>
 
-              <!-- Date -->
-              <div class="form-group">
-                <pelu-input-date
-                  [config]="{
-                    label: 'COMMON.DATE',
-                    required: true,
-                    showLabel: true
-                  }"
-                  [value]="editForm.data"
-                  (valueChange)="onUpdateForm('data', $event)">
-                </pelu-input-date>
+              <!-- Action Buttons -->
+              <div class="form-actions">
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.CANCEL'"
+                  severity="secondary"
+                  (clicked)="onCancelEdit()"
+                />
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.SAVE'"
+                  severity="primary"
+                  (clicked)="onSave()"
+                />
               </div>
-
-              <!-- Time -->
-              <div class="form-group">
-                <pelu-input-text
-                  [config]="{
-                    type: 'time',
-                    label: 'COMMON.HOURS',
-                    showLabel: true
-                  }"
-                  [value]="editForm.hora"
-                  (valueChange)="onUpdateForm('hora', $event)">
-                </pelu-input-text>
-              </div>
-
-              <!-- Service -->
-              <div class="form-group">
-                <pelu-input-text
-                  [config]="{
-                    type: 'text',
-                    label: 'COMMON.SERVICE',
-                    placeholder: 'COMMON.SERVICE',
-                    showLabel: true
-                  }"
-                  [value]="editForm.servei"
-                  (valueChange)="onUpdateForm('servei', $event)">
-                </pelu-input-text>
-              </div>
-
-              <!-- Service Name -->
-              <div class="form-group">
-                <pelu-input-text
-                  [config]="{
-                    type: 'text',
-                    label: 'APPOINTMENTS.SERVICE_FULL_NAME',
-                    placeholder: 'COMMON.SERVICE',
-                    showLabel: true
-                  }"
-                  [value]="editForm.serviceName"
-                  (valueChange)="onUpdateForm('serviceName', $event)">
-                </pelu-input-text>
-              </div>
-
-              <!-- Duration -->
-              <div class="form-group">
-                <pelu-input-number
-                  [config]="{
-                    label: 'APPOINTMENTS.DURATION_MINUTES',
-                    placeholder: '60',
-                    min: 15,
-                    step: 15,
-                    showLabel: true
-                  }"
-                  [value]="editForm.duration"
-                  (valueChange)="onUpdateForm('duration', $event)">
-                </pelu-input-number>
-              </div>
-
-              <!-- Price -->
-              <div class="form-group">
-                <pelu-input-number
-                  [config]="{
-                    label: 'APPOINTMENTS.PRICE_EURO',
-                    placeholder: '0',
-                    min: 0,
-                    step: 0.01,
-                    showLabel: true
-                  }"
-                  [value]="editForm.preu"
-                  (valueChange)="onUpdateForm('preu', $event)">
-                </pelu-input-number>
-              </div>
-
-              <!-- Notes -->
-              <div class="form-group full-width">
-                <pelu-input-textarea
-                  [config]="{
-                    label: 'APPOINTMENTS.NOTES',
-                    placeholder: 'APPOINTMENTS.NOTES',
-                    rows: 3,
-                    showLabel: true
-                  }"
-                  [value]="editForm.notes"
-                  (valueChange)="onUpdateForm('notes', $event)">
-                </pelu-input-textarea>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <button
-                class="action-btn secondary"
-                (click)="onCancelEdit()">
-                <i class="action-icon">❌</i>
-                {{ 'COMMON.ACTIONS.CANCEL' | translate }}
-              </button>
-              <button
-                class="action-btn primary"
-                (click)="onSave()"
-                [disabled]="!canSave || !hasChanges">
-                <i class="action-icon">💾</i>
-                {{ 'COMMON.ACTIONS.SAVE' | translate }}
-              </button>
             </div>
           </div>
-        </div>
         }
 
         <!-- Information Sections (only show when NOT editing) -->
-        @if (!isEditing) {
-          @for (section of infoSections; track section.title; let i = $index) {
-          <div class="info-section">
-            <div class="section-header">
-              <h2>{{ section.title | translate }}</h2>
-              @if (i === 0 && hasAvailableActions && !isEditing && actionContext) {
-                <pelu-actions-buttons
-                  [context]="actionContext">
-                </pelu-actions-buttons>
-              }
-            </div>
-
-            @if (section.isEditing) {
-              <div class="edit-notes-form">
-                <div class="notes-form-grid">
-                  @for (item of section.items; track item.label; let j = $index) {
-                    <div class="form-group">
-                      <pelu-input-textarea
-                        [config]="{
-                          label: item.label,
-                          placeholder: item.label,
-                          rows: 2,
-                          showLabel: true
-                        }"
-                        [value]="item.value"
-                        (valueChange)="onUpdateNote(j, $event)">
-                      </pelu-input-textarea>
-                    </div>
-                  }
-                </div>
-
-                <div class="form-actions">
-                  <button
-                    class="action-btn secondary"
-                    (click)="section.onCancel?.()">
-                    <i class="action-icon">❌</i>
-                    {{ 'COMMON.ACTIONS.CANCEL' | translate }}
-                  </button>
-                  <button
-                    class="action-btn primary"
-                    (click)="onSaveNotes(section)">
-                    <i class="action-icon">💾</i>
-                    {{ 'COMMON.ACTIONS.SAVE' | translate }}
-                  </button>
-                </div>
-              </div>
-            } @else {
-              <div class="info-grid">
-                @for (item of section.items; track item.label; let j = $index) {
-                <pelu-info-item
-                  [data]="item"
-                  [showStatus]="item.status === 'active'" />
+        @if (!isEditing()) {
+          @for (section of infoSections(); track section.title; let i = $index) {
+            <div class="info-section">
+              <div class="section-header">
+                <h2>{{ section.title | translate }}</h2>
+                @if (i === 0 && hasAvailableActions() && !isEditing() && actionContext()) {
+                  <pelu-actions-buttons [context]="actionContext()!"> </pelu-actions-buttons>
                 }
               </div>
-            }
-          </div>
+
+              @if (section.isEditing) {
+                <div class="edit-notes-form">
+                  <div class="notes-form-grid">
+                    @for (item of section.items; track item.label; let j = $index) {
+                      <div class="form-group">
+                        <pelu-input-textarea
+                          [label]="item.label"
+                          [placeholder]="item.label"
+                          [rows]="2"
+                          [value]="item.value"
+                          (valueChange)="onUpdateForm(item.field || '', $event)"
+                        >
+                        </pelu-input-textarea>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="form-actions">
+                    <pelu-button
+                      [label]="'COMMON.ACTIONS.CANCEL' | translate"
+                      icon="❌"
+                      severity="secondary"
+                      (clicked)="section.onCancel?.()"
+                    >
+                    </pelu-button>
+                    <pelu-button
+                      [label]="'COMMON.ACTIONS.SAVE' | translate"
+                      icon="💾"
+                      severity="primary"
+                      (clicked)="section.onSave?.({})"
+                    >
+                    </pelu-button>
+                  </div>
+                </div>
+              } @else {
+                <div class="info-grid">
+                  @for (item of section.items; track item.label; let j = $index) {
+                    <pelu-info-item [data]="item" [showStatus]="false" />
+                  }
+                </div>
+              }
+            </div>
           }
         }
       </div>

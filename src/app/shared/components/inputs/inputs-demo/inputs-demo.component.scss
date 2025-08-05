@@ -30,20 +30,40 @@
 
 .demo-section {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-  &.full-width {
-    grid-column: 1 / -1;
-  }
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--box-shadow);
+  height: auto;
+  min-height: fit-content;
+  overflow: visible;
+  position: relative;
 
   h2 {
+    color: var(--text-color);
     font-size: 1.25rem;
-    color: #374151;
-    margin-bottom: 1rem;
     font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--primary-color-lightest);
+    padding-bottom: var(--spacing-sm);
+  }
+
+  .demo-help {
+    font-size: 0.875rem;
+    color: var(--text-color-light);
+    margin-top: var(--spacing-sm);
+    font-style: italic;
+    background-color: var(--surface-color-secondary);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    border-left: 3px solid var(--primary-color);
+  }
+
+  .demo-description {
+    font-size: 0.875rem;
+    color: var(--text-color-light);
+    margin-bottom: var(--spacing-md);
+    font-style: italic;
   }
 }
 
@@ -69,6 +89,45 @@
     font-size: 0.875rem;
     line-height: 1.5;
   }
+}
+
+// Estils específics per al calendari inline
+.demo-section:has(pelu-input-date[inline="true"]) {
+  // Utilitzar el mateix comportament que el textarea
+  height: auto;
+  min-height: fit-content;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+
+  .input-date-container {
+    width: 350px;
+    max-width: 350px;
+  }
+
+  .pelu-datepicker {
+    width: 350px;
+    max-width: 350px;
+
+    .p-datepicker-panel {
+      position: static;
+      box-shadow: none;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      margin-top: var(--spacing-sm);
+      width: 100%;
+      max-width: 350px;
+    }
+  }
+}
+
+// Estils globals per evitar problemes de z-index
+:global(.p-component-overlay) {
+  z-index: 999;
+}
+
+:global(.p-datepicker-panel) {
+  z-index: 1000;
 }
 
 // Responsive design

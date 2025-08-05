@@ -7,10 +7,9 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'pelu-landing',
-  standalone: true,
   imports: [CommonModule, RouterModule, ButtonModule, CardModule, TranslateModule],
   templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.scss']
+  styleUrls: ['./landing.component.scss'],
 })
 export class LandingComponent {
   readonly year = computed(() => new Date().getFullYear());
