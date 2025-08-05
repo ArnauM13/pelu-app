@@ -15,7 +15,7 @@ class MockTranslateLoader implements TranslateLoader {
     return of({
       'COMMON.NAME': 'Nom',
       'COMMON.EMAIL': 'Email',
-      'COMMON.PASSWORD': 'Contrasenya',
+      'AUTH.PASSWORD': 'Contrasenya',
       'COMMON.DESCRIPTION': 'Descripció',
       'COMMON.AGE': 'Edat',
       'COMMON.BIRTH_DATE': 'Data de naixement',

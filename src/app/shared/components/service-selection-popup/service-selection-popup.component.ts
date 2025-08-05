@@ -79,12 +79,12 @@ export class ServiceSelectionPopupComponent {
 
   // Popular services (services with popular flag)
   readonly popularServices = computed(() =>
-    this.availableServices().filter(service => service.popular === true)
+    this.availableServices().filter(service => service.isPopular === true)
   );
 
   // Other services (non-popular services)
   readonly otherServices = computed(() =>
-    this.availableServices().filter(service => service.popular !== true)
+    this.availableServices().filter(service => service.isPopular !== true)
   );
 
   // Popup dialog configuration

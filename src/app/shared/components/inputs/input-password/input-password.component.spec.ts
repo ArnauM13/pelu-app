@@ -12,7 +12,7 @@ import { InputPasswordComponent } from './input-password.component';
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {
     return of({
-      'COMMON.PASSWORD': 'Contrasenya',
+      'AUTH.PASSWORD': 'Contrasenya',
       'INPUTS.PASSWORD_PLACEHOLDER': 'Introdueix contrasenya...',
       'INPUTS.PASSWORD_PROMPT_LABEL': 'Introdueix la contrasenya',
       'INPUTS.PASSWORD_WEAK_LABEL': 'Débil',
@@ -64,7 +64,7 @@ class TestWrapperComponent {
   currentValue = signal('');
 
   // Configurable inputs
-  label = signal('COMMON.PASSWORD');
+  label = signal('AUTH.PASSWORD');
   placeholder = signal('INPUTS.PASSWORD_PLACEHOLDER');
   required = signal(false);
   disabled = signal(false);
@@ -133,7 +133,7 @@ describe('InputPasswordComponent', () => {
     });
 
     it('should render label when provided', () => {
-      component.label.set('COMMON.PASSWORD');
+      component.label.set('AUTH.PASSWORD');
       fixture.detectChanges();
 
       const labelElement = fixture.debugElement.query(By.css('.input-password-label'));
@@ -151,7 +151,7 @@ describe('InputPasswordComponent', () => {
 
     it('should render required indicator when required is true', () => {
       component.required.set(true);
-      component.label.set('COMMON.PASSWORD');
+      component.label.set('AUTH.PASSWORD');
       fixture.detectChanges();
 
       const labelElement = fixture.debugElement.query(By.css('.input-password-label'));
@@ -354,7 +354,7 @@ describe('InputPasswordComponent', () => {
 
   describe('Accessibility', () => {
     it('should have proper label-input association', () => {
-      component.label.set('COMMON.PASSWORD');
+      component.label.set('AUTH.PASSWORD');
       fixture.detectChanges();
 
       const labelElement = fixture.debugElement.query(By.css('label'));
