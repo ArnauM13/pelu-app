@@ -2,6 +2,7 @@ import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { RoleService, UserRole } from './role.service';
 import { User } from '@angular/fire/auth';
+import { User as AppUser, UserProfile as AppUserProfile } from '../interfaces/user.interface';
 
 export interface UserProfile {
   auth: User | null;
