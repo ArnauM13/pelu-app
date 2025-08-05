@@ -1,10 +1,10 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
-import { ServiceColorsService, ServiceColor } from '../../../core/services/service-colors.service';
-import { Booking } from '../../../core/services/booking.service';
+import { ServicesService } from '../../../core/services/services.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
 
 @Component({
   selector: 'pelu-next-appointment',
@@ -52,12 +52,10 @@ import { Booking } from '../../../core/services/booking.service';
                 <span class="service-name">{{ getServiceName(booking) }}</span>
               </div>
             }
-            @if (booking.duration) {
-              <div class="duration-info">
-                <span class="duration-icon">⏱️</span>
-                <span class="duration-text">{{ booking.duration }} min</span>
-              </div>
-            }
+            <div class="duration-info">
+              <span class="duration-icon">⏱️</span>
+              <span class="duration-text">60 min</span>
+            </div>
           </div>
 
           @if (booking.notes) {
@@ -345,7 +343,7 @@ export class NextAppointmentComponent {
 
   readonly onViewDetail = output<Booking>();
 
-  constructor(private serviceColorsService: ServiceColorsService) {}
+  #servicesService = inject(ServicesService);
 
   readonly nextBooking = computed(() => {
     const bookings = this.bookings();
@@ -390,39 +388,64 @@ export class NextAppointmentComponent {
   readonly serviceColor = computed(() => {
     const booking = this.nextBooking();
     if (!booking) {
-      return this.serviceColorsService.getDefaultColor();
+      return this.#servicesService.getDefaultColor();
     }
 
-    const serviceName = this.getServiceName(booking);
-    return this.serviceColorsService.getServiceColor(serviceName || '');
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return this.#servicesService.getDefaultColor();
+    }
+
+    return this.#servicesService.getServiceColor(service);
   });
 
   readonly serviceCssClass = computed(() => {
     const booking = this.nextBooking();
     if (!booking) {
-      return this.serviceColorsService.getServiceCssClass('');
+      return 'service-color-default';
     }
 
-    const serviceName = this.getServiceName(booking);
-    return this.serviceColorsService.getServiceCssClass(serviceName);
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return 'service-color-default';
+    }
+
+    return this.#servicesService.getServiceCssClass(service);
   });
 
   readonly serviceTextCssClass = computed(() => {
     const booking = this.nextBooking();
     if (!booking) {
-      return this.serviceColorsService.getServiceTextCssClass('');
+      return 'service-text-default';
     }
 
-    const serviceName = this.getServiceName(booking);
-    return this.serviceColorsService.getServiceTextCssClass(serviceName);
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return 'service-text-default';
+    }
+
+    return this.#servicesService.getServiceTextCssClass(service);
   });
 
   getServiceName(booking: Booking): string {
-    return booking.serviceName || booking.servei || 'Servei general';
+    if (!booking.serviceId) {
+      return 'Servei general';
+    }
+
+    // Get service from Firebase using serviceId
+    const service = this.#servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    if (!service) {
+      return 'Servei general';
+    }
+
+    return this.#servicesService.getServiceName(service);
   }
 
   getClientName(booking: Booking): string {
-    return booking.nom || booking.title || booking.clientName || 'Client';
+    return booking.clientName || 'Client';
   }
 
   formatDate(dateString: string): string {

@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -10,7 +10,7 @@ import { ServiceTranslationService } from '../../../../core/services/service-tra
 import { ActionsButtonsComponent } from '../../../../shared/components/actions-buttons';
 import { ActionsService, ActionContext } from '../../../../core/services/actions.service';
 import { isFutureAppointment } from '../../../../shared/services';
-import { Booking } from '../../../../core/services/booking.service';
+import { Booking } from '../../../../core/interfaces/booking.interface';
 
 @Component({
   selector: 'pelu-appointments-list',
@@ -26,7 +26,7 @@ import { Booking } from '../../../../core/services/booking.service';
   template: `
     @if (bookings().length === 0) {
       <div class="full-screen-empty-state">
-        <pelu-not-found-state [config]="notFoundConfig" (buttonClick)="onClearFilters.emit()">
+        <pelu-not-found-state [config]="notFoundConfig" (buttonClick)="clearFilters.emit()">
         </pelu-not-found-state>
       </div>
     } @else {
@@ -47,9 +47,7 @@ import { Booking } from '../../../../core/services/booking.service';
 
         <div class="appointments-list">
           @for (booking of bookings(); track booking.id) {
-            <!-- Service color functionality temporarily disabled - uncomment to restore colored appointments -->
-            <!-- <div class="appointment-item" [ngClass]="serviceColorsService.getServiceCssClass((booking.serviceName || booking.servei || '') + '')" (click)="onViewBooking.emit(booking)"> -->
-            <div class="appointment-item" (click)="onViewBooking.emit(booking)">
+            <div class="appointment-item" (click)="viewBooking.emit(booking)">
               <div class="appointment-info">
                 <div class="client-info">
                   <div class="client-name-row">
@@ -85,20 +83,10 @@ import { Booking } from '../../../../core/services/booking.service';
                         <span class="detail-text">{{ 'COMMON.NO_DATE_SET' | translate }}</span>
                       </div>
                     }
-                    @if (booking.duration) {
-                      <div class="detail-item">
-                        <span class="detail-icon">⏱️</span>
-                        <span class="detail-text">{{ booking.duration }} min</span>
-                      </div>
-                    }
-                    @if (booking.serviceName || booking.servei) {
-                      <div class="detail-item">
-                        <span class="detail-icon">✂️</span>
-                        <span class="detail-text">{{
-                          getTranslatedServiceName(booking.serviceName || booking.servei)
-                        }}</span>
-                      </div>
-                    }
+                    <div class="detail-item">
+                      <span class="detail-icon">✂️</span>
+                      <span class="detail-text">Service</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -376,10 +364,14 @@ export class AppointmentsListComponent {
   bookings = input.required<Booking[]>();
   hasActiveFilters = input.required<boolean>();
 
-  onViewBooking = output<Booking>();
-  onEditBooking = output<Booking>();
-  onDeleteBooking = output<Booking>();
-  onClearFilters = output<void>();
+  private readonly serviceTranslationService = inject(ServiceTranslationService);
+  private readonly actionsService = inject(ActionsService);
+  private readonly serviceColorsService = inject(ServiceColorsService);
+
+  readonly viewBooking = output<Booking>();
+  readonly editBooking = output<Booking>();
+  readonly deleteBooking = output<Booking>();
+  readonly clearFilters = output<void>();
 
   readonly isFutureAppointment = isFutureAppointment;
 
@@ -394,12 +386,6 @@ export class AppointmentsListComponent {
       showButton: this.hasActiveFilters(),
     };
   }
-
-  constructor(
-    public serviceColorsService: ServiceColorsService,
-    private serviceTranslationService: ServiceTranslationService,
-    private actionsService: ActionsService
-  ) {}
 
   isToday(dateString: string): boolean {
     const today = new Date().toISOString().split('T')[0];
@@ -420,16 +406,16 @@ export class AppointmentsListComponent {
   }
 
   getClientName(booking: Booking): string {
-    return booking.nom || booking.title || booking.clientName || 'Client';
+    return booking.clientName || 'Client';
   }
 
   getActionContext(booking: Booking): ActionContext {
     return {
       type: 'appointment',
       item: booking,
-      onEdit: () => this.onEditBooking.emit(booking),
-      onDelete: () => this.onDeleteBooking.emit(booking),
-      onView: () => this.onViewBooking.emit(booking),
+      onEdit: () => this.editBooking.emit(booking),
+      onDelete: () => this.deleteBooking.emit(booking),
+      onView: () => this.viewBooking.emit(booking),
     };
   }
 }

@@ -139,7 +139,7 @@ export interface LoadingStateConfig {
 })
 export class LoadingStateComponent {
   @Input() config: LoadingStateConfig = {
-    message: 'COMMON.LOADING',
+    message: 'COMMON.STATUS.LOADING',
     spinnerSize: 'medium',
     showMessage: true,
     fullHeight: false,

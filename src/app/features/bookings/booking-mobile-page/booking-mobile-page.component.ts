@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
+import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import {
   addDays,
   format,
@@ -21,9 +22,7 @@ import {
 } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { AuthService } from '../../../core/auth/auth.service';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import {
-  BookingPopupComponent,
   BookingDetails,
 } from '../../../shared/components/booking-popup/booking-popup.component';
 
@@ -31,7 +30,8 @@ import {
   FirebaseServicesService,
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
-import { Booking, BookingService } from '../../../core/services/booking.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
+import { BookingService } from '../../../core/services/booking.service';
 import { RoleService } from '../../../core/services/role.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -54,7 +54,7 @@ interface DaySlot {
   timeSlots: TimeSlot[];
 }
 
-type BookingStep = 'service' | 'datetime' | 'confirmation';
+type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
 @Component({
   selector: 'pelu-booking-mobile-page',
@@ -66,9 +66,8 @@ type BookingStep = 'service' | 'datetime' | 'confirmation';
     ButtonModule,
     SelectModule,
     TranslateModule,
-    CardComponent,
-    BookingPopupComponent,
     CurrencyPipe,
+    InputTextComponent,
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],
@@ -87,9 +86,11 @@ export class BookingMobilePageComponent {
   // Step management signals
   private readonly currentStepSignal = signal<BookingStep>('service');
   private readonly selectedTimeSlotSignal = signal<TimeSlot | null>(null);
+  private readonly createdBookingSignal = signal<Booking | null>(null);
 
   // Internal state signals
   private readonly selectedDateSignal = signal<Date | null>(null);
+  private readonly viewDateSignal = signal<Date>(new Date()); // New signal for tracking view period
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
   private readonly appointmentsSignal = signal<Booking[]>([]);
   private readonly viewModeSignal = signal<'week' | 'month'>('week');
@@ -108,6 +109,7 @@ export class BookingMobilePageComponent {
   readonly currentStep = computed(() => this.currentStepSignal());
   readonly selectedTimeSlot = computed(() => this.selectedTimeSlotSignal());
   readonly selectedDate = computed(() => this.selectedDateSignal());
+  readonly viewDate = computed(() => this.viewDateSignal()); // New computed signal for view date
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
   readonly viewMode = computed(() => this.viewModeSignal());
@@ -118,6 +120,7 @@ export class BookingMobilePageComponent {
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
   readonly isAdmin = computed(() => this.roleService.isAdmin());
+  readonly createdBooking = computed(() => this.createdBookingSignal());
 
   // Step validation computed signals
   readonly canProceedToDateTime = computed(() => {
@@ -133,6 +136,23 @@ export class BookingMobilePageComponent {
     return step === 'datetime' || step === 'confirmation';
   });
 
+  readonly canProceedToNextStep = computed(() => {
+    const step = this.currentStep();
+    if (step === 'service') {
+      return this.canProceedToDateTime();
+    } else if (step === 'datetime') {
+      return this.canProceedToConfirmation();
+    } else if (step === 'confirmation') {
+      return this.canConfirmBooking();
+    }
+    return false;
+  });
+
+  readonly canConfirmBooking = computed(() => {
+    const details = this.bookingDetails();
+    return details.clientName && details.email && this.selectedService() && this.selectedDate() && this.selectedTimeSlot();
+  });
+
   // Business configuration
   readonly businessHours = computed(() => this.businessSettingsService.getBusinessHoursString());
   readonly lunchBreak = computed(() => this.businessSettingsService.getLunchBreak());
@@ -144,7 +164,7 @@ export class BookingMobilePageComponent {
 
   // Week days computation
   readonly weekDays = computed(() => {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     const start = startOfWeek(currentDate, { weekStartsOn: 1 });
     const end = endOfWeek(currentDate, { weekStartsOn: 1 });
     return eachDayOfInterval({ start, end });
@@ -152,7 +172,7 @@ export class BookingMobilePageComponent {
 
   // Month days computation
   readonly monthDays = computed(() => {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
 
@@ -222,6 +242,9 @@ export class BookingMobilePageComponent {
       this.goToStep('datetime');
     } else if (currentStep === 'datetime' && this.canProceedToConfirmation()) {
       this.goToStep('confirmation');
+      this.fillUserDataIfAuthenticated();
+    } else if (currentStep === 'confirmation' && this.canConfirmBooking()) {
+      this.confirmBookingDirectly();
     }
   }
 
@@ -242,7 +265,6 @@ export class BookingMobilePageComponent {
   // Step-specific methods
   onServiceSelected(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
-    this.nextStep();
   }
 
   onDateSelected(date: Date) {
@@ -272,6 +294,19 @@ export class BookingMobilePageComponent {
     }
   }
 
+  private fillUserDataIfAuthenticated() {
+    if (this.isAuthenticated()) {
+      const displayName = this.authService.userDisplayName() || '';
+      const email = this.authService.user()?.email || '';
+
+      this.bookingDetailsSignal.update(details => ({
+        ...details,
+        clientName: displayName,
+        email: email
+      }));
+    }
+  }
+
   onConfirmBooking() {
     const selectedTimeSlot = this.selectedTimeSlot();
     const selectedDate = this.selectedDate();
@@ -293,6 +328,50 @@ export class BookingMobilePageComponent {
 
     this.bookingDetailsSignal.set(bookingDetails);
     this.showBookingPopupSignal.set(true);
+  }
+
+  async confirmBookingDirectly() {
+    const selectedTimeSlot = this.selectedTimeSlot();
+    const selectedDate = this.selectedDate();
+    const selectedService = this.selectedService();
+    const details = this.bookingDetails();
+
+    if (!selectedTimeSlot || !selectedDate || !selectedService || !details.clientName || !details.email) {
+      this.toastService.showError('Informació incompleta per confirmar la reserva');
+      return;
+    }
+
+    try {
+      // Create booking using the booking service
+      const bookingData = {
+        clientName: details.clientName,
+        email: details.email,
+        data: format(selectedDate, 'yyyy-MM-dd'),
+        hora: selectedTimeSlot.time,
+        serviceId: selectedService.id || '',
+        notes: '',
+        status: 'confirmed' as const,
+      };
+
+      const booking = await this.bookingService.createBooking(bookingData);
+
+      if (booking) {
+        // Store the created booking for the success page
+        this.createdBookingSignal.set(booking);
+
+        // Refresh appointments to show the new booking
+        await this.loadAppointments();
+
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('bookingUpdated'));
+
+        // Navigate to success step instead of showing toast
+        this.goToStep('success');
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      // Don't show toast - the booking service already handles success/error toasts
+    }
   }
 
 
@@ -342,7 +421,7 @@ export class BookingMobilePageComponent {
         slotDate.setHours(hour, minute, 0, 0);
 
         // Skip disabled time slots (lunch break, etc.)
-        if (!this.isTimeSlotEnabled(hour, minute)) {
+        if (!this.isTimeSlotEnabled(hour)) {
           continue;
         }
 
@@ -361,8 +440,8 @@ export class BookingMobilePageComponent {
           time: timeString,
           available: isAvailable,
           isSelected: false,
-          clientName: booking?.nom || booking?.clientName,
-          serviceName: booking?.serviceName || booking?.servei,
+          clientName: booking?.clientName,
+          serviceName: '', // Service name will be retrieved from service service
           serviceIcon: this.getServiceIcon(booking?.serviceId),
           bookingId: booking?.id,
           notes: booking?.notes,
@@ -402,7 +481,7 @@ export class BookingMobilePageComponent {
     return service?.icon || '🔧';
   }
 
-  private isTimeSlotEnabled(hour: number, _minute: number): boolean {
+  private isTimeSlotEnabled(hour: number): boolean {
     // Check lunch break
     const lunchBreak = this.lunchBreak();
     const lunchStart = parseInt(lunchBreak.start.split(':')[0]);
@@ -439,7 +518,7 @@ export class BookingMobilePageComponent {
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotDuration) {
-        if (this.isTimeSlotEnabled(hour, minute)) {
+        if (this.isTimeSlotEnabled(hour)) {
           const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
           slots.push(timeString);
         }
@@ -453,18 +532,13 @@ export class BookingMobilePageComponent {
     try {
       // Create booking using the booking service
       const bookingData = {
-        nom: details.clientName,
+        clientName: details.clientName,
         email: details.email,
         data: details.date,
         hora: details.time,
-        serviceName: details.service?.name || '',
         serviceId: details.service?.id || '',
-        duration: details.service?.duration || 60,
-        price: details.service?.price || 0,
         notes: '',
         status: 'confirmed' as const,
-        editToken: '', // Will be generated automatically
-        uid: this.authService.user()?.uid || null,
       };
 
       const booking = await this.bookingService.createBooking(bookingData);
@@ -521,21 +595,42 @@ export class BookingMobilePageComponent {
     this.router.navigate(['/login']);
   }
 
+  // Success page methods
+  onViewBookingDetail() {
+    const booking = this.createdBooking();
+    if (booking) {
+      this.router.navigate(['/appointments', booking.id]);
+    }
+  }
+
+  onBackToHome() {
+    this.router.navigate(['/bookings']);
+  }
+
   // Navigation
   goToPreviousWeek() {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     const newDate = addDays(currentDate, -7);
-    this.selectedDateSignal.set(newDate);
+    this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
+    this.clearSelectedDate(); // Clear selected date when changing period
   }
 
   goToNextWeek() {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     const newDate = addDays(currentDate, 7);
-    this.selectedDateSignal.set(newDate);
+    this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
+    this.clearSelectedDate(); // Clear selected date when changing period
   }
 
   goToToday() {
-    this.selectedDateSignal.set(new Date());
+    this.viewDateSignal.set(new Date()); // Update viewDate instead of selectedDate
+    this.clearSelectedDate(); // Clear selected date when changing period
+  }
+
+  // Helper method to clear selected date
+  private clearSelectedDate() {
+    this.selectedDateSignal.set(null);
+    this.selectedTimeSlotSignal.set(null); // Also clear selected time slot
   }
 
   // Template methods
@@ -622,7 +717,7 @@ export class BookingMobilePageComponent {
   }
 
   isCurrentMonth(date: Date): boolean {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     return (
       date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear()
     );
@@ -635,7 +730,7 @@ export class BookingMobilePageComponent {
       return !this.isPastDate(date) && this.isBusinessDay(date);
     } else {
       // Month view - only current month days
-      const currentDate = this.selectedDate() || new Date();
+      const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
 
@@ -660,6 +755,7 @@ export class BookingMobilePageComponent {
     const today = new Date();
     if (this.canSelectDate(today)) {
       this.selectedDateSignal.set(today);
+      this.viewDateSignal.set(today); // Update view date to show today
     }
   }
 
@@ -667,6 +763,7 @@ export class BookingMobilePageComponent {
     const tomorrow = this.getTomorrow();
     if (this.canSelectDate(tomorrow)) {
       this.selectedDateSignal.set(tomorrow);
+      this.viewDateSignal.set(tomorrow); // Update view date to show tomorrow
     }
   }
 
@@ -701,6 +798,8 @@ export class BookingMobilePageComponent {
     const nextAvailable = this.nextAvailableDate();
     if (nextAvailable) {
       this.selectedDateSignal.set(nextAvailable);
+      // Also update view date to show the selected date in the calendar
+      this.viewDateSignal.set(nextAvailable);
       // Show a toast to inform the user about the selected date
       this.toastService.showInfo(
         'Data seleccionada',
@@ -782,10 +881,11 @@ export class BookingMobilePageComponent {
   toggleViewMode() {
     const newMode = this.viewMode() === 'week' ? 'month' : 'week';
     this.viewModeSignal.set(newMode);
+    this.clearSelectedDate(); // Clear selected date when changing view mode
   }
 
   canGoToPreviousPeriod(): boolean {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     const today = new Date();
 
     if (this.viewMode() === 'week') {
@@ -806,25 +906,27 @@ export class BookingMobilePageComponent {
       return; // Don't navigate if it would go to past periods
     }
 
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     if (this.viewMode() === 'week') {
       const newDate = addDays(currentDate, -7);
-      this.selectedDateSignal.set(newDate);
+      this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     } else {
       const newDate = subMonths(currentDate, 1);
-      this.selectedDateSignal.set(newDate);
+      this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     }
+    this.clearSelectedDate(); // Clear selected date when changing period
   }
 
   nextPeriod() {
-    const currentDate = this.selectedDate() || new Date();
+    const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     if (this.viewMode() === 'week') {
       const newDate = addDays(currentDate, 7);
-      this.selectedDateSignal.set(newDate);
+      this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     } else {
       const newDate = addMonths(currentDate, 1);
-      this.selectedDateSignal.set(newDate);
+      this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     }
+    this.clearSelectedDate(); // Clear selected date when changing period
   }
 
   selectServiceFromList(service: FirebaseService) {

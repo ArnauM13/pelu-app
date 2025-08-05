@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -6,19 +6,20 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextComponent } from '../inputs';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../popup-dialog/popup-dialog.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
+import { Service } from '../../../core/services/services.service';
 
 export interface BookingDetails {
   date: string;
   time: string;
   clientName: string;
   email: string;
-  service?: any;
+  service?: Service;
 }
 
 @Component({
@@ -101,26 +102,14 @@ export class BookingPopupComponent {
   }));
 
   constructor() {
-    this.initializeForm();
-
-    // Initialize form with authenticated user data if available
-    effect(() => {
-      if (this.isAuthenticated()) {
-        const form = this.form();
-        if (form) {
-          form.patchValue({
-            clientName: this.currentUserName() || '',
-            email: this.currentUserEmail() || ''
-          });
-        }
-      }
-    });
+    this.#initializeForm();
   }
 
-  private initializeForm() {
+  #initializeForm() {
+    const details = this.bookingDetails();
     const form = this.#fb.group({
-      clientName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]]
+      clientName: [details.clientName || '', [Validators.required, Validators.minLength(2)]],
+      email: [details.email || '', [Validators.required, Validators.email]]
     });
 
     this.formSignal.set(form);

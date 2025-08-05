@@ -27,7 +27,8 @@ import { LoadingStateComponent } from '../../../shared/components/loading-state/
 import { ActionContext } from '../../../core/services/actions.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { BookingService, Booking } from '../../../core/services/booking.service';
+import { BookingService } from '../../../core/services/booking.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
 import { ToastConfig } from '../../../shared/components/toast/toast.component';
 import { BusinessSettingsService } from '../../../core/services/business-settings.service';
 
@@ -137,11 +138,11 @@ export class AppointmentsPageComponent {
   readonly calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({
       id: appointment.id || '',
-      title: appointment.nom || 'Appointment',
+      title: appointment.clientName || 'Appointment',
       start: (appointment.data || '') + 'T' + (appointment.hora || '00:00'),
-      duration: appointment.duration || 60,
-      serviceName: appointment.serviceName || appointment.servei || '',
-      clientName: appointment.nom || 'Client',
+      duration: 60, // Will be fetched from service service
+      serviceName: 'Service', // Will be fetched from service service
+      clientName: appointment.clientName || 'Client',
       isPublicBooking: false,
       isOwnBooking: true,
       canDrag: true,
@@ -178,7 +179,6 @@ export class AppointmentsPageComponent {
   readonly appointmentStats = computed((): AppointmentStats => {
     const appointments = this.appointments();
     const today = format(new Date(), 'yyyy-MM-dd');
-    const currentUserId = this.getCurrentUserId();
 
     return {
       total: appointments.length,
@@ -188,7 +188,7 @@ export class AppointmentsPageComponent {
         const appointmentDate = parseISO(app.data);
         return isFuture(appointmentDate);
       }).length,
-      mine: appointments.filter(app => app.uid === currentUserId).length,
+      mine: appointments.filter(app => app.email === this.authService.user()?.email).length,
     };
   });
 
@@ -213,8 +213,8 @@ export class AppointmentsPageComponent {
         });
       }
       case 'mine': {
-        const currentUserId = this.getCurrentUserId();
-        return appointments.filter(appointment => appointment.uid === currentUserId);
+        const currentUserEmail = this.authService.user()?.email;
+        return appointments.filter(appointment => appointment.email === currentUserEmail);
       }
       default:
         return appointments;
@@ -232,7 +232,7 @@ export class AppointmentsPageComponent {
     if (!filterClient) return appointments;
     const searchTerm = filterClient.toLowerCase();
     return appointments.filter(appointment =>
-      (appointment.nom || '').toLowerCase().includes(searchTerm)
+      (appointment.clientName || '').toLowerCase().includes(searchTerm)
     );
   }
 
@@ -292,7 +292,7 @@ export class AppointmentsPageComponent {
       const originalBooking = this.findOriginalBooking(appointment);
       if (originalBooking) {
         await this.appointmentService.deleteBooking(originalBooking.id || '');
-        this.toastService.showAppointmentDeleted(originalBooking.nom || '');
+        this.toastService.showAppointmentDeleted(originalBooking.clientName || '');
       }
       window.dispatchEvent(new CustomEvent('appointmentDeleted'));
     } catch (error) {
@@ -315,7 +315,7 @@ export class AppointmentsPageComponent {
     try {
       if (booking.id) {
         await this.appointmentService.deleteBooking(booking.id);
-        this.toastService.showAppointmentDeleted(booking.nom || '');
+        this.toastService.showAppointmentDeleted(booking.clientName || '');
         window.dispatchEvent(new CustomEvent('appointmentDeleted'));
       }
     } catch (error) {

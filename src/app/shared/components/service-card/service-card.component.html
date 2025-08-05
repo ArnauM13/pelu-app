@@ -9,7 +9,7 @@
     <div class="service-icon">{{ service().icon }}</div>
     <div class="service-info">
       <h3 class="service-name">{{ service().name }}</h3>
-      @if (showPopularBadge() && service().popular) {
+      @if (showPopularBadge() && service().isPopular) {
         <pelu-popular-badge
           [config]="{
             size: 'small',
@@ -37,7 +37,7 @@
   <div class="service-meta">
     @if (showDuration()) {
       <div class="meta-item">
-        <span class="meta-label">⏱️&nbsp;{{ 'ADMIN.SERVICES.DURATION_MINUTES' | translate }}:</span>
+        <span class="meta-label">⏱️&nbsp;{{ 'COMMON.UNITS.DURATION_MINUTES' | translate }}:</span>
         <span class="meta-value"
           >{{ service().duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span
         >
@@ -45,13 +45,13 @@
     }
     @if (showPrice()) {
       <div class="meta-item">
-        <span class="meta-label">💰&nbsp;{{ 'ADMIN.SERVICES.PRICE_EURO' | translate }}:</span>
+        <span class="meta-label">💰&nbsp;{{ 'COMMON.UNITS.PRICE_EURO' | translate }}:</span>
         <span class="meta-value">{{ service().price | currency }}</span>
       </div>
     }
     @if (showCategory()) {
       <div class="meta-item">
-        <span class="meta-label">📂&nbsp;{{ 'ADMIN.SERVICES.CATEGORY' | translate }}:</span>
+        <span class="meta-label">📂&nbsp;{{ 'SERVICES.MANAGEMENT.CATEGORY' | translate }}:</span>
         <span class="meta-value">{{ getCategoryName(service().category) | translate }}</span>
       </div>
     }

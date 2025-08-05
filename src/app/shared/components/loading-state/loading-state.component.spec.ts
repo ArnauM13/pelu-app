@@ -60,7 +60,7 @@ describe('LoadingStateComponent', () => {
 
   describe('Default Configuration', () => {
     it('should have default config values', () => {
-      expect(component.config.message).toBe('COMMON.LOADING');
+      expect(component.config.message).toBe('COMMON.STATUS.LOADING');
       expect(component.config.spinnerSize).toBe('medium');
       expect(component.config.showMessage).toBe(true);
       expect(component.config.fullHeight).toBe(false);

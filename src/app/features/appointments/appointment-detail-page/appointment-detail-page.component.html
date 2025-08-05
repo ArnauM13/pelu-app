@@ -5,7 +5,7 @@
   (save)="saveAppointment()"
   (cancelEdit)="cancelEditing()"
   (delete)="deleteAppointment()"
-  (updateForm)="updateForm($event.field, $event.value)"
+  (updateForm)="updateFormField($event.field, $event.value)"
 >
 </pelu-detail-view>
 
@@ -13,8 +13,12 @@
 <pelu-appointment-detail-popup
   [open]="false"
   [booking]="null"
+  [service]="service()"
   [hideViewDetailButton]="true"
   (closed)="onPopupClosed()"
+  (deleted)="onBookingDeleted($event)"
+  (editRequested)="onBookingEditRequested($event)"
+  (viewDetailRequested)="onViewDetailRequested($event)"
 >
 </pelu-appointment-detail-popup>
 
