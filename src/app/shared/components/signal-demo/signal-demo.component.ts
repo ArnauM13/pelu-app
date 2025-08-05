@@ -5,18 +5,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CardComponent } from '../card/card.component';
 import { ButtonComponent } from '../buttons/button.component';
 import { ToastService } from '../../services/toast.service';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'client';
-  isActive: boolean;
-}
+import { User, UserRole } from '../../../core/interfaces/user.interface';
 
 interface FilterState {
   search: string;
-  role: 'all' | 'admin' | 'client';
+  role: 'all' | UserRole.ADMIN | UserRole.USER;
   status: 'all' | 'active' | 'inactive';
 }
 
@@ -358,10 +351,10 @@ export class SignalDemoComponent {
 
   // Internal state signals
   private readonly usersSignal = signal<User[]>([
-    { id: '1', name: 'Joan Garcia', email: 'joan@example.com', role: 'admin', isActive: true },
-    { id: '2', name: 'Maria López', email: 'maria@example.com', role: 'client', isActive: true },
-    { id: '3', name: 'Pere Martí', email: 'pere@example.com', role: 'client', isActive: false },
-    { id: '4', name: 'Anna Costa', email: 'anna@example.com', role: 'admin', isActive: true },
+    { id: '1', name: 'Joan Garcia', email: 'joan@example.com', role: UserRole.ADMIN, isActive: true },
+    { id: '2', name: 'Maria López', email: 'maria@example.com', role: UserRole.USER, isActive: true },
+    { id: '3', name: 'Pere Martí', email: 'pere@example.com', role: UserRole.USER, isActive: false },
+    { id: '4', name: 'Anna Costa', email: 'anna@example.com', role: UserRole.ADMIN, isActive: true },
   ]);
 
   private readonly filterStateSignal = signal<FilterState>({
@@ -384,7 +377,7 @@ export class SignalDemoComponent {
   // Derived computed signals
   readonly totalUsers = computed(() => this.users().length);
   readonly activeUsers = computed(() => this.users().filter(u => u.isActive).length);
-  readonly adminUsers = computed(() => this.users().filter(u => u.role === 'admin').length);
+  readonly adminUsers = computed(() => this.users().filter(u => u.role === UserRole.ADMIN).length);
 
   // Advanced filtered users with memoization
   readonly filteredUsers = computed(() => {
@@ -446,7 +439,7 @@ export class SignalDemoComponent {
     this.filterStateSignal.update(state => ({ ...state, search }));
   }
 
-  updateRole(role: 'all' | 'admin' | 'client') {
+  updateRole(role: 'all' | UserRole.ADMIN | UserRole.USER) {
     this.filterStateSignal.update(state => ({ ...state, role }));
   }
 
@@ -469,7 +462,7 @@ export class SignalDemoComponent {
       id: Date.now().toString(),
       name: `Usuari ${this.totalUsers() + 1}`,
       email: `usuari${this.totalUsers() + 1}@example.com`,
-      role: Math.random() > 0.5 ? 'admin' : 'client',
+      role: Math.random() > 0.5 ? UserRole.ADMIN : UserRole.USER,
       isActive: true,
     };
 

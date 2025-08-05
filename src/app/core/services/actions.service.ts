@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../shared/services/toast.service';
-import { BookingService, Booking } from './booking.service';
+import { BookingService } from './booking.service';
+import { Booking } from '../interfaces/booking.interface';
 import { BookingValidationService } from './booking-validation.service';
 
 export interface ActionConfig {
@@ -127,10 +128,10 @@ export class ActionsService {
     // Toggle popular action (first, so it appears first)
     actions.push({
       id: 'toggle-popular',
-      label: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
+      label: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
       icon: service.popular ? '⭐' : '☆',
       type: 'success',
-      tooltip: service.popular ? 'ADMIN.SERVICES.UNMARK_POPULAR' : 'ADMIN.SERVICES.MARK_POPULAR',
+      tooltip: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
       onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Toggle popular for service:', item);
@@ -140,10 +141,10 @@ export class ActionsService {
     // Edit action
     actions.push({
       id: 'edit',
-      label: 'ADMIN.SERVICES.EDIT_SERVICE',
+      label: 'SERVICES.MANAGEMENT.EDIT_SERVICE',
       icon: '✏️',
       type: 'secondary',
-      tooltip: 'ADMIN.SERVICES.EDIT_SERVICE',
+      tooltip: 'SERVICES.MANAGEMENT.EDIT_SERVICE',
       onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Edit service:', item);

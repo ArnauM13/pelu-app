@@ -68,7 +68,6 @@ export const publicGuard: CanActivateFn = (route, state) => {
 
 export const tokenGuard: CanActivateFn = async (route, state) => {
   const userService = inject(UserService);
-  const bookingService = inject(BookingService);
   const router = inject(Router);
 
   // Check if user is authenticated first
@@ -80,29 +79,8 @@ export const tokenGuard: CanActivateFn = async (route, state) => {
     }
   }
 
-  // If not authenticated, check for token in query parameters
-  const token = route.queryParams['token'];
-  if (!token) {
-    // No token provided, redirect to login
-    router.navigate(['/login']);
-    return false;
-  }
-
-  try {
-    // Validate the token without requiring authentication
-    const booking = await bookingService.validateToken(token);
-    if (booking) {
-      // Token is valid, allow access
-      return true;
-    } else {
-      // Invalid token, redirect to login
-      router.navigate(['/login']);
-      return false;
-    }
-  } catch (error) {
-    console.error('Error validating token:', error);
-    // Error validating token, redirect to login
-    router.navigate(['/login']);
-    return false;
-  }
+  // Since we're using UUIDs now and removed the token system,
+  // we'll redirect unauthenticated users to login
+  router.navigate(['/login']);
+  return false;
 };

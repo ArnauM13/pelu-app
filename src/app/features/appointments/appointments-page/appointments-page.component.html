@@ -78,10 +78,10 @@
       <pelu-appointments-list
         [bookings]="filteredAppointments()"
         [hasActiveFilters]="hasActiveFilters()"
-        (onViewBooking)="viewAppointmentDetail($event)"
-        (onEditBooking)="editBookingFromList($event)"
-        (onDeleteBooking)="deleteBookingFromList($event)"
-        (onClearFilters)="clearAllFilters()"
+        (viewBooking)="viewAppointmentDetail($event)"
+        (editBooking)="editBookingFromList($event)"
+        (deleteBooking)="deleteBookingFromList($event)"
+        (clearFilters)="clearAllFilters()"
       >
       </pelu-appointments-list>
     }

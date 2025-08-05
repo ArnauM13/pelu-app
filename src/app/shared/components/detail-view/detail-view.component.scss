@@ -135,12 +135,6 @@
     flex-shrink: 0;
     position: relative;
     z-index: var(--z-base);
-
-    &:hover {
-      background: rgba(255, 255, 255, 1);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
   }
 
   &::before {
@@ -322,7 +316,6 @@
 // Card Content
 .card-content {
   padding: 1.5rem;
-  background: #f8fafc;
   display: flex;
   flex-direction: column;
 
@@ -356,12 +349,6 @@
     gap: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     width: 100%;
-
-    &:hover {
-      background: #f8fafc;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
   }
 
   .info-section {

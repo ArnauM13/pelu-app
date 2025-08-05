@@ -25,13 +25,10 @@ export interface FirebaseService {
   description: string;
   price: number;
   duration: number; // in minutes
-  category: string; // Now supports any string category
+  category: string;
   icon: string;
-  popular?: boolean;
-  active?: boolean;
-  createdAt?: any;
-  updatedAt?: any;
-  createdBy?: string;
+  isPopular?: boolean;
+  isActive?: boolean;
 }
 
 export interface ServiceCategory {
@@ -94,11 +91,11 @@ export class FirebaseServicesService {
 
   // Computed signals for filtered services
   readonly activeServices = computed(() =>
-    this.services().filter(service => service.active !== false)
+    this.services().filter(service => service.isActive !== false)
   );
 
   readonly popularServices = computed(() =>
-    this.activeServices().filter(service => service.popular)
+    this.activeServices().filter(service => service.isPopular)
   );
 
   readonly servicesByCategory = computed(() => {
@@ -147,7 +144,7 @@ export class FirebaseServicesService {
       const services: FirebaseService[] = [];
       querySnapshot.forEach(doc => {
         const service = { id: doc.id, ...doc.data() } as FirebaseService;
-        if (service.active !== false) {
+        if (service.isActive !== false) {
           // Only active services
           services.push(service);
         }
@@ -179,7 +176,7 @@ export class FirebaseServicesService {
    * Create a new service (admin only)
    */
   async createService(
-    serviceData: Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>,
+    serviceData: Omit<FirebaseService, 'id'>,
     showToast: boolean = true
   ): Promise<FirebaseService | null> {
     try {
@@ -196,13 +193,10 @@ export class FirebaseServicesService {
         throw new Error('Authentication required');
       }
 
-      const service = {
-        ...serviceData,
-        active: true,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        createdBy: currentUser.uid,
-      };
+              const service = {
+          ...serviceData,
+          isActive: true,
+        };
 
       // Save to Firestore
       const docRef = await addDoc(collection(this.firestore, 'services'), service);
@@ -341,10 +335,9 @@ export class FirebaseServicesService {
 
       // Soft delete by setting active to false
       const docRef = doc(this.firestore, 'services', serviceId);
-      await updateDoc(docRef, {
-        active: false,
-        updatedAt: serverTimestamp(),
-      });
+              await updateDoc(docRef, {
+          isActive: false,
+        });
 
       // Remove from local state
       this._services.update(services => services.filter(service => service.id !== serviceId));
@@ -399,7 +392,7 @@ export class FirebaseServicesService {
 
       if (docSnap.exists()) {
         const service = { id: docSnap.id, ...docSnap.data() } as FirebaseService;
-        return service.active !== false ? service : null;
+        return service.isActive !== false ? service : null;
       }
 
       return null;
@@ -478,8 +471,8 @@ export class FirebaseServicesService {
           duration: 30,
           category: 'haircut',
           icon: '✂️',
-          popular: true,
-          active: true,
+          isPopular: true,
+          isActive: true,
         },
         {
           name: 'Tall + Afaitat',
@@ -488,8 +481,8 @@ export class FirebaseServicesService {
           duration: 45,
           category: 'haircut',
           icon: '✂️',
-          popular: true,
-          active: true,
+          isPopular: true,
+          isActive: true,
         },
         {
           name: 'Afaitat de Barba',
@@ -498,7 +491,7 @@ export class FirebaseServicesService {
           duration: 20,
           category: 'beard',
           icon: '🧔',
-          active: true,
+          isActive: true,
         },
         {
           name: 'Arreglada de Barba',
@@ -507,7 +500,7 @@ export class FirebaseServicesService {
           duration: 15,
           category: 'beard',
           icon: '🧔',
-          active: true,
+          isActive: true,
         },
         {
           name: 'Lavada i Tractament',
@@ -516,7 +509,7 @@ export class FirebaseServicesService {
           duration: 25,
           category: 'treatment',
           icon: '💆',
-          active: true,
+          isActive: true,
         },
         {
           name: 'Coloració',
@@ -525,8 +518,8 @@ export class FirebaseServicesService {
           duration: 60,
           category: 'treatment',
           icon: '💆',
-          popular: true,
-          active: true,
+          isPopular: true,
+          isActive: true,
         },
         {
           name: 'Pentinat Especial',
@@ -535,8 +528,8 @@ export class FirebaseServicesService {
           duration: 40,
           category: 'styling',
           icon: '💇',
-          popular: true,
-          active: true,
+          isPopular: true,
+          isActive: true,
         },
         {
           name: 'Tall Infantil',
@@ -545,7 +538,7 @@ export class FirebaseServicesService {
           duration: 25,
           category: 'haircut',
           icon: '👶',
-          active: true,
+          isActive: true,
         },
       ];
 

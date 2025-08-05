@@ -13,6 +13,7 @@ import {
   DocumentData,
 } from '@angular/fire/firestore';
 import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
+import { UserRole as AppUserRole } from '../interfaces/user.interface';
 
 export interface UserRole {
   uid: string;

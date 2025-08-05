@@ -2,64 +2,26 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import {
   Firestore,
   collection,
-  addDoc,
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
-  where,
   getDocs,
   serverTimestamp,
   orderBy,
-  FieldValue,
 } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { BookingValidationService } from './booking-validation.service';
-import { nanoid } from 'nanoid';
+import { EmailService } from './email.service';
+import { FirebaseServicesService } from './firebase-services.service';
+import { v4 as uuidv4 } from 'uuid';
+import { Booking } from '../interfaces/booking.interface';
 
-
-export interface Booking {
-  id?: string;
-  nom?: string;
-  email?: string;
-  data?: string;
-  hora?: string;
-  serviceName?: string;
-  serviceId?: string;
-  duration?: number;
-  price?: number;
-  notes?: string;
-  status?: 'draft' | 'confirmed' | 'cancelled' | 'completed';
-  editToken: string;
-  uid?: string | null;
-  createdAt?: Date | string | FieldValue;
-  updatedAt?: Date | string | FieldValue;
-  // Campos legacy per compatibilitat
-  title?: string;
-  start?: string;
-  servei?: string;
-  preu?: number;
-  userId?: string;
-  clientName?: string;
-}
-
-// Interfície per a reserves públiques (sense detalls privats)
-
-export interface BookingForm {
-  nom: string;
-  email: string;
-  data: string;
-  hora: string;
-  serviceName: string;
-  serviceId: string;
-  duration: number;
-  price: number;
-  notes?: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -71,6 +33,8 @@ export class BookingService {
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly emailService = inject(EmailService);
+  private readonly firebaseServicesService = inject(FirebaseServicesService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -107,7 +71,7 @@ export class BookingService {
    * Create a complete booking with all required information
    */
   async createBooking(
-    bookingData: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>
+    bookingData: Omit<Booking, 'id' | 'createdAt'>
   ): Promise<Booking | null> {
     try {
       this.isLoadingSignal.set(true);
@@ -124,43 +88,46 @@ export class BookingService {
         throw new Error('ERROR_BOOKING_NOT_ALLOWED');
       }
 
+      // Generate unique UUID for the booking
+      const uniqueId = uuidv4();
+
       const booking = {
-        nom: bookingData.nom || '',
+        id: uniqueId,
+        clientName: bookingData.clientName || '',
         email: bookingData.email || '',
         data: bookingData.data || '',
         hora: bookingData.hora || '',
-        serviceName: bookingData.serviceName || '',
-        serviceId: bookingData.serviceId || '',
-        duration: bookingData.duration || 60,
-        price: bookingData.price || 0,
         notes: bookingData.notes || '',
+        serviceId: bookingData.serviceId || '',
         status: 'confirmed' as const,
-        editToken: bookingData.editToken || nanoid(32),
-        uid: currentUser.uid,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        // Campos legacy
-        title: bookingData.title || bookingData.nom || '',
-        start: bookingData.start || `${bookingData.data}T${bookingData.hora}`,
-        servei: bookingData.servei || bookingData.serviceName || '',
-        preu: bookingData.preu || bookingData.price || 0,
-        userId: bookingData.userId || currentUser.uid,
-        clientName: bookingData.clientName || bookingData.nom || '',
       };
 
-      // Save to Firestore
-      const docRef = await addDoc(collection(this.firestore, 'bookings'), booking);
+      // Save to Firestore with the unique ID
+      await setDoc(doc(this.firestore, 'bookings', uniqueId), booking);
 
-      // Create new booking with ID
+      // Create new booking with the unique ID
       const newBooking: Booking = {
         ...booking,
-        id: docRef.id,
+        id: uniqueId,
       };
 
       // Update local state
       this.bookingsSignal.update(bookings => [newBooking, ...bookings]);
 
-      this.toastService.showAppointmentCreated(bookingData.nom || 'Client', docRef.id);
+      // Send confirmation email
+      try {
+        await this.emailService.sendBookingConfirmationEmail(newBooking);
+      } catch (emailError) {
+        // Log email error but don't fail the booking creation
+        this.logger.error(emailError, {
+          component: 'BookingService',
+          method: 'createBooking',
+          data: { bookingId: uniqueId, clientEmail: bookingData.email }
+        });
+      }
+
+      this.toastService.showAppointmentCreated(bookingData.clientName || 'Client', uniqueId);
 
       return newBooking;
     } catch (error) {
@@ -190,7 +157,7 @@ export class BookingService {
   }
 
   /**
-   * Update a booking with partial data (useful for completing minimal bookings)
+   * Update a booking with partial data
    */
   async updateBooking(bookingId: string, updates: Partial<Booking>): Promise<boolean> {
     try {
@@ -210,7 +177,7 @@ export class BookingService {
 
       // Check if user is admin or owns the booking
       const isAdmin = this.roleService.isAdmin();
-      const isOwner = currentBooking.uid === currentUser.uid;
+      const isOwner = currentBooking.email === currentUser.email;
 
       if (!isAdmin && !isOwner) {
         throw new Error('Access denied');
@@ -227,7 +194,6 @@ export class BookingService {
       // Prepare update data
       const updateData = {
         ...updates,
-        updatedAt: serverTimestamp(),
       };
 
       // Update in Firestore
@@ -237,7 +203,7 @@ export class BookingService {
       // Update local state
       this.bookingsSignal.update(bookings =>
         bookings.map(booking =>
-          booking.id === bookingId ? { ...booking, ...updates, updatedAt: new Date() } : booking
+          booking.id === bookingId ? { ...booking, ...updates } : booking
         )
       );
 
@@ -269,179 +235,67 @@ export class BookingService {
   }
 
   /**
-   * Update booking with token validation (for unauthenticated users)
-   */
-  async updateBookingWithToken(bookingId: string, updates: Partial<Booking>, token: string): Promise<boolean> {
-    try {
-      this.isLoadingSignal.set(true);
-      this.errorSignal.set(null);
-
-      // Validate token first
-      const booking = await this.validateToken(token);
-      if (!booking || booking.id !== bookingId) {
-        throw new Error('Invalid token or booking not found');
-      }
-
-      // Validate that the updated booking is allowed
-      if (updates.data && updates.hora) {
-        const bookingDate = new Date(updates.data);
-        if (!this.bookingValidationService.canBookAppointment(bookingDate, updates.hora)) {
-          throw new Error('ERROR_BOOKING_NOT_ALLOWED');
-        }
-      }
-
-      // Prepare update data
-      const updateData = {
-        ...updates,
-        updatedAt: serverTimestamp(),
-      };
-
-      // Update in Firestore
-      const docRef = doc(this.firestore, 'bookings', bookingId);
-      await updateDoc(docRef, updateData);
-
-      // Update local state if available
-      this.bookingsSignal.update(bookings =>
-        bookings.map(booking =>
-          booking.id === bookingId ? { ...booking, ...updates, updatedAt: new Date() } : booking
-        )
-      );
-
-      return true;
-    } catch (error) {
-      // Log error without user context since this is for unauthenticated access
-      this.logger.firebaseError(error, 'updateBookingWithToken', {
-        component: 'BookingService',
-        method: 'updateBookingWithToken',
-        data: { bookingId, updates: { ...updates, email: '[REDACTED]' } },
-      });
-
-      const errorMessage = error instanceof Error ? error.message : 'Error updating booking';
-      this.errorSignal.set(errorMessage);
-
-      // Show translated error message
-      if (errorMessage === 'ERROR_PAST_BOOKING') {
-        this.toastService.showGenericError('COMMON.ERROR_PAST_BOOKING');
-      } else {
-        this.toastService.showGenericError('Error updating booking');
-      }
-      return false;
-    } finally {
-      this.isLoadingSignal.set(false);
-    }
-  }
-
-  /**
-   * Load bookings based on user role:
-   * - Super Admin: All bookings with full details
-   * - User/Invited: Only public booking info (time slots occupied)
+   * Load all bookings from Firebase
    */
   async loadBookings(): Promise<void> {
     try {
-      this.isLoadingSignal.set(true);
-      this.errorSignal.set(null);
-
-      // Wait for auth to be initialized
       await this.waitForAuthInitialization();
 
       const currentUser = this.authService.user();
-      const isAdmin = this.roleService.isAdmin();
-
-      console.log('🔍 loadBookings - Debug info:', {
-        currentUser: currentUser?.uid,
-        isAdmin: isAdmin,
-        userRole: this.roleService.userRole(),
-        isLoadingRole: this.roleService.isLoadingRole()
-      });
-
-      if (isAdmin) {
-        console.log('👑 Loading all bookings for admin');
-        // Super Admin: Load all bookings with full details
-        await this.loadAllBookingsForAdmin();
-      } else if (currentUser?.uid) {
-        console.log('👤 Loading user bookings for:', currentUser.uid);
-        // Authenticated User: Load own bookings
-        await this.loadUserBookings(currentUser.uid);
-      } else {
-        console.log('👥 Loading public bookings only');
-        // Invited User: Load only public booking info
-        await this.loadPublicBookingsOnly();
+      if (!currentUser?.uid) {
+        this.bookingsSignal.set([]);
+        this.isInitializedSignal.set(true);
+        return;
       }
 
-      // Mark as initialized and update cache time
+      this.isLoadingSignal.set(true);
+      this.errorSignal.set(null);
+
+      await this.loadAllBookingsWithFullDetails();
+
+      // Filter sensitive details for non-admin users
+      if (!this.roleService.isAdmin()) {
+        this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
+      }
+
       this.isInitializedSignal.set(true);
       this.lastCacheTimeSignal.set(Date.now());
-    } catch (error) {
-      const currentUser = this.authService.user();
 
-      // Log detallat de l'error
+    } catch (error) {
       this.logger.firebaseError(error, 'loadBookings', {
         component: 'BookingService',
         method: 'loadBookings',
-        userId: currentUser?.uid,
       });
 
-      this.errorSignal.set(error instanceof Error ? error.message : 'Error loading bookings');
-      // Don't show toast for loading errors - they're not user-initiated actions
+      const errorMessage = error instanceof Error ? error.message : 'Error loading bookings';
+      this.errorSignal.set(errorMessage);
     } finally {
       this.isLoadingSignal.set(false);
     }
   }
 
   /**
-   * Wait for authentication to be initialized
+   * Load all bookings with full details from Firebase
    */
-  private async waitForAuthInitialization(): Promise<void> {
-    return new Promise(resolve => {
-      const checkAuth = () => {
-        if (this.authService.isInitialized()) {
-          resolve();
-        } else {
-          setTimeout(checkAuth, 100);
-        }
-      };
-      checkAuth();
-    });
-  }
+  private async loadAllBookingsWithFullDetails(): Promise<void> {
+    const bookingsRef = collection(this.firestore, 'bookings');
+    const q = query(bookingsRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
 
-  /**
-   * Load all bookings with full details for Super Admin
-   */
-  private async loadAllBookingsForAdmin(): Promise<void> {
-    const bookingsQuery = query(
-      collection(this.firestore, 'bookings'),
-      orderBy('createdAt', 'desc')
-    );
-
-    const bookingsSnapshot = await getDocs(bookingsQuery);
     const bookings: Booking[] = [];
-
-    bookingsSnapshot.forEach(doc => {
+    querySnapshot.forEach(doc => {
       const bookingData = doc.data();
 
       const booking: Booking = {
         id: doc.id,
-        nom: bookingData['nom'] || '',
+        clientName: bookingData['clientName'] || bookingData['nom'] || '',
         email: bookingData['email'] || '',
         data: bookingData['data'] || '',
         hora: bookingData['hora'] || '',
-        serviceName: bookingData['serviceName'] || '',
         serviceId: bookingData['serviceId'] || '',
-        duration: bookingData['duration'] || 60,
-        price: bookingData['price'] || 0,
         notes: bookingData['notes'] || '',
         status: bookingData['status'] || 'draft',
-        editToken: bookingData['editToken'],
-        uid: bookingData['uid'],
         createdAt: bookingData['createdAt'],
-        updatedAt: bookingData['updatedAt'],
-        // Campos legacy
-        title: bookingData['title'] || bookingData['nom'] || '',
-        start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
-        servei: bookingData['servei'] || bookingData['serviceName'] || '',
-        preu: bookingData['preu'] || bookingData['price'] || 0,
-        userId: bookingData['userId'] || bookingData['uid'] || '',
-        clientName: bookingData['clientName'] || bookingData['nom'] || '',
       };
       bookings.push(booking);
     });
@@ -450,138 +304,35 @@ export class BookingService {
   }
 
   /**
-   * Load user's own bookings
+   * Filter sensitive details for non-admin users based on email ownership
    */
-  private async loadUserBookings(userId: string): Promise<void> {
-    try {
-      // Load user's own bookings with full details
-      const userBookingsQuery = query(
-        collection(this.firestore, 'bookings'),
-        where('uid', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
+  private filterSensitiveDetailsForNonAdmin(userEmail: string): void {
+    const currentBookings = this.bookingsSignal();
+    const filteredBookings = currentBookings.map(booking => {
+      // Check if the booking belongs to the current user by comparing emails
+      const isOwnBooking = booking.email && booking.email.toLowerCase() === userEmail.toLowerCase();
 
-      const userBookingsSnapshot = await getDocs(userBookingsQuery);
-      const userBookings: Booking[] = [];
+      if (isOwnBooking) {
+        // Keep full details for own bookings
+        return booking;
+      } else {
+        // Hide sensitive details for bookings that don't belong to the user
+        return {
+          ...booking,
+          clientName: 'Ocupat',
+          email: '', // Hide email
+          notes: '', // Hide notes
+        } as Booking;
+      }
+    });
 
-      userBookingsSnapshot.forEach(doc => {
-        const bookingData = doc.data();
-
-        const booking: Booking = {
-          id: doc.id,
-          nom: bookingData['nom'] || '',
-          email: bookingData['email'] || '',
-          data: bookingData['data'] || '',
-          hora: bookingData['hora'] || '',
-          serviceName: bookingData['serviceName'] || '',
-          serviceId: bookingData['serviceId'] || '',
-          duration: bookingData['duration'] || 60,
-          price: bookingData['price'] || 0,
-          notes: bookingData['notes'] || '',
-          status: bookingData['status'] || 'draft',
-          editToken: bookingData['editToken'],
-          uid: bookingData['uid'],
-          createdAt: bookingData['createdAt'],
-          updatedAt: bookingData['updatedAt'],
-          // Campos legacy
-          title: bookingData['title'] || bookingData['nom'] || '',
-          start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
-          servei: bookingData['servei'] || bookingData['serviceName'] || '',
-          preu: bookingData['preu'] || bookingData['price'] || 0,
-          userId: bookingData['userId'] || bookingData['uid'] || '',
-          clientName: bookingData['clientName'] || bookingData['nom'] || '',
-        };
-        userBookings.push(booking);
-      });
-
-      // Sort by date
-      userBookings.sort((a, b) => {
-        if (a.data && b.data) {
-          const dateA = new Date(a.data);
-          const dateB = new Date(b.data);
-          return dateB.getTime() - dateA.getTime();
-        }
-        return 0;
-      });
-
-      this.bookingsSignal.set(userBookings);
-    } catch (error) {
-      // Log detallat de l'error
-      this.logger.firebaseError(error, 'loadUserBookings', {
-        component: 'BookingService',
-        method: 'loadUserBookings',
-        userId: userId,
-      });
-
-      // If user query fails, try loading all bookings (admin fallback)
-      await this.loadAllBookingsForAdmin();
-    }
+    this.bookingsSignal.set(filteredBookings);
   }
 
   /**
-   * Load only public booking info for invited users
+   * Get booking by ID with validation
    */
-  private async loadPublicBookingsOnly(): Promise<void> {
-    try {
-      // Load all bookings and filter client-side to avoid permission issues
-      const allBookingsQuery = query(
-        collection(this.firestore, 'bookings'),
-        orderBy('createdAt', 'desc')
-      );
-
-      const allBookingsSnapshot = await getDocs(allBookingsQuery);
-      const publicBookings: Booking[] = [];
-
-      allBookingsSnapshot.forEach(doc => {
-        const bookingData = doc.data();
-
-        // Only include confirmed bookings for public view
-        if (bookingData['status'] === 'confirmed') {
-          // Create a minimal booking with only public info
-          const publicBooking: Booking = {
-            id: doc.id,
-            data: bookingData['data'] || '',
-            hora: bookingData['hora'] || '',
-            duration: bookingData['duration'] || 60,
-            status: bookingData['status'] || 'confirmed',
-            createdAt: bookingData['createdAt'],
-            updatedAt: bookingData['updatedAt'],
-            // Minimal info for public display
-            nom: 'Ocupat',
-            serviceName: 'Servei reservat',
-            editToken: bookingData['editToken'],
-            uid: bookingData['uid'],
-          };
-          publicBookings.push(publicBooking);
-        }
-      });
-
-      // Sort by date
-      publicBookings.sort((a, b) => {
-        if (a.data && b.data) {
-          const dateA = new Date(a.data);
-          const dateB = new Date(b.data);
-          return dateB.getTime() - dateA.getTime();
-        }
-        return 0;
-      });
-
-      this.bookingsSignal.set(publicBookings);
-    } catch (error) {
-      // Log detallat de l'error
-      this.logger.firebaseError(error, 'loadPublicBookingsOnly', {
-        component: 'BookingService',
-        method: 'loadPublicBookingsOnly',
-      });
-
-      this.bookingsSignal.set([]);
-    }
-  }
-
-  /**
-   * Get booking by ID with token validation
-   */
-  async getBookingByIdWithToken(bookingId: string, token?: string): Promise<Booking | null> {
+  async getBookingByIdWithToken(bookingId: string): Promise<Booking | null> {
     try {
       const currentUser = this.authService.user();
       if (!currentUser?.uid) {
@@ -596,190 +347,75 @@ export class BookingService {
 
         const booking: Booking = {
           id: docSnap.id,
-          nom: bookingData['nom'] || '',
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
           email: bookingData['email'] || '',
           data: bookingData['data'] || '',
           hora: bookingData['hora'] || '',
-          serviceName: bookingData['serviceName'] || '',
           serviceId: bookingData['serviceId'] || '',
-          duration: bookingData['duration'] || 60,
-          price: bookingData['price'] || 0,
           notes: bookingData['notes'] || '',
           status: bookingData['status'] || 'draft',
-          editToken: bookingData['editToken'],
-          uid: bookingData['uid'],
           createdAt: bookingData['createdAt'],
-          updatedAt: bookingData['updatedAt'],
-          // Campos legacy
-          title: bookingData['title'] || bookingData['nom'] || '',
-          start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
-          servei: bookingData['servei'] || bookingData['serviceName'] || '',
-          preu: bookingData['preu'] || bookingData['price'] || 0,
-          userId: bookingData['userId'] || bookingData['uid'] || '',
-          clientName: bookingData['clientName'] || bookingData['nom'] || '',
         };
 
         // Verify access: either ownership, valid token, or admin role
-        const isOwner = booking.uid === currentUser.uid;
-        const hasValidToken = token && booking.editToken === token;
+        const isOwner = booking.email === currentUser.email;
         const isAdmin = this.roleService.isAdmin();
 
-        if (!isOwner && !hasValidToken && !isAdmin) {
-          throw new Error('Access denied');
+        if (isOwner || isAdmin) {
+          return booking;
         }
 
-        return booking;
+        return null;
       }
 
       return null;
     } catch (error) {
-      const currentUser = this.authService.user();
-
-      // Log detallat de l'error
       this.logger.firebaseError(error, 'getBookingByIdWithToken', {
         component: 'BookingService',
         method: 'getBookingByIdWithToken',
-        userId: currentUser?.uid,
-        data: { bookingId, hasToken: !!token },
       });
-
       return null;
     }
   }
 
   /**
-   * Get booking by edit token (requires authentication)
-   */
-  async getBookingByToken(token: string): Promise<Booking | null> {
-    try {
-      const currentUser = this.authService.user();
-      if (!currentUser?.uid) {
-        throw new Error('Authentication required');
-      }
-
-      // First try to find in cached bookings
-      const cachedBooking = this.bookingsSignal().find(booking => booking.editToken === token);
-      if (cachedBooking) {
-        return cachedBooking;
-      }
-
-      // If not in cache, search in Firebase
-      const bookingsRef = collection(this.firestore, 'bookings');
-      const q = query(bookingsRef, where('editToken', '==', token));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
-        const bookingData = docSnap.data();
-
-        const booking: Booking = {
-          id: docSnap.id,
-          nom: bookingData['nom'] || '',
-          email: bookingData['email'] || '',
-          data: bookingData['data'] || '',
-          hora: bookingData['hora'] || '',
-          serviceName: bookingData['serviceName'] || '',
-          serviceId: bookingData['serviceId'] || '',
-          duration: bookingData['duration'] || 60,
-          price: bookingData['price'] || 0,
-          notes: bookingData['notes'] || '',
-          status: bookingData['status'] || 'draft',
-          editToken: bookingData['editToken'],
-          uid: bookingData['uid'],
-          createdAt: bookingData['createdAt'],
-          updatedAt: bookingData['updatedAt'],
-          // Campos legacy
-          title: bookingData['title'] || bookingData['nom'] || '',
-          start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
-          servei: bookingData['servei'] || bookingData['serviceName'] || '',
-          preu: bookingData['preu'] || bookingData['price'] || 0,
-          userId: bookingData['userId'] || bookingData['uid'] || '',
-          clientName: bookingData['clientName'] || bookingData['nom'] || '',
-        };
-
-        return booking;
-      }
-
-      return null;
-    } catch (error) {
-      const currentUser = this.authService.user();
-
-      // Log detallat de l'error
-      this.logger.firebaseError(error, 'getBookingByToken', {
-        component: 'BookingService',
-        method: 'getBookingByToken',
-        userId: currentUser?.uid,
-        data: { token },
-      });
-
-      return null;
-    }
-  }
-
-  /**
-   * Validate token without requiring authentication (for guards)
-   */
-  async validateToken(token: string): Promise<Booking | null> {
-    try {
-      // Search in Firebase directly without authentication check
-      const bookingsRef = collection(this.firestore, 'bookings');
-      const q = query(bookingsRef, where('editToken', '==', token));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
-        const bookingData = docSnap.data();
-
-        const booking: Booking = {
-          id: docSnap.id,
-          nom: bookingData['nom'] || '',
-          email: bookingData['email'] || '',
-          data: bookingData['data'] || '',
-          hora: bookingData['hora'] || '',
-          serviceName: bookingData['serviceName'] || '',
-          serviceId: bookingData['serviceId'] || '',
-          duration: bookingData['duration'] || 60,
-          price: bookingData['price'] || 0,
-          notes: bookingData['notes'] || '',
-          status: bookingData['status'] || 'draft',
-          editToken: bookingData['editToken'],
-          uid: bookingData['uid'],
-          createdAt: bookingData['createdAt'],
-          updatedAt: bookingData['updatedAt'],
-          // Campos legacy
-          title: bookingData['title'] || bookingData['nom'] || '',
-          start: bookingData['start'] || `${bookingData['data']}T${bookingData['hora']}`,
-          servei: bookingData['servei'] || bookingData['serviceName'] || '',
-          preu: bookingData['preu'] || bookingData['price'] || 0,
-          userId: bookingData['userId'] || bookingData['uid'] || '',
-          clientName: bookingData['clientName'] || bookingData['nom'] || '',
-        };
-
-        return booking;
-      }
-
-      return null;
-    } catch (error) {
-      // Log error without user context since this is for unauthenticated access
-      this.logger.firebaseError(error, 'validateToken', {
-        component: 'BookingService',
-        method: 'validateToken',
-        data: { token },
-      });
-
-      return null;
-    }
-  }
-
-  /**
-   * Get booking by ID (legacy method - only checks ownership)
+   * Get booking by ID
    */
   async getBookingById(bookingId: string): Promise<Booking | null> {
-    return this.getBookingByIdWithToken(bookingId);
+    try {
+      const docRef = doc(this.firestore, 'bookings', bookingId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const bookingData = docSnap.data();
+
+        const booking: Booking = {
+          id: docSnap.id,
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
+          email: bookingData['email'] || '',
+          data: bookingData['data'] || '',
+          hora: bookingData['hora'] || '',
+          serviceId: bookingData['serviceId'] || '',
+          notes: bookingData['notes'] || '',
+          status: bookingData['status'] || 'draft',
+          createdAt: bookingData['createdAt'],
+        };
+
+        return booking;
+      }
+
+      return null;
+    } catch (error) {
+      this.logger.firebaseError(error, 'getBookingById', {
+        component: 'BookingService',
+        method: 'getBookingById',
+      });
+      return null;
+    }
   }
 
   /**
-   * Delete booking
+   * Delete a booking
    */
   async deleteBooking(bookingId: string): Promise<boolean> {
     try {
@@ -799,18 +435,10 @@ export class BookingService {
 
       // Check if user is admin or owns the booking
       const isAdmin = this.roleService.isAdmin();
-      const isOwner = currentBooking.uid === currentUser.uid;
+      const isOwner = currentBooking.email === currentUser.email;
 
       if (!isAdmin && !isOwner) {
         throw new Error('Access denied');
-      }
-
-      // Check if booking can be cancelled
-      if (currentBooking.data && currentBooking.hora) {
-        const bookingDate = new Date(currentBooking.data);
-        if (!this.bookingValidationService.canCancelBooking(bookingDate, currentBooking.hora)) {
-          throw new Error('ERROR_CANCELLATION_NOT_ALLOWED');
-        }
       }
 
       // Delete from Firestore
@@ -818,7 +446,9 @@ export class BookingService {
       await deleteDoc(docRef);
 
       // Update local state
-      this.bookingsSignal.update(bookings => bookings.filter(booking => booking.id !== bookingId));
+      this.bookingsSignal.update(bookings =>
+        bookings.filter(booking => booking.id !== bookingId)
+      );
 
       return true;
     } catch (error) {
@@ -832,8 +462,10 @@ export class BookingService {
         data: { bookingId },
       });
 
-      this.errorSignal.set(error instanceof Error ? error.message : 'Error deleting booking');
-      // Don't show toast here - let the component handle it
+      const errorMessage = error instanceof Error ? error.message : 'Error deleting booking';
+      this.errorSignal.set(errorMessage);
+
+      this.toastService.showGenericError('Error deleting booking');
       return false;
     } finally {
       this.isLoadingSignal.set(false);
@@ -852,64 +484,64 @@ export class BookingService {
    */
   getBookingsForDateRange(startDate: string, endDate: string): Booking[] {
     return this.bookings().filter(booking => {
-      const bookingDate = booking.data;
-      return bookingDate && bookingDate >= startDate && bookingDate <= endDate;
+      const bookingDate = new Date(booking.data);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      return bookingDate >= start && bookingDate <= end;
     });
   }
 
   /**
-   * Get upcoming bookings (only confirmed ones with dates)
+   * Get upcoming bookings
    */
   getUpcomingBookings(): Booking[] {
-    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     return this.bookings().filter(booking => {
-      if (!booking.data || booking.status !== 'confirmed') return false;
       const bookingDate = new Date(booking.data);
-      return bookingDate > now;
+      return bookingDate >= today && booking.status !== 'cancelled';
     });
   }
 
   /**
-   * Get past bookings (only confirmed ones with dates)
+   * Get past bookings
    */
   getPastBookings(): Booking[] {
-    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     return this.bookings().filter(booking => {
-      if (!booking.data || booking.status !== 'confirmed') return false;
       const bookingDate = new Date(booking.data);
-      return bookingDate < now;
+      return bookingDate < today;
     });
   }
 
   /**
-   * Get draft bookings (minimal bookings not yet completed)
+   * Get draft bookings
    */
   getDraftBookings(): Booking[] {
     return this.bookings().filter(booking => booking.status === 'draft');
   }
 
   /**
-   * Check if a booking is complete (has all required information)
+   * Check if a booking is complete
    */
   isBookingComplete(booking: Booking): boolean {
     return !!(
-      booking.nom &&
+      booking.clientName &&
       booking.email &&
       booking.data &&
       booking.hora &&
-      booking.serviceName &&
-      booking.serviceId &&
-      booking.duration &&
-      booking.price &&
-      booking.status === 'confirmed'
+      booking.serviceId
     );
   }
 
   /**
-   * Check if a booking is public (minimal info only)
+   * Check if a booking is public (for calendar display)
    */
   isPublicBooking(booking: Booking): boolean {
-    return booking.nom === 'Ocupat' && booking.serviceName === 'Servei reservat';
+    return booking.clientName === 'Ocupat';
   }
 
   /**
@@ -917,98 +549,103 @@ export class BookingService {
    */
   isOwnBooking(booking: Booking): boolean {
     const currentUser = this.authService.user();
-    return currentUser?.uid === booking.uid;
+    return currentUser?.email === booking.email;
   }
 
   /**
-   * Refresh bookings from server
+   * Check if a booking belongs to a specific email
+   */
+  isOwnBookingByEmail(booking: Booking): boolean {
+    const currentUser = this.authService.user();
+    return currentUser?.email === booking.email;
+  }
+
+  /**
+   * Refresh bookings from Firebase
    */
   async refreshBookings(): Promise<void> {
+    this.clearCache();
     await this.loadBookings();
   }
 
   /**
-   * Silently refresh bookings without showing loader
+   * Silent refresh bookings (without loading indicators)
    */
   async silentRefreshBookings(): Promise<void> {
     try {
-      // Don't set loading state for silent refresh
+      await this.waitForAuthInitialization();
+
       const currentUser = this.authService.user();
-      const isAdmin = this.roleService.isAdmin();
-
-      console.log('🔄 silentRefreshBookings - Debug info:', {
-        currentUser: currentUser?.uid,
-        isAdmin: isAdmin,
-        userRole: this.roleService.userRole(),
-        isLoadingRole: this.roleService.isLoadingRole()
-      });
-
-      if (isAdmin) {
-        console.log('👑 Silent refresh: Loading all bookings for admin');
-        // Super Admin: Load all bookings with full details
-        await this.loadAllBookingsForAdmin();
-      } else if (currentUser?.uid) {
-        console.log('👤 Silent refresh: Loading user bookings for:', currentUser.uid);
-        // Authenticated User: Load own bookings
-        await this.loadUserBookings(currentUser.uid);
-      } else {
-        console.log('👥 Silent refresh: Loading public bookings only');
-        // Invited User: Load only public booking info
-        await this.loadPublicBookingsOnly();
+      if (!currentUser?.uid) {
+        return;
       }
 
-      // Update cache time
-      this.lastCacheTimeSignal.set(Date.now());
-    } catch (error) {
-      const currentUser = this.authService.user();
+      await this.loadAllBookingsWithFullDetails();
 
-      // Log detallat de l'error
+      // Filter sensitive details for non-admin users
+      if (!this.roleService.isAdmin()) {
+        this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
+      }
+
+      this.lastCacheTimeSignal.set(Date.now());
+
+    } catch (error) {
       this.logger.firebaseError(error, 'silentRefreshBookings', {
         component: 'BookingService',
         method: 'silentRefreshBookings',
-        userId: currentUser?.uid,
       });
-
-      this.errorSignal.set(error instanceof Error ? error.message : 'Error loading bookings');
-      // Don't show toast for silent refresh errors
     }
   }
 
   /**
-   * Check if we need to refresh data based on cache age
+   * Check if cache should be refreshed
    */
   private shouldRefreshCache(): boolean {
-    const cacheAge = Date.now() - this.lastCacheTimeSignal();
-    const maxCacheAge = 5 * 60 * 1000; // 5 minutes
-    return cacheAge > maxCacheAge;
+    const lastSync = this.lastCacheTimeSignal();
+    const now = Date.now();
+    const cacheDuration = 5 * 60 * 1000; // 5 minutes
+    return now - lastSync > cacheDuration;
   }
 
   /**
-   * Get bookings with cache support
+   * Get bookings with cache management
    */
   async getBookingsWithCache(): Promise<Booking[]> {
-    // If we have cached data and it's fresh, return it immediately
-    if (this.hasCachedData() && !this.shouldRefreshCache()) {
-      return this.bookings();
-    }
-
-    // If we need to refresh, do it silently
-    if (this.hasCachedData()) {
+    if (this.shouldRefreshCache()) {
       await this.silentRefreshBookings();
-    } else {
-      // First time loading
-      await this.loadBookings();
     }
-
     return this.bookings();
   }
 
   /**
-   * Clear cache when user logs out
+   * Clear cache
    */
   clearCache(): void {
     this.bookingsSignal.set([]);
     this.isInitializedSignal.set(false);
     this.lastCacheTimeSignal.set(0);
+  }
+
+  /**
+   * Generate booking URL
+   */
+  generateBookingUrl(booking: Booking): string {
+    return `/appointments/${booking.id}`;
+  }
+
+  /**
+   * Wait for auth initialization
+   */
+  private async waitForAuthInitialization(): Promise<void> {
+    return new Promise((resolve) => {
+      const checkAuth = () => {
+        if (this.authService.isInitialized()) {
+          resolve();
+        } else {
+          setTimeout(checkAuth, 100);
+        }
+      };
+      checkAuth();
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../buttons/button.component';
@@ -80,6 +80,14 @@ export class PopupDialogComponent {
       case 'close':
       default:
         return 'btn-secondary';
+    }
+  }
+
+  // ESC key handler
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isOpen()) {
+      this.onClose();
     }
   }
 }

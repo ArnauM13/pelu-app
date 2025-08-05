@@ -8,7 +8,7 @@ import { NotFoundStateComponent } from '../not-found-state/not-found-state.compo
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 import { isFutureAppointment } from '../../services';
-import { Booking } from '../../../core/services/booking.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
 
 @Component({
   selector: 'pelu-appointments-list',

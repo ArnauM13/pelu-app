@@ -2,7 +2,7 @@ import { Component, input, computed, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ServicesService } from '../../../core/services/services.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
 import { ButtonComponent } from '../buttons/button.component';
@@ -23,7 +23,7 @@ import { ButtonComponent } from '../buttons/button.component';
 })
 export class FiltersInlineComponent {
   // Inject services
-  private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly servicesService = inject(ServicesService);
   private readonly translationService = inject(TranslationService);
   private readonly fb = inject(FormBuilder);
 
@@ -58,13 +58,13 @@ export class FiltersInlineComponent {
   });
 
   readonly serviceOptions = computed(() => {
-    const colors = this.serviceColorsService.getAllColors();
+    const services = this.servicesService.getAllServices();
     return [
       { label: this.translationService.get('SERVICES.ALL_SERVICES'), value: '' },
-      ...colors.map(color => ({
-        label: this.serviceColorsService.getServiceColorName(color),
-        value: color.id,
-        color: color.color,
+      ...services.map(service => ({
+        label: this.servicesService.getServiceName(service),
+        value: service.id || '',
+        color: this.servicesService.getServiceColor(service).color,
       })),
     ];
   });

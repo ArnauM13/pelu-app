@@ -1,5 +1,5 @@
 import { Injectable, computed, signal, inject, effect } from '@angular/core';
-import { addMinutes, format, parseISO, isSameDay } from 'date-fns';
+import { addMinutes, isSameDay } from 'date-fns';
 import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarStateService } from './calendar-state.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -139,14 +139,6 @@ export class CalendarCoreService {
       const slotHeight = this.slotHeightPxSignal();
       const pixelsPerMinute = slotHeight / appointmentDuration;
 
-      console.log('Updating reactive values:', {
-        appointmentDuration,
-        slotHeight,
-        pixelsPerMinute,
-        currentSlotDuration: this.slotDurationMinutesSignal(),
-        currentPixelsPerMinute: this.pixelsPerMinuteSignal()
-      });
-
       this.slotDurationMinutesSignal.set(appointmentDuration);
       this.pixelsPerMinuteSignal.set(pixelsPerMinute);
     });
@@ -206,16 +198,6 @@ export class CalendarCoreService {
     );
 
     const result = `${clampedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    console.log('coordinateToTime:', {
-      yPosition,
-      config,
-      slotIndex,
-      totalMinutes,
-      hours,
-      minutes,
-      clampedHours,
-      result,
-    });
 
     return result;
   }
@@ -235,7 +217,6 @@ export class CalendarCoreService {
   coordinateToTimePosition(position: CoordinatePosition, targetDate: Date): TimePosition {
     const time = this.coordinateToTime(position.y);
     const alignedTime = this.alignTimeToGrid(time);
-    console.log('coordinateToTimePosition:', { position, time, alignedTime });
     return {
       date: targetDate,
       time: alignedTime,
@@ -249,7 +230,6 @@ export class CalendarCoreService {
 
   // ===== TIME ALIGNMENT METHODS =====
   alignTimeToGrid(time: string): string {
-    const config = this.gridConfiguration();
     const slotDuration = this.reactiveSlotDuration();
     const [hours, minutes] = time.split(':').map(Number);
 
@@ -288,15 +268,6 @@ export class CalendarCoreService {
   ): { top: number; height: number } {
     const top = this.timeToCoordinate(startTime);
     const height = durationMinutes * this.reactivePixelsPerMinute();
-
-    console.log('calculateAppointmentPositionFromTime:', {
-      startTime,
-      durationMinutes,
-      top,
-      height,
-      reactivePixelsPerMinute: this.reactivePixelsPerMinute(),
-      gridConfig: this.gridConfiguration()
-    });
 
     return { top, height };
   }
@@ -392,7 +363,6 @@ export class CalendarCoreService {
   }
 
   getNextAvailableTimeSlot(time: string): string {
-    const config = this.gridConfiguration();
     const slotDuration = this.reactiveSlotDuration();
     const [hours, minutes] = time.split(':').map(Number);
 
@@ -441,11 +411,17 @@ export class CalendarCoreService {
     originalPosition: { top: number; left: number },
     originalDate: Date
   ): void {
-    console.log('Starting drag for appointment:', appointment);
-
     // Check permissions before allowing drag
     const currentUser = this.authService.user();
     const isAdmin = this.roleService.isAdmin();
+
+    console.log('startDrag called:', {
+      appointment: appointment.title,
+      currentUser: currentUser?.email,
+      isAdmin,
+      appointmentUid: appointment.uid,
+      canDrag: appointment.canDrag
+    });
 
     if (!currentUser?.uid) {
       console.log('No authenticated user, cannot drag');
@@ -453,8 +429,17 @@ export class CalendarCoreService {
     }
 
     // Check if user can drag this appointment
-    const isOwnBooking = appointment.uid === currentUser.uid;
+    // For admin users, they can drag all appointments
+    // For regular users, they can only drag their own appointments
+    const isOwnBooking = appointment.uid === currentUser.email;
     const canDrag = isAdmin || isOwnBooking;
+
+    console.log('Permission check:', {
+      isOwnBooking,
+      canDrag,
+      appointmentEmail: appointment.uid,
+      currentUserEmail: currentUser.email
+    });
 
     if (!canDrag) {
       console.log('User cannot drag this appointment');
@@ -462,6 +447,7 @@ export class CalendarCoreService {
       return;
     }
 
+    console.log('Starting drag operation');
     this.isDraggingSignal.set(true);
     this.draggedAppointmentSignal.set(appointment);
     this.originalPositionSignal.set(originalPosition);
@@ -478,6 +464,14 @@ export class CalendarCoreService {
 
   updateTargetDateTime(position: { top: number; left: number }, dayColumn: Date): void {
     const timePosition = this.coordinateToTimePosition({ x: position.left, y: position.top }, dayColumn);
+
+    console.log('🎯 Updating target date/time:', {
+      position,
+      dayColumn: dayColumn.toDateString(),
+      timePosition,
+      draggedAppointment: this.draggedAppointment()?.title
+    });
+
     this.targetDateSignal.set(dayColumn);
     this.targetTimeSignal.set(timePosition.time);
 
@@ -488,6 +482,7 @@ export class CalendarCoreService {
         dayColumn,
         timePosition.time
       );
+      console.log('🔍 Drop validation result:', isValid);
       this.isValidDropSignal.set(isValid);
     }
   }
@@ -547,8 +542,23 @@ export class CalendarCoreService {
     targetDate: Date,
     targetTime: string
   ): boolean {
+    const config = this.gridConfiguration();
+    console.log('🔍 Validating drop position:', {
+      appointment: appointment.title,
+      targetDate: targetDate.toDateString(),
+      targetTime,
+      appointmentDuration: appointment.duration || this.reactiveBookingDuration(),
+      gridConfig: {
+        businessStartHour: config.businessStartHour,
+        businessEndHour: config.businessEndHour,
+        lunchBreakStart: config.lunchBreakStart,
+        lunchBreakEnd: config.lunchBreakEnd
+      }
+    });
+
     // Check if target time is within business hours
     if (!this.isTimeSlotBookable(targetTime)) {
+      console.log('❌ Target time not bookable:', targetTime);
       return false;
     }
 
@@ -557,25 +567,48 @@ export class CalendarCoreService {
     const targetEndTime = addMinutes(new Date(targetDate), appointmentDuration);
     const targetEndTimeString = `${targetEndTime.getHours().toString().padStart(2, '0')}:${targetEndTime.getMinutes().toString().padStart(2, '0')}`;
 
+    console.log('📅 Time range check:', {
+      startTime: targetTime,
+      endTime: targetEndTimeString,
+      duration: appointmentDuration
+    });
+
     if (!this.isTimeSlotBookable(targetEndTimeString)) {
+      console.log('❌ End time not bookable:', targetEndTimeString);
       return false;
     }
 
     // Check for conflicts with existing appointments
     const existingAppointments = this.bookingService.bookings();
+    console.log('🔍 Checking conflicts with', existingAppointments.length, 'existing appointments');
+
     const conflictingAppointment = existingAppointments.find(existing => {
       if (!existing.data || !existing.hora || existing.id === appointment.id) return false;
 
       const existingStart = new Date(`${existing.data}T${existing.hora}`);
-      const existingEnd = addMinutes(existingStart, existing.duration || 60);
+      const existingEnd = addMinutes(existingStart, 60); // Will be fetched from service
       const targetStart = new Date(targetDate);
       targetStart.setHours(parseInt(targetTime.split(':')[0]), parseInt(targetTime.split(':')[1]), 0, 0);
       const targetEnd = addMinutes(targetStart, appointmentDuration);
 
-      return existingStart < targetEnd && existingEnd > targetStart;
+      const hasConflict = existingStart < targetEnd && existingEnd > targetStart;
+
+      if (hasConflict) {
+        console.log('❌ Conflict found:', {
+          existing: existing.clientName,
+          existingStart: existingStart.toISOString(),
+          existingEnd: existingEnd.toISOString(),
+          targetStart: targetStart.toISOString(),
+          targetEnd: targetEnd.toISOString()
+        });
+      }
+
+      return hasConflict;
     });
 
-    return !conflictingAppointment;
+    const isValid = !conflictingAppointment;
+    console.log('✅ Drop position validation result:', isValid);
+    return isValid;
   }
 
   private async moveAppointment(

@@ -172,20 +172,20 @@ export class AdminServicesPageComponent implements OnInit {
       ...category,
       services: category.services.map(service => ({
         ...service,
-        popular: popularStatus.get(service.id!) ?? service.popular
+        isPopular: popularStatus.get(service.id!) ?? service.isPopular
       }))
     }));
   });
 
   // Computed properties for popup configurations
   readonly createServiceDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('ADMIN.SERVICES.CREATE_SERVICE'),
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CREATE_SERVICE'),
     size: 'large',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('ADMIN.SERVICES.CREATE_SERVICE'),
+        label: this.translateService.instant('SERVICES.MANAGEMENT.CREATE_SERVICE'),
         type: 'save' as FooterActionType,
         action: () => this.createService()
       }
@@ -193,13 +193,13 @@ export class AdminServicesPageComponent implements OnInit {
   }));
 
   readonly editServiceDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('ADMIN.SERVICES.EDIT_SERVICE'),
+    title: this.translateService.instant('SERVICES.MANAGEMENT.EDIT_SERVICE'),
     size: 'large',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('ADMIN.SERVICES.UPDATE_SERVICE'),
+        label: this.translateService.instant('SERVICES.MANAGEMENT.EDIT_SERVICE'),
         type: 'save' as FooterActionType,
         action: () => this.updateService()
       }
@@ -207,20 +207,20 @@ export class AdminServicesPageComponent implements OnInit {
   }));
 
   readonly categoriesManagerDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.MANAGE_CATEGORIES'),
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.MANAGE_CATEGORIES'),
     size: 'large',
     closeOnBackdropClick: true,
     showFooter: false
   }));
 
   readonly createCategoryDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATE_CATEGORY'),
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CREATE_CATEGORY'),
     size: 'medium',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATE_CATEGORY'),
+        label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CREATE_CATEGORY'),
         type: 'save' as FooterActionType,
         action: () => this.createCategory()
       }
@@ -228,13 +228,13 @@ export class AdminServicesPageComponent implements OnInit {
   }));
 
   readonly editCategoryDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.EDIT_CATEGORY'),
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.EDIT_CATEGORY'),
     size: 'medium',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.EDIT_CATEGORY'),
+        label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.EDIT_CATEGORY'),
         type: 'save' as FooterActionType,
         action: () => this.updateCategory()
       }
@@ -310,7 +310,7 @@ export class AdminServicesPageComponent implements OnInit {
     const services = this.services();
     const statusMap = new Map<string, boolean>();
     services.forEach(service => {
-      statusMap.set(service.id!, service.popular ?? false);
+      statusMap.set(service.id!, service.isPopular ?? false);
     });
     this._servicePopularStatus.set(statusMap);
   }
@@ -336,7 +336,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: service.duration,
         category: service.category,
         icon: service.icon,
-        popular: service.popular
+        isPopular: service.isPopular
       });
     }
   }
@@ -346,7 +346,7 @@ export class AdminServicesPageComponent implements OnInit {
     if (!form?.valid) {
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.VALIDATION.FORM_INVALID')
+        this.translateService.instant('SERVICES.MANAGEMENT.VALIDATION.NAME_REQUIRED')
       );
       return;
     }
@@ -361,15 +361,15 @@ export class AdminServicesPageComponent implements OnInit {
 
       await this.firebaseServicesService.createService(serviceData);
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.CREATED_SUCCESS'),
-        this.translateService.instant('ADMIN.SERVICES.CREATED_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_CREATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_CREATED_MESSAGE')
       );
       this.cancelDialog();
     } catch (error) {
       console.error('Error creating service:', error);
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.CREATE_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.ERROR_CREATING_SERVICE')
       );
     }
   }
@@ -381,7 +381,7 @@ export class AdminServicesPageComponent implements OnInit {
     if (!form?.valid || !selectedService) {
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.VALIDATION.FORM_INVALID')
+        this.translateService.instant('SERVICES.MANAGEMENT.VALIDATION.NAME_REQUIRED')
       );
       return;
     }
@@ -395,23 +395,23 @@ export class AdminServicesPageComponent implements OnInit {
 
       await this.firebaseServicesService.updateService(selectedService.id!, serviceData);
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.UPDATED_SUCCESS'),
-        this.translateService.instant('ADMIN.SERVICES.UPDATED_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_UPDATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_UPDATED_MESSAGE')
       );
       this.cancelDialog();
     } catch (error) {
       console.error('Error updating service:', error);
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.UPDATE_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.ERROR_UPDATING_SERVICE')
       );
     }
   }
 
   deleteService(service: FirebaseService): void {
     this._alertData.set({
-      title: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION_TITLE'),
-      message: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
+      title: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
+      message: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
       confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
       cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
       severity: 'danger',
@@ -438,14 +438,14 @@ export class AdminServicesPageComponent implements OnInit {
     try {
       await this.firebaseServicesService.deleteService(service.id!);
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.DELETED_SUCCESS'),
-        this.translateService.instant('ADMIN.SERVICES.DELETED_MESSAGE', { name: service.name })
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_DELETED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_DELETED_MESSAGE', { name: service.name })
       );
     } catch (error) {
       console.error('Error deleting service:', error);
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.DELETE_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.ERROR_DELETING_SERVICE')
       );
     }
   }
@@ -454,15 +454,15 @@ export class AdminServicesPageComponent implements OnInit {
     try {
       await this.firebaseServicesService.deleteCategory(category.id);
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETED_SUCCESS'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETED_MESSAGE', { name: category.name })
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_DELETED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_DELETED_MESSAGE', { name: category.name })
       );
       this.closeCategoriesManager();
     } catch (error) {
       console.error('Error deleting category:', error);
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_DELETING_CATEGORY')
       );
     }
   }
@@ -520,15 +520,15 @@ export class AdminServicesPageComponent implements OnInit {
   async migrateServices(): Promise<void> {
     try {
       this.toastService.showInfo(
-        this.translateService.instant('ADMIN.SERVICES.MIGRATION.STARTED'),
-        this.translateService.instant('ADMIN.SERVICES.MIGRATION.STARTED_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES')
       );
 
       const migratedCount = await this.servicesMigrationService.migrateServicesToFirebase();
 
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.MIGRATION.COMPLETED'),
-        this.translateService.instant('ADMIN.SERVICES.MIGRATION.COMPLETED_MESSAGE', { count: migratedCount })
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES') + ` (${migratedCount} services)`
       );
 
       await this.refreshServices();
@@ -585,7 +585,7 @@ export class AdminServicesPageComponent implements OnInit {
     if (!form?.valid || !selectedCategory) {
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.FORM_INVALID')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
       );
       return;
     }
@@ -599,15 +599,15 @@ export class AdminServicesPageComponent implements OnInit {
 
       await this.firebaseServicesService.updateCategory(selectedCategory.id, categoryData);
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.UPDATED_SUCCESS'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.UPDATED_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_UPDATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_UPDATED_MESSAGE')
       );
       this.cancelCategoryDialog();
     } catch (error) {
       console.error('Error updating category:', error);
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.UPDATE_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_UPDATING_CATEGORY')
       );
     }
   }
@@ -617,7 +617,7 @@ export class AdminServicesPageComponent implements OnInit {
     if (!form?.valid) {
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.FORM_INVALID')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
       );
       return;
     }
@@ -632,23 +632,23 @@ export class AdminServicesPageComponent implements OnInit {
 
       await this.firebaseServicesService.createCategory(categoryData);
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATED_SUCCESS'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATED_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_CREATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_CREATED_MESSAGE')
       );
       this.cancelCategoryDialog();
     } catch (error) {
       console.error('Error creating category:', error);
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CREATE_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_CREATING_CATEGORY')
       );
     }
   }
 
   deleteCategory(category: ServiceCategory): void {
     this._alertData.set({
-      title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CONFIRMATION_TITLE'),
-      message: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CONFIRMATION_MESSAGE', { name: category.name }),
+      title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
+      message: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
       confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
       cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
       severity: 'danger',
@@ -693,7 +693,7 @@ export class AdminServicesPageComponent implements OnInit {
 
   async togglePopularStatus(service: FirebaseService): Promise<void> {
     try {
-      const newPopularStatus = !service.popular;
+      const newPopularStatus = !service.isPopular;
 
       // Update the reactive signal immediately for instant UI feedback
       this._servicePopularStatus.update(statusMap => {
@@ -714,10 +714,10 @@ export class AdminServicesPageComponent implements OnInit {
 
       const status = newPopularStatus ? 'POPULAR' : 'NO_POPULAR';
       this.toastService.showSuccess(
-        this.translateService.instant('ADMIN.SERVICES.POPULAR_STATUS_UPDATED'),
-        this.translateService.instant('ADMIN.SERVICES.POPULAR_STATUS_MESSAGE', {
+        this.translateService.instant('SERVICES.MANAGEMENT.POPULAR_STATUS_UPDATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.POPULAR_STATUS_MESSAGE', {
           name: service.name,
-          status: this.translateService.instant(`ADMIN.SERVICES.STATUS.${status.toUpperCase()}`)
+          status: this.translateService.instant(`SERVICES.MANAGEMENT.STATUS.${status.toUpperCase()}`)
         })
       );
     } catch (error) {
@@ -726,13 +726,13 @@ export class AdminServicesPageComponent implements OnInit {
       // Revert the signal on error
       this._servicePopularStatus.update(statusMap => {
         const newMap = new Map(statusMap);
-        newMap.set(service.id!, service.popular ?? false);
+        newMap.set(service.id!, service.isPopular ?? false);
         return newMap;
       });
 
       this.toastService.showError(
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.POPULAR_STATUS_ERROR_MESSAGE')
+        this.translateService.instant('SERVICES.MANAGEMENT.POPULAR_STATUS_ERROR_MESSAGE')
       );
     }
   }
