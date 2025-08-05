@@ -68,7 +68,7 @@ export class ServicesPageComponent implements OnInit {
   );
 
   // Popular services computed
-  readonly popularServices = computed(() => this.services().filter(service => service.popular));
+  readonly popularServices = computed(() => this.services().filter(service => service.isPopular));
 
   constructor() {}
 
