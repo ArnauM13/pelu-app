@@ -17,8 +17,8 @@
 
         <div class="form-field">
           <pelu-input-password
-            label="COMMON.PASSWORD"
-            placeholder="COMMON.PASSWORD"
+            label="AUTH.PASSWORD"
+            placeholder="AUTH.PASSWORD"
             [toggleMask]="true"
             formControlName="password"
             (valueChange)="onPasswordChange($event)"
@@ -29,8 +29,8 @@
         @if (hasRepeatPassword()) {
           <div class="form-field">
             <pelu-input-password
-              label="COMMON.REPEAT_PASSWORD"
-              placeholder="COMMON.REPEAT_PASSWORD"
+              label="AUTH.REPEAT_PASSWORD"
+              placeholder="AUTH.REPEAT_PASSWORD"
               [toggleMask]="true"
               formControlName="repeatPassword"
               (valueChange)="onRepeatPasswordChange($event)"
@@ -45,7 +45,6 @@
           [disabled]="form()!.invalid"
           severity="primary"
           [fluid]="true"
-          class="auth-button"
         >
         </pelu-button>
       </form>
@@ -61,7 +60,6 @@
       icon="pi pi-google"
       severity="secondary"
       [fluid]="true"
-      class="google-auth-button"
       (clicked)="onGoogleAuth()"
     >
     </pelu-button>

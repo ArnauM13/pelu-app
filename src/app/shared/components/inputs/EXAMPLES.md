@@ -759,7 +759,7 @@ const translatedConfigs = {
   },
   
   password: {
-    label: 'COMMON.FIELDS.PASSWORD',
+    label: 'AUTH.PASSWORD',
     placeholder: 'COMMON.PLACEHOLDERS.ENTER_PASSWORD',
     helpText: 'COMMON.HELP.PASSWORD_REQUIREMENTS',
     errorText: 'COMMON.ERRORS.PASSWORD_WEAK'

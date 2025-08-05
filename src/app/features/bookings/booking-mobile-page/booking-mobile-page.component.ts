@@ -54,6 +54,8 @@ interface DaySlot {
   timeSlots: TimeSlot[];
 }
 
+type BookingStep = 'service' | 'datetime' | 'confirmation';
+
 @Component({
   selector: 'pelu-booking-mobile-page',
   imports: [
@@ -82,6 +84,10 @@ export class BookingMobilePageComponent {
   private readonly serviceColorsService = inject(ServiceColorsService);
   private readonly businessSettingsService = inject(BusinessSettingsService);
 
+  // Step management signals
+  private readonly currentStepSignal = signal<BookingStep>('service');
+  private readonly selectedTimeSlotSignal = signal<TimeSlot | null>(null);
+
   // Internal state signals
   private readonly selectedDateSignal = signal<Date | null>(null);
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
@@ -99,6 +105,8 @@ export class BookingMobilePageComponent {
   private readonly showLoginPromptSignal = signal<boolean>(false);
 
   // Public computed signals
+  readonly currentStep = computed(() => this.currentStepSignal());
+  readonly selectedTimeSlot = computed(() => this.selectedTimeSlotSignal());
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
@@ -110,6 +118,20 @@ export class BookingMobilePageComponent {
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
   readonly isAdmin = computed(() => this.roleService.isAdmin());
+
+  // Step validation computed signals
+  readonly canProceedToDateTime = computed(() => {
+    return !!this.selectedService();
+  });
+
+  readonly canProceedToConfirmation = computed(() => {
+    return !!this.selectedService() && !!this.selectedDate() && !!this.selectedTimeSlot();
+  });
+
+  readonly canGoBack = computed(() => {
+    const step = this.currentStep();
+    return step === 'datetime' || step === 'confirmation';
+  });
 
   // Business configuration
   readonly businessHours = computed(() => this.businessSettingsService.getBusinessHoursString());
@@ -187,6 +209,93 @@ export class BookingMobilePageComponent {
       this.loadAppointments();
     });
   }
+
+  // Step navigation methods
+  goToStep(step: BookingStep) {
+    this.currentStepSignal.set(step);
+  }
+
+  nextStep() {
+    const currentStep = this.currentStep();
+
+    if (currentStep === 'service' && this.canProceedToDateTime()) {
+      this.goToStep('datetime');
+    } else if (currentStep === 'datetime' && this.canProceedToConfirmation()) {
+      this.goToStep('confirmation');
+    }
+  }
+
+  previousStep() {
+    const currentStep = this.currentStep();
+
+    if (currentStep === 'confirmation') {
+      this.goToStep('datetime');
+    } else if (currentStep === 'datetime') {
+      this.goToStep('service');
+    }
+  }
+
+  goBack() {
+    this.previousStep();
+  }
+
+  // Step-specific methods
+  onServiceSelected(service: FirebaseService) {
+    this.selectedServiceSignal.set(service);
+    this.nextStep();
+  }
+
+  onDateSelected(date: Date) {
+    this.selectedDateSignal.set(date);
+    this.selectedTimeSlotSignal.set(null); // Reset time slot when date changes
+
+    // Check if the selected day is fully booked and show toast
+    const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
+    if (daySlots && daySlots.timeSlots.length > 0) {
+      const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
+      if (availableSlots.length === 0) {
+        this.toastService.showWarning(
+          'Totes les hores estan ocupades',
+          'Aquest dia no té cap hora disponible per reservar.'
+        );
+      }
+    }
+  }
+
+  onTimeSlotSelected(timeSlot: TimeSlot) {
+    this.selectedTimeSlotSignal.set(timeSlot);
+  }
+
+  onContinueToConfirmation() {
+    if (this.canProceedToConfirmation()) {
+      this.nextStep();
+    }
+  }
+
+  onConfirmBooking() {
+    const selectedTimeSlot = this.selectedTimeSlot();
+    const selectedDate = this.selectedDate();
+    const selectedService = this.selectedService();
+
+    if (!selectedTimeSlot || !selectedDate || !selectedService) {
+      this.toastService.showError('Informació incompleta per confirmar la reserva');
+      return;
+    }
+
+    // Create booking details for confirmation
+    const bookingDetails: BookingDetails = {
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      time: selectedTimeSlot.time,
+      clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
+      email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
+      service: selectedService,
+    };
+
+    this.bookingDetailsSignal.set(bookingDetails);
+    this.showBookingPopupSignal.set(true);
+  }
+
+
 
   private async loadServices() {
     try {
@@ -340,75 +449,6 @@ export class BookingMobilePageComponent {
     return slots;
   }
 
-  onDateSelected(date: Date) {
-    this.selectedDateSignal.set(date);
-
-    // Check if the selected day is fully booked and show toast
-    const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
-    if (daySlots && daySlots.timeSlots.length > 0) {
-      const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
-      if (availableSlots.length === 0) {
-        this.toastService.showWarning(
-          'Totes les hores estan ocupades',
-          'Aquest dia no té cap hora disponible per reservar.'
-        );
-      }
-    }
-  }
-
-  selectServiceFromList(service: FirebaseService) {
-    this.selectedServiceSignal.set(service);
-  }
-
-  // View mode methods
-  toggleViewMode() {
-    const newMode = this.viewMode() === 'week' ? 'month' : 'week';
-    this.viewModeSignal.set(newMode);
-  }
-
-  canGoToPreviousPeriod(): boolean {
-    const currentDate = this.selectedDate() || new Date();
-    const today = new Date();
-
-    if (this.viewMode() === 'week') {
-      // Check if the previous week would be before today
-      const previousWeekStart = addDays(currentDate, -7);
-      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      return previousWeekStart >= todayStart;
-    } else {
-      // Check if the previous month would be before current month
-      const previousMonth = subMonths(currentDate, 1);
-      const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      return previousMonth >= currentMonth;
-    }
-  }
-
-  previousPeriod() {
-    if (!this.canGoToPreviousPeriod()) {
-      return; // Don't navigate if it would go to past periods
-    }
-
-    const currentDate = this.selectedDate() || new Date();
-    if (this.viewMode() === 'week') {
-      const newDate = addDays(currentDate, -7);
-      this.selectedDateSignal.set(newDate);
-    } else {
-      const newDate = subMonths(currentDate, 1);
-      this.selectedDateSignal.set(newDate);
-    }
-  }
-
-  nextPeriod() {
-    const currentDate = this.selectedDate() || new Date();
-    if (this.viewMode() === 'week') {
-      const newDate = addDays(currentDate, 7);
-      this.selectedDateSignal.set(newDate);
-    } else {
-      const newDate = addMonths(currentDate, 1);
-      this.selectedDateSignal.set(newDate);
-    }
-  }
-
   async onBookingConfirmed(details: BookingDetails) {
     try {
       // Create booking using the booking service
@@ -444,6 +484,12 @@ export class BookingMobilePageComponent {
 
       this.showBookingPopupSignal.set(false);
       this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
+
+      // Reset to first step after successful booking
+      this.goToStep('service');
+      this.selectedServiceSignal.set(null);
+      this.selectedDateSignal.set(null);
+      this.selectedTimeSlotSignal.set(null);
     } catch (error) {
       console.error('Error creating booking:', error);
       // Don't show toast - the booking service already handles success/error toasts
@@ -455,11 +501,13 @@ export class BookingMobilePageComponent {
     this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
   }
 
-  onClientNameChanged(name: string) {
+  onClientNameChanged(value: string | Event) {
+    const name = typeof value === 'string' ? value : (value.target as HTMLInputElement).value;
     this.bookingDetailsSignal.update(details => ({ ...details, clientName: name }));
   }
 
-  onEmailChanged(email: string) {
+  onEmailChanged(value: string | Event) {
+    const email = typeof value === 'string' ? value : (value.target as HTMLInputElement).value;
     this.bookingDetailsSignal.update(details => ({ ...details, email: email }));
   }
 
@@ -728,5 +776,58 @@ export class BookingMobilePageComponent {
       : !hasService
         ? 'BOOKING.SELECT_SERVICE_FIRST'
         : 'BOOKING.SELECTION_REQUIRED';
+  }
+
+  // View mode methods
+  toggleViewMode() {
+    const newMode = this.viewMode() === 'week' ? 'month' : 'week';
+    this.viewModeSignal.set(newMode);
+  }
+
+  canGoToPreviousPeriod(): boolean {
+    const currentDate = this.selectedDate() || new Date();
+    const today = new Date();
+
+    if (this.viewMode() === 'week') {
+      // Check if the previous week would be before today
+      const previousWeekStart = addDays(currentDate, -7);
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      return previousWeekStart >= todayStart;
+    } else {
+      // Check if the previous month would be before current month
+      const previousMonth = subMonths(currentDate, 1);
+      const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      return previousMonth >= currentMonth;
+    }
+  }
+
+  previousPeriod() {
+    if (!this.canGoToPreviousPeriod()) {
+      return; // Don't navigate if it would go to past periods
+    }
+
+    const currentDate = this.selectedDate() || new Date();
+    if (this.viewMode() === 'week') {
+      const newDate = addDays(currentDate, -7);
+      this.selectedDateSignal.set(newDate);
+    } else {
+      const newDate = subMonths(currentDate, 1);
+      this.selectedDateSignal.set(newDate);
+    }
+  }
+
+  nextPeriod() {
+    const currentDate = this.selectedDate() || new Date();
+    if (this.viewMode() === 'week') {
+      const newDate = addDays(currentDate, 7);
+      this.selectedDateSignal.set(newDate);
+    } else {
+      const newDate = addMonths(currentDate, 1);
+      this.selectedDateSignal.set(newDate);
+    }
+  }
+
+  selectServiceFromList(service: FirebaseService) {
+    this.selectedServiceSignal.set(service);
   }
 }
