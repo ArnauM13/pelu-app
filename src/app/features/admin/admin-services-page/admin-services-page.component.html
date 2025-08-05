@@ -2,18 +2,18 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1>🛠️ {{ 'ADMIN.SERVICES.TITLE' | translate }}</h1>
-      <p>{{ 'ADMIN.SERVICES.SUBTITLE' | translate }}</p>
+      <h1>🛠️ {{ 'SERVICES.MANAGEMENT.TITLE' | translate }}</h1>
+      <p>{{ 'SERVICES.MANAGEMENT.SUBTITLE' | translate }}</p>
     </div>
     <div class="header-actions">
       <pelu-button
-        [label]="'ADMIN.SERVICES.ADD_SERVICE' | translate"
+        [label]="'SERVICES.MANAGEMENT.ADD_SERVICE' | translate"
         severity="primary"
         (clicked)="showCreateService()"
       >
       </pelu-button>
       <pelu-button
-        [label]="'ADMIN.SERVICES.CATEGORIES.CREATE_NEW_CATEGORY' | translate"
+        [label]="'SERVICES.MANAGEMENT.CATEGORIES.CREATE_NEW_CATEGORY' | translate"
         severity="success"
         (clicked)="showCategoriesManager()"
       >
@@ -63,7 +63,7 @@
 
           @if (category.services.length === 0) {
             <div class="empty-category">
-              <p>{{ 'ADMIN.SERVICES.NO_SERVICES_IN_CATEGORY' | translate }}</p>
+              <p>{{ 'SERVICES.MANAGEMENT.NO_SERVICES_IN_CATEGORY' | translate }}</p>
             </div>
           }
         </div>
@@ -87,7 +87,7 @@
                 <pelu-input-text
                   formControlName="name"
                   [label]="'COMMON.NAME'"
-                  [placeholder]="'ADMIN.SERVICES.NAME_PLACEHOLDER'"
+                  [placeholder]="'SERVICES.MANAGEMENT.NAME_PLACEHOLDER'"
                   [required]="true"
                 >
                 </pelu-input-text>
@@ -99,7 +99,7 @@
                 <pelu-input-textarea
                   formControlName="description"
                   [label]="'COMMON.DESCRIPTION'"
-                  [placeholder]="'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER'"
+                  [placeholder]="'SERVICES.MANAGEMENT.DESCRIPTION_PLACEHOLDER'"
                   [rows]="3"
                   [required]="true"
                 >
@@ -118,7 +118,7 @@
                 <pelu-input-select
                   formControlName="category"
                   [label]="'COMMON.CATEGORY'"
-                  [placeholder]="'ADMIN.SERVICES.SELECT_CATEGORY'"
+                  [placeholder]="'SERVICES.MANAGEMENT.SELECT_CATEGORY'"
                   [required]="true"
                   [options]="categoryOptions()"
                 >
@@ -130,8 +130,8 @@
               <div class="form-field">
                 <pelu-input-select
                   formControlName="icon"
-                  [label]="'ADMIN.SERVICES.ICON'"
-                  [placeholder]="'ADMIN.SERVICES.SELECT_ICON'"
+                  [label]="'SERVICES.MANAGEMENT.ICON'"
+                  [placeholder]="'SERVICES.MANAGEMENT.SELECT_ICON'"
                   [options]="iconOptions"
                 >
                   <!-- Template per l'element seleccionat -->
@@ -174,7 +174,7 @@
               <div class="form-field">
                 <pelu-input-number
                   formControlName="price"
-                  [label]="'ADMIN.SERVICES.PRICE_EURO'"
+                  [label]="'COMMON.UNITS.PRICE_EURO'"
                   [placeholder]="'0.00'"
                   [required]="true"
                   [min]="0"
@@ -190,7 +190,7 @@
               <div class="form-field">
                 <pelu-input-number
                   formControlName="duration"
-                  [label]="'ADMIN.SERVICES.DURATION_MINUTES'"
+                  [label]="'COMMON.UNITS.DURATION_MINUTES'"
                   [placeholder]="'30'"
                   [required]="true"
                   [min]="5"
@@ -211,7 +211,7 @@
             <div class="form-field">
               <pelu-input-checkbox
                 formControlName="popular"
-                [label]="'ADMIN.SERVICES.MARK_AS_POPULAR'"
+                [label]="'SERVICES.MANAGEMENT.MARK_AS_POPULAR'"
               >
               </pelu-input-checkbox>
             </div>
@@ -237,7 +237,7 @@
                 <pelu-input-text
                   formControlName="name"
                   [label]="'COMMON.NAME'"
-                  [placeholder]="'ADMIN.SERVICES.NAME_PLACEHOLDER'"
+                  [placeholder]="'SERVICES.MANAGEMENT.NAME_PLACEHOLDER'"
                   [required]="true"
                 >
                 </pelu-input-text>
@@ -249,7 +249,7 @@
                 <pelu-input-textarea
                   formControlName="description"
                   [label]="'COMMON.DESCRIPTION'"
-                  [placeholder]="'ADMIN.SERVICES.DESCRIPTION_PLACEHOLDER'"
+                  [placeholder]="'SERVICES.MANAGEMENT.DESCRIPTION_PLACEHOLDER'"
                   [rows]="3"
                   [required]="true"
                 >
@@ -268,7 +268,7 @@
                 <pelu-input-select
                   formControlName="category"
                   [label]="'COMMON.CATEGORY'"
-                  [placeholder]="'ADMIN.SERVICES.SELECT_CATEGORY'"
+                  [placeholder]="'SERVICES.MANAGEMENT.SELECT_CATEGORY'"
                   [required]="true"
                   [options]="categoryOptions()"
                 >
@@ -280,8 +280,8 @@
               <div class="form-field">
                 <pelu-input-select
                   formControlName="icon"
-                  [label]="'ADMIN.SERVICES.ICON'"
-                  [placeholder]="'ADMIN.SERVICES.SELECT_ICON'"
+                  [label]="'SERVICES.MANAGEMENT.ICON'"
+                  [placeholder]="'SERVICES.MANAGEMENT.SELECT_ICON'"
                   [options]="iconOptions"
                 >
                   <!-- Template per l'element seleccionat -->
@@ -324,7 +324,7 @@
               <div class="form-field">
                 <pelu-input-number
                   formControlName="price"
-                  [label]="'ADMIN.SERVICES.PRICE_EURO'"
+                  [label]="'COMMON.UNITS.PRICE_EURO'"
                   [placeholder]="'0.00'"
                   [required]="true"
                   [min]="0"
@@ -340,7 +340,7 @@
               <div class="form-field">
                 <pelu-input-number
                   formControlName="duration"
-                  [label]="'ADMIN.SERVICES.DURATION_MINUTES'"
+                  [label]="'COMMON.UNITS.DURATION_MINUTES'"
                   [placeholder]="'30'"
                   [required]="true"
                   [min]="5"
@@ -361,7 +361,7 @@
             <div class="form-field">
               <pelu-input-checkbox
                 formControlName="popular"
-                [label]="'ADMIN.SERVICES.MARK_AS_POPULAR'"
+                [label]="'SERVICES.MANAGEMENT.MARK_AS_POPULAR'"
               >
               </pelu-input-checkbox>
             </div>
@@ -379,9 +379,9 @@
   >
     <div class="categories-manager">
       <div class="categories-header">
-        <h3>{{ 'ADMIN.SERVICES.CATEGORIES.EXISTING_CATEGORIES' | translate }}</h3>
+        <h3>{{ 'SERVICES.MANAGEMENT.CATEGORIES.EXISTING_CATEGORIES' | translate }}</h3>
         <pelu-button
-          [label]="'ADMIN.SERVICES.CATEGORIES.ADD_CATEGORY' | translate"
+          [label]="'SERVICES.MANAGEMENT.CATEGORIES.ADD_CATEGORY' | translate"
           severity="success"
           (clicked)="showCreateCategory()"
         >
@@ -397,7 +397,7 @@
                 <h4>{{ category.name }}</h4>
                 <div class="category-id">{{ category.id }}</div>
                 @if (!category.custom) {
-                  <span class="static-badge">{{ 'ADMIN.SERVICES.CATEGORIES.STATIC_CATEGORY' | translate }}</span>
+                  <span class="static-badge">{{ 'SERVICES.MANAGEMENT.CATEGORIES.STATIC_CATEGORY' | translate }}</span>
                 }
               </div>
             </div>
@@ -420,7 +420,7 @@
                 >
                 </pelu-button>
               } @else {
-                <span class="static-message">{{ 'ADMIN.SERVICES.CATEGORIES.CANNOT_EDIT_STATIC' | translate }}</span>
+                <span class="static-message">{{ 'SERVICES.MANAGEMENT.CATEGORIES.CANNOT_EDIT_STATIC' | translate }}</span>
               }
             </div>
           </div>
@@ -429,7 +429,7 @@
 
       @if (serviceCategories().length === 0) {
         <div class="empty-categories">
-          <p>{{ 'ADMIN.SERVICES.CATEGORIES.NO_CATEGORIES' | translate }}</p>
+          <p>{{ 'SERVICES.MANAGEMENT.CATEGORIES.NO_CATEGORIES' | translate }}</p>
         </div>
       }
     </div>
@@ -450,8 +450,8 @@
               <div class="form-field">
                 <pelu-input-text
                   formControlName="name"
-                  [label]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME'"
-                  [placeholder]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME_PLACEHOLDER'"
+                  [label]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_NAME'"
+                  [placeholder]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_NAME_PLACEHOLDER'"
                   [required]="true"
                 >
                 </pelu-input-text>
@@ -462,8 +462,8 @@
               <div class="form-field">
                 <pelu-input-text
                   formControlName="id"
-                  [label]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID'"
-                  [placeholder]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID_PLACEHOLDER'"
+                  [label]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ID'"
+                  [placeholder]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ID_PLACEHOLDER'"
                   [required]="true"
                 >
                 </pelu-input-text>
@@ -480,8 +480,8 @@
             <div class="form-field">
               <pelu-input-text
                 formControlName="icon"
-                [label]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON'"
-                [placeholder]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON_PLACEHOLDER'"
+                [label]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ICON'"
+                [placeholder]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ICON_PLACEHOLDER'"
                 [required]="true"
                 maxlength="2"
               >
@@ -495,9 +495,9 @@
                 </div>
               }
               <small class="form-help">
-                {{ 'ADMIN.SERVICES.CATEGORIES.ICON_HELP' | translate }}
+                {{ 'SERVICES.MANAGEMENT.CATEGORIES.ICON_HELP' | translate }}
                 <br />
-                <strong>{{ 'ADMIN.SERVICES.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️
+                <strong>{{ 'SERVICES.MANAGEMENT.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️
                 🧔 💆 💇 🎨 👶 ⭐ 🔧 🏠 🚗 🎵 📱 💻 🎮 🏃‍♂️ 🧘‍♀️
               </small>
             </div>
@@ -522,8 +522,8 @@
               <div class="form-field">
                 <pelu-input-text
                   formControlName="name"
-                  [label]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME'"
-                  [placeholder]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_NAME_PLACEHOLDER'"
+                  [label]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_NAME'"
+                  [placeholder]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_NAME_PLACEHOLDER'"
                   [required]="true"
                 >
                 </pelu-input-text>
@@ -534,8 +534,8 @@
               <div class="form-field">
                 <pelu-input-text
                   formControlName="id"
-                  [label]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID'"
-                  [placeholder]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ID_PLACEHOLDER'"
+                  [label]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ID'"
+                  [placeholder]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ID_PLACEHOLDER'"
                   [required]="true"
                   [readonly]="true"
                 >
@@ -550,8 +550,8 @@
             <div class="form-field">
               <pelu-input-text
                 formControlName="icon"
-                [label]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON'"
-                [placeholder]="'ADMIN.SERVICES.CATEGORIES.CATEGORY_ICON_PLACEHOLDER'"
+                [label]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ICON'"
+                [placeholder]="'SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_ICON_PLACEHOLDER'"
                 [required]="true"
                 maxlength="2"
               >
@@ -565,9 +565,9 @@
                 </div>
               }
               <small class="form-help">
-                {{ 'ADMIN.SERVICES.CATEGORIES.ICON_HELP' | translate }}
+                {{ 'SERVICES.MANAGEMENT.CATEGORIES.ICON_HELP' | translate }}
                 <br />
-                <strong>{{ 'ADMIN.SERVICES.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️
+                <strong>{{ 'SERVICES.MANAGEMENT.CATEGORIES.ICON_EXAMPLES' | translate }}:</strong> ✂️
                 🧔 💆 💇 🎨 👶 ⭐ 🔧 🏠 🚗 🎵 📱 💻 🎮 🏃‍♂️ 🧘‍♀️
               </small>
             </div>
