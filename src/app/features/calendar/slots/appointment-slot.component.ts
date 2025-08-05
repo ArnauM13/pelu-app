@@ -11,7 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarCoreService } from '../services/calendar-core.service';
-import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ServicesService } from '../../../core/services/services.service';
 
 export interface AppointmentSlotData {
   appointment: AppointmentEvent;
@@ -23,7 +23,7 @@ export interface AppointmentSlotData {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (data()?.appointment) {
+    @if (data()?.appointment; as appointment) {
       <div
         class="appointment"
         [style.top.px]="position().top"
@@ -32,33 +32,32 @@ export interface AppointmentSlotData {
         [style.right.px]="0"
         [ngClass]="appointmentCssClass()"
         [class.dragging]="isBeingDragged()"
-        [class.public-booking]="data()!.appointment!.isPublicBooking"
-        [class.no-drag]="!data()!.appointment!.canDrag"
-        [class.no-click]="!data()!.appointment!.canViewDetails"
+        [class.public-booking]="appointment.isPublicBooking"
+        [class.no-drag]="!appointment.canDrag"
+        [class.no-click]="!appointment.canViewDetails"
+        (click)="onClick($event)"
         (mousedown)="onMouseDown($event)"
         (mousemove)="onMouseMove($event)"
         (mouseup)="onMouseUp($event)"
-        (mouseenter)="onMouseEnter($event)"
-        (mouseleave)="onMouseLeave($event)"
       >
         <div class="appointment-content">
           <div class="appointment-info">
             <div class="appointment-title" [ngClass]="textCssClass()">
-              {{ data()!.appointment!.title }}
+              {{ appointment.title }}
             </div>
-            @if (data()!.appointment!.serviceName && !data()!.appointment!.isPublicBooking) {
+            @if (appointment.serviceName && !appointment.isPublicBooking) {
               <div class="appointment-service" [ngClass]="textCssClass()">
-                {{ data()!.appointment!.serviceName }}
+                {{ appointment.serviceName }}
               </div>
             }
           </div>
-          @if (!data()!.appointment!.isPublicBooking) {
+          @if (!appointment.isPublicBooking) {
             <div class="appointment-duration" [ngClass]="textCssClass()">
-              {{ formatDuration(data()!.appointment!.duration || 60) }}
+              {{ formatDuration(appointment.duration || 60) }}
             </div>
           }
         </div>
-        @if (data()!.appointment!.canDrag) {
+        @if (appointment.canDrag) {
           <div class="drag-handle">
             <div class="drag-indicator"></div>
           </div>
@@ -77,24 +76,19 @@ export class AppointmentSlotComponent {
 
   // Inject services
   private readonly calendarCoreService = inject(CalendarCoreService);
-  private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly servicesService = inject(ServicesService);
   private readonly elementRef = inject(ElementRef);
 
-  // Local state to track drag operations
-  private readonly hasDragStarted = signal<boolean>(false);
-  private readonly isMouseOver = signal<boolean>(false);
-
-  // Click vs drag detection
-  private clickTimeout: number | null = null;
+  // Local state for drag detection
+  private readonly isDragging = signal<boolean>(false);
   private mouseDownTime = 0;
   private mouseDownPosition = { x: 0, y: 0 };
-  private readonly CLICK_THRESHOLD = 300; // ms - increased for better click detection
-  private readonly DRAG_THRESHOLD = 8; // pixels - increased to prevent accidental drags
-  private isDragging = false;
+  private readonly CLICK_THRESHOLD = 300; // ms
+  private readonly DRAG_THRESHOLD = 8; // pixels
 
-  // Computed position - using the same method as blocking slots for consistency
+  // Computed position
   readonly position = computed(() => {
-    if (!this.data() || !this.data()!.appointment) return { top: 0, height: 0 };
+    if (!this.data()?.appointment) return { top: 0, height: 0 };
 
     const appointment = this.data()!.appointment!;
     const startDate = new Date(appointment.start);
@@ -106,167 +100,104 @@ export class AppointmentSlotComponent {
     );
   });
 
-  // Computed service color
-  readonly serviceColor = computed(() => {
-    if (!this.data() || !this.data()!.appointment)
-      return this.serviceColorsService.getDefaultColor();
-    const serviceName = this.data()!.appointment!.serviceName || '';
-    return this.serviceColorsService.getServiceColor(serviceName);
-  });
-
-  // Computed appointment CSS class
+  // Computed CSS classes
   readonly appointmentCssClass = computed(() => {
-    if (!this.data() || !this.data()!.appointment) return '';
+    const appointment = this.data()?.appointment;
+    if (!appointment) return '';
 
-    // If it's a public booking, use red styling
-    if (this.data()!.appointment!.isPublicBooking) {
-      return 'public-booking';
-    }
+    if (appointment.isPublicBooking) return 'public-booking';
 
-    // Otherwise use service color
-    const serviceName = this.data()!.appointment!.serviceName || '';
-    return this.serviceColorsService.getServiceCssClass(serviceName);
+    const serviceName = appointment.serviceName;
+    if (!serviceName) return 'service-color-default';
+
+    const service = this.findService(serviceName);
+    return service ? this.servicesService.getServiceCssClass(service) : 'service-color-default';
   });
 
-  // Computed text CSS class
   readonly textCssClass = computed(() => {
-    if (!this.data() || !this.data()!.appointment) return '';
+    const appointment = this.data()?.appointment;
+    if (!appointment) return '';
 
-    // If it's a public booking, use red text
-    if (this.data()!.appointment!.isPublicBooking) {
-      return 'public-booking-text';
-    }
+    if (appointment.isPublicBooking) return 'public-booking-text';
 
-    // Otherwise use service text color
-    const serviceName = this.data()!.appointment!.serviceName || '';
-    return this.serviceColorsService.getServiceTextCssClass(serviceName);
+    const serviceName = appointment.serviceName;
+    if (!serviceName) return 'service-text-default';
+
+    const service = this.findService(serviceName);
+    return service ? this.servicesService.getServiceTextCssClass(service) : 'service-text-default';
   });
 
-  // Computed if this appointment is being dragged
   readonly isBeingDragged = computed(() => {
-    if (!this.data() || !this.data()!.appointment) return false;
+    const appointment = this.data()?.appointment;
+    if (!appointment) return false;
+
     const draggedAppointment = this.calendarCoreService.draggedAppointment();
-    return draggedAppointment?.id === this.data()!.appointment!.id;
+    return draggedAppointment?.id === appointment.id;
   });
 
   // Methods
-  onAppointmentClick(event: Event) {
+  onClick(event: Event): void {
     event.stopPropagation();
 
-    // Only emit click if not currently dragging and no drag has started
-    // and if the appointment can be viewed
-    if (
-      !this.calendarCoreService.isDragging() &&
-      !this.hasDragStarted() &&
-      !this.isDragging &&
-      this.data() &&
-      this.data()!.appointment &&
-      this.data()!.appointment!.canViewDetails
-    ) {
-      this.clicked.emit(this.data()!.appointment!);
-    }
+    const appointment = this.data()?.appointment;
+    if (!appointment?.canViewDetails || this.isDragging()) return;
+
+    this.clicked.emit(appointment);
   }
 
-  onMouseDown(event: MouseEvent) {
-    // Only start drag on left mouse button
+  onMouseDown(event: MouseEvent): void {
     if (event.button !== 0) return;
 
-    console.log('Mouse down on appointment:', this.data()?.appointment);
-    console.log('Can drag:', this.data()?.appointment?.canDrag);
-    console.log('Can view details:', this.data()?.appointment?.canViewDetails);
-
-    // Check if this appointment can be viewed
-    if (!this.data()?.appointment?.canViewDetails) {
-      // If it can't be viewed, don't do anything
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
-
-    // Check if this appointment can be dragged
-    if (!this.data()?.appointment?.canDrag) {
-      // If it can't be dragged, show a tooltip and handle as click
-      this.showDragPermissionTooltip(event);
-      this.onAppointmentClick(event);
-      return;
-    }
+    const appointment = this.data()?.appointment;
+    if (!appointment?.canDrag) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    // Record mouse down time and position
     this.mouseDownTime = Date.now();
     this.mouseDownPosition = { x: event.clientX, y: event.clientY };
-    this.isDragging = false;
+    this.isDragging.set(false);
+  }
 
-    // Set a timeout for click detection
-    this.clickTimeout = window.setTimeout(() => {
-      // If we reach this timeout, it's likely a drag operation
+  onMouseMove(event: MouseEvent): void {
+    if (!this.mouseDownTime) return;
+
+    const deltaX = Math.abs(event.clientX - this.mouseDownPosition.x);
+    const deltaY = Math.abs(event.clientY - this.mouseDownPosition.y);
+
+    if (deltaX > this.DRAG_THRESHOLD || deltaY > this.DRAG_THRESHOLD) {
       this.startDrag(event);
-    }, this.CLICK_THRESHOLD);
-  }
-
-  onMouseMove(event: MouseEvent) {
-    if (this.clickTimeout && !this.isDragging) {
-      // Check if mouse has moved enough to be considered a drag
-      const deltaX = Math.abs(event.clientX - this.mouseDownPosition.x);
-      const deltaY = Math.abs(event.clientY - this.mouseDownPosition.y);
-
-      if (deltaX > this.DRAG_THRESHOLD || deltaY > this.DRAG_THRESHOLD) {
-        // Clear the click timeout and start drag
-        if (this.clickTimeout) {
-          clearTimeout(this.clickTimeout);
-          this.clickTimeout = null;
-        }
-        this.startDrag(event);
-      }
     }
   }
 
-  onMouseUp(event: MouseEvent) {
-    // Clear the click timeout
-    if (this.clickTimeout) {
-      clearTimeout(this.clickTimeout);
-      this.clickTimeout = null;
+  onMouseUp(event: MouseEvent): void {
+    if (!this.mouseDownTime) return;
 
-      // Check if it was a quick click (not a drag)
-      const clickDuration = Date.now() - this.mouseDownTime;
-      if (clickDuration < this.CLICK_THRESHOLD && !this.isDragging && !this.hasDragStarted()) {
-        // It was a click, emit the click event
-        this.onAppointmentClick(event);
-      }
+    const clickDuration = Date.now() - this.mouseDownTime;
+    if (clickDuration < this.CLICK_THRESHOLD && !this.isDragging()) {
+      this.onClick(event);
     }
+
+    this.mouseDownTime = 0;
   }
 
-  private startDrag(_event: MouseEvent) {
-    // Mark that drag has started
-    this.isDragging = true;
-    this.hasDragStarted.set(true);
+  private startDrag(event: MouseEvent): void {
+    const appointment = this.data()?.appointment;
+    if (!appointment?.canDrag) return;
 
-    const appointment = this.data()!.appointment!;
+    this.isDragging.set(true);
+
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
-    const originalPosition = {
-      top: rect.top,
-      left: rect.left,
-    };
+    const originalPosition = { top: rect.top, left: rect.left };
 
-    // Pass the original date for cross-day dragging support
     this.calendarCoreService.startDrag(appointment, originalPosition, this.data()!.date);
 
-    // Add global mouse event listeners for cross-day dragging
+    // Add global listeners for cross-day dragging
     document.addEventListener('mousemove', this.onGlobalMouseMove);
     document.addEventListener('mouseup', this.onGlobalMouseUp);
   }
 
-  onMouseEnter(_event: MouseEvent) {
-    this.isMouseOver.set(true);
-  }
-
-  onMouseLeave(_event: MouseEvent) {
-    this.isMouseOver.set(false);
-  }
-
-  private onGlobalMouseMove = (event: MouseEvent) => {
+  private onGlobalMouseMove = (event: MouseEvent): void => {
     if (this.calendarCoreService.isDragging()) {
       this.calendarCoreService.updateDragPosition({
         top: event.clientY,
@@ -275,74 +206,44 @@ export class AppointmentSlotComponent {
     }
   };
 
-  private onGlobalMouseUp = async (_event: MouseEvent) => {
-    // Remove global event listeners
+  private onGlobalMouseUp = async (): Promise<void> => {
     document.removeEventListener('mousemove', this.onGlobalMouseMove);
     document.removeEventListener('mouseup', this.onGlobalMouseUp);
 
-    const success = await this.calendarCoreService.endDrag();
+    await this.calendarCoreService.endDrag();
 
-    if (!success) {
-      // If the drop was invalid, the appointment will return to its original position
-      // The drag service already handles the reset
-    }
-
-    // Reset the drag started flag after a short delay to prevent immediate clicks
     setTimeout(() => {
-      this.hasDragStarted.set(false);
-      this.isDragging = false;
+      this.isDragging.set(false);
     }, 100);
   };
 
-  private showDragPermissionTooltip(event: MouseEvent) {
-    // Create a temporary tooltip to show why dragging is not allowed
-    const tooltip = document.createElement('div');
-    tooltip.textContent = 'No tens permisos per moure aquesta cita';
-    tooltip.style.cssText = `
-      position: fixed;
-      top: ${event.clientY - 30}px;
-      left: ${event.clientX + 10}px;
-      background: #333;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      z-index: 10000;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    `;
+  private findService(serviceName: string) {
+    const allServices = this.servicesService.getAllServices();
 
-    document.body.appendChild(tooltip);
+    // Try exact name match first
+    let service = allServices.find(s => s.name === serviceName);
+    if (service) return service;
 
-    // Show tooltip
-    setTimeout(() => {
-      tooltip.style.opacity = '1';
-    }, 10);
+    // Try ID match
+    service = allServices.find(s => s.id === serviceName);
+    if (service) return service;
 
-    // Remove tooltip after 2 seconds
-    setTimeout(() => {
-      tooltip.style.opacity = '0';
-      setTimeout(() => {
-        if (document.body.contains(tooltip)) {
-          document.body.removeChild(tooltip);
-        }
-      }, 200);
-    }, 2000);
+    // Try partial name match
+    return allServices.find(s =>
+      s.name.toLowerCase().includes(serviceName.toLowerCase()) ||
+      serviceName.toLowerCase().includes(s.name.toLowerCase())
+    );
   }
 
-  // Format duration for display
   formatDuration(minutes: number): string {
     if (minutes < 60) {
       return `${minutes} min`;
-    } else {
-      const hours = Math.floor(minutes / 60);
-      const remainingMinutes = minutes % 60;
-      if (remainingMinutes === 0) {
-        return `${hours}h`;
-      } else {
-        return `${hours}h ${remainingMinutes}min`;
-      }
     }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${remainingMinutes}min`;
   }
 }
