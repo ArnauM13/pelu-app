@@ -50,7 +50,7 @@ export const routes: Routes = [
   {
     path: 'appointments/:id',
     component: AppointmentDetailViewComponent,
-    canActivate: [tokenGuard],
+    canActivate: [authGuard],
     data: { viewTransitionName: 'appointment-detail' },
   },
   {

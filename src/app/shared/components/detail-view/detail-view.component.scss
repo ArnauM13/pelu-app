@@ -30,6 +30,48 @@
   flex-direction: column;
 }
 
+// Mobile Appointment Header
+.mobile-appointment-header {
+  display: flex;
+  background-color: transparent;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  z-index: var(--z-interactive);
+  top: 0;
+
+  .mobile-back-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color-light);
+    padding: 0.75rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    position: relative;
+    z-index: var(--z-base);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .mobile-status-badge {
+    flex-shrink: 0;
+    position: relative;
+    z-index: var(--z-base);
+  }
+}
+
 // Header Section
 .header-section {
   flex-shrink: 0;
@@ -135,6 +177,10 @@
     flex-shrink: 0;
     position: relative;
     z-index: var(--z-base);
+
+    &:hover { //TODO
+      background: rgba(255, 255, 255, 0.9) !important;
+    }
   }
 
   &::before {
@@ -324,14 +370,9 @@
     padding: 1rem;
   }
 
-  // Mobile back button
+  // Mobile back button - Hidden since we now have mobile header
   .mobile-back-section {
     display: none;
-
-    @media (max-width: 768px) {
-      display: block;
-      margin-bottom: 1rem;
-    }
   }
 
   .mobile-back-btn {
@@ -384,12 +425,6 @@
 
   .status-section-mobile {
     display: none;
-
-    // Show on mobile when header is hidden
-    @media (max-width: 768px) {
-      display: block;
-      margin-top: 0;
-    }
   }
 
   .info-grid {
@@ -638,10 +673,6 @@
       h2 {
         font-size: 1.5rem;
       }
-    }
-
-    .status-section-mobile {
-      display: block;
     }
 
     .info-grid {

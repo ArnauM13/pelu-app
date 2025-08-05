@@ -17,7 +17,7 @@ import { AppointmentDetailPopupComponent } from '../../../shared/components/appo
 import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { AppointmentDetailService } from '../../../core/services/appointment-detail.service';
-import { BookingForm, AppointmentDetailData } from '../../../core/interfaces/booking.interface';
+import { AppointmentDetailData } from '../../../core/interfaces/booking.interface';
 import { ServicesService } from '../../../core/services/services.service';
 import { Service } from '../../../core/services/services.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
@@ -88,7 +88,7 @@ export class AppointmentDetailPageComponent implements OnInit {
       },
       {
         icon: '⏰',
-        label: 'COMMON.TIME',
+        label: 'COMMON.TIME.TODAY',
         value: this.formatTime(booking.hora),
       },
       {
@@ -139,7 +139,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   // Detail page configuration
   readonly detailConfig = computed((): DetailViewConfig => {
-    const canEditOrDelete = this.canEdit();
+    const canEdit = this.canEdit();
     const canDelete = this.canDelete();
 
     const actions: DetailAction[] = [
@@ -151,12 +151,12 @@ export class AppointmentDetailPageComponent implements OnInit {
       },
     ];
 
-    if (canEditOrDelete) {
+    if (canEdit) {
       actions.push({
         label: 'COMMON.ACTIONS.EDIT',
         icon: '✏️',
         type: 'primary',
-        onClick: () => this.startEditing(),
+        onClick: () => this.editAppointment(),
       });
     }
 
@@ -213,22 +213,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     }
   }
 
-  // Action methods - simplified for now
-  startEditing(): void {
-    // TODO: Implement editing functionality
-    console.log('Editing not implemented yet');
-  }
-
-  cancelEditing(): void {
-    // TODO: Implement cancel editing functionality
-    console.log('Cancel editing not implemented yet');
-  }
-
-  async saveAppointment(): Promise<void> {
-    // TODO: Implement save functionality
-    console.log('Save not implemented yet');
-  }
-
   showDeleteConfirmation(): void {
     const booking = this.booking();
     if (!booking) return;
@@ -270,16 +254,6 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
-  }
-
-  // Form update methods
-  updateForm(field: keyof BookingForm, value: string | number): void {
-    // TODO: Implement form update functionality
-    console.log('Form update not implemented yet', field, value);
-  }
-
-  updateFormField(field: string, value: string | number): void {
-    this.updateForm(field as keyof BookingForm, value);
   }
 
   // Utility methods
@@ -325,24 +299,13 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.router.navigate(['/appointments', appointmentId]);
   }
 
-  // Popup event handlers
-  onPopupClosed(): void {
-    // No action needed when popup is closed from detail page
-  }
-
-  onBookingDeleted(_booking: Booking): void {
-    // Handle delete from popup - delegate to existing delete logic
-    this.deleteAppointment();
-  }
-
-  onBookingEditRequested(_booking: Booking): void {
-    // Handle edit request from popup - delegate to existing edit logic
-    this.startEditing();
-  }
-
   onViewDetailRequested(booking: Booking): void {
     // Handle view detail request from popup - navigate to detail page
     this.router.navigate(['/appointments', booking.id]);
+  }
+
+  editAppointment(): void {
+    this.router.navigate(['/appointments', this.booking()?.id, 'edit']);
   }
 }
 

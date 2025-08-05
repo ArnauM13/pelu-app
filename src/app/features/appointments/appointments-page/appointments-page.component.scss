@@ -1,6 +1,18 @@
-/* View Transitions - handled by withViewTransitions() */
+:host {
+  margin: 1rem;
+}
 
-// CSS Variables - Now using global variables from styles.scss
+// Main appointments content layout
+.appointments-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.content-section {
+  width: 100%;
+}
 
 // Calendar Layout
 .calendar-layout {
@@ -17,6 +29,19 @@
 // Responsive adjustments for calendar layout
 @media (max-width: 768px) {
   .calendar-layout {
+    gap: 0.5rem;
+  }
+}
+
+// Mobile adaptations for appointments content
+@media (max-width: 768px) {
+  .appointments-content {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointments-content {
     gap: 0.5rem;
   }
 }
@@ -51,14 +76,6 @@
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-
-  @media (max-width: 768px) {
-    width: 95%;
-  }
-
-  @media (max-width: 480px) {
-    width: 98%;
-  }
 }
 
 // Input styles
@@ -87,7 +104,6 @@
 
 .page-header {
   text-align: center;
-  margin-bottom: 2rem;
 }
 
 .page-header h1 {
@@ -106,30 +122,6 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin: 2rem 0 2rem 0;
-}
-
-// Add spacing between main components
-pelu-appointments-stats {
-  margin-bottom: 2rem;
-  display: block;
-}
-
-pelu-filters-inline {
-  margin-bottom: 2rem;
-  display: block;
-
-  ::ng-deep .filters-container {
-    background: var(--surface-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--border-color);
-  }
-}
-
-pelu-appointments-view-controls {
-  margin-bottom: 2rem;
-  display: block;
 }
 
 .stat-card {
@@ -227,7 +219,6 @@ pelu-appointments-view-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
 }
 
 // Appointments section separator
@@ -248,54 +239,6 @@ pelu-appointments-view-controls {
     box-shadow: var(--box-shadow);
     border: 1px solid var(--border-color);
   }
-}
-
-// Add spacing for cards
-pelu-card {
-  margin-bottom: 2rem;
-  display: block;
-
-  ::ng-deep .p-card {
-    background: var(--surface-color);
-    border-radius: 16px;
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    transition: all 0.3s ease;
-
-    &:hover {
-      box-shadow: var(--box-shadow-hover);
-      border-color: var(--primary-color-light);
-    }
-
-    .p-card-header {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
-      color: var(--text-color-white);
-      padding: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-
-      h3 {
-        margin: 0;
-        font-size: 1.3rem;
-        font-weight: 600;
-      }
-
-      p {
-        margin: 0.5rem 0 0 0;
-        opacity: 0.9;
-        font-size: 0.9rem;
-      }
-    }
-
-    .p-card-content {
-      padding: 1.5rem;
-    }
-  }
-}
-
-pelu-appointments-list {
-  margin-bottom: 2rem;
-  display: block;
 }
 
 .card-header h3 {
@@ -567,7 +510,6 @@ pelu-appointments-list {
 
 // Calendar View
 .calendar-container {
-  margin-bottom: 2rem;
   width: 100%;
   max-width: 100%;
   overflow: hidden;

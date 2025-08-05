@@ -1,11 +1,7 @@
 <pelu-detail-view
   [config]="detailConfig()"
   (back)="goBack()"
-  (edit)="startEditing()"
-  (save)="saveAppointment()"
-  (cancelEdit)="cancelEditing()"
   (delete)="deleteAppointment()"
-  (updateForm)="updateFormField($event.field, $event.value)"
 >
 </pelu-detail-view>
 
@@ -15,9 +11,6 @@
   [booking]="null"
   [service]="service()"
   [hideViewDetailButton]="true"
-  (closed)="onPopupClosed()"
-  (deleted)="onBookingDeleted($event)"
-  (editRequested)="onBookingEditRequested($event)"
   (viewDetailRequested)="onViewDetailRequested($event)"
 >
 </pelu-appointment-detail-popup>

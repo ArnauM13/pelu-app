@@ -13,7 +13,6 @@ import { NotFoundStateComponent } from '../not-found-state/not-found-state.compo
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
-import { InputNumberComponent } from '../inputs/input-number/input-number.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { ActionsButtonsComponent } from '../actions-buttons';
 import { ButtonComponent } from '../buttons/button.component';
@@ -82,7 +81,6 @@ export interface DetailViewConfig {
     RouterModule,
     InputTextComponent,
     InputTextareaComponent,
-    InputNumberComponent,
     InputDateComponent,
     ActionsButtonsComponent,
     ButtonComponent,
@@ -173,7 +171,7 @@ export class DetailViewComponent {
     if (!user) return null;
 
     // Parse displayName to separate name and surname
-    const displayName = (user as any).displayName || '';
+    const displayName = (user as User & { displayName?: string }).displayName || '';
     const nameParts = displayName.split(' ');
     const name = nameParts[0] || '';
     const surname = nameParts.slice(1).join(' ') || '';
@@ -182,13 +180,13 @@ export class DetailViewComponent {
       name: name,
       surname: surname,
       email: user.email || '',
-      imageUrl: (user as any).photoURL || '',
+      imageUrl: (user as User & { photoURL?: string }).photoURL || '',
     };
   });
 
   readonly displayName = computed(() => {
     const user = this.user();
-    return (user as any)?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
+    return (user as User & { displayName?: string })?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
   });
 
   readonly email = computed(() => {
@@ -368,7 +366,7 @@ export class DetailViewComponent {
 
   // Toast methods
   onToastClick(event: Record<string, unknown>): void {
-    const eventData = event['data'] as any;
+    const eventData = event['data'] as { showViewButton?: boolean; appointmentId?: string };
     if (eventData?.showViewButton && eventData?.appointmentId) {
       this.viewAppointmentDetail(eventData.appointmentId);
     }

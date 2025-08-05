@@ -42,20 +42,27 @@ import { Booking } from '../../../core/interfaces/booking.interface';
           </div>
 
           <div class="service-info">
-            @if (getServiceName(booking)) {
-              <div
-                class="service-badge"
-                [style.background]="serviceColor().color"
-                [ngClass]="serviceTextCssClass()"
-              >
-                <span class="service-icon">✂️</span>
-                <span class="service-name">{{ getServiceName(booking) }}</span>
+            <div class="service-info-left">
+              @if (getServiceName(booking)) {
+                <div
+                  class="service-badge"
+                  [style.background]="serviceColor().color"
+                  [ngClass]="serviceTextCssClass()"
+                >
+                  <span class="service-icon">✂️</span>
+                  <span class="service-name">{{ getServiceName(booking) }}</span>
+                </div>
+              }
+
+              <div class="duration-info">
+                <span class="duration-icon">⏱️</span>
+                <span class="duration-text">60 min</span>
               </div>
-            }
-            <div class="duration-info">
-              <span class="duration-icon">⏱️</span>
-              <span class="duration-text">60 min</span>
             </div>
+            <!-- Mobile view detail button -->
+            <button class="btn btn-primary mobile-view-btn" (click)="viewDetail.emit(booking)">
+              👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
+            </button>
           </div>
 
           @if (booking.notes) {
@@ -66,8 +73,9 @@ import { Booking } from '../../../core/interfaces/booking.interface';
           }
         </div>
 
+        <!-- Desktop view detail button -->
         <div class="appointment-actions">
-          <button class="btn btn-primary" (click)="onViewDetail.emit(booking)">
+          <button class="btn btn-primary desktop-view-btn" (click)="viewDetail.emit(booking)">
             👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
           </button>
         </div>
@@ -133,10 +141,6 @@ import { Booking } from '../../../core/interfaces/booking.interface';
         color: var(--text-color-light);
       }
 
-      .appointment-content {
-        margin-bottom: 1.5rem;
-      }
-
       .client-info {
         margin-bottom: 1rem;
       }
@@ -171,6 +175,12 @@ import { Booking } from '../../../core/interfaces/booking.interface';
         align-items: center;
         gap: 1rem;
         margin-bottom: 1rem;
+      }
+
+      .service-info-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
       }
 
       .service-badge {
@@ -291,48 +301,257 @@ import { Booking } from '../../../core/interfaces/booking.interface';
         line-height: 1.5;
       }
 
+      /* Mobile view button - hidden on desktop */
+      .mobile-view-btn {
+        display: none;
+      }
+
+      /* Desktop view button - hidden on mobile */
+      .desktop-view-btn {
+        display: flex;
+      }
+
+      /* Mobile styles - More compact */
       @media (max-width: 768px) {
         .next-appointment-card {
           padding: 1rem;
+          margin-bottom: 0.75rem;
+          border-radius: 12px;
         }
 
         .appointment-header {
-          flex-direction: column;
-          text-align: center;
+          flex-direction: row;
+          text-align: left;
           gap: 0.75rem;
+          margin-bottom: 1rem;
         }
 
         .header-icon {
-          width: 40px;
-          height: 40px;
-          font-size: 1.25rem;
+          width: 35px;
+          height: 35px;
+          font-size: 1rem;
+        }
+
+        .title {
+          font-size: 1rem;
+          margin-bottom: 0.125rem;
+        }
+
+        .subtitle {
+          font-size: 0.75rem;
         }
 
         .client-name {
-          font-size: 1.25rem;
+          font-size: 1.125rem;
+          margin-bottom: 0.5rem;
         }
 
         .appointment-details {
-          flex-direction: column;
-          gap: 0.5rem;
+          flex-direction: row;
+          gap: 0.75rem;
         }
 
-        .service-info {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.75rem;
+        .detail-item {
+          font-size: 0.8rem;
+          gap: 0.25rem;
+        }
+
+        .detail-icon {
+          font-size: 0.875rem;
+        }
+
+                 .service-info {
+           flex-direction: row;
+           align-items: center;
+           gap: 0.75rem;
+           margin-bottom: 0.75rem;
+           justify-content: space-between;
+         }
+
+         .service-info-left {
+           display: flex;
+           align-items: center;
+           gap: 0.75rem;
+         }
+
+        .service-badge {
+          padding: 0.375rem 0.75rem;
+          font-size: 0.8rem;
+          gap: 0.25rem;
+        }
+
+        .service-icon {
+          font-size: 0.875rem;
+        }
+
+        .duration-info {
+          font-size: 0.75rem;
+          padding: 0.25rem 0.5rem;
+        }
+
+        .duration-icon {
+          font-size: 0.75rem;
+        }
+
+        .notes-section {
+          padding: 0.5rem;
+          gap: 0.375rem;
+        }
+
+        .notes-icon {
+          font-size: 0.875rem;
+        }
+
+        .notes-text {
+          font-size: 0.8rem;
         }
 
         .appointment-actions {
           justify-content: center;
         }
 
+        .btn {
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
+          gap: 0.375rem;
+        }
+
+        /* Show mobile button, hide desktop button */
+        .mobile-view-btn {
+          display: flex;
+          padding: 0.375rem 0.75rem;
+          font-size: 0.75rem;
+          gap: 0.25rem;
+        }
+
+        .desktop-view-btn {
+          display: none;
+        }
+
         .no-next-appointment {
-          padding: 2rem 1rem;
+          padding: 1.5rem 1rem;
         }
 
         .no-appointment-icon {
-          font-size: 3rem;
+          font-size: 2.5rem;
+        }
+
+        .no-next-appointment h3 {
+          font-size: 1.25rem;
+        }
+
+        .no-next-appointment p {
+          font-size: 0.875rem;
+        }
+      }
+
+      /* Extra small mobile styles */
+      @media (max-width: 480px) {
+        .next-appointment-card {
+          padding: 1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .appointment-header {
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .header-icon {
+          width: 30px;
+          height: 30px;
+          font-size: 0.875rem;
+        }
+
+        .title {
+          font-size: 0.875rem;
+        }
+
+        .subtitle {
+          font-size: 0.7rem;
+        }
+
+        .client-name {
+          font-size: 1rem;
+          margin-bottom: 0.375rem;
+        }
+
+        .appointment-details {
+          gap: 0.5rem;
+        }
+
+        .detail-item {
+          font-size: 0.75rem;
+        }
+
+        .detail-icon {
+          font-size: 0.8rem;
+        }
+
+        .service-info {
+           gap: 0.5rem;
+           margin-bottom: 0.5rem;
+         }
+
+         .service-info-left {
+           gap: 0.5rem;
+         }
+
+        .service-badge {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+        }
+
+        .service-icon {
+          font-size: 0.8rem;
+        }
+
+        .duration-info {
+          font-size: 0.7rem;
+          padding: 0.2rem 0.4rem;
+        }
+
+        .duration-icon {
+          font-size: 0.7rem;
+        }
+
+        .notes-section {
+          padding: 0.375rem;
+        }
+
+        .notes-icon {
+          font-size: 0.8rem;
+        }
+
+        .notes-text {
+          font-size: 0.75rem;
+        }
+
+        .btn {
+          padding: 0.375rem 0.75rem;
+          font-size: 0.75rem;
+        }
+
+        .mobile-view-btn {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.7rem;
+          gap: 0.2rem;
+        }
+
+        .no-next-appointment {
+          padding: 1rem 0.75rem;
+        }
+
+        .no-appointment-icon {
+          font-size: 2rem;
+        }
+
+        .no-next-appointment h3 {
+          font-size: 1.125rem;
+        }
+
+        .no-next-appointment p {
+          font-size: 0.8rem;
         }
       }
     `,
@@ -341,7 +560,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
 export class NextAppointmentComponent {
   readonly bookings = input.required<Booking[]>();
 
-  readonly onViewDetail = output<Booking>();
+  readonly viewDetail = output<Booking>();
 
   #servicesService = inject(ServicesService);
 
