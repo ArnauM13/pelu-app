@@ -33,6 +33,7 @@ import { CalendarBusinessService } from '../services/calendar-business.service';
 import { CalendarStateService } from '../services/calendar-state.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ServicesService } from '../../../core/services/services.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import {
   CalendarLoaderComponent,
   CalendarTimeColumnComponent,
@@ -100,6 +101,7 @@ export class CalendarComponent {
   private readonly stateService = inject(CalendarStateService);
   private readonly serviceColorsService = inject(ServiceColorsService);
   private readonly servicesService = inject(ServicesService);
+  private readonly toastService = inject(ToastService);
 
   // Service data for popup
   private loadedService = signal<Service | null>(null);
@@ -804,38 +806,58 @@ export class CalendarComponent {
     this.loadedService.set(null);
   }
 
-  onAppointmentDeleted(booking: Booking) {
+  async onAppointmentDeleted(booking: Booking) {
     console.log('Appointment deleted:', booking);
 
-    // Remove the appointment from the state
-    this.stateService.removeAppointment(booking.id || '');
+    if (!booking || !booking.id) {
+      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
+      return;
+    }
 
-    // Close the popup immediately
-    this.stateService.closeAppointmentDetail();
+    try {
+      // Actually delete the booking from the database
+      const success = await this.appointmentService.deleteBooking(booking.id);
 
-    // Silently refresh appointments without showing loader
-    this.appointmentService.silentRefreshBookings();
+      if (success) {
+        // Show success toast
+        this.toastService.showAppointmentDeleted(booking.clientName || 'Client');
 
-    // Convert Booking to AppointmentEvent and emit to parent
-    const currentUser = this.authService.user();
-    const isAdmin = this.roleService.isAdmin();
-    const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
+        // Remove the appointment from the state
+        this.stateService.removeAppointment(booking.id);
 
-    const appointmentEvent: AppointmentEvent = {
-      id: booking.id || '',
-      title: booking.clientName || 'Appointment',
-      start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
-      end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
-      duration: 60, // Will be fetched from service
-      serviceName: 'Service', // Will be fetched from service
-      clientName: booking.clientName,
-      uid: booking.email || '',
-      isPublicBooking: false,
-      isOwnBooking: isOwnBooking,
-      canDrag: isAdmin || isOwnBooking,
-      canViewDetails: isAdmin || isOwnBooking,
-    };
-    this.deleteAppointment.emit(appointmentEvent);
+        // Close the popup immediately
+        this.stateService.closeAppointmentDetail();
+
+        // Silently refresh appointments without showing loader
+        this.appointmentService.silentRefreshBookings();
+
+        // Convert Booking to AppointmentEvent and emit to parent
+        const currentUser = this.authService.user();
+        const isAdmin = this.roleService.isAdmin();
+        const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
+
+        const appointmentEvent: AppointmentEvent = {
+          id: booking.id || '',
+          title: booking.clientName || 'Appointment',
+          start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
+          end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
+          duration: 60, // Will be fetched from service
+          serviceName: 'Service', // Will be fetched from service
+          clientName: booking.clientName,
+          uid: booking.email || '',
+          isPublicBooking: false,
+          isOwnBooking: isOwnBooking,
+          canDrag: isAdmin || isOwnBooking,
+          canViewDetails: isAdmin || isOwnBooking,
+        };
+        this.deleteAppointment.emit(appointmentEvent);
+      } else {
+        this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
+      }
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
+    }
   }
 
   onAppointmentEditRequested(booking: Booking) {
