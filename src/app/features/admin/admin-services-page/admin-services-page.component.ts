@@ -1,68 +1,84 @@
-import { Component, computed, OnInit, signal, inject, model } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { FirebaseServicesService, FirebaseService } from '../../../core/services/firebase-services.service';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { AlertPopupComponent } from '../../../shared/components/alert-popup/alert-popup.component';
+import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
+import { InputTextareaComponent } from '../../../shared/components/inputs/input-textarea/input-textarea.component';
+import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
+import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
+import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../../../shared/components/popup-dialog/popup-dialog.component';
+
+import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { UserService } from '../../../core/services/user.service';
-import { CardComponent } from '../../../shared/components/card/card.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
-import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
-import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
-import { PopularBadgeComponent } from '../../../shared/components/popular-badge/popular-badge.component';
-import {
-  InputTextareaComponent,
-  InputSelectComponent,
-  InputNumberComponent,
-  InputCheckboxComponent
-} from '../../../shared/components/inputs';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { ToastService } from '../../../shared/services/toast.service';
+import { FirebaseService } from '../../../core/services/firebase-services.service';
+
+interface AlertData {
+  title: string;
+  message: string;
+  confirmText: string;
+  cancelText: string;
+  severity: 'warning' | 'danger';
+  onConfirm: () => void;
+}
+
+interface ServiceCategory {
+  id: string;
+  name: string;
+  icon: string;
+  custom?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 @Component({
   selector: 'pelu-admin-services-page',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     ButtonModule,
     CardModule,
     InputTextModule,
     InputNumberModule,
-    DropdownModule,
+    SelectModule,
     CheckboxModule,
     DialogModule,
     ConfirmDialogModule,
     ToastModule,
     TooltipModule,
     TranslateModule,
-    CardComponent,
     LoadingStateComponent,
     AlertPopupComponent,
     ServiceCardComponent,
-    PopularBadgeComponent,
+    ButtonComponent,
+    InputTextComponent,
     InputTextareaComponent,
     InputSelectComponent,
     InputNumberComponent,
     InputCheckboxComponent,
-    CurrencyPipe
+    PopupDialogComponent,
   ],
-  providers: [ConfirmationService, MessageService],
   templateUrl: './admin-services-page.component.html',
-  styleUrls: ['./admin-services-page.component.scss']
+  styleUrls: ['./admin-services-page.component.scss'],
 })
 export class AdminServicesPageComponent implements OnInit {
   // Inject services
@@ -70,67 +86,54 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly servicesMigrationService = inject(ServicesMigrationService);
   private readonly userService = inject(UserService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
+  private readonly fb = inject(FormBuilder);
 
-  // Core signals - Use Firebase service directly for all data
+  // Dialog visibility signals
   private readonly _showCreateDialog = signal<boolean>(false);
   private readonly _showEditDialog = signal<boolean>(false);
   private readonly _selectedService = signal<FirebaseService | null>(null);
   private readonly _showCreateCategoryDialog = signal<boolean>(false);
   private readonly _showEditCategoryDialog = signal<boolean>(false);
   private readonly _showCategoriesManagerDialog = signal<boolean>(false);
-  private readonly _selectedCategory = signal<any>(null);
+  private readonly _selectedCategory = signal<ServiceCategory | null>(null);
   private readonly _showAlertDialog = signal<boolean>(false);
   private readonly _alertData = signal<AlertData | null>(null);
 
+  // Service popular status signals - reactive state for each service
+  private readonly _servicePopularStatus = signal<Map<string, boolean>>(new Map());
 
   // Form signals
-  private readonly _formData = signal<Partial<FirebaseService>>({
-    name: '',
-    description: '',
-    price: 0,
-    duration: 30,
-    category: 'haircut',
-    icon: '✂️',
-    popular: false
-  });
+  private readonly serviceFormSignal = signal<FormGroup | null>(null);
+  private readonly categoryFormSignal = signal<FormGroup | null>(null);
+  readonly serviceForm = computed(() => this.serviceFormSignal());
+  readonly categoryForm = computed(() => this.categoryFormSignal());
 
-  // Category form signals
-  private readonly _categoryFormData = signal<{ name: string; icon: string; id: string }>({
-    name: '',
-    icon: '🔧',
-    id: ''
-  });
-
-  // Public computed signals - Use Firebase service directly
+  // Computed signals
   readonly services = computed(() => this.firebaseServicesService.services());
   readonly isLoading = computed(() => this.firebaseServicesService.isLoading());
   readonly showCreateDialog = computed(() => this._showCreateDialog());
   readonly showEditDialog = computed(() => this._showEditDialog());
   readonly selectedService = computed(() => this._selectedService());
-  readonly formData = computed(() => this._formData());
   readonly showCreateCategoryDialog = computed(() => this._showCreateCategoryDialog());
   readonly showEditCategoryDialog = computed(() => this._showEditCategoryDialog());
   readonly showCategoriesManagerDialog = computed(() => this._showCategoriesManagerDialog());
   readonly selectedCategory = computed(() => this._selectedCategory());
-  readonly categoryFormData = computed(() => this._categoryFormData());
-  readonly showAlertDialog = computed(() => this._showAlertDialog());
+  readonly showAlertDialog = computed(() => this._alertData());
   readonly alertData = computed(() => this._alertData());
 
-
-  // Admin access computed
+  // Admin access signals
   readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
 
-  // Service categories computed
+  // Service categories
   readonly serviceCategories = computed(() => this.firebaseServicesService.serviceCategories());
 
-  // Category options for dropdown
+  // Category options for form
   readonly categoryOptions = computed(() =>
     this.serviceCategories().map(category => ({
-      label: category.custom ? category.name : this.translateService.instant(`SERVICES.CATEGORIES.${category.id.toUpperCase()}`),
+      label: this.translateService.instant(category.name),
       value: category.id,
       icon: category.icon
     }))
@@ -141,535 +144,596 @@ export class AdminServicesPageComponent implements OnInit {
     { label: '✂️ Talla', value: '✂️' },
     { label: '🧔 Barba', value: '🧔' },
     { label: '💆 Tractament', value: '💆' },
-    { label: '💇 Estilitzat', value: '💇' },
+    { label: '💇 Estil', value: '💇' },
     { label: '🎨 Coloració', value: '🎨' },
-    { label: '👶 Infantil', value: '👶' },
     { label: '⭐ Especial', value: '⭐' },
-    { label: '🔧 General', value: '🔧' }
+    { label: '👶 Nens', value: '👶' },
+    { label: '🔧 General', value: '🔧' },
+    { label: '💇‍♀️ Dona', value: '💇‍♀️' },
+    { label: '💇‍♂️ Home', value: '💇‍♂' },
+    { label: '💅 Manicura', value: '💅' },
+    { label: '💄 Maquillatge', value: '💄' },
+    { label: '🧴 Productes', value: '🧴' },
+    { label: '✨ Glamour', value: '✨' },
+    { label: '🌟 Premium', value: '🌟' },
+    { label: '💎 Luxe', value: '💎' },
+    { label: '🎯 Express', value: '🎯' },
+    { label: '🕐 Ràpid', value: '🕐' },
+    { label: '🌿 Natural', value: '🌿' },
+    { label: '🔥 Tendència', value: '🔥' },
   ];
 
-  // Services by category computed - Use Firebase service directly
-  readonly servicesByCategory = computed(() => this.firebaseServicesService.servicesByCategory());
+  // Services by category with reactive popular status
+  readonly servicesByCategory = computed(() => {
+    const services = this.firebaseServicesService.servicesByCategory();
+    const popularStatus = this._servicePopularStatus();
+
+    return services.map(category => ({
+      ...category,
+      services: category.services.map(service => ({
+        ...service,
+        isPopular: popularStatus.get(service.id!) ?? service.isPopular
+      }))
+    }));
+  });
+
+  // Computed properties for popup configurations
+  readonly createServiceDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CREATE_SERVICE'),
+    size: 'large',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('SERVICES.MANAGEMENT.CREATE_SERVICE'),
+        type: 'save' as FooterActionType,
+        action: () => this.createService()
+      }
+    ]
+  }));
+
+  readonly editServiceDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('SERVICES.MANAGEMENT.EDIT_SERVICE'),
+    size: 'large',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('SERVICES.MANAGEMENT.EDIT_SERVICE'),
+        type: 'save' as FooterActionType,
+        action: () => this.updateService()
+      }
+    ]
+  }));
+
+  readonly categoriesManagerDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.MANAGE_CATEGORIES'),
+    size: 'large',
+    closeOnBackdropClick: true,
+    showFooter: false
+  }));
+
+  readonly createCategoryDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CREATE_CATEGORY'),
+    size: 'medium',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CREATE_CATEGORY'),
+        type: 'save' as FooterActionType,
+        action: () => this.createCategory()
+      }
+    ]
+  }));
+
+  readonly editCategoryDialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.EDIT_CATEGORY'),
+    size: 'medium',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.EDIT_CATEGORY'),
+        type: 'save' as FooterActionType,
+        action: () => this.updateCategory()
+      }
+    ]
+  }));
 
   constructor() {
-    // Check admin access
-    if (!this.hasAdminAccess()) {
-      this.router.navigate(['/']);
-      return;
-    }
   }
 
   ngOnInit() {
+    this.initializeForms();
     this.loadServices();
   }
 
-  /**
-   * Load services from Firebase
-   */
-  async loadServices(): Promise<void> {
-    try {
-      await this.firebaseServicesService.loadServices();
-    } catch (error) {
-      console.error('Error loading services:', error);
-    }
+  private initializeForms() {
+    // Initialize service form
+    const serviceForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
+      price: [0, [Validators.required, Validators.min(0)]],
+      duration: [30, [Validators.required, Validators.min(5), Validators.max(480)]],
+      category: ['haircut', [Validators.required]],
+      icon: ['✂️', [Validators.required]],
+      popular: [false]
+    });
+
+    // Initialize category form
+    const categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      icon: ['🔧', [Validators.required]],
+      id: ['', [Validators.required, Validators.minLength(2)]]
+    });
+
+    this.serviceFormSignal.set(serviceForm);
+    this.categoryFormSignal.set(categoryForm);
   }
 
-  /**
-   * Show create service dialog
-   */
+  // Helper methods for form validation
+  isServiceFieldInvalid(fieldName: string): boolean {
+    const field = this.serviceForm()?.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getServiceFieldError(fieldName: string): string {
+    const field = this.serviceForm()?.get(fieldName);
+    if (field && field.errors) {
+      if (field.errors['required']) return 'Aquest camp és obligatori';
+      if (field.errors['minlength']) return `Mínim ${field.errors['minlength'].requiredLength} caràcters`;
+      if (field.errors['min']) return `Valor mínim: ${field.errors['min'].min}`;
+      if (field.errors['max']) return `Valor màxim: ${field.errors['max'].max}`;
+    }
+    return '';
+  }
+
+  isCategoryFieldInvalid(fieldName: string): boolean {
+    const field = this.categoryForm()?.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getCategoryFieldError(fieldName: string): string {
+    const field = this.categoryForm()?.get(fieldName);
+    if (field && field.errors) {
+      if (field.errors['required']) return 'Aquest camp és obligatori';
+      if (field.errors['minlength']) return `Mínim ${field.errors['minlength'].requiredLength} caràcters`;
+    }
+    return '';
+  }
+
+  async loadServices(): Promise<void> {
+    await this.firebaseServicesService.loadServices();
+
+    // Initialize popular status signals after services are loaded
+    const services = this.services();
+    const statusMap = new Map<string, boolean>();
+    services.forEach(service => {
+      statusMap.set(service.id!, service.isPopular ?? false);
+    });
+    this._servicePopularStatus.set(statusMap);
+  }
+
   showCreateService(): void {
-    this.resetForm();
+    this.resetServiceForm();
     this._showCreateDialog.set(true);
   }
 
-  /**
-   * Show edit service dialog
-   */
   showEditService(service: FirebaseService): void {
     this._selectedService.set(service);
-    this._formData.set({
-      name: service.name,
-      description: service.description,
-      price: service.price,
-      duration: service.duration,
-      category: service.category,
-      icon: service.icon,
-      popular: service.popular || false
-    });
+    this.populateServiceForm(service);
     this._showEditDialog.set(true);
   }
 
-  /**
-   * Create new service
-   */
+  private populateServiceForm(service: FirebaseService) {
+    const form = this.serviceForm();
+    if (form) {
+      form.patchValue({
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        duration: service.duration,
+        category: service.category,
+        icon: service.icon,
+        isPopular: service.isPopular
+      });
+    }
+  }
+
   async createService(): Promise<void> {
-    if (!this.validateForm()) {
+    const form = this.serviceForm();
+    if (!form?.valid) {
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.VALIDATION.NAME_REQUIRED')
+      );
       return;
     }
 
-    const serviceData = this.formData();
-    const newService = await this.firebaseServicesService.createService(serviceData as Omit<FirebaseService, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>, false);
+    try {
+      const formValue = form.value;
+      const serviceData = {
+        ...formValue,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    if (newService) {
-      this._showCreateDialog.set(false);
-      this.resetForm();
+      await this.firebaseServicesService.createService(serviceData);
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_CREATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_CREATED_MESSAGE')
+      );
+      this.cancelDialog();
+    } catch (error) {
+      console.error('Error creating service:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.ERROR_CREATING_SERVICE')
+      );
     }
   }
 
-  /**
-   * Update existing service
-   */
   async updateService(): Promise<void> {
-    if (!this.validateForm() || !this.selectedService()) {
+    const form = this.serviceForm();
+    const selectedService = this.selectedService();
+
+    if (!form?.valid || !selectedService) {
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.VALIDATION.NAME_REQUIRED')
+      );
       return;
     }
 
-    const serviceData = this.formData();
-    const success = await this.firebaseServicesService.updateService(this.selectedService()!.id!, serviceData, false);
+    try {
+      const formValue = form.value;
+      const serviceData = {
+        ...formValue,
+        updatedAt: new Date()
+      };
 
-    if (success) {
-      this._showEditDialog.set(false);
-      this.resetForm();
-      this._selectedService.set(null);
+      await this.firebaseServicesService.updateService(selectedService.id!, serviceData);
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_UPDATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_UPDATED_MESSAGE')
+      );
+      this.cancelDialog();
+    } catch (error) {
+      console.error('Error updating service:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.ERROR_UPDATING_SERVICE')
+      );
     }
   }
 
-    /**
-   * Delete service
-   */
   deleteService(service: FirebaseService): void {
-    const alertData: AlertData = {
-      title: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION'),
-      message: this.translateService.instant('ADMIN.SERVICES.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
-      emoji: '⚠️',
+    this._alertData.set({
+      title: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
+      message: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
+      confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
+      cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
       severity: 'danger',
-      confirmText: this.translateService.instant('COMMON.ACTIONS.YES'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.NO')
-    };
-
-    this._alertData.set(alertData);
+      onConfirm: () => this.deleteServiceConfirmed(service)
+    });
     this._showAlertDialog.set(true);
   }
 
-  /**
-   * Handle alert confirmation
-   */
   onAlertConfirmed(): void {
-    const service = this.selectedService();
-    const category = this.selectedCategory();
-
-    if (service) {
-      this.deleteServiceConfirmed(service);
-    } else if (category) {
-      this.deleteCategoryConfirmed(category);
+    const alertData = this.alertData();
+    if (alertData) {
+      alertData.onConfirm();
     }
-
     this._showAlertDialog.set(false);
+    this._alertData.set(null);
   }
 
-  /**
-   * Handle alert cancellation
-   */
   onAlertCancelled(): void {
     this._showAlertDialog.set(false);
-    this._selectedService.set(null);
+    this._alertData.set(null);
   }
 
-  /**
-   * Delete service confirmed
-   */
   private async deleteServiceConfirmed(service: FirebaseService): Promise<void> {
-    const success = await this.firebaseServicesService.deleteService(service.id!, false);
-    if (success) {
-      // Show success message after a short delay
-      setTimeout(() => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED'),
-          detail: this.translateService.instant('ADMIN.SERVICES.SERVICE_DELETED_MESSAGE')
-        });
-      }, 300);
+    try {
+      await this.firebaseServicesService.deleteService(service.id!);
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_DELETED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.SERVICE_DELETED_MESSAGE', { name: service.name })
+      );
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.ERROR_DELETING_SERVICE')
+      );
     }
   }
 
-  /**
-   * Delete category confirmed
-   */
-  private async deleteCategoryConfirmed(category: any): Promise<void> {
-    const success = await this.firebaseServicesService.deleteCategory(category.id, false);
-    if (success) {
-      // Show success message after a short delay
-      setTimeout(() => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED'),
-          detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.CATEGORY_DELETED_MESSAGE')
-        });
-      }, 300);
+  private async deleteCategoryConfirmed(category: ServiceCategory): Promise<void> {
+    try {
+      await this.firebaseServicesService.deleteCategory(category.id);
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_DELETED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_DELETED_MESSAGE', { name: category.name })
+      );
+      this.closeCategoriesManager();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_DELETING_CATEGORY')
+      );
     }
   }
 
-  /**
-   * Cancel dialog
-   */
   cancelDialog(): void {
     this._showCreateDialog.set(false);
     this._showEditDialog.set(false);
-    this.resetForm();
     this._selectedService.set(null);
+    this.resetServiceForm();
   }
 
-  /**
-   * Handle create dialog visibility change
-   */
   onCreateDialogVisibilityChange(visible: boolean): void {
-    this._showCreateDialog.set(visible);
+    if (!visible) {
+      this.cancelDialog();
+    }
   }
 
-  /**
-   * Handle edit dialog visibility change
-   */
   onEditDialogVisibilityChange(visible: boolean): void {
-    this._showEditDialog.set(visible);
+    if (!visible) {
+      this.cancelDialog();
+    }
   }
 
-  /**
-   * Reset form data
-   */
-  private resetForm(): void {
-    this._formData.set({
-      name: '',
-      description: '',
-      price: 0,
-      duration: 30,
-      category: 'haircut',
-      icon: '✂️',
-      popular: false
-    });
+  private resetServiceForm(): void {
+    const form = this.serviceForm();
+    if (form) {
+      form.reset({
+        name: '',
+        description: '',
+        price: 0,
+        duration: 30,
+        category: 'haircut',
+        icon: '✂️',
+        popular: false
+      });
+    }
   }
 
-  /**
-   * Validate form data
-   */
-  private validateForm(): boolean {
-    const formData = this.formData();
-
-    if (!formData.name || formData.name.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.NAME_REQUIRED')
-      });
-      return false;
-    }
-
-    if (!formData.description || formData.description.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DESCRIPTION_REQUIRED')
-      });
-      return false;
-    }
-
-    if (!formData.category) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.CATEGORY_REQUIRED')
-      });
-      return false;
-    }
-
-    if (!formData.price || formData.price <= 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.PRICE_MIN')
-      });
-      return false;
-    }
-
-    if (!formData.duration || formData.duration < 5) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MIN')
-      });
-      return false;
-    }
-
-    if (formData.duration > 480) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.VALIDATION.DURATION_MAX')
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Get services by category
-   */
   getServicesByCategory(category: FirebaseService['category']): FirebaseService[] {
     return this.firebaseServicesService.getServicesByCategory(category);
   }
 
-  /**
-   * Get category name
-   */
   getCategoryName(category: FirebaseService['category']): string {
     return this.firebaseServicesService.getCategoryName(category);
   }
 
-  /**
-   * Get category icon
-   */
   getCategoryIcon(category: FirebaseService['category']): string {
     return this.firebaseServicesService.getCategoryIcon(category);
   }
 
-  /**
-   * Refresh services
-   */
   async refreshServices(): Promise<void> {
     await this.firebaseServicesService.refreshServices();
   }
 
-  /**
-   * Migrate services from old service to Firebase
-   */
   async migrateServices(): Promise<void> {
-    const needsMigration = await this.servicesMigrationService.isMigrationNeeded();
+    try {
+      this.toastService.showInfo(
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES')
+      );
 
-    if (!needsMigration) {
-      this.messageService.add({
-        severity: 'info',
-        summary: this.translateService.instant('COMMON.STATUS.STATUS_INFO'),
-        detail: 'Els serveis ja estan migrats a Firebase'
-      });
-      return;
+      const migratedCount = await this.servicesMigrationService.migrateServicesToFirebase();
+
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
+        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES') + ` (${migratedCount} services)`
+      );
+
+      await this.refreshServices();
+    } catch (error) {
+      console.error('Error migrating services:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.MIGRATION_ERROR'),
+        this.translateService.instant('ADMIN.SERVICES.MIGRATION.ERROR_MESSAGE')
+      );
     }
-
-    this.confirmationService.confirm({
-      message: 'Vols migrar els serveis actuals a Firebase? Aquesta acció no es pot desfer.',
-      header: this.translateService.instant('ADMIN.SERVICES.MIGRATE_SERVICES'),
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        const success = await this.servicesMigrationService.migrateServicesToFirebase();
-        if (success) {
-          // Refresh services after migration
-          await this.refreshServices();
-        }
-      }
-    });
   }
 
-  /**
-   * Show categories manager dialog
-   */
   showCategoriesManager(): void {
     this._showCategoriesManagerDialog.set(true);
   }
 
-  /**
-   * Loading configuration
-   */
   get loadingConfig() {
     return {
-      message: 'COMMON.STATUS.LOADING',
+      message: this.translateService.instant('ADMIN.SERVICES.LOADING_MESSAGE'),
+      showSpinner: true,
       spinnerSize: 'large' as const,
-      showMessage: true,
-      fullHeight: false
+      overlay: true,
+      overlayOpacity: 0.7,
+      zIndex: 1000
     };
   }
 
-  // ===== CATEGORY MANAGEMENT =====
-
-  /**
-   * Show create category dialog
-   */
   showCreateCategory(): void {
     this.resetCategoryForm();
     this._showCreateCategoryDialog.set(true);
   }
 
-  /**
-   * Show edit category dialog
-   */
-  showEditCategory(category: any): void {
+  showEditCategory(category: ServiceCategory): void {
     this._selectedCategory.set(category);
-    this._categoryFormData.set({
-      name: category.name,
-      icon: category.icon,
-      id: category.id
-    });
+    this.populateCategoryForm(category);
     this._showEditCategoryDialog.set(true);
   }
 
-  /**
-   * Update existing category
-   */
+  private populateCategoryForm(category: ServiceCategory) {
+    const form = this.categoryForm();
+    if (form) {
+      form.patchValue({
+        name: category.name,
+        icon: category.icon,
+        id: category.id
+      });
+    }
+  }
+
   async updateCategory(): Promise<void> {
-    if (!this.validateCategoryForm() || !this.selectedCategory()) {
+    const form = this.categoryForm();
+    const selectedCategory = this.selectedCategory();
+
+    if (!form?.valid || !selectedCategory) {
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
+      );
       return;
     }
 
-    const categoryData = this.categoryFormData();
-    const success = await this.firebaseServicesService.updateCategory(this.selectedCategory()!.id, {
-      name: categoryData.name,
-      icon: categoryData.icon
-    }, false);
+    try {
+      const formValue = form.value;
+      const categoryData = {
+        ...formValue,
+        updatedAt: new Date()
+      };
 
-    if (success) {
-      this._showEditCategoryDialog.set(false);
-      this.resetCategoryForm();
-      this._selectedCategory.set(null);
+      await this.firebaseServicesService.updateCategory(selectedCategory.id, categoryData);
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_UPDATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_UPDATED_MESSAGE')
+      );
+      this.cancelCategoryDialog();
+    } catch (error) {
+      console.error('Error updating category:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_UPDATING_CATEGORY')
+      );
     }
   }
 
-  /**
-   * Create new category
-   */
   async createCategory(): Promise<void> {
-    if (!this.validateCategoryForm()) {
+    const form = this.categoryForm();
+    if (!form?.valid) {
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
+      );
       return;
     }
 
-    const categoryData = this.categoryFormData();
-    const newCategory = await this.firebaseServicesService.createCategory(categoryData, false);
+    try {
+      const formValue = form.value;
+      const categoryData = {
+        ...formValue,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    if (newCategory) {
-      this._showCreateCategoryDialog.set(false);
-      this.resetCategoryForm();
+      await this.firebaseServicesService.createCategory(categoryData);
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_CREATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CATEGORY_CREATED_MESSAGE')
+      );
+      this.cancelCategoryDialog();
+    } catch (error) {
+      console.error('Error creating category:', error);
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_CREATING_CATEGORY')
+      );
     }
   }
 
-  /**
-   * Delete category
-   */
-  deleteCategory(category: any): void {
-    const alertData: AlertData = {
-      title: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
-      message: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
-      emoji: '⚠️',
+  deleteCategory(category: ServiceCategory): void {
+    this._alertData.set({
+      title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
+      message: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
+      confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
+      cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
       severity: 'danger',
-      confirmText: this.translateService.instant('COMMON.ACTIONS.YES'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.NO')
-    };
-
-    this._alertData.set(alertData);
+      onConfirm: () => this.deleteCategoryConfirmed(category)
+    });
     this._showAlertDialog.set(true);
-    this._selectedCategory.set(category);
   }
 
-  /**
-   * Cancel category dialog
-   */
   cancelCategoryDialog(): void {
     this._showCreateCategoryDialog.set(false);
     this._showEditCategoryDialog.set(false);
-    this._showCategoriesManagerDialog.set(false);
-    this.resetCategoryForm();
     this._selectedCategory.set(null);
+    this.resetCategoryForm();
   }
 
-  /**
-   * Close categories manager dialog
-   */
   closeCategoriesManager(): void {
     this._showCategoriesManagerDialog.set(false);
   }
 
-  /**
-   * Handle create category dialog visibility change
-   */
   onCreateCategoryDialogVisibilityChange(visible: boolean): void {
-    this._showCreateCategoryDialog.set(visible);
+    if (!visible) {
+      this.cancelCategoryDialog();
+    }
   }
 
-  /**
-   * Handle edit category dialog visibility change
-   */
   onEditCategoryDialogVisibilityChange(visible: boolean): void {
-    this._showEditCategoryDialog.set(visible);
+    if (!visible) {
+      this.cancelCategoryDialog();
+    }
   }
 
-  /**
-   * Reset category form data
-   */
   private resetCategoryForm(): void {
-    this._categoryFormData.set({
-      name: '',
-      icon: '🔧',
-      id: ''
-    });
+    const form = this.categoryForm();
+    if (form) {
+      form.reset({
+        name: '',
+        icon: '🔧',
+        id: ''
+      });
+    }
   }
 
-  /**
-   * Validate category form data
-   */
-  private validateCategoryForm(): boolean {
-    const formData = this.categoryFormData();
-
-    if (!formData.name || formData.name.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_NAME_REQUIRED')
-      });
-      return false;
-    }
-
-    if (!formData.id || formData.id.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_REQUIRED')
-      });
-      return false;
-    }
-
-    if (formData.id.length < 3) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_MIN_LENGTH')
-      });
-      return false;
-    }
-
-    if (!/^[a-z0-9-]+$/.test(formData.id)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ID_FORMAT')
-      });
-      return false;
-    }
-
-    if (!formData.icon || formData.icon.trim() === '') {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('COMMON.ERRORS.VALIDATION_ERROR'),
-        detail: this.translateService.instant('ADMIN.SERVICES.CATEGORIES.VALIDATION.CATEGORY_ICON_REQUIRED')
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Toggle popular status of a service
-   */
   async togglePopularStatus(service: FirebaseService): Promise<void> {
-    const newPopularStatus = !service.popular;
-    await this.firebaseServicesService.updateService(service.id!, {
-      popular: newPopularStatus
-    }, false, false);
+    try {
+      const newPopularStatus = !service.isPopular;
+
+      // Update the reactive signal immediately for instant UI feedback
+      this._servicePopularStatus.update(statusMap => {
+        const newMap = new Map(statusMap);
+        newMap.set(service.id!, newPopularStatus);
+        return newMap;
+      });
+
+      // Prepare the update data
+      const updatedService = {
+        ...service,
+        popular: newPopularStatus,
+        updatedAt: new Date()
+      };
+
+      // Update in Firebase (without showing loader to avoid page reload feeling)
+      await this.firebaseServicesService.updateService(service.id!, updatedService, false, false);
+
+      const status = newPopularStatus ? 'POPULAR' : 'NO_POPULAR';
+      this.toastService.showSuccess(
+        this.translateService.instant('SERVICES.MANAGEMENT.POPULAR_STATUS_UPDATED'),
+        this.translateService.instant('SERVICES.MANAGEMENT.POPULAR_STATUS_MESSAGE', {
+          name: service.name,
+          status: this.translateService.instant(`SERVICES.MANAGEMENT.STATUS.${status.toUpperCase()}`)
+        })
+      );
+    } catch (error) {
+      console.error('Error updating popular status:', error);
+
+      // Revert the signal on error
+      this._servicePopularStatus.update(statusMap => {
+        const newMap = new Map(statusMap);
+        newMap.set(service.id!, service.isPopular ?? false);
+        return newMap;
+      });
+
+      this.toastService.showError(
+        this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
+        this.translateService.instant('SERVICES.MANAGEMENT.POPULAR_STATUS_ERROR_MESSAGE')
+      );
+    }
   }
 }

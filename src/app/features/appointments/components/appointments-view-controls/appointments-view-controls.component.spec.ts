@@ -1,18 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AppointmentsViewControlsComponent, ViewButton } from './appointments-view-controls.component';
+import { TranslateModule, TranslateService, TranslateLoader } from '@ngx-translate/core';
+import {
+  AppointmentsViewControlsComponent,
+  ViewButton,
+} from './appointments-view-controls.component';
 import { Component, signal } from '@angular/core';
+import { of } from 'rxjs';
+
+// Mock TranslateLoader
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation() {
+    return of({});
+  }
+}
 
 // Test wrapper component to provide input signals
 @Component({
   template: `
     <pelu-appointments-view-controls
       [viewButtons]="viewButtons()"
-      (onViewModeChange)="onViewModeChange($event)">
+      (onViewModeChange)="onViewModeChange($event)"
+    >
     </pelu-appointments-view-controls>
   `,
   imports: [AppointmentsViewControlsComponent],
-  standalone: true
 })
 class TestWrapperComponent {
   viewButtons = signal<ViewButton[]>([
@@ -22,7 +33,7 @@ class TestWrapperComponent {
       ariaLabel: 'COMMON.LIST_VIEW_LABEL',
       isActive: true,
       variant: 'primary',
-      size: 'large'
+      size: 'large',
     },
     {
       icon: '📅',
@@ -30,8 +41,8 @@ class TestWrapperComponent {
       ariaLabel: 'COMMON.CALENDAR_VIEW_LABEL',
       isActive: false,
       variant: 'primary',
-      size: 'large'
-    }
+      size: 'large',
+    },
   ]);
 
   onViewModeChange(mode: 'list' | 'calendar') {}
@@ -41,27 +52,46 @@ describe('AppointmentsViewControlsComponent', () => {
   let component: AppointmentsViewControlsComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
   let wrapperComponent: TestWrapperComponent;
+  let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
+    const translateSpy = jasmine.createSpyObj('TranslateService', [
+      'get',
+      'instant',
+      'addLangs',
+      'getBrowserLang',
+      'use',
+      'reloadLang',
+      'setDefaultLang',
+      'getDefaultLang',
+      'getLangs',
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [
         TestWrapperComponent,
-        TranslateModule.forRoot()
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
       ],
-      providers: [
-        {
-          provide: TranslateService,
-          useValue: {
-            instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
-            addLangs: () => {},
-            use: () => {},
-            setDefaultLang: () => {},
-            getBrowserLang: () => 'ca'
-          }
-        }
-      ]
+      providers: [{ provide: TranslateService, useValue: translateSpy }],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(TestWrapperComponent);
+    wrapperComponent = fixture.componentInstance;
+    component = fixture.debugElement.children[0].componentInstance;
+    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+
+    // Setup default mock return values
+    translateService.get.and.returnValue(of('translated text'));
+    translateService.instant.and.returnValue('translated text');
+    translateService.addLangs.and.returnValue(undefined);
+    translateService.getBrowserLang.and.returnValue('ca');
+    translateService.use.and.returnValue(of({}));
+    translateService.reloadLang.and.returnValue(of({}));
+    translateService.setDefaultLang.and.returnValue(undefined);
+    translateService.getDefaultLang.and.returnValue('ca');
+    translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
 
     fixture = TestBed.createComponent(TestWrapperComponent);
     wrapperComponent = fixture.componentInstance;

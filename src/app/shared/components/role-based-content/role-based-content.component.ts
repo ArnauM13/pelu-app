@@ -7,7 +7,7 @@ import { UserService } from '../../../core/services/user.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './role-based-content.component.html',
-  styleUrls: ['./role-based-content.component.scss']
+  styleUrls: ['./role-based-content.component.scss'],
 })
 export class RoleBasedContentComponent {
   private userService = inject(UserService);
@@ -35,14 +35,10 @@ export class RoleBasedContentComponent {
     if (this.permissions.length > 0 && currentRole.role === 'admin') {
       if (this.requireAllPermissions) {
         // Requereix tots els permisos
-        return this.permissions.every(permission =>
-          this.userService.hasPermission(permission)
-        );
+        return this.permissions.every(permission => this.userService.hasPermission(permission));
       } else {
         // Requereix almenys un permís
-        return this.permissions.some(permission =>
-          this.userService.hasPermission(permission)
-        );
+        return this.permissions.some(permission => this.userService.hasPermission(permission));
       }
     }
 

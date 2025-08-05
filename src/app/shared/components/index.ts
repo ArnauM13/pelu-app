@@ -11,6 +11,10 @@ export { LoaderComponent } from './loader';
 export { LoaderService } from './loader';
 export type { LoaderConfig } from './loader';
 
+// Footer component
+export { FooterComponent } from './footer';
+export type { FooterConfig, FooterAlert } from './footer';
+
 // Existing components (if any)
 // Add other shared components here as needed
 
@@ -29,9 +33,11 @@ export type { AlertData } from './alert-popup';
 // Input components
 export * from './inputs';
 
+// Button components
+export * from './buttons';
+
 // Service card component
 export { ServiceCardComponent } from './service-card/service-card.component';
-export type { ServiceCardConfig } from './service-card/service-card.component';
 
 // Actions buttons component
 export { ActionsButtonsComponent } from './actions-buttons';
@@ -40,4 +46,3 @@ export type { ActionConfig, ActionContext } from '../../core/services/actions.se
 // Popular badge component
 export { PopularBadgeComponent } from './popular-badge/popular-badge.component';
 export type { PopularBadgeConfig } from './popular-badge/popular-badge.component';
-

@@ -1,6 +1,7 @@
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 
 export interface AlertData {
   title?: string;
@@ -14,46 +15,24 @@ export interface AlertData {
 
 @Component({
   selector: 'pelu-alert-popup',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, PopupDialogComponent],
   template: `
-    @if (isOpen()) {
-      <div class="alert-overlay" (click)="onBackdropClick($event)">
-        <div class="alert-popup" (click)="$event.stopPropagation()">
-          <div class="popup-header">
-            <h3>{{ getTitle() }}</h3>
-            <button class="close-btn" (click)="onCancel()">×</button>
-          </div>
-
-          <div class="popup-body">
-            <div class="alert-icon">
-              {{ getEmoji() }}
-            </div>
-            <p class="alert-message">
-              {{ data()?.message }}
-            </p>
-          </div>
-
-          <div class="popup-footer">
-            @if (data()?.showCancel !== false) {
-              <button
-                class="btn btn-secondary"
-                (click)="onCancel()">
-                {{ getCancelText() }}
-              </button>
-            }
-            <button
-              class="btn"
-              [class]="getConfirmButtonClass()"
-              (click)="onConfirm()">
-              {{ getConfirmText() }}
-            </button>
-          </div>
+    <pelu-popup-dialog
+      [isOpen]="isOpen()"
+      [config]="dialogConfig()"
+      (closed)="onCancel()"
+    >
+      <div class="alert-content">
+        <div class="alert-icon">
+          {{ getEmoji() }}
         </div>
+        <p class="alert-message">
+          {{ data()?.message }}
+        </p>
       </div>
-    }
+    </pelu-popup-dialog>
   `,
-  styleUrls: ['./alert-popup.component.scss']
+  styleUrls: ['./alert-popup.component.scss'],
 })
 export class AlertPopupComponent {
   // Input signals
@@ -67,13 +46,22 @@ export class AlertPopupComponent {
   // Services
   private readonly translateService = inject(TranslateService);
 
-  // Methods
-  onBackdropClick(event: Event) {
-    if (event.target === event.currentTarget) {
-      this.onCancel();
-    }
-  }
+  // Dialog configuration
+  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.getTitle(),
+    size: 'small',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.getConfirmText(),
+        type: 'confirm' as const,
+        action: () => this.onConfirm()
+      }
+    ]
+  }));
 
+  // Methods
   onConfirm() {
     this.confirmed.emit();
   }
@@ -121,7 +109,7 @@ export class AlertPopupComponent {
     }
   }
 
-    getConfirmText(): string {
+  getConfirmText(): string {
     const confirmText = this.data()?.confirmText;
     if (confirmText) return confirmText;
 
@@ -135,19 +123,5 @@ export class AlertPopupComponent {
 
     const translated = this.translateService.instant('COMMON.ACTIONS.NO');
     return translated !== 'COMMON.ACTIONS.NO' ? translated : 'No';
-  }
-
-  getConfirmButtonClass(): string {
-    const severity = this.data()?.severity || 'info';
-    switch (severity) {
-      case 'danger':
-        return 'btn-danger';
-      case 'warning':
-        return 'btn-warning';
-      case 'success':
-        return 'btn-success';
-      default:
-        return 'btn-primary';
-    }
   }
 }

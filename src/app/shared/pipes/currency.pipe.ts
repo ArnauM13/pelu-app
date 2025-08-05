@@ -1,12 +1,12 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { inject, Pipe, PipeTransform } from '@angular/core';
 import { CurrencyService } from '../../core/services/currency.service';
 
 @Pipe({
   name: 'currency',
-  standalone: true
+  standalone: true,
 })
 export class CurrencyPipe implements PipeTransform {
-  constructor(private currencyService: CurrencyService) {}
+  private readonly currencyService = inject(CurrencyService);
 
   transform(value: number | string | null | undefined, currencyCode?: string): string {
     if (value === null || value === undefined || value === '') {

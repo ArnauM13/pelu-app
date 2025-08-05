@@ -8,6 +8,7 @@ import { UserService } from '../../../core/services/user.service';
 export interface ProfileDropdownItem {
   label?: string;
   icon?: string;
+  emoji?: string;
   routerLink?: string;
   onClick?: () => void;
   disabled?: boolean;
@@ -16,12 +17,11 @@ export interface ProfileDropdownItem {
 
 @Component({
   selector: 'pelu-profile-dropdown',
-  standalone: true,
   imports: [CommonModule, RouterModule, TranslateModule, AvatarComponent],
-    template: `
+  template: `
     <div class="profile-dropdown" (click)="toggleDropdown($event)">
       <pelu-avatar [data]="avatarData()" size="medium"></pelu-avatar>
-      <i class="pi pi-chevron-down dropdown-arrow" [class.rotated]="isDropdownOpen()"></i>
+      <span class="dropdown-arrow" [class.rotated]="isDropdownOpen()">▼</span>
 
       <!-- Dropdown Menu -->
       <div class="dropdown-menu" [class.show]="isDropdownOpen()">
@@ -38,22 +38,36 @@ export interface ProfileDropdownItem {
               <div class="dropdown-divider" (click)="closeDropdown()"></div>
             } @else {
               @if (item.routerLink) {
-                <a [routerLink]="item.routerLink"
-                   class="dropdown-item"
-                   [class.danger]="item.type === 'danger'"
-                   [class.disabled]="item.disabled"
-                   (click)="onItemClick(item)">
-                  <i [class]="item.icon || ''"></i>
-                  <span>{{ (item.label || '') | translate }}</span>
+                <a
+                  [routerLink]="item.routerLink"
+                  class="dropdown-item"
+                  [class.danger]="item.type === 'danger'"
+                  [class.disabled]="item.disabled"
+                  (click)="onItemClick(item, $event)"
+                >
+                  @if (item.emoji) {
+                    <span class="item-emoji">{{ item.emoji }}</span>
+                  }
+                  @if (item.icon) {
+                    <i [class]="item.icon"></i>
+                  }
+                  <span>{{ item.label || '' | translate }}</span>
                 </a>
               } @else {
-                <button class="dropdown-item"
-                        [class.danger]="item.type === 'danger'"
-                        [class.disabled]="item.disabled"
-                        [disabled]="item.disabled"
-                        (click)="onItemClick(item)">
-                  <i [class]="item.icon || ''"></i>
-                  <span>{{ (item.label || '') | translate }}</span>
+                <button
+                  class="dropdown-item"
+                  [class.danger]="item.type === 'danger'"
+                  [class.disabled]="item.disabled"
+                  [disabled]="item.disabled"
+                  (click)="onItemClick(item, $event)"
+                >
+                  @if (item.emoji) {
+                    <span class="item-emoji">{{ item.emoji }}</span>
+                  }
+                  @if (item.icon) {
+                    <i [class]="item.icon"></i>
+                  }
+                  <span>{{ item.label || '' | translate }}</span>
                 </button>
               }
             }
@@ -62,7 +76,7 @@ export interface ProfileDropdownItem {
       </div>
     </div>
   `,
-  styleUrls: ['./profile-dropdown.component.scss']
+  styleUrls: ['./profile-dropdown.component.scss'],
 })
 export class ProfileDropdownComponent {
   // Input signals
@@ -90,7 +104,7 @@ export class ProfileDropdownComponent {
       imageUrl: user?.photoURL || undefined,
       name: user?.displayName?.split(' ')[0] || undefined,
       surname: user?.displayName?.split(' ').slice(1).join(' ') || undefined,
-      email: user?.email || undefined
+      email: user?.email || undefined,
     };
   });
 
@@ -98,9 +112,9 @@ export class ProfileDropdownComponent {
     const items: ProfileDropdownItem[] = [
       {
         label: 'NAVIGATION.PROFILE',
-        icon: 'pi pi-user',
-        routerLink: '/perfil'
-      }
+        emoji: '👤',
+        routerLink: '/perfil',
+      },
     ];
 
     // Add admin items if user has admin access and showAdminItems is true
@@ -108,13 +122,13 @@ export class ProfileDropdownComponent {
       items.push(
         {
           label: 'NAVIGATION.ADMIN_DASHBOARD',
-          icon: 'pi pi-chart-bar',
-          routerLink: '/admin/dashboard'
+          emoji: '📊',
+          routerLink: '/admin/dashboard',
         },
         {
           label: 'NAVIGATION.ADMIN_SETTINGS',
-          icon: 'pi pi-cog',
-          routerLink: '/admin/settings'
+          emoji: '⚙️',
+          routerLink: '/admin/settings',
         }
       );
     }
@@ -135,8 +149,13 @@ export class ProfileDropdownComponent {
     this.isDropdownOpenSignal.set(false);
   }
 
-  onItemClick(item: ProfileDropdownItem) {
+  onItemClick(item: ProfileDropdownItem, event?: Event) {
     if (item.disabled) return;
+
+    // Stop event propagation to prevent bubbling
+    if (event) {
+      event.stopPropagation();
+    }
 
     this.closeDropdown();
 

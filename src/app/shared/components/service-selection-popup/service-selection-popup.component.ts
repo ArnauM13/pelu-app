@@ -5,11 +5,15 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
+import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
 import { ToastService } from '../../services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
-import { FirebaseService, FirebaseServicesService } from '../../../core/services/firebase-services.service';
+import {
+  FirebaseService,
+  FirebaseServicesService,
+} from '../../../core/services/firebase-services.service';
 
 export interface ServiceSelectionDetails {
   date: string;
@@ -18,11 +22,8 @@ export interface ServiceSelectionDetails {
   email: string;
 }
 
-
-
 @Component({
   selector: 'pelu-service-selection-popup',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -31,15 +32,17 @@ export interface ServiceSelectionDetails {
     InputTextModule,
     SelectModule,
     TranslateModule,
-    PopularBadgeComponent
+    PopularBadgeComponent,
+    PopupDialogComponent,
   ],
   templateUrl: './service-selection-popup.component.html',
-  styleUrls: ['./service-selection-popup.component.scss']
+  styleUrls: ['./service-selection-popup.component.scss'],
 })
 export class ServiceSelectionPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly serviceTranslationService = inject(ServiceTranslationService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
+  private readonly translateService = inject(TranslateService);
 
   // Input signals
   @Input() set open(value: boolean) {
@@ -50,7 +53,10 @@ export class ServiceSelectionPopupComponent {
   }
 
   // Output events
-  @Output() serviceSelected = new EventEmitter<{details: ServiceSelectionDetails, service: FirebaseService}>();
+  @Output() serviceSelected = new EventEmitter<{
+    details: ServiceSelectionDetails;
+    service: FirebaseService;
+  }>();
   @Output() cancelled = new EventEmitter<void>();
 
   // Internal signals
@@ -59,7 +65,7 @@ export class ServiceSelectionPopupComponent {
     date: '',
     time: '',
     clientName: '',
-    email: ''
+    email: '',
   });
   private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
 
@@ -73,20 +79,32 @@ export class ServiceSelectionPopupComponent {
 
   // Popular services (services with popular flag)
   readonly popularServices = computed(() =>
-    this.availableServices().filter(service => service.popular === true)
+    this.availableServices().filter(service => service.isPopular === true)
   );
 
   // Other services (non-popular services)
   readonly otherServices = computed(() =>
-    this.availableServices().filter(service => service.popular !== true)
+    this.availableServices().filter(service => service.isPopular !== true)
   );
+
+  // Popup dialog configuration
+  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('COMMON.SELECTION.SELECT_SERVICE'),
+    size: 'large',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
+        type: 'confirm' as const,
+        disabled: !this.selectedService(),
+        action: () => this.onConfirm()
+      }
+    ]
+  }));
 
   // Methods
   onServiceSelect(service: FirebaseService): void {
-    this.selectedServiceSignal.set(service);
-  }
-
-  selectService(service: FirebaseService): void {
     this.selectedServiceSignal.set(service);
   }
 
@@ -99,14 +117,13 @@ export class ServiceSelectionPopupComponent {
 
     this.serviceSelected.emit({
       details: this.selectionDetailsComputed(),
-      service: selectedService
+      service: selectedService,
     });
-    this.resetState();
   }
 
   onCancel(): void {
+    this.selectedServiceSignal.set(null);
     this.cancelled.emit();
-    this.resetState();
   }
 
   onBackdropClick(event: Event): void {
@@ -115,44 +132,21 @@ export class ServiceSelectionPopupComponent {
     }
   }
 
-  canConfirm(): boolean {
-    return !!this.selectedService();
-  }
-
-  private resetState(): void {
-    this.selectedServiceSignal.set(null);
-  }
-
-  // Helper methods
-  getServiceName(service: FirebaseService): string {
-    // Use the service translation service to get the translated name
-    return this.serviceTranslationService.translateServiceName(service.name);
-  }
-
-  formatDuration(minutes: number): string {
-    if (minutes < 60) {
-      return `${minutes} min`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (remainingMinutes === 0) {
-      return `${hours}h`;
-    }
-    return `${hours}h ${remainingMinutes}min`;
-  }
-
-  formatPrice(price: number): string {
-    return `${price}€`;
-  }
-
   formatDate(date: string): string {
     if (!date) return '';
-    const dateObj = new Date(date);
-    return dateObj.toLocaleDateString('ca-ES', {
+    return new Date(date).toLocaleDateString('ca-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
+  }
+
+  getServiceName(service: FirebaseService): string {
+    return this.serviceTranslationService.translateServiceName(service.name);
+  }
+
+  getServiceDescription(service: FirebaseService): string {
+    return service.description || this.serviceTranslationService.translateServiceName(service.name);
   }
 }

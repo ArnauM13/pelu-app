@@ -1,37 +1,51 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isToday, isFuture } from 'date-fns';
 import { ca } from 'date-fns/locale';
-import { v4 as uuidv4 } from 'uuid';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { CalendarComponent, AppointmentEvent } from '../../../features/calendar/calendar.component';
+import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
+import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
+import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
-import { FloatingButtonComponent } from '../../../shared/components/floating-button/floating-button.component';
-import { AppointmentStatusBadgeComponent } from '../../../shared/components/appointment-status-badge';
-import { AppointmentsStatsComponent, AppointmentStats } from '../components/appointments-stats/appointments-stats.component';
+import {
+  AppointmentsStatsComponent,
+  AppointmentStats,
+} from '../components/appointments-stats/appointments-stats.component';
 import { AppointmentsListComponent } from '../components/appointments-list/appointments-list.component';
-import { AppointmentsViewControlsComponent, ViewButton } from '../components/appointments-view-controls/appointments-view-controls.component';
+import { AppointmentsViewControlsComponent } from '../components/appointments-view-controls/appointments-view-controls.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
-import { ActionsButtonsComponent } from '../../../shared/components/actions-buttons';
-import { ActionsService, ActionContext } from '../../../core/services/actions.service';
+import { ActionContext } from '../../../core/services/actions.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { BookingService, Booking } from '../../../core/services/booking.service';
-import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigratedAppointments } from '../../../shared/services';
+import { BookingService } from '../../../core/services/booking.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
+import { ToastConfig } from '../../../shared/components/toast/toast.component';
+import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+
+interface FilterState {
+  date: string;
+  client: string;
+  service: string;
+  quickFilter: 'all' | 'today' | 'upcoming' | 'mine';
+}
+
+interface ViewState {
+  mode: 'list' | 'calendar';
+  selectedDate: Date | null;
+}
 
 @Component({
   selector: 'pelu-appointments-page',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -39,20 +53,18 @@ import { isFutureAppointment, migrateOldAppointments, needsMigration, saveMigrat
     ButtonModule,
     TooltipModule,
     TranslateModule,
-    CalendarModule,
+    DatePickerModule,
     CalendarComponent,
     CardComponent,
     FiltersInlineComponent,
-    AppointmentStatusBadgeComponent,
     AppointmentsStatsComponent,
     AppointmentsListComponent,
     AppointmentsViewControlsComponent,
     NextAppointmentComponent,
     LoadingStateComponent,
-    ActionsButtonsComponent
   ],
   templateUrl: './appointments-page.component.html',
-  styleUrls: ['./appointments-page.component.scss']
+  styleUrls: ['./appointments-page.component.scss'],
 })
 export class AppointmentsPageComponent {
   // Inject services
@@ -60,28 +72,39 @@ export class AppointmentsPageComponent {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly appointmentService = inject(BookingService);
-  private readonly actionsService = inject(ActionsService);
+  private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly businessSettingsService = inject(BusinessSettingsService);
 
-    // Core data signals - now using Firebase
+  // Core data
   readonly appointments = this.appointmentService.bookings;
-  private readonly viewModeSignal = signal<'list' | 'calendar'>('list');
-  private readonly selectedDateSignal = signal<Date | null>(null);
+  readonly loading = computed(() => this.appointmentService.isLoading());
 
-  // Filter state signals
-  private readonly filterDateSignal = signal<string>('');
-  private readonly filterClientSignal = signal<string>('');
-  private readonly filterServiceSignal = signal<string>('');
-  private readonly quickFilterSignal = signal<'all' | 'today' | 'upcoming' | 'mine'>('all');
+  // State signals
+  private readonly filterStateSignal = signal<FilterState>({
+    date: '',
+    client: '',
+    service: '',
+    quickFilter: 'all',
+  });
 
-  // Public computed signals - now using Firebase
-  readonly viewMode = computed(() => this.viewModeSignal());
-  readonly selectedDate = computed(() => this.selectedDateSignal());
-  readonly filterDate = computed(() => this.filterDateSignal());
-  readonly filterClient = computed(() => this.filterClientSignal());
-  readonly filterService = computed(() => this.filterServiceSignal());
-  readonly quickFilter = computed(() => this.quickFilterSignal());
+  private readonly viewStateSignal = signal<ViewState>({
+    mode: 'list',
+    selectedDate: null,
+  });
 
-  // Computed view buttons
+  // Public computed signals
+  readonly filterState = computed(() => this.filterStateSignal());
+  readonly viewState = computed(() => this.viewStateSignal());
+  readonly viewMode = computed(() => this.viewState().mode);
+  readonly selectedDate = computed(() => this.viewState().selectedDate);
+
+  // Filter signals
+  readonly filterDate = computed(() => this.filterState().date);
+  readonly filterClient = computed(() => this.filterState().client);
+  readonly filterService = computed(() => this.filterState().service);
+  readonly quickFilter = computed(() => this.filterState().quickFilter);
+
+  // View buttons
   readonly viewButtons = computed(() => [
     {
       icon: '📋',
@@ -89,7 +112,7 @@ export class AppointmentsPageComponent {
       ariaLabel: 'COMMON.LIST_VIEW_LABEL',
       isActive: this.viewMode() === 'list',
       variant: 'primary' as const,
-      size: 'large' as const
+      size: 'large' as const,
     },
     {
       icon: '📅',
@@ -97,315 +120,328 @@ export class AppointmentsPageComponent {
       ariaLabel: 'COMMON.CALENDAR_VIEW_LABEL',
       isActive: this.viewMode() === 'calendar',
       variant: 'primary' as const,
-      size: 'large' as const
-    }
+      size: 'large' as const,
+    },
   ]);
 
-  // Computed filtered appointments - fully reactive
+  // Filtered appointments
   readonly filteredAppointments = computed(() => {
-    let filtered = this.appointments();
-
-    // Apply quick filters
-    switch (this.quickFilter()) {
-      case 'today':
-        const today = format(new Date(), 'yyyy-MM-dd');
-        filtered = filtered.filter(appointment => appointment.data === today);
-        break;
-      case 'upcoming':
-        const now = new Date();
-        filtered = filtered.filter(appointment => {
-          const appointmentDateTime = new Date(appointment.data + 'T' + (appointment.hora || '23:59'));
-          return appointmentDateTime > now;
-        });
-        break;
-      case 'mine':
-        const currentUserId = this.getCurrentUserId();
-        filtered = filtered.filter(appointment => appointment.uid === currentUserId);
-        break;
-      default:
-        break;
-    }
-
-    // Apply date filter
-    if (this.filterDate()) {
-      const filterDateStr = this.filterDate();
-      filtered = filtered.filter(appointment => appointment.data === filterDateStr);
-    }
-
-    // Apply client name filter
-    if (this.filterClient()) {
-      const searchTerm = this.filterClient().toLowerCase();
-      filtered = filtered.filter(appointment =>
-        (appointment.nom || '').toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Apply service filter
-    if (this.filterService()) {
-      const serviceFilter = this.filterService();
-      filtered = filtered.filter(appointment => {
-        const serviceName = appointment.serviceName || '';
-        const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
-        return serviceColor.id === serviceFilter;
-      });
-    }
-
-    // Sort by date and time
-    return filtered.sort((a, b) => {
-      // Create dates in local timezone to avoid UTC conversion issues
-      const createLocalDateTime = (dateStr: string, timeStr: string) => {
-        const [hours, minutes] = (timeStr || '00:00').split(':').map(Number);
-        const date = new Date(dateStr);
-        date.setHours(hours, minutes, 0, 0);
-        return date;
-      };
-
-      const dateA = createLocalDateTime(a.data || '', a.hora || '00:00');
-      const dateB = createLocalDateTime(b.data || '', b.hora || '00:00');
-      return dateA.getTime() - dateB.getTime();
-    });
+    let appointments = this.appointments();
+    appointments = this.applyQuickFilter(appointments);
+    appointments = this.applyDateFilter(appointments);
+    appointments = this.applyClientFilter(appointments);
+    appointments = this.applyServiceFilter(appointments);
+    return this.sortAppointmentsByDateTime(appointments);
   });
 
-  // Computed calendar events
+  // Calendar events
   readonly calendarEvents = computed((): AppointmentEvent[] => {
     return this.appointments().map(appointment => ({
-      id: appointment.id || `appointment-${Date.now()}-${Math.random()}`,
-      title: appointment.nom || 'Client',
-      start: (appointment.data || '') + (appointment.hora ? 'T' + appointment.hora : 'T00:00'),
-      duration: appointment.duration || 60,
-      serviceName: appointment.serviceName || '',
-      clientName: appointment.nom || 'Client'
+      id: appointment.id || '',
+      title: appointment.clientName || 'Appointment',
+      start: (appointment.data || '') + 'T' + (appointment.hora || '00:00'),
+      duration: 60, // Will be fetched from service service
+      serviceName: 'Service', // Will be fetched from service service
+      clientName: appointment.clientName || 'Client',
+      isPublicBooking: false,
+      isOwnBooking: true,
+      canDrag: true,
+      canViewDetails: true,
     }));
   });
 
-  // Computed statistics
-  readonly totalAppointments = computed(() => this.appointments().length);
-  readonly todayAppointments = computed(() => {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    return this.appointments().filter(appointment => appointment.data === today).length;
-  });
-  readonly upcomingAppointments = computed(() => {
-    const now = new Date();
-    return this.appointments().filter(appointment => {
-      // Create date in local timezone to avoid UTC conversion issues
-      const [hours, minutes] = (appointment.hora || '23:59').split(':').map(Number);
-      const appointmentDateTime = new Date(appointment.data || '');
-      appointmentDateTime.setHours(hours, minutes, 0, 0);
-      return appointmentDateTime > now;
-    }).length;
-  });
-  readonly myAppointments = computed(() => {
-    const currentUserId = this.getCurrentUserId();
-          return this.appointments().filter(appointment => appointment.uid === currentUserId).length;
-  });
+  // Calendar footer configuration
+  readonly calendarFooterConfig = computed((): FooterConfig => {
+    const today = new Date();
+    const isWeekend = today.getDay() === 0 || today.getDay() === 6;
+    const businessHours = this.businessSettingsService.getBusinessHours();
+    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
 
-  readonly hasActiveFilters = computed(() =>
-    this.filterDate() !== '' || this.filterClient() !== '' || this.filterService() !== '' || this.quickFilter() !== 'all'
-  );
-
-  // Computed appointment stats for the stats component
-  readonly appointmentStats = computed((): AppointmentStats => ({
-    total: this.totalAppointments(),
-    today: this.todayAppointments(),
-    upcoming: this.upcomingAppointments(),
-    mine: this.myAppointments()
-  }));
-
-  // Loading state
-  readonly loading = computed(() => this.appointmentService.isLoading());
-
-  readonly isFutureAppointment = isFutureAppointment;
-
-  get loadingConfig() {
     return {
-      message: 'COMMON.STATUS.LOADING',
-      spinnerSize: 'large' as const,
-      showMessage: true,
-      fullHeight: true,
-      overlay: true
+      showInfoNote: false, // Disabled since info note is now in header
+      showBusinessHours: true,
+      businessHours: {
+        start: businessHours.start,
+        end: businessHours.end
+      },
+      lunchBreak: {
+        start: lunchBreak.start,
+        end: lunchBreak.end
+      },
+      isWeekend: isWeekend,
+      showWeekendInfo: true,
+      variant: 'default',
+      theme: 'light',
     };
+  });
+
+  // Appointment statistics
+  readonly appointmentStats = computed((): AppointmentStats => {
+    const appointments = this.appointments();
+    const today = format(new Date(), 'yyyy-MM-dd');
+
+    return {
+      total: appointments.length,
+      today: appointments.filter(app => app.data === today).length,
+      upcoming: appointments.filter(app => {
+        if (!app.data) return false;
+        const appointmentDate = parseISO(app.data);
+        return isFuture(appointmentDate);
+      }).length,
+      mine: appointments.filter(app => app.email === this.authService.user()?.email).length,
+    };
+  });
+
+  // Check if there are active filters
+  readonly hasActiveFilters = computed(() => {
+    const state = this.filterState();
+    return state.date !== '' || state.client !== '' || state.service !== '' || state.quickFilter !== 'all';
+  });
+
+  // Filter methods
+  private applyQuickFilter(appointments: Booking[]): Booking[] {
+    switch (this.quickFilter()) {
+      case 'today': {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        return appointments.filter(appointment => appointment.data === today);
+      }
+      case 'upcoming': {
+        return appointments.filter(appointment => {
+          if (!appointment.data) return false;
+          const appointmentDate = parseISO(appointment.data);
+          return isFuture(appointmentDate);
+        });
+      }
+      case 'mine': {
+        const currentUserEmail = this.authService.user()?.email;
+        return appointments.filter(appointment => appointment.email === currentUserEmail);
+      }
+      default:
+        return appointments;
+    }
   }
 
-    constructor(private serviceColorsService: ServiceColorsService) {
-    // Removed localStorage loading - now using Firebase
+  private applyDateFilter(appointments: Booking[]): Booking[] {
+    const filterDate = this.filterDate();
+    if (!filterDate) return appointments;
+    return appointments.filter(appointment => appointment.data === filterDate);
   }
 
-  // Public methods for template binding
-  readonly setFilterDate = (value: string) => this.filterDateSignal.set(value);
-  readonly setFilterClient = (value: string) => this.filterClientSignal.set(value);
-  readonly setFilterService = (value: string) => this.filterServiceSignal.set(value);
+  private applyClientFilter(appointments: Booking[]): Booking[] {
+    const filterClient = this.filterClient();
+    if (!filterClient) return appointments;
+    const searchTerm = filterClient.toLowerCase();
+    return appointments.filter(appointment =>
+      (appointment.clientName || '').toLowerCase().includes(searchTerm)
+    );
+  }
+
+  private applyServiceFilter(appointments: Booking[]): Booking[] {
+    const filterService = this.filterService();
+    if (!filterService) return appointments;
+    return appointments.filter(appointment => appointment.data === filterService);
+  }
+
+  private sortAppointmentsByDateTime(appointments: Booking[]): Booking[] {
+    return appointments.sort((a, b) => {
+      const createLocalDateTime = (dateStr: string, timeStr: string) => {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const [hour, minute] = timeStr.split(':').map(Number);
+        return new Date(year, month - 1, day, hour, minute);
+      };
+
+      const dateTimeA = createLocalDateTime(a.data || '', a.hora || '00:00');
+      const dateTimeB = createLocalDateTime(b.data || '', b.hora || '00:00');
+      return dateTimeB.getTime() - dateTimeA.getTime();
+    });
+  }
+
+  // Action methods
+  readonly setFilterDate = (value: string) => {
+    this.filterStateSignal.update(state => ({ ...state, date: value }));
+  };
+
+  readonly setFilterClient = (value: string) => {
+    this.filterStateSignal.update(state => ({ ...state, client: value }));
+  };
+
+  readonly setFilterService = (value: string) => {
+    this.filterStateSignal.update(state => ({ ...state, service: value }));
+  };
+
   readonly setQuickFilter = (filter: 'all' | 'today' | 'upcoming' | 'mine') => {
-    if (this.quickFilter() === filter) {
-      this.quickFilterSignal.set('all');
-    } else {
-      this.quickFilterSignal.set(filter);
-    }
+    this.filterStateSignal.update(state => ({ ...state, quickFilter: filter }));
   };
-  readonly setViewMode = (mode: 'list' | 'calendar') => this.viewModeSignal.set(mode);
+
+  readonly setViewMode = (mode: 'list' | 'calendar') => {
+    this.viewStateSignal.update(state => ({ ...state, mode }));
+  };
+
   readonly clearAllFilters = () => {
-    this.filterDateSignal.set('');
-    this.filterClientSignal.set('');
-    this.filterServiceSignal.set('');
-    this.quickFilterSignal.set('all');
+    this.filterStateSignal.set({
+      date: '',
+      client: '',
+      service: '',
+      quickFilter: 'all',
+    });
   };
 
-  // Removed localStorage loading - now using Firebase
-
-  async deleteAppointment(appointment: any): Promise<void> {
-    if (!isFutureAppointment({ data: appointment.data || '', hora: appointment.hora || '' })) {
-      this.toastService.showError('No es pot eliminar una cita passada');
-      return;
-    }
-
-          const success = await this.appointmentService.deleteBooking(appointment.id);
-
-    if (success) {
-      // Show success message with better fallback for client name
-      const clientName = appointment.nom || appointment.title || appointment.clientName || 'Client';
-      this.toastService.showAppointmentDeleted(clientName);
+  // Appointment actions
+  async deleteAppointment(appointment: AppointmentEvent): Promise<void> {
+    try {
+      const originalBooking = this.findOriginalBooking(appointment);
+      if (originalBooking) {
+        await this.appointmentService.deleteBooking(originalBooking.id || '');
+        this.toastService.showAppointmentDeleted(originalBooking.clientName || '');
+      }
+      window.dispatchEvent(new CustomEvent('appointmentDeleted'));
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
     }
   }
 
-  editAppointment(appointment: any): void {
-    const user = this.authService.user();
-    if (!user?.uid) {
-      this.toastService.showError('No s\'ha pogut editar la cita. Si us plau, inicia sessió.');
-      return;
-    }
-
-    // Si l'appointment té editToken, l'usem directament
-    if (appointment.editToken) {
-      this.router.navigate(['/appointments', appointment.id], {
-        queryParams: {
-          token: appointment.editToken,
-          edit: 'true'
-        }
+  editAppointment(appointment: AppointmentEvent): void {
+    const originalBooking = this.findOriginalBooking(appointment);
+    if (originalBooking) {
+      this.router.navigate(['/appointments', originalBooking.id], {
+        queryParams: { edit: 'true' }
       });
-    } else {
-      // Fallback: generem un ID únic combinant clientId i appointmentId
-      const clientId = user.uid;
-      const uniqueId = `${clientId}-${appointment.id}`;
-
-      // Naveguem a la pàgina de detall en mode edició
-      this.router.navigate(['/appointments', uniqueId], { queryParams: { edit: 'true' } });
     }
   }
 
-  // Removed localStorage saving - now using Firebase
+  // List actions (for Booking objects)
+  async deleteBookingFromList(booking: Booking): Promise<void> {
+    try {
+      if (booking.id) {
+        await this.appointmentService.deleteBooking(booking.id);
+        this.toastService.showAppointmentDeleted(booking.clientName || '');
+        window.dispatchEvent(new CustomEvent('appointmentDeleted'));
+      }
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
+    }
+  }
 
+  editBookingFromList(booking: Booking): void {
+    if (booking.id) {
+      this.router.navigate(['/appointments', booking.id], {
+        queryParams: { edit: 'true' }
+      });
+    }
+  }
+
+  private findOriginalBooking(appointmentEvent: AppointmentEvent): Booking | null {
+    return this.appointments().find(booking =>
+      booking.id === appointmentEvent.id ||
+      (booking.data + 'T' + (booking.hora || '00:00')) === appointmentEvent.start
+    ) || null;
+  }
+
+  // Utility methods
   formatDate(dateString: string): string {
     try {
       const date = parseISO(dateString);
-      return format(date, 'EEEE, d \'de\' MMMM \'de\' yyyy', { locale: ca });
+      return format(date, 'EEEE, d MMMM yyyy', { locale: ca });
     } catch {
       return dateString;
     }
   }
 
   formatTime(timeString: string): string {
-    if (!timeString) return '';
-    return timeString;
+    return timeString || '--:--';
   }
 
-  isToday(dateString: string): boolean {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    return dateString === today;
+  isToday(dateString: string | undefined): boolean {
+    if (!dateString) return false;
+    try {
+      const date = parseISO(dateString);
+      return isToday(date);
+    } catch {
+      return false;
+    }
   }
 
   isPast(dateString: string): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const appointmentDate = new Date(dateString);
-    return appointmentDate < today;
+    try {
+      const date = parseISO(dateString);
+      return !isFuture(date);
+    } catch {
+      return false;
+    }
   }
 
-  onDateSelect(event: any): void {
-    this.selectedDateSignal.set(event);
-    const selectedDateStr = format(event, 'yyyy-MM-dd');
-    this.filterDateSignal.set(selectedDateStr);
+  onDateSelect(event: { date: Date }): void {
+    if (event && event.date) {
+      const formattedDate = format(event.date, 'yyyy-MM-dd');
+      this.setFilterDate(formattedDate);
+    }
   }
 
   getEventColor(dateString: string): string {
     if (this.isToday(dateString)) {
-      return '#3b82f6';
-    } else if (this.isPast(dateString)) {
-      return '#6b7280';
-    } else {
-      return '#10b981';
+      return this.serviceColorsService.getTodayColor();
     }
+    if (this.isPast(dateString)) {
+      return this.serviceColorsService.getPastColor();
+    }
+    return this.serviceColorsService.getFutureColor();
   }
 
-  getAppointmentsForDate(date: Date): any[] {
-    if (!date || isNaN(date.getTime())) {
-      return [];
-    }
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return this.appointments().filter(appointment => appointment.data === dateStr);
+  getAppointmentsForDate(date: Date): Booking[] {
+    const dateString = format(date, 'yyyy-MM-dd');
+    const appointmentsForDate = this.appointments().filter(appointment => appointment.data === dateString);
+    return this.sortAppointmentsByDateTime(appointmentsForDate);
   }
 
   formatDateForDisplay(date: Date): string {
-    return format(date, 'yyyy-MM-dd');
+    return format(date, 'EEEE, d MMMM', { locale: ca });
   }
 
   private getCurrentUserId(): string {
-    const currentUser = this.authService.user();
-    if (!currentUser?.uid) {
-      throw new Error('No hi ha usuari autenticat');
-    }
-    return currentUser.uid;
+    return this.authService.user()?.uid || '';
   }
 
-  showToast(severity: 'success' | 'error' | 'info' | 'warn', summary: string, detail: string, appointmentId?: string, showViewButton: boolean = false) {
-    this.toastService.showToast(severity, summary, detail, appointmentId, showViewButton);
+  showToast(config: ToastConfig) {
+    this.toastService.showToast(config);
   }
 
-  onToastClick(event: any) {
-    const appointmentId = event.message?.data?.appointmentId;
-    if (appointmentId) {
-      const user = this.authService.user();
-      if (!user?.uid) {
-        return;
-      }
-
-      // Generem un ID únic combinant clientId i appointmentId
-      const clientId = user.uid;
-      const uniqueId = `${clientId}-${appointmentId}`;
-
-      this.router.navigate(['/appointments', uniqueId]);
+  onToastClick(event: { message?: { data?: { appointmentId?: string } } }) {
+    if (event.message?.data?.appointmentId) {
+      this.viewAppointmentDetail(event.message.data.appointmentId);
     }
   }
 
-  viewAppointmentDetail(appointmentOrId: string | any) {
+  viewAppointmentDetail(appointmentOrId: string | Booking) {
     let appointmentId: string;
 
     if (typeof appointmentOrId === 'string') {
       appointmentId = appointmentOrId;
-    } else if (appointmentOrId && appointmentOrId.id) {
-      appointmentId = appointmentOrId.id;
     } else {
-      return;
+      appointmentId = appointmentOrId.id || '';
     }
 
-    const user = this.authService.user();
-    if (!user?.uid) {
-      return;
-    }
-
-    // Generem un ID únic combinant clientId i appointmentId
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointmentId}`;
-
-    this.router.navigate(['/appointments', uniqueId]);
+    this.router.navigate(['/appointments', appointmentId]);
   }
 
   getActionContext(appointment: Booking): ActionContext {
     return {
       type: 'appointment',
       item: appointment,
-      onEdit: () => this.editAppointment(appointment),
-      onDelete: () => this.deleteAppointment(appointment),
-      onView: () => this.viewAppointmentDetail(appointment)
+      permissions: {
+        canEdit: true,
+        canDelete: true,
+        canView: true,
+      },
+    };
+  }
+
+  get loadingConfig() {
+    return {
+      message: 'CARGANT.CITAS',
+      showSpinner: true,
+      overlay: false,
     };
   }
 }
-

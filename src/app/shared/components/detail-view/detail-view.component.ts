@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, input, output, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,13 +13,16 @@ import { NotFoundStateComponent } from '../not-found-state/not-found-state.compo
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
-import { InputNumberComponent } from '../inputs/input-number/input-number.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { ActionsButtonsComponent } from '../actions-buttons';
-import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { ButtonComponent } from '../buttons/button.component';
+import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
+import { ServicesService } from '../../../core/services/services.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
-
+import { BookingValidationService } from '../../../core/services/booking-validation.service';
+import { User } from '../../../core/interfaces/user.interface';
+import { Booking, BookingForm } from '../../../core/interfaces/booking.interface';
 
 export interface DetailAction {
   label: string;
@@ -32,22 +35,32 @@ export interface DetailAction {
 
 export interface InfoSection {
   title: string;
-  items: any[];
+  items: InfoItemData[];
   isEditing?: boolean;
   onEdit?: () => void;
-  onSave?: (data: any) => void;
+  onSave?: (data: Record<string, unknown>) => void;
   onCancel?: () => void;
+}
+
+export interface InfoItemData {
+  icon: string;
+  label: string;
+  value: string;
+  isEditable?: boolean;
+  field?: keyof BookingForm;
+  type?: 'text' | 'date' | 'time' | 'select';
+  options?: { label: string; value: string }[];
 }
 
 export interface DetailViewConfig {
   type: 'profile' | 'appointment';
   loading: boolean;
   notFound: boolean;
-  user?: any;
-  appointment?: any;
+  user?: User;
+  appointment?: Booking;
   infoSections: InfoSection[];
   actions: DetailAction[];
-  editForm?: any;
+  editForm?: BookingForm;
   isEditing?: boolean;
   hasChanges?: boolean;
   canSave?: boolean;
@@ -55,7 +68,6 @@ export interface DetailViewConfig {
 
 @Component({
   selector: 'pelu-detail-view',
-  standalone: true,
   imports: [
     CommonModule,
     TranslateModule,
@@ -69,107 +81,97 @@ export interface DetailViewConfig {
     RouterModule,
     InputTextComponent,
     InputTextareaComponent,
-    InputNumberComponent,
     InputDateComponent,
-    ActionsButtonsComponent
+    ActionsButtonsComponent,
+    ButtonComponent,
   ],
   templateUrl: './detail-view.component.html',
-  styleUrls: ['./detail-view.component.scss']
+  styleUrls: ['./detail-view.component.scss'],
 })
-export class DetailViewComponent implements OnChanges {
-  @Input() config!: DetailViewConfig;
-  @Output() back = new EventEmitter<void>();
-  @Output() edit = new EventEmitter<void>();
-  @Output() save = new EventEmitter<any>();
-  @Output() cancelEdit = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
-  @Output() updateForm = new EventEmitter<{ field: string; value: any }>();
+export class DetailViewComponent {
+  // Input signals
+  readonly config = input<DetailViewConfig>();
+  readonly appointmentId = input<string | null>(null);
 
-    constructor(
-    private router: Router,
-    private serviceColorsService: ServiceColorsService,
-    private toastService: ToastService,
-    private actionsService: ActionsService
-  ) {}
+  // Output signals
+  readonly back = output<void>();
+  readonly edit = output<void>();
+  readonly save = output<BookingForm>();
+  readonly cancelEdit = output<void>();
+  readonly delete = output<void>();
+  readonly updateForm = output<{ field: string; value: string | number }>();
 
-  ngOnChanges(changes: SimpleChanges) {
-    // Loading state now handled by LoadingStateComponent in template
-  }
+  // Inject services
+  #router = inject(Router);
+  #appointmentManagementService = inject(AppointmentManagementService);
+  #servicesService = inject(ServicesService);
+  #toastService = inject(ToastService);
+  #actionsService = inject(ActionsService);
+  #bookingValidationService = inject(BookingValidationService);
 
-  // Helper getters for template
-  get type() { return this.config?.type; }
-  get loading() { return this.config?.loading; }
-  get notFound() { return this.config?.notFound; }
-  get user() { return this.config?.user; }
-  get appointment() { return this.config?.appointment; }
-  get infoSections() { return this.config?.infoSections || []; }
-  get actions() { return this.config?.actions || []; }
-  get filteredActions() {
-    return this.actions.filter(action =>
-      action.label !== 'COMMON.ACTIONS.BACK' &&
-      action.label !== 'Back' &&
-      action.label !== 'Tornar endarrere'
+  // Computed properties from service
+  readonly appointment = this.#appointmentManagementService.appointment;
+  readonly service = this.#appointmentManagementService.service;
+  readonly isLoading = this.#appointmentManagementService.isLoading;
+  readonly isEditing = this.#appointmentManagementService.isEditing;
+  readonly hasChanges = this.#appointmentManagementService.hasChanges;
+  readonly canEdit = this.#appointmentManagementService.canEdit;
+  readonly canDelete = this.#appointmentManagementService.canDelete;
+  readonly availableTimeSlots = this.#appointmentManagementService.availableTimeSlots;
+  readonly availableServices = this.#appointmentManagementService.availableServices;
+
+  // Computed properties for template
+  readonly type = computed(() => this.config()?.type || 'appointment');
+  readonly notFound = computed(() => this.config()?.notFound || false);
+  readonly user = computed(() => this.config()?.user);
+  readonly actions = computed(() => this.config()?.actions || []);
+  readonly infoSections = computed(() => this.config()?.infoSections || []);
+
+  readonly filteredActions = computed(() => {
+    return this.actions().filter(
+      action =>
+        action.label !== 'COMMON.ACTIONS.BACK' &&
+        action.label !== 'Back' &&
+        action.label !== 'Tornar endarrere'
     );
-  }
+  });
 
-    get hasAvailableActions() {
+  readonly hasAvailableActions = computed(() => {
     // No mostrar accions si estem en mode edició
-    if (this.isEditing) return false;
+    if (this.isEditing()) return false;
 
     // Comprovar si hi ha accions generals disponibles (excloent el botó de tornar)
-    const hasGeneralActions = this.filteredActions.length > 0;
+    const hasGeneralActions = this.filteredActions().length > 0;
 
     // Comprovar si hi ha accions específiques de cites disponibles
-    const hasAppointmentActions = this.type === 'appointment' &&
-                                 this.appointment &&
-                                 (this.canEditAppointment() || this.canDeleteAppointment());
+    const hasAppointmentActions =
+      this.type() === 'appointment' &&
+      this.appointment() &&
+      (this.canEdit() || this.canDelete());
 
     // Mostrar la columna d'accions només si hi ha accions generals O accions específiques de cites
     return hasGeneralActions || hasAppointmentActions;
-  }
+  });
 
-  // Mètode per verificar si hi ha accions específiques de cites
-  get hasAppointmentActions(): boolean {
-    return this.type === 'appointment' &&
-           this.appointment &&
-           (this.canEditAppointment() || this.canDeleteAppointment());
-  }
+  readonly hasAppointmentActions = computed(() => {
+    return (
+      this.type() === 'appointment' &&
+      this.appointment() &&
+      (this.canEdit() || this.canDelete())
+    );
+  });
 
-  // Mètode per verificar si hi ha accions generals
-  get hasGeneralActions(): boolean {
-    return this.filteredActions.length > 0;
-  }
-  get editForm() { return this.config?.editForm || {}; }
-  get isEditing() { return this.config?.isEditing; }
-  get hasChanges() { return this.config?.hasChanges; }
-  get canSave() { return this.config?.canSave; }
+  readonly hasGeneralActions = computed(() => {
+    return this.filteredActions().length > 0;
+  });
 
-  // Action context for the actions service
-  get actionContext(): ActionContext | null {
-    if (this.type === 'appointment' && this.appointment) {
-      return {
-        type: 'appointment',
-        item: this.appointment,
-        permissions: {
-          canEdit: this.canEditAppointment(),
-          canDelete: this.canDeleteAppointment(),
-          canView: false // Disable view action in detail view
-        },
-        onEdit: () => this.onEdit(),
-        onDelete: () => this.onDelete(),
-        onView: () => this.onBack()
-      };
-    }
-    return null;
-  }
-
-  // Profile specific
-  get avatarData() {
-    const user = this.user;
+  // Profile specific computed properties
+  readonly avatarData = computed(() => {
+    const user = this.user();
     if (!user) return null;
 
     // Parse displayName to separate name and surname
-    const displayName = user.displayName || '';
+    const displayName = (user as User & { displayName?: string }).displayName || '';
     const nameParts = displayName.split(' ');
     const name = nameParts[0] || '';
     const surname = nameParts.slice(1).join(' ') || '';
@@ -177,26 +179,28 @@ export class DetailViewComponent implements OnChanges {
     return {
       name: name,
       surname: surname,
-      email: user.email,
-      imageUrl: user.photoURL
+      email: user.email || '',
+      imageUrl: (user as User & { photoURL?: string }).photoURL || '',
     };
-  }
+  });
 
-  get displayName() {
-    const user = this.user;
-    return user?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
-  }
+  readonly displayName = computed(() => {
+    const user = this.user();
+    return (user as User & { displayName?: string })?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
+  });
 
-  get email() {
-    return this.user?.email || 'COMMON.NOT_AVAILABLE';
-  }
+  readonly email = computed(() => {
+    return this.user()?.email || 'COMMON.NOT_AVAILABLE';
+  });
 
-  // Appointment specific
-  get statusBadge() {
-    const appointment = this.appointment;
+  // Appointment specific computed properties
+  readonly statusBadge = computed(() => {
+    const appointment = this.appointment();
     if (!appointment) return { text: '', class: '' };
+
     const today = new Date();
     const appointmentDate = new Date(appointment.data);
+
     if (appointmentDate.toDateString() === today.toDateString()) {
       return { text: 'COMMON.TIME.TODAY', class: 'today' };
     } else if (appointmentDate < today) {
@@ -204,116 +208,145 @@ export class DetailViewComponent implements OnChanges {
     } else {
       return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
     }
-  }
+  });
 
-  // Not found states
-  get notFoundConfig() {
-    return {
-      icon: this.type === 'profile' ? '👤' : '📅',
-      title: this.type === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
-      message: this.type === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
-      buttonText: 'COMMON.ACTIONS.BACK',
-      showButton: true
-    };
-  }
-
-  get loadingConfig() {
-    return {
-      message: 'COMMON.LOADING',
-      spinnerSize: 'large' as const,
-      showMessage: true,
-      fullHeight: true,
-      overlay: true
-    };
-  }
-
-  // View transitions and toast keys
-  get viewTransitionName() { return `${this.type}-container`; }
-  get cardTransitionName() { return `${this.type}-card`; }
-  get contentTransitionName() { return `${this.type}-content`; }
-  get toastKey() { return `${this.type}-detail-toast`; }
-
-    // Service color gradient for appointment detail page
-  get serviceGradient(): string {
-    if (this.type !== 'appointment' || !this.appointment) {
+  // Service color gradient for appointment detail page
+  readonly serviceGradient = computed(() => {
+    if (this.type() !== 'appointment' || !this.appointment()) {
       return 'linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color-light) 100%)';
     }
 
-    const serviceName = this.appointment.serviceName || this.appointment.servei || '';
-    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+    const service = this.service();
+    if (!service) {
+      return 'linear-gradient(135deg, #ffffff 0%, var(--service-default-bg) 100%)';
+    }
 
-    // Create gradient from white to service color
+    const serviceColor = this.#servicesService.getServiceColor(service);
     return `linear-gradient(135deg, #ffffff 0%, ${serviceColor.backgroundColor} 100%)`;
-  }
+  });
 
   // Service color gradient for appointment header
-  getAppointmentHeaderGradient(): string {
-    if (this.type !== 'appointment' || !this.appointment) {
+  readonly appointmentHeaderGradient = computed(() => {
+    if (this.type() !== 'appointment' || !this.appointment()) {
       return 'var(--gradient-header-detail)';
     }
 
-    const serviceName = this.appointment.serviceName || this.appointment.servei || '';
-    const serviceColor = this.serviceColorsService.getServiceColor(serviceName);
+    const service = this.service();
+    if (!service) {
+      return 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, var(--service-default-bg) 100%)';
+    }
 
-    // Create gradient from white to service color with more opacity
+    const serviceColor = this.#servicesService.getServiceColor(service);
     return `linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, ${serviceColor.backgroundColor} 100%)`;
+  });
+
+  // Not found states
+  readonly notFoundConfig = computed(() => {
+    return {
+      icon: this.type() === 'profile' ? '👤' : '📅',
+      title: this.type() === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
+      message: this.type() === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
+      buttonText: 'COMMON.ACTIONS.BACK',
+      showButton: true,
+    };
+  });
+
+  readonly loadingConfig = computed(() => {
+    return {
+      message: 'COMMON.STATUS.LOADING',
+      spinnerSize: 'large' as const,
+      showMessage: true,
+      fullHeight: true,
+      overlay: true,
+    };
+  });
+
+  // View transitions and toast keys
+  readonly viewTransitionName = computed(() => `${this.type()}-container`);
+  readonly cardTransitionName = computed(() => `${this.type()}-card`);
+  readonly contentTransitionName = computed(() => `${this.type()}-content`);
+  readonly toastKey = computed(() => `${this.type()}-detail-toast`);
+
+  // Action context for the actions service
+  readonly actionContext = computed<ActionContext | null>(() => {
+    if (this.type() === 'appointment' && this.appointment()) {
+      return {
+        type: 'appointment',
+        item: this.appointment()!,
+        permissions: {
+          canEdit: this.canEdit(),
+          canDelete: this.canDelete(),
+          canView: false, // Disable view action in detail view
+        },
+        onEdit: () => this.onEdit(),
+        onDelete: () => this.onDelete(),
+        onView: () => this.onBack(),
+      };
+    }
+    return null;
+  });
+
+  constructor() {
+    // Load appointment when component initializes
+    effect(() => {
+      const appointmentId = this.appointmentId();
+      if (appointmentId) {
+        this.#appointmentManagementService.loadAppointment(appointmentId);
+      }
+    });
   }
 
   // Event handlers
-  onBack() { this.back.emit(); }
-  onEdit() { this.edit.emit(); }
-  onSave() { this.save.emit(this.editForm); }
-  onCancelEdit() { this.cancelEdit.emit(); }
-  onDelete() { this.delete.emit(); }
-  onUpdateForm(field: string, value: any) { this.updateForm.emit({ field, value }); }
-
-  // Appointment action checks
-  canEditAppointment(): boolean {
-    if (this.type !== 'appointment' || !this.appointment) return false;
-
-    // Verificar que és una cita futura
-    const appointmentDate = new Date(this.appointment.data);
-    const appointmentTime = this.appointment.hora;
-    const now = new Date();
-
-    // Crear data completa de la cita
-    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
-    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-    return appointmentDate > now;
+  onBack(): void {
+    this.back.emit();
+    this.#appointmentManagementService.goBack();
   }
 
-  canDeleteAppointment(): boolean {
-    if (this.type !== 'appointment' || !this.appointment) return false;
-
-    // Verificar que és una cita futura
-    const appointmentDate = new Date(this.appointment.data);
-    const appointmentTime = this.appointment.hora;
-    const now = new Date();
-
-    // Crear data completa de la cita
-    const [hours, minutes] = appointmentTime ? appointmentTime.split(':') : ['0', '0'];
-    appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-    return appointmentDate > now;
+  onEdit(): void {
+    this.edit.emit();
+    this.#appointmentManagementService.startEditing();
   }
 
-  // Notes editing methods
-  private editingNotes: any[] = [];
-
-  onUpdateNote(index: number, value: string) {
-    this.editingNotes[index] = value;
-  }
-
-  onSaveNotes(section: InfoSection) {
-    if (section.onSave) {
-      const updatedNotes = section.items.map((item, index) => ({
-        ...item,
-        value: this.editingNotes[index] || item.value
-      }));
-      section.onSave({ notes: updatedNotes });
-      this.editingNotes = [];
+  onSave(): void {
+    const appointment = this.appointment();
+    if (appointment) {
+      this.save.emit({
+        clientName: appointment.clientName || '',
+        email: appointment.email || '',
+        data: appointment.data || '',
+        hora: appointment.hora || '',
+        serviceId: appointment.serviceId || '',
+        notes: appointment.notes || ''
+      });
     }
+    // Remove duplicate saveAppointment call - let the parent component handle it
+    // this.#appointmentManagementService.saveAppointment();
+  }
+
+  onCancelEdit(): void {
+    this.cancelEdit.emit();
+    this.#appointmentManagementService.cancelEditing();
+  }
+
+  onDelete(): void {
+    this.delete.emit();
+    this.#appointmentManagementService.deleteAppointment();
+  }
+
+  onUpdateForm(field: string, value: string | number | Date | null): void {
+    // Convert Date to string if needed
+    let processedValue: string | number;
+
+    if (value instanceof Date) {
+      processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+    } else if (value === null) {
+      processedValue = '';
+    } else {
+      processedValue = value;
+    }
+
+    this.updateForm.emit({ field, value: processedValue });
+    this.#appointmentManagementService.updateForm(field as keyof BookingForm, processedValue);
   }
 
   // Utility methods
@@ -323,7 +356,7 @@ export class DetailViewComponent implements OnChanges {
     return date.toLocaleDateString('ca-ES', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -333,13 +366,14 @@ export class DetailViewComponent implements OnChanges {
   }
 
   // Toast methods
-  onToastClick(event: any) {
-    if (event.data?.showViewButton && event.data?.appointmentId) {
-      this.viewAppointmentDetail(event.data.appointmentId);
+  onToastClick(event: Record<string, unknown>): void {
+    const eventData = event['data'] as { showViewButton?: boolean; appointmentId?: string };
+    if (eventData?.showViewButton && eventData?.appointmentId) {
+      this.viewAppointmentDetail(eventData.appointmentId);
     }
   }
 
-  viewAppointmentDetail(appointmentId: string) {
-    this.router.navigate(['/appointments', appointmentId]);
+  viewAppointmentDetail(appointmentId: string): void {
+    this.#appointmentManagementService.navigateToAppointment(appointmentId);
   }
 }

@@ -2,18 +2,26 @@
   <!-- Hero Section -->
   <section class="hero-section" style="view-transition-name: hero-section">
     <div class="hero-content">
-      <h1 class="hero-title" style="view-transition-name: hero-title">{{ 'LANDING.HERO_TITLE' | translate }}</h1>
-      <p class="hero-subtitle" style="view-transition-name: hero-subtitle">{{ 'LANDING.HERO_SUBTITLE' | translate }}</p>
+      <h1 class="hero-title" style="view-transition-name: hero-title">
+        {{ 'LANDING.HERO_TITLE' | translate }}
+      </h1>
+      <p class="hero-subtitle" style="view-transition-name: hero-subtitle">
+        {{ 'LANDING.HERO_SUBTITLE' | translate }}
+      </p>
 
       <div class="hero-buttons" style="view-transition-name: hero-buttons">
-        <div class="button-group left-group">
-          <button pButton [label]="'LANDING.SERVICES' | translate" routerLink="/services" class="btn-services"></button>
-          <button pButton [label]="'LANDING.PROFILE' | translate" routerLink="/perfil" class="btn-profile"></button>
-        </div>
-        <div class="button-group right-group">
-          <button pButton [label]="'LANDING.BOOK_NOW' | translate" routerLink="/booking" class="btn-primary"></button>
-          <button pButton [label]="'LANDING.APPOINTMENTS' | translate" routerLink="/appointments" class="btn-appointments"></button>
-        </div>
+        <button
+          pButton
+          [label]="'LANDING.SERVICES' | translate"
+          routerLink="/services"
+          class="btn-services"
+        ></button>
+        <button
+          pButton
+          [label]="'LANDING.BOOK_NOW' | translate"
+          routerLink="/booking"
+          class="btn-primary"
+        ></button>
       </div>
     </div>
   </section>

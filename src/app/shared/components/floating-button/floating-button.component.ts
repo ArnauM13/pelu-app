@@ -13,10 +13,9 @@ export interface FloatingButtonConfig {
 
 @Component({
   selector: 'pelu-floating-button',
-  standalone: true,
   imports: [CommonModule, TooltipModule],
   templateUrl: './floating-button.component.html',
-  styleUrls: ['./floating-button.component.scss']
+  styleUrls: ['./floating-button.component.scss'],
 })
 export class FloatingButtonComponent {
   // Input signals
@@ -32,14 +31,14 @@ export class FloatingButtonComponent {
       'floating-button': true,
       [`floating-button--${config.variant || 'primary'}`]: true,
       [`floating-button--${config.size || 'medium'}`]: true,
-      'floating-button--active': config.isActive || false
+      'floating-button--active': config.isActive || false,
     };
   });
 
   readonly buttonStyle = computed(() => {
     const config = this.config();
     return {
-      '--button-icon': `"${config.icon}"`
+      '--button-icon': `"${config.icon}"`,
     };
   });
 

@@ -9,7 +9,7 @@ import { Auth, User } from '@angular/fire/auth';
   standalone: true,
   imports: [CommonModule, TranslateModule],
   templateUrl: './admin-setup.component.html',
-  styleUrls: ['./admin-setup.component.scss']
+  styleUrls: ['./admin-setup.component.scss'],
 })
 export class AdminSetupComponent {
   // Inject services
@@ -28,8 +28,10 @@ export class AdminSetupComponent {
 
   // Mostrar el component només en desenvolupament i si l'usuari està autenticat
   readonly showSetup = computed(() => {
-    return this.#userService.isAuthenticated() &&
-           (this.#userService.isAdmin() || this.#userService.isClient());
+    return (
+      this.#userService.isAuthenticated() &&
+      (this.#userService.isAdmin() || this.#userService.isClient())
+    );
   });
 
   async promoteToAdmin() {
@@ -46,7 +48,7 @@ export class AdminSetupComponent {
       await this.#userService.promoteToAdmin(currentUser.uid, {
         canManageUsers: true,
         canViewAllAppointments: true,
-        permissions: ['manage_users', 'view_all_appointments']
+        permissions: ['manage_users', 'view_all_appointments'],
       });
 
       this.showSuccess('Usuari promogut a administrador amb èxit');

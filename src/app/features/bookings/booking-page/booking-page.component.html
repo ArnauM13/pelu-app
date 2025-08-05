@@ -1,21 +1,51 @@
-<div class="container" style="margin-top: 2rem; view-transition-name: booking-container">
-  <div class="booking-layout" style="margin-bottom: 2rem; view-transition-name: booking-grid">
-    <!-- Calendar Component -->
-    <pelu-calendar-component
-      #calendarComponent
-      [mini]="false"
-      [events]="[]"
-      (dateSelected)="onTimeSlotSelected($event)">
-    </pelu-calendar-component>
+<!-- Show mobile component on mobile devices -->
+@if (isMobile()) {
+  <pelu-booking-mobile-page></pelu-booking-mobile-page>
+} @else {
+  <!-- Desktop version -->
+  <div class="booking-page">
+    <!-- Date Selection Controls -->
+    <div class="date-controls">
+      <pelu-button
+        label="Avui"
+        icon="pi pi-calendar"
+        size="small"
+        severity="primary"
+        class="today-btn"
+        (clicked)="onTodayClicked()"
+      />
+      <pelu-input-date
+        [(ngModel)]="selectedDate"
+        [showButtonBar]="true"
+        [minDate]="todayDate()"
+        (valueChange)="onDateChange($event)"
+        placeholder="BOOKING.SELECT_DATE_PLACEHOLDER"
+      />
+      <div class="week-indicator">
+        {{ getWeekInfo() }}
+      </div>
+    </div>
+
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+      <pelu-calendar-component
+        #calendarComponent
+        [mini]="false"
+        [events]="[]"
+        (dateSelected)="onTimeSlotSelected($event)"
+      >
+      </pelu-calendar-component>
+    </div>
   </div>
-</div>
+}
 
 <!-- Service Selection Popup -->
 <pelu-service-selection-popup
   [open]="showServiceSelectionPopup()"
   [selectionDetails]="serviceSelectionDetails()"
   (serviceSelected)="onServiceSelected($event)"
-  (cancelled)="onServiceSelectionCancelled()">
+  (cancelled)="onServiceSelectionCancelled()"
+>
 </pelu-service-selection-popup>
 
 <!-- Booking Confirmation Popup -->
@@ -26,36 +56,23 @@
   (confirmed)="onBookingConfirmed($event)"
   (cancelled)="onBookingCancelled()"
   (clientNameChanged)="onClientNameChanged($event)"
-  (emailChanged)="onEmailChanged($event)">
+  (emailChanged)="onEmailChanged($event)"
+>
 </pelu-booking-popup>
 
 <!-- Login Prompt for Anonymous Users -->
-@if (showLoginPrompt()) {
-<div class="login-prompt-overlay" (click)="onLoginPromptClose()">
-  <div class="login-prompt" (click)="$event.stopPropagation()">
-    <div class="prompt-header">
-      <h3>🎉 {{ 'BOOKING.SUCCESS_TITLE' | translate }}</h3>
-      <button class="close-btn" (click)="onLoginPromptClose()">×</button>
-    </div>
-
-    <div class="prompt-body">
-      <div class="success-icon">✅</div>
-      <p class="success-message">
-        {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
-      </p>
-      <p class="email-notice">
-        {{ 'BOOKING.EMAIL_NOTICE' | translate }}
-      </p>
-
-      <div class="prompt-actions">
-        <button class="btn-secondary" (click)="onLoginPromptClose()">
-          {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
-        </button>
-        <button class="btn-primary" (click)="onLoginPromptLogin()">
-          {{ 'COMMON.ACTIONS.LOGIN' | translate }}
-        </button>
-      </div>
-    </div>
+<pelu-popup-dialog
+  [isOpen]="showLoginPrompt()"
+  [config]="loginPromptDialogConfig()"
+  (closed)="onLoginPromptClose()"
+>
+  <div class="prompt-body">
+    <div class="success-icon">✅</div>
+    <p class="success-message">
+      {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
+    </p>
+    <p class="email-notice">
+      {{ 'BOOKING.EMAIL_NOTICE' | translate }}
+    </p>
   </div>
-</div>
-}
+</pelu-popup-dialog>

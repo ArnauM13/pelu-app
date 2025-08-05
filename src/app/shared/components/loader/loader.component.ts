@@ -5,7 +5,6 @@ import { LoaderService } from '../../services/loader.service';
 
 @Component({
   selector: 'pelu-loader',
-  standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
     @if (loaderService.isLoading()) {
@@ -13,13 +12,13 @@ import { LoaderService } from '../../services/loader.service';
         <div class="loader-content">
           <div class="loader-spinner"></div>
           @if (loaderService.config().message) {
-            <p class="loader-message">{{ (loaderService.config().message || '') | translate }}</p>
+            <p class="loader-message">{{ loaderService.config().message || '' | translate }}</p>
           }
         </div>
       </div>
     }
   `,
-  styleUrls: ['./loader.component.scss']
+  styleUrls: ['./loader.component.scss'],
 })
 export class LoaderComponent {
   readonly loaderService = inject(LoaderService);

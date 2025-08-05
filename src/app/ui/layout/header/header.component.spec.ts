@@ -12,7 +12,7 @@ import {
   mockTranslateService,
   mockTranslateStore,
   mockTranslationService,
-  mockAuthService
+  mockAuthService,
 } from '../../../../testing/firebase-mocks';
 import { configureTestModule } from '../../../../testing/test-setup';
 
@@ -30,12 +30,12 @@ describe('HeaderComponent', () => {
       { provide: TranslateStore, useValue: mockTranslateStore },
       { provide: TranslationService, useValue: mockTranslationService },
       { provide: AuthService, useValue: mockAuthService },
-      { provide: Router, useValue: routerSpy }
+      { provide: Router, useValue: routerSpy },
     ]);
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
-      providers: testConfig.providers
+      providers: testConfig.providers,
     }).compileComponents();
 
     fixture = TestBed.createComponent(HeaderComponent);

@@ -1,0 +1,308 @@
+// Appointments with absolute positioning
+.appointment {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-size: 11px;
+  cursor: pointer;
+  z-index: var(--z-interactive);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  border: 2px solid;
+  min-height: 20px;
+  /* Colors will be applied via CSS classes */
+
+  /* Custom Drag & Drop styles */
+  &.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+    z-index: var(--z-popup);
+    pointer-events: none;
+  }
+
+  /* Drag preview styles for cross-day dragging */
+  &.drag-preview {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: rotate(2deg);
+    z-index: var(--z-popup);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  /* Placeholder styles */
+  &.drag-placeholder {
+    opacity: 0.3;
+    border: 2px dashed #ccc;
+    background: transparent;
+  }
+
+  /* Click feedback */
+  &:active:not(.dragging) {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+.appointment:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+  z-index: var(--z-interactive);
+  filter: brightness(1.1);
+}
+
+.appointment-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 2px 4px;
+  gap: 4px;
+}
+
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0; /* Permet que el flex item es redueixi */
+}
+
+.appointment-title {
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  margin-bottom: 1px;
+}
+
+.appointment-service {
+  font-size: 9px;
+  opacity: 0.9;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: none; /* Per defecte ocult, es mostra si hi ha espai */
+}
+
+.appointment-duration {
+  font-size: 8px;
+  opacity: 0.8;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+  flex-shrink: 0; /* No es redueix */
+}
+
+/* Drag Handle */
+.drag-handle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  cursor: grab;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-indicator {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-indicator::before {
+  content: '⋮⋮';
+  font-size: 8px;
+  color: #666;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+/* Mostrar el servei si hi ha espai suficient */
+.appointment:hover .appointment-service {
+  display: block;
+}
+
+/* Mostrar el servei per appointments més llargs */
+.appointment[style*='height: 45px'] .appointment-service,
+.appointment[style*='height: 60px'] .appointment-service,
+.appointment[style*='height: 75px'] .appointment-service,
+.appointment[style*='height: 90px'] .appointment-service,
+.appointment[style*='height: 105px'] .appointment-service,
+.appointment[style*='height: 120px'] .appointment-service {
+  display: block;
+}
+
+/* ===== ESTILS ESPECÍFICS PER COLORS DE SERVEIS ===== */
+
+/* Public Booking Styles */
+.appointment.public-booking {
+  background-color: #dc3545 !important;
+  border-color: #c82333 !important;
+  color: white !important;
+  cursor: default !important;
+}
+
+.appointment.public-booking:hover {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.appointment.public-booking .appointment-title {
+  color: white !important;
+}
+
+.appointment.public-booking-text {
+  color: white !important;
+}
+
+.appointment.no-drag {
+  cursor: default !important;
+}
+
+.appointment.no-drag .drag-handle {
+  display: none !important;
+}
+
+.appointment.no-click {
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+.appointment.no-click:hover {
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  filter: none !important;
+}
+
+.appointment.no-click:active {
+  transform: none !important;
+}
+
+/* Tall (Haircut) */
+.appointment.service-color-haircut {
+  background-color: var(--service-haircut-bg) !important;
+  border-color: var(--service-haircut-color) !important;
+  color: var(--service-haircut-text) !important;
+}
+
+/* Pentinat (Styling) */
+.appointment.service-color-styling {
+  background-color: var(--service-styling-bg) !important;
+  border-color: var(--service-styling-color) !important;
+  color: var(--service-styling-text) !important;
+}
+
+/* Tractament (Treatment) */
+.appointment.service-color-treatment {
+  background-color: var(--service-treatment-bg) !important;
+  border-color: var(--service-treatment-color) !important;
+  color: var(--service-treatment-text) !important;
+}
+
+/* Coloració (Coloring) */
+.appointment.service-color-coloring {
+  background-color: var(--service-coloring-bg) !important;
+  border-color: var(--service-coloring-color) !important;
+  color: var(--service-coloring-text) !important;
+}
+
+/* Especial (Special) */
+.appointment.service-color-special {
+  background-color: var(--service-special-bg) !important;
+  border-color: var(--service-special-color) !important;
+  color: var(--service-special-text) !important;
+}
+
+/* Infantil (Kids) */
+.appointment.service-color-kids {
+  background-color: var(--service-kids-bg) !important;
+  border-color: var(--service-kids-color) !important;
+  color: var(--service-kids-text) !important;
+}
+
+/* General (Default) */
+.appointment.service-color-default {
+  background-color: var(--service-default-bg) !important;
+  border-color: var(--service-default-color) !important;
+  color: var(--service-default-text) !important;
+}
+
+/* Estils per text dels serveis */
+.appointment .service-text-haircut {
+  color: var(--service-haircut-text) !important;
+}
+
+.appointment .service-text-styling {
+  color: var(--service-styling-text) !important;
+}
+
+.appointment .service-text-treatment {
+  color: var(--service-treatment-text) !important;
+}
+
+.appointment .service-text-coloring {
+  color: var(--service-coloring-text) !important;
+}
+
+.appointment .service-text-special {
+  color: var(--service-special-text) !important;
+}
+
+.appointment .service-text-kids {
+  color: var(--service-kids-text) !important;
+}
+
+.appointment .service-text-default {
+  color: var(--service-default-text) !important;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .appointment {
+    font-size: 9px;
+    padding: 2px;
+  }
+
+  .appointment-content {
+    padding: 1px 2px;
+    gap: 2px;
+  }
+
+  .appointment-title {
+    font-size: 9px;
+    margin-bottom: 1px;
+  }
+
+  .appointment-service {
+    font-size: 8px;
+  }
+
+  .appointment-duration {
+    font-size: 7px;
+    padding: 1px 2px;
+  }
+}

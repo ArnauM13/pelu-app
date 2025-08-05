@@ -12,11 +12,11 @@ import { Component, signal } from '@angular/core';
       (onViewBooking)="onViewBooking($event)"
       (onEditBooking)="onEditBooking($event)"
       (onDeleteBooking)="onDeleteBooking($event)"
-      (onClearFilters)="onClearFilters()">
+      (onClearFilters)="onClearFilters()"
+    >
     </pelu-appointments-list>
   `,
   imports: [AppointmentsListComponent],
-  standalone: true
 })
 class TestWrapperComponent {
   bookings = signal([]);

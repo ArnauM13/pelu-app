@@ -51,7 +51,9 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   opacity: 0;
   visibility: hidden;
   z-index: var(--z-dropdown);
@@ -99,12 +101,12 @@
 }
 
 /* RTL support */
-:host-context([dir="rtl"]) .dropdown {
+:host-context([dir='rtl']) .dropdown {
   right: auto;
   left: 0;
 }
 
-:host-context([dir="rtl"]) .language-option {
+:host-context([dir='rtl']) .language-option {
   text-align: right;
 }
 
