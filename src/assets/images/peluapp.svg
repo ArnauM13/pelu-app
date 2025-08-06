@@ -1,0 +1,19 @@
+<svg width="156" height="156" viewBox="0 0 156 156" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="152" height="156" rx="20" fill="url(#paint0_linear_215_824)"/>
+<line x1="41.9665" y1="96.6995" x2="72.1112" y2="119.836" stroke="#DAE2FB" stroke-width="3"/>
+<line x1="74.0382" y1="120.472" x2="114.452" y2="104.604" stroke="#DAE2FB" stroke-width="3"/>
+<line x1="36.51" y1="90.8267" x2="41.51" y2="47.8267" stroke="#DAE2FB" stroke-width="3"/>
+<line x1="42.3564" y1="49.6451" x2="82.3564" y2="30.6451" stroke="#DAE2FB" stroke-width="3"/>
+<circle cx="114.594" cy="103.703" r="9.5" transform="rotate(-52.4932 114.594 103.703)" fill="#DAE2FB"/>
+<circle cx="82.2012" cy="30.9384" r="9.5" transform="rotate(-52.4932 82.2012 30.9384)" fill="#DAE2FB"/>
+<circle cx="42.4057" cy="48.297" r="9.5" transform="rotate(-52.4932 42.4057 48.297)" fill="#DAE2FB"/>
+<circle cx="35.9282" cy="91.2277" r="9.5" transform="rotate(-52.4932 35.9282 91.2277)" fill="#DAE2FB"/>
+<circle cx="74.0054" cy="120.453" r="9.5" transform="rotate(-52.4932 74.0054 120.453)" fill="#DAE2FB"/>
+<path d="M73 63V83.0172L85 90" stroke="#DAE2FB" stroke-width="3" stroke-linecap="round"/>
+<defs>
+<linearGradient id="paint0_linear_215_824" x1="76" y1="0" x2="76" y2="156" gradientUnits="userSpaceOnUse">
+<stop offset="0.307692" stop-color="#0F2C59"/>
+<stop offset="1" stop-color="#031028"/>
+</linearGradient>
+</defs>
+</svg>
