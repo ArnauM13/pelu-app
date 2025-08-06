@@ -2,27 +2,12 @@
   <div class="header-content">
     <div class="left-section">
       <div class="logo-section" (click)="navigateToHome($event)" (keydown.enter)="navigateToHome($event)" (keydown.space)="navigateToHome($event)" tabindex="0" role="button" [attr.aria-label]="'NAVIGATION.HOME' | translate">
-        <picture>
-          <source
-            srcset="
-              assets/images/responsive/cabj@1x.webp 1x,
-              assets/images/responsive/cabj@2x.webp 2x,
-              assets/images/responsive/cabj@3x.webp 3x
-            "
-            type="image/webp"
-          />
-          <img
-            src="assets/images/responsive/cabj@1x.png"
-            srcset="
-              assets/images/responsive/cabj@1x.png 1x,
-              assets/images/responsive/cabj@2x.png 2x,
-              assets/images/responsive/cabj@3x.png 3x
-            "
-            alt="Logo Perruqueria"
-            class="logo-image"
-            loading="lazy"
-          />
-        </picture>
+        <img
+          src="assets/images/peluapp.svg"
+          alt="Logo Perruqueria"
+          class="logo-image"
+          loading="lazy"
+        />
       </div>
       <nav class="nav">
         <a routerLink="/booking" class="nav-link" routerLinkActive="active">
