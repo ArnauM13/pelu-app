@@ -202,13 +202,12 @@ export class BookingPageComponent {
   onServiceSelected(event: { details: ServiceSelectionDetails; service: FirebaseService }) {
     this.showServiceSelectionPopupSignal.set(false);
 
-    // Fill from user if missing
+    // Always fill from user if authenticated
     let clientName = event.details.clientName;
     let email = event.details.email;
-    if (!clientName && this.isAuthenticated()) {
+
+    if (this.isAuthenticated()) {
       clientName = this.authService.userDisplayName() || '';
-    }
-    if (!email && this.isAuthenticated()) {
       email = this.authService.user()?.email || '';
     }
 

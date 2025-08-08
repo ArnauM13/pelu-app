@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -103,13 +103,53 @@ export class BookingPopupComponent {
 
   constructor() {
     this.#initializeForm();
+
+    // Watch for changes in bookingDetails and update form accordingly
+    effect(() => {
+      const details = this.bookingDetails();
+      const form = this.form();
+
+      if (form && details) {
+        // Auto-fill with user data if authenticated and fields are empty
+        let clientName = details.clientName;
+        let email = details.email;
+
+        if (this.isAuthenticated()) {
+          if (!clientName) {
+            clientName = this.currentUserName();
+          }
+          if (!email) {
+            email = this.currentUserEmail();
+          }
+        }
+
+        form.patchValue({
+          clientName: clientName,
+          email: email
+        });
+      }
+    });
   }
 
   #initializeForm() {
     const details = this.bookingDetails();
+
+    // Auto-fill with user data if authenticated
+    let clientName = details.clientName;
+    let email = details.email;
+
+    if (this.isAuthenticated()) {
+      if (!clientName) {
+        clientName = this.currentUserName();
+      }
+      if (!email) {
+        email = this.currentUserEmail();
+      }
+    }
+
     const form = this.#fb.group({
-      clientName: [details.clientName || '', [Validators.required, Validators.minLength(2)]],
-      email: [details.email || '', [Validators.required, Validators.email]]
+      clientName: [clientName || '', [Validators.required, Validators.minLength(2)]],
+      email: [email || '', [Validators.required, Validators.email]]
     });
 
     this.formSignal.set(form);

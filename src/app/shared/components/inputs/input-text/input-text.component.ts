@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -54,6 +54,9 @@ export class InputTextComponent implements ControlValueAccessor {
   private onChange = (_value: string) => {};
   private onTouched = () => {};
 
+  // Internal value signal for ControlValueAccessor
+  readonly internalValueSignal = signal<string>('');
+
   // Computed property to get the appropriate placeholder based on type
   readonly displayPlaceholder = computed(() => {
     const customPlaceholder = this.placeholder();
@@ -76,6 +79,26 @@ export class InputTextComponent implements ControlValueAccessor {
     }
   });
 
+  // Computed property to determine the display value
+  readonly displayValue = computed(() => {
+    // If using formControlName, use internalValueSignal
+    if (this.formControlName()) {
+      return this.internalValueSignal();
+    }
+    // Otherwise, use the direct value input
+    return this.value();
+  });
+
+  constructor() {
+    // Watch for changes in the value input and update internal signal
+    effect(() => {
+      const directValue = this.value();
+      if (directValue !== undefined && directValue !== null) {
+        this.internalValueSignal.set(directValue);
+      }
+    });
+  }
+
   // Get unique ID
   getElementId(): string {
     return this.uniqueId;
@@ -83,6 +106,7 @@ export class InputTextComponent implements ControlValueAccessor {
 
   // Event handler for input changes
   onInputChange(_value: string): void {
+    this.internalValueSignal.set(_value);
     this.onChange(_value);
     this.valueChange.emit(_value);
   }
@@ -92,11 +116,9 @@ export class InputTextComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-
-
   // ControlValueAccessor methods
-  writeValue(_value: string): void {
-    // PrimeNG handles this automatically
+  writeValue(value: string): void {
+    this.internalValueSignal.set(value || '');
   }
 
   registerOnChange(fn: (value: string) => void): void {
