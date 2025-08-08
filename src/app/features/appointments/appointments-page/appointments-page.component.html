@@ -7,38 +7,41 @@
   <!-- Main Content -->
   @if (!loading()) {
     <div class="appointments-content">
-      <!-- Statistics Cards -->
-      <div class="content-section">
-        <pelu-appointments-stats
-          [stats]="appointmentStats()"
-          (quickFilterChange)="setQuickFilter($event)"
-        >
-        </pelu-appointments-stats>
-      </div>
+      <!-- Statistics Cards (admins only) -->
+      @if (isAdmin()) {
+        <div class="content-section">
+          <pelu-appointments-stats
+            [stats]="appointmentStats()"
+            (quickFilterChange)="setQuickFilter($event)"
+          >
+          </pelu-appointments-stats>
+        </div>
+      }
 
           <!-- Next Appointment -->
     <div class="content-section">
       <pelu-next-appointment
-        [bookings]="appointments()"
-        (viewDetail)="viewAppointmentDetail($event)"
+        [bookings]="isAdmin() ? appointments() : userAppointments()"
       >
       </pelu-next-appointment>
     </div>
 
-      <!-- Inline Filters -->
-      <div class="content-section">
-        <pelu-filters-inline
-          [filterDate]="filterDate"
-          [filterClient]="filterClient"
-          [filterService]="filterService"
-          [onDateChange]="setFilterDate"
-          [onClientChange]="setFilterClient"
-          [onServiceChange]="setFilterService"
-          [onReset]="clearAllFilters"
-          (reset)="clearAllFilters()"
-        >
-        </pelu-filters-inline>
-      </div>
+      <!-- Inline Filters (admins only) -->
+      @if (isAdmin()) {
+        <div class="content-section">
+          <pelu-filters-inline
+            [filterDate]="filterDate"
+            [filterClient]="filterClient"
+            [filterService]="filterService"
+            [onDateChange]="setFilterDate"
+            [onClientChange]="setFilterClient"
+            [onServiceChange]="setFilterService"
+            [onReset]="clearAllFilters"
+            (reset)="clearAllFilters()"
+          >
+          </pelu-filters-inline>
+        </div>
+      }
 
       <!-- Calendar View -->
       @if (viewMode() === 'calendar') {
@@ -77,8 +80,8 @@
       @if (viewMode() === 'list') {
         <div class="content-section">
           <pelu-appointments-list
-            [bookings]="filteredAppointments()"
-            [hasActiveFilters]="hasActiveFilters()"
+            [bookings]="listAppointments()"
+            [hasActiveFilters]="isAdmin() ? hasActiveFilters() : false"
             (viewBooking)="viewAppointmentDetail($event)"
             (editBooking)="editBookingFromList($event)"
             (deleteBooking)="deleteBookingFromList($event)"
@@ -89,11 +92,10 @@
       }
     </div>
 
-    <!-- TODO -->
-      <!-- View Mode Toggle -->
+      <!-- View Mode Toggle (always visible) -->
       <pelu-appointments-view-controls
         [viewButtons]="viewButtons()"
-        (onViewModeChange)="setViewMode($event)"
+        (viewModeChange)="setViewMode($event)"
       >
       </pelu-appointments-view-controls>
 

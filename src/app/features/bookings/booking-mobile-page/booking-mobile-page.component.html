@@ -1,4 +1,10 @@
 <div class="mobile-booking-container">
+  <!-- Show next appointment at top if user has any upcoming booking -->
+  @if (userAppointments().length > 0) {
+    <div class="content-section" style="margin-bottom: 1rem;">
+      <pelu-next-appointment [bookings]="userAppointments()"></pelu-next-appointment>
+    </div>
+  }
   <!-- Step 1: Service Selection -->
   @if (currentStep() === 'service') {
     <div class="step-content service-step">

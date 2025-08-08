@@ -22,6 +22,7 @@ import { format, parseISO, isToday, isFuture } from 'date-fns';
 import { ca } from 'date-fns/locale';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { ActionContext } from '../../../core/services/actions.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
@@ -73,6 +74,7 @@ export class AppointmentsPageComponent {
   private readonly serviceColorsService = inject(ServiceColorsService);
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly toastService = inject(ToastService);
+  private readonly userService = inject(UserService);
 
   // Core data
   readonly appointments = this.appointmentService.bookings;
@@ -134,9 +136,25 @@ export class AppointmentsPageComponent {
     return this.sortAppointmentsByDateTime(appointments);
   });
 
+  // Role helpers
+  readonly isAdmin = computed(() => this.userService.isAdmin());
+
+  // User-specific appointments
+  readonly userAppointments = computed(() =>
+    this.appointments().filter(b => this.appointmentService.isOwnBooking(b))
+  );
+
+  // List view data depending on role
+  readonly listAppointments = computed(() =>
+    this.isAdmin()
+      ? this.filteredAppointments()
+      : this.sortAppointmentsByDateTime(this.userAppointments())
+  );
+
   // Calendar events
   readonly calendarEvents = computed((): AppointmentEvent[] => {
-    return this.appointments().map(appointment => ({
+    const source = this.isAdmin() ? this.appointments() : this.userAppointments();
+    return source.map(appointment => ({
       id: appointment.id || '',
       title: appointment.clientName || 'Appointment',
       start: (appointment.data || '') + 'T' + (appointment.hora || '00:00'),

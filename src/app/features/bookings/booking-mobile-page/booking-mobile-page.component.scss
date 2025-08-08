@@ -1,6 +1,7 @@
 .mobile-booking-container {
   max-width: 100%;
-  padding: 1rem;
+  margin: 1rem;
+  padding: 0;
   background: linear-gradient(
     135deg,
     var(--background-color) 0%,
@@ -24,7 +25,7 @@
   }
 
   @media (min-width: 768px) {
-    padding: 2rem;
+    margin: 2rem;
     max-width: 600px;
     margin: 0 auto;
   }
@@ -1011,7 +1012,7 @@
 // Responsive adjustments
 @media (max-width: 480px) {
   .mobile-booking-container {
-    padding: 1rem;
+    margin: 1rem;
     padding-bottom: 100px;
   }
 
