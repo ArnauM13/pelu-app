@@ -3,7 +3,7 @@
     <div class="left-section">
       <div class="logo-section" (click)="navigateToHome($event)" (keydown.enter)="navigateToHome($event)" (keydown.space)="navigateToHome($event)" tabindex="0" role="button" [attr.aria-label]="'NAVIGATION.HOME' | translate">
         <img
-          src="assets/images/peluapp-dark.svg"
+          src="assets/images/peluapp-dark-thick.svg"
           alt="Logo Perruqueria"
           class="logo-image"
           loading="lazy"
@@ -22,7 +22,7 @@
       </nav>
     </div>
     <div class="user-actions">
-      @if (hasAdminAccess()) {
+      @if (isAdmin()) {
         <button
           class="playground-button"
           [attr.aria-label]="'NAVIGATION.PLAYGROUND' | translate"
