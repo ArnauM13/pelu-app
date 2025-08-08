@@ -390,6 +390,8 @@
     },
     "FULLY_BOOKED_TITLE": "Dia completament ocupat",
     "FULLY_BOOKED_MESSAGE": "Aquest dia té totes les hores ocupades. Si us plau, selecciona una altra data o prova amb una altra setmana.",
+    "NO_APPOINTMENTS_TITLE": "No hi ha cites disponibles",
+    "NO_APPOINTMENTS_MESSAGE": "No hi ha cites disponibles en aquesta setmana. Prova amb una altra setmana o contacta amb nosaltres per més informació.",
     "SELECTION_REQUIRED": "Selecció requerida",
     "SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
     "SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",

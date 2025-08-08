@@ -404,6 +404,34 @@
         cursor: not-allowed;
       }
 
+      &.no-appointments {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #92400e;
+        border-color: #f59e0b;
+        position: relative;
+
+        &::before {
+          content: '⚠️';
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          font-size: 0.8rem;
+          background: white;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-name,
+        .day-number {
+          color: #92400e;
+        }
+      }
+
       .day-name {
         font-size: 0.8rem;
         font-weight: 600;
@@ -429,6 +457,28 @@
       background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
       border-radius: 12px;
+
+      &.no-appointments-warning {
+        border-color: #fbbf24;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+
+        .alert-content {
+          .alert-icon {
+            color: #f59e0b;
+          }
+
+          .alert-text {
+            h4 {
+              color: #92400e;
+            }
+
+            p {
+              color: #92400e;
+            }
+          }
+        }
+      }
 
       .alert-content {
         display: flex;

@@ -1,10 +1,26 @@
 <div class="mobile-booking-container">
-  <!-- Show next appointment at top if user has any upcoming booking -->
-  @if (userAppointments().length > 0) {
+  <!-- Show next appointment at top if user has any upcoming booking - ONLY on first step -->
+  @if (currentStep() === 'service' && userAppointments().length > 0) {
     <div class="content-section" style="margin-bottom: 1rem;">
       <pelu-next-appointment [bookings]="userAppointments()"></pelu-next-appointment>
     </div>
   }
+
+  <!-- Warning when no appointments are available -->
+  @if (currentStep() === 'datetime' && hasNoAvailableAppointments()) {
+    <div class="content-section" style="margin-bottom: 1rem;">
+      <div class="alert-card no-appointments-warning">
+        <div class="alert-content">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-text">
+            <h4>{{ 'BOOKING.NO_APPOINTMENTS_TITLE' | translate }}</h4>
+            <p>{{ 'BOOKING.NO_APPOINTMENTS_MESSAGE' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Step 1: Service Selection -->
   @if (currentStep() === 'service') {
     <div class="step-content service-step">
@@ -136,6 +152,7 @@
               [class.past-date]="isPastDate(day)"
               [class.other-month]="viewMode() === 'month' && !isCurrentMonth(day)"
               [class.selectable]="canSelectDate(day)"
+              [class.no-appointments]="isFullyBookedWorkingDay(day)"
               (click)="canSelectDate(day) ? onDateSelected(day) : null"
             >
               <div class="day-name">{{ formatDayShort(day) }}</div>

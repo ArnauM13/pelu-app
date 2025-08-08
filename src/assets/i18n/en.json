@@ -365,6 +365,8 @@
     },
     "FULLY_BOOKED_TITLE": "Fully booked day",
     "FULLY_BOOKED_MESSAGE": "This day has all hours occupied. Please select another date or try with another week.",
+    "NO_APPOINTMENTS_TITLE": "No appointments available",
+    "NO_APPOINTMENTS_MESSAGE": "No appointments available in this week. Try another week or contact us for more information.",
     "SELECTION_REQUIRED": "Selection required",
     "SELECT_SERVICE_FIRST": "Please select a service first",
     "SELECT_DATE_FIRST": "Please select a date first",
