@@ -258,10 +258,10 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   goBack(): void {
-    if (this.responsiveService.isMobile()) {
-      this.router.navigate(['/bookings']);
-    } else {
+    if (window.history.length > 1) {
       this.location.back();
+    } else {
+      this.router.navigate(['/appointments']);
     }
   }
 
