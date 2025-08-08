@@ -36,7 +36,7 @@ export interface ServiceCategory {
   name: string;
   icon: string;
   custom?: boolean; // Flag to identify custom categories
-  createdAt?: any;
+  createdAt?: unknown;
   createdBy?: string;
 }
 
@@ -51,14 +51,16 @@ export class FirebaseServicesService {
   private readonly logger = inject(LoggerService);
   private readonly translateService = inject(TranslateService);
 
+  readonly isAdmin = this.roleService.isAdmin;
+
   // Core signals
   private readonly _services = signal<FirebaseService[]>([]);
   private readonly _isLoading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
   private readonly _lastSync = signal<number>(0);
 
-  // Cache configuration
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  // Cache configuration - INCREASED CACHE DURATION
+  private readonly CACHE_DURATION = 15 * 60 * 1000; // 15 minutes (increased from 5)
   private readonly CACHE_KEY = 'pelu-services-cache';
   private readonly CACHE_TIMESTAMP_KEY = 'pelu-services-cache-timestamp';
 
@@ -108,24 +110,37 @@ export class FirebaseServicesService {
     }));
   });
 
-  // Admin access computed
-  readonly hasAdminAccess = computed(() => {
-    const currentRole = this.roleService.userRole();
-    return currentRole?.role === 'admin';
-  });
-
   constructor() {
     this.initializeServices();
   }
 
-  private initializeServices(): void {
+  private async initializeServices(): Promise<void> {
+    // Wait for authentication to be initialized
+    await this.waitForAuthInitialization();
+
     this.loadServicesFromCache();
     this.loadServices();
     this.loadCustomCategories();
   }
 
   /**
-   * Load services from Firebase with cache management
+   * Wait for authentication to be initialized
+   */
+  private async waitForAuthInitialization(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      const checkAuth = () => {
+        if (this.authService.isInitialized()) {
+          resolve();
+        } else {
+          setTimeout(checkAuth, 100);
+        }
+      };
+      checkAuth();
+    });
+  }
+
+  /**
+   * Load services from Firebase with cache management - OPTIMIZED
    */
   async loadServices(): Promise<void> {
     try {
@@ -181,7 +196,7 @@ export class FirebaseServicesService {
   ): Promise<FirebaseService | null> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -254,7 +269,7 @@ export class FirebaseServicesService {
   ): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -321,7 +336,7 @@ export class FirebaseServicesService {
   async deleteService(serviceId: string, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -376,7 +391,7 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Get service by ID
+   * Get service by ID - OPTIMIZED to use cache first
    */
   async getServiceById(serviceId: string): Promise<FirebaseService | null> {
     try {
@@ -384,6 +399,11 @@ export class FirebaseServicesService {
       const localService = this.services().find(service => service.id === serviceId);
       if (localService) {
         return localService;
+      }
+
+      // If not in cache and we have recent data, don't fetch individually
+      if (this.shouldUseCache()) {
+        return null;
       }
 
       // If not in cache, fetch from Firebase
@@ -421,7 +441,7 @@ export class FirebaseServicesService {
 
     try {
       return this.translateService.instant(categoryKey);
-    } catch (error) {
+    } catch {
       return categoryKey;
     }
   }
@@ -448,7 +468,7 @@ export class FirebaseServicesService {
   async createSampleServices(): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -549,7 +569,7 @@ export class FirebaseServicesService {
           if (result) {
             createdCount++;
           }
-        } catch (error) {
+        } catch {
           this.logger.error(`Error creating sample service: ${serviceData.name}`, {
             component: 'FirebaseServicesService',
             method: 'createSampleServices',
@@ -562,7 +582,7 @@ export class FirebaseServicesService {
         this.logger.info('Sample services created', {
           component: 'FirebaseServicesService',
           method: 'createSampleServices',
-          data: { count: createdCount },
+          data: JSON.stringify({ count: createdCount }),
         });
       }
 
@@ -585,7 +605,7 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Check if we should use cache instead of fetching from Firebase
+   * Check if we should use cache instead of fetching from Firebase - OPTIMIZED
    */
   private shouldUseCache(): boolean {
     const lastSync = this.lastSync();
@@ -600,7 +620,7 @@ export class FirebaseServicesService {
     try {
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(services));
       localStorage.setItem(this.CACHE_TIMESTAMP_KEY, Date.now().toString());
-    } catch (error) {
+    } catch {
       this.logger.warn('Failed to save services to cache', {
         component: 'FirebaseServicesService',
         method: 'saveServicesToCache',
@@ -631,7 +651,7 @@ export class FirebaseServicesService {
           });
         }
       }
-    } catch (error) {
+    } catch {
       this.logger.warn('Failed to load services from cache', {
         component: 'FirebaseServicesService',
         method: 'loadServicesFromCache',
@@ -646,7 +666,7 @@ export class FirebaseServicesService {
     try {
       localStorage.removeItem(this.CACHE_KEY);
       localStorage.removeItem(this.CACHE_TIMESTAMP_KEY);
-    } catch (error) {
+    } catch {
       this.logger.warn('Failed to clear cache', {
         component: 'FirebaseServicesService',
         method: 'clearCache',
@@ -657,10 +677,15 @@ export class FirebaseServicesService {
   // ===== CATEGORY MANAGEMENT =====
 
   /**
-   * Load custom categories from Firebase
+   * Load custom categories from Firebase - OPTIMIZED with caching
    */
   private async loadCustomCategories(): Promise<void> {
     try {
+      // Check if we have recent data
+      if (this._customCategories().length > 0) {
+        return;
+      }
+
       const categoriesRef = collection(this.firestore, 'serviceCategories');
       const querySnapshot = await getDocs(categoriesRef);
 
@@ -682,11 +707,17 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Get all categories (static + custom from Firebase)
+   * Get all categories (static + custom from Firebase) - OPTIMIZED
    */
   async getAllCategories(): Promise<ServiceCategory[]> {
     try {
-      // Get custom categories from Firebase
+      // Use cached categories if available
+      const cachedCategories = this._customCategories();
+      if (cachedCategories.length > 0) {
+        return [...this._staticCategories, ...cachedCategories];
+      }
+
+      // Get custom categories from Firebase only if not cached
       const categoriesRef = collection(this.firestore, 'serviceCategories');
       const querySnapshot = await getDocs(categoriesRef);
 
@@ -695,6 +726,9 @@ export class FirebaseServicesService {
         const category = { id: doc.id, ...doc.data() } as ServiceCategory;
         customCategories.push(category);
       });
+
+      // Update cache
+      this._customCategories.set(customCategories);
 
       // Combine static and custom categories
       return [...this._staticCategories, ...customCategories];
@@ -717,7 +751,7 @@ export class FirebaseServicesService {
   ): Promise<ServiceCategory | null> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -793,7 +827,7 @@ export class FirebaseServicesService {
   ): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -826,7 +860,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
         userId: currentUser.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       return true;
@@ -835,7 +869,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
         userId: this.authService.user()?.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating category';
@@ -855,7 +889,7 @@ export class FirebaseServicesService {
   async deleteCategory(categoryId: string, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -890,7 +924,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
         userId: currentUser.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       return true;
@@ -899,7 +933,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
         userId: this.authService.user()?.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting category';

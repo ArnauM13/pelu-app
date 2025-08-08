@@ -18,7 +18,6 @@ import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { BookingValidationService } from './booking-validation.service';
 import { EmailService } from './email.service';
-import { FirebaseServicesService } from './firebase-services.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../interfaces/booking.interface';
 
@@ -34,7 +33,6 @@ export class BookingService {
   private readonly logger = inject(LoggerService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly emailService = inject(EmailService);
-  private readonly firebaseServicesService = inject(FirebaseServicesService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -48,14 +46,18 @@ export class BookingService {
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly error = computed(() => this.errorSignal());
   readonly isInitialized = computed(() => this.isInitializedSignal());
+  readonly isAdmin = computed(() => this.roleService.isAdmin());
   readonly hasCachedData = computed(
     () => this.bookingsSignal().length > 0 && this.isInitializedSignal()
   );
 
+  // Cache configuration - INCREASED CACHE DURATION
+  private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes (increased from 5)
+
   constructor() {
     // Only load bookings if we don't have cached data
     if (!this.hasCachedData()) {
-      this.loadBookings();
+      this.initializeBookings();
     }
 
     // Set up a periodic check for auth state changes to clear cache on logout
@@ -65,6 +67,14 @@ export class BookingService {
         this.clearCache();
       }
     }, 1000); // Check every second
+  }
+
+  /**
+   * Initialize bookings with proper auth waiting
+   */
+  private async initializeBookings(): Promise<void> {
+    await this.waitForAuthInitialization();
+    await this.loadBookings();
   }
 
   /**
@@ -83,10 +93,12 @@ export class BookingService {
         throw new Error('Authentication required for complete bookings');
       }
 
-      // Validate booking using the new validation service
-      const bookingDate = new Date(bookingData.data || '');
-      if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '')) {
-        throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+      // Validate booking using the new validation service (skip validation for admins)
+      if (!this.isAdmin()) {
+        const bookingDate = new Date(bookingData.data || '');
+        if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '')) {
+          throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+        }
       }
 
       // Generate unique UUID for the booking
@@ -124,7 +136,7 @@ export class BookingService {
         this.logger.error(emailError, {
           component: 'BookingService',
           method: 'createBooking',
-          data: { bookingId: uniqueId, clientEmail: bookingData.email }
+          data: JSON.stringify({ bookingId: uniqueId, clientEmail: bookingData.email })
         });
       }
 
@@ -141,7 +153,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'createBooking',
         userId: currentUser?.uid,
-        data: { bookingData: { ...bookingData, email: '[REDACTED]' } },
+        data: JSON.stringify({ bookingData: { ...bookingData, email: '[REDACTED]' } }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating booking';
@@ -179,15 +191,14 @@ export class BookingService {
       }
 
       // Check if user is admin or owns the booking
-      const isAdmin = this.roleService.isAdmin();
       const isOwner = currentBooking.email === currentUser.email;
 
-      if (!isAdmin && !isOwner) {
+      if (!this.isAdmin() && !isOwner) {
         throw new Error('Access denied');
       }
 
-      // Validate that the updated booking is allowed
-      if (updates.data && updates.hora) {
+      // Validate that the updated booking is allowed (skip validation for admins)
+      if (updates.data && updates.hora && !this.isAdmin()) {
         const bookingDate = new Date(updates.data);
         if (!this.bookingValidationService.canBookAppointment(bookingDate, updates.hora)) {
           throw new Error('ERROR_BOOKING_NOT_ALLOWED');
@@ -219,7 +230,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'updateBooking',
         userId: currentUser?.uid,
-        data: { bookingId, updates: { ...updates, email: '[REDACTED]' } },
+        data: JSON.stringify({ bookingId, updates: { ...updates, email: '[REDACTED]' } }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating booking';
@@ -238,7 +249,7 @@ export class BookingService {
   }
 
   /**
-   * Load all bookings from Firebase
+   * Load all bookings from Firebase - OPTIMIZED
    */
   async loadBookings(): Promise<void> {
     try {
@@ -256,8 +267,7 @@ export class BookingService {
 
       await this.loadAllBookingsWithFullDetails();
 
-      // Filter sensitive details for non-admin users
-      if (!this.roleService.isAdmin()) {
+      if (!this.isAdmin()) {
         this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
       }
 
@@ -278,7 +288,7 @@ export class BookingService {
   }
 
   /**
-   * Load all bookings with full details from Firebase
+   * Load all bookings with full details from Firebase - OPTIMIZED
    */
   private async loadAllBookingsWithFullDetails(): Promise<void> {
     const bookingsRef = collection(this.firestore, 'bookings');
@@ -322,7 +332,7 @@ export class BookingService {
         // Hide sensitive details for bookings that don't belong to the user
         return {
           ...booking,
-          clientName: 'Ocupat',
+          clientName: 'Reservada',
           email: '', // Hide email
           notes: '', // Hide notes
         } as Booking;
@@ -333,7 +343,7 @@ export class BookingService {
   }
 
   /**
-   * Get booking by ID with validation
+   * Get booking by ID with validation - OPTIMIZED
    */
   async getBookingByIdWithToken(bookingId: string): Promise<Booking | null> {
     try {
@@ -342,6 +352,19 @@ export class BookingService {
         throw new Error('Authentication required');
       }
 
+      // First check local cache
+      const localBooking = this.bookings().find(booking => booking.id === bookingId);
+      if (localBooking) {
+        // Verify access: either ownership, valid token, or admin role
+        const isOwner = localBooking.email === currentUser.email;
+
+        if (isOwner || this.isAdmin()) {
+          return localBooking;
+        }
+        return null;
+      }
+
+      // If not in cache, fetch from Firebase
       const docRef = doc(this.firestore, 'bookings', bookingId);
       const docSnap = await getDoc(docRef);
 
@@ -362,9 +385,8 @@ export class BookingService {
 
         // Verify access: either ownership, valid token, or admin role
         const isOwner = booking.email === currentUser.email;
-        const isAdmin = this.roleService.isAdmin();
 
-        if (isOwner || isAdmin) {
+        if (isOwner || this.isAdmin()) {
           return booking;
         }
 
@@ -382,10 +404,17 @@ export class BookingService {
   }
 
   /**
-   * Get booking by ID
+   * Get booking by ID - OPTIMIZED to use cache first
    */
   async getBookingById(bookingId: string): Promise<Booking | null> {
     try {
+      // First check local cache
+      const localBooking = this.bookings().find(booking => booking.id === bookingId);
+      if (localBooking) {
+        return localBooking;
+      }
+
+      // If not in cache, fetch from Firebase
       const docRef = doc(this.firestore, 'bookings', bookingId);
       const docSnap = await getDoc(docRef);
 
@@ -437,10 +466,9 @@ export class BookingService {
       }
 
       // Check if user is admin or owns the booking
-      const isAdmin = this.roleService.isAdmin();
       const isOwner = currentBooking.email === currentUser.email;
 
-      if (!isAdmin && !isOwner) {
+      if (!this.isAdmin() && !isOwner) {
         throw new Error('Access denied');
       }
 
@@ -462,7 +490,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'deleteBooking',
         userId: currentUser?.uid,
-        data: { bookingId },
+        data: JSON.stringify({ bookingId }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting booking';
@@ -541,13 +569,6 @@ export class BookingService {
   }
 
   /**
-   * Check if a booking is public (for calendar display)
-   */
-  isPublicBooking(booking: Booking): boolean {
-    return booking.clientName === 'Ocupat';
-  }
-
-  /**
    * Check if a booking belongs to the current user
    */
   isOwnBooking(booking: Booking): boolean {
@@ -572,7 +593,7 @@ export class BookingService {
   }
 
   /**
-   * Silent refresh bookings (without loading indicators)
+   * Silent refresh bookings (without loading indicators) - OPTIMIZED
    */
   async silentRefreshBookings(): Promise<void> {
     try {
@@ -585,8 +606,7 @@ export class BookingService {
 
       await this.loadAllBookingsWithFullDetails();
 
-      // Filter sensitive details for non-admin users
-      if (!this.roleService.isAdmin()) {
+      if (!this.isAdmin()) {
         this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
       }
 
@@ -601,17 +621,16 @@ export class BookingService {
   }
 
   /**
-   * Check if cache should be refreshed
+   * Check if cache should be refreshed - OPTIMIZED
    */
   private shouldRefreshCache(): boolean {
     const lastSync = this.lastCacheTimeSignal();
     const now = Date.now();
-    const cacheDuration = 5 * 60 * 1000; // 5 minutes
-    return now - lastSync > cacheDuration;
+    return now - lastSync > this.CACHE_DURATION;
   }
 
   /**
-   * Get bookings with cache management
+   * Get bookings with cache management - OPTIMIZED
    */
   async getBookingsWithCache(): Promise<Booking[]> {
     if (this.shouldRefreshCache()) {
