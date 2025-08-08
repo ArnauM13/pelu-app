@@ -19,7 +19,7 @@ class MockTranslateLoader implements TranslateLoader {
   template: `
     <pelu-appointments-view-controls
       [viewButtons]="viewButtons()"
-      (onViewModeChange)="onViewModeChange($event)"
+      (viewModeChange)="onViewModeChange($event)"
     >
     </pelu-appointments-view-controls>
   `,
@@ -45,13 +45,12 @@ class TestWrapperComponent {
     },
   ]);
 
-  onViewModeChange(mode: 'list' | 'calendar') {}
+  onViewModeChange(_mode: 'list' | 'calendar') {}
 }
 
 describe('AppointmentsViewControlsComponent', () => {
   let component: AppointmentsViewControlsComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
-  let wrapperComponent: TestWrapperComponent;
   let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
@@ -78,7 +77,6 @@ describe('AppointmentsViewControlsComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
     component = fixture.debugElement.children[0].componentInstance;
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
 
@@ -94,7 +92,6 @@ describe('AppointmentsViewControlsComponent', () => {
     translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
 
     fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
     component = fixture.debugElement.children[0].componentInstance;
     fixture.detectChanges();
   });
@@ -112,7 +109,7 @@ describe('AppointmentsViewControlsComponent', () => {
 
   it('should emit view mode change when first button is clicked', () => {
     const compiled = fixture.nativeElement;
-    const spy = spyOn(component.onViewModeChange, 'emit');
+    const spy = spyOn(component.viewModeChange, 'emit');
 
     const firstButton = compiled.querySelector('pelu-floating-button');
     firstButton.click();
@@ -122,7 +119,7 @@ describe('AppointmentsViewControlsComponent', () => {
 
   it('should emit view mode change when second button is clicked', () => {
     const compiled = fixture.nativeElement;
-    const spy = spyOn(component.onViewModeChange, 'emit');
+    const spy = spyOn(component.viewModeChange, 'emit');
 
     const buttons = compiled.querySelectorAll('pelu-floating-button');
     buttons[1].click();
