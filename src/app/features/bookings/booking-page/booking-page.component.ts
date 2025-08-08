@@ -25,6 +25,8 @@ import { ResponsiveService } from '../../../core/services/responsive.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
+import { CalendarStateService } from '../../calendar/services/calendar-state.service';
+import { startOfWeek, endOfWeek } from 'date-fns';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -53,6 +55,7 @@ export class BookingPageComponent {
   private readonly translateService = inject(TranslateService);
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly responsiveService = inject(ResponsiveService);
+  private readonly calendarStateService = inject(CalendarStateService);
 
   // Mobile detection using centralized service
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -89,6 +92,18 @@ export class BookingPageComponent {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today;
+  });
+
+  // Computed week info that updates when calendar view changes
+  readonly weekInfo = computed(() => {
+    const referenceDate = this.calendarStateService.viewDate();
+    const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
+    const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
+
+    const formatDate = (date: Date) =>
+      date.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' });
+
+    return `${formatDate(start)} - ${formatDate(end)}`;
   });
 
   // Calendar footer configuration
@@ -246,21 +261,5 @@ export class BookingPageComponent {
     }
   }
 
-  getWeekInfo(): string {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('ca-ES', {
-        day: 'numeric',
-        month: 'short'
-      });
-    };
-
-    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
-  }
 }
