@@ -4,17 +4,17 @@ export interface Position {
 }
 
 export class CalendarPositionService {
-  calculatePosition(date: Date, time: string): Position {
+  calculatePosition(_date: Date, _time: string): Position {
     // Mock implementation for testing
     return { top: 0, left: 0 };
   }
 
-  getTimeSlotPosition(time: string): Position {
+  getTimeSlotPosition(_time: string): Position {
     // Mock implementation for testing
     return { top: 0, left: 0 };
   }
 
-  getDayPosition(date: Date): Position {
+  getDayPosition(_date: Date): Position {
     // Mock implementation for testing
     return { top: 0, left: 0 };
   }
