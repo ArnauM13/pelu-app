@@ -20,7 +20,7 @@ import {
 } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
@@ -51,7 +51,7 @@ export class BookingPageComponent {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly translateService = inject(TranslateService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
   private readonly responsiveService = inject(ResponsiveService);
 
   // Mobile detection using centralized service
@@ -95,8 +95,8 @@ export class BookingPageComponent {
   readonly calendarFooterConfig = computed((): FooterConfig => {
     const today = new Date();
     const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-    const businessHours = this.businessSettingsService.getBusinessHours();
-    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+    const businessHours = this.systemParametersService.businessHours();
+    const lunchBreak = this.systemParametersService.lunchBreak();
 
     return {
       showInfoNote: false,
