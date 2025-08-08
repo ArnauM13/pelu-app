@@ -4,7 +4,7 @@ import { Auth } from '@angular/fire/auth';
 import { provideRouter } from '@angular/router';
 import { mockAuth } from '../../../../testing/firebase-mocks';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 

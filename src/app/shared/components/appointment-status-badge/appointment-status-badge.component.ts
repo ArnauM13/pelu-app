@@ -32,7 +32,7 @@ export class AppointmentStatusBadgeComponent {
   };
 
   readonly status = computed((): { type: AppointmentStatusType; text: string; icon: string } => {
-    const { date, time } = this.appointmentData;
+    const { date } = this.appointmentData;
     if (!date) return { type: 'upcoming', text: 'COMMON.UPCOMING', icon: '⏰' };
 
     const today = new Date();

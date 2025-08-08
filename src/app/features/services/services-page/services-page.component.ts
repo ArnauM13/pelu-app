@@ -9,20 +9,12 @@ import { TagModule } from 'primeng/tag';
 import {
   FirebaseServicesService,
   FirebaseService,
+  ServiceCategory,
 } from '../../../core/services/firebase-services.service';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { UserService } from '../../../core/services/user.service';
-
-interface ServiceCategory {
-  id: string;
-  name: string;
-  icon: string;
-  custom?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
 
 @Component({
   selector: 'pelu-services-page',

@@ -22,16 +22,15 @@ class TestWrapperComponent {
   bookings = signal([]);
   hasActiveFilters = signal(false);
 
-  onViewBooking(booking: any) {}
-  onEditBooking(booking: any) {}
-  onDeleteBooking(booking: any) {}
+  onViewBooking(_booking: unknown) {}
+  onEditBooking(_booking: unknown) {}
+  onDeleteBooking(_booking: unknown) {}
   onClearFilters() {}
 }
 
 describe('AppointmentsListComponent', () => {
   let component: AppointmentsListComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
-  let wrapperComponent: TestWrapperComponent;
 
   beforeEach(async () => {
     setupDefaultMocks();
@@ -39,7 +38,6 @@ describe('AppointmentsListComponent', () => {
     await configureTestBed([TestWrapperComponent]).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
     component = fixture.debugElement.children[0].componentInstance;
 
     resetMocks();

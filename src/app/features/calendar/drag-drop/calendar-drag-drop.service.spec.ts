@@ -5,7 +5,6 @@ import { AppointmentEvent } from '../core/calendar.component';
 
 describe('CalendarDragDropService', () => {
   let service: CalendarDragDropService;
-  let positionService: jasmine.SpyObj<CalendarPositionService>;
 
   beforeEach(() => {
     const positionSpy = jasmine.createSpyObj('CalendarPositionService', [
@@ -27,9 +26,6 @@ describe('CalendarDragDropService', () => {
     });
 
     service = TestBed.inject(CalendarDragDropService);
-    positionService = TestBed.inject(
-      CalendarPositionService
-    ) as jasmine.SpyObj<CalendarPositionService>;
   });
 
   it('should be created', () => {

@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarCoreService } from '../services/calendar-core.service';
 import { ServicesService } from '../../../core/services/services.service';
+import { UserService } from '../../../core/services/user.service';
 
 export interface AppointmentSlotData {
   appointment: AppointmentEvent;
@@ -32,7 +33,6 @@ export interface AppointmentSlotData {
         [style.right.px]="0"
         [ngClass]="appointmentCssClass()"
         [class.dragging]="isBeingDragged()"
-        [class.public-booking]="appointment.isPublicBooking"
         [class.no-drag]="!appointment.canDrag"
         [class.no-click]="!appointment.canViewDetails"
         (click)="onClick($event)"
@@ -45,13 +45,13 @@ export interface AppointmentSlotData {
             <div class="appointment-title" [ngClass]="textCssClass()">
               {{ appointment.title }}
             </div>
-            @if (appointment.serviceName && !appointment.isPublicBooking) {
+            @if (appointment.serviceName && canShowServiceName()) {
               <div class="appointment-service" [ngClass]="textCssClass()">
                 {{ appointment.serviceName }}
               </div>
             }
           </div>
-          @if (!appointment.isPublicBooking) {
+          @if (canShowDuration()) {
             <div class="appointment-duration" [ngClass]="textCssClass()">
               {{ formatDuration(appointment.duration || 60) }}
             </div>
@@ -77,6 +77,7 @@ export class AppointmentSlotComponent {
   // Inject services
   private readonly calendarCoreService = inject(CalendarCoreService);
   private readonly servicesService = inject(ServicesService);
+  private readonly userService = inject(UserService);
   private readonly elementRef = inject(ElementRef);
 
   // Local state for drag detection
@@ -85,6 +86,9 @@ export class AppointmentSlotComponent {
   private mouseDownPosition = { x: 0, y: 0 };
   private readonly CLICK_THRESHOLD = 300; // ms
   private readonly DRAG_THRESHOLD = 8; // pixels
+
+  // Admin check
+  readonly isAdmin = computed(() => this.userService.isAdmin());
 
   // Computed position
   readonly position = computed(() => {
@@ -100,13 +104,17 @@ export class AppointmentSlotComponent {
     );
   });
 
-  // Computed CSS classes
+  // Simplified CSS classes
   readonly appointmentCssClass = computed(() => {
     const appointment = this.data()?.appointment;
     if (!appointment) return '';
 
-    if (appointment.isPublicBooking) return 'public-booking';
+    // For non-admin users, show other people's bookings in red
+    if (!this.isAdmin() && !appointment.isOwnBooking) {
+      return 'other-booking-red';
+    }
 
+    // Get service color based on service name
     const serviceName = appointment.serviceName;
     if (!serviceName) return 'service-color-default';
 
@@ -118,8 +126,7 @@ export class AppointmentSlotComponent {
     const appointment = this.data()?.appointment;
     if (!appointment) return '';
 
-    if (appointment.isPublicBooking) return 'public-booking-text';
-
+    // Get service text color based on service name
     const serviceName = appointment.serviceName;
     if (!serviceName) return 'service-text-default';
 
@@ -135,6 +142,25 @@ export class AppointmentSlotComponent {
     return draggedAppointment?.id === appointment.id;
   });
 
+  // Simplified visibility logic
+  readonly canShowServiceName = computed(() => {
+    const appointment = this.data()?.appointment;
+    if (!appointment) return false;
+
+    // Admin can see service name for all appointments
+    // Non-admin can only see service name for their own appointments
+    return this.isAdmin() || appointment.isOwnBooking;
+  });
+
+  readonly canShowDuration = computed(() => {
+    const appointment = this.data()?.appointment;
+    if (!appointment) return false;
+
+    // Admin can see duration for all appointments
+    // Non-admin can only see duration for their own appointments
+    return this.isAdmin() || appointment.isOwnBooking;
+  });
+
   // Methods
   onClick(event: Event): void {
     event.stopPropagation();
@@ -145,43 +171,54 @@ export class AppointmentSlotComponent {
     this.clicked.emit(appointment);
   }
 
-  onMouseDown(event: MouseEvent): void {
-    if (event.button !== 0) return;
+  onSlotClick(_event: Event): void {
+    // Handle slot click if needed
+    // Currently unused
+  }
+
+  onMouseDown(_event: MouseEvent): void {
+    if (_event.button !== 0) return;
 
     const appointment = this.data()?.appointment;
-    if (!appointment?.canDrag) return;
+    if (!appointment?.canDrag) {
+      // If user clicks on a non-draggable appointment, ensure any drag state is cleared
+      this.mouseDownTime = 0;
+      this.isDragging.set(false);
+      this.calendarCoreService.cancelDrag();
+      return;
+    }
 
-    event.preventDefault();
-    event.stopPropagation();
+    _event.preventDefault();
+    _event.stopPropagation();
 
     this.mouseDownTime = Date.now();
-    this.mouseDownPosition = { x: event.clientX, y: event.clientY };
+    this.mouseDownPosition = { x: _event.clientX, y: _event.clientY };
     this.isDragging.set(false);
   }
 
-  onMouseMove(event: MouseEvent): void {
+  onMouseMove(_event: MouseEvent): void {
     if (!this.mouseDownTime) return;
 
-    const deltaX = Math.abs(event.clientX - this.mouseDownPosition.x);
-    const deltaY = Math.abs(event.clientY - this.mouseDownPosition.y);
+    const deltaX = Math.abs(_event.clientX - this.mouseDownPosition.x);
+    const deltaY = Math.abs(_event.clientY - this.mouseDownPosition.y);
 
     if (deltaX > this.DRAG_THRESHOLD || deltaY > this.DRAG_THRESHOLD) {
-      this.startDrag(event);
+      this.startDrag(_event);
     }
   }
 
-  onMouseUp(event: MouseEvent): void {
+  onMouseUp(_event: MouseEvent): void {
     if (!this.mouseDownTime) return;
 
     const clickDuration = Date.now() - this.mouseDownTime;
     if (clickDuration < this.CLICK_THRESHOLD && !this.isDragging()) {
-      this.onClick(event);
+      this.onClick(_event);
     }
 
     this.mouseDownTime = 0;
   }
 
-  private startDrag(event: MouseEvent): void {
+  private startDrag(_event: MouseEvent): void {
     const appointment = this.data()?.appointment;
     if (!appointment?.canDrag) return;
 
@@ -212,9 +249,9 @@ export class AppointmentSlotComponent {
 
     await this.calendarCoreService.endDrag();
 
-    setTimeout(() => {
-      this.isDragging.set(false);
-    }, 100);
+    // Immediately and deterministically clear local drag state to prevent auto re-grab on hover
+    this.isDragging.set(false);
+    this.mouseDownTime = 0;
   };
 
   private findService(serviceName: string) {

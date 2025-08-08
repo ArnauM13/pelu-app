@@ -22,7 +22,7 @@ export class EmailService {
         this.logger.warn('Missing required fields for email', {
           component: 'EmailService',
           method: 'sendBookingConfirmationEmail',
-          data: { bookingId: booking.id, hasEmail: !!booking.email, hasName: !!booking.clientName }
+          data: JSON.stringify({ bookingId: booking.id, hasEmail: !!booking.email, hasName: !!booking.clientName })
         });
         return;
       }
@@ -33,7 +33,7 @@ export class EmailService {
         this.logger.warn('Service not found for email', {
           component: 'EmailService',
           method: 'sendBookingConfirmationEmail',
-          data: { bookingId: booking.id, serviceId: booking.serviceId }
+          data: JSON.stringify({ bookingId: booking.id, serviceId: booking.serviceId })
         });
         return;
       }
@@ -57,7 +57,7 @@ export class EmailService {
       this.logger.error('Error sending booking confirmation email', {
         component: 'EmailService',
         method: 'sendBookingConfirmationEmail',
-        data: { bookingId: booking.id, error: error instanceof Error ? error.message : 'Unknown error' }
+        data: JSON.stringify({ bookingId: booking.id, error: error instanceof Error ? error.message : 'Unknown error' })
       });
     }
   }
@@ -113,12 +113,12 @@ ${footer}
       this.logger.info('Email content generated', {
         component: 'EmailService',
         method: 'sendEmailViaAPI',
-        data: {
+        data: JSON.stringify({
           to: data.email,
           subject,
           content: emailContent,
           bookingId: data.bookingId
-        }
+        })
       });
 
       return { success: true };
@@ -127,7 +127,7 @@ ${footer}
       this.logger.error('Error sending email via API', {
         component: 'EmailService',
         method: 'sendEmailViaAPI',
-        data: { error: error instanceof Error ? error.message : 'Unknown error' }
+        data: JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })
       });
 
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };

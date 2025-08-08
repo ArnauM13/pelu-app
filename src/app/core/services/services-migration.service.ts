@@ -91,7 +91,7 @@ export class ServicesMigrationService {
               method: 'migrateServicesToFirebase',
             });
           }
-        } catch (error) {
+        } catch {
           errorCount++;
           this.logger.error(`Error migrating service: ${service.name}`, {
             component: 'ServicesMigrationService',
@@ -116,7 +116,7 @@ export class ServicesMigrationService {
       }
 
       return migratedCount > 0;
-    } catch (error) {
+    } catch {
       this.logger.error('Services migration failed', {
         component: 'ServicesMigrationService',
         method: 'migrateServicesToFirebase',
@@ -147,7 +147,7 @@ export class ServicesMigrationService {
       // Check if we have local services to migrate
       const localServices = this.servicesService.getAllServices();
       return localServices.length > 0;
-    } catch (error) {
+    } catch {
       this.logger.error('Error checking migration status', {
         component: 'ServicesMigrationService',
         method: 'isMigrationNeeded',
@@ -174,7 +174,7 @@ export class ServicesMigrationService {
         localServicesCount: localServices.length,
         firebaseServicesCount: firebaseServices.length,
       };
-    } catch (error) {
+    } catch {
       this.logger.error('Error getting migration status', {
         component: 'ServicesMigrationService',
         method: 'getMigrationStatus',

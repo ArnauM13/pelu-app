@@ -1,58 +1,27 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
-import {
-  addDays,
-  format,
-  isSameDay,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  startOfMonth,
-  endOfMonth,
-  addMonths,
-  subMonths,
-} from 'date-fns';
-import { ca } from 'date-fns/locale';
+import { FormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { BookingService } from '../../../core/services/booking.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import {
-  BookingDetails,
-} from '../../../shared/components/booking-popup/booking-popup.component';
-
+import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
 import {
   FirebaseServicesService,
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
-import { Booking } from '../../../core/interfaces/booking.interface';
-import { BookingService } from '../../../core/services/booking.service';
-import { RoleService } from '../../../core/services/role.service';
+import { UserService } from '../../../core/services/user.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
-import { ToastService } from '../../../shared/services/toast.service';
-import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
-
-interface TimeSlot {
-  time: string;
-  available: boolean;
-  isSelected: boolean;
-  clientName?: string;
-  serviceName?: string;
-  serviceIcon?: string;
-  bookingId?: string;
-  notes?: string;
-}
-
-interface DaySlot {
-  date: Date;
-  timeSlots: TimeSlot[];
-}
+import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
+import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
+import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -77,11 +46,12 @@ export class BookingMobilePageComponent {
   public readonly authService = inject(AuthService);
   public readonly firebaseServicesService = inject(FirebaseServicesService);
   public readonly bookingService = inject(BookingService);
-  private readonly roleService = inject(RoleService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
   private readonly serviceColorsService = inject(ServiceColorsService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
+  private readonly timeUtils = inject(TimeUtils);
 
   // Step management signals
   private readonly currentStepSignal = signal<BookingStep>('service');
@@ -119,7 +89,7 @@ export class BookingMobilePageComponent {
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
   readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
-  readonly isAdmin = computed(() => this.roleService.isAdmin());
+  readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly createdBooking = computed(() => this.createdBookingSignal());
 
   // Step validation computed signals
@@ -154,10 +124,10 @@ export class BookingMobilePageComponent {
   });
 
   // Business configuration
-  readonly businessHours = computed(() => this.businessSettingsService.getBusinessHoursString());
-  readonly lunchBreak = computed(() => this.businessSettingsService.getLunchBreak());
-  readonly businessDays = computed(() => this.businessSettingsService.getWorkingDays());
-  readonly slotDuration = computed(() => this.businessSettingsService.getAppointmentDuration());
+  readonly businessHours = computed(() => this.systemParametersService.getBusinessHours());
+  readonly lunchBreak = computed(() => this.systemParametersService.getLunchBreak());
+  readonly businessDays = computed(() => this.systemParametersService.getWorkingDays());
+  readonly slotDuration = computed(() => this.systemParametersService.getAppointmentDuration());
 
   // Available services
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
@@ -175,26 +145,14 @@ export class BookingMobilePageComponent {
   // Week days computation
   readonly weekDays = computed(() => {
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
-    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
-    const end = endOfWeek(currentDate, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end });
+    return this.timeUtils.getWeekDays(currentDate);
   });
 
   // Month days computation
   readonly monthDays = computed(() => {
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
-    const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(currentDate);
-
-    // Find the first business day of the week that contains the month start
-    // If month starts on Sunday and business days are Mon-Sat, we need to go back to Monday
-    const firstBusinessDayOfWeek = this.getFirstBusinessDayOfWeek(monthStart);
-
-    // Find the last business day of the week that contains the month end
-    // If month ends on Saturday and business days are Mon-Sat, we need to go forward to Saturday
-    const lastBusinessDayOfWeek = this.getLastBusinessDayOfWeek(monthEnd);
-
-    return eachDayOfInterval({ start: firstBusinessDayOfWeek, end: lastBusinessDayOfWeek });
+    const workingDays = this.businessDays();
+    return this.timeUtils.getMonthDays(currentDate, workingDays);
   });
 
   // Current view days
@@ -213,7 +171,7 @@ export class BookingMobilePageComponent {
   readonly selectedDaySlots = computed(() => {
     const selectedDate = this.selectedDate();
     if (!selectedDate) return null;
-    return this.daySlots().find(daySlot => isSameDay(daySlot.date, selectedDate));
+    return this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, selectedDate));
   });
 
   readonly isSelectedDayFullyBooked = computed(() => {
@@ -282,7 +240,7 @@ export class BookingMobilePageComponent {
     this.selectedTimeSlotSignal.set(null); // Reset time slot when date changes
 
     // Check if the selected day is fully booked and show toast
-    const daySlots = this.daySlots().find(daySlot => isSameDay(daySlot.date, date));
+    const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, date));
     if (daySlots && daySlots.timeSlots.length > 0) {
       const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
       if (availableSlots.length === 0) {
@@ -329,7 +287,7 @@ export class BookingMobilePageComponent {
 
     // Create booking details for confirmation
     const bookingDetails: BookingDetails = {
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      date: this.timeUtils.formatDateISO(selectedDate),
       time: selectedTimeSlot.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
@@ -356,7 +314,7 @@ export class BookingMobilePageComponent {
       const bookingData = {
         clientName: details.clientName,
         email: details.email,
-        data: format(selectedDate, 'yyyy-MM-dd'),
+        data: this.timeUtils.formatDateISO(selectedDate),
         hora: selectedTimeSlot.time,
         serviceId: selectedService.id || '',
         notes: '',
@@ -419,10 +377,10 @@ export class BookingMobilePageComponent {
     const businessHours = this.businessHours();
     const slotDuration = this.slotDuration();
 
-    const startHour = parseInt(businessHours.start.split(':')[0]);
-    const endHour = parseInt(businessHours.end.split(':')[0]);
+    const startHour = businessHours.start;
+    const endHour = businessHours.end;
     const now = new Date();
-    const isToday = isSameDay(date, now);
+    const isToday = this.timeUtils.isSameDay(date, now);
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotDuration) {
@@ -464,24 +422,87 @@ export class BookingMobilePageComponent {
 
   private isSlotBooked(date: Date): boolean {
     const bookings = this.bookingService.bookings();
-    const timeString = format(date, 'HH:mm');
-    const dateString = format(date, 'yyyy-MM-dd');
+    const timeString = this.timeUtils.formatTime(date.toTimeString().slice(0, 5));
+    const dateString = this.timeUtils.formatDateISO(date);
+    const selectedService = this.selectedService();
+
+    // Get the duration of the selected service (default to 60 minutes if no service selected)
+    const serviceDuration = selectedService?.duration || 60;
 
     return bookings.some(booking => {
-      // Check if booking is confirmed and matches the date and time
-      return (
-        booking.status === 'confirmed' && booking.data === dateString && booking.hora === timeString
-      );
+      // Check if booking is confirmed and matches the date
+      if (booking.status !== 'confirmed' || booking.data !== dateString) {
+        return false;
+      }
+
+      // Check if the booking time overlaps with the slot we're checking
+      const bookingTime = booking.hora;
+      if (!bookingTime) return false;
+
+      // Get the service duration for this booking
+      let bookingDuration = 60; // Default duration
+      if (booking.serviceId) {
+        const service = this.firebaseServicesService.services().find(s => s.id === booking.serviceId);
+        if (service) {
+          bookingDuration = service.duration;
+        }
+      }
+
+      // Calculate time ranges
+      const slotStart = new Date(date);
+      const slotEnd = new Date(slotStart.getTime() + serviceDuration * 60 * 1000);
+
+      const [bookingHour, bookingMinute] = bookingTime.split(':').map(Number);
+      const bookingStart = new Date(date);
+      bookingStart.setHours(bookingHour, bookingMinute, 0, 0);
+      const bookingEnd = new Date(bookingStart.getTime() + bookingDuration * 60 * 1000);
+
+      // Check for overlap
+      return slotStart < bookingEnd && slotEnd > bookingStart;
     });
   }
 
   private getBookingForSlot(date: Date, time: string): Booking | undefined {
-    const dateString = format(date, 'yyyy-MM-dd');
+    const dateString = this.timeUtils.formatDateISO(date);
     const bookings = this.bookingService.bookings();
+    const selectedService = this.selectedService();
+
+    // Get the duration of the selected service (default to 60 minutes if no service selected)
+    const serviceDuration = selectedService?.duration || 60;
+
+    // Calculate the time range for the slot we're checking
+    const [slotHour, slotMinute] = time.split(':').map(Number);
+    const slotStart = new Date(date);
+    slotStart.setHours(slotHour, slotMinute, 0, 0);
+    const slotEnd = new Date(slotStart.getTime() + serviceDuration * 60 * 1000);
 
     return bookings.find(booking => {
-      // Check if booking is confirmed and matches the date and time
-      return booking.status === 'confirmed' && booking.data === dateString && booking.hora === time;
+      // Check if booking is confirmed and matches the date
+      if (booking.status !== 'confirmed' || booking.data !== dateString) {
+        return false;
+      }
+
+      // Check if the booking time overlaps with the slot we're checking
+      const bookingTime = booking.hora;
+      if (!bookingTime) return false;
+
+      // Get the service duration for this booking
+      let bookingDuration = 60; // Default duration
+      if (booking.serviceId) {
+        const service = this.firebaseServicesService.services().find(s => s.id === booking.serviceId);
+        if (service) {
+          bookingDuration = service.duration;
+        }
+      }
+
+      // Calculate booking time range
+      const [bookingHour, bookingMinute] = bookingTime.split(':').map(Number);
+      const bookingStart = new Date(date);
+      bookingStart.setHours(bookingHour, bookingMinute, 0, 0);
+      const bookingEnd = new Date(bookingStart.getTime() + bookingDuration * 60 * 1000);
+
+      // Check for overlap
+      return slotStart < bookingEnd && slotEnd > bookingStart;
     });
   }
 
@@ -494,8 +515,8 @@ export class BookingMobilePageComponent {
   private isTimeSlotEnabled(hour: number): boolean {
     // Check lunch break
     const lunchBreak = this.lunchBreak();
-    const lunchStart = parseInt(lunchBreak.start.split(':')[0]);
-    const lunchEnd = parseInt(lunchBreak.end.split(':')[0]);
+    const lunchStart = lunchBreak.start;
+    const lunchEnd = lunchBreak.end;
 
     if (hour >= lunchStart && hour < lunchEnd) {
       return false;
@@ -523,8 +544,8 @@ export class BookingMobilePageComponent {
     const businessHours = this.businessHours();
     const slotDuration = this.slotDuration();
 
-    const startHour = parseInt(businessHours.start.split(':')[0]);
-    const endHour = parseInt(businessHours.end.split(':')[0]);
+    const startHour = businessHours.start;
+    const endHour = businessHours.end;
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotDuration) {
@@ -620,14 +641,14 @@ export class BookingMobilePageComponent {
   // Navigation
   goToPreviousWeek() {
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
-    const newDate = addDays(currentDate, -7);
+    const newDate = this.timeUtils.getPreviousWeek(currentDate);
     this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     this.clearSelectedDate(); // Clear selected date when changing period
   }
 
   goToNextWeek() {
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
-    const newDate = addDays(currentDate, 7);
+    const newDate = this.timeUtils.getNextWeek(currentDate);
     this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     this.clearSelectedDate(); // Clear selected date when changing period
   }
@@ -676,7 +697,7 @@ export class BookingMobilePageComponent {
 
     // Go directly to booking confirmation popup
     const bookingDetails: BookingDetails = {
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      date: this.timeUtils.formatDateISO(selectedDate),
       time: timeSlot.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
@@ -689,29 +710,29 @@ export class BookingMobilePageComponent {
 
   // Format methods
   formatDay(date: Date): string {
-    return format(date, 'EEEE, d MMMM', { locale: ca });
+    return this.timeUtils.formatDay(date);
   }
 
   formatDayShort(date: Date): string {
-    return format(date, 'EEE', { locale: ca });
+    return this.timeUtils.formatDayShort(date);
   }
 
   formatTime(time: string): string {
-    return time;
+    return this.timeUtils.formatTime(time);
   }
 
   formatMonth(date: Date): string {
-    return format(date, 'MMMM yyyy', { locale: ca });
+    return this.timeUtils.formatMonth(date);
   }
 
   // State check methods
   isToday(date: Date): boolean {
-    return isSameDay(date, new Date());
+    return this.timeUtils.isToday(date);
   }
 
   isSelected(date: Date): boolean {
     const selectedDate = this.selectedDate();
-    return selectedDate ? isSameDay(date, selectedDate) : false;
+    return this.timeUtils.isSelected(date, selectedDate);
   }
 
   isBusinessDay(date: Date): boolean {
@@ -758,7 +779,7 @@ export class BookingMobilePageComponent {
   }
 
   getTomorrow(): Date {
-    return addDays(new Date(), 1);
+    return this.timeUtils.getTomorrow();
   }
 
   selectToday() {
@@ -778,30 +799,8 @@ export class BookingMobilePageComponent {
   }
 
   nextAvailableDate(): Date | null {
-    // Check next 30 days for available dates
-    for (let i = 0; i < 30; i++) {
-      const date = addDays(new Date(), i);
-      console.log(`Checking date ${i}: ${format(date, 'yyyy-MM-dd')} (day ${date.getDay()})`);
-
-      if (this.canSelectDate(date)) {
-        console.log(`Date ${format(date, 'yyyy-MM-dd')} is selectable`);
-        // Generate time slots for this specific date
-        const timeSlots = this.generateTimeSlots(date);
-        console.log(`Generated ${timeSlots.length} time slots for ${format(date, 'yyyy-MM-dd')}`);
-
-        const availableSlots = timeSlots.filter(slot => slot.available);
-        console.log(`Available slots: ${availableSlots.length}`);
-
-        if (availableSlots.length > 0) {
-          console.log(`Found available date: ${format(date, 'yyyy-MM-dd')}`);
-          return date;
-        }
-      } else {
-        console.log(`Date ${format(date, 'yyyy-MM-dd')} is not selectable`);
-      }
-    }
-    console.log('No available dates found in next 30 days');
-    return null;
+    const workingDays = this.businessDays();
+    return this.timeUtils.getNextAvailableDate(workingDays);
   }
 
   selectNextAvailable() {
@@ -836,10 +835,10 @@ export class BookingMobilePageComponent {
 
   // Helper methods for month view calendar alignment
   private getFirstBusinessDayOfWeek(date: Date): Date {
-    const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Monday
+    const weekStart = this.timeUtils.getStartOfWeek(date);
     // Find the first business day in the week
     for (let i = 0; i < 7; i++) {
-      const day = addDays(weekStart, i);
+      const day = this.timeUtils.addDays(weekStart, i);
       if (this.businessDays().includes(day.getDay())) {
         return day;
       }
@@ -848,10 +847,10 @@ export class BookingMobilePageComponent {
   }
 
   private getLastBusinessDayOfWeek(date: Date): Date {
-    const weekEnd = endOfWeek(date, { weekStartsOn: 1 }); // Sunday
+    const weekEnd = this.timeUtils.getEndOfWeek(date);
     // Find the last business day in the week
     for (let i = 6; i >= 0; i--) {
-      const day = addDays(weekEnd, -i);
+      const day = this.timeUtils.addDays(weekEnd, -i);
       if (this.businessDays().includes(day.getDay())) {
         return day;
       }
@@ -900,12 +899,12 @@ export class BookingMobilePageComponent {
 
     if (this.viewMode() === 'week') {
       // Check if the previous week would be before today
-      const previousWeekStart = addDays(currentDate, -7);
+      const previousWeekStart = this.timeUtils.getPreviousWeek(currentDate);
       const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       return previousWeekStart >= todayStart;
     } else {
       // Check if the previous month would be before current month
-      const previousMonth = subMonths(currentDate, 1);
+      const previousMonth = this.timeUtils.getPreviousMonth(currentDate);
       const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       return previousMonth >= currentMonth;
     }
@@ -918,10 +917,10 @@ export class BookingMobilePageComponent {
 
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     if (this.viewMode() === 'week') {
-      const newDate = addDays(currentDate, -7);
+      const newDate = this.timeUtils.getPreviousWeek(currentDate);
       this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     } else {
-      const newDate = subMonths(currentDate, 1);
+      const newDate = this.timeUtils.getPreviousMonth(currentDate);
       this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     }
     this.clearSelectedDate(); // Clear selected date when changing period
@@ -930,10 +929,10 @@ export class BookingMobilePageComponent {
   nextPeriod() {
     const currentDate = this.viewDate(); // Use viewDate instead of selectedDate
     if (this.viewMode() === 'week') {
-      const newDate = addDays(currentDate, 7);
+      const newDate = this.timeUtils.getNextWeek(currentDate);
       this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     } else {
-      const newDate = addMonths(currentDate, 1);
+      const newDate = this.timeUtils.getNextMonth(currentDate);
       this.viewDateSignal.set(newDate); // Update viewDate instead of selectedDate
     }
     this.clearSelectedDate(); // Clear selected date when changing period

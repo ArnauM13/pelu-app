@@ -451,6 +451,8 @@
       "LUNCH_BREAK": "Lunch break",
       "LUNCH_BREAK_START": "Lunch break start",
       "LUNCH_BREAK_END": "Lunch break end",
+      "WORKING_DAYS": "Working days",
+      "WORKING_DAYS_PLACEHOLDER": "Select working days",
       "APPOINTMENT_SETTINGS": "Appointment Settings",
       "APPOINTMENT_DURATION": "Appointment duration",
       "MAX_APPOINTMENTS": "Maximum appointments per day",
@@ -635,6 +637,15 @@
       "GENERAL_SERVICE": "General service",
       "COMPLETE_HAIRDRESSING": "Complete hairdressing",
       "TEST_SERVICE": "Test service"
+    },
+    "DAYS": {
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday",
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday"
     }
   },
   "DAYS": {

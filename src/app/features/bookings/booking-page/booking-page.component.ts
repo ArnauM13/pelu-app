@@ -20,11 +20,13 @@ import {
 } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
+import { CalendarStateService } from '../../calendar/services/calendar-state.service';
+import { startOfWeek, endOfWeek } from 'date-fns';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -51,8 +53,9 @@ export class BookingPageComponent {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly translateService = inject(TranslateService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
   private readonly responsiveService = inject(ResponsiveService);
+  private readonly calendarStateService = inject(CalendarStateService);
 
   // Mobile detection using centralized service
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -91,12 +94,24 @@ export class BookingPageComponent {
     return today;
   });
 
+  // Computed week info that updates when calendar view changes
+  readonly weekInfo = computed(() => {
+    const referenceDate = this.calendarStateService.viewDate();
+    const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
+    const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
+
+    const formatDate = (date: Date) =>
+      date.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' });
+
+    return `${formatDate(start)} - ${formatDate(end)}`;
+  });
+
   // Calendar footer configuration
   readonly calendarFooterConfig = computed((): FooterConfig => {
     const today = new Date();
     const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-    const businessHours = this.businessSettingsService.getBusinessHours();
-    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+    const businessHours = this.systemParametersService.businessHours();
+    const lunchBreak = this.systemParametersService.lunchBreak();
 
     return {
       showInfoNote: false,
@@ -246,21 +261,5 @@ export class BookingPageComponent {
     }
   }
 
-  getWeekInfo(): string {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('ca-ES', {
-        day: 'numeric',
-        month: 'short'
-      });
-    };
-
-    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
-  }
 }

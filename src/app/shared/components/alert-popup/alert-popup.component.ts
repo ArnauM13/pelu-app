@@ -1,7 +1,7 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../popup-dialog/popup-dialog.component';
 
 export interface AlertData {
   title?: string;

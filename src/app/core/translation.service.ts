@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 export interface LanguageInfo {
   code: string;
@@ -14,7 +14,9 @@ export interface LanguageInfo {
 export class TranslationService {
   private currentLang = 'ca';
 
-  constructor(private translate: TranslateService) {
+  private translate = inject(TranslateService);
+
+  constructor() {
     this.initializeLanguage();
   }
 
@@ -57,11 +59,11 @@ export class TranslationService {
     ];
   }
 
-  getTranslation(key: string, params?: any): Observable<string> {
+  getTranslation(key: string, params?: unknown): Observable<string> {
     return this.translate.get(key, params);
   }
 
-  getTranslationInstant(key: string, params?: any): string {
+  getTranslationInstant(key: string, params?: unknown): string {
     return this.translate.instant(key, params);
   }
 

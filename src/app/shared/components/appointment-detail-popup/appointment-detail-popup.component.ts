@@ -1,12 +1,11 @@
-import { Component, input, output, signal, computed, inject, effect } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
-import { AdminWarningPopupComponent } from '../admin-warning-popup/admin-warning-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { RoleService } from '../../../core/services/role.service';
+import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../services/toast.service';
 
 import { Booking } from '../../../core/interfaces/booking.interface';
@@ -27,7 +26,6 @@ import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.
     ButtonModule,
     TranslateModule,
     PopupDialogComponent,
-    AdminWarningPopupComponent,
     // Add input components
     InputTextComponent,
     InputDateComponent,
@@ -39,7 +37,7 @@ import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.
 export class AppointmentDetailPopupComponent {
   // Inject services
   #authService = inject(AuthService);
-  #roleService = inject(RoleService);
+  #userService = inject(UserService);
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #servicesService = inject(ServicesService);
@@ -63,9 +61,7 @@ export class AppointmentDetailPopupComponent {
   readonly loadError = signal<boolean>(false);
   private loadedBooking = signal<Booking | null>(null);
 
-  // Admin warning popup state
-  readonly showAdminWarningPopup = signal<boolean>(false);
-  readonly adminWarningBookingOwner = signal<string>('');
+
 
   // Computed properties
   readonly isOpen = computed(() => this.open() && !this.isClosing());
@@ -117,7 +113,7 @@ export class AppointmentDetailPopupComponent {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
-    const isAdmin = this.#roleService.isAdmin();
+    const isAdmin = this.#userService.isAdmin();
 
     // Admin can edit any booking
     if (isAdmin) return true;
@@ -136,7 +132,7 @@ export class AppointmentDetailPopupComponent {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
-    const isAdmin = this.#roleService.isAdmin();
+    const isAdmin = this.#userService.isAdmin();
 
     // Admin can delete any booking
     if (isAdmin) return true;
@@ -162,7 +158,7 @@ export class AppointmentDetailPopupComponent {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
-    const isAdmin = this.#roleService.isAdmin();
+    const isAdmin = this.#userService.isAdmin();
     const isOwner = booking.email === currentUser.email || !booking.email;
 
     // Show warning if admin is viewing someone else's booking
@@ -189,31 +185,12 @@ export class AppointmentDetailPopupComponent {
     ]
   }));
 
-  constructor() {
-    // Watch for changes in the popup state and admin warning
-    effect(() => {
-      const isOpen = this.isOpen();
-      if (isOpen && this.showAdminWarning()) {
-        const booking = this.currentBooking();
-        if (booking) {
-          this.adminWarningBookingOwner.set(booking.clientName || 'Usuari anònim');
-          this.showAdminWarningPopup.set(true);
-        }
-      } else if (!isOpen) {
-        this.showAdminWarningPopup.set(false);
-        this.adminWarningBookingOwner.set('');
-      }
-    });
-  }
+
 
   onClose(): void {
     if (this.isClosing()) return;
 
     this.isClosing.set(true);
-
-    // Close admin warning popup
-    this.showAdminWarningPopup.set(false);
-    this.adminWarningBookingOwner.set('');
 
     // Emit immediately to avoid timing issues
     this.closed.emit();
@@ -255,12 +232,6 @@ export class AppointmentDetailPopupComponent {
     }
   }
 
-  // Admin warning popup methods
-  onAdminWarningClosed(): void {
-    this.showAdminWarningPopup.set(false);
-    this.adminWarningBookingOwner.set('');
-  }
-
   // Helper methods
   getClientName(booking: Booking): string {
     return booking.clientName || 'N/A';
@@ -269,8 +240,6 @@ export class AppointmentDetailPopupComponent {
   getClientEmail(booking: Booking): string {
     return booking.email || 'N/A';
   }
-
-
 
   formatBookingDate(date: string): string {
     if (!date) return 'N/A';

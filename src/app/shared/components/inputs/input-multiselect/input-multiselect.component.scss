@@ -1,0 +1,35 @@
+.input-multiselect-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .input-multiselect-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+
+    &.required::after {
+      content: ' *';
+      color: var(--red-500);
+    }
+  }
+
+  .input-help {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 0.25rem;
+  }
+
+  .input-error {
+    font-size: 0.75rem;
+    color: var(--red-500);
+    margin-top: 0.25rem;
+  }
+
+  .input-success {
+    font-size: 0.75rem;
+    color: var(--green-500);
+    margin-top: 0.25rem;
+  }
+}

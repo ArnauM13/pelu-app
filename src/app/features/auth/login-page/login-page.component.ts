@@ -1,7 +1,7 @@
-import { Component, signal, computed, effect, inject, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
+import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   AuthPopupComponent,
@@ -83,7 +83,7 @@ export class LoginPageComponent implements OnDestroy {
       this.#router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
       this.errorMessage.set(
-        this.#translation.get('AUTH.LOGIN_ERROR') + ': ' + (err as any).message
+        this.#translation.get('AUTH.LOGIN_ERROR') + ': ' + (err as Error).message
       );
     } finally {
       this.isLoadingSignal.set(false);
@@ -99,7 +99,7 @@ export class LoginPageComponent implements OnDestroy {
       this.#router.navigate(['/']); // Redirigir a la pàgina principal
     } catch (err) {
       this.errorMessage.set(
-        this.#translation.get('AUTH.GOOGLE_LOGIN_ERROR') + ': ' + (err as any).message
+        this.#translation.get('AUTH.GOOGLE_LOGIN_ERROR') + ': ' + (err as Error).message
       );
     } finally {
       this.isLoadingSignal.set(false);

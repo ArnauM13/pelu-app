@@ -3,12 +3,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 
 export interface LogContext {
-  component?: string;
-  method?: string;
-  userId?: string;
-  action?: string;
-  data?: any;
-  timestamp?: Date;
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+export interface LogData {
+  message: string;
+  context?: LogContext;
+  timestamp?: string;
+  level?: 'info' | 'warn' | 'error' | 'debug';
 }
 
 export interface ErrorDetails {
@@ -27,6 +29,8 @@ export class LoggerService {
   // private readonly toastService = inject(ToastService); // ELIMINAT
 
   private readonly isDevelopment = !environment.production;
+  private readonly logHistory: LogData[] = [];
+  private readonly maxHistorySize = 100;
 
   /**
    * Log informatiu amb context detallat
@@ -142,7 +146,7 @@ export class LoggerService {
    */
   userAction(action: string, context?: LogContext, data?: any): void {
     const logContext = this.buildLogContext(context);
-    logContext.action = action;
+    logContext['action'] = action;
 
     const logMessage = this.formatLogMessage('USER', `User action: ${action}`, logContext, data);
 
@@ -174,7 +178,7 @@ export class LoggerService {
    */
   networkError(error: any, endpoint: string, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
-    logContext.data = { endpoint };
+    logContext['data'] = JSON.stringify({ endpoint });
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.NETWORK_ERROR');
@@ -201,7 +205,7 @@ export class LoggerService {
    */
   firebaseError(error: any, operation: string, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
-    logContext.data = { operation, firebaseError: true };
+    logContext['data'] = JSON.stringify({ operation, firebaseError: true });
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.FIREBASE_ERROR');
@@ -214,7 +218,7 @@ export class LoggerService {
 
   private buildLogContext(context?: LogContext): LogContext {
     return {
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       ...context,
     };
   }
@@ -223,7 +227,7 @@ export class LoggerService {
     return {
       error,
       context,
-      technicalDetails: error?.message || 'Unknown error occurred',
+      technicalDetails: error instanceof Error ? error.message : String(error),
       severity: 'medium',
     };
   }
@@ -234,29 +238,23 @@ export class LoggerService {
     context: LogContext,
     data?: any
   ): string {
-    const timestamp = context.timestamp?.toISOString() || new Date().toISOString();
-    const component = context.component ? `[${context.component}]` : '';
-    const method = context.method ? `.${context.method}` : '';
-    const userId = context.userId ? `[User: ${context.userId}]` : '';
-    const action = context.action ? `[Action: ${context.action}]` : '';
+    const timestamp = context['timestamp'] || new Date().toISOString();
+    const component = context['component'] ? `[${context['component']}]` : '';
+    const method = context['method'] ? `.${context['method']}` : '';
+    const userId = context['userId'] ? `[User: ${context['userId']}]` : '';
+    const action = context['action'] ? `[Action: ${context['action']}]` : '';
 
-    let logMessage = `[${timestamp}] ${level} ${component}${method} ${userId} ${action}: ${message}`;
-
-    if (data) {
-      logMessage += ` | Data: ${JSON.stringify(data, null, 2)}`;
-    }
-
-    return logMessage;
+    return `${timestamp} ${level} ${component}${method} ${userId} ${action} ${message}`;
   }
 
   private formatErrorMessage(errorDetails: ErrorDetails): string {
     const { error, context, technicalDetails, severity } = errorDetails;
-    const timestamp = context.timestamp?.toISOString() || new Date().toISOString();
-    const component = context.component ? `[${context.component}]` : '';
-    const method = context.method ? `.${context.method}` : '';
-    const userId = context.userId ? `[User: ${context.userId}]` : '';
+    const timestamp = context['timestamp'] || new Date().toISOString();
+    const component = context['component'] ? `[${context['component']}]` : '';
+    const method = context['method'] ? `.${context['method']}` : '';
+    const userId = context['userId'] ? `[User: ${context['userId']}]` : '';
 
-    return `[${timestamp}] ERROR ${severity.toUpperCase()} ${component}${method} ${userId}: ${technicalDetails}`;
+    return `${timestamp} ERROR ${severity.toUpperCase()} ${component}${method} ${userId} ${technicalDetails}`;
   }
 
   // private showUserFriendlyError(errorDetails: ErrorDetails): void {
@@ -277,17 +275,18 @@ export class LoggerService {
     // En un entorn de producció, aquí enviaríem els logs a un servei extern
     // com ara Sentry, LogRocket, o un servei personalitzat
 
-    const logEntry = {
-      level,
+    const logEntry: LogData = {
       message,
       context,
-      data,
+      level: level as 'info' | 'warn' | 'error' | 'debug',
       timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
     };
 
-    // Per ara, només guardem en localStorage per a debugging
+    this.logHistory.push(logEntry);
+    if (this.logHistory.length > this.maxHistorySize) {
+      this.logHistory.splice(0, this.logHistory.length - this.maxHistorySize);
+    }
+
     if (this.isDevelopment) {
       this.saveToLocalStorage(logEntry);
     }
@@ -296,7 +295,7 @@ export class LoggerService {
     // this.sendToExternalService(logEntry);
   }
 
-  private saveToLocalStorage(logEntry: any): void {
+  private saveToLocalStorage(logEntry: LogData): void {
     try {
       const logs = JSON.parse(localStorage.getItem('app_logs') || '[]');
       logs.push(logEntry);
@@ -315,7 +314,7 @@ export class LoggerService {
   /**
    * Obtenir logs guardats (útil per a debugging)
    */
-  getStoredLogs(): any[] {
+  getStoredLogs(): LogData[] {
     try {
       return JSON.parse(localStorage.getItem('app_logs') || '[]');
     } catch (error) {

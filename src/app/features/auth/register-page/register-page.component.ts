@@ -1,8 +1,8 @@
-import { Component, signal, computed, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
 import { AuthService } from '../../../core/auth/auth.service';
 import {
   AuthPopupComponent,
@@ -11,13 +11,19 @@ import {
 import { TranslationService } from '../../../core/services/translation.service';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 
+// Define error interface for better type safety
+interface AuthError {
+  code?: string;
+  message?: string;
+}
+
 @Component({
   selector: 'pelu-register-page',
   imports: [CommonModule, TranslateModule, AuthPopupComponent, LoadingStateComponent],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss'],
 })
-export class RegisterPageComponent implements OnDestroy {
+export class RegisterPageComponent {
   // Inject services
   #auth = inject(Auth);
   #router = inject(Router);
@@ -54,9 +60,7 @@ export class RegisterPageComponent implements OnDestroy {
     overlay: true,
   }));
 
-  ngOnDestroy() {
-    // Clean up any subscriptions or timers if needed
-  }
+
 
   onPasswordMismatch(mismatch: boolean) {
     this.passwordMismatch.set(mismatch);
@@ -88,11 +92,12 @@ export class RegisterPageComponent implements OnDestroy {
 
       await this.#authService.registre(formData.email, formData.password);
       await this.#router.navigate(['/']); // Redirigir a la pàgina principal
-    } catch (err: any) {
+    } catch (err: unknown) {
       let errorMessage = 'Error desconegut';
 
-      if (err?.code) {
-        switch (err.code) {
+      const authError = err as AuthError;
+      if (authError?.code) {
+        switch (authError.code) {
           case 'auth/email-already-in-use':
             errorMessage = 'Aquest correu electrònic ja està registrat';
             break;
@@ -103,10 +108,10 @@ export class RegisterPageComponent implements OnDestroy {
             errorMessage = 'La contrasenya és massa feble';
             break;
           default:
-            errorMessage = err.message || 'Error al registrar-se';
+            errorMessage = authError.message || 'Error al registrar-se';
         }
       } else {
-        errorMessage = err?.message || 'Error al registrar-se';
+        errorMessage = authError?.message || 'Error al registrar-se';
       }
 
       this.errorMessage.set(errorMessage);
@@ -124,11 +129,12 @@ export class RegisterPageComponent implements OnDestroy {
     try {
       await this.#authService.loginWithGoogle();
       await this.#router.navigate(['/']); // Redirigir a la pàgina principal
-    } catch (err: any) {
+    } catch (err: unknown) {
       let errorMessage = 'Error desconegut';
 
-      if (err?.code) {
-        switch (err.code) {
+      const authError = err as AuthError;
+      if (authError?.code) {
+        switch (authError.code) {
           case 'auth/popup-closed-by-user':
             errorMessage = "S'ha tancat la finestra d'autenticació";
             break;
@@ -136,10 +142,10 @@ export class RegisterPageComponent implements OnDestroy {
             errorMessage = "La finestra d'autenticació ha estat bloquejada";
             break;
           default:
-            errorMessage = err.message || 'Error al registrar-se amb Google';
+            errorMessage = authError.message || 'Error al registrar-se amb Google';
         }
       } else {
-        errorMessage = err?.message || 'Error al registrar-se amb Google';
+        errorMessage = authError?.message || 'Error al registrar-se amb Google';
       }
 
       this.errorMessage.set(errorMessage);

@@ -1,15 +1,17 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { UserService } from '../services/user.service';
+import { RoleService } from '../services/role.service';
 
-export const adminGuard: CanActivateFn = (route, state) => {
+export const adminGuard: CanActivateFn = () => {
   const userService = inject(UserService);
+  const roleService = inject(RoleService);
   const router = inject(Router);
 
   return new Promise<boolean>(resolve => {
     if (userService.isInitialized()) {
       const isAuth = userService.isAuthenticated();
-      const isAdmin = userService.hasAdminAccess();
+      const isAdmin = roleService.isAdmin();
 
       if (!isAuth) {
         router.navigate(['/login']);
@@ -27,7 +29,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
         if (userService.isInitialized()) {
           clearInterval(checkInterval);
           const isAuth = userService.isAuthenticated();
-          const isAdmin = userService.hasAdminAccess();
+          const isAdmin = roleService.isAdmin();
 
           if (!isAuth) {
             router.navigate(['/login']);
@@ -46,7 +48,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
 
 // Guard for specific admin permissions
 export const adminPermissionGuard = (requiredPermission: string): CanActivateFn => {
-  return (route, state) => {
+  return () => {
     const userService = inject(UserService);
     const router = inject(Router);
 
