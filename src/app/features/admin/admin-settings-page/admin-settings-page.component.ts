@@ -1,22 +1,24 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ToastService } from '../../../shared/services/toast.service';
+
 import { UserService } from '../../../core/services/user.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
 
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
+import { InputMultiSelectComponent, MultiSelectOption } from '../../../shared/components/inputs/input-multiselect/input-multiselect.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 
@@ -36,6 +38,7 @@ import { ButtonComponent } from '../../../shared/components/buttons/button.compo
     InputNumberComponent,
     InputCheckboxComponent,
     InputSelectComponent,
+    InputMultiSelectComponent,
     InputDateComponent,
     ButtonComponent,
   ],
@@ -48,34 +51,47 @@ export class AdminSettingsPageComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
-  private businessSettingsService = inject(BusinessSettingsService);
+  private systemParametersService = inject(SystemParametersService);
 
   settingsForm!: FormGroup;
 
   // Mode management
   private readonly isEditModeSignal = signal(false);
-  private originalFormValues: any = null;
+  private originalFormValues: Record<string, unknown> | null = null;
 
-  // Use the business settings service
-  settings = computed(() => this.businessSettingsService.settings());
-  loading = computed(() => this.businessSettingsService.loading());
-  error = computed(() => this.businessSettingsService.error());
+  // Use the system parameters service
+  parameters = computed(() => this.systemParametersService.parameters());
+  loading = computed(() => this.systemParametersService.loading());
+  error = computed(() => this.systemParametersService.error());
 
   saving = signal(false);
 
   // Computed properties
   readonly isEditMode = computed(() => this.isEditModeSignal());
 
-  // TODO: posar el calendari de dilluns a diumenge
-  workingDaysOptions = [
-    { label: 'Dilluns', value: 1 },
-    { label: 'Dimarts', value: 2 },
-    { label: 'Dimecres', value: 3 },
-    { label: 'Dijous', value: 4 },
-    { label: 'Divendres', value: 5 },
-    { label: 'Dissabte', value: 6 },
-    { label: 'Diumenge', value: 0 },
-  ];
+  // Debug method for logging
+  logWorkingDaysValue(): void {
+    console.log('WorkingDays form value:', this.settingsForm.get('workingDays')?.value);
+  }
+
+  // Working days options with translated labels
+  workingDaysOptions: MultiSelectOption[] = [];
+
+  constructor() {
+    this.generateWorkingDaysOptions();
+  }
+
+  private generateWorkingDaysOptions(): void {
+    this.workingDaysOptions = [
+      { label: 'COMMON.DAYS.MONDAY', value: 1 },
+      { label: 'COMMON.DAYS.TUESDAY', value: 2 },
+      { label: 'COMMON.DAYS.WEDNESDAY', value: 3 },
+      { label: 'COMMON.DAYS.THURSDAY', value: 4 },
+      { label: 'COMMON.DAYS.FRIDAY', value: 5 },
+      { label: 'COMMON.DAYS.SATURDAY', value: 6 },
+      { label: 'COMMON.DAYS.SUNDAY', value: 0 },
+    ];
+  }
 
   backupFrequencyOptions = [
     { label: 'Diari', value: 'daily' },
@@ -90,91 +106,60 @@ export class AdminSettingsPageComponent implements OnInit {
     { label: 'العربية', value: 'ar' },
   ];
 
-  timezoneOptions = [
-    { label: 'Madrid (UTC+1)', value: 'Europe/Madrid' },
-    { label: 'Barcelona (UTC+1)', value: 'Europe/Madrid' },
-    { label: 'Londres (UTC+0)', value: 'Europe/London' },
-    { label: 'Nova York (UTC-5)', value: 'America/New_York' },
+  currencyOptions = [
+    { label: 'EUR (€)', value: 'EUR' },
+    { label: 'USD ($)', value: 'USD' },
+    { label: 'GBP (£)', value: 'GBP' },
   ];
-
-  get currencyOptions() {
-    return this.currencyService.getCurrencyOptions();
-  }
 
   ngOnInit() {
     this.initializeForm();
     this.loadSettings();
   }
 
-  // Mode management methods
-  setViewMode() {
-    this.isEditModeSignal.set(false);
-    // Restore original form values if canceling edit mode
-    if (this.originalFormValues) {
-      this.settingsForm.patchValue(this.originalFormValues);
-      this.originalFormValues = null;
-    }
-  }
-
-  setEditMode() {
-    // Save current form values before entering edit mode
-    this.originalFormValues = this.settingsForm.value;
-    this.isEditModeSignal.set(true);
-  }
-
-  toggleEditMode() {
-    if (this.isEditMode()) {
-      this.setViewMode();
-    } else {
-      this.setEditMode();
-    }
-  }
-
-  cancelEditMode() {
-    this.setViewMode();
-  }
-
-  // Helper methods for display
-  getLanguageLabel(value: string): string {
-    const option = this.languageOptions.find(opt => opt.value === value);
-    return option ? option.label : value;
-  }
-
-  getCurrencyLabel(value: string): string {
-    const option = this.currencyOptions.find(opt => opt.value === value);
-    return option ? option.label : value;
-  }
-
   private initializeForm() {
-    const currentSettings = this.settings();
-    const businessHoursString = this.businessSettingsService.getBusinessHoursString();
-    const lunchBreak = this.businessSettingsService.getLunchBreak();
+    const currentParameters = this.parameters();
+    const businessHours = this.systemParametersService.getBusinessHours();
+    const lunchBreak = this.systemParametersService.getLunchBreak();
+
+    // Convert numeric hours to Date objects for time inputs
+    const createTimeDate = (hour: number): Date => {
+      const date = new Date();
+      date.setHours(hour, 0, 0, 0);
+      return date;
+    };
+
+    console.log('Initializing form with workingDays:', currentParameters.workingDays);
 
     this.settingsForm = this.fb.group({
-      businessName: [currentSettings.businessName],
-      businessHoursStart: [businessHoursString.start],
-      businessHoursEnd: [businessHoursString.end],
-      lunchBreakStart: [lunchBreak.start],
-      lunchBreakEnd: [lunchBreak.end],
-      appointmentDuration: [currentSettings.appointmentDuration],
-      maxAppointments: [currentSettings.maxAppointmentsPerDay],
-      autoConfirm: [currentSettings.autoConfirmAppointments],
-      sendNotifications: [currentSettings.sendNotifications],
-      defaultLanguage: [currentSettings.language],
-      currency: [currentSettings.currency],
+      businessName: [currentParameters.businessName],
+      businessHoursStart: [createTimeDate(businessHours.start)],
+      businessHoursEnd: [createTimeDate(businessHours.end)],
+      lunchBreakStart: [createTimeDate(lunchBreak.start)],
+      lunchBreakEnd: [createTimeDate(lunchBreak.end)],
+      workingDays: [currentParameters.workingDays],
+      appointmentDuration: [currentParameters.appointmentDuration],
+      maxAppointments: [currentParameters.maxAppointmentsPerDay],
+      autoConfirm: [currentParameters.autoConfirmAppointments],
+      sendNotifications: [currentParameters.sendNotifications],
+      defaultLanguage: [currentParameters.language],
+      currency: [currentParameters.currency],
       // New booking parameters
-      preventCancellation: [currentSettings.preventCancellation],
-      cancellationTimeLimit: [currentSettings.cancellationTimeLimit],
-      bookingAdvanceDays: [currentSettings.bookingAdvanceDays],
-      bookingAdvanceTime: [currentSettings.bookingAdvanceTime],
+      preventCancellation: [currentParameters.preventCancellation],
+      cancellationTimeLimit: [currentParameters.cancellationTimeLimit],
+      bookingAdvanceDays: [currentParameters.bookingAdvanceDays],
+      bookingAdvanceTime: [currentParameters.bookingAdvanceTime],
     });
+
+    console.log('Form initialized with workingDays value:', this.settingsForm.get('workingDays')?.value);
   }
 
   async loadSettings() {
     try {
-      await this.businessSettingsService.loadSettings();
-      // Update form with new settings and clear original values
-      this.updateFormWithCurrentSettings();
+      await this.systemParametersService.loadParameters();
+      // Reinitialize form with new settings
+      this.initializeForm();
+      this.originalFormValues = null;
     } catch (error) {
       console.error('Error loading settings:', error);
       this.toastService.showError('Error', 'Error al carregar la configuració');
@@ -183,36 +168,59 @@ export class AdminSettingsPageComponent implements OnInit {
 
   private updateFormWithCurrentSettings() {
     if (this.settingsForm) {
-      const currentSettings = this.settings();
-      const businessHoursString = this.businessSettingsService.getBusinessHoursString();
-      const lunchBreak = this.businessSettingsService.getLunchBreak();
+      const currentParameters = this.parameters();
+      const businessHours = this.systemParametersService.getBusinessHours();
+      const lunchBreak = this.systemParametersService.getLunchBreak();
+
+      // Convert numeric hours to Date objects for time inputs
+      const createTimeDate = (hour: number): Date => {
+        const date = new Date();
+        date.setHours(hour, 0, 0, 0);
+        return date;
+      };
 
       this.settingsForm.patchValue({
-        businessName: currentSettings.businessName,
-        businessHoursStart: businessHoursString.start,
-        businessHoursEnd: businessHoursString.end,
-        lunchBreakStart: lunchBreak.start,
-        lunchBreakEnd: lunchBreak.end,
-        appointmentDuration: currentSettings.appointmentDuration,
-        maxAppointments: currentSettings.maxAppointmentsPerDay,
-        autoConfirm: currentSettings.autoConfirmAppointments,
-        sendNotifications: currentSettings.sendNotifications,
-        defaultLanguage: currentSettings.language,
-        currency: currentSettings.currency,
-        preventCancellation: currentSettings.preventCancellation,
-        cancellationTimeLimit: currentSettings.cancellationTimeLimit,
-        bookingAdvanceDays: currentSettings.bookingAdvanceDays,
-        bookingAdvanceTime: currentSettings.bookingAdvanceTime,
+        businessName: currentParameters.businessName,
+        businessHoursStart: createTimeDate(businessHours.start),
+        businessHoursEnd: createTimeDate(businessHours.end),
+        lunchBreakStart: createTimeDate(lunchBreak.start),
+        lunchBreakEnd: createTimeDate(lunchBreak.end),
+        workingDays: currentParameters.workingDays,
+        appointmentDuration: currentParameters.appointmentDuration,
+        maxAppointments: currentParameters.maxAppointmentsPerDay,
+        autoConfirm: currentParameters.autoConfirmAppointments,
+        sendNotifications: currentParameters.sendNotifications,
+        defaultLanguage: currentParameters.language,
+        currency: currentParameters.currency,
+        preventCancellation: currentParameters.preventCancellation,
+        cancellationTimeLimit: currentParameters.cancellationTimeLimit,
+        bookingAdvanceDays: currentParameters.bookingAdvanceDays,
+        bookingAdvanceTime: currentParameters.bookingAdvanceTime,
       });
-
-      // Clear original form values since we're loading fresh data
-      this.originalFormValues = null;
     }
+  }
+
+  setEditMode() {
+    this.isEditModeSignal.set(true);
+    this.originalFormValues = this.settingsForm.value;
+  }
+
+  cancelEditMode() {
+    this.isEditModeSignal.set(false);
+    if (this.originalFormValues) {
+      this.settingsForm.patchValue(this.originalFormValues);
+    }
+  }
+
+  setViewMode() {
+    this.isEditModeSignal.set(false);
+    this.originalFormValues = null;
   }
 
   async saveSettings() {
     if (this.settingsForm.valid) {
       this.saving.set(true);
+
       try {
         const formValue = this.settingsForm.value;
 
@@ -224,17 +232,45 @@ export class AdminSettingsPageComponent implements OnInit {
           this.currencyService.setCurrentCurrency(formValue.currency);
         }
 
+        // Validate and format time values before saving
+        const formatTimeValue = (value: unknown): number => {
+          if (!value) return 0;
+
+          // If it's already a number, return as is
+          if (typeof value === 'number') {
+            return value >= 0 && value <= 23 ? value : 0;
+          }
+
+          // If it's a Date object (from timeOnly input), extract the hour
+          if (value instanceof Date) {
+            return value.getHours();
+          }
+
+          // If it's a string, try to parse it
+          if (typeof value === 'string') {
+            // Handle time format like "13:00" or "13"
+            const parts = value.split(':');
+            const hour = parseInt(parts[0]);
+            if (!isNaN(hour) && hour >= 0 && hour <= 23) {
+              return hour;
+            }
+          }
+
+          return 0;
+        };
+
         // Save business hours and lunch break
-        await this.businessSettingsService.updateBusinessHoursString({
-          start: formValue.businessHoursStart,
-          end: formValue.businessHoursEnd,
-          lunchStart: formValue.lunchBreakStart,
-          lunchEnd: formValue.lunchBreakEnd,
+        await this.systemParametersService.updateBusinessHours({
+          start: formatTimeValue(formValue.businessHoursStart),
+          end: formatTimeValue(formValue.businessHoursEnd),
+          lunchStart: formatTimeValue(formValue.lunchBreakStart),
+          lunchEnd: formatTimeValue(formValue.lunchBreakEnd),
         });
 
-        // Save other settings using the business settings service
-        await this.businessSettingsService.saveSettings({
+        // Save other settings using the system parameters service
+        await this.systemParametersService.saveParameters({
           businessName: formValue.businessName,
+          workingDays: formValue.workingDays,
           appointmentDuration: formValue.appointmentDuration,
           maxAppointmentsPerDay: formValue.maxAppointments,
           autoConfirmAppointments: formValue.autoConfirm,
@@ -266,56 +302,16 @@ export class AdminSettingsPageComponent implements OnInit {
 
   resetToDefaults() {
     if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.businessSettingsService
+      this.systemParametersService
         .resetToDefaults()
         .then(() => {
-          this.toastService.showInfo('Restaurat', 'Configuració restaurada per defecte');
+          this.toastService.showSuccess('Èxit', 'Configuració restaurada correctament');
+          this.loadSettings();
         })
-        .catch(error => {
-          console.error('Error resetting to defaults:', error);
-          this.toastService.showError('Error', 'Error al restaurar la configuració per defecte');
+        .catch((error: unknown) => {
+          console.error('Error resetting settings:', error);
+          this.toastService.showError('Error', 'Error al restaurar la configuració');
         });
     }
-  }
-
-  resetSettings() {
-    if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.settingsForm.patchValue({
-        businessName: 'PeluApp',
-        appointmentDuration: 60,
-        maxAppointments: 20,
-        autoConfirm: false,
-        sendNotifications: true,
-        defaultLanguage: 'ca',
-        preventCancellation: false,
-        cancellationTimeLimit: 24,
-        bookingAdvanceDays: 30,
-        bookingAdvanceTime: 30,
-      });
-    }
-  }
-
-  getWorkingDaysLabels(): string {
-    const workingDays = this.settings().workingDays;
-    return workingDays
-      .map(day => {
-        const option = this.workingDaysOptions.find(opt => opt.value === day);
-        return option ? option.label : day.toString();
-      })
-      .join(', ');
-  }
-
-  formatTime(hour: number): string {
-    return `${hour.toString().padStart(2, '0')}:00`;
-  }
-
-  getBusinessHoursDisplay(): string {
-    const businessHours = this.businessSettingsService.getBusinessHoursString();
-    return `${businessHours.start} - ${businessHours.end}`;
-  }
-
-  getLunchBreakDisplay(): string {
-    const lunchBreak = this.businessSettingsService.getLunchBreak();
-    return `${lunchBreak.start} - ${lunchBreak.end}`;
   }
 }

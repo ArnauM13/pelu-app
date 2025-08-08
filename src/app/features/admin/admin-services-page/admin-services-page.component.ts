@@ -1,3 +1,4 @@
+import { UserService } from './../../../core/services/user.service';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -25,9 +26,8 @@ import { InputNumberComponent } from '../../../shared/components/inputs/input-nu
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../../../shared/components/popup-dialog/popup-dialog.component';
 
-import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
+import { FirebaseServicesService, ServiceCategory } from '../../../core/services/firebase-services.service';
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
-import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 
@@ -38,15 +38,6 @@ interface AlertData {
   cancelText: string;
   severity: 'warning' | 'danger';
   onConfirm: () => void;
-}
-
-interface ServiceCategory {
-  id: string;
-  name: string;
-  icon: string;
-  custom?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 @Component({
@@ -125,7 +116,6 @@ export class AdminServicesPageComponent implements OnInit {
 
   // Admin access signals
   readonly isAdmin = computed(() => this.userService.isAdmin());
-  readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
 
   // Service categories
   readonly serviceCategories = computed(() => this.firebaseServicesService.serviceCategories());
