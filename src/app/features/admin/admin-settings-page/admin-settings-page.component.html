@@ -102,6 +102,21 @@
               >
               </pelu-input-date>
             </div>
+
+                    <!-- Working Days -->
+        <div class="settings-group">
+          <pelu-input-multiselect
+            [label]="'ADMIN.SETTINGS_PAGE.WORKING_DAYS'"
+            [placeholder]="'ADMIN.SETTINGS_PAGE.WORKING_DAYS_PLACEHOLDER'"
+            [options]="workingDaysOptions"
+            [showClear]="true"
+            [readonly]="!isEditMode()"
+            [value]="settingsForm.get('workingDays')?.value || []"
+            (valueChange)="settingsForm.get('workingDays')?.setValue($event)"
+            (ngAfterViewInit)="logWorkingDaysValue()"
+          >
+          </pelu-input-multiselect>
+        </div>
           </div>
 
           <!-- Column 2: Appointment Settings -->
