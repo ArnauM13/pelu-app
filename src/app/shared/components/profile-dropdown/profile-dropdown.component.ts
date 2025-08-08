@@ -118,7 +118,7 @@ export class ProfileDropdownComponent {
     ];
 
     // Add admin items if user has admin access and showAdminItems is true
-    if (this.showAdminItems() && this.userService.hasAdminAccess()) {
+    if (this.showAdminItems() && this.userService.isAdmin()) {
       items.push(
         {
           label: 'NAVIGATION.ADMIN_DASHBOARD',
