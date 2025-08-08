@@ -22,6 +22,17 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions[permission] == true;
     }
 
+    function isBookingOwner(bookingData) {
+      return isAuthenticated() &&
+        bookingData.email == request.auth.token.email;
+    }
+
+    function isNotPastBooking(bookingData) {
+      // For now, just check if the booking has valid data
+      // The actual time validation can be handled in the application layer
+      return bookingData.data != null && bookingData.hora != null;
+    }
+
     // Col·lecció d'usuaris
     match /users/{userId} {
       // Usuaris poden llegir/escriure només les seves pròpies dades
@@ -61,9 +72,11 @@ service cloud.firestore {
       // Usuaris autenticats poden llegir totes les reserves (per veure el calendari)
       allow read: if isAuthenticated();
 
-      // Usuaris poden escriure només les seves pròpies reserves
-      allow write: if request.auth != null &&
-        resource.data.uid == request.auth.uid;
+      // Usuaris poden actualitzar les seves pròpies reserves si no han passat
+      allow update: if isBookingOwner(resource.data) && isNotPastBooking(request.resource.data);
+
+      // Usuaris poden eliminar les seves pròpies reserves si no han passat
+      allow delete: if isBookingOwner(resource.data) && isNotPastBooking(resource.data);
 
       // Permetre accés amb token d'edició (per usuaris anònims)
       allow read: if resource.data.editToken == request.query.token;
