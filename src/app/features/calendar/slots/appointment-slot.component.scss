@@ -179,6 +179,57 @@
   color: white !important;
 }
 
+/* Reserved Booking Styles (for non-admin users viewing other people's bookings) */
+.appointment.reserved-booking {
+  background-color: #dc3545 !important;
+  border-color: #c82333 !important;
+  color: white !important;
+  cursor: not-allowed !important;
+}
+
+.appointment.reserved-booking:hover {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.appointment.reserved-booking .appointment-title {
+  color: white !important;
+}
+
+.appointment.reserved-booking-text {
+  color: white !important;
+}
+
+/* Other Booking Red Styles (for non-admin users viewing other people's bookings) */
+.appointment.other-booking-red {
+  background-color: #dc3545 !important;
+  border-color: #c82333 !important;
+  color: white !important;
+  cursor: not-allowed !important;
+}
+
+.appointment.other-booking-red:hover {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.appointment.other-booking-red .appointment-title {
+  color: white !important;
+}
+
+.appointment.other-booking-red .appointment-service {
+  color: white !important;
+}
+
+.appointment.other-booking-red .appointment-duration {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
 .appointment.no-drag {
   cursor: default !important;
 }

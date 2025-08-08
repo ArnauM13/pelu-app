@@ -48,11 +48,6 @@ updateSlotDuration(durationMinutes: number): void {
     slotDurationMinutes: durationMinutes
   });
 }
-
-// Get current slot duration
-getCurrentSlotDuration(): number {
-  return this.calendarCoreService.reactiveSlotDuration();
-}
 ```
 
 ### 3. Update Grid Configuration

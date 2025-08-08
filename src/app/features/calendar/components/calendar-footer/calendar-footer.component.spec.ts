@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { CalendarFooterComponent, CalendarFooterAlert } from './calendar-footer.component';
+import { CalendarFooterComponent } from './calendar-footer.component';
 
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {

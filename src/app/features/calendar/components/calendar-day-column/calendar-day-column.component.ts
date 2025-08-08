@@ -17,6 +17,10 @@ import {
   CalendarDropIndicatorComponent,
   DropIndicatorData,
 } from '../calendar-drop-indicator/calendar-drop-indicator.component';
+import {
+  CalendarLunchBreakComponent,
+  LunchBreakData,
+} from '../calendar-lunch-break/calendar-lunch-break.component';
 
 export interface DayColumnData {
   date: Date;
@@ -30,6 +34,7 @@ export interface DayColumnData {
   isDragOver: boolean;
   isDropValid: boolean;
   isDropInvalid: boolean;
+  lunchBreak: LunchBreakData | null;
 }
 
 @Component({
@@ -40,6 +45,7 @@ export interface DayColumnData {
     CalendarDayHeaderComponent,
     CalendarTimeSlotComponent,
     CalendarDropIndicatorComponent,
+    CalendarLunchBreakComponent,
   ],
   template: `
     <div class="day-column" [class.past]="data().isPast" [class.disabled]="data().isDisabled">
@@ -78,6 +84,12 @@ export interface DayColumnData {
         @if (data().dropIndicator) {
           <pelu-calendar-drop-indicator [data]="data().dropIndicator!">
           </pelu-calendar-drop-indicator>
+        }
+
+        <!-- Lunch Break Overlay -->
+        @if (data().lunchBreak) {
+          <pelu-calendar-lunch-break [data]="data().lunchBreak!">
+          </pelu-calendar-lunch-break>
         }
       </div>
     </div>
