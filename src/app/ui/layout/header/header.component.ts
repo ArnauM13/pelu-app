@@ -39,7 +39,7 @@ export class HeaderComponent {
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
   readonly isLoading = computed(() => this.#userService.isLoading());
-  readonly hasAdminAccess = computed(() => this.#userService.hasAdminAccess());
+  readonly isAdmin = computed(() => this.#userService.isAdmin());
 
   readonly customDropdownItems = computed((): ProfileDropdownItem[] => {
     return [
@@ -69,7 +69,7 @@ export class HeaderComponent {
     try {
       this.isLoggingOutSignal.set(true);
       await this.#userService.logout();
-    } catch (error) {
+    } catch (_error) {
       // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);
