@@ -4,7 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
-import { RoleService } from '../../../core/services/role.service';
+import { UserService } from '../../../core/services/user.service';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { AvatarData } from '../../../shared/components/avatar/avatar.component';
 import {
@@ -23,7 +23,7 @@ export class PerfilPageComponent {
   private auth = inject(Auth);
   private router = inject(Router);
   private authService = inject(AuthService);
-  private roleService = inject(RoleService);
+  private userService = inject(UserService);
 
   // Internal state
   private readonly userSignal = signal<any>(null);
@@ -78,7 +78,7 @@ export class PerfilPageComponent {
   });
 
   readonly userRole = computed(() => {
-    const role = this.roleService.userRole();
+    const role = this.userService.currentRole();
     if (!role) return '';
 
     return role.role === 'admin' ? 'ADMIN.ADMIN_ROLE' : 'ADMIN.CLIENT_ROLE';
@@ -115,40 +115,50 @@ export class PerfilPageComponent {
 
   readonly clientNotes = computed(() => this.clientNotesSignal());
 
-  readonly infoItems = computed((): InfoItemData[] => [
-    {
-      icon: '👤',
-      label: 'PROFILE.USERNAME',
-      value: this.displayName(),
-    },
-    {
-      icon: '📧',
-      label: 'PROFILE.EMAIL',
-      value: this.email(),
-    },
-    {
-      icon: '🔑',
-      label: 'ADMIN.ROLE',
-      value: this.userRole(),
-    },
-    {
-      icon: '📅',
-      label: 'PROFILE.CREATION_DATE',
-      value: this.creationDate(),
-    },
-    {
-      icon: '🕒',
-      label: 'PROFILE.LAST_ACCESS',
-      value: this.lastSignIn(),
-    },
-    {
-      icon: '✅',
-      label: 'PROFILE.ACCOUNT_STATUS',
-      value: 'PROFILE.ACTIVE',
-      status: 'active',
-      statusText: 'PROFILE.ACTIVE',
-    },
-  ]);
+  readonly infoItems = computed((): InfoItemData[] => {
+    const baseItems: InfoItemData[] = [
+      {
+        icon: '👤',
+        label: 'PROFILE.USERNAME',
+        value: this.displayName(),
+      },
+      {
+        icon: '📧',
+        label: 'PROFILE.EMAIL',
+        value: this.email(),
+      },
+    ];
+
+    // Only show admin-specific information if user is admin
+    if (this.userService.isAdmin()) {
+      baseItems.push(
+        {
+          icon: '🔑',
+          label: 'ADMIN.ROLE',
+          value: this.userRole(),
+        },
+        {
+          icon: '📅',
+          label: 'PROFILE.CREATION_DATE',
+          value: this.creationDate(),
+        },
+        {
+          icon: '🕒',
+          label: 'PROFILE.LAST_ACCESS',
+          value: this.lastSignIn(),
+        },
+        {
+          icon: '✅',
+          label: 'PROFILE.ACCOUNT_STATUS',
+          value: 'PROFILE.ACTIVE',
+          status: 'active',
+          statusText: 'PROFILE.ACTIVE',
+        }
+      );
+    }
+
+    return baseItems;
+  });
 
   // Detail page configuration
   readonly detailConfig = computed(
