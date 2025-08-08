@@ -485,6 +485,8 @@
       "LUNCH_BREAK": "Pausa per dinar",
       "LUNCH_BREAK_START": "Inici pausa per dinar",
       "LUNCH_BREAK_END": "Fi pausa per dinar",
+      "WORKING_DAYS": "Dies laborables",
+      "WORKING_DAYS_PLACEHOLDER": "Selecciona els dies laborables",
       "APPOINTMENT_SETTINGS": "Configuració de reserves",
       "APPOINTMENT_DURATION": "Durada de les reserves",
       "MAX_APPOINTMENTS": "Màxim de reserves per dia",
@@ -670,6 +672,15 @@
       "GENERAL_SERVICE": "Servei general",
       "COMPLETE_HAIRDRESSING": "Perruqueria completa",
       "TEST_SERVICE": "Servei de prova"
+    },
+    "DAYS": {
+      "MONDAY": "Dilluns",
+      "TUESDAY": "Dimarts",
+      "WEDNESDAY": "Dimecres",
+      "THURSDAY": "Dijous",
+      "FRIDAY": "Divendres",
+      "SATURDAY": "Dissabte",
+      "SUNDAY": "Diumenge"
     }
   },
   "DAYS": {

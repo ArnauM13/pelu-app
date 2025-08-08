@@ -449,6 +449,8 @@
       "LUNCH_BREAK": "استراحة الغداء",
       "LUNCH_BREAK_START": "بداية استراحة الغداء",
       "LUNCH_BREAK_END": "نهاية استراحة الغداء",
+      "WORKING_DAYS": "أيام العمل",
+      "WORKING_DAYS_PLACEHOLDER": "اختر أيام العمل",
       "APPOINTMENT_SETTINGS": "إعدادات المواعيد",
       "APPOINTMENT_DURATION": "مدة الموعد",
       "MAX_APPOINTMENTS": "الحد الأقصى للمواعيد يومياً",
@@ -634,6 +636,15 @@
       "GENERAL_SERVICE": "خدمة عامة",
       "COMPLETE_HAIRDRESSING": "تجميل شعر كامل",
       "TEST_SERVICE": "خدمة تجريبية"
+    },
+    "DAYS": {
+      "MONDAY": "الاثنين",
+      "TUESDAY": "الثلاثاء",
+      "WEDNESDAY": "الأربعاء",
+      "THURSDAY": "الخميس",
+      "FRIDAY": "الجمعة",
+      "SATURDAY": "السبت",
+      "SUNDAY": "الأحد"
     }
   },
   "DAYS": {
