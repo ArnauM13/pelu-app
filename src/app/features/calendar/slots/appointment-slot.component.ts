@@ -180,7 +180,13 @@ export class AppointmentSlotComponent {
     if (_event.button !== 0) return;
 
     const appointment = this.data()?.appointment;
-    if (!appointment?.canDrag) return;
+    if (!appointment?.canDrag) {
+      // If user clicks on a non-draggable appointment, ensure any drag state is cleared
+      this.mouseDownTime = 0;
+      this.isDragging.set(false);
+      this.calendarCoreService.cancelDrag();
+      return;
+    }
 
     _event.preventDefault();
     _event.stopPropagation();
@@ -243,9 +249,9 @@ export class AppointmentSlotComponent {
 
     await this.calendarCoreService.endDrag();
 
-    setTimeout(() => {
-      this.isDragging.set(false);
-    }, 100);
+    // Immediately and deterministically clear local drag state to prevent auto re-grab on hover
+    this.isDragging.set(false);
+    this.mouseDownTime = 0;
   };
 
   private findService(serviceName: string) {
