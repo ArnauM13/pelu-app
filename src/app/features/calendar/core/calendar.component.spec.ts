@@ -192,7 +192,6 @@ describe('CalendarComponent', () => {
       duration: 60,
       serviceName: 'Test Service',
       clientName: 'Test Client',
-      isPublicBooking: false,
       isOwnBooking: true,
       canDrag: true,
       canViewDetails: true,
@@ -212,7 +211,6 @@ describe('CalendarComponent', () => {
       duration: 60,
       serviceName: 'Test Service',
       clientName: 'Test Client',
-      isPublicBooking: false,
       isOwnBooking: true,
       canDrag: true,
       canViewDetails: true,
@@ -302,13 +300,6 @@ describe('CalendarComponent', () => {
     const duration = component.getCurrentBookingDuration();
 
     expect(coreService.reactiveBookingDuration).toHaveBeenCalled();
-    expect(duration).toBeDefined();
-  });
-
-  it('should get current slot duration', () => {
-    const duration = component.getCurrentSlotDuration();
-
-    expect(coreService.reactiveSlotDuration).toHaveBeenCalled();
     expect(duration).toBeDefined();
   });
 });

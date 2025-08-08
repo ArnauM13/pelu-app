@@ -35,7 +35,6 @@ describe('CalendarCoreService', () => {
     const roleServiceSpy = jasmine.createSpyObj('RoleService', [
       'isAdmin',
       'isClient',
-      'hasAdminAccess',
     ]);
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
       'log',
@@ -66,7 +65,6 @@ describe('CalendarCoreService', () => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
     roleServiceSpy.isAdmin.and.returnValue(false);
     roleServiceSpy.isClient.and.returnValue(true);
-    roleServiceSpy.hasAdminAccess.and.returnValue(false);
 
     TestBed.configureTestingModule({
       providers: [

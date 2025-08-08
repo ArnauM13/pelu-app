@@ -13,7 +13,7 @@ import { UserService } from '../../../core/services/user.service';
 export class AdminDashboardPageComponent {
   userService = inject(UserService);
 
-  // Computed properties per a la UI
+  // Computed properties per a la UI (unified from both services)
   readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly canManageUsers = computed(() => this.userService.canManageUsers());
   readonly canViewAllAppointments = computed(() => this.userService.canViewAllAppointments());

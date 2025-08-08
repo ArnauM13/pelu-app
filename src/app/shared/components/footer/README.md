@@ -141,25 +141,11 @@ El component utilitza les següents claus de traducció:
 - `FOOTER.WEEKEND_INFO`: Informació per caps de setmana
 - `FOOTER.BUSINESS_HOURS_INFO`: Informació d'hores del negoci
 
-## Integració amb BusinessSettingsService
+## Integració amb SystemParametersService
 
-El component està dissenyat per integrar-se amb el `BusinessSettingsService` per obtenir les hores del negoci dinàmicament:
+El component està dissenyat per integrar-se amb el `SystemParametersService` per obtenir les hores del negoci dinàmicament:
 
 ```typescript
-readonly footerConfig = computed((): FooterConfig => {
-  const businessHours = this.businessSettingsService.getBusinessHours();
-  const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
-  
-  return {
-    showBusinessHours: true,
-    businessHours: {
-      start: businessHours.start,
-      end: businessHours.end
-    },
-    lunchBreak: {
-      start: lunchBreak.start,
-      end: lunchBreak.end
-    },
-  };
-});
+const businessHours = this.systemParametersService.getBusinessHours();
+const lunchBreak = this.systemParametersService.getLunchBreakNumeric();
 ```

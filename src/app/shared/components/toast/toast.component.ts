@@ -288,7 +288,7 @@ export class ToastComponent {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: this.authService.user()?.uid,
-      data: { appointmentId },
+      data: JSON.stringify({ appointmentId }),
     });
 
     this.clearToast();
@@ -298,7 +298,7 @@ export class ToastComponent {
       this.logger.warn('No user found when trying to view appointment detail', {
         component: 'ToastComponent',
         method: 'viewAppointmentDetail',
-        data: { appointmentId },
+        data: JSON.stringify({ appointmentId }),
       });
       return;
     }
@@ -310,7 +310,7 @@ export class ToastComponent {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: user.uid,
-      data: { appointmentId, uniqueId },
+      data: JSON.stringify({ appointmentId, uniqueId }),
     });
 
     this.router.navigate(['/appointments', uniqueId]);

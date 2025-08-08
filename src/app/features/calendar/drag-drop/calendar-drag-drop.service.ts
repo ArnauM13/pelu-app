@@ -29,7 +29,9 @@ export class CalendarDragDropService {
   readonly originalDate = computed(() => this.originalDateSignal());
   readonly isValidDrop = computed(() => this.isValidDropSignal());
 
-  constructor(private positionService: CalendarPositionService) {}
+  private positionService = inject(CalendarPositionService);
+
+  constructor() {}
 
   startDrag(appointment: AppointmentEvent, originalPosition: Position, originalDate: Date): void {
     this.isDraggingSignal.set(true);
@@ -72,15 +74,15 @@ export class CalendarDragDropService {
   }
 
   canDropAppointment(
-    sourceDate: Date,
-    targetDate: Date,
-    sourceTime: string,
-    targetTime: string
+    _sourceDate: Date,
+    _targetDate: Date,
+    _sourceTime: string,
+    _targetTime: string
   ): boolean {
     return true;
   }
 
-  dropAppointment(appointmentId: string, targetDate: Date, targetTime: string): Promise<boolean> {
+  dropAppointment(_appointmentId: string, _targetDate: Date, _targetTime: string): Promise<boolean> {
     return Promise.resolve(true);
   }
 

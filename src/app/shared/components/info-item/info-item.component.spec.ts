@@ -6,13 +6,7 @@ describe('InfoItemComponent', () => {
   let component: InfoItemComponent;
   let fixture: ComponentFixture<InfoItemComponent>;
 
-  const mockData: InfoItemData = {
-    icon: '📅',
-    label: 'Test Label',
-    value: 'Test Value',
-    status: 'active',
-    statusText: 'Active Status',
-  };
+
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

@@ -20,7 +20,7 @@ export interface ViewButton {
       @for (button of viewButtons(); track button.icon; let i = $index) {
         <pelu-floating-button
           [config]="button"
-          (clicked)="onViewModeChange.emit(i === 0 ? 'list' : 'calendar')"
+          (clicked)="viewModeChange.emit(i === 0 ? 'list' : 'calendar')"
         >
         </pelu-floating-button>
       }
@@ -50,5 +50,5 @@ export interface ViewButton {
 export class AppointmentsViewControlsComponent {
   viewButtons = input.required<ViewButton[]>();
 
-  onViewModeChange = output<'list' | 'calendar'>();
+  viewModeChange = output<'list' | 'calendar'>();
 }

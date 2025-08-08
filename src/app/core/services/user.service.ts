@@ -2,7 +2,6 @@ import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { RoleService, UserRole } from './role.service';
 import { User } from '@angular/fire/auth';
-import { User as AppUser, UserProfile as AppUserProfile } from '../interfaces/user.interface';
 
 export interface UserProfile {
   auth: User | null;
@@ -39,12 +38,12 @@ export class UserService {
   readonly userEmail = computed(() => this.currentUser()?.email || '');
   readonly userId = computed(() => this.currentUser()?.uid || null);
 
-  // Role-based computed signals
+  // Role-based computed signals (unified from both services)
   readonly isClient = computed(() => this.currentRole()?.role === 'client');
   readonly isAdmin = computed(() => this.currentRole()?.role === 'admin');
   readonly hasAdminAccess = computed(() => this.currentRole()?.role === 'admin');
 
-  // Permission-based computed signals
+  // Permission-based computed signals (unified from both services)
   readonly canManageUsers = computed(() => this.currentRole()?.role === 'admin');
   readonly canViewAllAppointments = computed(() => this.currentRole()?.role === 'admin');
 
@@ -97,7 +96,7 @@ export class UserService {
     return this.roleService.updateUserRole(uid, updates);
   }
 
-  async promoteToAdmin(uid: string, adminInfo?: any) {
+  async promoteToAdmin(uid: string, adminInfo?: Partial<UserRole>) {
     const updates: Partial<UserRole> = {
       role: 'admin',
       ...adminInfo,
@@ -135,7 +134,7 @@ export class UserService {
   }
 
   // Method to check if user has specific permission
-  hasPermission(permission: string): boolean {
+  hasPermission(_permission: string): boolean {
     const role = this.currentRole();
     if (!role || role.role !== 'admin') {
       return false;

@@ -6,15 +6,16 @@ describe('AppointmentDetailPopupComponent', () => {
   let component: AppointmentDetailPopupComponent;
   let fixture: ComponentFixture<AppointmentDetailPopupComponent>;
 
-  const mockAppointment = {
+  const _mockAppointment = {
     id: '1',
-    nom: 'John Doe',
+    clientName: 'John Doe',
+    email: 'john@example.com',
     data: '2024-01-15',
     hora: '10:00',
-    servei: 'Corte de pelo',
-    serviceName: 'SERVICES.NAMES.MALE_HAIRCUT',
-    duration: 60,
-    userId: 'user1',
+    notes: 'Test appointment',
+    serviceId: 'service1',
+    status: 'confirmed' as const,
+    createdAt: new Date(),
   };
 
   beforeEach(async () => {

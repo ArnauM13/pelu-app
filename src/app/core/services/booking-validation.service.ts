@@ -1,119 +1,100 @@
 import { Injectable, inject } from '@angular/core';
-import { BusinessSettingsService } from './business-settings.service';
+import { SystemParametersService } from './system-parameters.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookingValidationService {
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
 
   /**
-   * Check if a booking can be cancelled based on the configured time limit
+   * Validates if a booking can be made at the specified time
    */
-  canCancelBooking(appointmentDate: Date, appointmentTime: string): boolean {
-    const settings = this.businessSettingsService.settings();
+  canBookAtTime(date: Date, time: string): boolean {
+    const settings = this.systemParametersService.parameters();
+    const [hour] = time.split(':').map(Number);
+    const businessHours = settings.businessHours;
 
-    // If cancellation is not prevented, allow cancellation
-    if (!settings.preventCancellation) {
-      return true;
-    }
-
-    // Create the full appointment datetime
-    const [hours, minutes] = appointmentTime.split(':').map(Number);
-    const appointmentDateTime = new Date(appointmentDate);
-    appointmentDateTime.setHours(hours, minutes, 0, 0);
-
-    const now = new Date();
-    const timeDifferenceMs = appointmentDateTime.getTime() - now.getTime();
-    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
-
-    // Allow cancellation if the appointment is more than the configured time limit away
-    return timeDifferenceHours >= settings.cancellationTimeLimit;
-  }
-
-  /**
-   * Check if a booking can be made for a specific date and time
-   */
-  canBookAppointment(bookingDate: Date, bookingTime: string): boolean {
-    const settings = this.businessSettingsService.settings();
-    const now = new Date();
-
-    // Create the full booking datetime
-    const [hours, minutes] = bookingTime.split(':').map(Number);
-    const bookingDateTime = new Date(bookingDate);
-    bookingDateTime.setHours(hours, minutes, 0, 0);
-
-    // Check if the booking is in the past
-    if (bookingDateTime <= now) {
+    // Check if time is within business hours
+    if (hour < businessHours.start || hour >= businessHours.end) {
       return false;
     }
 
-    // Check advance days limit
-    const daysDifference = Math.ceil((bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysDifference > settings.bookingAdvanceDays) {
+    // Check if time is during lunch break
+    if (hour >= businessHours.lunchStart && hour < businessHours.lunchEnd) {
       return false;
-    }
-
-    // Check advance time limit (only if booking is today)
-    const isToday = bookingDate.toDateString() === now.toDateString();
-    if (isToday) {
-      const timeDifferenceMs = bookingDateTime.getTime() - now.getTime();
-      const timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
-
-      if (timeDifferenceMinutes < settings.bookingAdvanceTime) {
-        return false;
-      }
     }
 
     return true;
   }
 
   /**
-   * Get the minimum booking time (current time + advance time limit)
+   * Validates if a booking can be made on the specified date
    */
-  getMinimumBookingTime(): Date {
-    const settings = this.businessSettingsService.settings();
-    const now = new Date();
-    const minimumTime = new Date(now.getTime() + (settings.bookingAdvanceTime * 60 * 1000));
-    return minimumTime;
+  canBookOnDate(date: Date): boolean {
+    const settings = this.systemParametersService.parameters();
+    const dayOfWeek = date.getDay();
+    const workingDays = settings.workingDays;
+
+    return workingDays.includes(dayOfWeek);
   }
 
   /**
-   * Get the maximum booking date (current date + advance days limit)
+   * Validates if a booking can be made in advance
    */
-  getMaximumBookingDate(): Date {
-    const settings = this.businessSettingsService.settings();
+  canBookInAdvance(bookingDate: Date): boolean {
+    const settings = this.systemParametersService.parameters();
     const now = new Date();
-    const maximumDate = new Date(now.getTime() + (settings.bookingAdvanceDays * 24 * 60 * 60 * 1000));
-    return maximumDate;
+    const daysInAdvance = settings.bookingAdvanceDays;
+    const maxBookingDate = new Date(now.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
+
+    return bookingDate <= maxBookingDate;
   }
 
   /**
-   * Get the cancellation deadline for a specific appointment
+   * Validates if a booking can be made with the specified advance time
    */
-  getCancellationDeadline(appointmentDate: Date, appointmentTime: string): Date | null {
-    const settings = this.businessSettingsService.settings();
+  canBookWithAdvanceTime(bookingDate: Date, bookingTime: string): boolean {
+    const settings = this.systemParametersService.parameters();
+    const now = new Date();
+    const advanceTimeMinutes = settings.bookingAdvanceTime;
+    const bookingDateTime = new Date(bookingDate);
+    const [hour, minute] = bookingTime.split(':').map(Number);
+    bookingDateTime.setHours(hour, minute, 0, 0);
+
+    const minBookingTime = new Date(now.getTime() + advanceTimeMinutes * 60 * 1000);
+
+    return bookingDateTime >= minBookingTime;
+  }
+
+  /**
+   * Validates if a booking can be cancelled
+   */
+  canCancelBooking(bookingDate: Date, bookingTime: string): boolean {
+    const settings = this.systemParametersService.parameters();
 
     if (!settings.preventCancellation) {
-      return null; // No deadline if cancellation is not prevented
+      return true;
     }
 
-    const [hours, minutes] = appointmentTime.split(':').map(Number);
-    const appointmentDateTime = new Date(appointmentDate);
-    appointmentDateTime.setHours(hours, minutes, 0, 0);
+    const now = new Date();
+    const bookingDateTime = new Date(bookingDate);
+    const [hour, minute] = bookingTime.split(':').map(Number);
+    bookingDateTime.setHours(hour, minute, 0, 0);
 
-    const deadline = new Date(appointmentDateTime.getTime() - (settings.cancellationTimeLimit * 60 * 60 * 1000));
-    return deadline;
+    const cancellationTimeLimit = settings.cancellationTimeLimit;
+    const minCancellationTime = new Date(bookingDateTime.getTime() - cancellationTimeLimit * 60 * 60 * 1000);
+
+    return now <= minCancellationTime;
   }
 
   /**
-   * Check if the current time is within the cancellation window for an appointment
+   * Validates if a booking can be made at the specified date and time
    */
-  isWithinCancellationWindow(appointmentDate: Date, appointmentTime: string): boolean {
-    const deadline = this.getCancellationDeadline(appointmentDate, appointmentTime);
-    if (!deadline) return true; // No deadline means always within window
-
-    const now = new Date();
-    return now < deadline;
+  canBookAppointment(bookingDate: Date, bookingTime: string): boolean {
+    return this.canBookOnDate(bookingDate) &&
+           this.canBookAtTime(bookingDate, bookingTime) &&
+           this.canBookInAdvance(bookingDate) &&
+           this.canBookWithAdvanceTime(bookingDate, bookingTime);
   }
 }

@@ -1,27 +1,29 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { AppointmentEvent } from '../core/calendar.component';
-import { CalendarBusinessService } from './calendar-business.service';
+import { TimeUtils } from '../../../shared/utils/time.utils';
+import { Booking } from '../../../core/interfaces/booking.interface';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
 
 export interface CalendarState {
   viewDate: Date;
   selectedDay: Date | null;
   showDetailPopup: boolean;
-  selectedAppointment: any;
-  appointments: any[];
+  selectedAppointment: Booking | null;
+  appointments: Booking[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class CalendarStateService {
-  private readonly businessService = inject(CalendarBusinessService);
+  private readonly timeUtils = inject(TimeUtils);
+  private readonly systemParametersService = inject(SystemParametersService);
 
   // Internal state signals
-  private readonly viewDateSignal = signal<Date>(this.businessService.getAppropriateViewDate());
+  private readonly viewDateSignal = signal<Date>(this.timeUtils.getAppropriateWeeklyViewDate(this.systemParametersService.workingDays()));
   private readonly selectedDaySignal = signal<Date | null>(null);
   private readonly showDetailPopupSignal = signal<boolean>(false);
-  private readonly selectedAppointmentSignal = signal<any>(null);
-  private readonly appointmentsSignal = signal<any[]>([]);
+  private readonly selectedAppointmentSignal = signal<Booking | null>(null);
+  private readonly appointmentsSignal = signal<Booking[]>([]);
 
   // Public computed signals
   readonly viewDate = computed(() => this.viewDateSignal());
@@ -59,21 +61,21 @@ export class CalendarStateService {
   /**
    * Set selected appointment
    */
-  setSelectedAppointment(appointment: any): void {
+  setSelectedAppointment(appointment: Booking | null): void {
     this.selectedAppointmentSignal.set(appointment);
   }
 
   /**
    * Set appointments
    */
-  setAppointments(appointments: any[]): void {
+  setAppointments(appointments: Booking[]): void {
     this.appointmentsSignal.set(appointments || []);
   }
 
   /**
    * Add appointment
    */
-  addAppointment(appointment: any): void {
+  addAppointment(appointment: Booking): void {
     const currentAppointments = this.appointmentsSignal();
     this.appointmentsSignal.set([...currentAppointments, appointment]);
   }
@@ -118,7 +120,7 @@ export class CalendarStateService {
    * Navigate to today
    */
   today(): void {
-    this.viewDateSignal.set(this.businessService.getAppropriateViewDate());
+    this.viewDateSignal.set(this.timeUtils.getAppropriateWeeklyViewDate(this.systemParametersService.workingDays()));
   }
 
   /**
@@ -135,7 +137,7 @@ export class CalendarStateService {
   /**
    * Open appointment detail popup
    */
-  openAppointmentDetail(appointment: any): void {
+  openAppointmentDetail(appointment: Booking): void {
     this.setSelectedAppointment(appointment);
     this.setShowDetailPopup(true);
   }

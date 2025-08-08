@@ -20,7 +20,6 @@ class TestHostComponent {
 
 describe('CalendarTimeColumnComponent', () => {
   let component: CalendarTimeColumnComponent;
-  let hostComponent: TestHostComponent;
   let hostFixture: ComponentFixture<TestHostComponent>;
 
   const mockTimeSlots: TimeSlot[] = [
@@ -38,7 +37,6 @@ describe('CalendarTimeColumnComponent', () => {
     }).compileComponents();
 
     hostFixture = TestBed.createComponent(TestHostComponent);
-    hostComponent = hostFixture.componentInstance;
     component = hostFixture.debugElement.children[0].componentInstance;
     hostFixture.detectChanges();
   });

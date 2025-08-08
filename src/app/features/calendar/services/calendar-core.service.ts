@@ -1,12 +1,15 @@
-import { Injectable, computed, signal, inject, effect } from '@angular/core';
+import { Injectable, inject, signal, computed, Injector, effect } from '@angular/core';
 import { addMinutes, isSameDay } from 'date-fns';
 import { AppointmentEvent } from '../core/calendar.component';
 import { CalendarStateService } from './calendar-state.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
-import { RoleService } from '../../../core/services/role.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
+import { UserService } from '../../../core/services/user.service';
+import { Booking } from '../../../core/interfaces/booking.interface';
+import { ServicesService } from '../../../core/services/services.service';
+import { FirebaseService } from '../../../core/services/firebase-services.service';
 
 // Interfaces for coordinate and time management
 export interface CoordinatePosition {
@@ -53,8 +56,9 @@ export class CalendarCoreService {
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
-  private readonly roleService = inject(RoleService);
+  private readonly systemParametersService = inject(SystemParametersService);
+  private readonly userService = inject(UserService);
+  private readonly injector = inject(Injector);
 
   // ===== GRID CONFIGURATION =====
   private readonly slotHeightPxSignal = signal<number>(30);
@@ -87,7 +91,7 @@ export class CalendarCoreService {
   readonly reactiveBookingDuration = computed(() => this.gridConfiguration().bookingDurationMinutes);
 
   // Reactive computed signals that update based on business settings
-  readonly reactiveSlotDurationFromSettings = computed(() => this.businessSettingsService.getAppointmentDuration());
+  readonly reactiveSlotDurationFromSettings = computed(() => this.systemParametersService.getAppointmentDuration());
   readonly reactivePixelsPerMinuteFromSettings = computed(() => {
     const slotHeight = this.reactiveSlotHeight();
     const slotDuration = this.reactiveSlotDurationFromSettings();
@@ -135,12 +139,25 @@ export class CalendarCoreService {
 
         // Set up effect to update slot duration and pixels per minute reactively
     effect(() => {
-      const appointmentDuration = this.businessSettingsService.getAppointmentDuration();
+      const bookingDuration = this.systemParametersService.getAppointmentDuration();
       const slotHeight = this.slotHeightPxSignal();
-      const pixelsPerMinute = slotHeight / appointmentDuration;
+      const pixelsPerMinute = slotHeight / bookingDuration;
 
-      this.slotDurationMinutesSignal.set(appointmentDuration);
+      // Use bookingDuration as slotDuration (bookingDurationMinutes controls slot size)
+      this.slotDurationMinutesSignal.set(bookingDuration);
+      this.bookingDurationMinutesSignal.set(bookingDuration);
       this.pixelsPerMinuteSignal.set(pixelsPerMinute);
+    });
+
+    // Set up effect to update business hours and lunch break reactively
+    effect(() => {
+      const businessHours = this.systemParametersService.businessHours();
+      const lunchBreak = this.systemParametersService.lunchBreak();
+
+      this.businessStartHourSignal.set(businessHours.start);
+      this.businessEndHourSignal.set(businessHours.end);
+      this.lunchBreakStartSignal.set(lunchBreak.start);
+      this.lunchBreakEndSignal.set(lunchBreak.end);
     });
   }
 
@@ -257,7 +274,7 @@ export class CalendarCoreService {
     const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
 
     const top = this.timeToCoordinate(timeString);
-    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinute();
+    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinuteFromSettings();
 
     return { top, height };
   }
@@ -267,7 +284,8 @@ export class CalendarCoreService {
     durationMinutes: number
   ): { top: number; height: number } {
     const top = this.timeToCoordinate(startTime);
-    const height = durationMinutes * this.reactivePixelsPerMinute();
+    // Calculate height based on actual duration in minutes using the correct pixels per minute
+    const height = durationMinutes * this.reactivePixelsPerMinuteFromSettings();
 
     return { top, height };
   }
@@ -282,8 +300,8 @@ export class CalendarCoreService {
     const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
 
     const top = this.timeToCoordinate(timeString);
-    // Use the reactive booking duration for height calculation
-    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinute();
+    // Use the reactive booking duration for height calculation with correct pixels per minute
+    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinuteFromSettings();
 
     return { top, height };
   }
@@ -308,8 +326,15 @@ export class CalendarCoreService {
   }
 
   isTimeSlotBookable(time: string): boolean {
-    return this.isWithinBusinessHours(time);
+    return this.isWithinBusinessHours(time) && !this.isLunchBreakTime(time);
   }
+
+  isLunchBreakTime(time: string): boolean {
+    // Use the system parameters service for consistent lunch break detection
+    return this.systemParametersService.isLunchBreak(time);
+  }
+
+
 
   isTimeSlotAvailable(
     date: Date,
@@ -377,31 +402,22 @@ export class CalendarCoreService {
     return `${nextHours.toString().padStart(2, '0')}:${nextMinutes.toString().padStart(2, '0')}`;
   }
 
-  // ===== LUNCH BREAK CALCULATIONS =====
-  getLunchBreakOffset(): number {
-    const config = this.gridConfiguration();
-    const lunchBreakStartTime = `${config.lunchBreakStart.toString().padStart(2, '0')}:00`;
-    return this.timeToCoordinate(lunchBreakStartTime);
-  }
 
-  getLunchBreakHeight(): number {
-    const config = this.gridConfiguration();
-    const lunchBreakDuration = (config.lunchBreakEnd - config.lunchBreakStart) * 60;
-    return lunchBreakDuration * this.reactivePixelsPerMinute();
-  }
 
   getLunchBreakPosition(): { top: number; height: number } {
-    return {
-      top: this.getLunchBreakOffset(),
-      height: this.getLunchBreakHeight(),
-    };
+    const lunchBreak = this.systemParametersService.lunchBreak();
+    const startTime = `${lunchBreak.start.toString().padStart(2, '0')}:00`;
+    const top = this.timeToCoordinate(startTime);
+    const height = (lunchBreak.end - lunchBreak.start) * 60 * this.reactivePixelsPerMinuteFromSettings();
+
+    return { top, height };
   }
 
   getLunchBreakTimeRange(): { start: string; end: string } {
-    const config = this.gridConfiguration();
+    const lunchBreak = this.systemParametersService.lunchBreak();
     return {
-      start: `${config.lunchBreakStart.toString().padStart(2, '0')}:00`,
-      end: `${config.lunchBreakEnd.toString().padStart(2, '0')}:00`,
+      start: `${lunchBreak.start.toString().padStart(2, '0')}:00`,
+      end: `${lunchBreak.end.toString().padStart(2, '0')}:00`,
     };
   }
 
@@ -413,7 +429,7 @@ export class CalendarCoreService {
   ): void {
     // Check permissions before allowing drag
     const currentUser = this.authService.user();
-    const isAdmin = this.roleService.isAdmin();
+    const isAdmin = this.userService.isAdmin();
 
     console.log('startDrag called:', {
       appointment: appointment.title,
@@ -530,13 +546,6 @@ export class CalendarCoreService {
   }
 
   // ===== PRIVATE HELPER METHODS =====
-  private extractTimeFromAppointment(appointment: AppointmentEvent): string {
-    if (!appointment.start) return '00:00';
-
-    const startDate = new Date(appointment.start);
-    return `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
-  }
-
   private isValidDropPosition(
     appointment: AppointmentEvent,
     targetDate: Date,
@@ -564,7 +573,14 @@ export class CalendarCoreService {
 
     // Check if the appointment duration fits in the target time slot
     const appointmentDuration = appointment.duration || this.reactiveBookingDuration();
-    const targetEndTime = addMinutes(new Date(targetDate), appointmentDuration);
+
+    // Create target start time by combining targetDate with targetTime
+    const [targetHours, targetMinutes] = targetTime.split(':').map(Number);
+    const targetStartTime = new Date(targetDate);
+    targetStartTime.setHours(targetHours, targetMinutes, 0, 0);
+
+    // Calculate end time
+    const targetEndTime = addMinutes(targetStartTime, appointmentDuration);
     const targetEndTimeString = `${targetEndTime.getHours().toString().padStart(2, '0')}:${targetEndTime.getMinutes().toString().padStart(2, '0')}`;
 
     console.log('📅 Time range check:', {
@@ -573,41 +589,63 @@ export class CalendarCoreService {
       duration: appointmentDuration
     });
 
-    if (!this.isTimeSlotBookable(targetEndTimeString)) {
-      console.log('❌ End time not bookable:', targetEndTimeString);
+    // Check if end time is within business hours (allow ending exactly at business end)
+    if (!this.isWithinBusinessHours(targetEndTimeString) && targetEndTimeString !== `${config.businessEndHour.toString().padStart(2, '0')}:00`) {
+      console.log('❌ End time outside business hours:', targetEndTimeString);
       return false;
     }
 
-    // Check for conflicts with existing appointments
-    const existingAppointments = this.bookingService.bookings();
-    console.log('🔍 Checking conflicts with', existingAppointments.length, 'existing appointments');
+    // Check if end time overlaps with lunch break (allow ending exactly at lunch start)
+    if (this.isLunchBreakTime(targetEndTimeString) && targetEndTimeString !== `${config.lunchBreakStart.toString().padStart(2, '0')}:00`) {
+      console.log('❌ End time overlaps with lunch break:', targetEndTimeString);
+      return false;
+    }
 
-    const conflictingAppointment = existingAppointments.find(existing => {
+    // Check if the target slot is occupied by any existing appointment
+    const existingAppointments = this.bookingService.bookings();
+    console.log('🔍 Checking if target slot is occupied');
+
+    // Check if any existing appointment occupies the target slot
+    const isSlotOccupied = existingAppointments.some(existing => {
       if (!existing.data || !existing.hora || existing.id === appointment.id) return false;
 
       const existingStart = new Date(`${existing.data}T${existing.hora}`);
-      const existingEnd = addMinutes(existingStart, 60); // Will be fetched from service
+
+      // Get the actual service duration for this existing appointment
+      let existingDuration = this.reactiveBookingDuration(); // Default duration
+      if (existing.serviceId) {
+        // Try to get the service from the services service
+        const servicesService = this.injector.get(ServicesService);
+        const service = servicesService.getAllServices().find((s: FirebaseService) => s.id === existing.serviceId);
+        if (service) {
+          existingDuration = service.duration;
+        }
+      }
+
+      const existingEnd = addMinutes(existingStart, existingDuration);
+
       const targetStart = new Date(targetDate);
       targetStart.setHours(parseInt(targetTime.split(':')[0]), parseInt(targetTime.split(':')[1]), 0, 0);
       const targetEnd = addMinutes(targetStart, appointmentDuration);
 
-      const hasConflict = existingStart < targetEnd && existingEnd > targetStart;
+      // Check if the target slot overlaps with this existing appointment
+      const hasOverlap = existingStart < targetEnd && existingEnd > targetStart;
 
-      if (hasConflict) {
-        console.log('❌ Conflict found:', {
+      if (hasOverlap) {
+        console.log('❌ Slot occupied by:', {
           existing: existing.clientName,
-          existingStart: existingStart.toISOString(),
-          existingEnd: existingEnd.toISOString(),
-          targetStart: targetStart.toISOString(),
-          targetEnd: targetEnd.toISOString()
+          existingTime: `${existing.data} ${existing.hora}`,
+          existingDuration: existingDuration,
+          targetTime: `${targetDate.toDateString()} ${targetTime}`,
+          targetDuration: appointmentDuration
         });
       }
 
-      return hasConflict;
+      return hasOverlap;
     });
 
-    const isValid = !conflictingAppointment;
-    console.log('✅ Drop position validation result:', isValid);
+    const isValid = !isSlotOccupied;
+    console.log('✅ Slot availability check result:', isValid);
     return isValid;
   }
 
@@ -620,15 +658,34 @@ export class CalendarCoreService {
     const newStartDate = new Date(targetDate);
     newStartDate.setHours(hours, minutes, 0, 0);
 
-    const updatedAppointment: AppointmentEvent = {
-      ...appointment,
-      start: newStartDate.toISOString(),
-      end: addMinutes(newStartDate, appointment.duration || this.reactiveBookingDuration()).toISOString(),
+    // Convert AppointmentEvent to Booking format
+    const bookingUpdates: Partial<Booking> = {
+      data: this.formatDateToYYYYMMDD(targetDate), // Format: YYYY-MM-DD
+      hora: targetTime, // Format: HH:MM
     };
 
-    // Update the appointment in the booking service
-    await this.bookingService.updateBooking(appointment.id!, updatedAppointment);
-    this.toastService.showSuccess('Cita actualizada correctamente');
+    console.log('🔄 Moving appointment:', {
+      appointmentId: appointment.id,
+      originalTime: appointment.start,
+      newDate: bookingUpdates.data,
+      newTime: bookingUpdates.hora
+    });
+
+    // Update the booking in Firebase
+    const success = await this.bookingService.updateBooking(appointment.id!, bookingUpdates);
+
+    if (success) {
+      this.toastService.showSuccess('Cita actualizada correctamente');
+    } else {
+      this.toastService.showError('Error al actualizar la cita');
+    }
+  }
+
+  private formatDateToYYYYMMDD(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private resetDragState(): void {

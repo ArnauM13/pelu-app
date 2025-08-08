@@ -60,7 +60,8 @@
       "AVAILABLE": "Disponible",
       "OCCUPIED": "Ocupado",
       "ACTIVE": "Activo",
-      "INACTIVE": "Inactivo"
+      "INACTIVE": "Inactivo",
+      "RESERVED": "Reservada"
     },
     "ADMIN_WARNING_TITLE": "Modo Administrador",
     "ADMIN_WARNING_MESSAGE": "Estás viendo una cita de otro usuario. Como administrador, puedes editar y eliminar esta cita.",
@@ -447,6 +448,8 @@
       "LUNCH_BREAK": "Pausa para comer",
       "LUNCH_BREAK_START": "Inicio pausa para comer",
       "LUNCH_BREAK_END": "Fin pausa para comer",
+      "WORKING_DAYS": "Días laborables",
+      "WORKING_DAYS_PLACEHOLDER": "Selecciona los días laborables",
       "APPOINTMENT_SETTINGS": "Configuración de reservas",
       "APPOINTMENT_DURATION": "Duración de las reservas",
       "MAX_APPOINTMENTS": "Máximo de reservas por día",
@@ -632,6 +635,15 @@
       "GENERAL_SERVICE": "Servicio general",
       "COMPLETE_HAIRDRESSING": "Peluquería completa",
       "TEST_SERVICE": "Servicio de prueba"
+    },
+    "DAYS": {
+      "MONDAY": "Lunes",
+      "TUESDAY": "Martes",
+      "WEDNESDAY": "Miércoles",
+      "THURSDAY": "Jueves",
+      "FRIDAY": "Viernes",
+      "SATURDAY": "Sábado",
+      "SUNDAY": "Domingo"
     }
   },
   "DAYS": {

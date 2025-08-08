@@ -521,7 +521,7 @@ onTimeChange(date: Date | string | null, fieldName: string) {
 #### Components Principals
 
 - `AdminSettingsPageComponent`: Component principal de la pàgina
-- `BusinessSettingsService`: Servei per gestionar la configuració
+- `SystemParametersService`: Servei centralitzat per gestionar els paràmetres del sistema
 - `InputDateComponent`: Inputs de temps amb picker integrat
 - `InputNumberComponent`: Inputs numèrics amb validació
 - `InputSelectComponent`: Inputs de selecció amb opcions

@@ -1,7 +1,6 @@
-import { Component, input, output, signal, computed, inject, HostListener } from '@angular/core';
+import { Component, input, output, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonComponent } from '../buttons/button.component';
 
 // Footer action types interface
 export type FooterActionType = 'confirm' | 'cancel' | 'close' | 'edit' | 'delete' | 'save' | 'login' | 'register';

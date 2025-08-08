@@ -2,7 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserService } from '../../../core/services/user.service';
-import { Auth, User } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'pelu-admin-setup',

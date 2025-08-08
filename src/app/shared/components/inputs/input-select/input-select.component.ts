@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 export interface SelectOption {
   label: string;
@@ -37,7 +38,7 @@ export interface InputSelectConfig {
 
 @Component({
   selector: 'pelu-input-select',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule, MultiSelectModule],
   templateUrl: './input-select.component.html',
   styleUrls: ['./input-select.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -120,7 +121,7 @@ export class InputSelectComponent implements ControlValueAccessor {
 
   // Event handler for blur
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onBlurHandler(event: Event) {
+  onBlurHandler(event: Event | { originalEvent: Event }) {
     this.onTouched();
   }
 
