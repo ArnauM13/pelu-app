@@ -51,7 +51,7 @@ export class InputTextComponent implements ControlValueAccessor {
   readonly valueChange = output<string>();
 
   // ControlValueAccessor callbacks
-  private onChange = (value: string) => {};
+  private onChange = (_value: string) => {};
   private onTouched = () => {};
 
   // Computed property to get the appropriate placeholder based on type
@@ -82,18 +82,20 @@ export class InputTextComponent implements ControlValueAccessor {
   }
 
   // Event handler for input changes
-  onInputChange(value: string) {
-    this.onChange(value);
-    this.valueChange.emit(value);
+  onInputChange(_value: string): void {
+    this.onChange(_value);
+    this.valueChange.emit(_value);
   }
 
   // Event handler for input blur
-  onInputBlur() {
+  onInputBlur(): void {
     this.onTouched();
   }
 
+
+
   // ControlValueAccessor methods
-  writeValue(value: string): void {
+  writeValue(_value: string): void {
     // PrimeNG handles this automatically
   }
 
@@ -105,7 +107,7 @@ export class InputTextComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  setDisabledState(_isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }

@@ -15,17 +15,19 @@ class MockTranslateLoader implements TranslateLoader {
   }
 }
 
-// Mock p-toast component
 @Component({
-  selector: 'p-toast',
-  template: '<ng-content></ng-content>',
-  standalone: false,
+  selector: 'pelu-toast',
+  template: '<div>Mock Toast</div>',
+  standalone: true,
 })
-class MockPToastComponent {
-  @Input() key: string = '';
-  @Input() position: string = '';
-  @Input() baseZIndex: number = 0;
-}
+class MockToastComponent {}
+
+@Component({
+  selector: 'pelu-toast',
+  template: '<div>Mock Toast</div>',
+  standalone: true,
+})
+class MockPToastComponent {}
 
 describe('ToastComponent', () => {
   let component: ToastComponent;

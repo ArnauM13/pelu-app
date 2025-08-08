@@ -39,7 +39,7 @@ export class FiltersInlineComponent {
   readonly onReset = input<(() => void) | undefined>();
 
   // Output events
-  readonly reset = output<void>();
+  readonly filtersReset = output<void>();
 
   // Reactive Form
   readonly filtersForm: FormGroup;
@@ -166,7 +166,7 @@ export class FiltersInlineComponent {
     this.onReset()?.();
 
     // Emit the reset event
-    this.reset.emit();
+    this.filtersReset.emit();
 
     // Force a manual reset of the form controls
     this.filtersForm.get('date')?.setValue('');

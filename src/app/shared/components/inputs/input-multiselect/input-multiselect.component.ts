@@ -7,10 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 
-export interface SelectOption {
+export interface MultiSelectOption {
   label: string;
   value: string | number;
   disabled?: boolean;
@@ -27,7 +26,7 @@ export interface SelectOption {
   available?: boolean;
 }
 
-export interface InputSelectConfig {
+export interface InputMultiSelectConfig {
   helpText?: string;
   errorText?: string;
   successText?: string;
@@ -37,22 +36,34 @@ export interface InputSelectConfig {
 }
 
 @Component({
-  selector: 'pelu-input-select',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule, MultiSelectModule],
-  templateUrl: './input-select.component.html',
-  styleUrls: ['./input-select.component.scss'],
+  selector: 'pelu-input-multiselect',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, MultiSelectModule],
+  templateUrl: './input-multiselect.component.html',
+  styleUrls: ['./input-multiselect.component.scss'],
   encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputSelectComponent),
+      useExisting: forwardRef(() => InputMultiSelectComponent),
       multi: true,
     },
   ],
 })
-export class InputSelectComponent implements ControlValueAccessor {
+export class InputMultiSelectComponent implements ControlValueAccessor {
   // Reactive inputs (signals)
-  readonly value = input<string | number | undefined>(undefined);
+  readonly value = input<(string | number)[]>([]);
+
+  // Internal value that ensures we always have an array
+  private _internalValue: (string | number)[] = [];
+
+  get safeValue(): (string | number)[] {
+    console.log('InputMultiSelect safeValue getter returning:', this._internalValue);
+    return this._internalValue;
+  }
+
+  set safeValue(value: (string | number)[]) {
+    this._internalValue = Array.isArray(value) ? value : [];
+  }
   readonly formControlName = input<string>('');
 
   // Component inputs
@@ -65,14 +76,9 @@ export class InputSelectComponent implements ControlValueAccessor {
   readonly errorText = input<string>('');
   readonly successText = input<string>('');
 
-  // Select specific properties
-  readonly options = input.required<SelectOption[]>();
-  readonly multiple = input<boolean>(false);
-  readonly clearable = input<boolean>(false);
-  readonly searchable = input<boolean>(false);
+  // MultiSelect specific properties
+  readonly options = input.required<MultiSelectOption[]>();
   readonly loading = input<boolean>(false);
-  readonly editable = input<boolean>(false);
-  readonly checkmark = input<boolean>(false);
   readonly filter = input<boolean>(true);
   readonly filterBy = input<string>('label');
   readonly filterMatchMode = input<'contains' | 'startsWith' | 'endsWith' | 'equals' | 'notEquals' | 'in' | 'lt' | 'lte' | 'gt' | 'gte'>('contains');
@@ -86,17 +92,18 @@ export class InputSelectComponent implements ControlValueAccessor {
   readonly optionValue = input<string>('value');
   readonly optionDisabled = input<string>('disabled');
   readonly group = input<boolean>(false);
+  readonly maxSelectedLabels = input<number>(3);
+  readonly display = input<'comma' | 'chip'>('comma');
 
   // Unique ID generated once
-  private readonly uniqueId = 'select-' + Math.random().toString(36).substr(2, 9);
+  private readonly uniqueId = 'multiselect-' + Math.random().toString(36).substr(2, 9);
 
   // Outputs
-  readonly valueChange = output<string | number | undefined>();
+  readonly valueChange = output<(string | number)[]>();
 
   // Template content projections
-  @ContentChild('selectedItem') selectedItemTemplate?: TemplateRef<{ $implicit: SelectOption }>;
-  @ContentChild('item') itemTemplate?: TemplateRef<{ $implicit: SelectOption }>;
-  @ContentChild('group') groupTemplate?: TemplateRef<{ $implicit: { label: string; value: string; items: SelectOption[] } }>;
+  @ContentChild('item') itemTemplate?: TemplateRef<{ $implicit: MultiSelectOption }>;
+  @ContentChild('group') groupTemplate?: TemplateRef<{ $implicit: { label: string; value: string; items: MultiSelectOption[] } }>;
   @ContentChild('dropdownicon') dropdownIconTemplate?: TemplateRef<void>;
   @ContentChild('header') headerTemplate?: TemplateRef<void>;
   @ContentChild('footer') footerTemplate?: TemplateRef<void>;
@@ -104,7 +111,7 @@ export class InputSelectComponent implements ControlValueAccessor {
 
   // ControlValueAccessor callbacks
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private onChange = (value: string | number | undefined) => {};
+  private onChange = (value: (string | number)[]) => {};
   private onTouched = () => {};
 
   // Get unique ID
@@ -113,8 +120,9 @@ export class InputSelectComponent implements ControlValueAccessor {
   }
 
   // Event handler for select changes
-  onSelectChange(value: string | number | null) {
-    const selectedValue = value === null ? undefined : value;
+  onSelectChange(value: (string | number)[] | null) {
+    const selectedValue = Array.isArray(value) ? value : [];
+    this._internalValue = selectedValue;
     this.onChange(selectedValue);
     this.valueChange.emit(selectedValue);
   }
@@ -127,11 +135,14 @@ export class InputSelectComponent implements ControlValueAccessor {
 
   // ControlValueAccessor methods
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  writeValue(value: string | number | undefined): void {
-    // PrimeNG handles this automatically
+  writeValue(value: (string | number)[]): void {
+    // Ensure value is always an array for PrimeNG MultiSelect
+    console.log('InputMultiSelect writeValue called with:', value);
+    this._internalValue = Array.isArray(value) ? value : [];
+    console.log('InputMultiSelect _internalValue set to:', this._internalValue);
   }
 
-  registerOnChange(fn: (value: string | number | undefined) => void): void {
+  registerOnChange(fn: (value: (string | number)[]) => void): void {
     this.onChange = fn;
   }
 
