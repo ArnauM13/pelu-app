@@ -20,6 +20,7 @@ import {
 import { UserService } from '../../../core/services/user.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
+import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 
@@ -37,6 +38,7 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     TranslateModule,
     CurrencyPipe,
     InputTextComponent,
+    NextAppointmentComponent,
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],
@@ -82,6 +84,9 @@ export class BookingMobilePageComponent {
   readonly viewDate = computed(() => this.viewDateSignal()); // New computed signal for view date
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
+  readonly userAppointments = computed(() =>
+    this.appointments().filter(b => this.bookingService.isOwnBooking(b))
+  );
   readonly viewMode = computed(() => this.viewModeSignal());
 
   readonly showBookingPopup = computed(() => this.showBookingPopupSignal());

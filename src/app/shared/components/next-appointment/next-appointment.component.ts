@@ -1,10 +1,11 @@
-import { Component, computed, input, output, inject } from '@angular/core';
+import { Component, computed, input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { ServicesService } from '../../../core/services/services.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'pelu-next-appointment',
@@ -60,7 +61,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
               </div>
             </div>
             <!-- Mobile view detail button -->
-            <button class="btn btn-primary mobile-view-btn" (click)="viewDetail.emit(booking)">
+            <button class="btn btn-primary mobile-view-btn" (click)="onViewDetail(booking)">
               👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
             </button>
           </div>
@@ -75,7 +76,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
 
         <!-- Desktop view detail button -->
         <div class="appointment-actions">
-          <button class="btn btn-primary desktop-view-btn" (click)="viewDetail.emit(booking)">
+          <button class="btn btn-primary desktop-view-btn" (click)="onViewDetail(booking)">
             👁️ {{ 'APPOINTMENTS.VIEW_DETAIL' | translate }}
           </button>
         </div>
@@ -556,10 +557,14 @@ import { Booking } from '../../../core/interfaces/booking.interface';
 })
 export class NextAppointmentComponent {
   readonly bookings = input.required<Booking[]>();
-
-  readonly viewDetail = output<Booking>();
-
   #servicesService = inject(ServicesService);
+  #router = inject(Router);
+
+  onViewDetail(booking: Booking) {
+    if (booking?.id) {
+      this.#router.navigate(['/appointments', booking.id]);
+    }
+  }
 
   readonly nextBooking = computed(() => {
     const bookings = this.bookings();
