@@ -27,13 +27,12 @@ class TestWrapperComponent {
     mine: 5,
   });
 
-  onQuickFilterChange(filter: 'all' | 'today' | 'upcoming' | 'mine') {}
+  onQuickFilterChange(_filter: 'all' | 'today' | 'upcoming' | 'mine') {}
 }
 
 describe('AppointmentsStatsComponent', () => {
   let component: AppointmentsStatsComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
-  let wrapperComponent: TestWrapperComponent;
   let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
@@ -60,7 +59,6 @@ describe('AppointmentsStatsComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
     component = fixture.debugElement.children[0].componentInstance;
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
 
@@ -76,7 +74,6 @@ describe('AppointmentsStatsComponent', () => {
     translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
 
     fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
     component = fixture.debugElement.children[0].componentInstance;
     fixture.detectChanges();
   });

@@ -1,108 +1,109 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
+import { FooterConfig } from '../../../shared/components/footer/footer.component';
+import { BookingService } from '../../../core/services/booking.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { AppointmentsListComponent } from '../../appointments/components/appointments-list/appointments-list.component';
+import { AppointmentsStatsComponent } from '../../appointments/components/appointments-stats/appointments-stats.component';
+import { AppointmentsViewControlsComponent } from '../../appointments/components/appointments-view-controls/appointments-view-controls.component';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { CardComponent } from '../../../shared/components/card/card.component';
+import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
+import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
-import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO, isToday, isFuture } from 'date-fns';
 import { ca } from 'date-fns/locale';
 
 import { AuthService } from '../../../core/auth/auth.service';
-import { CardComponent } from '../../../shared/components/card/card.component';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
-import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
-import { FooterConfig } from '../../../shared/components/footer/footer.component';
-import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
-import {
-  AppointmentsStatsComponent,
-  AppointmentStats,
-} from '../components/appointments-stats/appointments-stats.component';
-import { AppointmentsListComponent } from '../components/appointments-list/appointments-list.component';
-import { AppointmentsViewControlsComponent } from '../components/appointments-view-controls/appointments-view-controls.component';
-import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ActionContext } from '../../../core/services/actions.service';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
-import { ToastService } from '../../../shared/services/toast.service';
-import { BookingService } from '../../../core/services/booking.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
 import { ToastConfig } from '../../../shared/components/toast/toast.component';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
 
 interface FilterState {
-  date: string;
-  client: string;
-  service: string;
-  quickFilter: 'all' | 'today' | 'upcoming' | 'mine';
+  date: Date | null;
+  status: string | null;
+  service: string | null;
+  client: string | null;
 }
 
-interface ViewState {
-  mode: 'list' | 'calendar';
-  selectedDate: Date | null;
+interface AppointmentStats {
+  total: number;
+  today: number;
+  upcoming: number;
+  completed: number;
+  cancelled: number;
+  mine: number;
 }
 
 @Component({
   selector: 'pelu-appointments-page',
+  standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     CardModule,
     ButtonModule,
     TooltipModule,
-    TranslateModule,
     DatePickerModule,
+    TranslateModule,
     CalendarComponent,
-    CardComponent,
-    FiltersInlineComponent,
-    AppointmentsStatsComponent,
     AppointmentsListComponent,
+    AppointmentsStatsComponent,
     AppointmentsViewControlsComponent,
-    NextAppointmentComponent,
     LoadingStateComponent,
+    CardComponent,
+    NextAppointmentComponent,
+    FiltersInlineComponent,
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss'],
 })
 export class AppointmentsPageComponent {
-  // Inject services
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
   private readonly appointmentService = inject(BookingService);
   private readonly serviceColorsService = inject(ServiceColorsService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
+  private readonly toastService = inject(ToastService);
 
   // Core data
   readonly appointments = this.appointmentService.bookings;
   readonly loading = computed(() => this.appointmentService.isLoading());
 
-  // State signals
+  // Filter state
   private readonly filterStateSignal = signal<FilterState>({
-    date: '',
-    client: '',
-    service: '',
-    quickFilter: 'all',
+    date: null,
+    status: null,
+    service: null,
+    client: null,
   });
 
-  private readonly viewStateSignal = signal<ViewState>({
-    mode: 'list',
-    selectedDate: null,
+  // View state
+  private readonly viewStateSignal = signal({
+    mode: 'list' as 'list' | 'calendar',
+    selectedDate: null as Date | null,
   });
 
-  // Public computed signals
+  // Computed properties
   readonly filterState = computed(() => this.filterStateSignal());
   readonly viewState = computed(() => this.viewStateSignal());
   readonly viewMode = computed(() => this.viewState().mode);
   readonly selectedDate = computed(() => this.viewState().selectedDate);
 
-  // Filter signals
-  readonly filterDate = computed(() => this.filterState().date);
-  readonly filterClient = computed(() => this.filterState().client);
-  readonly filterService = computed(() => this.filterState().service);
-  readonly quickFilter = computed(() => this.filterState().quickFilter);
+  // Filter signals for template
+  readonly filterDate = computed(() => this.filterState().date?.toISOString().split('T')[0] || '');
+  readonly filterClient = computed(() => this.filterState().client || '');
+  readonly filterService = computed(() => this.filterState().service || '');
+
+  readonly filterStatus = computed(() => this.filterState().status || '');
 
   // View buttons
   readonly viewButtons = computed(() => [
@@ -127,9 +128,8 @@ export class AppointmentsPageComponent {
   // Filtered appointments
   readonly filteredAppointments = computed(() => {
     let appointments = this.appointments();
-    appointments = this.applyQuickFilter(appointments);
     appointments = this.applyDateFilter(appointments);
-    appointments = this.applyClientFilter(appointments);
+    appointments = this.applyStatusFilter(appointments);
     appointments = this.applyServiceFilter(appointments);
     return this.sortAppointmentsByDateTime(appointments);
   });
@@ -143,8 +143,7 @@ export class AppointmentsPageComponent {
       duration: 60, // Will be fetched from service service
       serviceName: 'Service', // Will be fetched from service service
       clientName: appointment.clientName || 'Client',
-      isPublicBooking: false,
-      isOwnBooking: true,
+      isOwnBooking: this.appointmentService.isOwnBooking(appointment),
       canDrag: true,
       canViewDetails: true,
     }));
@@ -154,8 +153,8 @@ export class AppointmentsPageComponent {
   readonly calendarFooterConfig = computed((): FooterConfig => {
     const today = new Date();
     const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-    const businessHours = this.businessSettingsService.getBusinessHours();
-    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+    const businessHours = this.systemParametersService.businessHours();
+    const lunchBreak = this.systemParametersService.lunchBreak();
 
     return {
       showInfoNote: false, // Disabled since info note is now in header
@@ -188,6 +187,8 @@ export class AppointmentsPageComponent {
         const appointmentDate = parseISO(app.data);
         return isFuture(appointmentDate);
       }).length,
+      completed: appointments.filter(app => app.status === 'completed').length,
+      cancelled: appointments.filter(app => app.status === 'cancelled').length,
       mine: appointments.filter(app => app.email === this.authService.user()?.email).length,
     };
   });
@@ -195,45 +196,53 @@ export class AppointmentsPageComponent {
   // Check if there are active filters
   readonly hasActiveFilters = computed(() => {
     const state = this.filterState();
-    return state.date !== '' || state.client !== '' || state.service !== '' || state.quickFilter !== 'all';
+    return state.date !== null || state.status !== null || state.service !== null;
   });
 
   // Filter methods
-  private applyQuickFilter(appointments: Booking[]): Booking[] {
-    switch (this.quickFilter()) {
-      case 'today': {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        return appointments.filter(appointment => appointment.data === today);
-      }
-      case 'upcoming': {
-        return appointments.filter(appointment => {
-          if (!appointment.data) return false;
-          const appointmentDate = parseISO(appointment.data);
-          return isFuture(appointmentDate);
-        });
-      }
-      case 'mine': {
-        const currentUserEmail = this.authService.user()?.email;
-        return appointments.filter(appointment => appointment.email === currentUserEmail);
-      }
-      default:
-        return appointments;
-    }
-  }
+  readonly setFilterDate = (value: string | Date) => {
+    const date = typeof value === 'string' ? new Date(value) : value;
+    this.filterStateSignal.update(state => ({ ...state, date }));
+  };
 
+  readonly setFilterStatus = (value: string) => {
+    this.filterStateSignal.update(state => ({ ...state, status: value }));
+  };
+
+  readonly setFilterService = (value: string) => {
+    this.filterStateSignal.update(state => ({ ...state, service: value }));
+  };
+
+  readonly setViewMode = (mode: 'list' | 'calendar' | Event) => {
+    // Handle both string and Event types
+    const viewMode = typeof mode === 'string' ? mode : 'list';
+    this.viewStateSignal.update(state => ({ ...state, mode: viewMode as 'list' | 'calendar' }));
+  };
+
+  readonly setQuickFilter = (filter: string) => {
+    // Implementation for quick filter
+    console.log('Quick filter:', filter);
+  };
+
+  readonly setFilterClient = (value: string) => {
+    this.filterStateSignal.update(state => ({ ...state, client: value }));
+  };
+
+  readonly clearAllFilters = () => {
+    this.filterStateSignal.set({ date: null, status: null, service: null, client: null });
+  };
+
+  // Filter methods
   private applyDateFilter(appointments: Booking[]): Booking[] {
     const filterDate = this.filterDate();
     if (!filterDate) return appointments;
     return appointments.filter(appointment => appointment.data === filterDate);
   }
 
-  private applyClientFilter(appointments: Booking[]): Booking[] {
-    const filterClient = this.filterClient();
-    if (!filterClient) return appointments;
-    const searchTerm = filterClient.toLowerCase();
-    return appointments.filter(appointment =>
-      (appointment.clientName || '').toLowerCase().includes(searchTerm)
-    );
+  private applyStatusFilter(appointments: Booking[]): Booking[] {
+    const filterStatus = this.filterStatus();
+    if (!filterStatus) return appointments;
+    return appointments.filter(appointment => appointment.status === filterStatus);
   }
 
   private applyServiceFilter(appointments: Booking[]): Booking[] {
@@ -255,36 +264,6 @@ export class AppointmentsPageComponent {
       return dateTimeB.getTime() - dateTimeA.getTime();
     });
   }
-
-  // Action methods
-  readonly setFilterDate = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, date: value }));
-  };
-
-  readonly setFilterClient = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, client: value }));
-  };
-
-  readonly setFilterService = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, service: value }));
-  };
-
-  readonly setQuickFilter = (filter: 'all' | 'today' | 'upcoming' | 'mine') => {
-    this.filterStateSignal.update(state => ({ ...state, quickFilter: filter }));
-  };
-
-  readonly setViewMode = (mode: 'list' | 'calendar') => {
-    this.viewStateSignal.update(state => ({ ...state, mode }));
-  };
-
-  readonly clearAllFilters = () => {
-    this.filterStateSignal.set({
-      date: '',
-      client: '',
-      service: '',
-      quickFilter: 'all',
-    });
-  };
 
   // Appointment actions
   async deleteAppointment(appointment: AppointmentEvent): Promise<void> {
@@ -372,12 +351,11 @@ export class AppointmentsPageComponent {
     }
   }
 
-  onDateSelect(event: { date: Date }): void {
+  readonly onCalendarDateSelect = (event: { date: Date } | null) => {
     if (event && event.date) {
-      const formattedDate = format(event.date, 'yyyy-MM-dd');
-      this.setFilterDate(formattedDate);
+      this.setFilterDate(event.date);
     }
-  }
+  };
 
   getEventColor(dateString: string): string {
     if (this.isToday(dateString)) {
