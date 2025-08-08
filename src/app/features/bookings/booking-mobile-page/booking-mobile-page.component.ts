@@ -23,6 +23,7 @@ import { InputTextComponent } from '../../../shared/components/inputs/input-text
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
+import { BookingValidationService } from '../../../core/services/booking-validation.service';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -54,6 +55,7 @@ export class BookingMobilePageComponent {
   private readonly serviceColorsService = inject(ServiceColorsService);
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly timeUtils = inject(TimeUtils);
+  private readonly bookingValidationService = inject(BookingValidationService);
 
   // Step management signals
   private readonly currentStepSignal = signal<BookingStep>('service');
@@ -188,6 +190,16 @@ export class BookingMobilePageComponent {
     return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
   });
 
+  // Check if there are no available appointments in the current view
+  readonly hasNoAvailableAppointments = computed(() => {
+    const currentViewDays = this.currentViewDays();
+    return currentViewDays.every(day => {
+      const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, day));
+      if (!daySlots) return true; // No slots means no appointments
+      return daySlots.timeSlots.every(slot => !slot.available);
+    });
+  });
+
   constructor() {
     this.loadServices();
     this.loadAppointments();
@@ -201,6 +213,9 @@ export class BookingMobilePageComponent {
     window.addEventListener('bookingUpdated', () => {
       this.loadAppointments();
     });
+
+    // Set default date when entering datetime step
+    this.setDefaultDate();
   }
 
   // Step navigation methods
@@ -213,6 +228,8 @@ export class BookingMobilePageComponent {
 
     if (currentStep === 'service' && this.canProceedToDateTime()) {
       this.goToStep('datetime');
+      // Set default date when entering datetime step
+      this.setDefaultDate();
     } else if (currentStep === 'datetime' && this.canProceedToConfirmation()) {
       this.goToStep('confirmation');
       this.fillUserDataIfAuthenticated();
@@ -243,18 +260,6 @@ export class BookingMobilePageComponent {
   onDateSelected(date: Date) {
     this.selectedDateSignal.set(date);
     this.selectedTimeSlotSignal.set(null); // Reset time slot when date changes
-
-    // Check if the selected day is fully booked and show toast
-    const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, date));
-    if (daySlots && daySlots.timeSlots.length > 0) {
-      const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
-      if (availableSlots.length === 0) {
-        this.toastService.showWarning(
-          'Totes les hores estan ocupades',
-          'Aquest dia no té cap hora disponible per reservar.'
-        );
-      }
-    }
   }
 
   onTimeSlotSelected(timeSlot: TimeSlot) {
@@ -403,6 +408,11 @@ export class BookingMobilePageComponent {
           continue;
         }
 
+        // Check advance time validation - only show slots that can be booked with advance time
+        if (!this.bookingValidationService.canBookWithAdvanceTime(date, timeString)) {
+          continue;
+        }
+
         // Check if slot is available (not booked)
         const isAvailable = !this.isSlotBooked(slotDate);
 
@@ -427,7 +437,7 @@ export class BookingMobilePageComponent {
 
   private isSlotBooked(date: Date): boolean {
     const bookings = this.bookingService.bookings();
-    const timeString = this.timeUtils.formatTime(date.toTimeString().slice(0, 5));
+    const _timeString = this.timeUtils.formatTime(date.toTimeString().slice(0, 5));
     const dateString = this.timeUtils.formatDateISO(date);
     const selectedService = this.selectedService();
 
@@ -945,5 +955,53 @@ export class BookingMobilePageComponent {
 
   selectServiceFromList(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
+  }
+
+  // Set default date when entering datetime step
+  private setDefaultDate() {
+    const today = new Date();
+
+    // Try to select today if it's selectable
+    if (this.canSelectDate(today)) {
+      this.selectedDateSignal.set(today);
+      this.viewDateSignal.set(today);
+      return;
+    }
+
+    // If today is not selectable, find the first available date
+    const currentViewDays = this.currentViewDays();
+    const firstAvailableDate = currentViewDays.find(day => this.canSelectDate(day));
+
+    if (firstAvailableDate) {
+      this.selectedDateSignal.set(firstAvailableDate);
+      this.viewDateSignal.set(firstAvailableDate);
+    }
+  }
+
+  // Update default date when step changes to datetime
+  private updateDefaultDateOnStepChange() {
+    if (this.currentStep() === 'datetime' && !this.selectedDate()) {
+      this.setDefaultDate();
+    }
+  }
+
+  // Check if a specific day has no available appointments
+  hasNoAvailableAppointmentsForDay(day: Date): boolean {
+    const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, day));
+    if (!daySlots) return true; // No slots means no appointments
+    return daySlots.timeSlots.every(slot => !slot.available);
+  }
+
+  // Check if a working day is fully booked (all time slots occupied)
+  isFullyBookedWorkingDay(day: Date): boolean {
+    // Only apply yellow styling to working days that are fully booked
+    if (!this.isBusinessDay(day) || this.isPastDate(day) ||
+        (this.viewMode() === 'month' && !this.isCurrentMonth(day))) {
+      return false; // Not a working day or not selectable
+    }
+
+    const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, day));
+    if (!daySlots) return false; // No slots means it's not a working day with appointments
+    return daySlots.timeSlots.every(slot => !slot.available);
   }
 }
