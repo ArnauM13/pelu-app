@@ -1,10 +1,9 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HeaderComponent } from './ui/layout/header/header.component';
 import { AuthService } from './core/auth/auth.service';
-import { ScrollService } from './core/services/scroll.service';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { LoaderComponent } from './shared/components/loader/loader.component';
 import {
@@ -15,7 +14,7 @@ import {
 import { ToastService } from './shared/services/toast.service';
 
 @Component({
-  selector: 'app-root',
+  selector: 'pelu-app-root',
   imports: [
     RouterOutlet,
     CommonModule,
@@ -31,12 +30,11 @@ export class AppComponent {
   // Core signals
   readonly title = signal('pelu-app');
 
-  constructor(
-    private authService: AuthService,
-    private scrollService: ScrollService,
-    private toastService: ToastService,
-    private translateService: TranslateService
-  ) {
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly translateService = inject(TranslateService);
+
+  constructor() {
     // Run one-time migration when user is authenticated
     effect(() => {
       const isAuthenticated = this.authService.isAuthenticated();
