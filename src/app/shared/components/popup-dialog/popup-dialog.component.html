@@ -21,7 +21,6 @@
           <p-button
             [label]="action.label"
             [severity]="getActionSeverity(action)"
-            [outlined]="getActionSeverity(action) === 'secondary'"
             (onClick)="onActionClick(action)"
           />
         }
