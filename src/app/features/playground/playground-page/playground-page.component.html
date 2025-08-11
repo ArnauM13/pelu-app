@@ -25,6 +25,12 @@
         (click)="setActiveTab('toasts')">
         🎯 Toasts
       </button>
+      <button
+        class="tab-button"
+        [class.active]="isActiveTab('dialogs')"
+        (click)="setActiveTab('dialogs')">
+        💬 Dialogs
+      </button>
     </div>
 
     <!-- Tab Content -->
@@ -56,6 +62,16 @@
           <p>Demostració del sistema de toasts unificat amb PrimeNG i personalització completa.</p>
 
           <pelu-toast-demo></pelu-toast-demo>
+        </div>
+      </div>
+
+      <!-- Dialogs Tab -->
+      <div class="tab-panel" [class.active]="isActiveTab('dialogs')">
+        <div class="demo-section">
+          <h2>💬 Diàlegs i Popups</h2>
+          <p>Demostració dels diàlegs: confirmació, alerta, diàleg bàsic i modal simple.</p>
+
+          <pelu-dialogs-demo></pelu-dialogs-demo>
         </div>
       </div>
     </div>

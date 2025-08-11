@@ -1,0 +1,17 @@
+.dialogs-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dialog-content {
+  padding: 0.5rem 0;
+}
+
+
