@@ -480,6 +480,37 @@
         }
       }
 
+      &.user-limit-warning {
+        border-color: #ef4444;
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+
+        .alert-content {
+          .alert-icon {
+            color: #dc2626;
+          }
+
+          .alert-text {
+            h4 {
+              color: #991b1b;
+            }
+
+            p {
+              color: #991b1b;
+            }
+
+            .limit-info {
+              font-weight: 600;
+              margin-top: 0.5rem;
+              padding: 0.5rem;
+              background: rgba(239, 68, 68, 0.1);
+              border-radius: 6px;
+              border-left: 3px solid #ef4444;
+            }
+          }
+        }
+      }
+
       .alert-content {
         display: flex;
         align-items: flex-start;

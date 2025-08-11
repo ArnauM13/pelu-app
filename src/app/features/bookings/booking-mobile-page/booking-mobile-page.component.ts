@@ -126,6 +126,10 @@ export class BookingMobilePageComponent {
   });
 
   readonly canConfirmBooking = computed(() => {
+    // Check if user has reached appointment limit
+    if (!this.canUserBookMoreAppointments()) {
+      return false;
+    }
     const details = this.bookingDetails();
     return details.clientName && details.email && this.selectedService() && this.selectedDate() && this.selectedTimeSlot();
   });
@@ -697,6 +701,12 @@ export class BookingMobilePageComponent {
   }
 
   selectTimeSlot(timeSlot: TimeSlot) {
+    // Check if user has reached appointment limit
+    if (!this.canUserBookMoreAppointments()) {
+      this.toastService.showError('No pots fer més reserves. Ja tens el màxim de reserves actives.');
+      return;
+    }
+
     // Check if service is selected
     if (!this.selectedService()) {
       this.toastService.showError('Si us plau, selecciona un servei primer');
@@ -987,21 +997,44 @@ export class BookingMobilePageComponent {
 
   // Check if a specific day has no available appointments
   hasNoAvailableAppointmentsForDay(day: Date): boolean {
-    const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, day));
-    if (!daySlots) return true; // No slots means no appointments
-    return daySlots.timeSlots.every(slot => !slot.available);
+    const businessHours = this.businessHours();
+    const businessHoursString = {
+      start: businessHours.start.toString(),
+      end: businessHours.end.toString()
+    };
+    const lunchBreak = this.lunchBreak();
+    const lunchBreakString = {
+      start: lunchBreak.start.toString(),
+      end: lunchBreak.end.toString()
+    };
+
+    const daySlots = this.timeUtils.generateTimeSlots(
+      day,
+      businessHoursString,
+      this.slotDuration(),
+      lunchBreakString,
+      this.businessDays(),
+      this.appointments()
+    );
+    return daySlots.every(slot => !slot.available);
   }
 
-  // Check if a working day is fully booked (all time slots occupied)
   isFullyBookedWorkingDay(day: Date): boolean {
-    // Only apply yellow styling to working days that are fully booked
-    if (!this.isBusinessDay(day) || this.isPastDate(day) ||
-        (this.viewMode() === 'month' && !this.isCurrentMonth(day))) {
-      return false; // Not a working day or not selectable
-    }
+    return this.isBusinessDay(day) && this.hasNoAvailableAppointmentsForDay(day);
+  }
 
-    const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, day));
-    if (!daySlots) return false; // No slots means it's not a working day with appointments
-    return daySlots.timeSlots.every(slot => !slot.available);
+  // User appointment limit methods
+  canUserBookMoreAppointments(): boolean {
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.canUserBookMoreAppointments(currentBookings);
+  }
+
+  getUserAppointmentCount(): number {
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.getUserAppointmentCount(currentBookings);
+  }
+
+  getMaxAppointmentsPerUser(): number {
+    return this.systemParametersService.getMaxAppointmentsPerUser();
   }
 }

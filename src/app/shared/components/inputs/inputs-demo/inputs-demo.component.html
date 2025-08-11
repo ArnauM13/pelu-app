@@ -4,6 +4,8 @@
     <p>Demostració dels components d'input amb mides unificades</p>
   </div>
 
+
+
   <div class="demo-grid">
     <!-- Input Text -->
     <div class="demo-section">
@@ -286,6 +288,23 @@
           </div>
         </ng-template>
       </pelu-input-select>
+    </div>
+
+    <!-- Input MultiSelect -->
+    <div class="demo-section">
+      <h2>Input MultiSelect - Selecció Múltiple de Serveis</h2>
+      <pelu-input-multiselect
+        [label]="'Selecciona Serveis'"
+        [placeholder]="'Cerca i selecciona serveis...'"
+        [options]="serviceOptions"
+        [value]="formData().selectedServices"
+        (valueChange)="updateField('selectedServices', $event)"
+        [filter]="true"
+        [showClear]="true"
+        [filterPlaceholder]="'Cerca serveis...'"
+        [maxSelectedLabels]="2"
+        [display]="'chip'"
+      />
     </div>
 
     <!-- Input Textarea -->

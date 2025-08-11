@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InputsDemoComponent } from '../../../shared/components/inputs/inputs-demo/inputs-demo.component';
 import { ButtonsDemoComponent } from '../../../shared/components/buttons';
 import { ToastDemoComponent } from '../../../shared/components/toast';
+import { DialogsDemoComponent } from '../../../shared/components/dialogs/dialogs-demo.component';
 
 @Component({
   selector: 'pelu-playground-page',
@@ -14,20 +15,21 @@ import { ToastDemoComponent } from '../../../shared/components/toast';
     InputsDemoComponent,
     ButtonsDemoComponent,
     ToastDemoComponent,
+    DialogsDemoComponent,
   ],
   templateUrl: './playground-page.component.html',
   styleUrls: ['./playground-page.component.scss'],
 })
 export class PlaygroundPageComponent {
   // Tab management
-  readonly activeTab = signal<'inputs' | 'buttons' | 'toasts'>('inputs');
+  readonly activeTab = signal<'inputs' | 'buttons' | 'toasts' | 'dialogs'>('inputs');
 
   // Tab switching methods
-  setActiveTab(tab: 'inputs' | 'buttons' | 'toasts') {
+  setActiveTab(tab: 'inputs' | 'buttons' | 'toasts' | 'dialogs') {
     this.activeTab.set(tab);
   }
 
-  isActiveTab(tab: 'inputs' | 'buttons' | 'toasts'): boolean {
+  isActiveTab(tab: 'inputs' | 'buttons' | 'toasts' | 'dialogs'): boolean {
     return this.activeTab() === tab;
   }
 }

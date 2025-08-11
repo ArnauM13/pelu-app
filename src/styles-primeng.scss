@@ -1,15 +1,29 @@
 // PrimeNG Global Styles - Unified and Simplified
-// All inputs should have white backgrounds and consistent styling
+// Keep only PrimeNG-specific styles and component refinements.
+// Force light mode via PrimeNG tokens instead of overriding every component.
 
+/* Force light color-scheme globally so PrimeNG uses light tokens */
 :root {
-  // Primary color alpha variants for overlays and highlights
+  color-scheme: light;
+  /* Overlay/focus helpers reused in components below */
   --primary-color-alpha-10: rgba(58, 90, 138, 0.1);
   --primary-color-alpha-20: rgba(58, 90, 138, 0.2);
   --primary-color-alpha-30: rgba(58, 90, 138, 0.3);
   --primary-color-alpha-50: rgba(58, 90, 138, 0.5);
   --primary-color-alpha-70: rgba(58, 90, 138, 0.7);
   --primary-color-alpha-90: rgba(58, 90, 138, 0.9);
+
+  /* Minimal PrimeNG token overrides to ensure light look without heavy duplication */
+  --p-surface-ground: #f8f9fa;
+  --p-surface-section: #ffffff;
+  --p-surface-card: #ffffff;
+  --p-surface-overlay: #ffffff;
+  --p-surface-border: #e5e7eb;
+  --p-text-color: #111827;
+  --p-text-color-secondary: #6b7280;
 }
+
+
 
 // ===== UNIFIED BUTTON STYLES =====
 // Global styles for all PrimeNG buttons to maintain consistent appearance
@@ -527,7 +541,7 @@
 }
 
 // ===== UNIFIED INPUT STYLES =====
-// All text inputs, dropdowns, calendars, etc. share these base styles
+// All text inputs, dropdowns, calendars, etc. share these base styles (light)
 .p-inputtext,
 .p-inputtextarea,
 .p-dropdown,
@@ -538,10 +552,10 @@
 .p-password-input,
 .p-select {
   // Base styles - WHITE BACKGROUND
-  background-color: white !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: var(--border-radius) !important;
-  color: var(--text-color-secondary) !important; // Gris #6b7280
+  background-color: #ffffff !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  color: var(--text-color-secondary, #6b7280) !important;
   font-size: 0.95rem !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-height: 44px !important;
@@ -551,21 +565,21 @@
   // Hover state
   &:hover {
     background-color: white !important;
-    border-color: var(--border-color-hover) !important;
+    border-color: var(--border-color-hover, #d1d5db) !important;
   }
 
   // Focus state
   &:focus {
     background-color: white !important;
-    border-color: var(--primary-color) !important;
+    border-color: var(--primary-color, #3b82f6) !important;
     box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
     outline: none !important;
   }
 
   // Disabled state
   &:disabled {
-    background-color: var(--surface-color-disabled) !important;
-    color: var(--text-color-muted) !important;
+    background-color: var(--surface-color-disabled, #f3f4f6) !important;
+    color: var(--text-color-muted, #9ca3af) !important;
     cursor: not-allowed !important;
     opacity: 0.6 !important;
   }
@@ -585,7 +599,7 @@
 
   // Placeholder
   &::placeholder {
-    color: var(--text-color-muted) !important;
+    color: var(--text-color-muted, #9ca3af) !important;
     opacity: 1 !important;
   }
 
@@ -611,7 +625,7 @@
   background: white !important;
 
   .p-select-list-container .p-select-option {
-    color: var(--text-color-light) !important;
+    color: var(--text-color-light, #6b7280) !important;
     font-weight: 500 !important;
     font-size: 0.95rem !important;
     line-height: 1.2 !important;
@@ -619,14 +633,66 @@
 
   .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
     background-color: var(--primary-color-alpha-10) !important;
-    color: var(--primary-color) !important;
+    color: var(--primary-color, #3b82f6) !important;
+  }
+}
+
+.p-multiselect-overlay {
+  background: white !important;
+
+  .p-multiselect-list-container .p-multiselect-option {
+    color: var(--text-color-light, #6b7280) !important;
+    font-weight: 500 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus {
+    background-color: var(--primary-color-alpha-10) !important;
+    color: var(--primary-color, #3b82f6) !important;
+  }
+}
+
+.p-chip {
+  background: var(--gradient-primary, linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)) !important;
+  color: var(--text-color-white, white) !important;
+  border-color: var(--primary-color, #3b82f6) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: var(--box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+
+  // Shimmer effect
+  &::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.5s !important;
+  }
+
+  &:hover::before {
+    left: 100% !important;
+  }
+
+  &:hover {
+    box-shadow: var(--box-shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
+  }
+
+  &:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
   }
 }
 
 .p-checkbox {
   .p-checkbox-box {
-    background-color: white !important;
-    border-color: var(--border-color) !important;
+    background-color: #ffffff !important;
+    border-color: var(--border-color, #e5e7eb) !important;
   }
 }
 
@@ -770,6 +836,7 @@
   }
 
   .p-dialog-content {
+    display: block !important;
     background-color: white !important;
     color: var(--text-color) !important;
     padding: 1.5rem !important;

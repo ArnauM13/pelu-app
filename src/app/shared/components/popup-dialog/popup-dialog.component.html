@@ -1,49 +1,30 @@
-@if (isOpen()) {
-  <div
-    class="popup-dialog-overlay"
-    [class]="customClass()"
-    (click)="onBackdropClick()"
-  >
-    <div
-      class="popup-dialog"
-      [class]="'popup-dialog-' + config().size"
-      (click)="$event.stopPropagation()"
-    >
-      <!-- Header -->
-      <div class="popup-header">
-        <h2 class="popup-title">{{ config().title }}</h2>
-
-        <!-- Close Button - Always visible -->
-        <button
-          class="close-button"
-          (click)="onClose()"
-          [attr.aria-label]="'Close'"
-          type="button"
-        >
-          <span class="close-icon">×</span>
-        </button>
-      </div>
-
-      <!-- Content -->
-      <div class="popup-content">
-        <ng-content></ng-content>
-      </div>
-
-      <!-- Footer -->
-      @if (showFooter() && footerActions().length > 0) {
-        <div class="popup-footer">
-          @for (action of footerActions(); track action.label) {
-            <button
-              class="btn"
-              [class]="getActionClass(action)"
-              (click)="onActionClick(action)"
-              type="button"
-            >
-              {{ action.label }}
-            </button>
-          }
-        </div>
-      }
+<p-confirmdialog
+  id="pelu-confirm-dialog"
+  [visible]="isOpen()"
+  (onHide)="onHide()"
+  [header]="config().title"
+  [closable]="true"
+  [dismissableMask]="config().closeOnBackdropClick === true"
+  [style]="dialogStyle()"
+  [styleClass]="'pelu-confirmdialog ' + customClass()"
+>
+  <ng-template #message>
+    <div class="pelu-confirmdialog-content">
+      <ng-content></ng-content>
     </div>
-  </div>
-}
+  </ng-template>
+
+  <ng-template #footer>
+    @if (showFooter() && sortedFooterActions().length > 0) {
+      <div class="flex items-center gap-2">
+        @for (action of sortedFooterActions(); track action.label) {
+          <p-button
+            [label]="action.label"
+            [severity]="getActionSeverity(action)"
+            (onClick)="onActionClick(action)"
+          />
+        }
+      </div>
+    }
+  </ng-template>
+</p-confirmdialog>
