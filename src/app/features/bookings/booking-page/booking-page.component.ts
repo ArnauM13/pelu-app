@@ -22,6 +22,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
+import { BookingValidationService } from '../../../core/services/booking-validation.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
@@ -56,6 +57,7 @@ export class BookingPageComponent {
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly responsiveService = inject(ResponsiveService);
   private readonly calendarStateService = inject(CalendarStateService);
+  private readonly bookingValidationService = inject(BookingValidationService);
 
   // Mobile detection using centralized service
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -163,14 +165,26 @@ export class BookingPageComponent {
   }
 
   onTimeSlotSelected(event: { date: string; time: string }) {
-    const details: ServiceSelectionDetails = {
+    // Check if user has reached appointment limit
+    if (!this.canUserBookMoreAppointments()) {
+      this.translateService.get('BOOKING.USER_LIMIT_REACHED_MESSAGE').subscribe(message => {
+        // You can add a toast service here if needed
+        console.log(message);
+      });
+      return;
+    }
+
+    const selectedDate = new Date(event.date);
+    this.selectedDateSignal.set(selectedDate);
+
+    // Show service selection popup
+    this.serviceSelectionDetailsSignal.set({
       date: event.date,
       time: event.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
-    };
+    });
 
-    this.serviceSelectionDetailsSignal.set(details);
     this.showServiceSelectionPopupSignal.set(true);
   }
 
@@ -260,5 +274,17 @@ export class BookingPageComponent {
     }
   }
 
+  // User appointment limit methods
+  canUserBookMoreAppointments(): boolean {
+    return this.bookingValidationService.canUserBookMoreAppointments();
+  }
+
+  getUserAppointmentCount(): number {
+    return this.bookingValidationService.getUserAppointmentCount();
+  }
+
+  getMaxAppointmentsPerUser(): number {
+    return this.systemParametersService.getMaxAppointmentsPerUser();
+  }
 
 }

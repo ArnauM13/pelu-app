@@ -579,12 +579,13 @@
 
   <!-- Alert Dialog -->
   @if (showAlertDialog()) {
-    <pelu-alert-popup
+    <pelu-confirmation-popup
+      [isOpen]="true"
       [data]="alertData()!"
       (confirmed)="onAlertConfirmed()"
       (cancelled)="onAlertCancelled()"
     >
-    </pelu-alert-popup>
+    </pelu-confirmation-popup>
   }
 
 </div>

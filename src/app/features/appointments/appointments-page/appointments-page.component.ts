@@ -9,7 +9,6 @@ import { SystemParametersService } from '../../../core/services/system-parameter
 import { ToastService } from '../../../shared/services/toast.service';
 import { AppointmentsListComponent } from '../../appointments/components/appointments-list/appointments-list.component';
 import { AppointmentsStatsComponent } from '../../appointments/components/appointments-stats/appointments-stats.component';
-import { AppointmentsViewControlsComponent } from '../../appointments/components/appointments-view-controls/appointments-view-controls.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
@@ -58,7 +57,6 @@ interface AppointmentStats {
     CalendarComponent,
     AppointmentsListComponent,
     AppointmentsStatsComponent,
-    AppointmentsViewControlsComponent,
     LoadingStateComponent,
     CardComponent,
     NextAppointmentComponent,
@@ -285,17 +283,13 @@ export class AppointmentsPageComponent {
 
   // Appointment actions
   async deleteAppointment(appointment: AppointmentEvent): Promise<void> {
-    try {
-      const originalBooking = this.findOriginalBooking(appointment);
-      if (originalBooking) {
-        await this.appointmentService.deleteBooking(originalBooking.id || '');
-        this.toastService.showAppointmentDeleted(originalBooking.clientName || '');
-      }
-      window.dispatchEvent(new CustomEvent('appointmentDeleted'));
-    } catch (error) {
-      console.error('Error deleting appointment:', error);
-      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
-    }
+    // Always confirm before deleting
+    const originalBooking = this.findOriginalBooking(appointment);
+    if (!originalBooking || !originalBooking.id) return;
+
+    // Delegate to calendar popup flow (the calendar emits delete on confirmation)
+    // Here we can route to the detail page where confirmation is centralized or use a shared service.
+    this.router.navigate(['/appointments', originalBooking.id], { queryParams: { confirmDelete: 'true' } });
   }
 
   editAppointment(appointment: AppointmentEvent): void {
@@ -309,16 +303,8 @@ export class AppointmentsPageComponent {
 
   // List actions (for Booking objects)
   async deleteBookingFromList(booking: Booking): Promise<void> {
-    try {
-      if (booking.id) {
-        await this.appointmentService.deleteBooking(booking.id);
-        this.toastService.showAppointmentDeleted(booking.clientName || '');
-        window.dispatchEvent(new CustomEvent('appointmentDeleted'));
-      }
-    } catch (error) {
-      console.error('Error deleting booking:', error);
-      this.toastService.showError('Error', 'No s\'ha pogut eliminar la cita');
-    }
+    if (!booking.id) return;
+    this.router.navigate(['/appointments', booking.id], { queryParams: { confirmDelete: 'true' } });
   }
 
   editBookingFromList(booking: Booking): void {

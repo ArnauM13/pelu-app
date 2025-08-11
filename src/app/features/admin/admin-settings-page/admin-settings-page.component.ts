@@ -69,11 +69,6 @@ export class AdminSettingsPageComponent implements OnInit {
   // Computed properties
   readonly isEditMode = computed(() => this.isEditModeSignal());
 
-  // Debug method for logging
-  logWorkingDaysValue(): void {
-    console.log('WorkingDays form value:', this.settingsForm.get('workingDays')?.value);
-  }
-
   // Working days options with translated labels
   workingDaysOptions: MultiSelectOption[] = [];
 
@@ -83,13 +78,13 @@ export class AdminSettingsPageComponent implements OnInit {
 
   private generateWorkingDaysOptions(): void {
     this.workingDaysOptions = [
-      { label: 'COMMON.DAYS.MONDAY', value: 1 },
-      { label: 'COMMON.DAYS.TUESDAY', value: 2 },
-      { label: 'COMMON.DAYS.WEDNESDAY', value: 3 },
-      { label: 'COMMON.DAYS.THURSDAY', value: 4 },
-      { label: 'COMMON.DAYS.FRIDAY', value: 5 },
-      { label: 'COMMON.DAYS.SATURDAY', value: 6 },
-      { label: 'COMMON.DAYS.SUNDAY', value: 0 },
+      { label: 'DAYS.MONDAY', value: 1 },
+      { label: 'DAYS.TUESDAY', value: 2 },
+      { label: 'DAYS.WEDNESDAY', value: 3 },
+      { label: 'DAYS.THURSDAY', value: 4 },
+      { label: 'DAYS.FRIDAY', value: 5 },
+      { label: 'DAYS.SATURDAY', value: 6 },
+      { label: 'DAYS.SUNDAY', value: 0 },
     ];
   }
 
@@ -129,17 +124,15 @@ export class AdminSettingsPageComponent implements OnInit {
       return date;
     };
 
-    console.log('Initializing form with workingDays:', currentParameters.workingDays);
-
     this.settingsForm = this.fb.group({
       businessName: [currentParameters.businessName],
       businessHoursStart: [createTimeDate(businessHours.start)],
       businessHoursEnd: [createTimeDate(businessHours.end)],
       lunchBreakStart: [createTimeDate(lunchBreak.start)],
       lunchBreakEnd: [createTimeDate(lunchBreak.end)],
-      workingDays: [currentParameters.workingDays],
+      workingDays: [currentParameters.workingDays || []],
       appointmentDuration: [currentParameters.appointmentDuration],
-      maxAppointments: [currentParameters.maxAppointmentsPerDay],
+      maxAppointmentsPerUser: [currentParameters.maxAppointmentsPerUser],
       autoConfirm: [currentParameters.autoConfirmAppointments],
       sendNotifications: [currentParameters.sendNotifications],
       defaultLanguage: [currentParameters.language],
@@ -150,8 +143,6 @@ export class AdminSettingsPageComponent implements OnInit {
       bookingAdvanceDays: [currentParameters.bookingAdvanceDays],
       bookingAdvanceTime: [currentParameters.bookingAdvanceTime],
     });
-
-    console.log('Form initialized with workingDays value:', this.settingsForm.get('workingDays')?.value);
   }
 
   async loadSettings() {
@@ -187,7 +178,7 @@ export class AdminSettingsPageComponent implements OnInit {
         lunchBreakEnd: createTimeDate(lunchBreak.end),
         workingDays: currentParameters.workingDays,
         appointmentDuration: currentParameters.appointmentDuration,
-        maxAppointments: currentParameters.maxAppointmentsPerDay,
+        maxAppointmentsPerUser: currentParameters.maxAppointmentsPerUser,
         autoConfirm: currentParameters.autoConfirmAppointments,
         sendNotifications: currentParameters.sendNotifications,
         defaultLanguage: currentParameters.language,
@@ -272,7 +263,7 @@ export class AdminSettingsPageComponent implements OnInit {
           businessName: formValue.businessName,
           workingDays: formValue.workingDays,
           appointmentDuration: formValue.appointmentDuration,
-          maxAppointmentsPerDay: formValue.maxAppointments,
+          maxAppointmentsPerUser: formValue.maxAppointmentsPerUser,
           autoConfirmAppointments: formValue.autoConfirm,
           sendNotifications: formValue.sendNotifications,
           language: formValue.defaultLanguage,

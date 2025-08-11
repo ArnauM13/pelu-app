@@ -96,7 +96,8 @@ export class BookingService {
       // Validate booking using the new validation service (skip validation for admins)
       if (!this.isAdmin()) {
         const bookingDate = new Date(bookingData.data || '');
-        if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '')) {
+        const currentBookings = this.bookings();
+        if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '', currentBookings)) {
           throw new Error('ERROR_BOOKING_NOT_ALLOWED');
         }
       }
