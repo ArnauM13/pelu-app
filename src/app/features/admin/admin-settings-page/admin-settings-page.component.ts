@@ -21,6 +21,7 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
 import { InputMultiSelectComponent, MultiSelectOption } from '../../../shared/components/inputs/input-multiselect/input-multiselect.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 
 @Component({
   selector: 'pelu-admin-settings-page',
@@ -41,6 +42,7 @@ import { ButtonComponent } from '../../../shared/components/buttons/button.compo
     InputMultiSelectComponent,
     InputDateComponent,
     ButtonComponent,
+    LoadingStateComponent,
   ],
   templateUrl: './admin-settings-page.component.html',
   styleUrls: ['./admin-settings-page.component.scss'],

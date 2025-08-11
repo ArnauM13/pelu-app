@@ -21,6 +21,7 @@ import { UserService } from '../../../core/services/user.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
@@ -40,6 +41,7 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     CurrencyPipe,
     InputTextComponent,
     NextAppointmentComponent,
+    LoadingStateComponent,
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],

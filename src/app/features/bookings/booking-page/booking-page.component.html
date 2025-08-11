@@ -4,6 +4,9 @@
 } @else {
   <!-- Desktop version -->
   <div class="booking-page">
+    @if (availableServices().length === 0) {
+      <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
+    }
     <!-- Date Selection Controls -->
     <div class="date-controls">
       <pelu-button

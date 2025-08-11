@@ -126,6 +126,11 @@ export class ProfileDropdownComponent {
           routerLink: '/admin/dashboard',
         },
         {
+          label: 'NAVIGATION.ADMIN_SERVICES',
+          emoji: '✂️',
+          routerLink: '/admin/services',
+        },
+        {
           label: 'NAVIGATION.ADMIN_SETTINGS',
           emoji: '⚙️',
           routerLink: '/admin/settings',

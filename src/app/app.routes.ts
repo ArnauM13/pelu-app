@@ -8,7 +8,7 @@ import { adminGuard } from './core/guards/admin.guard';
 import { BookingPageComponent } from './features/bookings/booking-page/booking-page.component';
 import { AppointmentsPageComponent } from './features/appointments/appointments-page/appointments-page.component';
 import { AppointmentDetailViewComponent } from './features/appointments/appointment-detail-view/appointment-detail-view.component';
-import { ServicesPageComponent } from './features/services/services-page/services-page.component';
+import { AboutPageComponent } from './features/about/about-page/about-page.component';
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
 import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
@@ -60,11 +60,12 @@ export const routes: Routes = [
     data: { viewTransitionName: 'perfil' },
   },
   {
-    path: 'services',
-    component: ServicesPageComponent,
+    path: 'about',
+    component: AboutPageComponent,
     canActivate: [authGuard],
-    data: { viewTransitionName: 'services' },
+    data: { viewTransitionName: 'about' },
   },
+  { path: 'services', redirectTo: 'about', pathMatch: 'full' },
   {
     path: 'playground',
     component: PlaygroundPageComponent,
