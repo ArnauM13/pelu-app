@@ -7,6 +7,7 @@ import { InputNumberComponent } from '../input-number/input-number.component';
 import { InputDateComponent } from '../input-date/input-date.component';
 import { InputCheckboxComponent } from '../input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../input-select/input-select.component';
+import { InputMultiSelectComponent } from '../input-multiselect/input-multiselect.component';
 import { InputPasswordComponent } from '../input-password/input-password.component';
 import { PopularBadgeComponent } from '../../popular-badge/popular-badge.component';
 
@@ -21,6 +22,7 @@ import { PopularBadgeComponent } from '../../popular-badge/popular-badge.compone
     InputDateComponent,
     InputCheckboxComponent,
     InputSelectComponent,
+    InputMultiSelectComponent,
     InputPasswordComponent,
     PopularBadgeComponent,
   ],
@@ -43,6 +45,7 @@ export class InputsDemoComponent {
     terms: false,
     category: '',
     service: '',
+    selectedServices: [] as (string | number)[],
     notes: '',
   });
 
