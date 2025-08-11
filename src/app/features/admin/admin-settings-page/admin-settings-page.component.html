@@ -113,8 +113,11 @@
             [readonly]="!isEditMode()"
             [value]="settingsForm.get('workingDays')?.value || []"
             (valueChange)="settingsForm.get('workingDays')?.setValue($event)"
-            (ngAfterViewInit)="logWorkingDaysValue()"
           >
+            <!-- Custom template for translated day labels -->
+            <ng-template #item let-option>
+              <span>{{ option.label | translate }}</span>
+            </ng-template>
           </pelu-input-multiselect>
         </div>
           </div>
@@ -138,15 +141,16 @@
               </pelu-input-number>
             </div>
 
-            <!-- Max Appointments -->
+            <!-- Max Appointments Per User -->
             <div class="settings-group">
               <pelu-input-number
-                [label]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS'"
+                [label]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS_PER_USER'"
                 [min]="1"
-                [max]="100"
+                [max]="10"
+                [helpText]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS_PER_USER_HELP'"
                 [readonly]="!isEditMode()"
-                [value]="settingsForm.get('maxAppointments')?.value"
-                (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)"
+                [value]="settingsForm.get('maxAppointmentsPerUser')?.value"
+                (valueChange)="settingsForm.get('maxAppointmentsPerUser')?.setValue($event)"
               >
               </pelu-input-number>
             </div>

@@ -19,7 +19,7 @@ export interface SystemParameters {
 
   // Configuració de reserves
   appointmentDuration: number;
-  maxAppointmentsPerDay: number;
+  maxAppointmentsPerUser: number;
   autoConfirmAppointments: boolean;
   sendNotifications: boolean;
 
@@ -48,7 +48,7 @@ const DEFAULT_PARAMETERS: SystemParameters = {
   },
   workingDays: [2, 3, 4, 5, 6], // Dimarts a Dissabte
   appointmentDuration: 30,
-  maxAppointmentsPerDay: 5,
+  maxAppointmentsPerUser: 1,
   autoConfirmAppointments: true,
   sendNotifications: true,
   preventCancellation: false,
@@ -93,7 +93,7 @@ export class SystemParametersService {
   readonly businessHours = computed(() => this.parameters().businessHours);
   readonly workingDays = computed(() => this.parameters().workingDays);
   readonly appointmentDuration = computed(() => this.parameters().appointmentDuration);
-  readonly maxAppointmentsPerDay = computed(() => this.parameters().maxAppointmentsPerDay);
+  readonly maxAppointmentsPerUser = computed(() => this.parameters().maxAppointmentsPerUser);
   readonly autoConfirmAppointments = computed(() => this.parameters().autoConfirmAppointments);
   readonly sendNotifications = computed(() => this.parameters().sendNotifications);
   readonly preventCancellation = computed(() => this.parameters().preventCancellation);
@@ -265,8 +265,8 @@ export class SystemParametersService {
     return this.appointmentDuration();
   }
 
-  getMaxAppointmentsPerDay(): number {
-    return this.maxAppointmentsPerDay();
+  getMaxAppointmentsPerUser(): number {
+    return this.maxAppointmentsPerUser();
   }
 
   shouldAutoConfirmAppointments(): boolean {

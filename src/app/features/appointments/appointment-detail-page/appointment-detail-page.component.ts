@@ -14,7 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
-import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { AppointmentDetailService } from '../../../core/services/appointment-detail.service';
 import { AppointmentDetailData } from '../../../core/interfaces/booking.interface';
@@ -37,7 +37,7 @@ import { ResponsiveService } from '../../../core/services/responsive.service';
     TranslateModule,
     DetailViewComponent,
     AppointmentDetailPopupComponent,
-    AlertPopupComponent,
+    ConfirmationPopupComponent,
   ],
   templateUrl: './appointment-detail-page.component.html',
   styleUrls: ['./appointment-detail-page.component.scss'],
@@ -70,7 +70,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   // UI state signals
   private showDeleteAlertSignal = signal<boolean>(false);
-  private deleteAlertDataSignal = signal<AlertData | null>(null);
+  private deleteAlertDataSignal = signal<ConfirmationData | null>(null);
 
   readonly showDeleteAlert = computed(() => this.showDeleteAlertSignal());
   readonly deleteAlertData = computed(() => this.deleteAlertDataSignal());
@@ -192,6 +192,13 @@ export class AppointmentDetailPageComponent implements OnInit {
   ngOnInit() {
     // Load from route parameters
     this.loadAppointment();
+
+    // Auto-trigger delete confirmation if requested via query param
+    const confirmDelete = this.route.snapshot.queryParamMap.get('confirmDelete');
+    if (confirmDelete === 'true') {
+      // Defer to allow booking to load if needed
+      setTimeout(() => this.showDeleteConfirmation(), 0);
+    }
   }
 
   private async loadAppointment(): Promise<void> {
@@ -225,14 +232,12 @@ export class AppointmentDetailPageComponent implements OnInit {
     const clientName = booking.clientName || 'Client';
     const appointmentDate = this.formatDate(booking.data);
 
-    const alertData: AlertData = {
+    const alertData: ConfirmationData = {
       title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
       message: `Estàs segur que vols eliminar la cita de ${clientName} del ${appointmentDate}? Aquesta acció no es pot desfer.`,
-      emoji: '⚠️',
       severity: 'danger',
       confirmText: 'COMMON.ACTIONS.DELETE',
       cancelText: 'COMMON.ACTIONS.CANCEL',
-      showCancel: true,
     };
 
     this.deleteAlertDataSignal.set(alertData);

@@ -1,6 +1,8 @@
-import { Component, input, output, computed, HostListener } from '@angular/core';
+import { Component, input, output, computed, HostListener, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ButtonModule } from 'primeng/button';
 
 // Footer action types interface
 export type FooterActionType = 'confirm' | 'cancel' | 'close' | 'edit' | 'delete' | 'save' | 'login' | 'register';
@@ -25,9 +27,10 @@ export interface PopupDialogConfig {
 @Component({
   selector: 'pelu-popup-dialog',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, ConfirmDialogModule, ButtonModule],
   templateUrl: './popup-dialog.component.html',
   styleUrls: ['./popup-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class PopupDialogComponent {
   // Input signals
@@ -48,6 +51,22 @@ export class PopupDialogComponent {
   readonly footerActions = computed(() => this.config().footerActions ?? []);
   readonly customClass = computed(() => this.config().customClass ?? '');
 
+  // Inline style per size
+  readonly dialogStyle = computed(() => {
+    const size = this.config().size ?? 'medium';
+    switch (size) {
+      case 'small':
+        return { width: '22rem', maxWidth: '95vw' } as const;
+      case 'large':
+        return { width: '44rem', maxWidth: '95vw' } as const;
+      case 'full':
+        return { width: '95vw', height: '90vh' } as const;
+      case 'medium':
+      default:
+        return { width: '30rem', maxWidth: '95vw' } as const;
+    }
+  });
+
   // Methods
   onClose(): void {
     this.closed.emit();
@@ -59,26 +78,50 @@ export class PopupDialogComponent {
     }
   }
 
+  onHide(): void {
+    this.closed.emit();
+  }
+
   onActionClick(action: FooterAction): void {
     action.action();
   }
 
-  getActionClass(action: FooterAction): string {
+  private getActionWeight(actionType: FooterActionType): number {
+    switch (actionType) {
+      case 'cancel':
+      case 'close':
+      case 'edit':
+        return 1; // secondary
+      case 'confirm':
+      case 'save':
+      case 'delete':
+      case 'login':
+      case 'register':
+        return 2; // primary
+      default:
+        return 0; // tertiary
+    }
+  }
+
+  readonly sortedFooterActions = computed(() => {
+    const actions = [...(this.footerActions() ?? [])];
+    return actions.sort((a, b) => this.getActionWeight(a.type) - this.getActionWeight(b.type));
+  });
+
+  getActionSeverity(action: FooterAction): 'secondary' | 'danger' | undefined {
     switch (action.type) {
       case 'confirm':
       case 'save':
-        return 'btn-primary';
-      case 'edit':
-        return 'btn-secondary';
-      case 'delete':
-        return 'btn-danger';
       case 'login':
       case 'register':
-        return 'btn-primary';
+        return undefined; // primary
+      case 'delete':
+        return 'danger';
+      case 'edit':
       case 'cancel':
       case 'close':
       default:
-        return 'btn-secondary';
+        return 'secondary';
     }
   }
 

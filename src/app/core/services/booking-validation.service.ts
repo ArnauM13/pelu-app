@@ -1,11 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { SystemParametersService } from './system-parameters.service';
+import { AuthService } from '../auth/auth.service';
+import { Booking } from '../interfaces/booking.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookingValidationService {
   private readonly systemParametersService = inject(SystemParametersService);
+  private readonly authService = inject(AuthService);
 
   /**
    * Validates if a booking can be made at the specified time
@@ -91,10 +94,44 @@ export class BookingValidationService {
   /**
    * Validates if a booking can be made at the specified date and time
    */
-  canBookAppointment(bookingDate: Date, bookingTime: string): boolean {
+  canBookAppointment(bookingDate: Date, bookingTime: string, userBookings: Booking[] = []): boolean {
     return this.canBookOnDate(bookingDate) &&
            this.canBookAtTime(bookingDate, bookingTime) &&
            this.canBookInAdvance(bookingDate) &&
-           this.canBookWithAdvanceTime(bookingDate, bookingTime);
+           this.canBookWithAdvanceTime(bookingDate, bookingTime) &&
+           this.canUserBookMoreAppointments(userBookings);
+  }
+
+  /**
+   * Validates if the current user can book more appointments
+   */
+  canUserBookMoreAppointments(userBookings: Booking[] = []): boolean {
+    const currentUser = this.authService.user();
+    if (!currentUser?.uid) {
+      return false; // User not authenticated
+    }
+
+    const maxAppointmentsPerUser = this.systemParametersService.getMaxAppointmentsPerUser();
+    const confirmedUserBookings = userBookings.filter(booking => 
+      booking.email === currentUser.email && 
+      booking.status === 'confirmed'
+    );
+
+    return confirmedUserBookings.length < maxAppointmentsPerUser;
+  }
+
+  /**
+   * Gets the number of appointments the current user has
+   */
+  getUserAppointmentCount(userBookings: Booking[] = []): number {
+    const currentUser = this.authService.user();
+    if (!currentUser?.uid) {
+      return 0;
+    }
+
+    return userBookings.filter(booking => 
+      booking.email === currentUser.email && 
+      booking.status === 'confirmed'
+    ).length;
   }
 }

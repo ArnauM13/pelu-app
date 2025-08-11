@@ -16,7 +16,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
-import { AlertPopupComponent } from '../../../shared/components/alert-popup/alert-popup.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
@@ -30,15 +30,6 @@ import { FirebaseServicesService, ServiceCategory } from '../../../core/services
 import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
-
-interface AlertData {
-  title: string;
-  message: string;
-  confirmText: string;
-  cancelText: string;
-  severity: 'warning' | 'danger';
-  onConfirm: () => void;
-}
 
 @Component({
   selector: 'pelu-admin-services-page',
@@ -58,7 +49,7 @@ interface AlertData {
     TooltipModule,
     TranslateModule,
     LoadingStateComponent,
-    AlertPopupComponent,
+    ConfirmationPopupComponent,
     ServiceCardComponent,
     ButtonComponent,
     InputTextComponent,
@@ -90,7 +81,9 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly _showCategoriesManagerDialog = signal<boolean>(false);
   private readonly _selectedCategory = signal<ServiceCategory | null>(null);
   private readonly _showAlertDialog = signal<boolean>(false);
-  private readonly _alertData = signal<AlertData | null>(null);
+  private readonly _alertData = signal<ConfirmationData | null>(null);
+  private readonly _pendingDeleteService = signal<FirebaseService | null>(null);
+  private readonly _pendingDeleteCategory = signal<ServiceCategory | null>(null);
 
   // Service popular status signals - reactive state for each service
   private readonly _servicePopularStatus = signal<Map<string, boolean>>(new Map());
@@ -399,24 +392,30 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   deleteService(service: FirebaseService): void {
+    this._pendingDeleteService.set(service);
+    this._pendingDeleteCategory.set(null);
     this._alertData.set({
       title: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
       message: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
       confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
       cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
       severity: 'danger',
-      onConfirm: () => this.deleteServiceConfirmed(service)
     });
     this._showAlertDialog.set(true);
   }
 
   onAlertConfirmed(): void {
-    const alertData = this.alertData();
-    if (alertData) {
-      alertData.onConfirm();
+    const service = this._pendingDeleteService();
+    const category = this._pendingDeleteCategory();
+    if (service) {
+      this.deleteServiceConfirmed(service);
+    } else if (category) {
+      this.deleteCategoryConfirmed(category);
     }
     this._showAlertDialog.set(false);
     this._alertData.set(null);
+    this._pendingDeleteService.set(null);
+    this._pendingDeleteCategory.set(null);
   }
 
   onAlertCancelled(): void {
@@ -636,13 +635,14 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   deleteCategory(category: ServiceCategory): void {
+    this._pendingDeleteService.set(null);
+    this._pendingDeleteCategory.set(category);
     this._alertData.set({
       title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
       message: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
       confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
       cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
       severity: 'danger',
-      onConfirm: () => this.deleteCategoryConfirmed(category)
     });
     this._showAlertDialog.set(true);
   }

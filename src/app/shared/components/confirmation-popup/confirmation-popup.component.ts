@@ -1,7 +1,8 @@
 import { Component, input, output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupModalComponent } from '../popup-modal/popup-modal.component';
+import { ButtonModule } from 'primeng/button';
 
 export interface ConfirmationData {
   title: string;
@@ -13,28 +14,34 @@ export interface ConfirmationData {
 
 @Component({
   selector: 'pelu-confirmation-popup',
-  imports: [CommonModule, TranslateModule, PopupDialogComponent],
+  imports: [CommonModule, TranslateModule, PopupModalComponent, ButtonModule],
   template: `
-    <pelu-popup-dialog
+    <pelu-popup-modal
       [isOpen]="isOpen()"
-      [config]="dialogConfig()"
-      (closed)="onCancel()"
+      (backdropClick)="onCancel()"
     >
-      <div class="confirmation-content">
-        <div class="confirmation-icon">
-          @if (data()?.severity === 'danger') {
-            ⚠️
-          } @else if (data()?.severity === 'warning') {
-            ⚠️
-          } @else {
-            ❓
-          }
-        </div>
-        <p class="confirmation-message">
-          {{ data()?.message || 'COMMON.CONFIRMATION.MESSAGE' | translate }}
+      <div class="confirm-row">
+        <span class="confirm-icon">
+          @if (data()?.severity === 'danger') { ⚠️ } @else if (data()?.severity === 'warning') { ⚠️ } @else { ℹ️ }
+        </span>
+        <p class="confirm-text">
+          {{ data()?.message || ('COMMON.CONFIRMATION.MESSAGE' | translate) }}
         </p>
       </div>
-    </pelu-popup-dialog>
+
+      <div class="popup-footer">
+        <p-button
+          [label]="cancelText()"
+          severity="secondary"
+          (onClick)="onCancel()"
+        />
+        <p-button
+          [label]="confirmText()"
+          [severity]="isDanger() ? 'danger' : undefined"
+          (onClick)="onConfirm()"
+        />
+      </div>
+    </pelu-popup-modal>
   `,
   styleUrls: ['./confirmation-popup.component.scss'],
 })
@@ -50,20 +57,10 @@ export class ConfirmationPopupComponent {
   // Services
   private readonly translateService = inject(TranslateService);
 
-  // Dialog configuration
-  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.data()?.title || this.translateService.instant('COMMON.CONFIRMATION.TITLE'),
-    size: 'small',
-    closeOnBackdropClick: true,
-    showFooter: true,
-    footerActions: [
-      {
-        label: this.data()?.confirmText || this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
-        type: this.getConfirmButtonType(),
-        action: () => this.onConfirm()
-      }
-    ]
-  }));
+  // UI computed values
+  readonly isDanger = computed(() => (this.data()?.severity || 'info') === 'danger');
+  readonly cancelText = computed(() => this.data()?.cancelText || this.translateService.instant('COMMON.ACTIONS.CANCEL'));
+  readonly confirmText = computed(() => this.data()?.confirmText || this.translateService.instant('COMMON.ACTIONS.CONFIRM'));
 
   // Methods
   onConfirm() {
@@ -72,17 +69,5 @@ export class ConfirmationPopupComponent {
 
   onCancel() {
     this.cancelled.emit();
-  }
-
-  private getConfirmButtonType(): FooterActionType {
-    const severity = this.data()?.severity || 'info';
-    switch (severity) {
-      case 'danger':
-        return 'delete';
-      case 'warning':
-        return 'confirm';
-      default:
-        return 'confirm';
-    }
   }
 }

@@ -15,11 +15,11 @@
 >
 </pelu-appointment-detail-popup>
 
-<!-- Delete Confirmation Alert -->
-<pelu-alert-popup
+<!-- Delete Confirmation Popup -->
+<pelu-confirmation-popup
   [isOpen]="showDeleteAlert()"
   [data]="deleteAlertData()"
   (confirmed)="onDeleteConfirmed()"
   (cancelled)="onDeleteCancelled()"
 >
-</pelu-alert-popup>
+</pelu-confirmation-popup>
