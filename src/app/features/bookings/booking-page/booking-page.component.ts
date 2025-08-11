@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import {
   BookingPopupComponent,
@@ -36,6 +37,7 @@ import { startOfWeek, endOfWeek } from 'date-fns';
     FormsModule,
     TranslateModule,
     CalendarComponent,
+    LoadingStateComponent,
     BookingPopupComponent,
     ServiceSelectionPopupComponent,
     PopupDialogComponent,

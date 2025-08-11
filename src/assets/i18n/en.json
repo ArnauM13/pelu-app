@@ -254,10 +254,12 @@
   "NAVIGATION": {
     "HOME": "Home",
     "SERVICES": "Services",
+    "ABOUT": "About",
     "BOOK": "Book",
     "APPOINTMENTS": "Appointments",
     "PROFILE": "Profile",
     "ADMIN_DASHBOARD": "Admin Dashboard",
+    "ADMIN_SERVICES": "Manage Services",
     "ADMIN_SETTINGS": "Settings",
     "PLAYGROUND": "Playground"
   },
@@ -652,6 +654,12 @@
       "SATURDAY": "Saturday",
       "SUNDAY": "Sunday"
     }
+  },
+  "ABOUT": {
+    "TITLE": "About us",
+    "DESCRIPTION": "We are a team passionate about beauty and well-being. We offer quality services with a personal touch.",
+    "WHAT_WE_OFFER": "What we offer",
+    "WHAT_WE_OFFER_DESC": "A selection of our featured services and categories to help you choose what you need."
   },
   "DAYS": {
     "SUNDAY": "Sunday",

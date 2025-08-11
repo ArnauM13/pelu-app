@@ -276,10 +276,12 @@
   "NAVIGATION": {
     "HOME": "Inici",
     "SERVICES": "Serveis",
+    "ABOUT": "Qui som",
     "BOOK": "Reservar",
     "APPOINTMENTS": "Cites",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Taulell d'admin",
+    "ADMIN_SERVICES": "Gestionar Serveis",
     "ADMIN_SETTINGS": "Configuració",
     "PLAYGROUND": "Playground"
   },
@@ -687,6 +689,12 @@
       "SATURDAY": "Dissabte",
       "SUNDAY": "Diumenge"
     }
+  },
+  "ABOUT": {
+    "TITLE": "Qui som",
+    "DESCRIPTION": "Som un equip apassionat per la bellesa i el benestar. Oferim serveis de qualitat amb un tracte proper.",
+    "WHAT_WE_OFFER": "Què oferim",
+    "WHAT_WE_OFFER_DESC": "Una selecció dels nostres serveis destacats i categories per ajudar-te a triar el que necessites."
   },
   "DAYS": {
     "SUNDAY": "Diumenge",

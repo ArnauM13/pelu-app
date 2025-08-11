@@ -1,4 +1,7 @@
 <div class="mobile-booking-container">
+  @if (availableServices().length === 0 || appointments().length === 0) {
+    <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
+  }
   <!-- Show next appointment at top if user has any upcoming booking - ONLY on first step -->
   @if (currentStep() === 'service' && userAppointments().length > 0) {
     <div class="content-section" style="margin-bottom: 1rem;">

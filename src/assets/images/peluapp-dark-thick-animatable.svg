@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg fill="none" height="122" viewBox="0 0 110 122" width="110" xmlns="http://www.w3.org/2000/svg">
+<line id="segon" stroke="#0D274F" stroke-width="6" x1="18.7357" x2="50.3257" y1="82.5531" y2="104.961"/>
+<line stroke="#0D274F" stroke-width="6" x1="56.7595" x2="91.1516" y1="105.268" y2="89.6502"/>
+<line stroke="#0D274F" stroke-width="6" x1="15.0123" x2="19.0123" y1="80.7284" y2="36.7284"/>
+<line stroke="#0D274F" stroke-width="6" x1="19.1049" x2="59.1049" y1="34.6721" y2="15.6721"/>
+<circle cx="93.3173" cy="89.3173" fill="#0D274F" r="11.1374" stroke="#0D274F" transform="rotate(-52.4932 93.3173 89.3173)"/>
+<circle cx="60.3173" cy="16.3173" fill="#0D274F" r="11.1374" stroke="#0D274F" transform="rotate(-52.4932 60.3173 16.3173)"/>
+<circle cx="20.3173" cy="35.3173" fill="#0D274F" r="11.1374" stroke="#0D274F" transform="rotate(-52.4932 20.3173 35.3173)"/>
+<circle cx="16.3173" cy="81.3173" fill="#0D274F" r="11.1374" stroke="#0D274F" transform="rotate(-52.4932 16.3173 81.3173)"/>
+<circle cx="54.3173" cy="105.317" fill="#0D274F" r="11.1374" stroke="#0D274F" transform="rotate(-52.4932 54.3173 105.317)"/>
+<path d="M50.3921 49.382V69.3992L62.3921 76.382" id="minut" stroke="#0D274F" stroke-linecap="round" stroke-width="6"/>
+</svg>

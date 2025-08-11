@@ -254,10 +254,12 @@
   "NAVIGATION": {
     "HOME": "Inicio",
     "SERVICES": "Servicios",
+    "ABOUT": "Sobre nosotros",
     "BOOK": "Reservar",
     "APPOINTMENTS": "Citas",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Panel de admin",
+    "ADMIN_SERVICES": "Gestionar Servicios",
     "ADMIN_SETTINGS": "Configuración",
     "PLAYGROUND": "Playground"
   },
@@ -650,6 +652,12 @@
       "SATURDAY": "Sábado",
       "SUNDAY": "Domingo"
     }
+  },
+  "ABOUT": {
+    "TITLE": "Quiénes somos",
+    "DESCRIPTION": "Somos un equipo apasionado por la belleza y el bienestar. Ofrecemos servicios de calidad con un trato cercano.",
+    "WHAT_WE_OFFER": "Qué ofrecemos",
+    "WHAT_WE_OFFER_DESC": "Una selección de nuestros servicios destacados y categorías para ayudarte a elegir lo que necesitas."
   },
   "DAYS": {
     "SUNDAY": "Domingo",
