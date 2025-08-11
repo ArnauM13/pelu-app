@@ -23,6 +23,8 @@
   --p-text-color-secondary: #6b7280;
 }
 
+
+
 // ===== UNIFIED BUTTON STYLES =====
 // Global styles for all PrimeNG buttons to maintain consistent appearance
 .p-button {
@@ -834,6 +836,7 @@
   }
 
   .p-dialog-content {
+    display: block !important;
     background-color: white !important;
     color: var(--text-color) !important;
     padding: 1.5rem !important;

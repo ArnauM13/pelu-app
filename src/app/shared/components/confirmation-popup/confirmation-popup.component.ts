@@ -20,18 +20,12 @@ export interface ConfirmationData {
       [config]="dialogConfig()"
       (closed)="onCancel()"
     >
-      <div class="confirmation-content">
-        <div class="confirmation-icon">
-          @if (data()?.severity === 'danger') {
-            ⚠️
-          } @else if (data()?.severity === 'warning') {
-            ⚠️
-          } @else {
-            ❓
-          }
-        </div>
-        <p class="confirmation-message">
-          {{ data()?.message || 'COMMON.CONFIRMATION.MESSAGE' | translate }}
+      <div class="confirm-row">
+        <span class="confirm-icon">
+          @if (data()?.severity === 'danger') { ⚠️ } @else if (data()?.severity === 'warning') { ⚠️ } @else { ℹ️ }
+        </span>
+        <p class="confirm-text">
+          {{ data()?.message || ('COMMON.CONFIRMATION.MESSAGE' | translate) }}
         </p>
       </div>
     </pelu-popup-dialog>
@@ -54,9 +48,16 @@ export class ConfirmationPopupComponent {
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
     title: this.data()?.title || this.translateService.instant('COMMON.CONFIRMATION.TITLE'),
     size: 'small',
+    customClass: 'pelu-confirmdelete',
+
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
+      {
+        label: this.data()?.cancelText || this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'cancel' as FooterActionType,
+        action: () => this.onCancel()
+      },
       {
         label: this.data()?.confirmText || this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
         type: this.getConfirmButtonType(),

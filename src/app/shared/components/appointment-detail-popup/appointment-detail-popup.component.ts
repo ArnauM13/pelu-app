@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../confirmation-popup/confirmation-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../services/toast.service';
@@ -26,6 +27,7 @@ import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.
     ButtonModule,
     TranslateModule,
     PopupDialogComponent,
+    ConfirmationPopupComponent,
     // Add input components
     InputTextComponent,
     InputDateComponent,
@@ -60,6 +62,15 @@ export class AppointmentDetailPopupComponent {
   readonly isLoading = signal<boolean>(false);
   readonly loadError = signal<boolean>(false);
   private loadedBooking = signal<Booking | null>(null);
+  private readonly showDeleteConfirmSignal = signal<boolean>(false);
+  readonly showDeleteConfirm = computed(() => this.showDeleteConfirmSignal());
+  readonly deleteConfirmData = computed<ConfirmationData>(() => ({
+    title: this.#translateService.instant('COMMON.CONFIRMATION.TITLE'),
+    message: this.#translateService.instant('COMMON.CONFIRMATION.MESSAGE'),
+    confirmText: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
+    cancelText: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
+    severity: 'danger'
+  }));
 
 
 
@@ -210,16 +221,25 @@ export class AppointmentDetailPopupComponent {
   }
 
   onDelete(): void {
+    // Open confirmation popup
+    this.showDeleteConfirmSignal.set(true);
+  }
+
+  onDeleteConfirmed(): void {
     const booking = this.currentBooking();
     if (!booking || !booking.id) {
       this.#toastService.showGenericError('Booking not found');
       this.onClose();
+      this.showDeleteConfirmSignal.set(false);
       return;
     }
-
-    // Emit delete event to parent component
     this.deleted.emit(booking);
+    this.showDeleteConfirmSignal.set(false);
     this.onClose();
+  }
+
+  onDeleteCancelled(): void {
+    this.showDeleteConfirmSignal.set(false);
   }
 
 

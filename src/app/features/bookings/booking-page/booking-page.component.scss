@@ -32,6 +32,11 @@
   position: relative;
 }
 
+/* Limit Warning Section */
+.limit-warning-section {
+  margin: 1rem 5.5rem 0.5rem 5.5rem;
+}
+
 /* Date Controls Section */
 .date-controls {
   display: flex;
@@ -59,4 +64,58 @@
 
 .calendar-section {
   padding: 0rem 2rem 0rem 1.5rem;
+}
+
+/* User Limit Warning */
+.user-limit-warning {
+  margin: 1rem 5.5rem;
+  
+  .alert-card {
+    border: 2px solid #ef4444;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+
+    .alert-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+
+      .alert-icon {
+        font-size: 1.5rem;
+        color: #dc2626;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      .alert-text {
+        flex: 1;
+
+        h4 {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #991b1b;
+        }
+
+        p {
+          margin: 0;
+          font-size: 0.95rem;
+          line-height: 1.4;
+          color: #991b1b;
+          opacity: 0.9;
+        }
+
+        .limit-info {
+          font-weight: 600;
+          margin-top: 0.5rem;
+          padding: 0.5rem;
+          background: rgba(239, 68, 68, 0.1);
+          border-radius: 6px;
+          border-left: 3px solid #ef4444;
+        }
+      }
+    }
+  }
 }
