@@ -80,7 +80,7 @@ export class AppointmentDetailService {
       this.logger.firebaseError(error, 'loadBookingById', {
         component: 'AppointmentDetailService',
         method: 'loadBookingById',
-        data: { uniqueId },
+        uniqueId,
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error loading booking';

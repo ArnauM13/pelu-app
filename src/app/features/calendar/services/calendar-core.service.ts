@@ -199,23 +199,24 @@ export class CalendarCoreService {
     const config = this.gridConfiguration();
     const slotHeight = this.reactiveSlotHeight();
 
-    // Calculate which time slot we're in
-    const slotIndex = Math.round(yPosition / slotHeight);
+    // Derive minutes since the very top edge of the business day using exact pixels-per-minute
+    const minutesSinceStart = Math.floor((yPosition / slotHeight) * config.slotDurationMinutes);
+    const totalMinutes = config.businessStartHour * 60 + minutesSinceStart;
 
-    // Calculate total minutes from business start
-    const totalMinutes = config.businessStartHour * 60 + slotIndex * config.slotDurationMinutes;
+    let hours = Math.floor(totalMinutes / 60);
+    let minutes = totalMinutes % 60;
 
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    // Clamp within business window; allow exactly end:00 but not beyond
+    if (hours < config.businessStartHour) {
+      hours = config.businessStartHour;
+      minutes = 0;
+    }
+    if (hours > config.businessEndHour || (hours === config.businessEndHour && minutes > 0)) {
+      hours = config.businessEndHour;
+      minutes = 0;
+    }
 
-    // Clamp to business hours
-    const clampedHours = Math.max(
-      config.businessStartHour,
-      Math.min(config.businessEndHour - 1, hours)
-    );
-
-    const result = `${clampedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
+    const result = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     return result;
   }
 
@@ -224,11 +225,11 @@ export class CalendarCoreService {
     const slotHeight = this.reactiveSlotHeight();
     const [hours, minutes] = time.split(':').map(Number);
 
-    // Calculate minutes since business start
+    // Minutes since business start
     const minutesSinceStart = (hours - config.businessStartHour) * 60 + minutes;
-
-    const slotIndex = minutesSinceStart / config.slotDurationMinutes;
-    return slotIndex * slotHeight;
+    // Use continuous mapping: slots are visual groupings, but position is pixel-accurate
+    const slotsSinceStart = minutesSinceStart / config.slotDurationMinutes;
+    return slotsSinceStart * slotHeight;
   }
 
   coordinateToTimePosition(position: CoordinatePosition, targetDate: Date): TimePosition {
@@ -250,11 +251,11 @@ export class CalendarCoreService {
     const slotDuration = this.reactiveSlotDuration();
     const [hours, minutes] = time.split(':').map(Number);
 
-    // Align to slot duration
-    const roundedMinutes = Math.round(minutes / slotDuration) * slotDuration;
+    // Align down to nearest slot to avoid snapping outside boundaries
+    const alignedMinutes = Math.floor(minutes / slotDuration) * slotDuration;
 
     let finalHours = hours;
-    let finalMinutes = roundedMinutes;
+    let finalMinutes = alignedMinutes;
 
     if (finalMinutes >= 60) {
       finalHours += 1;
@@ -274,7 +275,17 @@ export class CalendarCoreService {
     const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
 
     const top = this.timeToCoordinate(timeString);
-    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinuteFromSettings();
+    // Determine effective duration using end if provided, otherwise duration or default setting
+    let effectiveDuration = appointment.duration || this.reactiveBookingDuration();
+    if (appointment.end) {
+      const endDate = new Date(appointment.end);
+      const diffMs = endDate.getTime() - startDate.getTime();
+      const diffMin = Math.max(0, Math.round(diffMs / 60000));
+      if (diffMin > 0) {
+        effectiveDuration = diffMin;
+      }
+    }
+    const height = effectiveDuration * this.reactivePixelsPerMinuteFromSettings();
 
     return { top, height };
   }
@@ -300,8 +311,17 @@ export class CalendarCoreService {
     const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
 
     const top = this.timeToCoordinate(timeString);
-    // Use the reactive booking duration for height calculation with correct pixels per minute
-    const height = (appointment.duration || this.reactiveBookingDuration()) * this.reactivePixelsPerMinuteFromSettings();
+    // Use end if present; otherwise duration or reactive booking duration
+    let effectiveDuration = appointment.duration || this.reactiveBookingDuration();
+    if (appointment.end) {
+      const endDate = new Date(appointment.end);
+      const diffMs = endDate.getTime() - startDate.getTime();
+      const diffMin = Math.max(0, Math.round(diffMs / 60000));
+      if (diffMin > 0) {
+        effectiveDuration = diffMin;
+      }
+    }
+    const height = effectiveDuration * this.reactivePixelsPerMinuteFromSettings();
 
     return { top, height };
   }
@@ -375,6 +395,7 @@ export class CalendarCoreService {
 
     while (currentHour < config.businessEndHour) {
       const timeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+      // Include lunch break too; UI will mark it as blocked
       slots.push(timeString);
 
       currentMinute += slotDuration;
@@ -411,6 +432,19 @@ export class CalendarCoreService {
     const height = (lunchBreak.end - lunchBreak.start) * 60 * this.reactivePixelsPerMinuteFromSettings();
 
     return { top, height };
+  }
+
+  // Methods expected by specs
+  getLunchBreakOffset(): number {
+    const lunchBreak = this.systemParametersService.lunchBreak();
+    const minutesFromStart = (lunchBreak.start - this.gridConfiguration().businessStartHour) * 60;
+    return minutesFromStart * this.reactivePixelsPerMinuteFromSettings();
+  }
+
+  getLunchBreakHeight(): number {
+    const lunchBreak = this.systemParametersService.lunchBreak();
+    const minutes = (lunchBreak.end - lunchBreak.start) * 60;
+    return minutes * this.reactivePixelsPerMinuteFromSettings();
   }
 
   getLunchBreakTimeRange(): { start: string; end: string } {

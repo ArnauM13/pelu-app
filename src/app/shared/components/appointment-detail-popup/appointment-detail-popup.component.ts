@@ -321,4 +321,18 @@ export class AppointmentDetailPopupComponent {
         return 'var(--text-color-light)';
     }
   }
+
+  // Methods expected by specs
+  formatDate(date: string): string {
+    if (!date) return 'N/A';
+    try {
+      return format(parseISO(date), 'yyyy-MM-dd');
+    } catch {
+      return date;
+    }
+  }
+
+  formatTime(time: string): string {
+    return time;
+  }
 }

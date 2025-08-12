@@ -1,14 +1,4 @@
-import {
-  Component,
-  input,
-  output,
-  computed,
-  signal,
-  inject,
-  ChangeDetectionStrategy,
-  effect,
-  Injector,
-} from '@angular/core';
+import { Component, input, output, computed, signal, inject, effect, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -18,7 +8,7 @@ import {
   DateAdapter,
   CalendarA11y,
 } from 'angular-calendar';
-import { startOfWeek, endOfWeek, format as dateFnsFormat, isSameDay, addMinutes } from 'date-fns';
+import { format as dateFnsFormat, isSameDay, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
@@ -47,7 +37,6 @@ import {
   LunchBreakData,
 } from '../components/calendar-lunch-break/calendar-lunch-break.component';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { Service } from '../../../core/services/services.service';
 import { TimeUtils } from '../../../shared/utils/time.utils';
 
@@ -68,6 +57,7 @@ export interface AppointmentEvent {
 
 @Component({
   selector: 'pelu-calendar-component',
+  standalone: true,
   imports: [
     CommonModule,
     CalendarModule,
@@ -78,7 +68,6 @@ export interface AppointmentEvent {
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
     CalendarDragPreviewComponent,
-    ButtonComponent,
   ],
   providers: [
     CalendarUtils,
@@ -88,9 +77,9 @@ export interface AppointmentEvent {
       useFactory: adapterFactory,
     },
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarComponent {
   // Inject services
@@ -153,7 +142,7 @@ export class CalendarComponent {
   readonly view: CalendarView = CalendarView.Week;
 
   // Reactive business configuration - will update automatically when parameters change
-  readonly businessHours = computed(() => this.businessService.getBusinessConfig().hours);
+  readonly businessHours = computed(() => this.businessService.getBusinessConfig().businessHours);
   readonly lunchBreak = computed(() => this.businessService.getBusinessConfig().lunchBreak);
   readonly businessDays = computed(() => this.businessService.getBusinessConfig().days);
 
@@ -236,6 +225,7 @@ export class CalendarComponent {
   });
 
   readonly timeSlots = computed(() => {
+    // Generate time slots based on current business config (duration and hours)
     return this.businessService.generateTimeSlots();
   });
 
@@ -298,11 +288,6 @@ export class CalendarComponent {
         date: day,
         time,
         isAvailable: this.isTimeSlotAvailable(day, time),
-        isBooked:
-          !this.isTimeSlotAvailable(day, time) &&
-          !this.isLunchBreak(time) &&
-          !this.isPastDate(day) &&
-          !this.isPastTimeSlot(day, time),
         isLunchBreak: this.isLunchBreak(time),
         isPastDate: this.isPastDate(day),
         isPastTime: this.isPastTimeSlot(day, time),
@@ -738,12 +723,7 @@ export class CalendarComponent {
     return true;
   }
 
-  getViewDateInfo(): string {
-    const viewDate = this.viewDate();
-    const start = startOfWeek(viewDate, { weekStartsOn: 1 });
-    const end = endOfWeek(viewDate, { weekStartsOn: 1 });
-    return `${dateFnsFormat(start, 'dd/MM')} - ${dateFnsFormat(end, 'dd/MM')}`;
-  }
+  // Removed duplicated week info method; booking page displays the indicator
 
   isBusinessDay(dayOfWeek: number): boolean {
     const date = new Date();

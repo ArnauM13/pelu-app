@@ -5,7 +5,6 @@ export interface TimeSlotData {
   date: Date;
   time: string;
   isAvailable: boolean;
-  isBooked: boolean;
   isLunchBreak: boolean;
   isPastDate: boolean;
   isPastTime: boolean;
@@ -16,12 +15,12 @@ export interface TimeSlotData {
 
 @Component({
   selector: 'pelu-calendar-time-slot',
+  standalone: true,
   imports: [CommonModule],
   template: `
     <div
       class="time-slot"
       [class.available]="data().isAvailable"
-      [class.booked]="data().isBooked"
       [class.lunch-break]="data().isLunchBreak"
       [class.past-date]="data().isPastDate"
       [class.past-time]="data().isPastTime"
@@ -70,28 +69,7 @@ export interface TimeSlotData {
         background: #e9ecef;
       }
 
-      .time-slot.booked {
-        background: #f8f9fa;
-        color: #6c757d;
-        cursor: pointer;
-        position: relative;
-      }
-
-      .time-slot.booked::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 2px,
-          rgba(108, 117, 125, 0.1) 2px,
-          rgba(108, 117, 125, 0.1) 4px
-        );
-      }
+      /* booked state removed */
 
       .time-slot.lunch-break {
         background: rgba(255, 243, 205, 0.6) !important;

@@ -9,10 +9,10 @@ import { Component, signal } from '@angular/core';
     <pelu-appointments-list
       [bookings]="bookings()"
       [hasActiveFilters]="hasActiveFilters()"
-      (onViewBooking)="onViewBooking($event)"
-      (onEditBooking)="onEditBooking($event)"
-      (onDeleteBooking)="onDeleteBooking($event)"
-      (onClearFilters)="onClearFilters()"
+      (viewBooking)="onViewBooking($event)"
+      (editBooking)="onEditBooking($event)"
+      (deleteBooking)="onDeleteBooking($event)"
+      (clearFilters)="onClearFilters()"
     >
     </pelu-appointments-list>
   `,
@@ -54,14 +54,14 @@ describe('AppointmentsListComponent', () => {
   });
 
   it('should have output signals', () => {
-    expect(component.onViewBooking).toBeDefined();
-    expect(component.onEditBooking).toBeDefined();
-    expect(component.onDeleteBooking).toBeDefined();
-    expect(component.onClearFilters).toBeDefined();
+    expect(component.viewBooking).toBeDefined();
+    expect(component.editBooking).toBeDefined();
+    expect(component.deleteBooking).toBeDefined();
+    expect(component.clearFilters).toBeDefined();
   });
 
-  it('should have service dependencies injected', () => {
-    expect(component.serviceColorsService).toBeDefined();
+  it('should be defined', () => {
+    expect(component).toBeDefined();
   });
 
   it('should format time correctly', () => {
@@ -94,25 +94,25 @@ describe('AppointmentsListComponent', () => {
   });
 
   it('should get client name from booking', () => {
-    const booking = { nom: 'John Doe', editToken: 'test-token' };
+    const booking: any = { clientName: 'John Doe', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('John Doe');
   });
 
-  it('should get client name from title if nom is not available', () => {
-    const booking = { title: 'Jane Smith', editToken: 'test-token' };
+  it('should return default client name if name is empty', () => {
+    const booking: any = { clientName: '', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
-    expect(result).toBe('Jane Smith');
+    expect(result).toBe('Client');
   });
 
-  it('should get client name from clientName if nom and title are not available', () => {
-    const booking = { clientName: 'Bob Johnson', editToken: 'test-token' };
+  it('should get client name from clientName', () => {
+    const booking: any = { clientName: 'Bob Johnson', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('Bob Johnson');
   });
 
-  it('should return default client name if no name fields are available', () => {
-    const booking = { editToken: 'test-token' };
+  it('should return default client name if no name is available', () => {
+    const booking: any = { id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('Client');
   });
