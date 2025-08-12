@@ -21,6 +21,7 @@ export interface AppointmentSlotData {
 
 @Component({
   selector: 'pelu-appointment-slot',
+  standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -95,13 +96,7 @@ export class AppointmentSlotComponent {
     if (!this.data()?.appointment) return { top: 0, height: 0 };
 
     const appointment = this.data()!.appointment!;
-    const startDate = new Date(appointment.start);
-    const timeString = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
-
-    return this.calendarCoreService.calculateAppointmentPositionFromTime(
-      timeString,
-      appointment.duration || this.calendarCoreService.reactiveBookingDuration()
-    );
+    return this.calendarCoreService.calculateReactiveAppointmentPosition(appointment);
   });
 
   // Simplified CSS classes

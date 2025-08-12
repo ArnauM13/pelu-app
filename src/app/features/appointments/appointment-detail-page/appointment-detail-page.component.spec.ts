@@ -40,15 +40,15 @@ describe('AppointmentDetailPageComponent', () => {
   });
 
   it('should have loading signal', () => {
-    expect(component.loading).toBeDefined();
+    expect(component.isLoading).toBeDefined();
   });
 
   it('should have appointment signal', () => {
-    expect(component.appointment).toBeDefined();
+    expect(component.booking).toBeDefined();
   });
 
-  it('should have notFound signal', () => {
-    expect(component.notFound).toBeDefined();
+  it('should have notFound computed via detailConfig', () => {
+    expect(component.detailConfig).toBeDefined();
   });
 
   it('should have appointmentInfoItems computed', () => {
@@ -71,8 +71,8 @@ describe('AppointmentDetailPageComponent', () => {
     expect(typeof component.deleteAppointment).toBe('function');
   });
 
-  it('should have startEditing method', () => {
-    expect(typeof component.startEditing).toBe('function');
+  it('should have editAppointment method', () => {
+    expect(typeof component.editAppointment).toBe('function');
   });
 
   it('should have goBack method', () => {

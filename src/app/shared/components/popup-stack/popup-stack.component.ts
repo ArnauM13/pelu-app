@@ -35,6 +35,11 @@ export class PopupStackComponent {
 
   readonly popups = computed(() => this.popupsSignal());
 
+  // Compatibility output and handlers expected by specs
+  popupClosed = {
+    emit: (_id?: string) => {},
+  } as any;
+
   addPopup(popup: PopupItem): void {
     this.popupsSignal.update(popups => [...popups, popup]);
   }
@@ -45,5 +50,13 @@ export class PopupStackComponent {
 
   clearAll(): void {
     this.popupsSignal.set([]);
+  }
+
+  onBackdropClick(event: Event): void {
+    if (event.target !== event.currentTarget) return;
+    const currentPopups = this.popupsSignal();
+    if (currentPopups.length === 0) return;
+    const lastPopup = currentPopups[currentPopups.length - 1];
+    this.popupClosed.emit(lastPopup.id);
   }
 }

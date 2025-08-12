@@ -34,7 +34,7 @@ describe('CalendarFooterComponent', () => {
   });
 
   it('should have default input values', () => {
-    expect(component.alerts()).toEqual([]);
+    expect(component.config().alerts).toEqual([]);
   });
 
   it('should have computed properties', () => {

@@ -140,6 +140,20 @@
   width: 100%;
 }
 
+/* Week navigation header */
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.week-range {
+  font-weight: 600;
+  color: var(--text-color, #1f2937);
+}
+
 // Horizontal Weekly View Styles
 .horizontal-week-view {
   display: flex;
@@ -148,7 +162,8 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   overflow: hidden;
-  height: calc(var(--calendar-slot-count, 24) * 30px + 40px);
+  /* Add a little extra height to avoid clipping the last appointment's bottom corners/shadow */
+  height: calc(var(--calendar-slot-count, 24) * 30px + 46px);
 }
 
 // Day Columns Container
@@ -171,11 +186,7 @@
 
 /* Lunch break slots have no hover effects - they remain static */
 
-// Hover effects for booked slots
-.day-time-slot.booked:hover {
-  background: #e9ecef;
-  opacity: 0.9;
-}
+// booked slot visuals removed
 
 // Hover effects for appointment slots
 .day-time-slot.appointment-slot:hover {

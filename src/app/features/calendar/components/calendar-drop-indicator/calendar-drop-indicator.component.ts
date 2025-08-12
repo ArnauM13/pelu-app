@@ -9,6 +9,7 @@ export interface DropIndicatorData {
 
 @Component({
   selector: 'pelu-calendar-drop-indicator',
+  standalone: true,
   imports: [CommonModule],
   template: `
     <div

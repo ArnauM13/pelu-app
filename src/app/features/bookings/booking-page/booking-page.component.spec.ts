@@ -80,10 +80,7 @@ describe('BookingPageComponent', () => {
       expect(component.availableServices).toBeDefined();
     });
 
-    it('should have info items', () => {
-      expect(component.infoItems).toBeDefined();
-      expect(Array.isArray(component.infoItems)).toBeTrue();
-    });
+    // Component no longer exposes infoItems
   });
 
   describe('Service Integration', () => {

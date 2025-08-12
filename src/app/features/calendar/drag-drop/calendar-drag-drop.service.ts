@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { CalendarPositionService } from '../services/calendar-position.service';
 import { AppointmentEvent } from '../core/calendar.component';
 

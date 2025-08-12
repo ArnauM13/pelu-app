@@ -17,7 +17,6 @@ class TestHostComponent {
     date: new Date('2024-01-15'),
     time: '10:00',
     isAvailable: true,
-    isBooked: false,
     isLunchBreak: false,
     isPastDate: false,
     isPastTime: false,
@@ -36,7 +35,6 @@ describe('CalendarTimeSlotComponent', () => {
     date: new Date('2024-01-15'),
     time: '10:00',
     isAvailable: true,
-    isBooked: false,
     isLunchBreak: false,
     isPastDate: false,
     isPastTime: false,
@@ -71,26 +69,11 @@ describe('CalendarTimeSlotComponent', () => {
 
     expect(timeSlot.classList.contains('available')).toBe(true);
     expect(timeSlot.classList.contains('clickable')).toBe(true);
-    expect(timeSlot.classList.contains('booked')).toBe(false);
+    // booked state no longer used
     expect(timeSlot.classList.contains('lunch-break')).toBe(false);
   });
 
-  it('should apply booked styles when slot is booked', () => {
-    hostComponent.testData = {
-      ...mockTimeSlotData,
-      isAvailable: false,
-      isBooked: true,
-      isClickable: false,
-    };
-    hostFixture.detectChanges();
-
-    const compiled = hostFixture.nativeElement;
-    const timeSlot = compiled.querySelector('.time-slot');
-
-    expect(timeSlot.classList.contains('booked')).toBe(true);
-    expect(timeSlot.classList.contains('available')).toBe(false);
-    expect(timeSlot.classList.contains('clickable')).toBe(false);
-  });
+  // removed test: booked styles no longer exist
 
   it('should apply lunch break styles when slot is lunch break', () => {
     hostComponent.testData = {
