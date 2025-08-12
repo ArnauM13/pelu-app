@@ -298,21 +298,6 @@ firebase deploy
 - **Documentació**: [Documentació Completa](DOCUMENTATION.md)
 - **Email**: suport@peluapp.com
 
-## 📊 Estadístiques del Projecte
-
-- **Versió**: 0.0.3
-- **Última actualització**: Juliol 2025
-- **Fitxers de documentació**: 30+
-- **Components**: 50+
-- **Tests**: 200+
-- **Cobertura de codi**: 85%+
-
 ## 📄 Llicència
 
 Aquest projecte està sota llicència MIT. Vegeu el fitxer [LICENSE](LICENSE) per més detalls.
-
----
-
-**Desenvolupat amb ❤️ per l'equip de PeluApp**
-
-*Última actualització: Juliol 2025*
