@@ -25,7 +25,23 @@
         placeholder="BOOKING.SELECT_DATE_PLACEHOLDER"
       />
       <div class="week-indicator">
-        {{ weekInfo() }}
+        <pelu-button
+          icon="pi pi-chevron-left"
+          size="small"
+          severity="secondary"
+          variant="outlined"
+          class="nav-btn"
+          (clicked)="calendarComponent?.previousWeek()"
+        />
+        <span class="week-range">{{ weekInfo() }}</span>
+        <pelu-button
+          icon="pi pi-chevron-right"
+          size="small"
+          severity="secondary"
+          variant="outlined"
+          class="nav-btn"
+          (clicked)="calendarComponent?.nextWeek()"
+        />
       </div>
     </div>
 

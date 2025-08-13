@@ -463,6 +463,7 @@
     "NO_DATA_AVAILABLE": "No hi ha dades disponibles"
   },
   "ADMIN": {
+    "DELETE_ALL_BOOKINGS": "Eliminar totes les reserves",
     "MANAGE_SERVICES": "Gestionar Serveis",
     "DASHBOARD_TITLE": "Taulell d'administrador",
     "WELCOME_MESSAGE": "Benvingut al panell d'administració",
@@ -475,6 +476,9 @@
     "APPOINTMENT_MANAGEMENT": "Gestió de reserves",
     "APPOINTMENT_MANAGEMENT_DESCRIPTION": "Visualitza i gestiona totes les reserves del sistema",
     "VIEW_ALL_APPOINTMENTS": "Veure totes les reserves",
+    "CONFIRM_DELETE_ALL_BOOKINGS": "Segur que vols eliminar <b>totes</b> les reserves?",
+    "BOOKINGS_DELETED_SUCCESS": "Reserves eliminades correctament",
+    "NO_BOOKINGS_DELETED": "No s'ha eliminat cap reserva",
     "SYSTEM_SETTINGS": "Configuració del sistema",
     "SYSTEM_SETTINGS_DESCRIPTION": "Configura els paràmetres del sistema i l'aplicació",
     "ACCESS_SETTINGS": "Accedir a configuració",

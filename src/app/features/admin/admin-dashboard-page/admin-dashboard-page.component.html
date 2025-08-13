@@ -25,25 +25,45 @@
         <div class="feature-card">
           <h3>{{ 'ADMIN.APPOINTMENT_MANAGEMENT' | translate }}</h3>
           <p>{{ 'ADMIN.APPOINTMENT_MANAGEMENT_DESCRIPTION' | translate }}</p>
-          <button class="btn-primary" routerLink="/appointments">
-            {{ 'ADMIN.VIEW_ALL_APPOINTMENTS' | translate }}
-          </button>
+          <div class="button-group">
+            <pelu-button
+              [label]="'ADMIN.VIEW_ALL_APPOINTMENTS' | translate"
+              routerLink="/appointments"
+            ></pelu-button>
+            <pelu-button
+              [label]="'ADMIN.DELETE_ALL_BOOKINGS' | translate"
+              severity="danger"
+              (clicked)="deleteAllBookings()"
+            ></pelu-button>
+          </div>
         </div>
         <div class="feature-card">
           <h3>{{ 'SERVICES.MANAGEMENT.TITLE' | translate }}</h3>
           <p>{{ 'SERVICES.MANAGEMENT.SUBTITLE' | translate }}</p>
-          <button class="btn-secondary" routerLink="/admin/services">
-            {{ 'SERVICES.MANAGEMENT.TITLE' | translate }}
-          </button>
+          <pelu-button
+            [label]="'SERVICES.MANAGEMENT.TITLE' | translate"
+            severity="secondary"
+            routerLink="/admin/services"
+          ></pelu-button>
         </div>
         <div class="feature-card">
           <h3>{{ 'ADMIN.SYSTEM_SETTINGS' | translate }}</h3>
           <p>{{ 'ADMIN.SYSTEM_SETTINGS_DESCRIPTION' | translate }}</p>
-          <button class="btn-secondary" routerLink="/admin/settings">
-            {{ 'ADMIN.ACCESS_SETTINGS' | translate }}
-          </button>
+          <pelu-button
+            [label]="'ADMIN.ACCESS_SETTINGS' | translate"
+            severity="secondary"
+            routerLink="/admin/settings"
+          ></pelu-button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Confirmation Popup -->
+<pelu-confirmation-popup
+  [isOpen]="isConfirmOpen"
+  [data]="confirmData"
+  (confirmed)="onConfirmDeleteAll()"
+  (cancelled)="onCancelDeleteAll()"
+></pelu-confirmation-popup>

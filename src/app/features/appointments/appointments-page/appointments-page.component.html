@@ -7,27 +7,23 @@
   <!-- Main Content -->
   @if (!loading()) {
     <div class="appointments-content">
-      <!-- Statistics Cards (admins only) -->
+      <!-- Next Appointment -->
+      <div class="content-section">
+        <pelu-next-appointment
+          [bookings]="isAdmin() ? appointments() : userAppointments()"
+        >
+        </pelu-next-appointment>
+      </div>
+
+      <!-- Filters (admins only) -->
       @if (isAdmin()) {
         <div class="content-section">
           <pelu-appointments-stats
             [stats]="appointmentStats()"
             (quickFilterChange)="setQuickFilter($event)"
-          >
-          </pelu-appointments-stats>
+          />
         </div>
-      }
 
-          <!-- Next Appointment -->
-    <div class="content-section">
-      <pelu-next-appointment
-        [bookings]="isAdmin() ? appointments() : userAppointments()"
-      >
-      </pelu-next-appointment>
-    </div>
-
-      <!-- Inline Filters (admins only) -->
-      @if (isAdmin()) {
         <div class="content-section">
           <pelu-filters-inline
             [filterDate]="filterDate"
@@ -38,58 +34,22 @@
             [onServiceChange]="setFilterService"
             [onReset]="clearAllFilters"
             (reset)="clearAllFilters()"
-          >
-          </pelu-filters-inline>
-        </div>
-      }
-
-      <!-- Calendar View -->
-      @if (viewMode() === 'calendar') {
-        <div class="content-section">
-          <div class="calendar-layout">
-            <!-- Calendar Component -->
-            <div class="calendar-section">
-              <pelu-card variant="large" style="view-transition-name: calendar-view">
-                <div class="card-header">
-                  <h3>📅 {{ 'COMMON.APPOINTMENTS_CALENDAR' | translate }}</h3>
-                  <p class="calendar-subtitle">{{ 'COMMON.VIEW_APPOINTMENTS' | translate }}</p>
-                </div>
-
-                <div class="calendar-container">
-                  @defer {
-                    <pelu-calendar-component
-                      [events]="calendarEvents()"
-                      [mini]="false"
-                      (editAppointment)="editAppointment($event)"
-                      (deleteAppointment)="deleteAppointment($event)"
-                    >
-                    </pelu-calendar-component>
-                  } @placeholder {
-                    <div class="calendar-placeholder">
-                      <pelu-loading-state [config]="loadingConfig"> </pelu-loading-state>
-                    </div>
-                  }
-                </div>
-              </pelu-card>
-            </div>
-          </div>
+          />
         </div>
       }
 
       <!-- Appointments List View -->
-      @if (viewMode() === 'list') {
-        <div class="content-section">
-          <pelu-appointments-list
-            [bookings]="listAppointments()"
-            [hasActiveFilters]="isAdmin() ? hasActiveFilters() : false"
-            (viewBooking)="viewAppointmentDetail($event)"
-            (editBooking)="editBookingFromList($event)"
-            (deleteBooking)="deleteBookingFromList($event)"
-            (clearFilters)="clearAllFilters()"
-          >
-          </pelu-appointments-list>
-        </div>
-      }
+      <div class="content-section">
+        <pelu-appointments-list
+          [bookings]="listAppointments()"
+          [hasActiveFilters]="isAdmin() ? hasActiveFilters() : false"
+          (viewBooking)="viewAppointmentDetail($event)"
+          (editBooking)="editBookingFromList($event)"
+          (deleteBooking)="deleteBookingFromList($event)"
+          (clearFilters)="clearAllFilters()"
+        >
+        </pelu-appointments-list>
+      </div>
     </div>
 
       <!-- View Mode Toggle (always visible)

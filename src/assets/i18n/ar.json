@@ -421,6 +421,7 @@
     "NO_DATA_AVAILABLE": "لا توجد بيانات متاحة"
   },
   "ADMIN": {
+    "DELETE_ALL_BOOKINGS": "حذف جميع الحجوزات",
     "MANAGE_SERVICES": "إدارة الخدمات",
     "DASHBOARD_TITLE": "لوحة الإدارة",
     "WELCOME_MESSAGE": "مرحباً بك في لوحة الإدارة",
@@ -433,6 +434,9 @@
     "APPOINTMENT_MANAGEMENT": "إدارة المواعيد",
     "APPOINTMENT_MANAGEMENT_DESCRIPTION": "عرض وإدارة جميع مواعيد النظام",
     "VIEW_ALL_APPOINTMENTS": "عرض جميع المواعيد",
+    "CONFIRM_DELETE_ALL_BOOKINGS": "هل أنت متأكد من حذف <b>جميع</b> الحجوزات؟",
+    "BOOKINGS_DELETED_SUCCESS": "تم حذف الحجوزات بنجاح",
+    "NO_BOOKINGS_DELETED": "لم يتم حذف أي حجز",
     "SYSTEM_SETTINGS": "إعدادات النظام",
     "SYSTEM_SETTINGS_DESCRIPTION": "تكوين معاملات النظام والتطبيق",
     "ACCESS_SETTINGS": "الوصول إلى الإعدادات",
