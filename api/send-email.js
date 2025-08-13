@@ -17,6 +17,11 @@ function maskEmail(value) {
 }
 
 export default async function handler(req, res) {
+  console.log('[email] Handler invoked', {
+    method: req.method,
+    url: req.url,
+    vercelEnv: process.env.VERCEL_ENV || null,
+  });
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -83,6 +88,18 @@ export default async function handler(req, res) {
         error: 'Email service not configured'
       });
     }
+
+    // Log transport configuration (masked)
+    console.log('[email] Creating transport config', {
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: maskEmail(emailUser),
+        passMasked: maskString(emailPass),
+        passLength: emailPass ? String(emailPass).length : 0,
+      },
+    });
 
     // Create transport with Gmail SMTP
     const transport = nodemailer.createTransport({
