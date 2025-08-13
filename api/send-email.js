@@ -1,6 +1,21 @@
 /* eslint-disable */
 import nodemailer from 'nodemailer';
 
+function maskString(value) {
+  if (!value) return null;
+  if (value.length <= 4) return value[0] + '***';
+  return value[0] + '***' + value.slice(-2);
+}
+
+function maskEmail(value) {
+  if (!value) return null;
+  const parts = String(value).split('@');
+  if (parts.length !== 2) return maskString(value);
+  const [local, domain] = parts;
+  const maskedLocal = local.length <= 2 ? local[0] + '***' : local[0] + '***' + local.slice(-1);
+  return `${maskedLocal}@${domain}`;
+}
+
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -41,10 +56,23 @@ export default async function handler(req, res) {
     // Check if required environment variables exist
     const emailUser = process.env.EMAIL_USER;
     const emailPass = process.env.EMAIL_PASS;
-    // Prefer project configuration from Vercel env; do not trust client override for copy recipient
-    const businessEmail = process.env.EMAIL_TO || bodyBusinessEmail || null;
-    // Prefer env BUSINESS_NAME; fallback to request or default
-    const businessName = process.env.BUSINESS_NAME || businessNameParam || bodyBusinessName || 'PeluApp';
+    // Use only Vercel project configuration for copy recipient and business name
+    const businessEmail = process.env.EMAIL_TO || null;
+    const businessName = process.env.BUSINESS_NAME || 'PeluApp';
+
+    // Debug logs (masked)
+    console.log('[email] Runtime env info', {
+      nodeEnv: process.env.NODE_ENV || null,
+      vercelEnv: process.env.VERCEL_ENV || null,
+      vercelUrl: process.env.VERCEL_URL || null,
+      emailUserMasked: maskEmail(emailUser),
+      emailToMasked: maskEmail(businessEmail),
+      businessName,
+      incomingOverrides: {
+        email_to: typeof emailTo === 'string' ? maskEmail(emailTo) : null,
+        business_name: businessNameParam || bodyBusinessName || null,
+      }
+    });
 
     if (!emailUser || !emailPass) {
       console.error('Missing email configuration:', {
@@ -90,11 +118,23 @@ export default async function handler(req, res) {
       text: textContent
     };
 
+    console.log('[email] Sending primary email', {
+      to: maskEmail(email),
+      from: maskEmail(emailUser),
+      subject,
+      copyConfigured: !!businessEmail,
+    });
+
     // Send email to user
     const info = await transport.sendMail(mailOptions);
 
     // Also send a copy to the business email from env if configured and different
     if (businessEmail && businessEmail !== email) {
+      console.log('[email] Sending business copy', {
+        to: maskEmail(businessEmail),
+        from: maskEmail(emailUser),
+        subject: `Còpia: ${subject}`
+      });
       const businessMailOptions = {
         from: `${businessName} <${emailUser}>`,
         to: businessEmail,
