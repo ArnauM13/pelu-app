@@ -17,7 +17,6 @@ export interface ServiceActionItem {
   icon: string;
   isPopular?: boolean;
   isActive?: boolean;
-  popular?: boolean; // For backward compatibility
 }
 
 export interface UserActionItem {
@@ -148,10 +147,10 @@ export class ActionsService {
     // Toggle popular action (first, so it appears first)
     actions.push({
       id: 'toggle-popular',
-      label: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
-      icon: service.popular ? '⭐' : '☆',
+      label: service.isPopular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
+      icon: service.isPopular ? '⭐' : '☆',
       type: 'success',
-      tooltip: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
+      tooltip: service.isPopular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
       onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Toggle popular for service:', item);

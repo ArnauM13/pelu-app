@@ -429,6 +429,7 @@
     "NO_DATA_AVAILABLE": "No data available"
   },
   "ADMIN": {
+    "DELETE_ALL_BOOKINGS": "Delete all bookings",
     "MANAGE_SERVICES": "Manage Services",
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome to the admin panel",
@@ -441,6 +442,9 @@
     "APPOINTMENT_MANAGEMENT": "Appointment Management",
     "APPOINTMENT_MANAGEMENT_DESCRIPTION": "View and manage all system appointments",
     "VIEW_ALL_APPOINTMENTS": "View all appointments",
+    "CONFIRM_DELETE_ALL_BOOKINGS": "Are you sure you want to delete <b>all</b> bookings?",
+    "BOOKINGS_DELETED_SUCCESS": "Bookings deleted successfully",
+    "NO_BOOKINGS_DELETED": "No bookings deleted",
     "SYSTEM_SETTINGS": "System Settings",
     "SYSTEM_SETTINGS_DESCRIPTION": "Configure system and application parameters",
     "ACCESS_SETTINGS": "Access Settings",

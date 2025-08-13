@@ -53,7 +53,6 @@ export interface AppointmentStats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
-        padding: 0.5rem;
       }
 
       .stat-card {
@@ -100,7 +99,6 @@ export interface AppointmentStats {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 0.5rem;
-          padding: 0.5rem;
         }
 
         .stat-card {
@@ -153,7 +151,6 @@ export interface AppointmentStats {
       @media (max-width: 480px) {
         .stats-grid {
           gap: 0.25rem;
-          padding: 0.25rem;
         }
 
         .stat-card {
