@@ -12,6 +12,7 @@ export interface LunchBreakData {
 
 @Component({
   selector: 'pelu-calendar-lunch-break',
+  standalone: true,
   imports: [CommonModule],
   template: `
     <div

@@ -24,7 +24,16 @@ describe('ActionsButtonsComponent', () => {
 
   const mockContext: ActionContext = {
     type: 'appointment',
-    item: { id: 'test-id' },
+    item: {
+      id: 'test-id',
+      clientName: 'John',
+      email: 'john@example.com',
+      data: '2024-01-15',
+      hora: '10:00',
+      serviceId: 'service-1',
+      status: 'confirmed',
+      createdAt: new Date(),
+    } as any,
   };
 
   beforeEach(async () => {
@@ -316,7 +325,7 @@ describe('ActionsButtonsComponent', () => {
       expect(() => {
         component.context = mockContext;
         fixture.detectChanges();
-        component.context = { type: 'service', item: { id: 'new-id' } };
+        component.context = { type: 'service', item: { id: 'new-id', name: 'Service', description: '', price: 0, duration: 30, category: '', icon: '' } as any };
         fixture.detectChanges();
       }).not.toThrow();
     });
@@ -367,12 +376,21 @@ describe('ActionsButtonsComponent', () => {
     it('should handle ActionContext interface correctly', () => {
       const testContext: ActionContext = {
         type: 'appointment',
-        item: { id: 'test-id', name: 'Test Appointment' },
+        item: {
+          id: 'test-id',
+          clientName: 'Test Appointment',
+          email: 'x@y.z',
+          data: '2024-01-15',
+          hora: '10:00',
+          serviceId: 'service-1',
+          status: 'confirmed',
+          createdAt: new Date(),
+        } as any,
       };
 
       expect(testContext.type).toBe('appointment');
       expect(testContext.item.id).toBe('test-id');
-      expect(testContext.item.name).toBe('Test Appointment');
+      expect((testContext.item as any).clientName).toBe('Test Appointment');
     });
 
     it('should validate action types', () => {

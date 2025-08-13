@@ -12,6 +12,12 @@
   overflow: hidden;
 }
 
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
+}
+
 .dashboard-card {
   background: white;
   border-radius: 20px;

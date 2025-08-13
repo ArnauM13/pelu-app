@@ -9,6 +9,7 @@ export interface TimeSlot {
 
 @Component({
   selector: 'pelu-calendar-time-column',
+  standalone: true,
   imports: [CommonModule],
   template: `
     <div class="time-column">

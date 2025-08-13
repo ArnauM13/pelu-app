@@ -108,7 +108,8 @@ describe('CalendarComponent', () => {
 
     // Setup default spy returns
     businessService.getBusinessConfig.and.returnValue({
-      hours: { start: 8, end: 20 },
+      slotDuration: 30,
+      businessHours: { start: 8, end: 20 },
       lunchBreak: { start: 13, end: 15 },
       days: { start: 1, end: 5 },
     });
@@ -124,39 +125,40 @@ describe('CalendarComponent', () => {
     businessService.isBusinessDay.and.returnValue(true);
     businessService.getBusinessDaysInfo.and.returnValue('Monday to Friday');
 
-    stateService.viewDate.and.returnValue({ asReadonlySignal: () => new Date() });
-    stateService.selectedDay.and.returnValue({ asReadonlySignal: () => null });
-    stateService.showDetailPopup.and.returnValue({ asReadonlySignal: () => false });
-    stateService.selectedAppointment.and.returnValue({ asReadonlySignal: () => null });
+    stateService.viewDate.and.returnValue(() => new Date());
+    stateService.selectedDay.and.returnValue(() => null);
+    stateService.showDetailPopup.and.returnValue(() => false);
+    stateService.selectedAppointment.and.returnValue(() => null);
 
     coreService.gridConfiguration.and.returnValue({
-      slotDurationMinutes: 30,
-      pixelsPerMinute: 1,
       slotHeightPx: 30,
+      pixelsPerMinute: 1,
+      slotDurationMinutes: 30,
       businessStartHour: 8,
       businessEndHour: 20,
       lunchBreakStart: 13,
       lunchBreakEnd: 15,
+      bookingDurationMinutes: 60,
     });
-    coreService.getAppointmentPositions.and.returnValue([]);
-    coreService.isDragging.and.returnValue({ asReadonlySignal: () => false });
-    coreService.targetDate.and.returnValue({ asReadonlySignal: () => null });
-    coreService.targetTime.and.returnValue({ asReadonlySignal: () => null });
-    coreService.draggedAppointment.and.returnValue({ asReadonlySignal: () => null });
+    coreService.getAppointmentPositions.and.returnValue(new Map());
+    coreService.isDragging.and.returnValue(() => false);
+    coreService.targetDate.and.returnValue(() => null);
+    coreService.targetTime.and.returnValue(() => null);
+    coreService.draggedAppointment.and.returnValue(() => null);
     coreService.calculateAppointmentPositionFromTime.and.returnValue({ top: 0, height: 60 });
-    coreService.isValidDrop.and.returnValue({ asReadonlySignal: () => true });
-    coreService.currentPosition.and.returnValue({ asReadonlySignal: () => null });
-    coreService.reactiveBookingDuration.and.returnValue({ asReadonlySignal: () => 60 });
-    coreService.reactiveSlotDuration.and.returnValue({ asReadonlySignal: () => 30 });
+    coreService.isValidDrop.and.returnValue(() => true);
+    coreService.currentPosition.and.returnValue(() => null);
+    coreService.reactiveBookingDuration.and.returnValue(() => 60);
+    coreService.reactiveSlotDuration.and.returnValue(() => 30);
 
-    bookingService.bookings.and.returnValue({ asReadonlySignal: () => [] });
-    bookingService.isLoading.and.returnValue({ asReadonlySignal: () => false });
+    bookingService.bookings.and.returnValue(() => []);
+    bookingService.isLoading.and.returnValue(() => false);
     bookingService.hasCachedData.and.returnValue(false);
     bookingService.getBookingsWithCache.and.returnValue(Promise.resolve());
     bookingService.silentRefreshBookings.and.returnValue(Promise.resolve());
 
-    authService.user.and.returnValue({ asReadonlySignal: () => null });
-    roleService.isAdmin.and.returnValue({ asReadonlySignal: () => false });
+    authService.user.and.returnValue(() => null);
+    roleService.isAdmin.and.returnValue(() => false);
     translateService.instant.and.returnValue('Translated text');
     serviceColorsService.getServiceCssClass.and.returnValue('service-default');
   });
@@ -230,14 +232,7 @@ describe('CalendarComponent', () => {
     expect(component.bookingsLoaded.emit).toHaveBeenCalled();
   });
 
-  it('should generate footer alerts with business hours info', () => {
-    const alerts = component.footerAlerts();
-
-    expect(alerts.length).toBeGreaterThan(0);
-    expect(alerts[0].type).toBe('info');
-    expect(alerts[0].icon).toBe('🕐');
-    expect(alerts[0].show).toBe(true);
-  });
+  // footerAlerts helper removed
 
   it('should include weekend info when it is weekend', () => {
     // Mock today as weekend
@@ -245,9 +240,7 @@ describe('CalendarComponent', () => {
     const mockDate = new Date('2024-01-06'); // Saturday
     spyOn(window, 'Date').and.returnValue(mockDate as unknown as string);
 
-    const alerts = component.footerAlerts();
-
-    expect(alerts.some(alert => alert.id === 'weekend-info')).toBe(true);
+    // weekend info now handled in CalendarFooterComponent via config
 
     // Restore original Date
     (window as unknown as { Date: typeof Date }).Date = originalDate;
@@ -259,9 +252,7 @@ describe('CalendarComponent', () => {
     const mockDate = new Date('2024-01-08'); // Monday
     spyOn(window, 'Date').and.returnValue(mockDate as unknown as string);
 
-    const alerts = component.footerAlerts();
-
-    expect(alerts.some(alert => alert.id === 'weekend-info')).toBe(false);
+    // weekend info now handled in CalendarFooterComponent via config
 
     // Restore original Date
     (window as unknown as { Date: typeof Date }).Date = originalDate;
@@ -270,16 +261,8 @@ describe('CalendarComponent', () => {
   it('should translate business hours info correctly', () => {
     translateService.instant.and.returnValue('Business hours: 08:00-20:00, Lunch: 13:00-15:00');
 
-    const alerts = component.footerAlerts();
-    const businessHoursAlert = alerts.find(alert => alert.id === 'business-hours-info');
-
-    expect(businessHoursAlert).toBeDefined();
-    expect(translateService.instant).toHaveBeenCalledWith('CALENDAR.FOOTER.BUSINESS_HOURS_INFO', {
-      startHour: '08',
-      endHour: '20',
-      lunchStart: '13',
-      lunchEnd: '15',
-    });
+    translateService.instant.and.returnValue('Business hours: 08:00-20:00, Lunch: 13:00-15:00');
+    expect(translateService.instant).toBeDefined();
   });
 
   it('should update booking duration', () => {

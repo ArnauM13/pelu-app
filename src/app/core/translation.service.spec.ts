@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslationService } from './services/translation.service';
+import { TranslationService } from './translation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClientModule } from '@angular/common/http';
@@ -188,7 +188,7 @@ describe('TranslationService', () => {
 
   it('should restore user language preference', () => {
     spyOn(localStorage, 'getItem').and.returnValue('es');
-    spyOn(service, 'setLanguage' as unknown as jasmine.Spy);
+    spyOn(service as unknown as Record<string, any>, 'setLanguage');
     service.restoreUserLanguagePreference('user123');
     expect(service.setLanguage).toHaveBeenCalledWith('es');
   });

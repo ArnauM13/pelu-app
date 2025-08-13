@@ -67,7 +67,7 @@ export class InputsDemoComponent {
       description: 'Tall de cabell professional',
       category: 'Cabell',
       icon: 'pi pi-user',
-      popular: true,
+      isPopular: true,
       new: false,
       discount: 0,
       available: true
@@ -81,7 +81,7 @@ export class InputsDemoComponent {
       description: 'Coloració completa del cabell',
       category: 'Coloració',
       icon: 'pi pi-palette',
-      popular: true,
+      isPopular: true,
       new: false,
       discount: 10,
       available: true
@@ -95,7 +95,7 @@ export class InputsDemoComponent {
       description: 'Estil i arreglat del cabell',
       category: 'Estil',
       icon: 'pi pi-brush',
-      popular: false,
+      isPopular: false,
       new: false,
       discount: 0,
       available: true
@@ -109,7 +109,7 @@ export class InputsDemoComponent {
       description: 'Tractament regenerador',
       category: 'Tractament',
       icon: 'pi pi-heart',
-      popular: false,
+      isPopular: false,
       new: true,
       discount: 0,
       available: true
@@ -123,7 +123,7 @@ export class InputsDemoComponent {
       description: 'Modelat i arreglat de barba',
       category: 'Barba',
       icon: 'pi pi-user',
-      popular: false,
+      isPopular: false,
       new: false,
       discount: 0,
       available: true
@@ -137,7 +137,7 @@ export class InputsDemoComponent {
       description: 'Estilització especial per a esdeveniments',
       category: 'Especial',
       icon: 'pi pi-star',
-      popular: true,
+      isPopular: true,
       new: false,
       discount: 15,
       available: false
@@ -146,7 +146,7 @@ export class InputsDemoComponent {
 
   // Computed properties for service statistics
   readonly popularServicesCount = computed(() =>
-    this.serviceOptions.filter(service => service.popular).length
+    this.serviceOptions.filter(service => service.isPopular).length
   );
 
   readonly averageDuration = computed(() => {

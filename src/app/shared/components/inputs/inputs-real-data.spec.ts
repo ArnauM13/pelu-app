@@ -224,7 +224,7 @@ class TestRealDataComponent {
       description: 'Tall de cabell professional',
       category: 'Cabell',
       icon: 'pi pi-user',
-      popular: true,
+      isPopular: true,
       new: false,
       discount: 0,
       available: true
@@ -238,7 +238,7 @@ class TestRealDataComponent {
       description: 'Coloració professional',
       category: 'Cabell',
       icon: 'pi pi-palette',
-      popular: true,
+      isPopular: true,
       new: false,
       discount: 10,
       available: true
@@ -252,7 +252,7 @@ class TestRealDataComponent {
       description: 'Estilitzat professional',
       category: 'Cabell',
       icon: 'pi pi-star',
-      popular: false,
+      isPopular: false,
       new: false,
       discount: 0,
       available: true
@@ -266,7 +266,7 @@ class TestRealDataComponent {
       description: 'Tractament capil·lar',
       category: 'Tractament',
       icon: 'pi pi-heart',
-      popular: false,
+      isPopular: false,
       new: true,
       discount: 0,
       available: true
@@ -430,14 +430,14 @@ describe('Input Components Real Data Tests', () => {
       description: 'Tall de cabell professional',
       category: 'Cabell',
       icon: 'pi pi-user',
-      popular: true,
+      isPopular: true,
       new: false,
       discount: 0,
       available: true
     });
 
     // Check popular services
-    const popularServices = options.filter(service => service.popular);
+    const popularServices = options.filter(service => service.isPopular);
     expect(popularServices).toHaveSize(2);
     expect(popularServices[0].label).toBe('Tall de Cabell');
     expect(popularServices[1].label).toBe('Coloració');

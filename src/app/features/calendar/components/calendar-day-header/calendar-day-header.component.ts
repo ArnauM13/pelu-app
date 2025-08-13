@@ -11,6 +11,7 @@ export interface DayHeaderData {
 
 @Component({
   selector: 'pelu-calendar-day-header',
+  standalone: true,
   imports: [CommonModule],
   template: `
     <div class="day-header" [class.past]="data().isPast" [class.disabled]="data().isDisabled">

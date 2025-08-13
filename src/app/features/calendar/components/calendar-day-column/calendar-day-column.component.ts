@@ -39,6 +39,7 @@ export interface DayColumnData {
 
 @Component({
   selector: 'pelu-calendar-day-column',
+  standalone: true,
   imports: [
     CommonModule,
     AppointmentSlotComponent,
@@ -125,7 +126,8 @@ export interface DayColumnData {
         grid-row: 2 / -1;
         display: grid;
         grid-template-rows: repeat(var(--calendar-slot-count, 24), 30px);
-        min-height: calc(var(--calendar-slot-count, 24) * 30px);
+        /* Use inline CSS variable for accurate height based on SLOT_COUNT */
+        min-height: calc(var(--calendar-slot-count, 24) * 30px + 6px); /* extra space to prevent bottom clipping */
       }
 
       .time-slots-container.drag-over {

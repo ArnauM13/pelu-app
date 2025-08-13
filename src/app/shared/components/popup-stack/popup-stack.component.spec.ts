@@ -27,7 +27,7 @@ describe('PopupStackComponent', () => {
   });
 
   it('should initialize with no popups', () => {
-    expect(component.popups).toEqual([]);
+    expect(component.popups()).toEqual([]);
   });
 
   it('should have utility methods defined', () => {
@@ -36,7 +36,7 @@ describe('PopupStackComponent', () => {
 
   it('should handle backdrop click when popups exist', () => {
     const mockPopup: PopupItem = { id: 'test-popup', component: class MockComponent {}, data: {} };
-    component.popups = [mockPopup];
+    component.addPopup(mockPopup);
 
     spyOn(component.popupClosed, 'emit');
 
@@ -52,7 +52,7 @@ describe('PopupStackComponent', () => {
   });
 
   it('should not handle backdrop click when no popups exist', () => {
-    component.popups = [];
+    component.clearAll();
 
     spyOn(component.popupClosed, 'emit');
 
@@ -69,7 +69,7 @@ describe('PopupStackComponent', () => {
 
   it('should not handle backdrop click when target is different from currentTarget', () => {
     const mockPopup: PopupItem = { id: 'test-popup', component: class MockComponent {}, data: {} };
-    component.popups = [mockPopup];
+    component.addPopup(mockPopup);
 
     spyOn(component.popupClosed, 'emit');
 
