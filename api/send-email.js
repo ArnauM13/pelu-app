@@ -41,11 +41,10 @@ export default async function handler(req, res) {
     // Check if required environment variables exist
     const emailUser = process.env.EMAIL_USER;
     const emailPass = process.env.EMAIL_PASS;
-    // Per requeriment: EMAIL_TO ha de venir del correu introduït per l'usuari (email del booking)
-    // Si s'envia email_to a la request, té preferència. En cas contrari, fem servir 'email'.
-    const businessEmail = emailTo || email || bodyBusinessEmail || process.env.EMAIL_TO || emailUser;
-    // Per requeriment: BUSINESS_NAME ha de venir del paràmetre business_name a la request
-    const businessName = businessNameParam || bodyBusinessName || process.env.BUSINESS_NAME || 'PeluApp';
+    // Prefer project configuration from Vercel env; do not trust client override for copy recipient
+    const businessEmail = process.env.EMAIL_TO || bodyBusinessEmail || null;
+    // Prefer env BUSINESS_NAME; fallback to request or default
+    const businessName = process.env.BUSINESS_NAME || businessNameParam || bodyBusinessName || 'PeluApp';
 
     if (!emailUser || !emailPass) {
       console.error('Missing email configuration:', {
@@ -82,10 +81,10 @@ export default async function handler(req, res) {
       ? getBookingConfirmationText(nom, email, missatge, bookingDetails, businessName)
       : getSimpleContactText(nom, email, missatge, businessName);
 
-    // Email content - send to user's email
+    // Email content - primary to user's email
     const mailOptions = {
       from: `${businessName} <${emailUser}>`,
-      to: email, // Send to user's email
+      to: email,
       subject: subject,
       html: htmlContent,
       text: textContent
@@ -94,7 +93,7 @@ export default async function handler(req, res) {
     // Send email to user
     const info = await transport.sendMail(mailOptions);
 
-    // Also send a copy to the business email if it's different from the user's email
+    // Also send a copy to the business email from env if configured and different
     if (businessEmail && businessEmail !== email) {
       const businessMailOptions = {
         from: `${businessName} <${emailUser}>`,
