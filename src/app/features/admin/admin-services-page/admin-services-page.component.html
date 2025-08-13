@@ -18,6 +18,9 @@
         (clicked)="showCategoriesManager()"
       >
       </pelu-button>
+
+      <!-- Docs: Afegir serveis d'exemple per demo (el codi està eliminat). Si cal, reintroduir un helper al servei i reapuntar aquest botó. -->
+
     </div>
   </div>
 
@@ -210,7 +213,7 @@
             <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
             <div class="form-field">
               <pelu-input-checkbox
-                formControlName="popular"
+                formControlName="isPopular"
                 [label]="'SERVICES.MANAGEMENT.MARK_AS_POPULAR'"
               >
               </pelu-input-checkbox>
@@ -360,7 +363,7 @@
             <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
             <div class="form-field">
               <pelu-input-checkbox
-                formControlName="popular"
+                formControlName="isPopular"
                 [label]="'SERVICES.MANAGEMENT.MARK_AS_POPULAR'"
               >
               </pelu-input-checkbox>

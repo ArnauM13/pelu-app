@@ -23,20 +23,22 @@
           <div class="form-field">
             <pelu-input-text
               [label]="'COMMON.NAME'"
-              [value]="getClientName(currentBooking()!)"
-              [disabled]="true"
-              [readonly]="true"
-              [fluid]="true">
+              [value]="isEditing() ? editName() : getClientName(currentBooking()!)"
+              [disabled]="!isEditing()"
+              [readonly]="!isEditing()"
+              [fluid]="true"
+              (valueChange)="isEditing() && editName.set($event)">
             </pelu-input-text>
           </div>
 
           <div class="form-field">
             <pelu-input-text
               [label]="'COMMON.EMAIL'"
-              [value]="getClientEmail(currentBooking()!)"
-              [disabled]="true"
-              [readonly]="true"
-              [fluid]="true">
+              [value]="isEditing() ? editEmail() : getClientEmail(currentBooking()!)"
+              [disabled]="!isEditing()"
+              [readonly]="!isEditing()"
+              [fluid]="true"
+              (valueChange)="isEditing() && editEmail.set($event)">
             </pelu-input-text>
           </div>
         </div>
@@ -49,19 +51,21 @@
           <div class="form-field">
             <pelu-input-date
               [label]="'COMMON.DATE'"
-              [value]="currentBooking()!.data || ''"
-              [disabled]="true"
-              [readonly]="true">
+              [value]="isEditing() ? editDate() : (currentBooking()!.data || '')"
+              [disabled]="!isEditing()"
+              [readonly]="!isEditing()"
+              (valueChange)="isEditing() ? editDate.set(($any($event) || '')) : null">
             </pelu-input-date>
           </div>
 
           <div class="form-field">
             <pelu-input-text
               [label]="'COMMON.HOURS'"
-              [value]="currentBooking()!.hora || ''"
-              [disabled]="true"
-              [readonly]="true"
-              [fluid]="true">
+              [value]="isEditing() ? editTime() : (currentBooking()!.hora || '')"
+              [disabled]="!isEditing()"
+              [readonly]="!isEditing()"
+              [fluid]="true"
+              (valueChange)="isEditing() && editTime.set($event)">
             </pelu-input-text>
           </div>
 
@@ -104,11 +108,12 @@
           <div class="form-field">
             <pelu-input-textarea
               [label]="'COMMON.NOTES'"
-              [value]="currentBooking()!.notes || ''"
-              [disabled]="true"
-              [readonly]="true"
+              [value]="isEditing() ? editNotes() : (currentBooking()!.notes || '')"
+              [disabled]="!isEditing()"
+              [readonly]="!isEditing()"
               [fluid]="true"
-              [rows]="3">
+              [rows]="3"
+              (valueChange)="isEditing() && editNotes.set($event)">
             </pelu-input-textarea>
           </div>
         </div>

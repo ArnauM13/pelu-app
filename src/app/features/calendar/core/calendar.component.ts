@@ -880,54 +880,14 @@ export class CalendarComponent {
     }
   }
 
-  onAppointmentEditRequested(booking: Booking) {
-    const currentUser = this.authService.user();
-    if (!currentUser?.uid) {
-      console.warn('No user found');
-      return;
-    }
-
-    // All appointments are now bookings, so use the direct ID
-    this.router.navigate(['/appointments', booking.id || ''], {
-      queryParams: {
-        edit: 'true',
-      },
-    });
-
-    // Close the popup
-    this.stateService.closeAppointmentDetail();
-
-    // Convert Booking to AppointmentEvent and emit to parent
-    const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
-
-    // Get service information from serviceId
-    const allServices = this.servicesService.getAllServices();
-    const service = booking.serviceId ? allServices.find(s => s.id === booking.serviceId) : null;
-    const serviceName = service?.name || 'Service';
-    const serviceDuration = service?.duration || 60;
-
-    const appointmentEvent: AppointmentEvent = {
-      id: booking.id || '',
-      title: booking.clientName || 'Appointment',
-      start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
-      end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
-      duration: serviceDuration,
-      serviceName: serviceName,
-      clientName: booking.clientName,
-      uid: booking.email || '',
-      isOwnBooking: isOwnBooking,
-      canDrag: this.isAdmin() || isOwnBooking,
-      canViewDetails: this.isAdmin() || isOwnBooking,
-    };
-    this.editAppointment.emit(appointmentEvent);
+  onAppointmentEditRequested(_booking: Booking) {
+    // Now handled inline within the popup; no navigation
   }
 
   onViewDetailRequested(booking: Booking) {
     // Navigate to appointment detail page
     this.router.navigate(['/appointments', booking.id || '']);
-
-    // Close the popup
-    this.stateService.closeAppointmentDetail();
+    // Do not close the popup on view navigation
   }
 
   reloadAppointments() {

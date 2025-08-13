@@ -505,6 +505,40 @@ export class BookingService {
   }
 
   /**
+   * Admin-only: delete all bookings in the 'bookings' collection.
+   * Returns number of deleted documents.
+   */
+  async deleteAllBookings(): Promise<number> {
+    try {
+      if (!this.roleService.isAdmin()) {
+        throw new Error('Access denied');
+      }
+      this.isLoadingSignal.set(true);
+      this.errorSignal.set(null);
+
+      const bookingsRef = collection(this.firestore, 'bookings');
+      const snapshot = await getDocs(bookingsRef);
+      let deleted = 0;
+      for (const docSnap of snapshot.docs) {
+        await deleteDoc(doc(this.firestore, 'bookings', docSnap.id));
+        deleted++;
+      }
+      // Clear local cache
+      this.clearCache();
+      return deleted;
+    } catch (error) {
+      this.logger.firebaseError(error, 'deleteAllBookings', {
+        component: 'BookingService',
+        method: 'deleteAllBookings',
+      });
+      this.errorSignal.set('Error deleting all bookings');
+      return 0;
+    } finally {
+      this.isLoadingSignal.set(false);
+    }
+  }
+
+  /**
    * Get bookings for a specific date
    */
   getBookingsForDate(date: string): Booking[] {

@@ -27,7 +27,6 @@ import { InputCheckboxComponent } from '../../../shared/components/inputs/input-
 import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../../../shared/components/popup-dialog/popup-dialog.component';
 
 import { FirebaseServicesService, ServiceCategory } from '../../../core/services/firebase-services.service';
-import { ServicesMigrationService } from '../../../core/services/services-migration.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
 
@@ -66,7 +65,6 @@ export class AdminServicesPageComponent implements OnInit {
   // Inject services
   private readonly router = inject(Router);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
-  private readonly servicesMigrationService = inject(ServicesMigrationService);
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
@@ -241,7 +239,7 @@ export class AdminServicesPageComponent implements OnInit {
       duration: [30, [Validators.required, Validators.min(5), Validators.max(480)]],
       category: ['haircut', [Validators.required]],
       icon: ['✂️', [Validators.required]],
-      popular: [false]
+      isPopular: [false]
     });
 
     // Initialize category form
@@ -319,7 +317,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: service.duration,
         category: service.category,
         icon: service.icon,
-        isPopular: service.isPopular
+        isPopular: service.isPopular ?? false
       });
     }
   }
@@ -335,12 +333,24 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     try {
-      const formValue = form.value;
-      const serviceData = {
-        ...formValue,
-        createdAt: new Date(),
-        updatedAt: new Date()
+      const formValue = form.value as {
+        name: string;
+        description: string;
+        price: number;
+        duration: number;
+        category: string;
+        icon: string;
+        isPopular?: boolean;
       };
+      const serviceData = {
+        name: formValue.name,
+        description: formValue.description,
+        price: formValue.price,
+        duration: formValue.duration,
+        category: formValue.category,
+        icon: formValue.icon,
+        isPopular: Boolean(formValue.isPopular),
+      } satisfies Omit<FirebaseService, 'id'>;
 
       await this.firebaseServicesService.createService(serviceData);
       this.toastService.showSuccess(
@@ -370,10 +380,23 @@ export class AdminServicesPageComponent implements OnInit {
     }
 
     try {
-      const formValue = form.value;
-      const serviceData = {
-        ...formValue,
-        updatedAt: new Date()
+      const formValue = form.value as {
+        name: string;
+        description: string;
+        price: number;
+        duration: number;
+        category: string;
+        icon: string;
+        isPopular?: boolean;
+      };
+      const serviceData: Partial<FirebaseService> = {
+        name: formValue.name,
+        description: formValue.description,
+        price: formValue.price,
+        duration: formValue.duration,
+        category: formValue.category,
+        icon: formValue.icon,
+        isPopular: Boolean(formValue.isPopular),
       };
 
       await this.firebaseServicesService.updateService(selectedService.id!, serviceData);
@@ -485,7 +508,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: 30,
         category: 'haircut',
         icon: '✂️',
-        popular: false
+        isPopular: false
       });
     }
   }
@@ -506,29 +529,6 @@ export class AdminServicesPageComponent implements OnInit {
     await this.firebaseServicesService.refreshServices();
   }
 
-  async migrateServices(): Promise<void> {
-    try {
-      this.toastService.showInfo(
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES')
-      );
-
-      const migratedCount = await this.servicesMigrationService.migrateServicesToFirebase();
-
-      this.toastService.showSuccess(
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES') + ` (${migratedCount} services)`
-      );
-
-      await this.refreshServices();
-    } catch (error) {
-      console.error('Error migrating services:', error);
-      this.toastService.showError(
-        this.translateService.instant('COMMON.ERRORS.MIGRATION_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.MIGRATION.ERROR_MESSAGE')
-      );
-    }
-  }
 
   showCategoriesManager(): void {
     this._showCategoriesManagerDialog.set(true);
@@ -695,7 +695,7 @@ export class AdminServicesPageComponent implements OnInit {
       // Prepare the update data
       const updatedService = {
         ...service,
-        popular: newPopularStatus,
+        isPopular: newPopularStatus,
         updatedAt: new Date()
       };
 

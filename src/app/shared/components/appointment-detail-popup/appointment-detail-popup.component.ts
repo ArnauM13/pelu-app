@@ -15,6 +15,7 @@ import { Service } from '../../../core/services/services.service';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { isFutureAppointment } from '../../services';
+import { BookingService } from '../../../core/services/booking.service';
 // Import input components
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
@@ -43,6 +44,7 @@ export class AppointmentDetailPopupComponent {
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #servicesService = inject(ServicesService);
+  #bookingService = inject(BookingService);
 
   // Input signals
   readonly open = input<boolean>(false);
@@ -62,6 +64,15 @@ export class AppointmentDetailPopupComponent {
   readonly isLoading = signal<boolean>(false);
   readonly loadError = signal<boolean>(false);
   private loadedBooking = signal<Booking | null>(null);
+  private isEditingSignal = signal<boolean>(false);
+  readonly isEditing = computed(() => this.isEditingSignal());
+
+  // Edit form state signals
+  editName = signal<string>('');
+  editEmail = signal<string>('');
+  editDate = signal<string | Date>('');
+  editTime = signal<string>('');
+  editNotes = signal<string>('');
   private readonly showDeleteConfirmSignal = signal<boolean>(false);
   readonly showDeleteConfirm = computed(() => this.showDeleteConfirmSignal());
   readonly deleteConfirmData = computed<ConfirmationData>(() => ({
@@ -183,12 +194,28 @@ export class AppointmentDetailPopupComponent {
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      ...(this.canEdit() ? [{
+      // View booking (navigates) - hidden during editing
+      ...(!this.hideViewDetailButton() && !this.isEditing() ? [{
+        label: this.#translateService.instant('COMMON.CLICK_TO_VIEW'),
+        type: 'secondary' as FooterActionType,
+        action: () => this.onViewDetail()
+      }] : []),
+      // Edit or Save/Cancel depending on state
+      ...(this.canEdit() && !this.isEditing() ? [{
         label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
         type: 'edit' as FooterActionType,
         action: () => this.onEdit()
       }] : []),
-      ...(this.canDelete() ? [{
+      ...(this.isEditing() ? [{
+        label: this.#translateService.instant('COMMON.ACTIONS.SAVE'),
+        type: 'save' as FooterActionType,
+        action: () => this.onSaveEdit()
+      }, {
+        label: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
+        type: 'delete' as FooterActionType,
+        action: () => this.onCancelEdit()
+      }] : []),
+      ...(this.canDelete() && !this.isEditing() ? [{
         label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
         type: 'delete' as FooterActionType,
         action: () => this.onDelete()
@@ -214,10 +241,58 @@ export class AppointmentDetailPopupComponent {
 
   onEdit(): void {
     const booking = this.currentBooking();
-    if (booking) {
-      this.editRequested.emit(booking);
-      this.onClose();
+    if (!booking) return;
+    // Initialize edit fields from current booking
+    this.editName.set(booking.clientName || '');
+    this.editEmail.set(booking.email || '');
+    this.editDate.set(booking.data || '');
+    this.editTime.set(booking.hora || '');
+    this.editNotes.set(booking.notes || '');
+    this.isEditingSignal.set(true);
+  }
+
+  async onSaveEdit(): Promise<void> {
+    const booking = this.currentBooking();
+    if (!booking?.id) return;
+    try {
+      // Normalize date to 'yyyy-MM-dd' string to avoid Firestore Timestamp issues
+      const rawDate = this.editDate();
+      const normalizedDate = rawDate instanceof Date
+        ? rawDate.toISOString().split('T')[0]
+        : (typeof rawDate === 'string' ? rawDate : '');
+
+      // Normalize time to 'HH:mm' string
+      const rawTime = this.editTime();
+      const normalizedTime = typeof rawTime === 'string' ? rawTime : '';
+
+      const updates: Partial<Booking> = {
+        clientName: this.editName(),
+        email: this.editEmail(),
+        data: normalizedDate,
+        hora: normalizedTime,
+        notes: this.editNotes(),
+      };
+      this.isLoading.set(true);
+      const ok = await this.#bookingService.updateBooking(booking.id, updates);
+      if (ok) {
+        this.#toastService.showSuccess(this.#translateService.instant('COMMON.STATUS.STATUS_SUCCESS'));
+        // Update local state view
+        this.loadedBooking.set({ ...booking, ...updates });
+        this.isEditingSignal.set(false);
+        // notify listeners to refresh
+        window.dispatchEvent(new CustomEvent('appointmentUpdated'));
+        // close popup after save as requested
+        this.onClose();
+      } else {
+        this.#toastService.showError(this.#translateService.instant('COMMON.STATUS.STATUS_ERROR'));
+      }
+    } finally {
+      this.isLoading.set(false);
     }
+  }
+
+  onCancelEdit(): void {
+    this.isEditingSignal.set(false);
   }
 
   onDelete(): void {
@@ -248,7 +323,7 @@ export class AppointmentDetailPopupComponent {
     const booking = this.currentBooking();
     if (booking && booking.id) {
       this.viewDetailRequested.emit(booking);
-      this.onClose();
+      // Do not close popup when navigating to view detail
     }
   }
 

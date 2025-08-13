@@ -21,7 +21,6 @@ export interface SelectOption {
   duration?: number;
   description?: string;
   category?: string;
-  popular?: boolean;
   new?: boolean;
   discount?: number;
   available?: boolean;

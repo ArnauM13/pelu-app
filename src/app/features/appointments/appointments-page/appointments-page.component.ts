@@ -2,7 +2,6 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
 import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
@@ -10,7 +9,6 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { AppointmentsListComponent } from '../../appointments/components/appointments-list/appointments-list.component';
 import { AppointmentsStatsComponent } from '../../appointments/components/appointments-stats/appointments-stats.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
-import { CardComponent } from '../../../shared/components/card/card.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
 import { CardModule } from 'primeng/card';
@@ -54,11 +52,9 @@ interface AppointmentStats {
     TooltipModule,
     DatePickerModule,
     TranslateModule,
-    CalendarComponent,
     AppointmentsListComponent,
     AppointmentsStatsComponent,
     LoadingStateComponent,
-    CardComponent,
     NextAppointmentComponent,
     FiltersInlineComponent,
   ],

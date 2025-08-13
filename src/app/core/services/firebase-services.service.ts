@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  setDoc,
 } from '@angular/fire/firestore';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
@@ -50,6 +51,7 @@ export class FirebaseServicesService {
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
   private readonly translateService = inject(TranslateService);
+  private readonly envInjector = inject(EnvironmentInjector);
 
   readonly isAdmin = this.roleService.isAdmin;
 
@@ -154,20 +156,31 @@ export class FirebaseServicesService {
 
       const servicesRef = collection(this.firestore, 'services');
       const q = query(servicesRef, orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(q));
 
       const services: FirebaseService[] = [];
       querySnapshot.forEach(doc => {
-        const service = { id: doc.id, ...doc.data() } as FirebaseService;
-        if (service.isActive !== false) {
-          // Only active services
-          services.push(service);
-        }
+        const raw = { id: doc.id, ...doc.data() } as Record<string, unknown>;
+        const service: FirebaseService = {
+          id: String(raw['id']),
+          name: String(raw['name']),
+          description: String(raw['description']),
+          price: Number(raw['price']),
+          duration: Number(raw['duration']),
+          category: String(raw['category']),
+          icon: String(raw['icon']),
+          isPopular: raw['isPopular'] === true,
+          isActive: ((raw['isActive'] as boolean | undefined) ?? true) !== false,
+        };
+        const isActive = service.isActive !== false;
+        if (isActive) services.push(service);
       });
 
       this._services.set(services);
       this._lastSync.set(Date.now());
       this.saveServicesToCache(services);
+
+      // No background normalizations; only the new schema is supported
 
       this.logger.info('Services loaded from Firebase', {
         component: 'FirebaseServicesService',
@@ -202,25 +215,31 @@ export class FirebaseServicesService {
 
       this._isLoading.set(true);
       this._error.set(null);
-
       const currentUser = this.authService.user();
       if (!currentUser?.uid) {
         throw new Error('Authentication required');
       }
 
-              const service = {
-          ...serviceData,
-          isActive: true,
-        };
+      // Generate UUID v4 for the service ID (store as document ID and in the document itself)
+      const generatedId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}-${Math.random().toString(16).slice(2, 10)}`;
 
-      // Save to Firestore
-      const docRef = await addDoc(collection(this.firestore, 'services'), service);
-
-      // Create new service with ID
       const newService: FirebaseService = {
-        ...service,
-        id: docRef.id,
+        ...serviceData,
+        id: generatedId,
+        isActive: true,
+        isPopular: serviceData.isPopular ?? false,
       };
+
+      // Save to Firestore with explicit ID and timestamps
+      const docRef = doc(this.firestore, 'services', generatedId);
+      await setDoc(docRef, {
+        ...newService,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        createdBy: currentUser.uid,
+      });
 
       // Update local state
       this._services.update(services => [newService, ...services]);
@@ -287,7 +306,7 @@ export class FirebaseServicesService {
       const updateData = {
         ...updates,
         updatedAt: serverTimestamp(),
-      };
+      } as Partial<FirebaseService> & { updatedAt: unknown };
 
       // Update in Firestore
       const docRef = doc(this.firestore, 'services', serviceId);
@@ -295,7 +314,7 @@ export class FirebaseServicesService {
 
       // Update local state
       this._services.update(services =>
-        services.map(service => (service.id === serviceId ? { ...service, ...updates } : service))
+        services.map(service => (service.id === serviceId ? { ...service, ...updates } as FirebaseService : service))
       );
       this._lastSync.set(Date.now());
 
@@ -348,11 +367,12 @@ export class FirebaseServicesService {
         throw new Error('Authentication required');
       }
 
-      // Soft delete by setting active to false
+      // Soft delete by setting active to false (and keep isActive for legacy reads)
       const docRef = doc(this.firestore, 'services', serviceId);
-              await updateDoc(docRef, {
-          isActive: false,
-        });
+      await updateDoc(docRef, {
+        isActive: false,
+        updatedAt: serverTimestamp(),
+      });
 
       // Remove from local state
       this._services.update(services => services.filter(service => service.id !== serviceId));
@@ -412,7 +432,8 @@ export class FirebaseServicesService {
 
       if (docSnap.exists()) {
         const service = { id: docSnap.id, ...docSnap.data() } as FirebaseService;
-        return service.isActive !== false ? service : null;
+        const isActive = (service.isActive ?? true) !== false;
+        return isActive ? { ...service, isActive } : null;
       }
 
       return null;
@@ -463,146 +484,65 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Create sample services for development (admin only)
+   * One-time migration to new schema: ensure services only use isPopular and isActive fields
+   * - Copies legacy fields (popular -> isPopular, active -> isActive)
+   * - Ensures 'id' field matches document ID
+   * - Removes legacy fields 'popular' and 'active'
+   * Returns counts of updates performed
    */
-  async createSampleServices(): Promise<boolean> {
-    try {
-      // Check admin permissions
-      if (!this.isAdmin()) {
-        throw new Error('Access denied - admin required');
-      }
-
-      this._isLoading.set(true);
-      this._error.set(null);
-
-      const currentUser = this.authService.user();
-      if (!currentUser?.uid) {
-        throw new Error('Authentication required');
-      }
-
-      const sampleServices: Omit<
-        FirebaseService,
-        'id' | 'createdAt' | 'updatedAt' | 'createdBy'
-      >[] = [
-        {
-          name: 'Tall Masculí',
-          description: 'Corte clàssic o modern segons les teves preferències',
-          price: 25,
-          duration: 30,
-          category: 'haircut',
-          icon: '✂️',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Tall + Afaitat',
-          description: 'Corte complet amb afaitat de barba inclòs',
-          price: 35,
-          duration: 45,
-          category: 'haircut',
-          icon: '✂️',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Afaitat de Barba',
-          description: 'Afaitat tradicional amb navalla o màquina',
-          price: 15,
-          duration: 20,
-          category: 'beard',
-          icon: '🧔',
-          isActive: true,
-        },
-        {
-          name: 'Arreglada de Barba',
-          description: 'Perfilat i arreglada de barba',
-          price: 12,
-          duration: 15,
-          category: 'beard',
-          icon: '🧔',
-          isActive: true,
-        },
-        {
-          name: 'Lavada i Tractament',
-          description: 'Lavada professional amb productes de qualitat',
-          price: 18,
-          duration: 25,
-          category: 'treatment',
-          icon: '💆',
-          isActive: true,
-        },
-        {
-          name: 'Coloració',
-          description: 'Coloració completa o retocs',
-          price: 45,
-          duration: 60,
-          category: 'treatment',
-          icon: '💆',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Pentinat Especial',
-          description: 'Peinat per a esdeveniments especials',
-          price: 30,
-          duration: 40,
-          category: 'styling',
-          icon: '💇',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Tall Infantil',
-          description: 'Tall especial per a nens i nenes',
-          price: 20,
-          duration: 25,
-          category: 'haircut',
-          icon: '👶',
-          isActive: true,
-        },
-      ];
-
-      let createdCount = 0;
-      for (const serviceData of sampleServices) {
-        try {
-          const result = await this.createService(serviceData);
-          if (result) {
-            createdCount++;
-          }
-        } catch {
-          this.logger.error(`Error creating sample service: ${serviceData.name}`, {
-            component: 'FirebaseServicesService',
-            method: 'createSampleServices',
-          });
-        }
-      }
-
-      if (createdCount > 0) {
-        this.toastService.showSuccess(`${createdCount} serveis d'exemple creats`);
-        this.logger.info('Sample services created', {
-          component: 'FirebaseServicesService',
-          method: 'createSampleServices',
-          data: JSON.stringify({ count: createdCount }),
-        });
-      }
-
-      return createdCount > 0;
-    } catch (error) {
-      this.logger.firebaseError(error, 'createSampleServices', {
-        component: 'FirebaseServicesService',
-        method: 'createSampleServices',
-        userId: this.authService.user()?.uid,
-      });
-
-      const errorMessage =
-        error instanceof Error ? error.message : 'Error creating sample services';
-      this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_CREATING_SAMPLE_SERVICES');
-      return false;
-    } finally {
-      this._isLoading.set(false);
+  async migrateLegacyFieldsToNewSchema(): Promise<{ total: number; updated: number; skipped: number }> {
+    if (!this.isAdmin()) {
+      return { total: 0, updated: 0, skipped: 0 };
     }
+    const servicesRef = collection(this.firestore, 'services');
+    const snapshot = await runInInjectionContext(this.envInjector, () => getDocs(servicesRef));
+    let updated = 0;
+    let skipped = 0;
+    const total = snapshot.size;
+
+    for (const docSnap of snapshot.docs) {
+      const raw = { id: docSnap.id, ...docSnap.data() } as Record<string, unknown>;
+
+      const desiredIsPopular = (raw['isPopular'] === undefined)
+        ? Boolean((raw['popular'] as boolean | undefined) ?? false)
+        : Boolean(raw['isPopular']);
+      const desiredIsActive = (raw['isActive'] === undefined)
+        ? (((raw['active'] as boolean | undefined) ?? true) !== false)
+        : Boolean(raw['isActive']);
+      const desiredId = docSnap.id;
+
+      const currentIsPopular = Boolean(raw['isPopular']);
+      const currentIsActive = raw['isActive'] !== undefined ? Boolean(raw['isActive']) : undefined;
+      const currentId = String(raw['id'] ?? '');
+
+      const needsIsPopularUpdate = currentIsPopular !== desiredIsPopular;
+      const needsIsActiveUpdate = currentIsActive === undefined || currentIsActive !== desiredIsActive;
+      const needsIdUpdate = currentId !== desiredId;
+
+      const updates: Partial<FirebaseService> & { [key: string]: unknown } = {};
+      if (needsIsPopularUpdate) updates['isPopular'] = desiredIsPopular;
+      if (needsIsActiveUpdate) updates['isActive'] = desiredIsActive;
+      if (needsIdUpdate) updates['id'] = desiredId;
+      // no-op: legacy fields are ignored in new app version
+      if (Object.keys(updates).length > 0) {
+        updates['updatedAt'] = serverTimestamp();
+        const ref = doc(this.firestore, 'services', docSnap.id);
+        await updateDoc(ref, updates as { [x: string]: import('@angular/fire/firestore').FieldValue | Partial<unknown> | undefined });
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    // Refresh local cache/state if anything changed
+    if (updated > 0) {
+      await this.refreshServices();
+    }
+
+    return { total, updated, skipped };
   }
+
+  // Development helper (removed): createSampleServices()
 
   /**
    * Check if we should use cache instead of fetching from Firebase - OPTIMIZED
@@ -637,7 +577,18 @@ export class FirebaseServicesService {
       const cacheTimestamp = localStorage.getItem(this.CACHE_TIMESTAMP_KEY);
 
       if (cachedServices && cacheTimestamp) {
-        const services = JSON.parse(cachedServices) as FirebaseService[];
+        const parsed = JSON.parse(cachedServices) as Array<Record<string, unknown>>;
+        const services: FirebaseService[] = parsed.map(raw => ({
+          id: String(raw['id'] ?? ''),
+          name: String(raw['name'] ?? ''),
+          description: String(raw['description'] ?? ''),
+          price: Number(raw['price'] ?? 0),
+          duration: Number(raw['duration'] ?? 0),
+          category: String(raw['category'] ?? ''),
+          icon: String(raw['icon'] ?? ''),
+          isPopular: Boolean(raw['isPopular'] === true),
+          isActive: ((raw['isActive'] as boolean | undefined) ?? true) !== false,
+        }));
         const timestamp = parseInt(cacheTimestamp, 10);
         const now = Date.now();
 
@@ -687,7 +638,7 @@ export class FirebaseServicesService {
       }
 
       const categoriesRef = collection(this.firestore, 'serviceCategories');
-      const querySnapshot = await getDocs(categoriesRef);
+      const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(categoriesRef));
 
       const customCategories: ServiceCategory[] = [];
       querySnapshot.forEach(doc => {
@@ -719,7 +670,7 @@ export class FirebaseServicesService {
 
       // Get custom categories from Firebase only if not cached
       const categoriesRef = collection(this.firestore, 'serviceCategories');
-      const querySnapshot = await getDocs(categoriesRef);
+      const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(categoriesRef));
 
       const customCategories: ServiceCategory[] = [];
       querySnapshot.forEach(doc => {

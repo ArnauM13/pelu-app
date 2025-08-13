@@ -24,8 +24,8 @@ export interface ConfirmationData {
         <span class="confirm-icon">
           @if (data()?.severity === 'danger') { ⚠️ } @else if (data()?.severity === 'warning') { ⚠️ } @else { ℹ️ }
         </span>
-        <p class="confirm-text">
-          {{ data()?.message || ('COMMON.CONFIRMATION.MESSAGE' | translate) }}
+        <p class="confirm-text"
+           [innerHTML]="(data()?.message || 'COMMON.CONFIRMATION.MESSAGE') | translate">
         </p>
       </div>
 
@@ -59,8 +59,8 @@ export class ConfirmationPopupComponent {
 
   // UI computed values
   readonly isDanger = computed(() => (this.data()?.severity || 'info') === 'danger');
-  readonly cancelText = computed(() => this.data()?.cancelText || this.translateService.instant('COMMON.ACTIONS.CANCEL'));
-  readonly confirmText = computed(() => this.data()?.confirmText || this.translateService.instant('COMMON.ACTIONS.CONFIRM'));
+  readonly cancelText = computed(() => this.translateService.instant(this.data()?.cancelText || 'COMMON.ACTIONS.CANCEL'));
+  readonly confirmText = computed(() => this.translateService.instant(this.data()?.confirmText || 'COMMON.ACTIONS.CONFIRM'));
 
   // Methods
   onConfirm() {
