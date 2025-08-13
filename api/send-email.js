@@ -1,6 +1,7 @@
-const nodemailer = require('nodemailer');
+/* eslint-disable */
+import nodemailer from 'nodemailer';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -9,7 +10,18 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { nom, email, missatge, bookingDetails } = req.body;
+    const {
+      nom,
+      email,
+      missatge,
+      bookingDetails,
+      // New snake_case fields
+      email_to: emailTo,
+      business_name: businessNameParam,
+      // Backward compatibility (camelCase)
+      businessEmail: bodyBusinessEmail,
+      businessName: bodyBusinessName,
+    } = req.body;
 
     // Verify required fields exist
     if (!nom || !email || !missatge) {
@@ -29,7 +41,11 @@ module.exports = async (req, res) => {
     // Check if required environment variables exist
     const emailUser = process.env.EMAIL_USER;
     const emailPass = process.env.EMAIL_PASS;
-    const businessEmail = process.env.EMAIL_TO || emailUser;
+    // Per requeriment: EMAIL_TO ha de venir del correu introduït per l'usuari (email del booking)
+    // Si s'envia email_to a la request, té preferència. En cas contrari, fem servir 'email'.
+    const businessEmail = emailTo || email || bodyBusinessEmail || process.env.EMAIL_TO || emailUser;
+    // Per requeriment: BUSINESS_NAME ha de venir del paràmetre business_name a la request
+    const businessName = businessNameParam || bodyBusinessName || process.env.BUSINESS_NAME || 'PeluApp';
 
     if (!emailUser || !emailPass) {
       console.error('Missing email configuration:', {
@@ -43,11 +59,13 @@ module.exports = async (req, res) => {
 
     // Create transport with Gmail SMTP
     const transport = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: emailUser,
-        pass: emailPass
-      }
+        pass: emailPass,
+      },
     });
 
     // Determine email type and content
@@ -57,16 +75,16 @@ module.exports = async (req, res) => {
       : `Nova reserva de ${nom}`;
 
     const htmlContent = isBookingConfirmation
-      ? getBookingConfirmationHTML(nom, email, missatge, bookingDetails)
-      : getSimpleContactHTML(nom, email, missatge);
+      ? getBookingConfirmationHTML(nom, email, missatge, bookingDetails, businessName)
+      : getSimpleContactHTML(nom, email, missatge, businessName);
 
     const textContent = isBookingConfirmation
-      ? getBookingConfirmationText(nom, email, missatge, bookingDetails)
-      : getSimpleContactText(nom, email, missatge);
+      ? getBookingConfirmationText(nom, email, missatge, bookingDetails, businessName)
+      : getSimpleContactText(nom, email, missatge, businessName);
 
     // Email content - send to user's email
     const mailOptions = {
-      from: emailUser,
+      from: `${businessName} <${emailUser}>`,
       to: email, // Send to user's email
       subject: subject,
       html: htmlContent,
@@ -76,30 +94,32 @@ module.exports = async (req, res) => {
     // Send email to user
     const info = await transport.sendMail(mailOptions);
 
-    // Also send a copy to the business email
-    const businessMailOptions = {
-      from: emailUser,
-      to: businessEmail,
-      subject: `Còpia: ${subject}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Còpia de correu enviat</h2>
-          <p><strong>Enviat a:</strong> ${email}</p>
-          <p><strong>Nom del client:</strong> ${nom}</p>
-          <hr style="margin: 20px 0;">
-          ${htmlContent}
-        </div>
-      `,
-      text: `
+    // Also send a copy to the business email if it's different from the user's email
+    if (businessEmail && businessEmail !== email) {
+      const businessMailOptions = {
+        from: `${businessName} <${emailUser}>`,
+        to: businessEmail,
+        subject: `Còpia: ${subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">Còpia de correu enviat</h2>
+            <p><strong>Enviat a:</strong> ${email}</p>
+            <p><strong>Nom del client:</strong> ${nom}</p>
+            <hr style="margin: 20px 0;">
+            ${htmlContent}
+          </div>
+        `,
+        text: `
 Còpia de correu enviat
 Enviat a: ${email}
 Nom del client: ${nom}
 
 ${textContent}
-      `
-    };
+        `
+      };
 
-    await transport.sendMail(businessMailOptions);
+      await transport.sendMail(businessMailOptions);
+    }
 
     console.log('Email sent successfully:', {
       messageId: info.messageId,
@@ -120,14 +140,14 @@ ${textContent}
 
     return res.status(500).json({
       error: 'Failed to send email',
-      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      details: error instanceof Error ? error.message : String(error)
     });
   }
-};
+}
 
 // Helper function to generate booking confirmation HTML
-function getBookingConfirmationHTML(nom, email, missatge, bookingDetails) {
-  const businessName = process.env.BUSINESS_NAME || 'El nostre negoci';
+function getBookingConfirmationHTML(nom, email, missatge, bookingDetails, businessName) {
+  const resolvedName = businessName || process.env.BUSINESS_NAME || 'PeluApp';
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -154,7 +174,7 @@ function getBookingConfirmationHTML(nom, email, missatge, bookingDetails) {
 
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
         <p style="color: #666; font-size: 14px;">
-          Aquest correu ha estat enviat automàticament des del sistema de reserves de ${businessName}.
+          Aquest correu ha estat enviat automàticament des del sistema de reserves de ${resolvedName}.
         </p>
       </div>
     </div>
@@ -162,7 +182,7 @@ function getBookingConfirmationHTML(nom, email, missatge, bookingDetails) {
 }
 
 // Helper function to generate simple contact HTML
-function getSimpleContactHTML(nom, email, missatge) {
+function getSimpleContactHTML(nom, email, missatge, businessName) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #333;">Nova Reserva</h2>
@@ -180,7 +200,7 @@ function getSimpleContactHTML(nom, email, missatge) {
 
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
         <p style="color: #666; font-size: 14px;">
-          Aquest correu ha estat enviat automàticament des del sistema de reserves.
+          Aquest correu ha estat enviat automàticament des del sistema de reserves de ${businessName || process.env.BUSINESS_NAME || 'El nostre negoci'}.
         </p>
       </div>
     </div>
@@ -188,8 +208,8 @@ function getSimpleContactHTML(nom, email, missatge) {
 }
 
 // Helper function to generate booking confirmation text
-function getBookingConfirmationText(nom, email, missatge, bookingDetails) {
-  const businessName = process.env.BUSINESS_NAME || 'El nostre negoci';
+function getBookingConfirmationText(nom, email, missatge, bookingDetails, businessName) {
+  const resolvedName = businessName || process.env.BUSINESS_NAME || 'PeluApp';
 
   return `
 Confirmació de Reserva
@@ -208,12 +228,12 @@ Missatge:
 ${missatge}
 
 ---
-Aquest correu ha estat enviat automàticament des del sistema de reserves de ${businessName}.
+ Aquest correu ha estat enviat automàticament des del sistema de reserves de ${resolvedName}.
   `;
 }
 
 // Helper function to generate simple contact text
-function getSimpleContactText(nom, email, missatge) {
+function getSimpleContactText(nom, email, missatge, businessName) {
   return `
 Nova Reserva
 
@@ -224,7 +244,7 @@ Detalls del client:
 Missatge:
 ${missatge}
 
----
-Aquest correu ha estat enviat automàticament des del sistema de reserves.
+ ---
+ Aquest correu ha estat enviat automàticament des del sistema de reserves de ${businessName || process.env.BUSINESS_NAME || 'El nostre negoci'}.
   `;
 }

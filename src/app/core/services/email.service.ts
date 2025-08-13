@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Booking } from '../interfaces/booking.interface';
 import { FirebaseServicesService } from './firebase-services.service';
 import { LoggerService } from '../../shared/services/logger.service';
+import { SystemParametersService } from './system-parameters.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ export class EmailService {
   private readonly translateService = inject(TranslateService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly logger = inject(LoggerService);
+  private readonly systemParametersService = inject(SystemParametersService);
 
   /**
    * Send booking confirmation email
@@ -108,16 +110,61 @@ ${notes}: ${data.notes || noNotes}
 ${footer}
       `.trim();
 
-      // For now, just log the email content
-      // In a real implementation, you would send this via your email API
-      this.logger.info('Email content generated', {
+      // Build payload for Vercel serverless function
+      const payload = {
+        nom: data.clientName,
+        email: data.email,
+        missatge: emailContent,
+        bookingDetails: {
+          serviceName: data.serviceName,
+          date: data.data,
+          time: data.hora,
+          price: data.price,
+        },
+        // Required by API: business_name from system parameters, email_to from user's email
+        business_name: this.systemParametersService.getBusinessName(),
+        email_to: data.email,
+      } as const;
+
+      // Call the API route deployed on Vercel (same domain)
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const responseBody: unknown = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const hasErrorField = (value: unknown): value is { error?: unknown; details?: unknown } =>
+          typeof value === 'object' && value !== null && (('error' in (value as Record<string, unknown>)) || ('details' in (value as Record<string, unknown>)));
+
+        const errorMessage = hasErrorField(responseBody)
+          ? String((responseBody.error || responseBody.details) ?? `HTTP ${response.status}`)
+          : `HTTP ${response.status}`;
+
+        this.logger.error('Email API call failed', {
+          component: 'EmailService',
+          method: 'sendEmailViaAPI',
+          data: JSON.stringify({
+            bookingId: data.bookingId,
+            to: data.email,
+            status: response.status,
+            error: errorMessage,
+            serverResponse: responseBody,
+          })
+        });
+
+        return { success: false, error: errorMessage };
+      }
+
+      this.logger.info('Email sent via API', {
         component: 'EmailService',
         method: 'sendEmailViaAPI',
         data: JSON.stringify({
+          bookingId: data.bookingId,
           to: data.email,
-          subject,
-          content: emailContent,
-          bookingId: data.bookingId
+          apiResponse: responseBody,
         })
       });
 
