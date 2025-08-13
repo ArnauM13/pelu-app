@@ -92,39 +92,27 @@ export class EmailService {
       const noNotes = this.translateService.instant('BOOKING.EMAIL.NO_NOTES');
       const footer = this.translateService.instant('BOOKING.EMAIL.FOOTER');
 
-      const emailContent = `
-${greeting}
-
-${subject}
-
-${service}: ${data.serviceName}
-${data.serviceDescription}
-
-${date}: ${data.data}
-${time}: ${data.hora}
-${duration}: ${data.duration} min
-${price}: ${formattedPrice}
-
-${notes}: ${data.notes || noNotes}
-
-${footer}
-      `.trim();
+			const htmlContent = `
+			<div style="font-family: Arial, sans-serif; line-height: 1.5;">
+				<p>${greeting}</p>
+				<p><strong>${service}:</strong> ${data.serviceName}</p>
+				<p>${data.serviceDescription}</p>
+				<p><strong>${date}:</strong> ${data.data}</p>
+				<p><strong>${time}:</strong> ${data.hora}</p>
+				<p><strong>${duration}:</strong> ${data.duration} min</p>
+				<p><strong>${price}:</strong> ${formattedPrice}</p>
+				<p><strong>${notes}:</strong> ${data.notes || noNotes}</p>
+				<p>${footer}</p>
+			</div>
+			      `.trim();
 
       // Build payload for Vercel serverless function
-      const payload = {
-        nom: data.clientName,
-        email: data.email,
-        missatge: emailContent,
-        bookingDetails: {
-          serviceName: data.serviceName,
-          date: data.data,
-          time: data.hora,
-          price: data.price,
-        },
-        // Required by API: business_name from system parameters, email_to from user's email
-        business_name: this.systemParametersService.getBusinessName(),
-        email_to: data.email,
-      } as const;
+			const subjectLine = this.translateService.instant('BOOKING.EMAIL.SUBJECT');
+			const payload = {
+				to: data.email,
+				subject: subjectLine,
+				html: htmlContent,
+			} as const;
 
       // Call the API route deployed on Vercel (same domain)
       const response = await fetch('/api/send-email', {

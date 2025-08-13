@@ -1,7 +1,7 @@
 {
   "installCommand": "npm ci",
   "functions": {
-    "api/send-email.js": {
+    "api/send-email.ts": {
       "maxDuration": 10
     }
   }
