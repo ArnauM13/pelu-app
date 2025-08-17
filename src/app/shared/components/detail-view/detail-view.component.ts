@@ -130,7 +130,7 @@ export class DetailViewComponent {
   readonly filteredActions = computed(() => {
     return this.actions().filter(
       action =>
-        action.label !== 'COMMON.ACTIONS.BACK' &&
+        action.label !== 'COMMON.BACK' &&
         action.label !== 'Back' &&
         action.label !== 'Tornar endarrere'
     );
@@ -246,7 +246,7 @@ export class DetailViewComponent {
       icon: this.type() === 'profile' ? '👤' : '📅',
       title: this.type() === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
       message: this.type() === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
-      buttonText: 'COMMON.ACTIONS.BACK',
+      buttonText: 'COMMON.BACK',
       showButton: true,
     };
   });

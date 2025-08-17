@@ -87,13 +87,13 @@ export class BookingPopupComponent {
 
   // Popup dialog configuration
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.#translate.instant('COMMON.ACTIONS.CONFIRM_BOOKING'),
+    title: this.#translate.instant('BOOKING.BOOKING_CONFIRMATION'),
     size: 'large',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.#translate.instant('COMMON.ACTIONS.CONFIRM'),
+        label: this.#translate.instant('BOOKING.BOOK_NOW'),
         type: 'confirm' as const,
         disabled: !this.canConfirm(),
         action: () => this.onConfirm()

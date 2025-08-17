@@ -223,6 +223,7 @@
     "REMEMBER_ME": "تذكرني",
     "SIGN_IN": "تسجيل الدخول",
     "SIGN_UP": "إنشاء حساب",
+    "SIGN_OUT": "تسجيل الخروج",
     "SIGN_IN_WITH_GOOGLE": "تسجيل الدخول بـ Google",
     "SIGN_UP_WITH_GOOGLE": "التسجيل بـ Google",
     "ALREADY_HAVE_ACCOUNT": "هل لديك حساب بالفعل؟",
@@ -234,6 +235,8 @@
     "NOT_LOGGED_IN": "غير مسجل الدخول",
     "LOGIN_TO_VIEW_PROFILE": "سجل دخولك لعرض معلومات ملفك الشخصي",
     "PLEASE_LOGIN": "يرجى تسجيل الدخول لعرض ملفك الشخصي",
+    "CHECKING_AUTH": "جارٍ التحقق من المصادقة...",
+    "REGISTERING": "جارٍ التسجيل...",
     "VALIDATION": {
       "INVALID_CREDENTIALS": "بيانات اعتماد غير صالحة",
       "PASSWORD_MISMATCH": "كلمات المرور غير متطابقة",
@@ -249,6 +252,10 @@
       "GOOGLE_LOGIN_ERROR": "خطأ في تسجيل الدخول بـ Google",
       "GOOGLE_REGISTER_ERROR": "خطأ في التسجيل بـ Google"
     },
+    "LOGIN_ERROR": "خطأ في تسجيل الدخول",
+    "REGISTER_ERROR": "خطأ في التسجيل",
+    "GOOGLE_LOGIN_ERROR": "خطأ في تسجيل الدخول بـ Google",
+    "GOOGLE_REGISTER_ERROR": "خطأ في التسجيل بـ Google",
     "SESSION_REQUIRED": "الجلسة مطلوبة"
   },
   "NAVIGATION": {

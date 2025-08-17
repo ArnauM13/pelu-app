@@ -223,6 +223,7 @@
     "REMEMBER_ME": "Recordarme",
     "SIGN_IN": "Iniciar sesión",
     "SIGN_UP": "Crear cuenta",
+    "SIGN_OUT": "Cerrar sesión",
     "SIGN_IN_WITH_GOOGLE": "Iniciar sesión con Google",
     "SIGN_UP_WITH_GOOGLE": "Registrarse con Google",
     "ALREADY_HAVE_ACCOUNT": "¿Ya tienes una cuenta?",
@@ -233,7 +234,9 @@
     "REGISTER_FOR_ACTIVITIES": "Regístrate para apuntarte a nuevas actividades",
     "NOT_LOGGED_IN": "No has iniciado sesión",
     "LOGIN_TO_VIEW_PROFILE": "Inicia sesión para ver tu información de perfil",
-    "PLEASE_LOGIN": "Por favor inicia sesión para ver tu perfil",
+    "PLEASE_LOGIN": "Por favor, inicia sesión para ver tu perfil",
+    "CHECKING_AUTH": "Comprobando autenticación...",
+    "REGISTERING": "Registrando...",
     "VALIDATION": {
       "INVALID_CREDENTIALS": "Credenciales inválidas",
       "PASSWORD_MISMATCH": "Las contraseñas no coinciden",
@@ -249,6 +252,10 @@
       "GOOGLE_LOGIN_ERROR": "Error al iniciar sesión con Google",
       "GOOGLE_REGISTER_ERROR": "Error al registrar con Google"
     },
+    "LOGIN_ERROR": "Error al iniciar sesión",
+    "REGISTER_ERROR": "Error al registrar",
+    "GOOGLE_LOGIN_ERROR": "Error al iniciar sesión con Google",
+    "GOOGLE_REGISTER_ERROR": "Error al registrar con Google",
     "SESSION_REQUIRED": "Sesión requerida"
   },
   "NAVIGATION": {
