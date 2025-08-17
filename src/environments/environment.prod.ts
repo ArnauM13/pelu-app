@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  backendUrl: 'https://<tu-backend>',
   firebaseConfig: {
     apiKey: 'AIzaSyBdilsKuvnKLdee7jAov6wEbcO5GQ3o2RM',
     authDomain: 'peluapp-a5ced.firebaseapp.com',
