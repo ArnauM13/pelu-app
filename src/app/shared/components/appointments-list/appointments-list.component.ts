@@ -116,7 +116,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
                   <button
                     class="btn btn-secondary"
                     (click)="$event.stopPropagation(); editBooking.emit(booking)"
-                    [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+                   [pTooltip]="'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS' | translate"
                     pTooltipPosition="left"
                   >
                     ✏️

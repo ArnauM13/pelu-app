@@ -107,19 +107,19 @@ export class AppointmentDetailViewComponent implements OnDestroy {
       ],
       actions: [
         {
-          label: 'COMMON.ACTIONS.BACK',
+          label: 'COMMON.BACK',
           icon: '←',
           type: 'secondary' as const,
           onClick: () => this.onBack(),
         },
         ...(this.canEdit() ? [{
-          label: 'COMMON.ACTIONS.EDIT',
+          label: 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS',
           icon: '✏️',
           type: 'primary' as const,
           onClick: () => this.onEdit(),
         }] : []),
         ...(this.canDelete() ? [{
-          label: 'COMMON.ACTIONS.DELETE',
+          label: 'APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION',
           icon: '🗑️',
           type: 'danger' as const,
           onClick: () => this.onDelete(),

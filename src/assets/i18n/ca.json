@@ -245,6 +245,7 @@
     "REMEMBER_ME": "Recorda'm",
     "SIGN_IN": "Iniciar sessió",
     "SIGN_UP": "Crear compte",
+    "SIGN_OUT": "Tancar sessió",
     "SIGN_IN_WITH_GOOGLE": "Inicia sessió amb Google",
     "SIGN_UP_WITH_GOOGLE": "Registra't amb Google",
     "ALREADY_HAVE_ACCOUNT": "Ja tens un compte?",
@@ -256,6 +257,8 @@
     "NOT_LOGGED_IN": "No has iniciat sessió",
     "LOGIN_TO_VIEW_PROFILE": "Inicia sessió per veure la teva informació de perfil",
     "PLEASE_LOGIN": "Si us plau, inicia sessió per veure el teu perfil",
+    "CHECKING_AUTH": "Comprovant l'autenticació...",
+    "REGISTERING": "Registrant...",
     "VALIDATION": {
       "INVALID_CREDENTIALS": "Credencials invàlides",
       "PASSWORD_MISMATCH": "Les contrasenyes no coincideixen",
@@ -271,6 +274,10 @@
       "GOOGLE_LOGIN_ERROR": "Error al iniciar sessió amb Google",
       "GOOGLE_REGISTER_ERROR": "Error al registrar amb Google"
     },
+    "LOGIN_ERROR": "Error al iniciar sessió",
+    "REGISTER_ERROR": "Error al registrar",
+    "GOOGLE_LOGIN_ERROR": "Error al iniciar sessió amb Google",
+    "GOOGLE_REGISTER_ERROR": "Error al registrar amb Google",
     "SESSION_REQUIRED": "Sessió requerida"
   },
   "NAVIGATION": {
