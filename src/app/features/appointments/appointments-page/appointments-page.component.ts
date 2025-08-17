@@ -195,9 +195,13 @@ export class AppointmentsPageComponent {
       total: appointments.length,
       today: appointments.filter(app => app.data === today).length,
       upcoming: appointments.filter(app => {
-        if (!app.data) return false;
-        const appointmentDate = parseISO(app.data);
-        return isFuture(appointmentDate);
+        if (!app.data || typeof app.data !== 'string') return false;
+        try {
+          const appointmentDate = parseISO(app.data);
+          return isFuture(appointmentDate);
+        } catch (error) {
+          return false;
+        }
       }).length,
       completed: appointments.filter(app => app.status === 'completed').length,
       cancelled: appointments.filter(app => app.status === 'cancelled').length,
@@ -265,14 +269,34 @@ export class AppointmentsPageComponent {
 
   private sortAppointmentsByDateTime(appointments: Booking[]): Booking[] {
     return appointments.sort((a, b) => {
-      const createLocalDateTime = (dateStr: string, timeStr: string) => {
-        const [year, month, day] = dateStr.split('-').map(Number);
-        const [hour, minute] = timeStr.split(':').map(Number);
-        return new Date(year, month - 1, day, hour, minute);
+      const createLocalDateTime = (dateStr: string | undefined | null, timeStr: string | undefined | null) => {
+        // Ensure we have valid string values
+        const safeDateStr = typeof dateStr === 'string' ? dateStr : '';
+        const safeTimeStr = typeof timeStr === 'string' ? timeStr : '00:00';
+        
+        // If no valid date, return a default date
+        if (!safeDateStr) {
+          return new Date(0); // Default to epoch time for invalid dates
+        }
+        
+        try {
+          const [year, month, day] = safeDateStr.split('-').map(Number);
+          const [hour, minute] = safeTimeStr.split(':').map(Number);
+          
+          // Validate that we have valid numbers
+          if (isNaN(year) || isNaN(month) || isNaN(day)) {
+            return new Date(0);
+          }
+          
+          return new Date(year, month - 1, day, hour || 0, minute || 0);
+        } catch (error) {
+          // If parsing fails, return default date
+          return new Date(0);
+        }
       };
 
-      const dateTimeA = createLocalDateTime(a.data || '', a.hora || '00:00');
-      const dateTimeB = createLocalDateTime(b.data || '', b.hora || '00:00');
+      const dateTimeA = createLocalDateTime(a.data, a.hora);
+      const dateTimeB = createLocalDateTime(b.data, b.hora);
       return dateTimeB.getTime() - dateTimeA.getTime();
     });
   }
@@ -342,7 +366,8 @@ export class AppointmentsPageComponent {
     }
   }
 
-  isPast(dateString: string): boolean {
+  isPast(dateString: string | undefined): boolean {
+    if (!dateString) return false;
     try {
       const date = parseISO(dateString);
       return !isFuture(date);
