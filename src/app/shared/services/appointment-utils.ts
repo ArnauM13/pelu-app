@@ -120,17 +120,6 @@ export function isMigrationCompleted(): boolean {
   }
 }
 
-/**
- * Mark one-time migration as completed
- */
-export function markMigrationCompleted(): void {
-  try {
-    localStorage.setItem('appointment_migration_completed', 'true');
-  } catch (error) {
-    console.error('Error marking migration as completed:', error);
-  }
-}
-
 export function isFutureAppointment(appointment: { data: string; hora: string }): boolean {
   if (!appointment?.data || !appointment?.hora) return false;
   const now = new Date();
