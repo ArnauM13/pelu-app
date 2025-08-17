@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  backendUrl: 'http://localhost:3000',
   firebaseConfig: {
     apiKey: 'AIzaSyBdilsKuvnKLdee7jAov6wEbcO5GQ3o2RM',
     authDomain: 'peluapp-a5ced.firebaseapp.com',

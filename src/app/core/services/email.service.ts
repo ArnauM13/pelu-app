@@ -4,6 +4,7 @@ import { Booking } from '../interfaces/booking.interface';
 import { FirebaseServicesService } from './firebase-services.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { SystemParametersService } from './system-parameters.service';
+import { ApiGraphqlService } from './api-graphql.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class EmailService {
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly logger = inject(LoggerService);
   private readonly systemParametersService = inject(SystemParametersService);
+  private readonly api = inject(ApiGraphqlService);
 
   /**
    * Send booking confirmation email
@@ -40,20 +42,11 @@ export class EmailService {
         return;
       }
 
-      const emailData = {
-        clientName: booking.clientName,
-        email: booking.email,
-        data: booking.data,
-        hora: booking.hora,
-        serviceName: service.name,
-        serviceDescription: service.description,
-        price: service.price,
-        duration: service.duration,
-        notes: booking.notes || '',
-        bookingId: booking.id,
-      };
-
-      await this.sendEmailViaAPI(emailData);
+      await this.api.sendEmail(
+        booking.email,
+        this.translateService.instant('BOOKING.EMAIL.SUBJECT'),
+        `${service.name} - ${booking.data} ${booking.hora}\n${booking.notes || ''}`
+      );
 
     } catch (error) {
       this.logger.error('Error sending booking confirmation email', {

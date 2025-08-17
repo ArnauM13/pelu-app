@@ -20,6 +20,7 @@ import { BookingValidationService } from './booking-validation.service';
 import { EmailService } from './email.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../interfaces/booking.interface';
+import { ApiGraphqlService } from './api-graphql.service';
 
 
 @Injectable({
@@ -33,6 +34,7 @@ export class BookingService {
   private readonly logger = inject(LoggerService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly emailService = inject(EmailService);
+  private readonly api = inject(ApiGraphqlService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -40,6 +42,8 @@ export class BookingService {
   private readonly errorSignal = signal<string | null>(null);
   private readonly isInitializedSignal = signal<boolean>(false);
   private readonly lastCacheTimeSignal = signal<number>(0);
+  private readonly nextCursorSignal = signal<string | null>(null);
+  private readonly hasMoreSignal = signal<boolean>(true);
 
   // Computed properties
   readonly bookings = computed(() => this.bookingsSignal());
@@ -50,9 +54,11 @@ export class BookingService {
   readonly hasCachedData = computed(
     () => this.bookingsSignal().length > 0 && this.isInitializedSignal()
   );
+  readonly hasMore = computed(() => this.hasMoreSignal());
 
   // Cache configuration - INCREASED CACHE DURATION
   private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes (increased from 5)
+  private readonly PAGE_SIZE = 20;
 
   constructor() {
     // Only load bookings if we don't have cached data
@@ -117,13 +123,23 @@ export class BookingService {
         createdAt: serverTimestamp(),
       };
 
-      // Save to Firestore with the unique ID
-      await setDoc(doc(this.firestore, 'bookings', uniqueId), booking);
+      // Persist to backend (GraphQL)
+      const created = await this.api.createReserva({
+        id: uniqueId,
+        clientName: booking.clientName,
+        email: booking.email,
+        data: booking.data,
+        hora: booking.hora,
+        notes: booking.notes,
+        serviceId: booking.serviceId,
+        status: booking.status,
+      });
 
       // Create new booking with the unique ID
       const newBooking: Booking = {
         ...booking,
-        id: uniqueId,
+        id: created?.id || uniqueId,
+        createdAt: created?.createdAt || booking.createdAt,
       };
 
       // Update local state
@@ -211,9 +227,8 @@ export class BookingService {
         ...updates,
       };
 
-      // Update in Firestore
-      const docRef = doc(this.firestore, 'bookings', bookingId);
-      await updateDoc(docRef, updateData);
+      // Update via backend (GraphQL)
+      await this.api.updateReserva(bookingId, updateData);
 
       // Update local state
       this.bookingsSignal.update(bookings =>
@@ -292,29 +307,42 @@ export class BookingService {
    * Load all bookings with full details from Firebase - OPTIMIZED
    */
   private async loadAllBookingsWithFullDetails(): Promise<void> {
-    const bookingsRef = collection(this.firestore, 'bookings');
-    const q = query(bookingsRef, orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-
-    const bookings: Booking[] = [];
-    querySnapshot.forEach(doc => {
-      const bookingData = doc.data();
-
-      const booking: Booking = {
-        id: doc.id,
-        clientName: bookingData['clientName'] || bookingData['nom'] || '',
-        email: bookingData['email'] || '',
-        data: bookingData['data'] || '',
-        hora: bookingData['hora'] || '',
-        serviceId: bookingData['serviceId'] || '',
-        notes: bookingData['notes'] || '',
-        status: bookingData['status'] || 'draft',
-        createdAt: bookingData['createdAt'],
-      };
-      bookings.push(booking);
-    });
-
+    const page = await this.api.reservesPage(this.PAGE_SIZE);
+    const items = page.items;
+    const bookings: Booking[] = items.map((b: any) => ({
+      id: b.id,
+      clientName: b.clientName,
+      email: b.email,
+      data: b.data,
+      hora: b.hora,
+      notes: b.notes,
+      serviceId: b.serviceId,
+      status: b.status,
+      createdAt: b.createdAt,
+    }));
     this.bookingsSignal.set(bookings);
+    this.nextCursorSignal.set(page.nextCursor);
+    this.hasMoreSignal.set(!!page.nextCursor);
+  }
+
+  async loadMoreBookings(): Promise<void> {
+    if (!this.hasMore()) return;
+    const cursor = this.nextCursorSignal();
+    const page = await this.api.reservesPage(this.PAGE_SIZE, cursor || undefined);
+    const items = page.items.map((b: any) => ({
+      id: b.id,
+      clientName: b.clientName,
+      email: b.email,
+      data: b.data,
+      hora: b.hora,
+      notes: b.notes,
+      serviceId: b.serviceId,
+      status: b.status,
+      createdAt: b.createdAt,
+    } as Booking));
+    this.bookingsSignal.update(existing => [...existing, ...items]);
+    this.nextCursorSignal.set(page.nextCursor);
+    this.hasMoreSignal.set(!!page.nextCursor);
   }
 
   /**
@@ -365,32 +393,22 @@ export class BookingService {
         return null;
       }
 
-      // If not in cache, fetch from Firebase
-      const docRef = doc(this.firestore, 'bookings', bookingId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const bookingData = docSnap.data();
-
+      // If not in cache, fetch single reserva by id
+      const found = await this.api.reserva(bookingId);
+      if (found) {
         const booking: Booking = {
-          id: docSnap.id,
-          clientName: bookingData['clientName'] || bookingData['nom'] || '',
-          email: bookingData['email'] || '',
-          data: bookingData['data'] || '',
-          hora: bookingData['hora'] || '',
-          serviceId: bookingData['serviceId'] || '',
-          notes: bookingData['notes'] || '',
-          status: bookingData['status'] || 'draft',
-          createdAt: bookingData['createdAt'],
+          id: found.id,
+          clientName: found.clientName,
+          email: found.email,
+          data: found.data,
+          hora: found.hora,
+          serviceId: found.serviceId,
+          notes: found.notes,
+          status: found.status,
+          createdAt: found.createdAt,
         };
-
-        // Verify access: either ownership, valid token, or admin role
         const isOwner = booking.email === currentUser.email;
-
-        if (isOwner || this.isAdmin()) {
-          return booking;
-        }
-
+        if (isOwner || this.isAdmin()) return booking;
         return null;
       }
 
@@ -415,25 +433,20 @@ export class BookingService {
         return localBooking;
       }
 
-      // If not in cache, fetch from Firebase
-      const docRef = doc(this.firestore, 'bookings', bookingId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const bookingData = docSnap.data();
-
+      // If not in cache, fetch single reserva by id
+      const found = await this.api.reserva(bookingId);
+      if (found) {
         const booking: Booking = {
-          id: docSnap.id,
-          clientName: bookingData['clientName'] || bookingData['nom'] || '',
-          email: bookingData['email'] || '',
-          data: bookingData['data'] || '',
-          hora: bookingData['hora'] || '',
-          serviceId: bookingData['serviceId'] || '',
-          notes: bookingData['notes'] || '',
-          status: bookingData['status'] || 'draft',
-          createdAt: bookingData['createdAt'],
+          id: found.id,
+          clientName: found.clientName,
+          email: found.email,
+          data: found.data,
+          hora: found.hora,
+          serviceId: found.serviceId,
+          notes: found.notes,
+          status: found.status,
+          createdAt: found.createdAt,
         };
-
         return booking;
       }
 
@@ -473,9 +486,8 @@ export class BookingService {
         throw new Error('Access denied');
       }
 
-      // Delete from Firestore
-      const docRef = doc(this.firestore, 'bookings', bookingId);
-      await deleteDoc(docRef);
+      // Delete via backend (GraphQL)
+      await this.api.deleteReserva(bookingId);
 
       // Update local state
       this.bookingsSignal.update(bookings =>
