@@ -88,16 +88,19 @@ export class PopupDialogComponent {
 
   private getActionWeight(actionType: FooterActionType): number {
     switch (actionType) {
+      case 'delete':
+        return 1; // first (leftmost)
+      case 'edit':
+        return 2; // second
+      case 'confirm':
+        return 3; // third (rightmost)
       case 'cancel':
       case 'close':
-      case 'edit':
-        return 1; // secondary
-      case 'confirm':
+        return 4; // secondary
       case 'save':
-      case 'delete':
       case 'login':
       case 'register':
-        return 2; // primary
+        return 5; // primary
       default:
         return 0; // tertiary
     }
