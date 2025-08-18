@@ -17,9 +17,10 @@ export interface BookingForm {
 }
 
 export interface Booking {
-  id: string; // This will be the UUID
+  id: string; // This will be the ID of the booking
   clientName: string;
   email: string;
+  uid?: string; // User ID from Firebase Auth
   data: string;
   hora: string;
   notes?: string;

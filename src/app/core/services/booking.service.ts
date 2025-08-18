@@ -109,6 +109,7 @@ export class BookingService {
         id: uniqueId,
         clientName: bookingData.clientName || '',
         email: bookingData.email || '',
+        uid: currentUser.uid,
         data: bookingData.data || '',
         hora: bookingData.hora || '',
         notes: bookingData.notes || '',
