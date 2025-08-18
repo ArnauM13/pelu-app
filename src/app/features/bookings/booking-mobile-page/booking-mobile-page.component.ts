@@ -1048,7 +1048,7 @@ export class BookingMobilePageComponent {
     return this.systemParametersService.getMaxAppointmentsPerUser();
   }
 
-  onViewMyAppointments() {
+  onViewMyAppointments = () => {
     this.router.navigate(['/appointments']);
-  }
+  };
 }

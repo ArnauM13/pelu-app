@@ -303,8 +303,8 @@ export class BookingPageComponent {
     return this.systemParametersService.getMaxAppointmentsPerUser();
   }
 
-  onViewMyAppointments() {
+  onViewMyAppointments = () => {
     this.router.navigate(['/appointments']);
-  }
+  };
 
 }
