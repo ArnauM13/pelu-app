@@ -82,15 +82,17 @@
       "NO_SELECTION": "Sin selección",
       "SELECTED": "Seleccionado",
       "SELECTED_DAY": "Día seleccionado",
-      "SELECT_DATE": "Seleccionar fecha",
-      "SELECT_DAY": "Seleccionar día",
-      "SELECT_SERVICE": "Seleccionar servicio",
+      "SELECT_DATE": "Elegir fecha",
+      "SELECT_DAY": "Elegir día",
+      "SELECT_SERVICE": "Elegir servicio",
       "CHOOSE_SERVICE": "Elige un servicio",
       "SELECTED_SERVICE": "Servicio seleccionado",
       "PLEASE_SELECT_SERVICE": "Por favor, selecciona un servicio",
-      "NO_AVAILABLE_HOURS": "No hay horas disponibles para el día seleccionado",
-      "POPULAR_SERVICES": "Servicios Populares",
-      "OTHER_SERVICES": "Otros servicios"
+          "NO_AVAILABLE_HOURS": "No hay horas disponibles para el día seleccionado",
+    "NO_APPOINTMENTS_FOR_DAY": "Servicio no disponible",
+    "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "Este servicio no se puede reservar para este día porque no hay suficiente espacio. Por favor, prueba con otro día.",
+    "POPULAR_SERVICES": "Servicios Populares",
+    "OTHER_SERVICES": "Otros servicios"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Buscar por nombre",

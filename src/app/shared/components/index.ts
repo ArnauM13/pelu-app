@@ -46,3 +46,6 @@ export type { ActionConfig, ActionContext } from '../../core/services/actions.se
 // Popular badge component
 export { PopularBadgeComponent } from './popular-badge/popular-badge.component';
 export type { PopularBadgeConfig } from './popular-badge/popular-badge.component';
+
+// No appointments message component
+export { NoAppointmentsMessageComponent } from './no-appointments-message/no-appointments-message.component';
