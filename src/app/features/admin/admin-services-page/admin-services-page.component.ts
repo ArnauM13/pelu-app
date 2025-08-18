@@ -420,8 +420,8 @@ export class AdminServicesPageComponent implements OnInit {
     this._alertData.set({
       title: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
       message: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
-      confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+      confirmText: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
+      cancelText: this.translateService.instant('COMMON.CONFIRMATION.NO'),
       severity: 'danger',
     });
     this._showAlertDialog.set(true);
@@ -640,8 +640,8 @@ export class AdminServicesPageComponent implements OnInit {
     this._alertData.set({
       title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
       message: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
-      confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+      confirmText: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
+      cancelText: this.translateService.instant('COMMON.CONFIRMATION.NO'),
       severity: 'danger',
     });
     this._showAlertDialog.set(true);

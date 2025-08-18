@@ -95,7 +95,7 @@ export class ServiceSelectionPopupComponent {
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('COMMON.ACTIONS.CONFIRM'),
+        label: this.translateService.instant('BOOKING.BOOK_NOW'),
         type: 'confirm' as const,
         disabled: !this.selectedService(),
         action: () => this.onConfirm()

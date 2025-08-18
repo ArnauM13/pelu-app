@@ -33,8 +33,6 @@ export class AdminDashboardPageComponent {
     this.confirmData = {
       title: '',
       message: 'ADMIN.CONFIRM_DELETE_ALL_BOOKINGS',
-      confirmText: 'COMMON.ACTIONS.DELETE',
-      cancelText: 'COMMON.ACTIONS.CANCEL',
       severity: 'danger',
     };
     this.isConfirmOpen = true;

@@ -112,12 +112,33 @@ export class BookingValidationService {
     }
 
     const maxAppointmentsPerUser = this.systemParametersService.getMaxAppointmentsPerUser();
-    const confirmedUserBookings = userBookings.filter(booking => 
-      booking.email === currentUser.email && 
-      booking.status === 'confirmed'
-    );
+    
+    // Filter bookings that belong to the current user (by uid first, then email as fallback)
+    const confirmedUserBookings = userBookings.filter(booking => {
+      const isUserBooking = booking.uid === currentUser.uid || booking.email === currentUser.email;
+      const isConfirmed = booking.status === 'confirmed';
+      const isFutureBooking = this.isFutureBooking(booking);
+      
+      return isUserBooking && isConfirmed && isFutureBooking;
+    });
 
     return confirmedUserBookings.length < maxAppointmentsPerUser;
+  }
+
+  /**
+   * Checks if a booking is in the future
+   */
+  private isFutureBooking(booking: Booking): boolean {
+    if (!booking.data || !booking.hora) {
+      return false;
+    }
+
+    const now = new Date();
+    const bookingDate = new Date(booking.data);
+    const [hour, minute] = booking.hora.split(':').map(Number);
+    bookingDate.setHours(hour, minute, 0, 0);
+
+    return bookingDate > now;
   }
 
   /**
@@ -129,9 +150,13 @@ export class BookingValidationService {
       return 0;
     }
 
-    return userBookings.filter(booking => 
-      booking.email === currentUser.email && 
-      booking.status === 'confirmed'
-    ).length;
+    // Filter bookings that belong to the current user (by uid first, then email as fallback) and are future bookings
+    return userBookings.filter(booking => {
+      const isUserBooking = booking.uid === currentUser.uid || booking.email === currentUser.email;
+      const isConfirmed = booking.status === 'confirmed';
+      const isFutureBooking = this.isFutureBooking(booking);
+      
+      return isUserBooking && isConfirmed && isFutureBooking;
+    }).length;
   }
 }

@@ -59,8 +59,8 @@ export class ConfirmationPopupComponent {
 
   // UI computed values
   readonly isDanger = computed(() => (this.data()?.severity || 'info') === 'danger');
-  readonly cancelText = computed(() => this.translateService.instant(this.data()?.cancelText || 'COMMON.ACTIONS.CANCEL'));
-  readonly confirmText = computed(() => this.translateService.instant(this.data()?.confirmText || 'COMMON.ACTIONS.CONFIRM'));
+  readonly cancelText = computed(() => this.translateService.instant(this.data()?.cancelText || 'COMMON.CONFIRMATION.NO'));
+  readonly confirmText = computed(() => this.translateService.instant(this.data()?.confirmText || 'COMMON.CONFIRMATION.YES'));
 
   // Methods
   onConfirm() {

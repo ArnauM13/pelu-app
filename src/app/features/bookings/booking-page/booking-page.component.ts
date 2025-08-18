@@ -134,13 +134,13 @@ export class BookingPageComponent {
 
   // Login prompt dialog configuration
   readonly loginPromptDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('BOOKING.SUCCESS_TITLE'),
+    title: this.translateService.instant('BOOKING.LOGIN_PROMPT_TITLE'),
     size: 'medium',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('COMMON.ACTIONS.LOGIN'),
+        label: this.translateService.instant('AUTH.SIGN_IN'),
         type: 'login',
         action: () => this.onLoginPromptLogin()
       }

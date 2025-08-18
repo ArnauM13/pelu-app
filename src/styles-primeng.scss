@@ -38,6 +38,16 @@
   background: var(--gradient-primary, linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)) !important;
   color: var(--text-color-white, white) !important;
   border-color: var(--primary-color, #3b82f6) !important;
+
+  // Override color for outlined buttons - higher specificity
+  &.p-button-outlined {
+    color: var(--primary-color, #3b82f6) !important;
+    
+    // Ensure text color is properly set for all outlined variants
+    .p-button-label {
+      color: inherit !important;
+    }
+  }
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -175,12 +185,16 @@
     }
   }
 
-  // Outlined variants
+  // Outlined variants - higher specificity to override global color
   &.p-button-outlined {
     background: transparent !important;
     border-width: 2px !important;
-    color: var(--primary-color, #3b82f6) !important;
-    border-color: var(--primary-color, #3b82f6) !important;
+    
+    // Ensure text and icons inherit the correct color
+    .p-button-label,
+    .p-button-icon {
+      color: inherit !important;
+    }
 
     &.p-button-primary {
       color: var(--primary-color, #3b82f6) !important;

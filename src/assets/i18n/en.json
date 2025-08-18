@@ -88,9 +88,11 @@
       "CHOOSE_SERVICE": "Choose a service",
       "SELECTED_SERVICE": "Selected service",
       "PLEASE_SELECT_SERVICE": "Please select a service",
-      "NO_AVAILABLE_HOURS": "No available hours for the selected day",
-      "POPULAR_SERVICES": "Popular Services",
-      "OTHER_SERVICES": "Other Services"
+          "NO_AVAILABLE_HOURS": "No available hours for the selected day",
+    "NO_APPOINTMENTS_FOR_DAY": "Service not available",
+    "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "This service cannot be booked for this day because there is not enough space. Please try another day.",
+    "POPULAR_SERVICES": "Popular Services",
+    "OTHER_SERVICES": "Other Services"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Search by name",
@@ -223,6 +225,7 @@
     "REMEMBER_ME": "Remember me",
     "SIGN_IN": "Sign in",
     "SIGN_UP": "Sign up",
+    "SIGN_OUT": "Sign out",
     "SIGN_IN_WITH_GOOGLE": "Sign in with Google",
     "SIGN_UP_WITH_GOOGLE": "Sign up with Google",
     "ALREADY_HAVE_ACCOUNT": "Already have an account?",
@@ -234,6 +237,8 @@
     "NOT_LOGGED_IN": "Not logged in",
     "LOGIN_TO_VIEW_PROFILE": "Sign in to view your profile information",
     "PLEASE_LOGIN": "Please sign in to view your profile",
+    "CHECKING_AUTH": "Checking authentication...",
+    "REGISTERING": "Registering...",
     "VALIDATION": {
       "INVALID_CREDENTIALS": "Invalid credentials",
       "PASSWORD_MISMATCH": "Passwords don't match",
@@ -249,6 +254,10 @@
       "GOOGLE_LOGIN_ERROR": "Google login error",
       "GOOGLE_REGISTER_ERROR": "Google register error"
     },
+    "LOGIN_ERROR": "Login error",
+    "REGISTER_ERROR": "Register error",
+    "GOOGLE_LOGIN_ERROR": "Google login error",
+    "GOOGLE_REGISTER_ERROR": "Google register error",
     "SESSION_REQUIRED": "Session required"
   },
   "NAVIGATION": {
