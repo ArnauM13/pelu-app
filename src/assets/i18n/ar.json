@@ -88,9 +88,11 @@
       "CHOOSE_SERVICE": "اختر خدمة",
       "SELECTED_SERVICE": "الخدمة المختارة",
       "PLEASE_SELECT_SERVICE": "يرجى اختيار خدمة",
-      "NO_AVAILABLE_HOURS": "لا توجد ساعات متاحة لليوم المختار",
-      "POPULAR_SERVICES": "الخدمات الشائعة",
-      "OTHER_SERVICES": "خدمات أخرى"
+          "NO_AVAILABLE_HOURS": "لا توجد ساعات متاحة لليوم المختار",
+    "NO_APPOINTMENTS_FOR_DAY": "الخدمة غير متاحة",
+    "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "لا يمكن حجز هذه الخدمة لهذا اليوم لعدم وجود مساحة كافية. يرجى تجربة يوم آخر.",
+    "POPULAR_SERVICES": "الخدمات الشائعة",
+    "OTHER_SERVICES": "خدمات أخرى"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "البحث بالاسم",

@@ -88,9 +88,11 @@
       "CHOOSE_SERVICE": "Choose a service",
       "SELECTED_SERVICE": "Selected service",
       "PLEASE_SELECT_SERVICE": "Please select a service",
-      "NO_AVAILABLE_HOURS": "No available hours for the selected day",
-      "POPULAR_SERVICES": "Popular Services",
-      "OTHER_SERVICES": "Other Services"
+          "NO_AVAILABLE_HOURS": "No available hours for the selected day",
+    "NO_APPOINTMENTS_FOR_DAY": "Service not available",
+    "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "This service cannot be booked for this day because there is not enough space. Please try another day.",
+    "POPULAR_SERVICES": "Popular Services",
+    "OTHER_SERVICES": "Other Services"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Search by name",
