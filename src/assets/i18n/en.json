@@ -380,6 +380,7 @@
     "NO_APPOINTMENTS_MESSAGE": "No appointments available in this week. Try another week or contact us for more information.",
     "USER_LIMIT_REACHED_TITLE": "Appointment limit reached",
     "USER_LIMIT_REACHED_MESSAGE": "You already have an active appointment. You cannot make more appointments until you cancel your current appointment.",
+    "VIEW_MY_APPOINTMENTS": "View my appointments",
     "SELECTION_REQUIRED": "Selection required",
     "SELECT_SERVICE_FIRST": "Please select a service first",
     "SELECT_DATE_FIRST": "Please select a date first",
