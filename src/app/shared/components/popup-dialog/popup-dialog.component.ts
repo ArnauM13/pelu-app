@@ -116,12 +116,13 @@ export class PopupDialogComponent {
       case 'register':
         return undefined; // primary
       case 'delete':
-        return 'danger';
-      case 'edit':
       case 'cancel':
       case 'close':
-      default:
+        return 'danger';
+      case 'edit':
         return 'secondary';
+      default:
+        return undefined;
     }
   }
 

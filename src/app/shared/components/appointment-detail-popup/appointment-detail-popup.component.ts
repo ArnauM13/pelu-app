@@ -192,31 +192,33 @@ export class AppointmentDetailPopupComponent {
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      // View booking (navigates) - hidden during editing
-      ...(!this.hideViewDetailButton() && !this.isEditing() ? [{
-        label: this.#translateService.instant('VIEW_DETAIL'),
-        type: 'confirm' as FooterActionType,
-        action: () => this.onViewDetail()
+      // Delete - first (leftmost)
+      ...(this.canDelete() && !this.isEditing() ? [{
+        label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
+        type: 'delete' as FooterActionType,
+        action: () => this.onDelete()
       }] : []),
-      // Edit or Save/Cancel depending on state
+      // Edit - second
       ...(this.canEdit() && !this.isEditing() ? [{
-        label: this.#translateService.instant('EDIT'),
+        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
         type: 'edit' as FooterActionType,
         action: () => this.onEdit()
       }] : []),
+      // View booking (navigates) - third (rightmost) - hidden during editing
+      ...(!this.hideViewDetailButton() && !this.isEditing() ? [{
+        label: this.#translateService.instant('APPOINTMENTS.VIEW_DETAIL'),
+        type: 'confirm' as FooterActionType,
+        action: () => this.onViewDetail()
+      }] : []),
+      // Save/Cancel during editing
       ...(this.isEditing() ? [{
-        label: this.#translateService.instant('ADMIN.SETTINGS_PAGE.SAVE_SETTINGS'),
+        label: this.#translateService.instant('COMMON.ACTIONS.SAVE'),
         type: 'save' as FooterActionType,
         action: () => this.onSaveEdit()
       }, {
-        label: this.#translateService.instant('COMMON.CONFIRMATION.NO'),
+        label: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
         type: 'cancel' as FooterActionType,
         action: () => this.onCancelEdit()
-      }] : []),
-      ...(this.canDelete() && !this.isEditing() ? [{
-        label: this.#translateService.instant('DELETE'),
-        type: 'delete' as FooterActionType,
-        action: () => this.onDelete()
       }] : [])
     ]
   }));
@@ -321,7 +323,8 @@ export class AppointmentDetailPopupComponent {
     const booking = this.currentBooking();
     if (booking && booking.id) {
       this.viewDetailRequested.emit(booking);
-      // Do not close popup when navigating to view detail
+      // Close popup when navigating to view detail
+      this.onClose();
     }
   }
 
