@@ -167,10 +167,6 @@ import { TranslateModule } from '@ngx-translate/core';
           font-size: 0.8rem;
           gap: 0.375rem;
         }
-
-        .message-actions {
-          justify-content: center;
-        }
       }
 
       /* Extra small mobile styles */
