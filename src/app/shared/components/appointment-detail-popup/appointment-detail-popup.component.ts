@@ -78,8 +78,6 @@ export class AppointmentDetailPopupComponent {
   readonly deleteConfirmData = computed<ConfirmationData>(() => ({
     title: this.#translateService.instant('COMMON.CONFIRMATION.TITLE'),
     message: this.#translateService.instant('COMMON.CONFIRMATION.MESSAGE'),
-    confirmText: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
-    cancelText: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
     severity: 'danger'
   }));
 
@@ -202,21 +200,21 @@ export class AppointmentDetailPopupComponent {
       }] : []),
       // Edit or Save/Cancel depending on state
       ...(this.canEdit() && !this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
+        label: this.#translateService.instant('APPOINTMENTS.EDIT_APPOINTMENT_DETAILS'),
         type: 'edit' as FooterActionType,
         action: () => this.onEdit()
       }] : []),
       ...(this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.SAVE'),
+        label: this.#translateService.instant('ADMIN.SETTINGS_PAGE.SAVE_SETTINGS'),
         type: 'save' as FooterActionType,
         action: () => this.onSaveEdit()
       }, {
-        label: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
+        label: this.#translateService.instant('COMMON.CONFIRMATION.NO'),
         type: 'delete' as FooterActionType,
         action: () => this.onCancelEdit()
       }] : []),
       ...(this.canDelete() && !this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
+        label: this.#translateService.instant('APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION'),
         type: 'delete' as FooterActionType,
         action: () => this.onDelete()
       }] : [])

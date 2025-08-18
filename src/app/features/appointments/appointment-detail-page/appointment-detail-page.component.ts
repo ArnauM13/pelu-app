@@ -158,7 +158,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     if (canEdit) {
       actions.push({
-        label: 'COMMON.ACTIONS.EDIT',
+        label: 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS',
         icon: '✏️',
         type: 'primary',
         onClick: () => this.editAppointment(),
@@ -167,7 +167,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     if (canDelete) {
       actions.push({
-        label: 'COMMON.ACTIONS.DELETE',
+        label: 'APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION',
         icon: '🗑️',
         type: 'danger',
         onClick: () => this.showDeleteConfirmation(),
@@ -236,8 +236,6 @@ export class AppointmentDetailPageComponent implements OnInit {
       title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
       message: `Estàs segur que vols eliminar la cita de ${clientName} del ${appointmentDate}? Aquesta acció no es pot desfer.`,
       severity: 'danger',
-      confirmText: 'COMMON.ACTIONS.DELETE',
-      cancelText: 'COMMON.ACTIONS.CANCEL',
     };
 
     this.deleteAlertDataSignal.set(alertData);

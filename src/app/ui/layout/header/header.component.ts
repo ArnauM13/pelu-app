@@ -44,7 +44,7 @@ export class HeaderComponent {
   readonly customDropdownItems = computed((): ProfileDropdownItem[] => {
     return [
       {
-        label: 'COMMON.ACTIONS.LOGOUT',
+        label: 'AUTH.SIGN_OUT',
         emoji: '🚪',
         type: 'danger',
         onClick: () => this.onLogout(),

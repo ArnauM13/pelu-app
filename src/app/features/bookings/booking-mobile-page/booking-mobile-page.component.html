@@ -9,18 +9,29 @@
     </div>
   }
 
-  <!-- Warning when no appointments are available -->
+  <!-- Warning when no appointments are available in current view -->
   @if (currentStep() === 'datetime' && hasNoAvailableAppointments()) {
     <div class="content-section" style="margin-bottom: 1rem;">
-      <div class="alert-card no-appointments-warning">
-        <div class="alert-content">
-          <div class="alert-icon">⚠️</div>
-          <div class="alert-text">
-            <h4>{{ 'BOOKING.NO_APPOINTMENTS_TITLE' | translate }}</h4>
-            <p>{{ 'BOOKING.NO_APPOINTMENTS_MESSAGE' | translate }}</p>
-          </div>
-        </div>
-      </div>
+      <pelu-no-appointments-message
+        type="warning"
+        icon="⚠️"
+        iconColor="#f59e0b"
+        [title]="'BOOKING.NO_APPOINTMENTS_TITLE'"
+        [message]="'BOOKING.NO_APPOINTMENTS_MESSAGE'"
+      />
+    </div>
+  }
+
+  <!-- Warning when selected day has no available appointments -->
+  @if (currentStep() === 'datetime' && selectedDate() && hasNoAvailableAppointmentsForSelectedDay()) {
+    <div class="content-section" style="margin-bottom: 1rem;">
+      <pelu-no-appointments-message
+        type="warning"
+        icon="⚠️"
+        iconColor="#f59e0b"
+        [title]="'COMMON.SELECTION.NO_APPOINTMENTS_FOR_DAY'"
+        [message]="'COMMON.SELECTION.NO_APPOINTMENTS_FOR_DAY_MESSAGE'"
+      />
     </div>
   }
 
@@ -93,55 +104,66 @@
       <div class="calendar-card">
         <div class="calendar-header">
           <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
-          <div class="calendar-buttons">
-            <button
-              class="quick-date-btn today-btn"
-              [class.disabled]="!canSelectDate(getToday())"
-              (click)="canSelectDate(getToday()) ? selectToday() : null"
-            >
-              <i class="pi pi-calendar"></i>
-              {{ 'BOOKING.QUICK_SELECTION.TODAY' | translate }}
-            </button>
-            <button class="view-toggle-btn" (click)="toggleViewMode()">
-              @if (viewMode() === 'week') {
-                📅
-              } @else {
-                📆
-              }
-            </button>
-          </div>
+                     <div class="calendar-buttons">
+             <pelu-button
+               [label]="'BOOKING.QUICK_SELECTION.TODAY'"
+               [icon]="'pi pi-calendar'"
+               [disabled]="!canSelectDate(getToday())"
+               (clicked)="canSelectDate(getToday()) ? selectToday() : null"
+               severity="primary"
+               size="small"
+             >
+             </pelu-button>
+             <pelu-button
+               [label]="viewMode() === 'week' ? 'COMMON.VIEWS.CALENDAR.VIEW_MONTH' : 'COMMON.VIEWS.CALENDAR.VIEW_WEEK'"
+               [icon]="viewMode() === 'week' ? 'pi pi-calendar' : 'pi pi-calendar-times'"
+               (clicked)="toggleViewMode()"
+               [ariaLabel]="viewMode() === 'week' ? 'COMMON.VIEWS.CALENDAR.VIEW_MONTH' : 'COMMON.VIEWS.CALENDAR.VIEW_WEEK'"
+               severity="secondary"
+               size="small"
+               [raised]="true"
+             >
+             </pelu-button>
+           </div>
         </div>
 
-        <!-- Period Navigation -->
-        <div class="period-navigation">
-          <button
-            class="nav-btn"
-            [class.disabled]="!canGoToPreviousPeriod()"
-            (click)="canGoToPreviousPeriod() ? previousPeriod() : null"
-          >
-            <i class="pi pi-chevron-left"></i>
-          </button>
+                 <!-- Period Navigation -->
+         <div class="period-navigation">
+           <pelu-button
+             [icon]="'pi pi-chevron-left'"
+             [disabled]="!canGoToPreviousPeriod()"
+             (clicked)="canGoToPreviousPeriod() ? previousPeriod() : null"
+             severity="secondary"
+             [rounded]="true"
+             [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+           >
+           </pelu-button>
 
-          <div class="current-period">
-            @if (viewMode() === 'week') {
-              <span class="period-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
-              <span class="period-date">
-                {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
-                -
-                {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
-              </span>
-            } @else {
-              <span class="period-label">{{ 'COMMON.MONTH_OF' | translate }}</span>
-              <span class="period-date">
-                {{ formatMonth(viewDate()) }}
-              </span>
-            }
-          </div>
+           <div class="current-period">
+             @if (viewMode() === 'week') {
+               <span class="period-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
+               <span class="period-date">
+                 {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
+                 -
+                 {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
+               </span>
+             } @else {
+               <span class="period-label">{{ 'COMMON.MONTH_OF' | translate }}</span>
+               <span class="period-date">
+                 {{ formatMonth(viewDate()) }}
+               </span>
+             }
+           </div>
 
-          <button class="nav-btn" (click)="nextPeriod()">
-            <i class="pi pi-chevron-right"></i>
-          </button>
-        </div>
+           <pelu-button
+             [icon]="'pi pi-chevron-right'"
+             (clicked)="nextPeriod()"
+             severity="secondary"
+             [rounded]="true"
+             [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+           >
+           </pelu-button>
+         </div>
 
         <!-- Day Selection -->
         <div class="days-grid" [class.month-view]="viewMode() === 'month'">
@@ -156,7 +178,9 @@
               [class.other-month]="viewMode() === 'month' && !isCurrentMonth(day)"
               [class.selectable]="canSelectDate(day)"
               [class.no-appointments]="isFullyBookedWorkingDay(day)"
-              (click)="canSelectDate(day) ? onDateSelected(day) : null"
+              [class.warning-day]="isFullyBookedWorkingDayForService(day)"
+              [class.non-working-day]="!isBusinessDay(day)"
+              (click)="onDateClicked(day)"
             >
               <div class="day-name">{{ formatDayShort(day) }}</div>
               <div class="day-number">{{ day.getDate() }}</div>
@@ -216,7 +240,7 @@
                             ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40'
                             : ''
                         "
-                        (click)="timeSlot.available ? onTimeSlotSelected(timeSlot) : null"
+                        (click)="onTimeSlotClicked(timeSlot)"
                       >
                         <div class="slot-content">
                           <div class="time">{{ formatTime(timeSlot.time) }}</div>
@@ -281,7 +305,7 @@
                             ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40'
                             : ''
                         "
-                        (click)="timeSlot.available ? onTimeSlotSelected(timeSlot) : null"
+                        (click)="onTimeSlotClicked(timeSlot)"
                       >
                         <div class="slot-content">
                           <div class="time">{{ formatTime(timeSlot.time) }}</div>
@@ -379,7 +403,7 @@
               [label]="'COMMON.NAME'"
               [placeholder]="'COMMON.NAME_PLACEHOLDER'"
               [required]="true"
-              [value]="bookingDetails().clientName"
+              [value]="bookingDetails().clientName || ''"
               (valueChange)="onClientNameChanged($event)"
             >
             </pelu-input-text>
@@ -389,7 +413,7 @@
               [placeholder]="'COMMON.EMAIL_PLACEHOLDER'"
               type="email"
               [required]="true"
-              [value]="bookingDetails().email"
+              [value]="bookingDetails().email || ''"
               (valueChange)="onEmailChanged($event)"
             >
             </pelu-input-text>
@@ -410,14 +434,24 @@
         <p>{{ 'BOOKING.SUCCESS_MESSAGE' | translate }}</p>
         <p class="email-notice">{{ 'BOOKING.EMAIL_NOTICE' | translate }}</p>
 
-        <div class="success-actions">
-          <button class="btn-primary" (click)="onViewBookingDetail()">
-            {{ 'BOOKING.VIEW_DETAIL' | translate }}
-          </button>
-          <button class="btn-secondary" (click)="onBackToHome()">
-            {{ 'BOOKING.BACK_TO_HOME' | translate }}
-          </button>
-        </div>
+                 <div class="success-actions">
+           <pelu-button
+             [label]="'BOOKING.VIEW_DETAIL'"
+             (clicked)="onViewBookingDetail()"
+             severity="primary"
+             [raised]="true"
+             [fluid]="true"
+           >
+           </pelu-button>
+           <pelu-button
+             [label]="'BOOKING.BACK_TO_HOME'"
+             (clicked)="onBackToHome()"
+             severity="secondary"
+             variant="outlined"
+             [fluid]="true"
+           >
+           </pelu-button>
+         </div>
       </div>
     </div>
   }
@@ -425,55 +459,33 @@
   <!-- Bottom Navigation -->
   @if (currentStep() !== 'success') {
     <div class="bottom-navigation">
-      <button
-        class="nav-btn back-btn"
-        [class.disabled]="!canGoBack()"
-        (click)="canGoBack() ? goBack() : null"
+      <pelu-button
+        [label]="'COMMON.ACTIONS.BACK'"
+        [icon]="'pi pi-chevron-left'"
+        iconPos="left"
+        [disabled]="!canGoBack()"
+        (clicked)="canGoBack() ? goBack() : null"
+        severity="secondary"
+        variant="outlined"
+        [fluid]="true"
       >
-        <i class="pi pi-chevron-left"></i>
-        {{ 'COMMON.ACTIONS.BACK' | translate }}
-      </button>
+      </pelu-button>
 
-      <button
-        class="nav-btn next-btn"
-        [class.disabled]="!canProceedToNextStep()"
-        (click)="canProceedToNextStep() ? nextStep() : null"
+      <pelu-button
+        [label]="currentStep() === 'confirmation' ? 'Confirmar' : ('COMMON.ACTIONS.CONTINUE' | translate)"
+        [icon]="'pi pi-chevron-right'"
+        iconPos="right"
+        [disabled]="!canProceedToNextStep()"
+        (clicked)="canProceedToNextStep() ? nextStep() : null"
+        [severity]="currentStep() === 'confirmation' && !canProceedToNextStep() ? 'secondary' : 'primary'"
+        [raised]="true"
+        [fluid]="true"
+        [class.disabled-button]="currentStep() === 'confirmation' && !canProceedToNextStep()"
       >
-        {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
-        <i class="pi pi-chevron-right"></i>
-      </button>
+      </pelu-button>
     </div>
   }
 </div>
 
-<!-- Login Prompt for Anonymous Users -->
-@if (showLoginPrompt()) {
-  <div class="login-prompt-overlay" (click)="onLoginPromptClose()">
-    <div class="login-prompt" (click)="$event.stopPropagation()">
-      <div class="prompt-header">
-        <h3>🎉 {{ 'BOOKING.SUCCESS_TITLE' | translate }}</h3>
-        <button class="close-btn" (click)="onLoginPromptClose()">×</button>
-      </div>
 
-      <div class="prompt-body">
-        <div class="success-icon">✅</div>
-        <p class="success-message">
-          {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
-        </p>
-        <p class="email-notice">
-          {{ 'BOOKING.EMAIL_NOTICE' | translate }}
-        </p>
-
-        <div class="prompt-actions">
-          <button class="btn-secondary" (click)="onLoginPromptClose()">
-            {{ 'COMMON.ACTIONS.CONTINUE' | translate }}
-          </button>
-          <button class="btn-primary" (click)="onLoginPromptLogin()">
-            {{ 'COMMON.ACTIONS.LOGIN' | translate }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
 
