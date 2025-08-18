@@ -194,13 +194,13 @@ export class AppointmentDetailPopupComponent {
     footerActions: [
       // View booking (navigates) - hidden during editing
       ...(!this.hideViewDetailButton() && !this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.CLICK_TO_VIEW'),
-        type: 'secondary' as FooterActionType,
+        label: this.#translateService.instant('VIEW_DETAIL'),
+        type: 'confirm' as FooterActionType,
         action: () => this.onViewDetail()
       }] : []),
       // Edit or Save/Cancel depending on state
       ...(this.canEdit() && !this.isEditing() ? [{
-        label: this.#translateService.instant('APPOINTMENTS.EDIT_APPOINTMENT_DETAILS'),
+        label: this.#translateService.instant('EDIT'),
         type: 'edit' as FooterActionType,
         action: () => this.onEdit()
       }] : []),
@@ -210,11 +210,11 @@ export class AppointmentDetailPopupComponent {
         action: () => this.onSaveEdit()
       }, {
         label: this.#translateService.instant('COMMON.CONFIRMATION.NO'),
-        type: 'delete' as FooterActionType,
+        type: 'cancel' as FooterActionType,
         action: () => this.onCancelEdit()
       }] : []),
       ...(this.canDelete() && !this.isEditing() ? [{
-        label: this.#translateService.instant('APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION'),
+        label: this.#translateService.instant('DELETE'),
         type: 'delete' as FooterActionType,
         action: () => this.onDelete()
       }] : [])

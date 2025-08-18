@@ -142,7 +142,8 @@ describe('ToastService', () => {
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'error',
         summary,
-        detail
+        detail,
+        data: undefined
       });
     });
   });
@@ -158,7 +159,8 @@ describe('ToastService', () => {
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'info',
         summary,
-        detail
+        detail,
+        data: undefined
       });
     });
   });
@@ -174,166 +176,197 @@ describe('ToastService', () => {
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'warn',
         summary,
-        detail
+        detail,
+        data: undefined
       });
     });
   });
 
   describe('showReservationCreated', () => {
-    it('should call showSuccess with correct parameters', () => {
-      spyOn(service, 'showSuccess');
+    it('should call showToast with correct parameters', () => {
+      spyOn(service, 'showToast');
       const appointmentId = 'test-id';
 
       service.showReservationCreated(appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith(
-        'COMMON.RESERVATION_CREATED',
-        '',
-        { appointmentId, showViewButton: true }
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Cita creada',
+        detail: 'La teva cita s\'ha creat correctament',
+        data: {
+          appointmentId,
+          showViewButton: true,
+          actionLabel: 'Veure cita',
+        },
+      });
     });
   });
 
   describe('showAppointmentDeleted', () => {
-    it('should call showSuccess with correct parameters', () => {
-      spyOn(service, 'showSuccess');
+    it('should call showToast with correct parameters', () => {
+      spyOn(service, 'showToast');
       const appointmentName = 'John Doe';
 
       service.showAppointmentDeleted(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith(
-        'COMMON.TOAST.APPOINTMENT_DELETED',
-        'COMMON.TOAST.APPOINTMENT_DELETED_MESSAGE',
-        { showViewButton: false }
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'info',
+        summary: 'Cita eliminada',
+        detail: `La cita de ${appointmentName} s'ha eliminat correctament`,
+      });
     });
   });
 
   describe('showAppointmentUpdated', () => {
-    it('should call showSuccess with correct parameters', () => {
-      spyOn(service, 'showSuccess');
+    it('should call showToast with correct parameters', () => {
+      spyOn(service, 'showToast');
       const appointmentName = 'John Doe';
 
       service.showAppointmentUpdated(appointmentName);
 
-      expect(service.showSuccess).toHaveBeenCalledWith(
-        'COMMON.TOAST.APPOINTMENT_UPDATED',
-        'COMMON.TOAST.APPOINTMENT_UPDATED_MESSAGE',
-        { showViewButton: false }
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Cita actualitzada',
+        detail: `La cita de ${appointmentName} s'ha actualitzat correctament`,
+      });
     });
   });
 
   describe('showAppointmentCreated', () => {
-    it('should call showSuccess with correct parameters', () => {
-      spyOn(service, 'showSuccess');
+    it('should call showToast with correct parameters', () => {
+      spyOn(service, 'showToast');
       const appointmentName = 'John Doe';
       const appointmentId = 'test-id';
 
       service.showAppointmentCreated(appointmentName, appointmentId);
 
-      expect(service.showSuccess).toHaveBeenCalledWith(
-        'COMMON.TOAST.APPOINTMENT_CREATED',
-        'COMMON.TOAST.APPOINTMENT_CREATED_MESSAGE',
-        { appointmentId, showViewButton: true }
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Cita creada',
+        detail: `La cita de ${appointmentName} s'ha creat correctament`,
+        data: {
+          appointmentId,
+          showViewButton: true,
+          actionLabel: 'Veure cita',
+        },
+      });
     });
   });
 
   describe('showValidationError', () => {
-    it('should call showError with correct parameters', () => {
-      spyOn(service, 'showError');
-      const field = 'nom del client';
+    it('should call showToast with correct parameters', () => {
+      spyOn(service, 'showToast');
+      const message = 'Error de validació';
 
-      service.showValidationError(field);
+      service.showValidationError(message);
 
-      expect(service.showError).toHaveBeenCalledWith(
-        'COMMON.ERRORS.VALIDATION_ERROR',
-        'COMMON.TOAST.VALIDATION_ERROR_MESSAGE'
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error de validació',
+        detail: message,
+      });
     });
   });
 
   describe('showNetworkError', () => {
-    it('should call showError with network error message', () => {
-      spyOn(service, 'showError');
+    it('should call showToast with network error message', () => {
+      spyOn(service, 'showToast');
 
       service.showNetworkError();
 
-      expect(service.showError).toHaveBeenCalledWith(
-        'COMMON.ERRORS.NETWORK_ERROR',
-        'COMMON.TOAST.NETWORK_ERROR_MESSAGE'
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error de connexió',
+        detail: 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.',
+      });
     });
   });
 
   describe('showUnauthorizedError', () => {
-    it('should call showError with unauthorized error message', () => {
-      spyOn(service, 'showError');
+    it('should call showToast with unauthorized error message', () => {
+      spyOn(service, 'showToast');
 
       service.showUnauthorizedError();
 
-      expect(service.showError).toHaveBeenCalledWith(
-        'COMMON.ERRORS.PERMISSION_ERROR',
-        'No tens permisos per realitzar aquesta acció.'
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Accés denegat',
+        detail: 'No tens permisos per realitzar aquesta acció.',
+      });
     });
   });
 
   describe('showLoginRequired', () => {
-    it('should call showWarning with login required message', () => {
-      spyOn(service, 'showWarning');
+    it('should call showToast with login required message', () => {
+      spyOn(service, 'showToast');
 
       service.showLoginRequired();
 
-      expect(service.showWarning).toHaveBeenCalledWith(
-        'AUTH.SESSION_REQUIRED',
-        'COMMON.TOAST.LOGIN_REQUIRED_MESSAGE'
-      );
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'warn',
+        summary: 'Inici de sessió requerit',
+        detail: 'Has d\'iniciar sessió per realitzar aquesta acció.',
+      });
     });
   });
 
   describe('showGenericSuccess', () => {
-    it('should call showSuccess with generic success message', () => {
-      spyOn(service, 'showSuccess');
+    it('should call showToast with generic success message', () => {
+      spyOn(service, 'showToast');
       const message = 'Operació completada';
 
       service.showGenericSuccess(message);
 
-      expect(service.showSuccess).toHaveBeenCalledWith('COMMON.STATUS.STATUS_SUCCESS', message);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Èxit',
+        detail: message,
+      });
     });
   });
 
   describe('showGenericError', () => {
-    it('should call showError with generic error message', () => {
-      spyOn(service, 'showError');
+    it('should call showToast with generic error message', () => {
+      spyOn(service, 'showToast');
       const message = 'Ha ocorregut un error';
 
       service.showGenericError(message);
 
-      expect(service.showError).toHaveBeenCalledWith('COMMON.STATUS.STATUS_ERROR', message);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error',
+        detail: message,
+      });
     });
   });
 
   describe('showGenericInfo', () => {
-    it('should call showInfo with generic info message', () => {
-      spyOn(service, 'showInfo');
+    it('should call showToast with generic info message', () => {
+      spyOn(service, 'showToast');
       const message = 'Informació important';
 
       service.showGenericInfo(message);
 
-      expect(service.showInfo).toHaveBeenCalledWith('COMMON.STATUS.STATUS_INFO', message);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'info',
+        summary: 'Informació',
+        detail: message,
+      });
     });
   });
 
   describe('showGenericWarning', () => {
-    it('should call showWarning with generic warning message', () => {
-      spyOn(service, 'showWarning');
+    it('should call showToast with generic warning message', () => {
+      spyOn(service, 'showToast');
       const message = 'Advertència important';
 
       service.showGenericWarning(message);
 
-      expect(service.showWarning).toHaveBeenCalledWith('COMMON.STATUS.STATUS_WARNING', message);
+      expect(service.showToast).toHaveBeenCalledWith({
+        severity: 'warn',
+        summary: 'Advertència',
+        detail: message,
+      });
     });
   });
 
