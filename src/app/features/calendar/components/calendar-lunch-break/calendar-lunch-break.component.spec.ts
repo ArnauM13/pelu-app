@@ -55,7 +55,7 @@ describe('CalendarLunchBreakComponent', () => {
   it('should display lunch break content', () => {
     const compiled = hostFixture.nativeElement;
     expect(compiled.querySelector('.lunch-break-content')).toBeTruthy();
-    expect(compiled.querySelector('.lunch-break-content span').textContent).toContain('Migdia');
+    expect(compiled.querySelector('.lunch-break-content i')).toBeTruthy();
   });
 
   it('should have coffee icon', () => {

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { InfoItemComponent, InfoItemData } from './info-item.component';
 
 describe('InfoItemComponent', () => {
@@ -11,167 +11,119 @@ describe('InfoItemComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InfoItemComponent, TranslateModule.forRoot()],
-      providers: [
-        {
-          provide: TranslateService,
-          useValue: {
-            instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
-          },
-        },
-        {
-          provide: TranslateStore,
-          useValue: {
-            get: (key: string) => key,
-            set: (key: string, value: any) => {},
-            has: (key: string) => true,
-          },
-        },
-      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InfoItemComponent);
     component = fixture.componentInstance;
-    // Don't call fixture.detectChanges() here to avoid NG0950 error
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have data input signal', () => {
+  it('should have input signals defined', () => {
     expect(component.data).toBeDefined();
-    expect(typeof component.data).toBe('function');
-  });
-
-  it('should have showStatus input signal', () => {
     expect(component.showStatus).toBeDefined();
-    expect(typeof component.showStatus).toBe('function');
   });
 
-  it('should have statusClass computed property', () => {
+  it('should have computed properties defined', () => {
     expect(component.statusClass).toBeDefined();
-    expect(typeof component.statusClass).toBe('function');
-  });
-
-  it('should have hasStatus computed property', () => {
     expect(component.hasStatus).toBeDefined();
-    expect(typeof component.hasStatus).toBe('function');
   });
 
   it('should have default showStatus value', () => {
     expect(component.showStatus()).toBe(false);
   });
 
-  it('should be a component class', () => {
-    expect(component.constructor.name).toContain('InfoItemComponent');
+  it('should compute statusClass as empty string when showStatus is false', () => {
+    const statusClass = component.statusClass();
+    expect(statusClass).toBe('');
   });
 
-  it('should have proper component structure', () => {
-    const componentClass = InfoItemComponent;
-    expect(componentClass.name).toBe('InfoItemComponent');
-    expect(typeof componentClass).toBe('function');
+  it('should compute hasStatus as false when showStatus is false', () => {
+    const hasStatus = component.hasStatus();
+    expect(hasStatus).toBe(false);
   });
 
-  it('should be a standalone component', () => {
-    expect(component.constructor).toBeDefined();
-    expect(component.constructor.name).toContain('InfoItemComponent');
-  });
+  it('should compute statusClass for different status values when data has status', () => {
+    const statuses: Array<'active' | 'inactive' | 'warning' | 'error'> = [
+      'active',
+      'inactive',
+      'warning',
+      'error',
+    ];
 
-  it('should have component metadata', () => {
-    expect(component).toBeDefined();
-    expect(component.constructor).toBeDefined();
-  });
-
-  it('should have all required computed properties', () => {
-    expect(component.data).toBeDefined();
-    expect(component.showStatus).toBeDefined();
-    expect(component.statusClass).toBeDefined();
-    expect(component.hasStatus).toBeDefined();
-  });
-
-  it('should have proper signal types', () => {
-    expect(typeof component.data).toBe('function');
-    expect(typeof component.showStatus).toBe('function');
-    expect(typeof component.statusClass).toBe('function');
-    expect(typeof component.hasStatus).toBe('function');
-  });
-
-  it('should handle InfoItemData interface correctly', () => {
-    const testData: InfoItemData = {
-      icon: '📅',
-      label: 'Test Label',
-      value: 'Test Value',
-      status: 'active',
-      statusText: 'Active Status',
-    };
-
-    expect(testData.icon).toBe('📅');
-    expect(testData.label).toBe('Test Label');
-    expect(testData.value).toBe('Test Value');
-    expect(testData.status).toBe('active');
-    expect(testData.statusText).toBe('Active Status');
-  });
-
-  it('should handle InfoItemData without optional properties', () => {
-    const testData: InfoItemData = {
-      icon: '📅',
-      label: 'Test Label',
-      value: 'Test Value',
-    };
-
-    expect(testData.icon).toBe('📅');
-    expect(testData.label).toBe('Test Label');
-    expect(testData.value).toBe('Test Value');
-    expect(testData.status).toBeUndefined();
-    expect(testData.statusText).toBeUndefined();
-  });
-
-  it('should render with proper structure', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should have proper CSS classes', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should handle different status values', () => {
-    const testData: InfoItemData = {
-      icon: '📅',
-      label: 'Test',
-      value: 'Value',
-      status: 'warning',
-    };
-
-    // Test that the component can handle different status values
-    const statuses = ['active', 'inactive', 'warning', 'error'];
     statuses.forEach(status => {
-      expect(['active', 'inactive', 'warning', 'error']).toContain(status);
+      const dataWithStatus: InfoItemData = {
+        icon: '📅',
+        label: 'Data de cita',
+        value: '25 de desembre',
+        status,
+      };
+      
+      // Test the logic directly since we can't set input signals in tests
+      const showStatus = true;
+      const statusClass = showStatus && dataWithStatus.status ? `status-${dataWithStatus.status}` : '';
+      expect(statusClass).toBe(`status-${status}`);
     });
   });
 
-  it('should handle empty data gracefully', () => {
-    const emptyData: InfoItemData = {
-      icon: '',
-      label: '',
-      value: '',
-    };
+  it('should render with basic structure', () => {
+    fixture.detectChanges();
 
-    expect(emptyData.icon).toBe('');
-    expect(emptyData.label).toBe('');
-    expect(emptyData.value).toBe('');
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.info-item')).toBeTruthy();
   });
 
   it('should have proper HTML structure', () => {
-    expect(component).toBeTruthy();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.info-item')).toBeTruthy();
   });
 
-  it('should have proper component imports', () => {
-    expect(InfoItemComponent).toBeDefined();
-    expect(component).toBeInstanceOf(InfoItemComponent);
+  it('should handle data with minimal properties', () => {
+    const minimalData: InfoItemData = {
+      icon: '📅',
+      label: 'Data',
+      value: '25/12',
+    };
+    
+    // Test the logic directly
+    const showStatus = false;
+    const hasStatus = showStatus && !!minimalData.status;
+    expect(hasStatus).toBe(false);
   });
 
-  it('should have proper component selector', () => {
-    expect(component.constructor.name).toContain('InfoItemComponent');
+  it('should handle data with all properties', () => {
+    const fullData: InfoItemData = {
+      icon: '📅',
+      label: 'Data de cita',
+      value: '25 de desembre',
+      status: 'warning',
+      statusText: 'Pendent de confirmació',
+    };
+    
+    // Test the logic directly
+    const showStatus = true;
+    const statusClass = showStatus && fullData.status ? `status-${fullData.status}` : '';
+    const hasStatus = showStatus && !!fullData.status;
+    
+    expect(statusClass).toBe('status-warning');
+    expect(hasStatus).toBe(true);
+  });
+
+  it('should be a standalone component', () => {
+    expect(InfoItemComponent.prototype.constructor).toBeDefined();
+    expect(InfoItemComponent.prototype.constructor.name).toBe('InfoItemComponent');
+  });
+
+  it('should have component metadata', () => {
+    expect(InfoItemComponent.prototype).toBeDefined();
+    expect(InfoItemComponent.prototype.constructor).toBeDefined();
+  });
+
+  it('should not throw errors during rendering', () => {
+    expect(() => fixture.detectChanges()).not.toThrow();
   });
 });

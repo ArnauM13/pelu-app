@@ -51,7 +51,6 @@ class TestWrapperComponent {
 describe('AppointmentsViewControlsComponent', () => {
   let component: AppointmentsViewControlsComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
-  let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
     const translateSpy = jasmine.createSpyObj('TranslateService', [
@@ -66,6 +65,17 @@ describe('AppointmentsViewControlsComponent', () => {
       'getLangs',
     ]);
 
+    // Setup default mock return values with proper observables
+    translateSpy.get.and.returnValue(of('translated text'));
+    translateSpy.instant.and.returnValue('translated text');
+    translateSpy.addLangs.and.returnValue(undefined);
+    translateSpy.getBrowserLang.and.returnValue('ca');
+    translateSpy.use.and.returnValue(of({}));
+    translateSpy.reloadLang.and.returnValue(of({}));
+    translateSpy.setDefaultLang.and.returnValue(undefined);
+    translateSpy.getDefaultLang.and.returnValue('ca');
+    translateSpy.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
+
     await TestBed.configureTestingModule({
       imports: [
         TestWrapperComponent,
@@ -73,23 +83,18 @@ describe('AppointmentsViewControlsComponent', () => {
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
         }),
       ],
-      providers: [{ provide: TranslateService, useValue: translateSpy }],
+      providers: [
+        {
+          provide: TranslateService,
+          useValue: {
+            ...translateSpy,
+            onLangChange: of({ lang: 'ca', translations: {} }),
+            onTranslationChange: of({ lang: 'ca', translations: {} }),
+            onDefaultLangChange: of({ lang: 'ca', translations: {} }),
+          }
+        }
+      ],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(TestWrapperComponent);
-    component = fixture.debugElement.children[0].componentInstance;
-    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-
-    // Setup default mock return values
-    translateService.get.and.returnValue(of('translated text'));
-    translateService.instant.and.returnValue('translated text');
-    translateService.addLangs.and.returnValue(undefined);
-    translateService.getBrowserLang.and.returnValue('ca');
-    translateService.use.and.returnValue(of({}));
-    translateService.reloadLang.and.returnValue(of({}));
-    translateService.setDefaultLang.and.returnValue(undefined);
-    translateService.getDefaultLang.and.returnValue('ca');
-    translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
 
     fixture = TestBed.createComponent(TestWrapperComponent);
     component = fixture.debugElement.children[0].componentInstance;

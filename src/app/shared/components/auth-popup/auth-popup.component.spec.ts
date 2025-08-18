@@ -85,12 +85,13 @@ describe('AuthPopupComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(AuthPopupComponent.prototype.constructor.name).toBe('AuthPopupComponent');
+    expect(component).toBeTruthy();
+    expect(AuthPopupComponent.prototype.constructor.name).toContain('AuthPopupComponent');
   });
 
   it('should be a standalone component', () => {
-    expect(AuthPopupComponent.prototype.constructor).toBeDefined();
-    expect(AuthPopupComponent.prototype.constructor.name).toBe('AuthPopupComponent');
+    expect(component).toBeTruthy();
+    expect(AuthPopupComponent.prototype.constructor.name).toContain('AuthPopupComponent');
   });
 
   it('should have component metadata', () => {

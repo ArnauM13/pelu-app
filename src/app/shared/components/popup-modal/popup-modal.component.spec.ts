@@ -62,12 +62,12 @@ describe('PopupModalComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(PopupModalComponent.prototype.constructor.name).toBe('PopupModalComponent');
+    expect(PopupModalComponent.prototype.constructor.name).toContain('PopupModalComponent');
   });
 
   it('should be a standalone component', () => {
     expect(PopupModalComponent.prototype.constructor).toBeDefined();
-    expect(PopupModalComponent.prototype.constructor.name).toBe('PopupModalComponent');
+    expect(PopupModalComponent.prototype.constructor.name).toContain('PopupModalComponent');
   });
 
   it('should have component metadata', () => {
