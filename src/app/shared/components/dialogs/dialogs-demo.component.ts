@@ -31,8 +31,8 @@ export class DialogsDemoComponent {
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
-      { label: 'Tancar', type: 'close', action: () => this.closeBasicDialog() },
-      { label: 'Confirmar', type: 'confirm', action: () => this.closeBasicDialog() },
+      { label: 'Tancar', severity: 'secondary', action: () => this.closeBasicDialog() },
+      { label: 'Confirmar', severity: 'primary', action: () => this.closeBasicDialog() },
     ],
   });
 

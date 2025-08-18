@@ -15,9 +15,9 @@
   </ng-template>
 
   <ng-template #footer>
-    @if (showFooter() && sortedFooterActions().length > 0) {
+    @if (showFooter() && footerActions().length > 0) {
       <div class="flex items-center gap-2">
-        @for (action of sortedFooterActions(); track action.label) {
+        @for (action of footerActions(); track action.label) {
           <p-button
             [label]="action.label"
             [severity]="getActionSeverity(action)"

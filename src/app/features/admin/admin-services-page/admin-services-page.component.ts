@@ -24,7 +24,7 @@ import { InputTextareaComponent } from '../../../shared/components/inputs/input-
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../../../shared/components/popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
 
 import { FirebaseServicesService, ServiceCategory } from '../../../core/services/firebase-services.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -167,7 +167,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.CREATE_SERVICE'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.createService()
       }
     ]
@@ -181,7 +181,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.EDIT_SERVICE'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.updateService()
       }
     ]
@@ -202,7 +202,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CREATE_CATEGORY'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.createCategory()
       }
     ]
@@ -216,7 +216,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.EDIT_CATEGORY'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.updateCategory()
       }
     ]
