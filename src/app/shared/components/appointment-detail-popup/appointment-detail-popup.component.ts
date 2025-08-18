@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../popup-dialog/popup-dialog.component';
 import { ConfirmationPopupComponent, type ConfirmationData } from '../confirmation-popup/confirmation-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { UserService } from '../../../core/services/user.service';
@@ -20,6 +20,7 @@ import { BookingService } from '../../../core/services/booking.service';
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
+import { FooterAction } from '../popup-dialog/popup-dialog.component';
 
 @Component({
   selector: 'pelu-appointment-detail-popup',
@@ -186,43 +187,56 @@ export class AppointmentDetailPopupComponent {
   });
 
   // Popup dialog configuration
-  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.#translateService.instant('COMMON.BOOKING_DETAILS'),
-    size: 'medium',
-    closeOnBackdropClick: true,
-    showFooter: true,
-    footerActions: [
-      // Delete - first (leftmost)
-      ...(this.canDelete() && !this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
-        type: 'delete' as FooterActionType,
-        action: () => this.onDelete()
-      }] : []),
-      // Edit - second
-      ...(this.canEdit() && !this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
-        type: 'edit' as FooterActionType,
-        action: () => this.onEdit()
-      }] : []),
-      // View booking (navigates) - third (rightmost) - hidden during editing
-      ...(!this.hideViewDetailButton() && !this.isEditing() ? [{
-        label: this.#translateService.instant('APPOINTMENTS.VIEW_DETAIL'),
-        type: 'confirm' as FooterActionType,
-        action: () => this.onViewDetail()
-      }] : []),
+  readonly dialogConfig = computed<PopupDialogConfig>(() => {
+    const actions: FooterAction[] = [];
+    
+    if (this.isEditing()) {
       // Save/Cancel during editing
-      ...(this.isEditing() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.SAVE'),
-        type: 'save' as FooterActionType,
-        action: () => this.onSaveEdit()
-      }, {
+      actions.push({
         label: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
-        type: 'cancel' as FooterActionType,
+        severity: 'danger',
         action: () => this.onCancelEdit()
-      }] : [])
-    ]
-  }));
+      });
+      actions.push({
+        label: this.#translateService.instant('COMMON.ACTIONS.SAVE'),
+        severity: 'primary',
+        action: () => this.onSaveEdit()
+      });
+    } else {
+      // Normal view mode
+      if (this.canDelete()) {
+        actions.push({
+          label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
+          severity: 'danger',
+          action: () => this.onDelete()
+        });
+      }
+      
+      if (this.canEdit()) {
+        actions.push({
+          label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
+          severity: 'secondary',
+          action: () => this.onEdit()
+        });
+      }
+      
+      if (!this.hideViewDetailButton()) {
+        actions.push({
+          label: this.#translateService.instant('APPOINTMENTS.VIEW_DETAIL'),
+          severity: 'primary',
+          action: () => this.onViewDetail()
+        });
+      }
+    }
 
+    return {
+      title: this.#translateService.instant('COMMON.BOOKING_DETAILS'),
+      size: 'medium',
+      closeOnBackdropClick: true,
+      showFooter: true,
+      footerActions: actions
+    };
+  });
 
 
   onClose(): void {

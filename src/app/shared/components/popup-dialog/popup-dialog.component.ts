@@ -4,13 +4,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
 
-// Footer action types interface
-export type FooterActionType = 'confirm' | 'cancel' | 'close' | 'edit' | 'delete' | 'save' | 'login' | 'register';
-
 // Footer action interface
 export interface FooterAction {
   label: string;
-  type: FooterActionType;
+  severity?: 'primary' | 'secondary' | 'danger';
   action: () => void;
 }
 
@@ -86,46 +83,15 @@ export class PopupDialogComponent {
     action.action();
   }
 
-  private getActionWeight(actionType: FooterActionType): number {
-    switch (actionType) {
-      case 'delete':
-        return 1; // first (leftmost)
-      case 'edit':
-        return 2; // second
-      case 'confirm':
-        return 3; // third (rightmost)
-      case 'cancel':
-      case 'close':
-        return 4; // secondary
-      case 'save':
-      case 'login':
-      case 'register':
-        return 5; // primary
-      default:
-        return 0; // tertiary
-    }
-  }
-
-  readonly sortedFooterActions = computed(() => {
-    const actions = [...(this.footerActions() ?? [])];
-    return actions.sort((a, b) => this.getActionWeight(a.type) - this.getActionWeight(b.type));
-  });
-
   getActionSeverity(action: FooterAction): 'secondary' | 'danger' | undefined {
-    switch (action.type) {
-      case 'confirm':
-      case 'save':
-      case 'login':
-      case 'register':
-        return undefined; // primary
-      case 'delete':
-      case 'cancel':
-      case 'close':
-        return 'danger';
-      case 'edit':
+    switch (action.severity) {
+      case 'secondary':
         return 'secondary';
+      case 'danger':
+        return 'danger';
+      case 'primary':
       default:
-        return undefined;
+        return undefined; // primary
     }
   }
 
