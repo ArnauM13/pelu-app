@@ -113,9 +113,9 @@ export class BookingValidationService {
 
     const maxAppointmentsPerUser = this.systemParametersService.getMaxAppointmentsPerUser();
     
-    // Filter bookings that belong to the current user (by email)
+    // Filter bookings that belong to the current user (by uid first, then email as fallback)
     const confirmedUserBookings = userBookings.filter(booking => {
-      const isUserBooking = booking.email === currentUser.email;
+      const isUserBooking = booking.uid === currentUser.uid || booking.email === currentUser.email;
       const isConfirmed = booking.status === 'confirmed';
       const isFutureBooking = this.isFutureBooking(booking);
       
@@ -150,9 +150,9 @@ export class BookingValidationService {
       return 0;
     }
 
-    // Filter bookings that belong to the current user (by email) and are future bookings
+    // Filter bookings that belong to the current user (by uid first, then email as fallback) and are future bookings
     return userBookings.filter(booking => {
-      const isUserBooking = booking.email === currentUser.email;
+      const isUserBooking = booking.uid === currentUser.uid || booking.email === currentUser.email;
       const isConfirmed = booking.status === 'confirmed';
       const isFutureBooking = this.isFutureBooking(booking);
       
