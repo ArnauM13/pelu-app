@@ -2,6 +2,23 @@
   @if (availableServices().length === 0 || appointments().length === 0) {
     <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
   }
+
+  <!-- User appointment limit validation message -->
+  @if (hasReachedAppointmentLimit()) {
+    <div class="content-section" style="margin-bottom: 1rem;">
+      <pelu-no-appointments-message
+        type="warning"
+        icon="⚠️"
+        iconColor="#f59e0b"
+        [title]="'BOOKING.USER_LIMIT_REACHED_TITLE'"
+        [message]="'BOOKING.USER_LIMIT_REACHED_MESSAGE'"
+        actionText="BOOKING.VIEW_MY_APPOINTMENTS"
+        [actionCallback]="onViewMyAppointments"
+        [showAction]="false"
+      />
+    </div>
+  }
+
   <!-- Show next appointment at top if user has any upcoming booking - ONLY on first step -->
   @if (currentStep() === 'service' && userAppointments().length > 0) {
     <div class="content-section" style="margin-bottom: 1rem;">

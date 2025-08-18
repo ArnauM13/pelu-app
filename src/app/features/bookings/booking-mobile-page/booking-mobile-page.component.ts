@@ -99,12 +99,30 @@ export class BookingMobilePageComponent {
   readonly isAdmin = computed(() => this.userService.isAdmin());
   readonly createdBooking = computed(() => this.createdBookingSignal());
 
+  // Check if user has reached appointment limit for first screen validation
+  readonly hasReachedAppointmentLimit = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
+  });
+
+  // Check if user should be blocked from proceeding to next steps
+  readonly isUserBlockedFromBooking = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
+  });
+
   // Step validation computed signals - now fully reactive
   readonly canProceedToDateTime = computed(() => {
+    // If user has reached appointment limit, they cannot proceed
+    if (this.isUserBlockedFromBooking()) {
+      return false;
+    }
     return !!this.selectedService();
   });
 
   readonly canProceedToConfirmation = computed(() => {
+    // If user has reached appointment limit, they cannot proceed
+    if (this.isUserBlockedFromBooking()) {
+      return false;
+    }
     return !!this.selectedService() && !!this.selectedDate() && !!this.selectedTimeSlot();
   });
 
@@ -114,6 +132,11 @@ export class BookingMobilePageComponent {
   });
 
   readonly canProceedToNextStep = computed(() => {
+    // If user has reached appointment limit, they cannot proceed to any step
+    if (this.isUserBlockedFromBooking()) {
+      return false;
+    }
+
     const step = this.currentStep();
     if (step === 'service') {
       return this.canProceedToDateTime();
@@ -1023,5 +1046,9 @@ export class BookingMobilePageComponent {
 
   getMaxAppointmentsPerUser(): number {
     return this.systemParametersService.getMaxAppointmentsPerUser();
+  }
+
+  onViewMyAppointments() {
+    this.router.navigate(['/appointments']);
   }
 }

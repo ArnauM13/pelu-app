@@ -3,57 +3,76 @@
   <pelu-booking-mobile-page></pelu-booking-mobile-page>
 } @else {
   <!-- Desktop version -->
-  <div class="booking-page">
-    @if (availableServices().length === 0) {
-      <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
-    }
-    <!-- Date Selection Controls -->
-    <div class="date-controls">
-      <pelu-button
-        label="Avui"
-        icon="pi pi-calendar"
-        size="small"
-        severity="primary"
-        class="today-btn"
-        (clicked)="onTodayClicked()"
-      />
-      <pelu-input-date
-        [(ngModel)]="selectedDate"
-        [showButtonBar]="true"
-        [minDate]="todayDate()"
-        (valueChange)="onDateChange($event)"
-        placeholder="BOOKING.SELECT_DATE_PLACEHOLDER"
-      />
-      <div class="week-indicator">
-        <pelu-button
-          icon="pi pi-chevron-left"
-          size="small"
-          severity="secondary"
-          variant="outlined"
-          class="nav-btn"
-          (clicked)="calendarComponent?.previousWeek()"
-        />
-        <span class="week-range">{{ weekInfo() }}</span>
-        <pelu-button
-          icon="pi pi-chevron-right"
-          size="small"
-          severity="secondary"
-          variant="outlined"
-          class="nav-btn"
-          (clicked)="calendarComponent?.nextWeek()"
-        />
-      </div>
-    </div>
+  <div class="container">
+    <div class="booking-page">
+      @if (availableServices().length === 0) {
+        <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
+      }
 
-    <!-- Calendar Section -->
-    <div class="calendar-section">
-      <pelu-calendar-component
-        #calendarComponent
-        [mini]="false"
-        [events]="[]"
-        (dateSelected)="onTimeSlotSelected($event)"
-      >
-      </pelu-calendar-component>
+      <!-- User appointment limit validation message -->
+      @if (hasReachedAppointmentLimit()) {
+        <div class="validation-message">
+          <pelu-no-appointments-message
+            type="warning"
+            icon="⚠️"
+            iconColor="#f59e0b"
+            [title]="'BOOKING.USER_LIMIT_REACHED_TITLE'"
+            [message]="'BOOKING.USER_LIMIT_REACHED_MESSAGE'"
+            actionText="BOOKING.VIEW_MY_APPOINTMENTS"
+            [showAction]="false"
+          />
+        </div>
+      }
+
+      <!-- Date Selection Controls -->
+      <div class="date-controls">
+        <pelu-button
+          label="Avui"
+          icon="pi pi-calendar"
+          size="small"
+          severity="primary"
+          class="today-btn"
+          (clicked)="onTodayClicked()"
+        />
+        <pelu-input-date
+          [(ngModel)]="selectedDate"
+          [showButtonBar]="true"
+          [minDate]="todayDate()"
+          (valueChange)="onDateChange($event)"
+          placeholder="BOOKING.SELECT_DATE_PLACEHOLDER"
+        />
+        <div class="week-indicator">
+          <pelu-button
+            icon="pi pi-chevron-left"
+            size="small"
+            severity="secondary"
+            variant="outlined"
+            class="nav-btn"
+            (clicked)="calendarComponent?.previousWeek()"
+          />
+          <span class="week-range">{{ weekInfo() }}</span>
+          <pelu-button
+            icon="pi pi-chevron-right"
+            size="small"
+            severity="secondary"
+            variant="outlined"
+            class="nav-btn"
+            (clicked)="calendarComponent?.nextWeek()"
+          />
+        </div>
+      </div>
+
+      <!-- Calendar Section -->
+      <div class="calendar-section">
+        <pelu-calendar-component
+          #calendarComponent
+          [mini]="false"
+          [events]="[]"
+          [isBlocked]="isCalendarBlocked()"
+          (dateSelected)="onTimeSlotSelected($event)"
+        >
+        </pelu-calendar-component>
+      </div>
     </div>
   </div>
 }

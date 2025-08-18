@@ -405,6 +405,7 @@
     "NO_APPOINTMENTS_MESSAGE": "No hi ha cites disponibles en aquesta setmana. Prova amb una altra setmana o contacta amb nosaltres per més informació.",
     "USER_LIMIT_REACHED_TITLE": "Límit de reserves assolit",
     "USER_LIMIT_REACHED_MESSAGE": "Ja tens una reserva activa. No pots fer més reserves fins que cancel·lis la teva reserva actual.",
+    "VIEW_MY_APPOINTMENTS": "Veure les meves cites",
     "SELECTION_REQUIRED": "Selecció requerida",
     "SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
     "SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",
