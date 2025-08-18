@@ -7,7 +7,7 @@
   <!-- Calendar Content (only show when bookings are loaded) -->
   @else {
     <!-- Calendar Body -->
-    <div class="calendar-body">
+    <div class="calendar-body" [class.blocked]="isBlocked()">
 
       <div class="horizontal-week-view" [style.--calendar-slot-count]="SLOT_COUNT()">
         <!-- Time Column -->

@@ -379,6 +379,7 @@
     "NO_APPOINTMENTS_MESSAGE": "No hay citas disponibles en esta semana. Prueba con otra semana o contacta con nosotros para más información.",
     "USER_LIMIT_REACHED_TITLE": "Límite de reservas alcanzado",
     "USER_LIMIT_REACHED_MESSAGE": "Ya tienes una reserva activa. No puedes hacer más reservas hasta que canceles tu reserva actual.",
+    "VIEW_MY_APPOINTMENTS": "Ver mis citas",
     "SELECTION_REQUIRED": "Selección requerida",
     "SELECT_SERVICE_FIRST": "Por favor, selecciona un servicio primero",
     "SELECT_DATE_FIRST": "Por favor, selecciona una fecha primero",

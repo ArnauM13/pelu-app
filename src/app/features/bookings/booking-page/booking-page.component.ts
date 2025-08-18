@@ -28,6 +28,7 @@ import { ButtonComponent } from '../../../shared/components/buttons/button.compo
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
 import { CalendarStateService } from '../../calendar/services/calendar-state.service';
+import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
 import { startOfWeek, endOfWeek } from 'date-fns';
 
 @Component({
@@ -44,6 +45,7 @@ import { startOfWeek, endOfWeek } from 'date-fns';
     ButtonComponent,
     InputDateComponent,
     BookingMobilePageComponent,
+    NoAppointmentsMessageComponent,
   ],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss'],
@@ -96,6 +98,16 @@ export class BookingPageComponent {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today;
+  });
+
+  // Check if user has reached appointment limit for first screen validation
+  readonly hasReachedAppointmentLimit = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
+  });
+
+  // Check if calendar should be blocked due to appointment limit
+  readonly isCalendarBlocked = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
   });
 
   // Computed week info that updates when calendar view changes
@@ -278,15 +290,21 @@ export class BookingPageComponent {
 
   // User appointment limit methods
   canUserBookMoreAppointments(): boolean {
-    return this.bookingValidationService.canUserBookMoreAppointments();
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.canUserBookMoreAppointments(currentBookings);
   }
 
   getUserAppointmentCount(): number {
-    return this.bookingValidationService.getUserAppointmentCount();
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.getUserAppointmentCount(currentBookings);
   }
 
   getMaxAppointmentsPerUser(): number {
     return this.systemParametersService.getMaxAppointmentsPerUser();
+  }
+
+  onViewMyAppointments() {
+    this.router.navigate(['/appointments']);
   }
 
 }
