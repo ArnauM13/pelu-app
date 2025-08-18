@@ -103,6 +103,7 @@ export class CalendarComponent {
   // Input signals
   readonly mini = input<boolean>(false);
   readonly events = input<AppointmentEvent[]>([]);
+  readonly isBlocked = input<boolean>(false);
 
   // Output signals
   readonly dateSelected = output<{ date: string; time: string }>();
@@ -287,14 +288,14 @@ export class CalendarComponent {
       const timeSlots = this.timeSlots().map(time => ({
         date: day,
         time,
-        isAvailable: this.isTimeSlotAvailable(day, time),
+        isAvailable: this.isBlocked() ? false : this.isTimeSlotAvailable(day, time),
         isLunchBreak: this.isLunchBreak(time),
         isPastDate: this.isPastDate(day),
         isPastTime: this.isPastTimeSlot(day, time),
-        isClickable: this.isTimeSlotAvailable(day, time),
+        isClickable: this.isBlocked() ? false : this.isTimeSlotAvailable(day, time),
         isDisabled:
-          this.isPastDate(day) || this.isPastTimeSlot(day, time) || this.isLunchBreak(time),
-        tooltip: this.getTimeSlotTooltip(day, time),
+          this.isBlocked() || this.isPastDate(day) || this.isPastTimeSlot(day, time) || this.isLunchBreak(time),
+        tooltip: this.isBlocked() ? 'Has arribat al límit de reserves' : this.getTimeSlotTooltip(day, time),
       }));
 
       const dropIndicator =
