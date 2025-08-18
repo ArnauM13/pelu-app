@@ -18,7 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
       <div class="message-content">
         <p class="message-text">{{ message() | translate }}</p>
         
-        @if (actionText() && actionCallback()) {
+        @if (actionText() && actionCallback() && showAction()) {
           <div class="message-actions">
             <button class="btn btn-primary" (click)="actionCallback()!()">
               {{ actionText() | translate }}
@@ -32,7 +32,10 @@ import { TranslateModule } from '@ngx-translate/core';
     `
       .no-appointments-card {
         background: var(--surface-color);
+        display: flex;
+        flex-direction: column;
         border-radius: 16px;
+        gap: 0.5rem;
         padding: 1.5rem;
         box-shadow: var(--box-shadow);
         border: 2px solid var(--border-color);
@@ -58,7 +61,6 @@ import { TranslateModule } from '@ngx-translate/core';
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-bottom: 1.5rem;
       }
 
       .header-icon {
@@ -88,10 +90,6 @@ import { TranslateModule } from '@ngx-translate/core';
         margin: 0;
         font-size: 0.875rem;
         color: var(--text-color-light);
-      }
-
-      .message-content {
-        margin-bottom: 1rem;
       }
 
       .message-text {
@@ -143,7 +141,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
         .message-header {
           gap: 0.75rem;
-          margin-bottom: 1rem;
         }
 
         .header-icon {
@@ -184,7 +181,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
         .message-header {
           gap: 0.5rem;
-          margin-bottom: 0.75rem;
         }
 
         .header-icon {
@@ -222,4 +218,5 @@ export class NoAppointmentsMessageComponent {
   readonly message = input.required<string>();
   readonly actionText = input<string>('');
   readonly actionCallback = input<(() => void) | undefined>(undefined);
+  readonly showAction = input<boolean>(true);
 }

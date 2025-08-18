@@ -1,219 +1,181 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AvatarComponent } from './avatar.component';
-import { configureTestBed, resetMocks, setupDefaultMocks } from '../../../../testing/test-setup';
+import { AvatarComponent, AvatarData } from './avatar.component';
 
 describe('AvatarComponent', () => {
   let component: AvatarComponent;
   let fixture: ComponentFixture<AvatarComponent>;
 
-  beforeEach(async () => {
-    setupDefaultMocks();
+  const mockData: AvatarData = {
+    imageUrl: 'https://example.com/avatar.jpg',
+    name: 'John',
+    surname: 'Doe',
+    email: 'john.doe@example.com',
+  };
 
-    await configureTestBed([AvatarComponent]).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AvatarComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AvatarComponent);
     component = fixture.componentInstance;
-
-    resetMocks();
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have required inputs', () => {
-    expect(component.data).toBeDefined();
-    expect(component.size).toBeDefined();
+  it('should have default input values', () => {
+    expect(component.data).toEqual({});
+    expect(component.size).toBe('medium');
   });
 
-  it('should have computed properties', () => {
+  it('should have computed properties defined', () => {
     expect(component.hasImage).toBeDefined();
     expect(component.backgroundImageStyle).toBeDefined();
     expect(component.initials).toBeDefined();
     expect(component.tooltipText).toBeDefined();
     expect(component.imageLoadError).toBeDefined();
+    expect(component.imageLoaded).toBeDefined();
   });
 
-  it('should generate initials from name and surname', () => {
-    component.data = { name: 'John', surname: 'Doe' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    expect(component.initials()).toBe('JD');
-  });
+  it('should compute hasImage correctly', () => {
+    // No image URL
+    expect(component.hasImage()).toBe(false);
 
-  it('should generate initials from single name', () => {
-    component.data = { name: 'John' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    expect(component.initials()).toBe('J');
-  });
+    // Empty image URL
+    component.data = { imageUrl: '' };
+    expect(component.hasImage()).toBe(false);
 
-  it('should generate initials from email when no name', () => {
-    component.data = { email: 'john.doe@example.com' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    expect(component.initials()).toBe('J');
-  });
-
-  it('should display question mark when no data is provided', () => {
-    component.data = {};
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    expect(component.initials()).toBe('👤');
-  });
-
-  it('should detect image presence', () => {
-    component.data = { imageUrl: 'https://example.com/avatar.jpg' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
+    // Valid image URL
+    component.data = { imageUrl: 'https://example.com/image.jpg' };
     expect(component.hasImage()).toBe(true);
   });
 
-  it('should not detect image when no imageUrl', () => {
-    component.data = {};
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    expect(component.hasImage()).toBe(false);
+  it('should compute backgroundImageStyle correctly', () => {
+    // No image
+    expect(component.backgroundImageStyle()).toBe('');
+
+    // With image URL
+    component.data = { imageUrl: 'https://example.com/image.jpg' };
+    expect(component.backgroundImageStyle()).toBe('url(https://example.com/image.jpg)');
   });
 
-  it('should generate background image style', () => {
-    component.data = { imageUrl: 'https://example.com/avatar.jpg' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    const style = component.backgroundImageStyle();
-    expect(style).toContain('https://example.com/avatar.jpg');
-  });
-
-  it('should return empty background style when no image', () => {
-    component.data = {};
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    const style = component.backgroundImageStyle();
-    expect(style).toBe('');
-  });
-
-  it('should generate tooltip text with name and surname', () => {
+  it('should compute initials correctly', () => {
+    // With name and surname
     component.data = { name: 'John', surname: 'Doe' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    const tooltipText = component.tooltipText();
-    expect(tooltipText).toBe('John Doe');
-  });
+    expect(component.initials()).toBe('JD');
 
-  it('should generate tooltip text with only name', () => {
+    // With name only
     component.data = { name: 'John' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    const tooltipText = component.tooltipText();
-    expect(tooltipText).toBe('John');
-  });
+    expect(component.initials()).toBe('J');
 
-  it('should generate tooltip text with email when no name', () => {
-    component.data = { email: 'john@example.com' };
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
-    fixture.detectChanges();
-    const tooltipText = component.tooltipText();
-    expect(tooltipText).toBe('john@example.com');
-  });
+    // With email only
+    component.data = { email: 'john.doe@example.com' };
+    expect(component.initials()).toBe('J');
 
-  it('should return default tooltip when no data', () => {
+    // With no data
     component.data = {};
-    component.ngOnChanges({
-      data: {
-        currentValue: component.data,
-        previousValue: {},
-        firstChange: false,
-        isFirstChange: () => false,
-      },
-    });
+    expect(component.initials()).toBe('👤');
+  });
+
+  it('should compute tooltipText correctly', () => {
+    // With name and surname
+    component.data = { name: 'John', surname: 'Doe' };
+    expect(component.tooltipText()).toBe('John Doe');
+
+    // With name only
+    component.data = { name: 'John' };
+    expect(component.tooltipText()).toBe('John');
+
+    // With email only
+    component.data = { email: 'john.doe@example.com' };
+    expect(component.tooltipText()).toBe('john.doe@example.com');
+
+    // With no data
+    component.data = {};
+    expect(component.tooltipText()).toBe('User');
+  });
+
+  it('should handle image load events', () => {
+    expect(component.imageLoaded()).toBe(false);
+    expect(component.imageLoadError()).toBe(false);
+
+    component.onImageLoad();
+    expect(component.imageLoaded()).toBe(true);
+    expect(component.imageLoadError()).toBe(false);
+  });
+
+  it('should handle image error events', () => {
+    expect(component.imageLoaded()).toBe(false);
+    expect(component.imageLoadError()).toBe(false);
+
+    component.onImageError();
+    expect(component.imageLoaded()).toBe(false);
+    expect(component.imageLoadError()).toBe(true);
+  });
+
+  it('should render with basic structure', () => {
     fixture.detectChanges();
-    const tooltipText = component.tooltipText();
-    expect(tooltipText).toBe('User');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.avatar')).toBeTruthy();
   });
 
-  it('should have default size', () => {
-    expect(component.size).toBe('medium');
+  it('should apply size classes correctly', () => {
+    component.size = 'small';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.avatar.small')).toBeTruthy();
+
+    component.size = 'large';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.avatar.large')).toBeTruthy();
+
+    component.size = 'xlarge';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.avatar.xlarge')).toBeTruthy();
   });
 
-  it('should have default data', () => {
-    expect(component.data).toEqual({});
+  it('should show initials when no image is available', () => {
+    component.data = { name: 'John', surname: 'Doe' };
+    fixture.detectChanges();
+
+    const initialsElement = fixture.nativeElement.querySelector('.initials');
+    expect(initialsElement).toBeTruthy();
+    expect(initialsElement.textContent.trim()).toBe('JD');
+  });
+
+  it('should show image when available', () => {
+    component.data = { imageUrl: 'https://example.com/image.jpg' };
+    fixture.detectChanges();
+
+    const imageElement = fixture.nativeElement.querySelector('.avatar-image');
+    expect(imageElement).toBeTruthy();
+  });
+
+  it('should handle image load error gracefully', () => {
+    component.data = { imageUrl: 'https://example.com/image.jpg' };
+    fixture.detectChanges();
+
+    // Simulate image error
+    component.onImageError();
+    fixture.detectChanges();
+
+    const initialsElement = fixture.nativeElement.querySelector('.initials');
+    expect(initialsElement).toBeTruthy();
+  });
+
+  it('should be a standalone component', () => {
+    expect(AvatarComponent.prototype.constructor).toBeDefined();
+    expect(AvatarComponent.prototype.constructor.name).toContain('AvatarComponent');
+  });
+
+  it('should have component metadata', () => {
+    expect(AvatarComponent.prototype).toBeDefined();
+    expect(AvatarComponent.prototype.constructor).toBeDefined();
+  });
+
+  it('should not throw errors during rendering', () => {
+    expect(() => fixture.detectChanges()).not.toThrow();
   });
 });

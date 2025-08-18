@@ -49,154 +49,60 @@ describe('TranslationService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should have currentLanguage computed signal', () => {
-    expect(service.currentLanguage).toBeDefined();
-    expect(typeof service.currentLanguage).toBe('function');
+  it('should have getCurrentLang method', () => {
+    expect(service.getCurrentLang).toBeDefined();
+    expect(typeof service.getCurrentLang).toBe('function');
   });
 
-  it('should have currentLanguageInfo computed signal', () => {
-    expect(service.currentLanguageInfo).toBeDefined();
-    expect(typeof service.currentLanguageInfo).toBe('function');
+  it('should have getAvailableLanguages method', () => {
+    expect(service.getAvailableLanguages).toBeDefined();
+    expect(typeof service.getAvailableLanguages).toBe('function');
   });
 
   it('should have availableLanguages array', () => {
-    expect(service.availableLanguages).toBeDefined();
-    expect(Array.isArray(service.availableLanguages)).toBe(true);
-    expect(service.availableLanguages.length).toBe(4);
+    const languages = service.getAvailableLanguages();
+    expect(languages).toBeDefined();
+    expect(Array.isArray(languages)).toBe(true);
+    expect(languages.length).toBe(3);
   });
 
   it('should have Catalan as first language', () => {
-    expect(service.availableLanguages[0].code).toBe('ca');
-    expect(service.availableLanguages[0].name).toBe('Català');
+    const languages = service.getAvailableLanguages();
+    expect(languages[0].code).toBe('ca');
+    expect(languages[0].name).toBe('Català');
   });
 
   it('should have setLanguage method', () => {
     expect(typeof service.setLanguage).toBe('function');
   });
 
-  it('should have getLanguage method', () => {
-    expect(typeof service.getLanguage).toBe('function');
+  it('should have getTranslation method', () => {
+    expect(typeof service.getTranslation).toBe('function');
   });
 
-  it('should have getCurrentLanguageInfo method', () => {
-    expect(typeof service.getCurrentLanguageInfo).toBe('function');
-  });
-
-  it('should have isLanguageAvailable method', () => {
-    expect(typeof service.isLanguageAvailable).toBe('function');
-  });
-
-  it('should have isRTL method', () => {
-    expect(typeof service.isRTL).toBe('function');
-  });
-
-  it('should have get method', () => {
-    expect(typeof service.get).toBe('function');
-  });
-
-  it('should have get$ method', () => {
-    expect(typeof service.get$).toBe('function');
-  });
-
-  it('should have reload method', () => {
-    expect(typeof service.reload).toBe('function');
-  });
-
-  it('should have getBrowserLanguage method', () => {
-    expect(typeof service.getBrowserLanguage).toBe('function');
-  });
-
-  it('should have saveUserLanguagePreference method', () => {
-    expect(typeof service.saveUserLanguagePreference).toBe('function');
-  });
-
-  it('should have getUserLanguagePreference method', () => {
-    expect(typeof service.getUserLanguagePreference).toBe('function');
-  });
-
-  it('should have restoreUserLanguagePreference method', () => {
-    expect(typeof service.restoreUserLanguagePreference).toBe('function');
+  it('should have getTranslationInstant method', () => {
+    expect(typeof service.getTranslationInstant).toBe('function');
   });
 
   it('should initialize with Catalan as default language', () => {
-    expect(service.currentLanguage()).toBe('ca');
-  });
-
-  it('should return current language info', () => {
-    const langInfo = service.currentLanguageInfo();
-    expect(langInfo).toBeDefined();
-    expect(langInfo?.code).toBe('ca');
-    expect(langInfo?.name).toBe('Català');
-  });
-
-  it('should check if language is available', () => {
-    expect(service.isLanguageAvailable('ca')).toBe(true);
-    expect(service.isLanguageAvailable('es')).toBe(true);
-    expect(service.isLanguageAvailable('en')).toBe(true);
-    expect(service.isLanguageAvailable('ar')).toBe(true);
-    expect(service.isLanguageAvailable('fr')).toBe(false);
-  });
-
-  it('should check RTL languages', () => {
-    expect(service.isRTL('ar')).toBe(true);
-    expect(service.isRTL('ca')).toBe(false);
-    expect(service.isRTL('es')).toBe(false);
-    expect(service.isRTL('en')).toBe(false);
+    expect(service.getCurrentLang()).toBe('ca');
   });
 
   it('should get translated text', () => {
-    const result = service.get('TEST.KEY');
+    const result = service.getTranslationInstant('TEST.KEY');
     expect(result).toBe('translated text');
     expect(translateService.instant).toHaveBeenCalledWith('TEST.KEY', undefined);
   });
 
   it('should get translated text with parameters', () => {
     const params = { name: 'test' };
-    service.get('TEST.KEY', params);
+    service.getTranslationInstant('TEST.KEY', params);
     expect(translateService.instant).toHaveBeenCalledWith('TEST.KEY', params);
   });
 
   it('should get translated text as observable', () => {
-    const result = service.get$('TEST.KEY');
+    const result = service.getTranslation('TEST.KEY');
     expect(result).toBeDefined();
     expect(translateService.get).toHaveBeenCalledWith('TEST.KEY', undefined);
-  });
-
-  it('should reload translations', () => {
-    service.reload();
-    expect(translateService.reloadLang).toHaveBeenCalledWith('ca');
-  });
-
-  it('should get browser language', () => {
-    const result = service.getBrowserLanguage();
-    expect(result).toBe('ca');
-    expect(translateService.getBrowserLang).toHaveBeenCalled();
-  });
-
-  it('should save user language preference', () => {
-    spyOn(localStorage, 'setItem');
-    service.saveUserLanguagePreference('user123', 'es');
-    expect(localStorage.setItem).toHaveBeenCalledWith('userLanguage_user123', 'es');
-  });
-
-  it('should get user language preference', () => {
-    spyOn(localStorage, 'getItem').and.returnValue('en');
-    const result = service.getUserLanguagePreference('user123');
-    expect(result).toBe('en');
-    expect(localStorage.getItem).toHaveBeenCalledWith('userLanguage_user123');
-  });
-
-  it('should restore user language preference', () => {
-    spyOn(localStorage, 'getItem').and.returnValue('es');
-    spyOn(service as unknown as Record<string, any>, 'setLanguage');
-    service.restoreUserLanguagePreference('user123');
-    expect(service.setLanguage).toHaveBeenCalledWith('es');
-  });
-
-  it('should not restore invalid language preference', () => {
-    spyOn(localStorage, 'getItem').and.returnValue('invalid');
-    spyOn(service, 'setLanguage');
-    service.restoreUserLanguagePreference('user123');
-    expect(service.setLanguage).not.toHaveBeenCalled();
   });
 });

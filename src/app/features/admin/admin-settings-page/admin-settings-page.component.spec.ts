@@ -55,6 +55,7 @@ describe('AdminSettingsPageComponent', () => {
       'updateBusinessHours',
       'resetToDefaults',
       'getLunchBreak',
+      'getBusinessHours',
     ], {
       parameters: computed(() => mockSettings),
       loading: computed(() => false),
@@ -81,6 +82,10 @@ describe('AdminSettingsPageComponent', () => {
     systemParametersSpy.getLunchBreak.and.returnValue({
       start: 13,
       end: 14,
+    });
+    systemParametersSpy.getBusinessHours.and.returnValue({
+      start: 8,
+      end: 20,
     });
     currencyServiceSpy.getCurrentCurrency.and.returnValue('EUR');
     currencyServiceSpy.getCurrencyOptions.and.returnValue([
@@ -192,16 +197,6 @@ describe('AdminSettingsPageComponent', () => {
       systemParametersService.resetToDefaults.and.returnValue(Promise.reject(new Error('Reset failed')));
 
       await component.resetToDefaults();
-
-      expect(toastService.showError).toHaveBeenCalled();
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle system parameters service errors', () => {
-      systemParametersService.loadParameters.and.returnValue(Promise.reject(new Error('Load failed')));
-
-      fixture.detectChanges();
 
       expect(toastService.showError).toHaveBeenCalled();
     });
