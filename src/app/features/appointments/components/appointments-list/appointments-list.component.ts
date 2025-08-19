@@ -326,7 +326,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         border-color: var(--info-color-dark);
       }
 
-      
+
 
       .no-date-badge {
         background: var(--text-color-light);
@@ -648,12 +648,14 @@ export class AppointmentsListComponent {
   }
 
   getActionContext(booking: Booking): ActionContext {
-    return {
+    const context: ActionContext = {
       type: 'appointment',
       item: booking,
       onEdit: () => this.editBooking.emit(booking),
       onDelete: () => this.deleteBooking.emit(booking),
       onView: () => this.viewBooking.emit(booking),
     };
+
+    return context;
   }
 }

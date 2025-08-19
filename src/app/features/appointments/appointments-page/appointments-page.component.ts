@@ -285,21 +285,21 @@ export class AppointmentsPageComponent {
         // Ensure we have valid string values
         const safeDateStr = typeof dateStr === 'string' ? dateStr : '';
         const safeTimeStr = typeof timeStr === 'string' ? timeStr : '00:00';
-        
+
         // If no valid date, return a default date
         if (!safeDateStr) {
           return new Date(0); // Default to epoch time for invalid dates
         }
-        
+
         try {
           const [year, month, day] = safeDateStr.split('-').map(Number);
           const [hour, minute] = safeTimeStr.split(':').map(Number);
-          
+
           // Validate that we have valid numbers
           if (isNaN(year) || isNaN(month) || isNaN(day)) {
             return new Date(0);
           }
-          
+
           return new Date(year, month - 1, day, hour || 0, minute || 0);
         } catch (_error) {
           // If parsing fails, return default date
@@ -336,7 +336,7 @@ export class AppointmentsPageComponent {
   // List actions (for Booking objects)
   async deleteBookingFromList(booking: Booking): Promise<void> {
     if (!booking.id) return;
-    
+
     // Show confirmation popup
     this.confirmationPopupSignal.set({
       isOpen: true,

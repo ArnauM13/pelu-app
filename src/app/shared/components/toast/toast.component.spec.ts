@@ -185,7 +185,7 @@ describe('ToastComponent', () => {
 
       component.viewAppointmentDetail(appointmentId);
 
-      expect(router.navigate).toHaveBeenCalledWith(['/appointments', 'user-123-appointment-456']);
+      expect(router.navigate).toHaveBeenCalledWith(['/appointments', 'appointment-456']);
     });
 
     it('should not navigate when user is not authenticated', () => {

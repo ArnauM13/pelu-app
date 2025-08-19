@@ -32,6 +32,18 @@
           >
           </pelu-button>
 
+          <div class="mobile-client-info">
+            <pelu-avatar
+              [data]="appointmentClientAvatarData() || {}"
+              size="medium"
+              class="mobile-client-avatar"
+            ></pelu-avatar>
+            <div class="mobile-client-details">
+              <span class="mobile-client-name">{{ appointmentTitle() }}</span>
+              <span class="mobile-client-subtitle">{{ appointmentSubtitle() }}</span>
+            </div>
+          </div>
+
           <pelu-appointment-status-badge
             [appointmentData]="{ date: appointment()?.data || '', time: appointment()?.hora || '' }"
             [config]="{ size: 'medium', variant: 'default', showIcon: true, showDot: true }"
@@ -80,20 +92,17 @@
               </pelu-button>
 
               <div class="appointment-info">
-                <h1 class="appointment-title">
-                  {{
-                    'COMMON.TIME.APPOINTMENT_TITLE'
-                      | translate
-                        : {
-                            nom: appointment()?.clientName,
-                            data: formatDate(appointment()?.data || ''),
-                            hora: formatTime(appointment()?.hora || ''),
-                          }
-                  }}
-                </h1>
-                <p class="appointment-subtitle">
-                  {{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}
-                </p>
+                <div class="client-info-section">
+                  <pelu-avatar
+                    [data]="appointmentClientAvatarData() || {}"
+                    size="large"
+                    class="client-avatar"
+                  ></pelu-avatar>
+                  <div class="client-details">
+                    <h1 class="appointment-title">{{ appointmentTitle() }}</h1>
+                    <p class="appointment-subtitle">{{ appointmentSubtitle() }}</p>
+                  </div>
+                </div>
               </div>
               <div class="status-section">
                 <pelu-appointment-status-badge
@@ -109,133 +118,226 @@
 
       <!-- Card Content -->
       <div class="card-content">
-        <!-- Edit Form (when editing appointments) - IN-PLACE -->
-        @if (type() === 'appointment' && isEditing() && appointment()) {
-          <div class="info-section edit-section">
-            <h2>
-              {{ 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS' | translate }}
-            </h2>
+        @if (type() === 'appointment' && appointment()) {
+          <!-- Appointment Detail Layout -->
+          <div class="appointment-detail-layout">
+                         <!-- Appointment Details Section (30% width) -->
+             <div class="appointment-details-section">
+               <div class="appointment-details-card">
+                 <div class="section-header">
+                   <h2>{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
+                   @if (hasAvailableActions() && !isEditing() && actionContext()) {
+                     <pelu-actions-buttons [context]="actionContext()!"> </pelu-actions-buttons>
+                   }
+                 </div>
 
-            <div class="edit-form">
-              <div class="form-grid">
-                <!-- Client Name - EDITABLE -->
-                <div class="form-group">
-                  <pelu-input-text
-                    [label]="'COMMON.CLIENT_NAME'"
-                    [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
-                    [required]="true"
-                    [value]="appointment()?.clientName || ''"
-                    (valueChange)="onUpdateForm('clientName', $event)"
-                  >
-                  </pelu-input-text>
-                </div>
+              @if (isEditing()) {
+                <!-- Edit Form -->
+                <div class="edit-form">
+                  <div class="form-grid">
+                    <!-- Client Name - EDITABLE -->
+                    <div class="form-group">
+                      <pelu-input-text
+                        [label]="'COMMON.CLIENT_NAME'"
+                        [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
+                        [required]="true"
+                        [value]="appointment()?.clientName || ''"
+                        (valueChange)="onUpdateForm('clientName', $event)"
+                      >
+                      </pelu-input-text>
+                    </div>
 
-                <!-- Date - EDITABLE -->
-                <div class="form-group">
-                  <pelu-input-date
-                    [label]="'COMMON.DATE'"
-                    [required]="true"
-                    [value]="appointment()?.data || ''"
-                    (valueChange)="onUpdateForm('data', $event)"
-                  >
-                  </pelu-input-date>
-                </div>
+                    <!-- Date - EDITABLE -->
+                    <div class="form-group">
+                      <pelu-input-date
+                        [label]="'COMMON.DATE'"
+                        [required]="true"
+                        [value]="appointment()?.data || ''"
+                        (valueChange)="onUpdateForm('data', $event)"
+                      >
+                      </pelu-input-date>
+                    </div>
 
-                <!-- Time - EDITABLE -->
-                <div class="form-group">
-                  <pelu-input-text
-                    [label]="'COMMON.TIME.HOURS'"
-                    [placeholder]="'HH:MM'"
-                    [required]="true"
-                    [value]="appointment()?.hora || ''"
-                    (valueChange)="onUpdateForm('hora', $event)"
-                  >
-                  </pelu-input-text>
-                </div>
+                    <!-- Time - EDITABLE -->
+                    <div class="form-group">
+                      <pelu-input-text
+                        [label]="'COMMON.HOURS'"
+                        [placeholder]="'HH:MM'"
+                        [required]="true"
+                        [value]="appointment()?.hora || ''"
+                        (valueChange)="onUpdateForm('hora', $event)"
+                      >
+                      </pelu-input-text>
+                    </div>
 
-                <!-- Notes - EDITABLE -->
-                <div class="form-group full-width">
-                  <pelu-input-textarea
-                    [label]="'COMMON.NOTES'"
-                    [placeholder]="'COMMON.NOTES'"
-                    [value]="appointment()?.notes || ''"
-                    [rows]="3"
-                    (valueChange)="onUpdateForm('notes', $event)"
-                  >
-                  </pelu-input-textarea>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="form-actions">
-                <pelu-button
-                  [label]="'COMMON.ACTIONS.CANCEL'"
-                  severity="secondary"
-                  (clicked)="onCancelEdit()"
-                />
-                <pelu-button
-                  [label]="'COMMON.ACTIONS.SAVE'"
-                  severity="primary"
-                  (clicked)="onSave()"
-                />
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Information Sections (only show when NOT editing) -->
-        @if (!isEditing()) {
-          @for (section of infoSections(); track section.title; let i = $index) {
-            <div class="info-section">
-              <div class="section-header">
-                <h2>{{ section.title | translate }}</h2>
-                @if (i === 0 && hasAvailableActions() && !isEditing() && actionContext()) {
-                  <pelu-actions-buttons [context]="actionContext()!"> </pelu-actions-buttons>
-                }
-              </div>
-
-              @if (section.isEditing) {
-                <div class="edit-notes-form">
-                  <div class="notes-form-grid">
-                    @for (item of section.items; track item.label; let j = $index) {
-                      <div class="form-group">
-                        <pelu-input-textarea
-                          [label]="item.label"
-                          [placeholder]="item.label"
-                          [rows]="2"
-                          [value]="item.value"
-                          (valueChange)="onUpdateForm(item.field || '', $event)"
-                        >
-                        </pelu-input-textarea>
-                      </div>
-                    }
+                    <!-- Notes - EDITABLE -->
+                    <div class="form-group">
+                      <pelu-input-textarea
+                        [label]="'COMMON.NOTES'"
+                        [placeholder]="'COMMON.NOTES'"
+                        [value]="appointment()?.notes || ''"
+                        [rows]="3"
+                        (valueChange)="onUpdateForm('notes', $event)"
+                      >
+                      </pelu-input-textarea>
+                    </div>
                   </div>
 
+                  <!-- Action Buttons -->
                   <div class="form-actions">
                     <pelu-button
-                      [label]="'COMMON.ACTIONS.CANCEL' | translate"
-                      icon="❌"
-                      severity="secondary"
-                      (clicked)="section.onCancel?.()"
-                    >
-                    </pelu-button>
+                      [label]="'COMMON.ACTIONS.CANCEL'"
+                      severity="danger"
+                      (clicked)="onCancelEdit()"
+                    />
                     <pelu-button
-                      [label]="'COMMON.ACTIONS.SAVE' | translate"
-                      icon="💾"
+                      [label]="'COMMON.ACTIONS.SAVE'"
                       severity="primary"
-                      (clicked)="section.onSave?.({})"
-                    >
-                    </pelu-button>
+                      (clicked)="onSave()"
+                    />
                   </div>
                 </div>
               } @else {
-                <div class="info-grid">
-                  @for (item of section.items; track item.label; let j = $index) {
-                    <pelu-info-item [data]="item" [showStatus]="false" />
-                  }
+                <!-- View Mode -->
+                <div class="appointment-info-grid">
+                  <div class="form-group">
+                    <pelu-input-text
+                      [label]="'COMMON.CLIENT'"
+                      [value]="appointment()?.clientName || 'N/A'"
+                      [readonly]="true"
+                      [disabled]="true"
+                    >
+                    </pelu-input-text>
+                  </div>
+
+                  <div class="form-group">
+                    <pelu-input-text
+                      [label]="'COMMON.DATE'"
+                      [value]="appointment()?.data ? formatDate(appointment()!.data) : 'N/A'"
+                      [readonly]="true"
+                      [disabled]="true"
+                    >
+                    </pelu-input-text>
+                  </div>
+
+                  <div class="form-group">
+                    <pelu-input-text
+                      [label]="'COMMON.HOURS'"
+                      [value]="appointment()?.hora || 'N/A'"
+                      [readonly]="true"
+                      [disabled]="true"
+                    >
+                    </pelu-input-text>
+                  </div>
+
+                  <div class="form-group">
+                    <pelu-input-textarea
+                      [label]="'COMMON.NOTES'"
+                      [value]="appointment()?.notes || 'N/A'"
+                      [readonly]="true"
+                      [disabled]="true"
+                      [rows]="3"
+                    >
+                    </pelu-input-textarea>
+                  </div>
                 </div>
               }
             </div>
+            </div>
+
+            <!-- Service Information Section -->
+            <div class="service-info-section">
+              @if (service()) {
+                <pelu-service-card
+                  [service]="service()!"
+                  [showCategory]="false"
+                  [showActions]="false"
+                  [clickable]="false"
+                >
+                </pelu-service-card>
+              } @else {
+                <div class="no-service-info">
+                  <p>{{ 'COMMON.NO_SPECIFIED' | translate }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- Information Sections (for other types) -->
+          @if (!isEditing()) {
+            @for (section of infoSections(); track section.title; let i = $index) {
+              <div class="info-section">
+                <div class="section-header">
+                  <h2>{{ section.title | translate }}</h2>
+                  @if (i === 0 && hasAvailableActions() && !isEditing() && actionContext()) {
+                    <pelu-actions-buttons [context]="actionContext()!"> </pelu-actions-buttons>
+                  }
+                </div>
+
+                @if (section.isEditing) {
+                  <div class="edit-notes-form">
+                    <div class="notes-form-grid">
+                      @for (item of section.items; track item.label; let j = $index) {
+                        <div class="form-group">
+                          <pelu-input-textarea
+                            [label]="item.label"
+                            [placeholder]="item.label"
+                            [rows]="2"
+                            [value]="item.value"
+                            (valueChange)="onUpdateForm(item.field || '', $event)"
+                          >
+                          </pelu-input-textarea>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="form-actions">
+                      <pelu-button
+                        [label]="'COMMON.ACTIONS.CANCEL' | translate"
+                        icon="❌"
+                        severity="danger"
+                        (clicked)="section.onCancel?.()"
+                      >
+                      </pelu-button>
+                      <pelu-button
+                        [label]="'COMMON.ACTIONS.SAVE' | translate"
+                        icon="💾"
+                        severity="primary"
+                        (clicked)="section.onSave?.({})"
+                      >
+                      </pelu-button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="info-grid">
+                    @for (item of section.items; track item.label; let j = $index) {
+                      @if (item.field === 'notes') {
+                        <div class="form-group full-width">
+                          <pelu-input-textarea
+                            [label]="item.label"
+                            [value]="item.value"
+                            [readonly]="true"
+                            [disabled]="true"
+                            [rows]="3"
+                          >
+                          </pelu-input-textarea>
+                        </div>
+                      } @else {
+                        <div class="form-group">
+                          <pelu-input-text
+                            [label]="item.label"
+                            [value]="item.value"
+                            [readonly]="true"
+                            [disabled]="true"
+                          >
+                          </pelu-input-text>
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            }
           }
         }
       </div>

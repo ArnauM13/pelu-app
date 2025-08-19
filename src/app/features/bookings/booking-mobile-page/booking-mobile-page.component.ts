@@ -27,6 +27,7 @@ import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -45,7 +46,8 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     NextAppointmentComponent,
     LoadingStateComponent,
     NoAppointmentsMessageComponent,
-    ButtonComponent
+    ButtonComponent,
+    ServiceCardComponent
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],
@@ -167,7 +169,7 @@ export class BookingMobilePageComponent {
     const hasService = !!this.selectedService();
     const hasDate = !!this.selectedDate();
     const hasTimeSlot = !!this.selectedTimeSlot();
-    
+
     // All conditions must be met
     return hasClientName && hasEmail && hasService && hasDate && hasTimeSlot;
   });
@@ -184,7 +186,7 @@ export class BookingMobilePageComponent {
   // Recently booked services (3 most recent unique services)
   readonly recentlyBookedServices = computed(() => {
     const recentServiceIds = this.bookingService.getRecentlyBookedServices();
-    return this.availableServices().filter(service => 
+    return this.availableServices().filter(service =>
       recentServiceIds.includes(service.id || '')
     );
   });
@@ -192,8 +194,8 @@ export class BookingMobilePageComponent {
   // Popular services (services with popular flag, but not recently booked)
   readonly popularServices = computed(() => {
     const recentServiceIds = this.bookingService.getRecentlyBookedServices();
-    return this.availableServices().filter(service => 
-      service.isPopular === true && 
+    return this.availableServices().filter(service =>
+      service.isPopular === true &&
       !recentServiceIds.includes(service.id || '')
     );
   });
@@ -201,8 +203,8 @@ export class BookingMobilePageComponent {
   // Other services (non-popular services and not recently booked)
   readonly otherServices = computed(() => {
     const recentServiceIds = this.bookingService.getRecentlyBookedServices();
-    return this.availableServices().filter(service => 
-      service.isPopular !== true && 
+    return this.availableServices().filter(service =>
+      service.isPopular !== true &&
       !recentServiceIds.includes(service.id || '')
     );
   });
@@ -252,7 +254,7 @@ export class BookingMobilePageComponent {
   readonly hasNoAvailableAppointmentsForSelectedDay = computed(() => {
     const selectedDate = this.selectedDate();
     if (!selectedDate) return false;
-    
+
     // Only show warning for working days that are fully booked for the selected service
     return this.isBusinessDay(selectedDate) && this.hasNoAvailableAppointmentsForDay(selectedDate);
   });
@@ -1000,10 +1002,10 @@ export class BookingMobilePageComponent {
   // Check if a day is a fully booked working day for the selected service duration
   isFullyBookedWorkingDayForService(day: Date): boolean {
     if (!this.isBusinessDay(day)) return false;
-    
+
     const selectedService = this.selectedService();
     if (!selectedService) return false;
-    
+
     // Check if there's enough space for the selected service duration
     return !this.hasEnoughSpaceForService(day, selectedService);
   }
@@ -1033,7 +1035,7 @@ export class BookingMobilePageComponent {
     // Check if there are enough consecutive available slots for the service duration
     const serviceDurationInMinutes = service.duration || 60;
     const slotsNeeded = Math.ceil(serviceDurationInMinutes / this.slotDuration());
-    
+
     let consecutiveAvailableSlots = 0;
     for (const slot of daySlots) {
       if (slot.available) {
@@ -1045,7 +1047,7 @@ export class BookingMobilePageComponent {
         consecutiveAvailableSlots = 0;
       }
     }
-    
+
     return false;
   }
 

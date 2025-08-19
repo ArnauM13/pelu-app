@@ -43,7 +43,7 @@ describe('NoAppointmentsMessageComponent', () => {
 
     fixture = TestBed.createComponent(TestWrapperComponent);
     component = fixture.componentInstance;
-    
+
     fixture.detectChanges();
   });
 
@@ -80,7 +80,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render with default configuration', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -92,7 +92,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render with warning type by default', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -103,7 +103,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render with info type when specified', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -114,7 +114,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render with custom icon and color', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -127,13 +127,13 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render title and message correctly', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const title = compiled.querySelector('.title');
     const message = compiled.querySelector('.message-text');
-    
+
     expect(title).toBeTruthy();
     expect(message).toBeTruthy();
   });
@@ -141,7 +141,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render subtitle when provided', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -153,7 +153,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should not render action button when actionText is empty', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -165,7 +165,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should not render action button when actionCallback is undefined', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -177,7 +177,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should render action button when both actionText and actionCallback are provided', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -189,7 +189,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should call action callback when button is clicked', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -201,7 +201,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should have correct CSS classes for warning type', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -213,7 +213,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should have correct CSS classes for info type', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -226,7 +226,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should have proper structure with header and content sections', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -257,7 +257,7 @@ describe('NoAppointmentsMessageComponent', () => {
   it('should handle multiple action button clicks', () => {
     // Note: In Angular 17+, we can't set input signals in tests
     // We test the default behavior instead
-    
+
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;

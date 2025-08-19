@@ -114,11 +114,9 @@ export class AppointmentDetailService {
 
     return (
       booking.clientName !== form.clientName ||
-      booking.email !== form.email ||
       booking.data !== form.data ||
       booking.hora !== form.hora ||
-      booking.notes !== form.notes ||
-      booking.serviceId !== form.serviceId
+      booking.notes !== form.notes
     );
   }
 
@@ -135,11 +133,9 @@ export class AppointmentDetailService {
   createFormFromBooking(booking: Booking): BookingForm {
     return {
       clientName: booking.clientName || '',
-      email: booking.email || '',
       data: booking.data || '',
       hora: booking.hora || '',
       notes: booking.notes || '',
-      serviceId: booking.serviceId || '',
     };
   }
 
