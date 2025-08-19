@@ -83,10 +83,11 @@ export class AuthService {
   async registre(email: string, password: string) {
     const cred = await createUserWithEmailAndPassword(this.auth, email, password);
     // Inicialitza el document d'usuari a Firestore
+    const browserLanguage = this.translationService.getBrowserLanguage() || 'ca';
     await this.roleService.setUserRole({
       uid: cred.user.uid,
       email: cred.user.email || '',
-      lang: 'ca',
+      lang: browserLanguage,
       role: 'client',
       theme: 'light',
     });
@@ -118,19 +119,26 @@ export class AuthService {
     const update: Partial<UserRole> = {
       email: user.email || '',
       uid: user.uid,
+      displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
     };
-    // Si vols, pots afegir aquí la detecció d'idioma o tema per defecte
     if (!existing) {
+      const browserLanguage = this.translationService.getBrowserLanguage() || 'ca';
       await this.roleService.setUserRole({
         uid: user.uid,
         email: user.email || '',
-        lang: 'ca',
+        displayName: user.displayName || undefined,
+        photoURL: user.photoURL || undefined,
+        lang: browserLanguage,
         role: 'client',
         theme: 'light',
       });
     } else {
-      // Actualitza només si canvia l'email, lang o theme
-      if (existing.email !== update.email) {
+      // Actualitza si canvia l'email, displayName o photoURL
+      const hasChanges = existing.email !== update.email ||
+                        existing.displayName !== update.displayName ||
+                        existing.photoURL !== update.photoURL;
+      if (hasChanges) {
         await this.roleService.updateUserRole(user.uid, update);
       }
     }

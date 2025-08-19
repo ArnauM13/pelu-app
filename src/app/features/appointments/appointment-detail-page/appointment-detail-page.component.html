@@ -1,7 +1,9 @@
 <pelu-detail-view
   [config]="detailConfig()"
+  [appointmentId]="appointmentId()"
   (back)="goBack()"
   (delete)="deleteAppointment()"
+  (edit)="onEditRequested()"
 >
 </pelu-detail-view>
 

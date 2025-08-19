@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, signal, Input } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, Input, effect } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,8 +11,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
-import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
-import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../../shared/components/detail-view/detail-view.component';
+import { DetailViewComponent, DetailViewConfig, DetailAction, InfoItemData } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -22,6 +21,7 @@ import { ServicesService } from '../../../core/services/services.service';
 import { Service } from '../../../core/services/services.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
 import { ResponsiveService } from '../../../core/services/responsive.service';
+import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
@@ -54,12 +54,13 @@ export class AppointmentDetailPageComponent implements OnInit {
   private appointmentDetailService = inject(AppointmentDetailService);
   private servicesService = inject(ServicesService);
   private responsiveService = inject(ResponsiveService);
+  private appointmentManagementService = inject(AppointmentManagementService);
 
   // Public computed signals from service
-  readonly booking = this.appointmentDetailService.booking;
-  readonly isLoading = this.appointmentDetailService.isLoading;
-  readonly canEdit = this.appointmentDetailService.canEdit;
-  readonly canDelete = this.appointmentDetailService.canDelete;
+  readonly booking = this.appointmentManagementService.appointment;
+  readonly isLoading = this.appointmentManagementService.isLoading;
+  readonly canEdit = this.appointmentManagementService.canEdit;
+  readonly canDelete = this.appointmentManagementService.canDelete;
 
   // Mobile detection
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -67,6 +68,11 @@ export class AppointmentDetailPageComponent implements OnInit {
   // Service data
   private loadedService = signal<Service | null>(null);
   readonly service = computed(() => this.loadedService());
+
+  // Appointment ID for detail view
+  readonly appointmentId = computed(() => this.route.snapshot.paramMap.get('id'));
+
+
 
   // UI state signals
   private showDeleteAlertSignal = signal<boolean>(false);
@@ -83,18 +89,21 @@ export class AppointmentDetailPageComponent implements OnInit {
     const items: InfoItemData[] = [
       {
         icon: '👤',
-        label: 'COMMON.CLIENT',
+        label: 'COMMON.CLIENT_NAME',
         value: booking.clientName,
+        field: 'clientName',
       },
       {
         icon: '📅',
         label: 'COMMON.DATE',
         value: this.formatDate(booking.data),
+        field: 'data',
       },
       {
         icon: '⏰',
-        label: 'COMMON.TIME.TODAY',
+        label: 'COMMON.HOURS',
         value: this.formatTime(booking.hora),
+        field: 'hora',
       },
       {
         icon: '✂️',
@@ -116,8 +125,9 @@ export class AppointmentDetailPageComponent implements OnInit {
     if (booking.notes) {
       items.push({
         icon: '📝',
-        label: 'APPOINTMENTS.NOTES',
+        label: 'COMMON.NOTES',
         value: booking.notes,
+        field: 'notes',
       });
     }
 
@@ -189,6 +199,8 @@ export class AppointmentDetailPageComponent implements OnInit {
     };
   });
 
+
+
   ngOnInit() {
     // Load from route parameters
     this.loadAppointment();
@@ -200,20 +212,17 @@ export class AppointmentDetailPageComponent implements OnInit {
       setTimeout(() => this.showDeleteConfirmation(), 0);
     }
 
-    // Auto-trigger edit mode if requested via query param
-    const editMode = this.route.snapshot.queryParamMap.get('edit');
-    if (editMode === 'true') {
-      // Defer to allow booking to load if needed
-      setTimeout(() => this.editAppointment(), 0);
-    }
+
   }
 
   private async loadAppointment(): Promise<void> {
     const appointmentId = this.route.snapshot.paramMap.get('id');
     if (appointmentId) {
-      await this.appointmentDetailService.loadBookingById(appointmentId);
+      await this.appointmentManagementService.loadAppointment(appointmentId);
       // Load service data after booking is loaded
       await this.loadServiceData();
+
+
     }
   }
 
@@ -258,10 +267,8 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   async deleteAppointment(): Promise<void> {
-    const success = await this.appointmentDetailService.deleteBooking();
-    if (success) {
-      this.goBack();
-    }
+    await this.appointmentManagementService.deleteAppointment();
+    this.goBack();
   }
 
   goBack(): void {
@@ -320,8 +327,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.router.navigate(['/appointments', booking.id]);
   }
 
+  onEditRequested(): void {
+    // Use the appointment management service to start editing in-place
+    this.appointmentManagementService.startEditing();
+  }
+
   editAppointment(): void {
-    this.router.navigate(['/appointments', this.booking()?.id, 'edit']);
+    // This method is used by the DetailViewConfig actions
+    this.onEditRequested();
   }
 }
 

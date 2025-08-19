@@ -79,7 +79,7 @@ export class AppointmentDetailViewComponent implements OnDestroy {
             },
             {
               icon: '⏰',
-              label: 'COMMON.TIME',
+              label: 'COMMON.HOURS',
               value: appointment?.hora || 'N/A',
             },
             {

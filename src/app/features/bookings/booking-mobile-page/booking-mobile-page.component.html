@@ -61,20 +61,11 @@
           <h4 class="section-title">🕒 {{ 'COMMON.SELECTION.RECENTLY_BOOKED' | translate }}</h4>
           <div class="services-grid">
             @for (service of recentlyBookedServices(); track service.id) {
-              <div
-                class="service-item"
-                [class.selected]="selectedService()?.id === service.id"
-                (click)="onServiceSelected(service)"
-              >
-                <div class="service-icon">{{ service.icon }}</div>
-                <div class="service-info">
-                  <div class="service-name">{{ service.name }}</div>
-                  <div class="service-duration">
-                    {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                  </div>
-                </div>
-                <div class="service-price">{{ service.price | currency }}</div>
-              </div>
+              <pelu-service-card
+                [service]="service"
+                [selected]="selectedService()?.id === service.id"
+                (clicked)="onServiceSelected(service)"
+              />
             }
           </div>
         </div>
@@ -86,20 +77,11 @@
           <h4 class="section-title">⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
           <div class="services-grid">
             @for (service of popularServices(); track service.id) {
-              <div
-                class="service-item"
-                [class.selected]="selectedService()?.id === service.id"
-                (click)="onServiceSelected(service)"
-              >
-                <div class="service-icon">{{ service.icon }}</div>
-                <div class="service-info">
-                  <div class="service-name">{{ service.name }}</div>
-                  <div class="service-duration">
-                    {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                  </div>
-                </div>
-                <div class="service-price">{{ service.price | currency }}</div>
-              </div>
+              <pelu-service-card
+                [service]="service"
+                [selected]="selectedService()?.id === service.id"
+                (clicked)="onServiceSelected(service)"
+              />
             }
           </div>
         </div>
@@ -111,20 +93,11 @@
           <h4 class="section-title">{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
           <div class="services-grid">
             @for (service of otherServices(); track service.id) {
-              <div
-                class="service-item"
-                [class.selected]="selectedService()?.id === service.id"
-                (click)="onServiceSelected(service)"
-              >
-                <div class="service-icon">{{ service.icon }}</div>
-                <div class="service-info">
-                  <div class="service-name">{{ service.name }}</div>
-                  <div class="service-duration">
-                    {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                  </div>
-                </div>
-                <div class="service-price">{{ service.price | currency }}</div>
-              </div>
+              <pelu-service-card
+                [service]="service"
+                [selected]="selectedService()?.id === service.id"
+                (clicked)="onServiceSelected(service)"
+              />
             }
           </div>
         </div>

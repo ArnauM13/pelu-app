@@ -303,16 +303,14 @@ export class ToastComponent {
       return;
     }
 
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointmentId}`;
-
     this.logger.info('Navigating to appointment detail', {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: user.uid,
-      data: JSON.stringify({ appointmentId, uniqueId }),
+      data: JSON.stringify({ appointmentId }),
     });
 
-    this.router.navigate(['/appointments', uniqueId]);
+    // Navigate directly to the appointment using the appointmentId (UUID)
+    this.router.navigate(['/appointments', appointmentId]);
   }
 }

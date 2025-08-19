@@ -18,6 +18,8 @@ import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
 export interface UserRole {
   uid: string;
   email: string;
+  displayName?: string;
+  photoURL?: string;
   lang: string;
   role: 'client' | 'admin';
   theme: string;
@@ -106,6 +108,8 @@ export class RoleService {
     const defaultRole: UserRole = {
       uid: user.uid,
       email: user.email || '',
+      displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
       lang: 'ca',
       role: 'client',
       theme: 'light',
@@ -156,6 +160,16 @@ export class RoleService {
       return null;
     } catch (error) {
       console.error('Error getting user role:', error);
+      return null;
+    }
+  }
+
+  async getUserProfilePhoto(uid: string): Promise<string | null> {
+    try {
+      const userRole = await this.getUserRole(uid);
+      return userRole?.photoURL || null;
+    } catch (error) {
+      console.error('Error getting user profile photo:', error);
       return null;
     }
   }
