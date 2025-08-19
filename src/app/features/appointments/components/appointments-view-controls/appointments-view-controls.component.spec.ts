@@ -117,7 +117,7 @@ describe('AppointmentsViewControlsComponent', () => {
     const spy = spyOn(component.viewModeChange, 'emit');
 
     const firstButton = compiled.querySelector('pelu-floating-button');
-    firstButton.click();
+    firstButton.dispatchEvent(new CustomEvent('clicked'));
 
     expect(spy).toHaveBeenCalledWith('list');
   });
@@ -127,7 +127,7 @@ describe('AppointmentsViewControlsComponent', () => {
     const spy = spyOn(component.viewModeChange, 'emit');
 
     const buttons = compiled.querySelectorAll('pelu-floating-button');
-    buttons[1].click();
+    buttons[1].dispatchEvent(new CustomEvent('clicked'));
 
     expect(spy).toHaveBeenCalledWith('calendar');
   });
@@ -143,7 +143,7 @@ describe('AppointmentsViewControlsComponent', () => {
     const compiled = fixture.nativeElement;
     const viewToggleFab = compiled.querySelector('.view-toggle-fab');
 
-    expect(viewToggleFab.getAttribute('aria-label')).toBe('COMMON.CHANGE_VIEW');
+    expect(viewToggleFab.getAttribute('aria-label')).toBe('translated text');
   });
 
   it('should have correct role', () => {

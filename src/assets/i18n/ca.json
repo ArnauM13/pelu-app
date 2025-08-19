@@ -95,7 +95,9 @@
     "NO_APPOINTMENTS_FOR_DAY": "Servei no disponible",
     "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "Aquest servei no es pot reservar per aquest dia perquè no hi ha prou espai. Si us plau, prova amb un altre dia.",
     "POPULAR_SERVICES": "Serveis Populars",
-    "OTHER_SERVICES": "Altres serveis"
+    "OTHER_SERVICES": "Altres serveis",
+    "RECENTLY_BOOKED": "Reservats Recentment",
+    "NO_SERVICES_AVAILABLE": "No hi ha serveis disponibles"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Cerca per nom",
@@ -360,11 +362,13 @@
     },
     "DELETE_CONFIRMATION_TITLE": "Eliminar cita",
     "DELETE_CONFIRMATION_MESSAGE": "Estàs segur que vols eliminar la cita de {{clientName}} del {{date}}? Aquesta acció no es pot desfer.",
+    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "Estàs segur que vols eliminar aquesta cita? Aquesta acció no es pot desfer.",
     "EDIT_APPOINTMENT_DESCRIPTION": "Modifica els detalls de la cita",
     "DELETE_APPOINTMENT_DESCRIPTION": "Elimina permanentment la cita",
     "EDIT_APPOINTMENT_DETAILS": "Editar detalls de la cita",
     "UPDATE_SUCCESS": "Cita actualitzada correctament",
-    "DELETE_SUCCESS": "Cita eliminada correctament"
+    "DELETE_SUCCESS": "Cita eliminada correctament",
+    "DELETE_ERROR": "Error en eliminar la cita"
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nova reserva",

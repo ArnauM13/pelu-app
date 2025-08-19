@@ -337,7 +337,10 @@
     },
     "EDIT_APPOINTMENT_DESCRIPTION": "تعديل تفاصيل الموعد",
     "DELETE_APPOINTMENT_DESCRIPTION": "حذف الموعد نهائياً",
-    "EDIT_APPOINTMENT_DETAILS": "تعديل تفاصيل الموعد"
+    "EDIT_APPOINTMENT_DETAILS": "تعديل تفاصيل الموعد",
+    "DELETE_SUCCESS": "تم حذف الموعد بنجاح",
+    "DELETE_ERROR": "خطأ في حذف الموعد",
+    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "هل أنت متأكد من أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء."
   },
   "BOOKING": {
     "SELECT_SERVICE": "حجز جديد",

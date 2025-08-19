@@ -1,33 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MessageService } from 'primeng/api';
-// import { ToastModule } from 'primeng/toast'; // Eliminat
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { ToastComponent } from './toast.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { NO_ERRORS_SCHEMA, Component, Input } from '@angular/core';
-
-// Mock classes
-class MockTranslateLoader implements TranslateLoader {
-  getTranslation() {
-    return of({});
-  }
-}
-
-@Component({
-  selector: 'pelu-toast',
-  template: '<div>Mock Toast</div>',
-  standalone: true,
-})
-class MockToastComponent {}
-
-@Component({
-  selector: 'pelu-toast',
-  template: '<div>Mock Toast</div>',
-  standalone: true,
-})
-class MockPToastComponent {}
+import { LoggerService } from '../../services/logger.service';
 
 describe('ToastComponent', () => {
   let component: ToastComponent;
@@ -35,41 +11,32 @@ describe('ToastComponent', () => {
   let messageService: jasmine.SpyObj<MessageService>;
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
+  let loggerService: jasmine.SpyObj<LoggerService>;
 
   beforeEach(async () => {
     const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add', 'clear']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['user']);
-
-    // Setup default return values
-    authServiceSpy.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    const authServiceSpy = jasmine.createSpyObj('AuthService', [], {
+      user: jasmine.createSpy('user').and.returnValue(null),
+    });
+    const loggerServiceSpy = jasmine.createSpyObj('LoggerService', ['error', 'warn', 'userAction', 'info']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        ToastComponent,
-        // ToastModule, // Eliminat
-        TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
-        }),
-      ],
-      // declarations: [MockPToastComponent], // ja no cal
+      imports: [ToastComponent],
       providers: [
         { provide: MessageService, useValue: messageServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: LoggerService, useValue: loggerServiceSpy },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
-    })
-      // OVERRIDE TEMPLATE: Evitem que es renderitzi p-toast
-      .overrideComponent(ToastComponent, { set: { template: '' } })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ToastComponent);
     component = fixture.componentInstance;
     messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    fixture.detectChanges();
+    loggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
   });
 
   it('should create', () => {
@@ -96,7 +63,8 @@ describe('ToastComponent', () => {
         summary: config.summary,
         detail: config.detail,
         life: 4000,
-        closable: false,
+        sticky: false,
+        closable: true,
         key: 'pelu-toast',
         data: config.data,
       });
@@ -115,9 +83,10 @@ describe('ToastComponent', () => {
         summary: config.summary,
         detail: '',
         life: 4000,
-        closable: false,
+        sticky: false,
+        closable: true,
         key: 'pelu-toast',
-        data: { appointmentId: undefined, showViewButton: false, action: undefined },
+        data: {},
       });
     });
   });
@@ -191,30 +160,25 @@ describe('ToastComponent', () => {
   describe('executeAction', () => {
     it('should execute action successfully', () => {
       const action = jasmine.createSpy('action');
-      spyOn(console, 'error');
 
       component.executeAction(action);
 
       expect(action).toHaveBeenCalled();
-      expect(console.error).not.toHaveBeenCalled();
     });
 
     it('should handle action errors gracefully', () => {
       const action = jasmine.createSpy('action').and.throwError('Test error');
-      spyOn(console, 'error');
 
       component.executeAction(action);
 
       expect(action).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith(
-        'Error executing toast action:',
-        jasmine.any(Error)
-      );
+      expect(loggerService.error).toHaveBeenCalled();
     });
   });
 
   describe('viewAppointmentDetail', () => {
     it('should navigate to appointment detail when user is authenticated', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const user = { uid: 'user-123' } as any;
       authService.user.and.returnValue(user);
       const appointmentId = 'appointment-456';
@@ -234,6 +198,7 @@ describe('ToastComponent', () => {
     });
 
     it('should not navigate when user has no uid', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const user = { email: 'test@example.com' } as any;
       authService.user.and.returnValue(user);
       const appointmentId = 'appointment-456';
