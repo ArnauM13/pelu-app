@@ -60,13 +60,14 @@
         <div class="services-section">
           <h4 class="section-title">🕒 {{ 'COMMON.SELECTION.RECENTLY_BOOKED' | translate }}</h4>
           <div class="services-grid">
-            @for (service of recentlyBookedServices(); track service.id) {
-              <pelu-service-card
-                [service]="service"
-                [selected]="selectedService()?.id === service.id"
-                (clicked)="onServiceSelected(service)"
-              />
-            }
+                         @for (service of recentlyBookedServices(); track service.id) {
+               <pelu-service-card
+                 [service]="service"
+                 [selected]="selectedService()?.id === service.id"
+                 [simpleMode]="true"
+                 (clicked)="onServiceSelected(service)"
+               />
+             }
           </div>
         </div>
       }
@@ -76,13 +77,14 @@
         <div class="services-section">
           <h4 class="section-title">⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
           <div class="services-grid">
-            @for (service of popularServices(); track service.id) {
-              <pelu-service-card
-                [service]="service"
-                [selected]="selectedService()?.id === service.id"
-                (clicked)="onServiceSelected(service)"
-              />
-            }
+                         @for (service of popularServices(); track service.id) {
+               <pelu-service-card
+                 [service]="service"
+                 [selected]="selectedService()?.id === service.id"
+                 [simpleMode]="true"
+                 (clicked)="onServiceSelected(service)"
+               />
+             }
           </div>
         </div>
       }
@@ -92,13 +94,14 @@
         <div class="services-section">
           <h4 class="section-title">{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
           <div class="services-grid">
-            @for (service of otherServices(); track service.id) {
-              <pelu-service-card
-                [service]="service"
-                [selected]="selectedService()?.id === service.id"
-                (clicked)="onServiceSelected(service)"
-              />
-            }
+                         @for (service of otherServices(); track service.id) {
+               <pelu-service-card
+                 [service]="service"
+                 [selected]="selectedService()?.id === service.id"
+                 [simpleMode]="true"
+                 (clicked)="onServiceSelected(service)"
+               />
+             }
           </div>
         </div>
       }

@@ -37,6 +37,7 @@ export class ServiceCardComponent {
   readonly clickable = input<boolean>(false);
   readonly selected = input<boolean>(false);
   readonly compact = input<boolean>(false);
+  readonly simpleMode = input<boolean>(false);
 
   // Output signals
   readonly cardClick = output<FirebaseService>();
@@ -51,6 +52,7 @@ export class ServiceCardComponent {
   readonly isClickable = computed(() => this.clickable());
   readonly isSelected = computed(() => this.selected());
   readonly isCompact = computed(() => this.compact());
+  readonly isSimpleMode = computed(() => this.simpleMode());
 
   // Event handlers
   onCardClick(): void {
@@ -72,6 +74,18 @@ export class ServiceCardComponent {
   onTogglePopularClick(event: Event): void {
     event.stopPropagation();
     this.togglePopularClick.emit(this.service());
+  }
+
+  // Simple mode state management
+  private expanded = false;
+
+  toggleExpanded(event: Event): void {
+    event.stopPropagation();
+    this.expanded = !this.expanded;
+  }
+
+  get isExpanded(): boolean {
+    return this.expanded;
   }
 
   getCategoryName(category: string): string {
