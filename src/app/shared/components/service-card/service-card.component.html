@@ -3,58 +3,129 @@
   [class.clickable]="isClickable()"
   [class.selected]="isSelected()"
   [class.compact]="isCompact()"
+  [class.simple-mode]="isSimpleMode()"
+  [class.expanded]="isSimpleMode() && isExpanded"
   (click)="onCardClick()"
 >
-  <div class="service-header">
-    <div class="service-icon">{{ service().icon }}</div>
-    <div class="service-info">
-      <h3 class="service-name">{{ service().name }}</h3>
-      @if (showPopularBadge() && service().isPopular) {
-        <pelu-popular-badge
-          [config]="{
-            size: 'small',
-            variant: 'default',
-            showIcon: true,
-            showText: true,
-            text: 'SERVICES.POPULAR'
-          }"
+  <!-- Simple Mode Layout -->
+  @if (isSimpleMode()) {
+    <div class="service-simple-header">
+      <div class="service-simple-main">
+        <div class="service-icon">{{ service().icon }}</div>
+        <div class="service-info-simple">
+          <div class="service-name-simple">{{ service().name }}</div>
+          @if (showDescription() && service().description) {
+            <div class="service-description-simple">{{ service().description }}</div>
+          }
+        </div>
+      </div>
+      <div class="service-simple-meta">
+        @if (showPopularBadge() && service().isPopular) {
+          <div class="popular-badge-simple">
+            <pelu-popular-badge
+              [config]="{
+                size: 'small',
+                variant: 'default',
+                showIcon: true,
+                showText: false,
+                text: 'SERVICES.POPULAR'
+              }"
+            >
+            </pelu-popular-badge>
+          </div>
+        }
+        <button
+          class="expand-button"
+          (click)="toggleExpanded($event)"
+          [class.expanded]="isExpanded"
         >
-        </pelu-popular-badge>
-      }
+          <span class="expand-icon">▼</span>
+        </button>
+      </div>
     </div>
-    @if (showActions()) {
-      <div class="service-actions">
-        <pelu-actions-buttons [context]="actionContext"> </pelu-actions-buttons>
+
+    <!-- Expanded content in simple mode -->
+    @if (isExpanded) {
+      <div class="service-expanded-content">
+        <div class="service-meta">
+          @if (showDuration()) {
+            <div class="meta-item">
+              <span class="meta-label">⏱️&nbsp;{{ 'COMMON.UNITS.DURATION_MINUTES' | translate }}:</span>
+              <span class="meta-value"
+                >{{ service().duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span
+              >
+            </div>
+          }
+          @if (showPrice()) {
+            <div class="meta-item">
+              <span class="meta-label">💰&nbsp;{{ 'COMMON.UNITS.PRICE_EURO' | translate }}:</span>
+              <span class="meta-value">{{ service().price | currency }}</span>
+            </div>
+          }
+          @if (showCategory()) {
+            <div class="meta-item">
+              <span class="meta-label">📂&nbsp;{{ 'SERVICES.MANAGEMENT.CATEGORY' | translate }}:</span>
+              <span class="meta-value">{{ getCategoryName(service().category) | translate }}</span>
+            </div>
+          }
+        </div>
       </div>
     }
-  </div>
-
-  @if (showDescription() && service().description) {
-    <div class="service-description">
-      <p>{{ service().description }}</p>
-    </div>
   }
 
-  <div class="service-meta">
-    @if (showDuration()) {
-      <div class="meta-item">
-        <span class="meta-label">⏱️&nbsp;{{ 'COMMON.UNITS.DURATION_MINUTES' | translate }}:</span>
-        <span class="meta-value"
-          >{{ service().duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span
-        >
+  <!-- Standard Mode Layout -->
+  @if (!isSimpleMode()) {
+    <div class="service-header">
+      <div class="service-icon">{{ service().icon }}</div>
+      <div class="service-info">
+        <h3 class="service-name">{{ service().name }}</h3>
+        @if (showPopularBadge() && service().isPopular) {
+          <pelu-popular-badge
+            [config]="{
+              size: 'small',
+              variant: 'default',
+              showIcon: true,
+              showText: true,
+              text: 'SERVICES.POPULAR'
+            }"
+          >
+          </pelu-popular-badge>
+        }
+      </div>
+      @if (showActions()) {
+        <div class="service-actions">
+          <pelu-actions-buttons [context]="actionContext"> </pelu-actions-buttons>
+        </div>
+      }
+    </div>
+
+    @if (showDescription() && service().description) {
+      <div class="service-description">
+        <p>{{ service().description }}</p>
       </div>
     }
-    @if (showPrice()) {
-      <div class="meta-item">
-        <span class="meta-label">💰&nbsp;{{ 'COMMON.UNITS.PRICE_EURO' | translate }}:</span>
-        <span class="meta-value">{{ service().price | currency }}</span>
-      </div>
-    }
-    @if (showCategory()) {
-      <div class="meta-item">
-        <span class="meta-label">📂&nbsp;{{ 'SERVICES.MANAGEMENT.CATEGORY' | translate }}:</span>
-        <span class="meta-value">{{ getCategoryName(service().category) | translate }}</span>
-      </div>
-    }
-  </div>
+
+    <div class="service-meta">
+      @if (showDuration()) {
+        <div class="meta-item">
+          <span class="meta-label">⏱️&nbsp;{{ 'COMMON.UNITS.DURATION_MINUTES' | translate }}:</span>
+          <span class="meta-value"
+            >{{ service().duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}</span
+          >
+        </div>
+      }
+      @if (showPrice()) {
+        <div class="meta-item">
+          <span class="meta-label">💰&nbsp;{{ 'COMMON.UNITS.PRICE_EURO' | translate }}:</span>
+          <span class="meta-value">{{ service().price | currency }}</span>
+        </div>
+      }
+      @if (showCategory()) {
+        <div class="meta-item">
+          <span class="meta-label">📂&nbsp;{{ 'SERVICES.MANAGEMENT.CATEGORY' | translate }}:</span>
+          <span class="meta-value">{{ getCategoryName(service().category) | translate }}</span>
+        </div>
+      }
+    </div>
+  }
 </div>
