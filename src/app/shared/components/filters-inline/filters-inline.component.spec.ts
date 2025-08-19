@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FiltersInlineComponent } from './filters-inline.component';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
+import { provideMockFirebase } from '../../../../testing/firebase-mocks';
 
 // Mock translate loader
 class MockTranslateLoader implements TranslateLoader {
@@ -26,6 +27,9 @@ describe('FiltersInlineComponent', () => {
         TranslateModule.forRoot({
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
         }),
+      ],
+      providers: [
+        ...provideMockFirebase(),
       ],
     }).compileComponents();
 

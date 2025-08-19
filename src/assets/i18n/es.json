@@ -338,7 +338,10 @@
     },
     "EDIT_APPOINTMENT_DESCRIPTION": "Modificar detalles de la cita",
     "DELETE_APPOINTMENT_DESCRIPTION": "Eliminar permanentemente la cita",
-    "EDIT_APPOINTMENT_DETAILS": "Editar detalles de la cita"
+    "EDIT_APPOINTMENT_DETAILS": "Editar detalles de la cita",
+    "DELETE_SUCCESS": "Cita eliminada correctamente",
+    "DELETE_ERROR": "Error al eliminar la cita",
+    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "¿Estás seguro de que quieres eliminar esta cita? Esta acción no se puede deshacer."
   },
   "BOOKING": {
     "SELECT_SERVICE": "Nueva reserva",

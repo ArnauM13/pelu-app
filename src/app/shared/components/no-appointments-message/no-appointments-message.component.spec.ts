@@ -158,7 +158,7 @@ describe('NoAppointmentsMessageComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn');
-    // By default, action button should not be rendered
+    // By default, actionText is empty, so no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 
@@ -170,7 +170,7 @@ describe('NoAppointmentsMessageComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn');
-    // By default, action button should not be rendered
+    // By default, actionCallback is undefined, so no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 
@@ -182,7 +182,7 @@ describe('NoAppointmentsMessageComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn') as HTMLElement;
-    // By default, action button should not be rendered
+    // By default, actionText is empty and actionCallback is undefined, so no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 
@@ -194,7 +194,7 @@ describe('NoAppointmentsMessageComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn') as HTMLElement;
-    // By default, action button should not be rendered
+    // By default, no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 
@@ -262,8 +262,7 @@ describe('NoAppointmentsMessageComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn') as HTMLElement;
-    
-    // By default, action button should not be rendered
+    // By default, no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 });

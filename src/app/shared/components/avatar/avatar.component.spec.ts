@@ -45,10 +45,12 @@ describe('AvatarComponent', () => {
 
     // Empty image URL
     component.data = { imageUrl: '' };
+    fixture.detectChanges();
     expect(component.hasImage()).toBe(false);
 
     // Valid image URL
     component.data = { imageUrl: 'https://example.com/image.jpg' };
+    fixture.detectChanges();
     expect(component.hasImage()).toBe(true);
   });
 
@@ -58,42 +60,51 @@ describe('AvatarComponent', () => {
 
     // With image URL
     component.data = { imageUrl: 'https://example.com/image.jpg' };
+    fixture.detectChanges();
     expect(component.backgroundImageStyle()).toBe('url(https://example.com/image.jpg)');
   });
 
   it('should compute initials correctly', () => {
     // With name and surname
     component.data = { name: 'John', surname: 'Doe' };
+    fixture.detectChanges();
     expect(component.initials()).toBe('JD');
 
     // With name only
     component.data = { name: 'John' };
+    fixture.detectChanges();
     expect(component.initials()).toBe('J');
 
     // With email only
     component.data = { email: 'john.doe@example.com' };
+    fixture.detectChanges();
     expect(component.initials()).toBe('J');
 
     // With no data
     component.data = {};
+    fixture.detectChanges();
     expect(component.initials()).toBe('👤');
   });
 
   it('should compute tooltipText correctly', () => {
     // With name and surname
     component.data = { name: 'John', surname: 'Doe' };
+    fixture.detectChanges();
     expect(component.tooltipText()).toBe('John Doe');
 
     // With name only
     component.data = { name: 'John' };
+    fixture.detectChanges();
     expect(component.tooltipText()).toBe('John');
 
     // With email only
     component.data = { email: 'john.doe@example.com' };
+    fixture.detectChanges();
     expect(component.tooltipText()).toBe('john.doe@example.com');
 
     // With no data
     component.data = {};
+    fixture.detectChanges();
     expect(component.tooltipText()).toBe('User');
   });
 

@@ -38,6 +38,7 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly readonly = input<boolean>(false);
+  readonly invalid = input<boolean>(false);
   readonly enabled = input<boolean>(true);
 
   // DatePicker specific properties

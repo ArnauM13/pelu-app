@@ -324,6 +324,19 @@ export const mockActivatedRoute: jasmine.SpyObj<ActivatedRoute> = jasmine.create
 );
 
 // Mock Translation services
+const mockTranslateStoreObj = {
+  onLangChange: of({ lang: 'en', translations: {} }),
+  onTranslationChange: of({ lang: 'en', translations: {} }),
+  onDefaultLangChange: of({ lang: 'en', translations: {} }),
+  subscribe: of({ lang: 'en', translations: {} }).subscribe,
+};
+
+export const mockTranslateStore: jasmine.SpyObj<TranslateStore> = jasmine.createSpyObj(
+  'TranslateStore',
+  ['onLangChange', 'onTranslationChange', 'onDefaultLangChange'],
+  mockTranslateStoreObj
+);
+
 export const mockTranslateService: jasmine.SpyObj<TranslateService> = jasmine.createSpyObj(
   'TranslateService',
   [
@@ -362,26 +375,19 @@ export const mockTranslateService: jasmine.SpyObj<TranslateService> = jasmine.cr
     onLangChange: of({ lang: 'en', translations: {} }),
     onTranslationChange: of({ lang: 'en', translations: {} }),
     onDefaultLangChange: of({ lang: 'en', translations: {} }),
-  }
-);
-
-export const mockTranslateStore: jasmine.SpyObj<TranslateStore> = jasmine.createSpyObj(
-  'TranslateStore',
-  ['onLangChange', 'onTranslationChange', 'onDefaultLangChange'],
-  {
-    onLangChange: of({ lang: 'en', translations: {} }),
-    onTranslationChange: of({ lang: 'en', translations: {} }),
-    onDefaultLangChange: of({ lang: 'en', translations: {} }),
+    subscribe: of({ lang: 'en', translations: {} }).subscribe,
+    store: mockTranslateStoreObj,
   }
 );
 
 export const mockTranslationService: jasmine.SpyObj<TranslationService> = jasmine.createSpyObj(
   'TranslationService',
-  ['getCurrentLang', 'setLanguage', 'getAvailableLanguages', 'translate', 'translateInstant'],
+  ['getCurrentLang', 'setLanguage', 'getAvailableLanguages', 'translate', 'translateInstant', 'get'],
   {
     getCurrentLang: jasmine.createSpy('getCurrentLang').and.returnValue('en'),
     translate: jasmine.createSpy('translate').and.returnValue(of('translated text')),
     translateInstant: jasmine.createSpy('translateInstant').and.returnValue('translated text'),
+    get: jasmine.createSpy('get').and.returnValue('translated text'),
   }
 );
 

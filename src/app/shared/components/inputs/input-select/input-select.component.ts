@@ -60,6 +60,7 @@ export class InputSelectComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly readonly = input<boolean>(false);
+  readonly invalid = input<boolean>(false);
   readonly helpText = input<string>('');
   readonly errorText = input<string>('');
   readonly successText = input<string>('');
