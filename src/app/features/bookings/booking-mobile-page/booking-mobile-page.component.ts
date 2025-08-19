@@ -178,18 +178,34 @@ export class BookingMobilePageComponent {
   readonly businessDays = computed(() => this.systemParametersService.getWorkingDays());
   readonly slotDuration = computed(() => this.systemParametersService.getAppointmentDuration());
 
-  // Available services
+  // Available services from centralized service
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
 
-  // Popular services (services with popular flag)
-  readonly popularServices = computed(() =>
-    this.availableServices().filter(service => service.isPopular === true)
-  );
+  // Recently booked services (3 most recent unique services)
+  readonly recentlyBookedServices = computed(() => {
+    const recentServiceIds = this.bookingService.getRecentlyBookedServices();
+    return this.availableServices().filter(service => 
+      recentServiceIds.includes(service.id || '')
+    );
+  });
 
-  // Other services (non-popular services)
-  readonly otherServices = computed(() =>
-    this.availableServices().filter(service => service.isPopular !== true)
-  );
+  // Popular services (services with popular flag, but not recently booked)
+  readonly popularServices = computed(() => {
+    const recentServiceIds = this.bookingService.getRecentlyBookedServices();
+    return this.availableServices().filter(service => 
+      service.isPopular === true && 
+      !recentServiceIds.includes(service.id || '')
+    );
+  });
+
+  // Other services (non-popular services and not recently booked)
+  readonly otherServices = computed(() => {
+    const recentServiceIds = this.bookingService.getRecentlyBookedServices();
+    return this.availableServices().filter(service => 
+      service.isPopular !== true && 
+      !recentServiceIds.includes(service.id || '')
+    );
+  });
 
   // Week days computation
   readonly weekDays = computed(() => {

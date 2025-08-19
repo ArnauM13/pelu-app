@@ -60,4 +60,12 @@
       </pelu-appointments-view-controls> -->
 
   }
+
+  <!-- Confirmation Popup -->
+  <pelu-confirmation-popup
+    [isOpen]="confirmationPopup().isOpen"
+    [data]="confirmationPopup().data"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
 </div>

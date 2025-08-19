@@ -199,6 +199,13 @@ export class AppointmentDetailPageComponent implements OnInit {
       // Defer to allow booking to load if needed
       setTimeout(() => this.showDeleteConfirmation(), 0);
     }
+
+    // Auto-trigger edit mode if requested via query param
+    const editMode = this.route.snapshot.queryParamMap.get('edit');
+    if (editMode === 'true') {
+      // Defer to allow booking to load if needed
+      setTimeout(() => this.editAppointment(), 0);
+    }
   }
 
   private async loadAppointment(): Promise<void> {
@@ -229,12 +236,9 @@ export class AppointmentDetailPageComponent implements OnInit {
     const booking = this.booking();
     if (!booking) return;
 
-    const clientName = booking.clientName || 'Client';
-    const appointmentDate = this.formatDate(booking.data);
-
     const alertData: ConfirmationData = {
       title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
-      message: `Estàs segur que vols eliminar la cita de ${clientName} del ${appointmentDate}? Aquesta acció no es pot desfer.`,
+      message: 'APPOINTMENTS.DELETE_CONFIRMATION_MESSAGE',
       severity: 'danger',
     };
 

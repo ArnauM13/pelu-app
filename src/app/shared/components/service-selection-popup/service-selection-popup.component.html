@@ -3,22 +3,50 @@
   [config]="dialogConfig()"
   (closed)="onCancel()"
 >
-  <!-- Date and Time Summary -->
-  <div class="selection-summary">
-    <div class="summary-item">
-      <span class="summary-label">📅 {{ 'COMMON.DATE' | translate }}:</span>
-      <span class="summary-value">{{ formatDate(selectionDetailsComputed().date) }}</span>
+  <!-- Recently Booked Services Section -->
+  @if (recentlyBookedServices().length > 0) {
+    <div class="services-section">
+      <h4 class="section-title">🕒 {{ 'COMMON.SELECTION.RECENTLY_BOOKED' | translate }}</h4>
+      <div class="services-grid">
+        @for (service of recentlyBookedServices(); track service.id) {
+          <div
+            class="service-card"
+            [class.selected]="selectedService()?.id === service.id"
+            (click)="onServiceSelect(service)"
+          >
+            <div class="service-header">
+              <div class="service-icon">{{ service.icon }}</div>
+              <div class="service-info">
+                <div class="service-name">{{ getServiceName(service) }}</div>
+                <div class="service-description">{{ getServiceDescription(service) }}</div>
+              </div>
+              <div class="service-price">{{ service.price }}€</div>
+            </div>
+            <div class="service-details">
+              <div class="service-meta">
+                <span class="service-duration">⏱️ {{ service.duration }}min</span>
+                <pelu-popular-badge
+                  [config]="{
+                    size: 'small',
+                    variant: 'default',
+                    showIcon: true,
+                    showText: true,
+                    text: 'SERVICES.POPULAR',
+                  }"
+                >
+                </pelu-popular-badge>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </div>
-    <div class="summary-item">
-      <span class="summary-label">⏰ {{ 'COMMON.HOURS' | translate }}:</span>
-      <span class="summary-value">{{ selectionDetailsComputed().time }}</span>
-    </div>
-  </div>
+  }
 
   <!-- Popular Services Section -->
   @if (popularServices().length > 0) {
-    <div class="services-section mb-4">
-      <h4>⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
+    <div class="services-section">
+      <h4 class="section-title">⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
       <div class="services-grid">
         @for (service of popularServices(); track service.id) {
           <div
@@ -58,7 +86,7 @@
   <!-- Other Services Section -->
   @if (otherServices().length > 0) {
     <div class="services-section">
-      <h4>{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
+      <h4 class="section-title">{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
       <div class="services-grid">
         @for (service of otherServices(); track service.id) {
           <div
@@ -77,6 +105,18 @@
             <div class="service-details">
               <div class="service-meta">
                 <span class="service-duration">⏱️ {{ service.duration }}min</span>
+                @if (service.isPopular) {
+                  <pelu-popular-badge
+                    [config]="{
+                      size: 'small',
+                      variant: 'default',
+                      showIcon: true,
+                      showText: true,
+                      text: 'SERVICES.POPULAR',
+                    }"
+                  >
+                  </pelu-popular-badge>
+                }
               </div>
             </div>
           </div>
