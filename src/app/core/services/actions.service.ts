@@ -103,7 +103,14 @@ export class ActionsService {
         icon: '👁️',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
-        onClick: item => this.viewAppointment(item as Booking),
+        onClick: item => {
+          // Use context callback if available, otherwise use default action
+          if (context.onView) {
+            context.onView();
+          } else {
+            this.viewAppointment(item as Booking);
+          }
+        },
       });
     }
 
@@ -116,8 +123,12 @@ export class ActionsService {
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
         onClick: item => {
-          // This will be handled by the context callback if provided
-          console.log('Edit appointment:', item);
+          // Use context callback if available, otherwise use default action
+          if (context.onEdit) {
+            context.onEdit();
+          } else {
+            this.editAppointment(item as Booking);
+          }
         },
       });
     }
@@ -130,7 +141,14 @@ export class ActionsService {
         icon: '🗑️',
         type: 'danger',
         tooltip: 'COMMON.ACTIONS.DELETE',
-        onClick: item => this.deleteAppointment(item as Booking),
+        onClick: item => {
+          // Use context callback if available, otherwise use default action
+          if (context.onDelete) {
+            context.onDelete();
+          } else {
+            this.deleteAppointment(item as Booking);
+          }
+        },
       });
     }
 

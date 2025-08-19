@@ -14,6 +14,7 @@ import {
   FirebaseService,
   FirebaseServicesService,
 } from '../../../core/services/firebase-services.service';
+import { BookingService } from '../../../core/services/booking.service';
 
 export interface ServiceSelectionDetails {
   date: string;
@@ -42,6 +43,7 @@ export class ServiceSelectionPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly serviceTranslationService = inject(ServiceTranslationService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
+  private readonly bookingService = inject(BookingService);
   private readonly translateService = inject(TranslateService);
 
   // Input signals
@@ -77,15 +79,31 @@ export class ServiceSelectionPopupComponent {
   // Available services from centralized service
   readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
 
-  // Popular services (services with popular flag)
-  readonly popularServices = computed(() =>
-    this.availableServices().filter(service => service.isPopular === true)
-  );
+  // Recently booked services (3 most recent unique services)
+  readonly recentlyBookedServices = computed(() => {
+    const recentServiceIds = this.bookingService.getRecentlyBookedServices();
+    return this.availableServices().filter(service => 
+      recentServiceIds.includes(service.id || '')
+    );
+  });
 
-  // Other services (non-popular services)
-  readonly otherServices = computed(() =>
-    this.availableServices().filter(service => service.isPopular !== true)
-  );
+  // Popular services (services with popular flag, but not recently booked)
+  readonly popularServices = computed(() => {
+    const recentServiceIds = this.bookingService.getRecentlyBookedServices();
+    return this.availableServices().filter(service => 
+      service.isPopular === true && 
+      !recentServiceIds.includes(service.id || '')
+    );
+  });
+
+  // Other services (non-popular services and not recently booked)
+  readonly otherServices = computed(() => {
+    const recentServiceIds = this.bookingService.getRecentlyBookedServices();
+    return this.availableServices().filter(service => 
+      service.isPopular !== true && 
+      !recentServiceIds.includes(service.id || '')
+    );
+  });
 
   // Popup dialog configuration
   readonly dialogConfig = computed<PopupDialogConfig>(() => ({
@@ -111,18 +129,17 @@ export class ServiceSelectionPopupComponent {
   onConfirm(): void {
     const selectedService = this.selectedService();
     if (!selectedService) {
-      this.toastService.showValidationError('servei');
+      this.toastService.showError('COMMON.SELECTION.PLEASE_SELECT_SERVICE');
       return;
     }
 
     this.serviceSelected.emit({
       details: this.selectionDetailsComputed(),
-      service: selectedService,
+      service: selectedService
     });
   }
 
   onCancel(): void {
-    this.selectedServiceSignal.set(null);
     this.cancelled.emit();
   }
 
@@ -143,10 +160,10 @@ export class ServiceSelectionPopupComponent {
   }
 
   getServiceName(service: FirebaseService): string {
-    return this.serviceTranslationService.translateServiceName(service.name);
+    return service.name;
   }
 
   getServiceDescription(service: FirebaseService): string {
-    return service.description || this.serviceTranslationService.translateServiceName(service.name);
+    return service.description;
   }
 }

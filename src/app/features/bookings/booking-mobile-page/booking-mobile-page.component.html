@@ -55,6 +55,31 @@
   <!-- Step 1: Service Selection -->
   @if (currentStep() === 'service') {
     <div class="step-content service-step">
+      <!-- Recently Booked Services Section -->
+      @if (recentlyBookedServices().length > 0) {
+        <div class="services-section">
+          <h4 class="section-title">🕒 {{ 'COMMON.SELECTION.RECENTLY_BOOKED' | translate }}</h4>
+          <div class="services-grid">
+            @for (service of recentlyBookedServices(); track service.id) {
+              <div
+                class="service-item"
+                [class.selected]="selectedService()?.id === service.id"
+                (click)="onServiceSelected(service)"
+              >
+                <div class="service-icon">{{ service.icon }}</div>
+                <div class="service-info">
+                  <div class="service-name">{{ service.name }}</div>
+                  <div class="service-duration">
+                    {{ service.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
+                  </div>
+                </div>
+                <div class="service-price">{{ service.price | currency }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Popular Services Section -->
       @if (popularServices().length > 0) {
         <div class="services-section">

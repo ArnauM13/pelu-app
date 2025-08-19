@@ -11,6 +11,7 @@ import {
   getDocs,
   serverTimestamp,
   orderBy,
+  FieldValue,
 } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
@@ -589,6 +590,45 @@ export class BookingService {
    */
   getDraftBookings(): Booking[] {
     return this.bookings().filter(booking => booking.status === 'draft');
+  }
+
+  /**
+   * Get the 3 most recently booked services by the current user
+   */
+  getRecentlyBookedServices(): string[] {
+    const currentUser = this.authService.user();
+    if (!currentUser?.email) {
+      return [];
+    }
+
+    // Get all confirmed bookings for the current user
+    const userBookings = this.bookings().filter(booking => 
+      booking.email === currentUser.email && 
+      booking.status === 'confirmed' && 
+      booking.serviceId
+    );
+
+    // Sort by creation date (most recent first) and get unique service IDs
+    const recentServiceIds = userBookings
+      .sort((a, b) => {
+        // Handle different types of createdAt field
+        const getDateValue = (createdAt: Date | string | FieldValue | undefined): number => {
+          if (!createdAt) return 0;
+          if (typeof createdAt === 'string') return new Date(createdAt).getTime();
+          if (createdAt instanceof Date) return createdAt.getTime();
+          // If it's FieldValue, we can't convert it, so use 0
+          return 0;
+        };
+        
+        const dateA = getDateValue(a.createdAt);
+        const dateB = getDateValue(b.createdAt);
+        return dateB - dateA; // Most recent first
+      })
+      .map(booking => booking.serviceId!)
+      .filter((serviceId, index, array) => array.indexOf(serviceId) === index) // Remove duplicates
+      .slice(0, 3); // Get only the first 3
+
+    return recentServiceIds;
   }
 
   /**

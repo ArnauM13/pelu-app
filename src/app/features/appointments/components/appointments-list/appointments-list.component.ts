@@ -9,6 +9,7 @@ import { ServiceColorsService } from '../../../../core/services/service-colors.s
 import { ServiceTranslationService } from '../../../../core/services/service-translation.service';
 import { ActionsButtonsComponent } from '../../../../shared/components/actions-buttons';
 import { ActionsService, ActionContext } from '../../../../core/services/actions.service';
+import { ServicesService } from '../../../../core/services/services.service';
 import { isFutureAppointment } from '../../../../shared/services';
 import { Booking } from '../../../../core/interfaces/booking.interface';
 
@@ -63,31 +64,42 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                     >
                     </pelu-appointment-status-badge>
                   </div>
-                  <div class="appointment-details">
-                    @if (booking.data && booking.hora) {
-                      <div class="detail-item">
-                        <span class="detail-icon">📅</span>
-                        <span class="detail-text"
-                          >{{ formatTime(booking.hora || '') }}
-                          {{ formatDate(booking.data || '') }}</span
-                        >
+                                     <div class="appointment-details">
+                     @if (booking.data && booking.hora) {
+                       <div class="detail-line date-line">
+                         <span class="detail-icon">📅</span>
+                         <span class="detail-text">{{ formatDateFull(booking.data || '') }}</span>
+                       </div>
+                       <div class="detail-line time-line">
+                         <span class="detail-icon">🕐</span>
+                         <span class="detail-text">{{ formatTime(booking.hora || '') }}</span>
+                       </div>
+                     } @else if (booking.data) {
+                       <div class="detail-line date-line">
+                         <span class="detail-icon">📅</span>
+                         <span class="detail-text">{{ formatDateFull(booking.data || '') }}</span>
+                       </div>
+                     } @else {
+                       <div class="detail-line date-line">
+                         <span class="detail-icon">📅</span>
+                         <span class="detail-text">{{ 'COMMON.NO_DATE_SET' | translate }}</span>
+                       </div>
+                     }
+                                           <div class="badges-row">
+                        @if (getServiceName(booking)) {
+                          <div class="detail-badge service-badge" [style.background-color]="getServiceColor(booking)" [style.color]="getServiceTextColor(booking)" [style.border-color]="getServiceColor(booking)">
+                            <span class="detail-icon">{{ getServiceCategoryIcon(booking) }}</span>
+                            <span class="detail-text">{{ getServiceName(booking) }}</span>
+                          </div>
+                        }
+                        @if (getServiceDuration(booking)) {
+                          <div class="detail-badge duration-badge">
+                            <span class="detail-icon">⏱️</span>
+                            <span class="detail-text">{{ getServiceDuration(booking) }} min</span>
+                          </div>
+                        }
                       </div>
-                    } @else if (booking.data) {
-                      <div class="detail-item">
-                        <span class="detail-icon">📅</span>
-                        <span class="detail-text">{{ formatDate(booking.data || '') }}</span>
-                      </div>
-                    } @else {
-                      <div class="detail-item">
-                        <span class="detail-icon">📅</span>
-                        <span class="detail-text">{{ 'COMMON.NO_DATE_SET' | translate }}</span>
-                      </div>
-                    }
-                    <div class="detail-item">
-                      <span class="detail-icon">✂️</span>
-                      <span class="detail-text">Service</span>
-                    </div>
-                  </div>
+                   </div>
                 </div>
               </div>
               <div class="appointment-actions-container">
@@ -204,31 +216,123 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         text-overflow: ellipsis;
       }
 
-      .appointment-details {
-        display: flex;
-        flex-direction: row;
-        gap: 0.6rem;
-        flex-wrap: wrap;
-        font-size: 0.85rem;
-      }
+             .appointment-details {
+         display: flex;
+         flex-direction: column;
+         gap: 0.3rem;
+         font-size: 0.85rem;
+       }
 
-      .detail-item {
+       .detail-line {
+         display: flex;
+         align-items: center;
+         gap: 0.5rem;
+         color: var(--text-color-secondary);
+       }
+
+       .badges-row {
+         display: flex;
+         flex-direction: row;
+         gap: 0.6rem;
+         flex-wrap: wrap;
+         margin-top: 0.2rem;
+       }
+
+                                                                                                                                                                                                                                                               @media (min-width: 768px) {
+          .appointment-details {
+            display: grid;
+            grid-template-columns: auto auto auto auto;
+            gap: 1.5rem;
+            align-items: center;
+            width: 100%;
+          }
+
+          .date-line {
+            grid-column: 1;
+          }
+
+          .time-line {
+            grid-column: 2;
+          }
+
+          .service-badge {
+            grid-column: 3;
+            justify-self: start;
+            width: fit-content;
+          }
+
+          .duration-badge {
+            grid-column: 4;
+            justify-self: start;
+            width: fit-content;
+          }
+
+          .badges-row {
+            display: contents;
+          }
+
+          .detail-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+      .detail-badge {
         display: flex;
         align-items: center;
-        gap: 0.2rem;
-        font-size: 0.85rem;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
         white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid transparent;
       }
 
       .detail-icon {
-        font-size: 0.9rem;
-        width: 16px;
+        font-size: 0.85rem;
+        width: 14px;
         text-align: center;
       }
 
       .detail-text {
-        color: var(--text-color-light);
         font-size: 0.85rem;
+        font-weight: 400;
+      }
+
+      .time-badge {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color-dark);
+      }
+
+      .date-badge {
+        background: var(--secondary-color);
+        color: white;
+        border-color: var(--secondary-color-dark);
+      }
+
+      .service-badge {
+        background: var(--success-color);
+        color: white;
+        border-color: var(--success-color-dark);
+      }
+
+      .duration-badge {
+        background: var(--info-color);
+        color: white;
+        border-color: var(--info-color-dark);
+      }
+
+      
+
+      .no-date-badge {
+        background: var(--text-color-light);
+        color: var(--text-color);
+        border-color: var(--border-color);
+        opacity: 0.7;
       }
 
       .appointment-actions-container {
@@ -342,6 +446,24 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         .empty-state-content p {
           font-size: 1rem;
         }
+
+        .appointment-details {
+          gap: 0.4rem;
+        }
+
+        .detail-badge {
+          padding: 0.2rem 0.4rem;
+          font-size: 0.75rem;
+        }
+
+        .detail-icon {
+          font-size: 0.8rem;
+          width: 12px;
+        }
+
+        .detail-text {
+          font-size: 0.75rem;
+        }
       }
     `,
   ],
@@ -353,6 +475,7 @@ export class AppointmentsListComponent {
   private readonly serviceTranslationService = inject(ServiceTranslationService);
   private readonly actionsService = inject(ActionsService);
   private readonly serviceColorsService = inject(ServiceColorsService);
+  private readonly servicesService = inject(ServicesService);
 
   readonly viewBooking = output<Booking>();
   readonly editBooking = output<Booking>();
@@ -387,12 +510,141 @@ export class AppointmentsListComponent {
     return date.toLocaleDateString();
   }
 
+  formatDateFull(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ca-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
   getTranslatedServiceName(serviceName: string | undefined): string {
     return this.serviceTranslationService.translateServiceName(serviceName || '');
   }
 
   getClientName(booking: Booking): string {
     return booking.clientName || 'Client';
+  }
+
+  getServiceName(booking: Booking): string {
+    if (!booking.serviceId) {
+      return '';
+    }
+
+    try {
+      // Get service from Firebase using serviceId
+      const allServices = this.servicesService.getAllServices();
+      if (!allServices || allServices.length === 0) {
+        return '';
+      }
+
+      const service = allServices.find(s => s.id === booking.serviceId);
+      if (!service) {
+        return '';
+      }
+
+      return this.servicesService.getServiceName(service);
+    } catch (error) {
+      console.warn('Error getting service name:', error);
+      return '';
+    }
+  }
+
+  getServiceColor(booking: Booking): string {
+    if (!booking.serviceId) {
+      return 'var(--success-color)';
+    }
+
+    try {
+      const allServices = this.servicesService.getAllServices();
+      if (!allServices || allServices.length === 0) {
+        return 'var(--success-color)';
+      }
+
+      const service = allServices.find(s => s.id === booking.serviceId);
+      if (!service) {
+        return 'var(--success-color)';
+      }
+
+      const serviceColor = this.servicesService.getServiceColor(service);
+      return serviceColor.backgroundColor;
+    } catch (error) {
+      console.warn('Error getting service color:', error);
+      return 'var(--success-color)';
+    }
+  }
+
+  getServiceTextColor(booking: Booking): string {
+    if (!booking.serviceId) {
+      return 'white';
+    }
+
+    try {
+      const allServices = this.servicesService.getAllServices();
+      if (!allServices || allServices.length === 0) {
+        return 'white';
+      }
+
+      const service = allServices.find(s => s.id === booking.serviceId);
+      if (!service) {
+        return 'white';
+      }
+
+      const serviceColor = this.servicesService.getServiceColor(service);
+      return serviceColor.textColor;
+    } catch (error) {
+      console.warn('Error getting service text color:', error);
+      return 'white';
+    }
+  }
+
+  getServiceCategoryIcon(booking: Booking): string {
+    if (!booking.serviceId) {
+      return '✂️';
+    }
+
+    try {
+      const allServices = this.servicesService.getAllServices();
+      if (!allServices || allServices.length === 0) {
+        return '✂️';
+      }
+
+      const service = allServices.find(s => s.id === booking.serviceId);
+      if (!service) {
+        return '✂️';
+      }
+
+      return this.servicesService.getCategoryIcon(service.category);
+    } catch (error) {
+      console.warn('Error getting service category icon:', error);
+      return '✂️';
+    }
+  }
+
+  getServiceDuration(booking: Booking): number {
+    if (!booking.serviceId) {
+      return 60; // Default duration
+    }
+
+    try {
+      // Get service from Firebase using serviceId
+      const allServices = this.servicesService.getAllServices();
+      if (!allServices || allServices.length === 0) {
+        return 60; // Default duration
+      }
+
+      const service = allServices.find(s => s.id === booking.serviceId);
+      if (!service) {
+        return 60; // Default duration
+      }
+
+      return service.duration;
+    } catch (error) {
+      console.warn('Error getting service duration:', error);
+      return 60; // Default duration
+    }
   }
 
   getActionContext(booking: Booking): ActionContext {

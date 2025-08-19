@@ -90,13 +90,6 @@
   padding: 1.5rem;
   margin-bottom: 1.25rem;
   box-shadow: var(--box-shadow);
-  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    border-color: color-mix(in srgb, var(--border-color), var(--primary-color) 20%);
-  }
 }
 
 .category-header {

@@ -11,6 +11,7 @@ import { AppointmentsStatsComponent } from '../../appointments/components/appoin
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
+import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -25,6 +26,8 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
 import { Booking } from '../../../core/interfaces/booking.interface';
 import { ToastConfig } from '../../../shared/components/toast/toast.component';
 import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
+import { TranslateService } from '@ngx-translate/core';
+import { ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 
 interface FilterState {
   date: Date | null;
@@ -57,6 +60,7 @@ interface AppointmentStats {
     LoadingStateComponent,
     NextAppointmentComponent,
     FiltersInlineComponent,
+    ConfirmationPopupComponent,
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss'],
@@ -69,6 +73,7 @@ export class AppointmentsPageComponent {
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly toastService = inject(ToastService);
   private readonly userService = inject(UserService);
+  private readonly translateService = inject(TranslateService);
 
   // Core data
   readonly appointments = this.appointmentService.bookings;
@@ -88,11 +93,18 @@ export class AppointmentsPageComponent {
     selectedDate: null as Date | null,
   });
 
+  // Confirmation popup state
+  private readonly confirmationPopupSignal = signal({
+    isOpen: false,
+    data: null as (ConfirmationData & { booking?: Booking }) | null,
+  });
+
   // Computed properties
   readonly filterState = computed(() => this.filterStateSignal());
   readonly viewState = computed(() => this.viewStateSignal());
   readonly viewMode = computed(() => this.viewState().mode);
   readonly selectedDate = computed(() => this.viewState().selectedDate);
+  readonly confirmationPopup = computed(() => this.confirmationPopupSignal());
 
   // Filter signals for template
   readonly filterDate = computed(() => this.filterState().date?.toISOString().split('T')[0] || '');
@@ -199,7 +211,7 @@ export class AppointmentsPageComponent {
         try {
           const appointmentDate = parseISO(app.data);
           return isFuture(appointmentDate);
-        } catch (error) {
+        } catch (_error) {
           return false;
         }
       }).length,
@@ -289,7 +301,7 @@ export class AppointmentsPageComponent {
           }
           
           return new Date(year, month - 1, day, hour || 0, minute || 0);
-        } catch (error) {
+        } catch (_error) {
           // If parsing fails, return default date
           return new Date(0);
         }
@@ -324,7 +336,47 @@ export class AppointmentsPageComponent {
   // List actions (for Booking objects)
   async deleteBookingFromList(booking: Booking): Promise<void> {
     if (!booking.id) return;
-    this.router.navigate(['/appointments', booking.id], { queryParams: { confirmDelete: 'true' } });
+    
+    // Show confirmation popup
+    this.confirmationPopupSignal.set({
+      isOpen: true,
+      data: {
+        title: 'COMMON.DELETE_CONFIRMATION',
+        message: 'APPOINTMENTS.DELETE_CONFIRMATION_MESSAGE_SIMPLE',
+        confirmText: 'COMMON.DELETE',
+        cancelText: 'COMMON.CANCEL',
+        severity: 'danger',
+        booking: booking
+      }
+    });
+  }
+
+  onDeleteConfirmed(): void {
+    const popupData = this.confirmationPopup().data;
+    if (popupData?.booking?.id) {
+      this.performDelete(popupData.booking);
+    }
+    this.closeConfirmationPopup();
+  }
+
+  onDeleteCancelled(): void {
+    this.closeConfirmationPopup();
+  }
+
+  private async performDelete(booking: Booking): Promise<void> {
+    try {
+      await this.appointmentService.deleteBooking(booking.id!);
+      this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.DELETE_SUCCESS');
+          } catch (_error) {
+        this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
+      }
+  }
+
+  private closeConfirmationPopup(): void {
+    this.confirmationPopupSignal.set({
+      isOpen: false,
+      data: null
+    });
   }
 
   editBookingFromList(booking: Booking): void {
