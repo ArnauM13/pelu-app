@@ -21,7 +21,6 @@ export class IcsUtils {
       time,
       serviceName,
       duration,
-      price,
       businessName = 'PeluApp',
       businessAddress = '',
       businessPhone = ''
@@ -119,35 +118,46 @@ export class IcsUtils {
 
     // Try to open the calendar application using different methods
     try {
-      // Method 1: Try to open with webcal:// protocol (works on some systems)
-      const webcalUrl = `webcal://${window.location.host}/calendar/${encodeURIComponent(filename)}`;
-
-      // Method 2: Try to open with data URL (works in some browsers)
-      const dataUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
-
-      // Method 3: Try to open with mailto: protocol (opens email client)
-      const mailtoUrl = `mailto:?subject=${encodeURIComponent('Calendar Event')}&body=${encodeURIComponent('Please find the calendar event attached.')}`;
-
-      // Try different approaches based on platform
       if (this.isMobileDevice()) {
         // On mobile, try to open the calendar app directly
         await this.openMobileCalendar(icsContent, filename);
       } else {
-        // On desktop, try webcal protocol first
-        try {
-          window.open(webcalUrl, '_blank');
-        } catch (error) {
-          console.log('Webcal protocol not supported, trying data URL');
-          try {
-            window.open(dataUrl, '_blank');
-          } catch (error) {
-            console.log('Data URL not supported, trying mailto');
-            window.open(mailtoUrl, '_blank');
-          }
-        }
+        // On desktop, try different protocols
+        await this.openDesktopCalendar(icsContent, filename);
       }
-    } catch (error) {
+    } catch {
       console.log('Could not automatically open calendar, file downloaded successfully');
+    }
+  }
+
+  /**
+   * Attempts to open calendar on desktop devices
+   */
+  private static async openDesktopCalendar(icsContent: string, filename: string): Promise<void> {
+    // Method 1: Try to open with data URL (works in most browsers)
+    try {
+      const dataUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
+      window.open(dataUrl, '_blank');
+      return;
+    } catch {
+      console.log('Data URL not supported, trying webcal protocol');
+    }
+
+    // Method 2: Try to open with webcal:// protocol
+    try {
+      const webcalUrl = `webcal://${window.location.host}/calendar/${encodeURIComponent(filename)}`;
+      window.open(webcalUrl, '_blank');
+      return;
+    } catch {
+      console.log('Webcal protocol not supported, trying mailto');
+    }
+
+    // Method 3: Try to open with mailto: protocol (opens email client)
+    try {
+      const mailtoUrl = `mailto:?subject=${encodeURIComponent('Calendar Event')}&body=${encodeURIComponent('Please find the calendar event attached.')}`;
+      window.open(mailtoUrl, '_blank');
+    } catch {
+      console.log('Mailto protocol not supported');
     }
   }
 
@@ -163,35 +173,64 @@ export class IcsUtils {
    */
   private static async openMobileCalendar(icsContent: string, filename: string): Promise<void> {
     try {
-      // For mobile devices, we'll try to use the native calendar app
-      // This is a more complex approach that varies by platform
+      // Method 1: Try to use the Web Share API with the ICS file
+      if (navigator.share) {
+        try {
+          const file = new File([icsContent], filename, { type: 'text/calendar' });
+          await navigator.share({
+            title: 'Calendar Event',
+            text: 'Add this event to your calendar',
+            files: [file]
+          });
+          return;
+        } catch {
+          console.log('Web Share API failed, trying alternative methods');
+        }
+      }
 
-      // iOS: Try to use the calendar:// protocol
+      // Method 2: Try to open with data URL (works on some mobile browsers)
+      try {
+        const dataUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
+        window.open(dataUrl, '_blank');
+        return;
+      } catch {
+        console.log('Data URL not supported on mobile');
+      }
+
+      // Method 3: iOS specific - try calendar:// protocol
       if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         try {
           window.open('calendar://', '_blank');
-        } catch (error) {
+          return;
+        } catch {
           console.log('iOS calendar protocol not supported');
         }
       }
 
-      // Android: Try to use the content:// protocol or intent
-      else if (/Android/i.test(navigator.userAgent)) {
+      // Method 4: Android specific - try content:// protocol
+      if (/Android/i.test(navigator.userAgent)) {
         try {
-          // Try to create a share intent
-          if (navigator.share) {
-            await navigator.share({
-              title: 'Calendar Event',
-              text: 'Add this event to your calendar',
-              files: [new File([icsContent], filename, { type: 'text/calendar' })]
-            });
-          }
-        } catch (error) {
-          console.log('Android share API not supported');
+          // Try to create a blob URL and open it
+          const blob = new Blob([icsContent], { type: 'text/calendar' });
+          const url = window.URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+          return;
+        } catch {
+          console.log('Android blob URL method failed');
         }
       }
-    } catch (error) {
-      console.log('Mobile calendar opening failed');
+
+      // Method 5: Fallback - try to open with mailto
+      try {
+        const mailtoUrl = `mailto:?subject=${encodeURIComponent('Calendar Event')}&body=${encodeURIComponent('Please find the calendar event attached.')}`;
+        window.open(mailtoUrl, '_blank');
+      } catch {
+        console.log('Mailto fallback failed');
+      }
+
+    } catch {
+      console.log('All mobile calendar opening methods failed');
     }
   }
 
