@@ -563,13 +563,13 @@
            font-size: 1.25rem;
            font-weight: 600;
            color: var(--text-color);
-           margin-bottom: 0.75rem;
+           margin-bottom: 1.5rem;
          }
 
          .ics-description {
            font-size: 0.9rem;
            color: #666;
-           margin-bottom: 1rem;
+           margin-bottom: 1rem !important;
            line-height: 1.4;
            font-style: italic;
          }
