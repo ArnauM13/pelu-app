@@ -60,12 +60,13 @@
         <div class="services-section">
           <h4 class="section-title">🕒 {{ 'COMMON.SELECTION.RECENTLY_BOOKED' | translate }}</h4>
           <div class="services-grid">
-                         @for (service of recentlyBookedServices(); track service.id) {
+              @for (service of recentlyBookedServices(); track service.id) {
                <pelu-service-card
                  [service]="service"
                  [selected]="selectedService()?.id === service.id"
                  [simpleMode]="true"
-                 (clicked)="onServiceSelected(service)"
+                 [clickable]="true"
+                 (cardClick)="onServiceSelected($event)"
                />
              }
           </div>
@@ -82,7 +83,8 @@
                  [service]="service"
                  [selected]="selectedService()?.id === service.id"
                  [simpleMode]="true"
-                 (clicked)="onServiceSelected(service)"
+                 [clickable]="true"
+                 (cardClick)="onServiceSelected($event)"
                />
              }
           </div>
@@ -99,7 +101,8 @@
                  [service]="service"
                  [selected]="selectedService()?.id === service.id"
                  [simpleMode]="true"
-                 (clicked)="onServiceSelected(service)"
+                 [clickable]="true"
+                 (cardClick)="onServiceSelected($event)"
                />
              }
           </div>
