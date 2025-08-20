@@ -18,7 +18,7 @@ import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { BookingValidationService } from './booking-validation.service';
-import { EmailService } from './email.service';
+import { HybridEmailService } from './hybrid-email.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../interfaces/booking.interface';
 
@@ -33,7 +33,7 @@ export class BookingService {
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
   private readonly bookingValidationService = inject(BookingValidationService);
-  private readonly emailService = inject(EmailService);
+  private readonly emailService = inject(HybridEmailService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -131,17 +131,18 @@ export class BookingService {
       // Update local state
       this.bookingsSignal.update(bookings => [newBooking, ...bookings]);
 
-      // Send confirmation email
-      try {
-        await this.emailService.sendBookingConfirmationEmail(newBooking);
-      } catch (emailError) {
-        // Log email error but don't fail the booking creation
-        this.logger.error(emailError, {
-          component: 'BookingService',
-          method: 'createBooking',
-          data: JSON.stringify({ bookingId: uniqueId, clientEmail: bookingData.email })
-        });
-      }
+      // Email sending disabled - system is configured but not active
+      // To enable email sending, update PUBLIC_KEY in emailjs-config.ts
+      // try {
+      //   await this.emailService.sendBookingConfirmationEmail(newBooking);
+      // } catch (emailError) {
+      //   // Log email error but don't fail the booking creation
+      //   this.logger.error(emailError, {
+      //     component: 'BookingService',
+      //     method: 'createBooking',
+      //     data: JSON.stringify({ bookingId: uniqueId, clientEmail: bookingData.email })
+      //   });
+      // }
 
       if (showToast) {
         this.toastService.showAppointmentCreated(bookingData.clientName || 'Client', uniqueId);
@@ -602,9 +603,9 @@ export class BookingService {
     }
 
     // Get all confirmed bookings for the current user
-    const userBookings = this.bookings().filter(booking => 
-      booking.email === currentUser.email && 
-      booking.status === 'confirmed' && 
+    const userBookings = this.bookings().filter(booking =>
+      booking.email === currentUser.email &&
+      booking.status === 'confirmed' &&
       booking.serviceId
     );
 
@@ -619,7 +620,7 @@ export class BookingService {
           // If it's FieldValue, we can't convert it, so use 0
           return 0;
         };
-        
+
         const dateA = getDateValue(a.createdAt);
         const dateB = getDateValue(b.createdAt);
         return dateB - dateA; // Most recent first

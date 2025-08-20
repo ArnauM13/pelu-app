@@ -405,6 +405,8 @@
     "BACK_TO_HOME": "Back to home",
     "DOWNLOAD_CALENDAR": "Download calendar",
     "DOWNLOAD_CALENDAR_DESCRIPTION": "Download a calendar file (.ics) with your booking details and your calendar will automatically open to add the event.",
+    "ADD_TO_CALENDAR": "Add to calendar",
+    "ADD_TO_CALENDAR_DESCRIPTION": "Add this event directly to your personal calendar.",
     "DOWNLOAD_ICS": "Download ICS file",
     "EMAIL": {
       "SUBJECT": "Booking confirmation - {{businessName}}",

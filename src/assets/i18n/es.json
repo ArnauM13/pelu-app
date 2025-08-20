@@ -399,6 +399,8 @@
     "BACK_TO_HOME": "Volver al inicio",
     "DOWNLOAD_CALENDAR": "Descargar calendario",
     "DOWNLOAD_CALENDAR_DESCRIPTION": "Descarga un archivo de calendario (.ics) con los detalles de tu reserva y se abrirá automáticamente tu calendario para añadir el evento.",
+    "ADD_TO_CALENDAR": "Añadir al calendario",
+    "ADD_TO_CALENDAR_DESCRIPTION": "Añade directamente este evento a tu calendario personal.",
     "DOWNLOAD_ICS": "Descargar archivo ICS",
     "QUICK_SELECTION": {
       "TODAY": "Hoy",

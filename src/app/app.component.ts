@@ -7,6 +7,7 @@ import { AuthService } from './core/auth/auth.service';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { LoaderComponent } from './shared/components/loader/loader.component';
 import { injectSpeedInsights } from '@vercel/speed-insights';
+import { HybridEmailService } from './core/services/hybrid-email.service';
 
 @Component({
   selector: 'pelu-app-root',
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit {
   readonly title = signal('pelu-app');
 
   private readonly authService = inject(AuthService);
+  private readonly emailService = inject(HybridEmailService);
 
   // Computed signals - utilitzem AuthService
   readonly isLoading = computed(() => this.authService.isLoading());
@@ -34,5 +36,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     injectSpeedInsights();
+    // Initialize EmailJS for development
+    this.emailService.initializeEmailJS();
   }
 }
