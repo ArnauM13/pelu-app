@@ -403,6 +403,9 @@
     },
     "VIEW_DETAIL": "View detail",
     "BACK_TO_HOME": "Back to home",
+    "DOWNLOAD_CALENDAR": "Download calendar",
+    "DOWNLOAD_CALENDAR_DESCRIPTION": "Download a calendar file (.ics) with your booking details and your calendar will automatically open to add the event.",
+    "DOWNLOAD_ICS": "Download ICS file",
     "EMAIL": {
       "SUBJECT": "Booking confirmation - {{businessName}}",
       "GREETING": "Hello {{clientName}},",

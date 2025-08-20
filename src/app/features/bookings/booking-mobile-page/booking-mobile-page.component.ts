@@ -28,6 +28,8 @@ import { BookingDetails } from '../../../shared/components/booking-popup/booking
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
+import { CardComponent } from '../../../shared/components/card/card.component';
+import { IcsUtils } from '../../../shared/utils/ics.utils';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -47,7 +49,8 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     LoadingStateComponent,
     NoAppointmentsMessageComponent,
     ButtonComponent,
-    ServiceCardComponent
+    ServiceCardComponent,
+    CardComponent
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],
@@ -769,8 +772,18 @@ export class BookingMobilePageComponent {
   // View mode methods
   toggleViewMode() {
     const newMode = this.viewMode() === 'week' ? 'month' : 'week';
+    const currentSelectedDate = this.selectedDate();
+
     this.viewModeSignal.set(newMode);
-    this.clearSelectedDate();
+
+    // Preserve selected date if it's still valid in the new view
+    if (currentSelectedDate && this.canSelectDate(currentSelectedDate)) {
+      // Keep the selected date, just update the view to show the selected date
+      this.viewDateSignal.set(currentSelectedDate);
+    } else {
+      // Clear selected date only if it's not valid in the new view
+      this.clearSelectedDate();
+    }
   }
 
   canGoToPreviousPeriod(): boolean {
@@ -909,4 +922,53 @@ export class BookingMobilePageComponent {
   goToServiceStep = () => {
     this.goToStep('service');
   };
+
+  /**
+   * Downloads ICS file with booking details and opens calendar
+   */
+  async downloadIcsFile(): Promise<void> {
+    const booking = this.createdBooking();
+
+    if (!booking) {
+      this.toastService.showError('No s\'ha trobat la reserva per generar l\'arxiu ICS');
+      return;
+    }
+
+    try {
+      // Get service details from the booking
+      const service = await this.firebaseServicesService.getServiceById(booking.serviceId);
+
+      if (!service) {
+        this.toastService.showError('No s\'ha trobat el servei per generar l\'arxiu ICS');
+        return;
+      }
+
+      const icsData = {
+        clientName: booking.clientName,
+        email: booking.email,
+        date: booking.data,
+        time: booking.hora,
+        serviceName: service.name,
+        duration: service.duration,
+        price: service.price,
+        businessName: 'PeluApp',
+        businessAddress: '',
+        businessPhone: ''
+      };
+
+      const icsContent = IcsUtils.generateIcsContent(icsData);
+      const filename = IcsUtils.generateFilename(
+        booking.clientName,
+        booking.data,
+        service.name
+      );
+
+      // Download and open calendar
+      await IcsUtils.downloadAndOpenCalendar(icsContent, filename);
+      this.toastService.showSuccess('Arxiu ICS descarregat i calendari obert correctament');
+    } catch (error) {
+      console.error('Error generating ICS file:', error);
+      this.toastService.showError('Error al generar l\'arxiu ICS');
+    }
+  }
 }
