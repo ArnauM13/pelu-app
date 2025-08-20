@@ -17,12 +17,15 @@ import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { ActionsButtonsComponent } from '../actions-buttons/actions-buttons.component';
 import { ButtonComponent } from '../buttons/button.component';
 import { ServiceCardComponent } from '../service-card/service-card.component';
+import { CardComponent } from '../card/card.component';
 
 import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
 import { ServicesService } from '../../../core/services/services.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
+import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
+import { IcsUtils } from '../../utils/ics.utils';
 import { User } from '../../../core/interfaces/user.interface';
 import { Booking, BookingForm } from '../../../core/interfaces/booking.interface';
 
@@ -86,6 +89,7 @@ export interface DetailViewConfig {
     ActionsButtonsComponent,
     ButtonComponent,
     ServiceCardComponent,
+    CardComponent,
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss'],
@@ -110,6 +114,7 @@ export class DetailViewComponent {
   #toastService = inject(ToastService);
   #actionsService = inject(ActionsService);
   #bookingValidationService = inject(BookingValidationService);
+  #firebaseServicesService = inject(FirebaseServicesService);
 
   // Computed properties from service
   readonly appointment = this.#appointmentManagementService.appointment;
@@ -407,5 +412,54 @@ export class DetailViewComponent {
 
   viewAppointmentDetail(appointmentId: string): void {
     this.#appointmentManagementService.navigateToAppointment(appointmentId);
+  }
+
+  /**
+   * Downloads ICS file with appointment details and opens calendar
+   */
+  async downloadIcsFile(): Promise<void> {
+    const appointment = this.appointment();
+
+    if (!appointment) {
+      this.#toastService.showError('No s\'ha trobat la reserva per generar l\'arxiu ICS');
+      return;
+    }
+
+    try {
+      // Get service details from the appointment
+      const service = await this.#firebaseServicesService.getServiceById(appointment.serviceId);
+
+      if (!service) {
+        this.#toastService.showError('No s\'ha trobat el servei per generar l\'arxiu ICS');
+        return;
+      }
+
+      const icsData = {
+        clientName: appointment.clientName,
+        email: appointment.email,
+        date: appointment.data,
+        time: appointment.hora,
+        serviceName: service.name,
+        duration: service.duration,
+        price: service.price,
+        businessName: 'PeluApp',
+        businessAddress: '',
+        businessPhone: ''
+      };
+
+      const icsContent = IcsUtils.generateIcsContent(icsData);
+      const filename = IcsUtils.generateFilename(
+        appointment.clientName,
+        appointment.data,
+        service.name
+      );
+
+      // Download and open calendar
+      await IcsUtils.downloadAndOpenCalendar(icsContent, filename);
+      this.#toastService.showSuccess('Arxiu ICS descarregat i calendari obert correctament');
+    } catch (error) {
+      console.error('Error generating ICS file:', error);
+      this.#toastService.showError('Error al generar l\'arxiu ICS');
+    }
   }
 }

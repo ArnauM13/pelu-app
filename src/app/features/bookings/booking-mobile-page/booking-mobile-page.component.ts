@@ -28,6 +28,8 @@ import { BookingDetails } from '../../../shared/components/booking-popup/booking
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
+import { CardComponent } from '../../../shared/components/card/card.component';
+import { IcsUtils } from '../../../shared/utils/ics.utils';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -47,7 +49,8 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     LoadingStateComponent,
     NoAppointmentsMessageComponent,
     ButtonComponent,
-    ServiceCardComponent
+    ServiceCardComponent,
+    CardComponent
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],
@@ -209,17 +212,20 @@ export class BookingMobilePageComponent {
     );
   });
 
-  // Week days computation
+  // Week days computation - show all days of the week
   readonly weekDays = computed(() => {
     const currentDate = this.viewDate();
+    const weekStart = this.timeUtils.getStartOfWeek(currentDate);
+    const weekEnd = this.timeUtils.getEndOfWeek(currentDate);
     return this.timeUtils.getWeekDays(currentDate);
   });
 
-  // Month days computation
+  // Month days computation - show all days of the month
   readonly monthDays = computed(() => {
     const currentDate = this.viewDate();
-    const workingDays = this.businessDays();
-    return this.timeUtils.getMonthDays(currentDate, workingDays);
+    const monthStart = this.timeUtils.getStartOfMonth(currentDate);
+    const monthEnd = this.timeUtils.getEndOfMonth(currentDate);
+    return this.timeUtils.getMonthDays(currentDate);
   });
 
   // Current view days
@@ -229,16 +235,28 @@ export class BookingMobilePageComponent {
 
   // Day slots computation
   readonly daySlots = computed(() => {
-    return this.currentViewDays().map(day => ({
+    const selectedService = this.selectedService();
+    if (!selectedService) {
+      return this.currentViewDays().map((day: Date) => ({
+        date: day,
+        timeSlots: [],
+      }));
+    }
+
+    return this.currentViewDays().map((day: Date) => ({
       date: day,
-      timeSlots: this.generateTimeSlots(day),
+      timeSlots: this.bookingValidationService.generateTimeSlotsForService(
+        day,
+        selectedService.duration,
+        this.appointments()
+      ),
     }));
   });
 
   readonly selectedDaySlots = computed(() => {
     const selectedDate = this.selectedDate();
     if (!selectedDate) return null;
-    return this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, selectedDate));
+    return this.daySlots().find((daySlot: { date: Date; timeSlots: unknown[] }) => this.timeUtils.isSameDay(daySlot.date, selectedDate));
   });
 
   readonly isSelectedDayFullyBooked = computed(() => {
@@ -246,7 +264,7 @@ export class BookingMobilePageComponent {
     if (!daySlots) return false;
 
     // Check if all time slots are occupied
-    const availableSlots = daySlots.timeSlots.filter(slot => slot.available);
+    const availableSlots = daySlots.timeSlots.filter((slot: { available: boolean }) => slot.available);
     return availableSlots.length === 0 && daySlots.timeSlots.length > 0;
   });
 
@@ -259,13 +277,26 @@ export class BookingMobilePageComponent {
     return this.isBusinessDay(selectedDate) && this.hasNoAvailableAppointmentsForDay(selectedDate);
   });
 
+  // Check if there are no available time slots for the selected service on any day
+  readonly hasNoAvailableTimeSlotsForService = computed(() => {
+    const selectedService = this.selectedService();
+    if (!selectedService) return false;
+
+    const currentViewDays = this.currentViewDays();
+    return currentViewDays.every((day: Date) => {
+      const daySlots = this.daySlots().find((daySlot: { date: Date; timeSlots: unknown[] }) => this.timeUtils.isSameDay(daySlot.date, day));
+      if (!daySlots) return true; // No slots means no appointments
+      return daySlots.timeSlots.every((slot: { available: boolean }) => !slot.available);
+    });
+  });
+
   // Check if there are no available appointments in the current view
   readonly hasNoAvailableAppointments = computed(() => {
     const currentViewDays = this.currentViewDays();
-    return currentViewDays.every(day => {
-      const daySlots = this.daySlots().find(daySlot => this.timeUtils.isSameDay(daySlot.date, day));
+    return currentViewDays.every((day: Date) => {
+      const daySlots = this.daySlots().find((daySlot: { date: Date; timeSlots: unknown[] }) => this.timeUtils.isSameDay(daySlot.date, day));
       if (!daySlots) return true; // No slots means no appointments
-      return daySlots.timeSlots.every(slot => !slot.available);
+      return daySlots.timeSlots.every((slot: { available: boolean }) => !slot.available);
     });
   });
 
@@ -330,6 +361,9 @@ export class BookingMobilePageComponent {
   // Step-specific methods
   onServiceSelected(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
+    // Clear selected date and time when service changes, as available slots may change
+    this.selectedDateSignal.set(null);
+    this.selectedTimeSlotSignal.set(null);
   }
 
   onDateSelected(date: Date) {
@@ -435,170 +469,17 @@ export class BookingMobilePageComponent {
     }
   }
 
-  private generateTimeSlots(date: Date): TimeSlot[] {
-    const slots: TimeSlot[] = [];
-    const dayOfWeek = date.getDay();
 
-    // Check if it's a business day
-    if (!this.businessDays().includes(dayOfWeek)) {
-      return slots;
-    }
 
-    const businessHours = this.businessHours();
-    const slotDuration = this.slotDuration();
 
-    const startHour = businessHours.start;
-    const endHour = businessHours.end;
-    const now = new Date();
-    const isToday = this.timeUtils.isSameDay(date, now);
 
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += slotDuration) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        const slotDate = new Date(date);
-        slotDate.setHours(hour, minute, 0, 0);
 
-        // Skip disabled time slots (lunch break, etc.)
-        if (!this.isTimeSlotEnabled(hour)) {
-          continue;
-        }
 
-        // Skip past hours (only for today)
-        if (isToday && slotDate <= now) {
-          continue;
-        }
 
-        // Check advance time validation - only show slots that can be booked with advance time
-        if (!this.bookingValidationService.canBookWithAdvanceTime(date, timeString)) {
-          continue;
-        }
 
-        // Check if slot is available (not booked)
-        const isAvailable = !this.isSlotBooked(slotDate);
 
-        // Get booking details if slot is occupied
-        const booking = this.getBookingForSlot(date, timeString);
 
-        slots.push({
-          time: timeString,
-          available: isAvailable,
-          isSelected: false,
-          clientName: booking?.clientName,
-          serviceName: '', // Service name will be retrieved from service service
-          serviceIcon: this.getServiceIcon(booking?.serviceId),
-          bookingId: booking?.id,
-          notes: booking?.notes,
-        });
-      }
-    }
 
-    return slots;
-  }
-
-  private isSlotBooked(date: Date): boolean {
-    const bookings = this.bookingService.bookings();
-    const _timeString = this.timeUtils.formatTime(date.toTimeString().slice(0, 5));
-    const dateString = this.timeUtils.formatDateISO(date);
-    const selectedService = this.selectedService();
-
-    // Get the duration of the selected service (default to 60 minutes if no service selected)
-    const serviceDuration = selectedService?.duration || 60;
-
-    return bookings.some(booking => {
-      // Check if booking is confirmed and matches the date
-      if (booking.status !== 'confirmed' || booking.data !== dateString) {
-        return false;
-      }
-
-      // Check if the booking time overlaps with the slot we're checking
-      const bookingTime = booking.hora;
-      if (!bookingTime) return false;
-
-      // Get the service duration for this booking
-      let bookingDuration = 60; // Default duration
-      if (booking.serviceId) {
-        const service = this.firebaseServicesService.services().find(s => s.id === booking.serviceId);
-        if (service) {
-          bookingDuration = service.duration;
-        }
-      }
-
-      // Calculate time ranges
-      const slotStart = new Date(date);
-      const slotEnd = new Date(slotStart.getTime() + serviceDuration * 60 * 1000);
-
-      const [bookingHour, bookingMinute] = bookingTime.split(':').map(Number);
-      const bookingStart = new Date(date);
-      bookingStart.setHours(bookingHour, bookingMinute, 0, 0);
-      const bookingEnd = new Date(bookingStart.getTime() + bookingDuration * 60 * 1000);
-
-      // Check for overlap
-      return slotStart < bookingEnd && slotEnd > bookingStart;
-    });
-  }
-
-  private getBookingForSlot(date: Date, time: string): Booking | undefined {
-    const dateString = this.timeUtils.formatDateISO(date);
-    const bookings = this.bookingService.bookings();
-    const selectedService = this.selectedService();
-
-    // Get the duration of the selected service (default to 60 minutes if no service selected)
-    const serviceDuration = selectedService?.duration || 60;
-
-    // Calculate the time range for the slot we're checking
-    const [slotHour, slotMinute] = time.split(':').map(Number);
-    const slotStart = new Date(date);
-    slotStart.setHours(slotHour, slotMinute, 0, 0);
-    const slotEnd = new Date(slotStart.getTime() + serviceDuration * 60 * 1000);
-
-    return bookings.find(booking => {
-      // Check if booking is confirmed and matches the date
-      if (booking.status !== 'confirmed' || booking.data !== dateString) {
-        return false;
-      }
-
-      // Check if the booking time overlaps with the slot we're checking
-      const bookingTime = booking.hora;
-      if (!bookingTime) return false;
-
-      // Get the service duration for this booking
-      let bookingDuration = 60; // Default duration
-      if (booking.serviceId) {
-        const service = this.firebaseServicesService.services().find(s => s.id === booking.serviceId);
-        if (service) {
-          bookingDuration = service.duration;
-        }
-      }
-
-      // Calculate booking time range
-      const [bookingHour, bookingMinute] = bookingTime.split(':').map(Number);
-      const bookingStart = new Date(date);
-      bookingStart.setHours(bookingHour, bookingMinute, 0, 0);
-      const bookingEnd = new Date(bookingStart.getTime() + bookingDuration * 60 * 1000);
-
-      // Check for overlap
-      return slotStart < bookingEnd && slotEnd > bookingStart;
-    });
-  }
-
-  private getServiceIcon(serviceId?: string): string {
-    if (!serviceId) return '🔧';
-    const service = this.firebaseServicesService.services().find(s => s.id === serviceId);
-    return service?.icon || '🔧';
-  }
-
-  private isTimeSlotEnabled(hour: number): boolean {
-    // Check lunch break
-    const lunchBreak = this.lunchBreak();
-    const lunchStart = lunchBreak.start;
-    const lunchEnd = lunchBreak.end;
-
-    if (hour >= lunchStart && hour < lunchEnd) {
-      return false;
-    }
-
-    return true;
-  }
 
   /**
    * Get enabled time slots for a given date
@@ -621,10 +502,8 @@ export class BookingMobilePageComponent {
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotDuration) {
-        if (this.isTimeSlotEnabled(hour)) {
-          const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-          slots.push(timeString);
-        }
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(timeString);
       }
     }
 
@@ -751,11 +630,7 @@ export class BookingMobilePageComponent {
   }
 
   isPastDate(date: Date): boolean {
-    const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-    return dateStart < todayStart;
+    return this.timeUtils.isPastDay(date);
   }
 
   isCurrentMonth(date: Date): boolean {
@@ -897,8 +772,18 @@ export class BookingMobilePageComponent {
   // View mode methods
   toggleViewMode() {
     const newMode = this.viewMode() === 'week' ? 'month' : 'week';
+    const currentSelectedDate = this.selectedDate();
+
     this.viewModeSignal.set(newMode);
-    this.clearSelectedDate();
+
+    // Preserve selected date if it's still valid in the new view
+    if (currentSelectedDate && this.canSelectDate(currentSelectedDate)) {
+      // Keep the selected date, just update the view to show the selected date
+      this.viewDateSignal.set(currentSelectedDate);
+    } else {
+      // Clear selected date only if it's not valid in the new view
+      this.clearSelectedDate();
+    }
   }
 
   canGoToPreviousPeriod(): boolean {
@@ -952,44 +837,37 @@ export class BookingMobilePageComponent {
 
   // Set default date when entering datetime step
   private setDefaultDate() {
+    // Always start with the first business day of the current week
     const today = new Date();
+    const firstBusinessDayOfWeek = this.timeUtils.getFirstBusinessDayOfWeek(today, this.businessDays());
 
-    // Try to select today if it's selectable
-    if (this.canSelectDate(today)) {
-      this.selectedDateSignal.set(today);
-      this.viewDateSignal.set(today);
-      return;
-    }
+    // Set the view to the first business day of the week
+    this.viewDateSignal.set(firstBusinessDayOfWeek);
 
-    // If today is not selectable, find the first available date
-    const currentViewDays = this.currentViewDays();
-    const firstAvailableDate = currentViewDays.find(day => this.canSelectDate(day));
+    // Try to select the first business day if it's selectable
+    if (this.canSelectDate(firstBusinessDayOfWeek)) {
+      this.selectedDateSignal.set(firstBusinessDayOfWeek);
+    } else {
+      // If the first business day is not selectable, find the first available date
+      const currentViewDays = this.currentViewDays();
+      const firstAvailableDate = currentViewDays.find((day: Date) => this.canSelectDate(day));
 
-    if (firstAvailableDate) {
-      this.selectedDateSignal.set(firstAvailableDate);
-      this.viewDateSignal.set(firstAvailableDate);
+      if (firstAvailableDate) {
+        this.selectedDateSignal.set(firstAvailableDate);
+      }
     }
   }
 
-  // Check if a specific day has no available appointments
+  // Check if a specific day has no available appointments for the selected service
   hasNoAvailableAppointmentsForDay(day: Date): boolean {
-    const businessHours = this.businessHours();
-    const businessHoursString = {
-      start: businessHours.start.toString(),
-      end: businessHours.end.toString()
-    };
-    const lunchBreak = this.lunchBreak();
-    const lunchBreakString = {
-      start: lunchBreak.start.toString(),
-      end: lunchBreak.end.toString()
-    };
+    const selectedService = this.selectedService();
+    if (!selectedService) {
+      return false;
+    }
 
-    const daySlots = this.timeUtils.generateTimeSlots(
+    const daySlots = this.bookingValidationService.generateTimeSlotsForService(
       day,
-      businessHoursString,
-      this.slotDuration(),
-      lunchBreakString,
-      this.businessDays(),
+      selectedService.duration,
       this.appointments()
     );
     return daySlots.every(slot => !slot.available);
@@ -1012,43 +890,14 @@ export class BookingMobilePageComponent {
 
   // Check if there's enough space for the selected service on a given day
   private hasEnoughSpaceForService(day: Date, service: FirebaseService): boolean {
-    const businessHours = this.businessHours();
-    const businessHoursString = {
-      start: businessHours.start.toString(),
-      end: businessHours.end.toString()
-    };
-    const lunchBreak = this.lunchBreak();
-    const lunchBreakString = {
-      start: lunchBreak.start.toString(),
-      end: lunchBreak.end.toString()
-    };
-
-    const daySlots = this.timeUtils.generateTimeSlots(
+    const daySlots = this.bookingValidationService.generateTimeSlotsForService(
       day,
-      businessHoursString,
-      this.slotDuration(),
-      lunchBreakString,
-      this.businessDays(),
+      service.duration,
       this.appointments()
     );
 
-    // Check if there are enough consecutive available slots for the service duration
-    const serviceDurationInMinutes = service.duration || 60;
-    const slotsNeeded = Math.ceil(serviceDurationInMinutes / this.slotDuration());
-
-    let consecutiveAvailableSlots = 0;
-    for (const slot of daySlots) {
-      if (slot.available) {
-        consecutiveAvailableSlots++;
-        if (consecutiveAvailableSlots >= slotsNeeded) {
-          return true;
-        }
-      } else {
-        consecutiveAvailableSlots = 0;
-      }
-    }
-
-    return false;
+    // Check if there are any available slots
+    return daySlots.some(slot => slot.available);
   }
 
   // User appointment limit methods
@@ -1069,4 +918,57 @@ export class BookingMobilePageComponent {
   onViewMyAppointments = () => {
     this.router.navigate(['/appointments']);
   };
+
+  goToServiceStep = () => {
+    this.goToStep('service');
+  };
+
+  /**
+   * Downloads ICS file with booking details and opens calendar
+   */
+  async downloadIcsFile(): Promise<void> {
+    const booking = this.createdBooking();
+
+    if (!booking) {
+      this.toastService.showError('No s\'ha trobat la reserva per generar l\'arxiu ICS');
+      return;
+    }
+
+    try {
+      // Get service details from the booking
+      const service = await this.firebaseServicesService.getServiceById(booking.serviceId);
+
+      if (!service) {
+        this.toastService.showError('No s\'ha trobat el servei per generar l\'arxiu ICS');
+        return;
+      }
+
+      const icsData = {
+        clientName: booking.clientName,
+        email: booking.email,
+        date: booking.data,
+        time: booking.hora,
+        serviceName: service.name,
+        duration: service.duration,
+        price: service.price,
+        businessName: 'PeluApp',
+        businessAddress: '',
+        businessPhone: ''
+      };
+
+      const icsContent = IcsUtils.generateIcsContent(icsData);
+      const filename = IcsUtils.generateFilename(
+        booking.clientName,
+        booking.data,
+        service.name
+      );
+
+      // Download and open calendar
+      await IcsUtils.downloadAndOpenCalendar(icsContent, filename);
+      this.toastService.showSuccess('Arxiu ICS descarregat i calendari obert correctament');
+    } catch (error) {
+      console.error('Error generating ICS file:', error);
+      this.toastService.showError('Error al generar l\'arxiu ICS');
+    }
+  }
 }

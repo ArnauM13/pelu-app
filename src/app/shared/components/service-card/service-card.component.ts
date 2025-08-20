@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -6,7 +6,7 @@ import { FirebaseService } from '../../../core/services/firebase-services.servic
 import { CurrencyPipe } from '../../pipes/currency.pipe';
 import { ActionsButtonsComponent } from '../actions-buttons';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
-import { ActionsService, ActionContext } from '../../../core/services/actions.service';
+import { ActionContext } from '../../../core/services/actions.service';
 
 @Component({
   selector: 'pelu-service-card',
@@ -44,9 +44,6 @@ export class ServiceCardComponent {
   readonly editClick = output<FirebaseService>();
   readonly deleteClick = output<FirebaseService>();
   readonly togglePopularClick = output<FirebaseService>();
-
-  // Injected services
-  private readonly actionsService = inject(ActionsService);
 
   // Computed signals for reactive template
   readonly isClickable = computed(() => this.clickable());

@@ -39,6 +39,9 @@ export * from './buttons';
 // Service card component
 export { ServiceCardComponent } from './service-card/service-card.component';
 
+// Card component
+export { CardComponent } from './card/card.component';
+
 // Actions buttons component
 export { ActionsButtonsComponent } from './actions-buttons';
 export type { ActionConfig, ActionContext } from '../../core/services/actions.service';

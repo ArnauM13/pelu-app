@@ -97,7 +97,10 @@
     "POPULAR_SERVICES": "Serveis Populars",
     "OTHER_SERVICES": "Altres serveis",
     "RECENTLY_BOOKED": "Reservats Recentment",
-    "NO_SERVICES_AVAILABLE": "No hi ha serveis disponibles"
+    "NO_SERVICES_AVAILABLE": "No hi ha serveis disponibles",
+    "NO_BOOKABLE_SERVICES_AVAILABLE": "No hi ha serveis disponibles per aquest horari",
+    "TIME_SLOT_CONFLICT": "No hi ha espai disponible per aquest horari",
+    "AVAILABLE_SERVICES_FOR_TIME": "Serveis disponibles per l'hora seleccionada"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Cerca per nom",
@@ -410,6 +413,9 @@
     "USER_LIMIT_REACHED_TITLE": "Límit de reserves assolit",
     "USER_LIMIT_REACHED_MESSAGE": "Ja tens una reserva activa. No pots fer més reserves fins que cancel·lis la teva reserva actual.",
     "VIEW_MY_APPOINTMENTS": "Veure les meves cites",
+    "NO_TIME_SLOTS_FOR_SERVICE_TITLE": "No hi ha hores disponibles",
+    "NO_TIME_SLOTS_FOR_SERVICE_MESSAGE": "Aquest servei no es pot reservar en cap hora disponible. Prova amb un altre servei o una altra data.",
+    "SELECT_DIFFERENT_SERVICE": "Seleccionar altre servei",
     "SELECTION_REQUIRED": "Selecció requerida",
     "SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
     "SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",
@@ -420,6 +426,9 @@
     },
     "VIEW_DETAIL": "Veure detall",
     "BACK_TO_HOME": "Tornar a l'inici",
+    "DOWNLOAD_CALENDAR": "Descarregar calendari",
+    "DOWNLOAD_CALENDAR_DESCRIPTION": "Descarrega un arxiu de calendari (.ics) amb els detalls de la teva reserva i s'obrirà automàticament el teu calendari per afegir l'esdeveniment.",
+    "DOWNLOAD_ICS": "Descarregar arxiu ICS",
     "PAGE_TITLE": "Reservar cita",
     "PAGE_SUBTITLE": "Selecciona una data i hora per reservar la teva cita",
     "QUICK_ACTIONS": {

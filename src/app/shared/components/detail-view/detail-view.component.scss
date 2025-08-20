@@ -530,10 +530,18 @@
        }
      }
 
-           // Service Information Section (takes remaining space)
-      .service-info-section {
+           // Service and ICS Section (combined in flex column)
+      .service-and-ics-section {
         flex: 1;
         min-width: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      // Service Information Section
+      .service-info-section {
         width: 100%;
 
        .no-service-info {
@@ -543,6 +551,28 @@
          background: var(--surface-color);
          border: 1px solid var(--border-color);
          border-radius: 8px;
+       }
+     }
+
+     // ICS Download Section
+     .ics-section {
+       width: 100%;
+
+       .summary-section {
+         h3 {
+           font-size: 1.25rem;
+           font-weight: 600;
+           color: var(--text-color);
+           margin-bottom: 0.75rem;
+         }
+
+         .ics-description {
+           font-size: 0.9rem;
+           color: #666;
+           margin-bottom: 1rem;
+           line-height: 1.4;
+           font-style: italic;
+         }
        }
      }
    }
