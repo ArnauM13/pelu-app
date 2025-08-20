@@ -29,6 +29,7 @@ import { InputDateComponent } from '../../../shared/components/inputs/input-date
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
 import { CalendarStateService } from '../../calendar/services/calendar-state.service';
 import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
+import { TimeUtils } from '../../../shared/utils/time.utils';
 import { startOfWeek, endOfWeek } from 'date-fns';
 
 @Component({
@@ -62,6 +63,7 @@ export class BookingPageComponent {
   private readonly responsiveService = inject(ResponsiveService);
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly timeUtils = inject(TimeUtils);
 
   // Mobile detection using centralized service
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -142,6 +144,14 @@ export class BookingPageComponent {
       },
       isWeekend: isWeekend,
     };
+  });
+
+  // Available days for booking (consistent with mobile)
+  readonly availableDays = computed(() => {
+    const referenceDate = this.calendarStateService.viewDate();
+    const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
+    const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
+    return this.bookingValidationService.generateAvailableDays(start, end);
   });
 
   // Login prompt dialog configuration
@@ -277,8 +287,12 @@ export class BookingPageComponent {
   }
 
   onTodayClicked() {
-    this.selectedDateSignal.set(new Date());
-    this.calendarComponent?.today();
+    // Always go to the first business day of the current week
+    const today = new Date();
+    const firstBusinessDayOfWeek = this.timeUtils.getFirstBusinessDayOfWeek(today, [1, 2, 3, 4, 5, 6]);
+
+    this.selectedDateSignal.set(firstBusinessDayOfWeek);
+    this.calendarComponent?.onDateChange(firstBusinessDayOfWeek);
   }
 
   onDateChange(event: Date | string | null): void {

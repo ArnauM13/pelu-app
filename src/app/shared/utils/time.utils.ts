@@ -74,10 +74,23 @@ export class TimeUtils {
   }
 
   /**
-   * Check if a date is in the past
+   * Check if a date is in the past (considering business hours for today)
    */
   isPastDay(date: Date): boolean {
-    return isPast(startOfDay(date));
+    const now = new Date();
+    const dateToCheck = new Date(date);
+
+    // Set the time to the end of the day for the date we're checking
+    dateToCheck.setHours(23, 59, 59, 999);
+
+    // If the date is today, check if we're past business hours
+    if (this.isSameDay(date, now)) {
+      // For today, consider it past if we're after 18:00 (typical business end)
+      const currentHour = now.getHours();
+      return currentHour >= 18; // Default business end time
+    }
+
+    return dateToCheck < now;
   }
 
   /**
@@ -482,6 +495,20 @@ export class TimeUtils {
   }
 
   /**
+   * Get start of month for a given date
+   */
+  getStartOfMonth(date: Date): Date {
+    return startOfMonth(date);
+  }
+
+  /**
+   * Get end of month for a given date
+   */
+  getEndOfMonth(date: Date): Date {
+    return endOfMonth(date);
+  }
+
+  /**
    * Add days to a date
    */
   addDays(date: Date, days: number): Date {
@@ -551,20 +578,14 @@ export class TimeUtils {
   }
 
   /**
-   * Get appropriate view date for weekly calendar (starts from first working day of week)
+   * Get appropriate view date for weekly calendar (always starts from first working day of week)
    */
   getAppropriateWeeklyViewDate(workingDays: number[] = [1, 2, 3, 4, 5, 6]): Date {
     const today = new Date();
 
-    // Get the first working day of the current week
+    // Always start from the first working day of the current week
     const firstWorkingDayOfWeek = this.getFirstBusinessDayOfWeek(today, workingDays);
 
-    // If today is a working day, use today
-    if (this.canSelectDate(today, workingDays)) {
-      return today;
-    }
-
-    // Otherwise, start from the first working day of the current week
     return firstWorkingDayOfWeek;
   }
 

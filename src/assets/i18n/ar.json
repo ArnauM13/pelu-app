@@ -92,7 +92,12 @@
     "NO_APPOINTMENTS_FOR_DAY": "الخدمة غير متاحة",
     "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "لا يمكن حجز هذه الخدمة لهذا اليوم لعدم وجود مساحة كافية. يرجى تجربة يوم آخر.",
     "POPULAR_SERVICES": "الخدمات الشائعة",
-    "OTHER_SERVICES": "خدمات أخرى"
+    "OTHER_SERVICES": "خدمات أخرى",
+    "RECENTLY_BOOKED": "محجوزة مؤخراً",
+    "NO_SERVICES_AVAILABLE": "لا توجد خدمات متاحة",
+    "NO_BOOKABLE_SERVICES_AVAILABLE": "لا توجد خدمات متاحة لهذا الوقت",
+    "TIME_SLOT_CONFLICT": "لا توجد مساحة متاحة لهذا الوقت",
+    "AVAILABLE_SERVICES_FOR_TIME": "الخدمات المتاحة للوقت المحدد"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "البحث بالاسم",
@@ -381,6 +386,9 @@
     "USER_LIMIT_REACHED_TITLE": "تم الوصول إلى حد المواعيد",
     "USER_LIMIT_REACHED_MESSAGE": "لديك موعد نشط بالفعل. لا يمكنك حجز المزيد من المواعيد حتى تلغي موعدك الحالي.",
     "VIEW_MY_APPOINTMENTS": "عرض مواعيدي",
+    "NO_TIME_SLOTS_FOR_SERVICE_TITLE": "لا توجد أوقات متاحة",
+    "NO_TIME_SLOTS_FOR_SERVICE_MESSAGE": "لا يمكن حجز هذه الخدمة في أي وقت متاح. جرب خدمة مختلفة أو تاريخ.",
+    "SELECT_DIFFERENT_SERVICE": "اختر خدمة مختلفة",
     "SELECTION_REQUIRED": "الاختيار مطلوب",
     "SELECT_SERVICE_FIRST": "يرجى اختيار خدمة أولاً",
     "SELECT_DATE_FIRST": "يرجى اختيار تاريخ أولاً",
