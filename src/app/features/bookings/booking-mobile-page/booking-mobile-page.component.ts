@@ -215,16 +215,12 @@ export class BookingMobilePageComponent {
   // Week days computation - show all days of the week
   readonly weekDays = computed(() => {
     const currentDate = this.viewDate();
-    const weekStart = this.timeUtils.getStartOfWeek(currentDate);
-    const weekEnd = this.timeUtils.getEndOfWeek(currentDate);
     return this.timeUtils.getWeekDays(currentDate);
   });
 
   // Month days computation - show all days of the month
   readonly monthDays = computed(() => {
     const currentDate = this.viewDate();
-    const monthStart = this.timeUtils.getStartOfMonth(currentDate);
-    const monthEnd = this.timeUtils.getEndOfMonth(currentDate);
     return this.timeUtils.getMonthDays(currentDate);
   });
 
@@ -487,10 +483,9 @@ export class BookingMobilePageComponent {
    */
   getEnabledTimeSlots(date: Date): string[] {
     const slots: string[] = [];
-    const dayOfWeek = date.getDay();
 
     // Check if it's a business day
-    if (!this.businessDays().includes(dayOfWeek)) {
+    if (!this.bookingValidationService.canBookOnDate(date)) {
       return slots;
     }
 
@@ -626,7 +621,7 @@ export class BookingMobilePageComponent {
   }
 
   isBusinessDay(date: Date): boolean {
-    return this.businessDays().includes(date.getDay());
+    return this.bookingValidationService.canBookOnDate(date);
   }
 
   isPastDate(date: Date): boolean {
@@ -643,8 +638,16 @@ export class BookingMobilePageComponent {
   canSelectDate(date: Date): boolean {
     // In week view, all business days in the week should be selectable regardless of month
     // In month view, only days of the current month should be selectable
+
+    // First check basic booking validation - this includes business days, advance booking limits, etc.
+    if (!this.bookingValidationService.canBookOnDate(date) ||
+        !this.bookingValidationService.canBookInAdvance(date) ||
+        this.isPastDate(date)) {
+      return false;
+    }
+
     if (this.viewMode() === 'week') {
-      return !this.isPastDate(date) && this.isBusinessDay(date);
+      return true; // All valid business days in the week should be selectable
     } else {
       // Month view - only current month days
       const currentDate = this.viewDate();
@@ -655,7 +658,7 @@ export class BookingMobilePageComponent {
       const isInCurrentMonth =
         date.getMonth() === currentMonth && date.getFullYear() === currentYear;
 
-      return !this.isPastDate(date) && this.isBusinessDay(date) && isInCurrentMonth;
+      return isInCurrentMonth;
     }
   }
 
@@ -685,8 +688,22 @@ export class BookingMobilePageComponent {
   }
 
   nextAvailableDate(): Date | null {
-    const workingDays = this.businessDays();
-    return this.timeUtils.getNextAvailableDate(workingDays);
+    // Use BookingValidationService to find next available date
+    const today = new Date();
+    const maxDaysToCheck = 30; // Limit to avoid infinite loops
+
+    for (let i = 0; i < maxDaysToCheck; i++) {
+      const dateToCheck = new Date(today);
+      dateToCheck.setDate(today.getDate() + i);
+
+      if (this.bookingValidationService.canBookOnDate(dateToCheck) &&
+          this.bookingValidationService.canBookInAdvance(dateToCheck) &&
+          !this.isPastDate(dateToCheck)) {
+        return dateToCheck;
+      }
+    }
+
+    return null;
   }
 
   selectNextAvailable() {
@@ -722,7 +739,7 @@ export class BookingMobilePageComponent {
     // Find the first business day in the week
     for (let i = 0; i < 7; i++) {
       const day = this.timeUtils.addDays(weekStart, i);
-      if (this.businessDays().includes(day.getDay())) {
+      if (this.bookingValidationService.canBookOnDate(day)) {
         return day;
       }
     }
@@ -734,7 +751,7 @@ export class BookingMobilePageComponent {
     // Find the last business day in the week
     for (let i = 6; i >= 0; i--) {
       const day = this.timeUtils.addDays(weekEnd, -i);
-      if (this.businessDays().includes(day.getDay())) {
+      if (this.bookingValidationService.canBookOnDate(day)) {
         return day;
       }
     }
@@ -839,7 +856,7 @@ export class BookingMobilePageComponent {
   private setDefaultDate() {
     // Always start with the first business day of the current week
     const today = new Date();
-    const firstBusinessDayOfWeek = this.timeUtils.getFirstBusinessDayOfWeek(today, this.businessDays());
+    const firstBusinessDayOfWeek = this.getFirstBusinessDayOfWeek(today);
 
     // Set the view to the first business day of the week
     this.viewDateSignal.set(firstBusinessDayOfWeek);
