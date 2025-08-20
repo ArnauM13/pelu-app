@@ -131,4 +131,14 @@
       <p>{{ 'COMMON.SELECTION.NO_SERVICES_AVAILABLE' | translate }}</p>
     </div>
   }
+
+  <!-- No Bookable Services Available -->
+  @if (availableServices().length > 0 && bookableServices().length === 0) {
+    <div class="no-bookable-services">
+      <p>{{ 'COMMON.SELECTION.NO_BOOKABLE_SERVICES_AVAILABLE' | translate }}</p>
+      <p class="time-slot-info">
+        {{ 'COMMON.SELECTION.TIME_SLOT_CONFLICT' | translate }}: {{ formatDate(selectionDetailsComputed().date) }} a les {{ selectionDetailsComputed().time }}
+      </p>
+    </div>
+  }
 </pelu-popup-dialog>

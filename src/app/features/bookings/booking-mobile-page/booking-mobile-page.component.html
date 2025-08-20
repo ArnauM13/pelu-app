@@ -52,6 +52,22 @@
     </div>
   }
 
+  <!-- Warning when no time slots are available for the selected service -->
+  @if (currentStep() === 'datetime' && selectedService() && hasNoAvailableTimeSlotsForService()) {
+    <div class="content-section" style="margin-bottom: 1rem;">
+      <pelu-no-appointments-message
+        type="warning"
+        icon="⚠️"
+        iconColor="#f59e0b"
+        [title]="'BOOKING.NO_TIME_SLOTS_FOR_SERVICE_TITLE'"
+        [message]="'BOOKING.NO_TIME_SLOTS_FOR_SERVICE_MESSAGE'"
+        actionText="BOOKING.SELECT_DIFFERENT_SERVICE"
+        [actionCallback]="goToServiceStep"
+        [showAction]="true"
+      />
+    </div>
+  }
+
   <!-- Step 1: Service Selection -->
   @if (currentStep() === 'service') {
     <div class="step-content service-step">
@@ -191,16 +207,11 @@
           @for (day of currentViewDays(); track day) {
             <div
               class="day-item"
+              [class.past-date]="isPastDate(day)"
+              [class.non-working-day]="!isBusinessDay(day)"
               [class.today]="isToday(day)"
               [class.selected]="isSelected(day)"
-              [class.business-day]="isBusinessDay(day)"
-              [class.weekend]="!isBusinessDay(day)"
-              [class.past-date]="isPastDate(day)"
-              [class.other-month]="viewMode() === 'month' && !isCurrentMonth(day)"
-              [class.selectable]="canSelectDate(day)"
-              [class.no-appointments]="isFullyBookedWorkingDay(day)"
-              [class.warning-day]="isFullyBookedWorkingDayForService(day)"
-              [class.non-working-day]="!isBusinessDay(day)"
+              [class.warning-day]="canSelectDate(day) && isBusinessDay(day) && isFullyBookedWorkingDayForService(day)"
               (click)="onDateClicked(day)"
             >
               <div class="day-name">{{ formatDayShort(day) }}</div>
