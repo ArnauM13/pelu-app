@@ -222,19 +222,6 @@
             </div>
           }
         </div>
-
-        <!-- Alert for fully booked day -->
-        @if (selectedDate() && isSelectedDayFullyBooked()) {
-          <div class="alert-card fully-booked-alert">
-            <div class="alert-content">
-              <div class="alert-icon">⚠️</div>
-              <div class="alert-text">
-                <h4>{{ 'BOOKING.FULLY_BOOKED_TITLE' | translate }}</h4>
-                <p>{{ 'BOOKING.FULLY_BOOKED_MESSAGE' | translate }}</p>
-              </div>
-            </div>
-          </div>
-        }
       </div>
 
       <!-- Time Slots for Selected Day -->
@@ -494,13 +481,13 @@
       <!-- Download ICS Section -->
       <pelu-card variant="default">
         <div class="ics-content">
-          <h3>📅 {{ 'BOOKING.DOWNLOAD_CALENDAR' | translate }}</h3>
-          <p class="ics-description">{{ 'BOOKING.DOWNLOAD_CALENDAR_DESCRIPTION' | translate }}</p>
+          <h3>📅 {{ 'BOOKING.ADD_TO_CALENDAR' | translate }}</h3>
+          <p class="ics-description">{{ 'BOOKING.ADD_TO_CALENDAR_DESCRIPTION' | translate }}</p>
           <pelu-button
-            [label]="'BOOKING.DOWNLOAD_ICS'"
-            [icon]="'pi pi-download'"
+            [label]="'BOOKING.ADD_TO_CALENDAR'"
+            [icon]="'pi pi-calendar-plus'"
             iconPos="left"
-            (clicked)="downloadIcsFile()"
+            (clicked)="addToCalendar()"
             severity="secondary"
             variant="outlined"
             [fluid]="true"

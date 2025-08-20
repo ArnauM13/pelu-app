@@ -22,8 +22,7 @@ export class IcsUtils {
       serviceName,
       duration,
       businessName = 'PeluApp',
-      businessAddress = '',
-      businessPhone = ''
+      businessAddress = ''
     } = bookingData;
 
     // Parse date and time
@@ -131,6 +130,32 @@ export class IcsUtils {
   }
 
   /**
+   * Adds an event to the user's calendar directly (without downloading first)
+   */
+  static async addToCalendar(icsContent: string, filename: string): Promise<void> {
+    try {
+      if (this.isMobileDevice()) {
+        // On mobile, try to add to calendar directly
+        await this.addToMobileCalendar(icsContent, filename);
+      } else {
+        // On desktop, try to add to calendar directly
+        await this.addToDesktopCalendar(icsContent, filename);
+      }
+    } catch (error) {
+      console.log('Could not add to calendar directly, falling back to download:', error);
+      // Fallback: download the file (this should always work)
+      try {
+        this.downloadIcsFile(icsContent, filename);
+        // Don't throw error - downloading the file is still a success
+        console.log('File downloaded successfully as fallback');
+      } catch (downloadError) {
+        console.error('Even download fallback failed:', downloadError);
+        throw new Error('No s\'ha pogut afegir al calendari ni descarregar l\'arxiu.');
+      }
+    }
+  }
+
+  /**
    * Attempts to open calendar on desktop devices
    */
   private static async openDesktopCalendar(icsContent: string, filename: string): Promise<void> {
@@ -166,6 +191,17 @@ export class IcsUtils {
    */
   private static isMobileDevice(): boolean {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  /**
+   * Checks if the browser supports sharing files via Web Share API
+   */
+  private static canShareFiles(): boolean {
+    try {
+      return navigator.canShare && navigator.canShare({ files: [new File([], 'test')] });
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -231,6 +267,106 @@ export class IcsUtils {
 
     } catch {
       console.log('All mobile calendar opening methods failed');
+    }
+  }
+
+  /**
+   * Attempts to add an event to mobile calendar directly
+   */
+  private static async addToMobileCalendar(icsContent: string, filename: string): Promise<void> {
+    // Method 1: Try to create a blob URL and open it (most reliable method)
+    try {
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the URL after a short delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      return;
+    } catch (error) {
+      console.log('Blob download method failed:', error);
+    }
+
+    // Method 2: Try to open with data URL (fallback)
+    try {
+      const dataUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
+      window.open(dataUrl, '_blank');
+      return;
+    } catch (error) {
+      console.log('Data URL method failed:', error);
+    }
+
+    // Method 3: Try to use the Web Share API with the ICS file (if available)
+    if (navigator.share && this.canShareFiles()) {
+      try {
+        const file = new File([icsContent], filename, { type: 'text/calendar' });
+        await navigator.share({
+          title: 'Afegir al calendari',
+          text: 'Afegeix aquest esdeveniment al teu calendari',
+          files: [file]
+        });
+        return;
+      } catch (error) {
+        console.log('Web Share API failed:', error);
+      }
+    }
+
+    // Method 4: iOS specific - try calendar:// protocol
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      try {
+        window.open('calendar://', '_blank');
+        return;
+      } catch (error) {
+        console.log('iOS calendar protocol not supported:', error);
+      }
+    }
+
+    throw new Error('No s\'ha pogut afegir al calendari del mòbil');
+  }
+
+  /**
+   * Attempts to add an event to desktop calendar directly
+   */
+  private static async addToDesktopCalendar(icsContent: string, filename: string): Promise<void> {
+    // Method 1: Try to create a blob URL and download it (most reliable)
+    try {
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the URL after a short delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      return;
+    } catch (error) {
+      console.log('Blob download method failed:', error);
+    }
+
+    // Method 2: Try to open with data URL (fallback)
+    try {
+      const dataUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
+      window.open(dataUrl, '_blank');
+      return;
+    } catch (error) {
+      console.log('Data URL method failed:', error);
+      throw error;
     }
   }
 

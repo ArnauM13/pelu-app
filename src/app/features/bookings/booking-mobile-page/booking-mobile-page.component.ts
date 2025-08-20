@@ -128,7 +128,22 @@ export class BookingMobilePageComponent {
     if (this.isUserBlockedFromBooking()) {
       return false;
     }
-    return !!this.selectedService() && !!this.selectedDate() && !!this.selectedTimeSlot();
+
+    const selectedService = this.selectedService();
+    const selectedDate = this.selectedDate();
+    const selectedTimeSlot = this.selectedTimeSlot();
+
+    if (!selectedService || !selectedDate || !selectedTimeSlot) {
+      return false;
+    }
+
+    // Validate that the selected time slot is actually available
+    return this.bookingValidationService.canBookServiceAtTime(
+      selectedDate,
+      selectedTimeSlot.time,
+      selectedService.duration,
+      this.appointments()
+    );
   });
 
   readonly canGoBack = computed(() => {
@@ -169,12 +184,22 @@ export class BookingMobilePageComponent {
     const details = this.bookingDetails();
     const hasClientName = details.clientName && details.clientName.trim().length > 0;
     const hasEmail = details.email && details.email.trim().length > 0;
-    const hasService = !!this.selectedService();
-    const hasDate = !!this.selectedDate();
-    const hasTimeSlot = !!this.selectedTimeSlot();
+    const selectedService = this.selectedService();
+    const selectedDate = this.selectedDate();
+    const selectedTimeSlot = this.selectedTimeSlot();
 
-    // All conditions must be met
-    return hasClientName && hasEmail && hasService && hasDate && hasTimeSlot;
+    // Check if all required data is present
+    if (!hasClientName || !hasEmail || !selectedService || !selectedDate || !selectedTimeSlot) {
+      return false;
+    }
+
+    // Validate that the selected time slot is actually available
+    return this.bookingValidationService.canBookServiceAtTime(
+      selectedDate,
+      selectedTimeSlot.time,
+      selectedService.duration,
+      this.appointments()
+    );
   });
 
   // Business configuration
@@ -378,9 +403,8 @@ export class BookingMobilePageComponent {
   }
 
   onTimeSlotClicked(timeSlot: TimeSlot) {
-    if (timeSlot.available) {
-      this.onTimeSlotSelected(timeSlot);
-    }
+    // Use the same validation logic as selectTimeSlot
+    this.selectTimeSlot(timeSlot);
   }
 
   onContinueToConfirmation() {
@@ -410,6 +434,17 @@ export class BookingMobilePageComponent {
 
     if (!selectedTimeSlot || !selectedDate || !selectedService || !details.clientName || !details.email) {
       this.toastService.showError('Informació incompleta per confirmar la reserva');
+      return;
+    }
+
+    // Final validation before creating the booking
+    if (!this.bookingValidationService.canBookServiceAtTime(
+      selectedDate,
+      selectedTimeSlot.time,
+      selectedService.duration,
+      this.appointments()
+    )) {
+      this.toastService.showError('Aquest horari ja no està disponible. Si us plau, selecciona un altre horari.');
       return;
     }
 
@@ -578,7 +613,8 @@ export class BookingMobilePageComponent {
     }
 
     // Check if service is selected
-    if (!this.selectedService()) {
+    const selectedService = this.selectedService();
+    if (!selectedService) {
       this.toastService.showError('Si us plau, selecciona un servei primer');
       return;
     }
@@ -587,6 +623,17 @@ export class BookingMobilePageComponent {
     const selectedDate = this.selectedDate();
     if (!selectedDate) {
       this.toastService.showError('Si us plau, selecciona una data primer');
+      return;
+    }
+
+    // Use BookingValidationService to validate if the booking can be made at this specific time
+    if (!this.bookingValidationService.canBookServiceAtTime(
+      selectedDate,
+      timeSlot.time,
+      selectedService.duration,
+      this.appointments()
+    )) {
+      this.toastService.showError('Aquest horari no està disponible. Si us plau, selecciona un altre horari.');
       return;
     }
 
@@ -941,13 +988,13 @@ export class BookingMobilePageComponent {
   };
 
   /**
-   * Downloads ICS file with booking details and opens calendar
+   * Adds booking to user's calendar
    */
-  async downloadIcsFile(): Promise<void> {
+  async addToCalendar(): Promise<void> {
     const booking = this.createdBooking();
 
     if (!booking) {
-      this.toastService.showError('No s\'ha trobat la reserva per generar l\'arxiu ICS');
+      this.toastService.showError('No s\'ha trobat la reserva per afegir al calendari');
       return;
     }
 
@@ -956,7 +1003,7 @@ export class BookingMobilePageComponent {
       const service = await this.firebaseServicesService.getServiceById(booking.serviceId);
 
       if (!service) {
-        this.toastService.showError('No s\'ha trobat el servei per generar l\'arxiu ICS');
+        this.toastService.showError('No s\'ha trobat el servei per afegir al calendari');
         return;
       }
 
@@ -980,12 +1027,20 @@ export class BookingMobilePageComponent {
         service.name
       );
 
-      // Download and open calendar
-      await IcsUtils.downloadAndOpenCalendar(icsContent, filename);
-      this.toastService.showSuccess('Arxiu ICS descarregat i calendari obert correctament');
+      // Try to add to calendar directly
+      await IcsUtils.addToCalendar(icsContent, filename);
+      this.toastService.showSuccess('Esdeveniment afegit al calendari correctament');
     } catch (error) {
-      console.error('Error generating ICS file:', error);
-      this.toastService.showError('Error al generar l\'arxiu ICS');
+      console.error('Error adding to calendar:', error);
+
+      // Show a more informative error message
+      const errorMessage = error instanceof Error ? error.message : 'Error al afegir al calendari';
+
+      if (errorMessage.includes('descarregat')) {
+        this.toastService.showInfo('Arxiu descarregat', 'L\'arxiu de calendari s\'ha descarregat. Obre\'l per afegir l\'esdeveniment al teu calendari.');
+      } else {
+        this.toastService.showError('No s\'ha pogut afegir directament al calendari. Prova descarregant l\'arxiu manualment.');
+      }
     }
   }
 }

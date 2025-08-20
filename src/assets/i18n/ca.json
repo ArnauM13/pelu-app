@@ -428,6 +428,8 @@
     "BACK_TO_HOME": "Tornar a l'inici",
     "DOWNLOAD_CALENDAR": "Descarregar calendari",
     "DOWNLOAD_CALENDAR_DESCRIPTION": "Descarrega un arxiu de calendari (.ics) amb els detalls de la teva reserva i s'obrirà automàticament el teu calendari per afegir l'esdeveniment.",
+    "ADD_TO_CALENDAR": "Afegeix al calendari",
+    "ADD_TO_CALENDAR_DESCRIPTION": "Afegeix directament aquest esdeveniment al teu calendari personal.",
     "DOWNLOAD_ICS": "Descarregar arxiu ICS",
     "PAGE_TITLE": "Reservar cita",
     "PAGE_SUBTITLE": "Selecciona una data i hora per reservar la teva cita",
