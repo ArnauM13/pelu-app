@@ -92,7 +92,12 @@
     "NO_APPOINTMENTS_FOR_DAY": "Servicio no disponible",
     "NO_APPOINTMENTS_FOR_DAY_MESSAGE": "Este servicio no se puede reservar para este día porque no hay suficiente espacio. Por favor, prueba con otro día.",
     "POPULAR_SERVICES": "Servicios Populares",
-    "OTHER_SERVICES": "Otros servicios"
+    "OTHER_SERVICES": "Otros servicios",
+    "RECENTLY_BOOKED": "Reservados Recientemente",
+    "NO_SERVICES_AVAILABLE": "No hay servicios disponibles",
+    "NO_BOOKABLE_SERVICES_AVAILABLE": "No hay servicios disponibles para este horario",
+    "TIME_SLOT_CONFLICT": "No hay espacio disponible para este horario",
+    "AVAILABLE_SERVICES_FOR_TIME": "Servicios disponibles para la hora seleccionada"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Buscar por nombre",
@@ -384,9 +389,17 @@
     "USER_LIMIT_REACHED_TITLE": "Límite de reservas alcanzado",
     "USER_LIMIT_REACHED_MESSAGE": "Ya tienes una reserva activa. No puedes hacer más reservas hasta que canceles tu reserva actual.",
     "VIEW_MY_APPOINTMENTS": "Ver mis citas",
+    "NO_TIME_SLOTS_FOR_SERVICE_TITLE": "No hay horarios disponibles",
+    "NO_TIME_SLOTS_FOR_SERVICE_MESSAGE": "Este servicio no se puede reservar en ningún horario disponible. Prueba con un servicio diferente o fecha.",
+    "SELECT_DIFFERENT_SERVICE": "Seleccionar servicio diferente",
     "SELECTION_REQUIRED": "Selección requerida",
     "SELECT_SERVICE_FIRST": "Por favor, selecciona un servicio primero",
     "SELECT_DATE_FIRST": "Por favor, selecciona una fecha primero",
+    "VIEW_DETAIL": "Ver detalle",
+    "BACK_TO_HOME": "Volver al inicio",
+    "DOWNLOAD_CALENDAR": "Descargar calendario",
+    "DOWNLOAD_CALENDAR_DESCRIPTION": "Descarga un archivo de calendario (.ics) con los detalles de tu reserva y se abrirá automáticamente tu calendario para añadir el evento.",
+    "DOWNLOAD_ICS": "Descargar archivo ICS",
     "QUICK_SELECTION": {
       "TODAY": "Hoy",
       "TOMORROW": "Mañana",

@@ -94,7 +94,10 @@
     "POPULAR_SERVICES": "Popular Services",
     "OTHER_SERVICES": "Other Services",
     "RECENTLY_BOOKED": "Recently Booked",
-    "NO_SERVICES_AVAILABLE": "No services available"
+    "NO_SERVICES_AVAILABLE": "No services available",
+    "NO_BOOKABLE_SERVICES_AVAILABLE": "No services available for this time slot",
+    "TIME_SLOT_CONFLICT": "No space available for this time slot",
+    "AVAILABLE_SERVICES_FOR_TIME": "Available services for selected time"
     },
     "SEARCH": {
       "SEARCH_BY_NAME": "Search by name",
@@ -387,6 +390,9 @@
     "USER_LIMIT_REACHED_TITLE": "Appointment limit reached",
     "USER_LIMIT_REACHED_MESSAGE": "You already have an active appointment. You cannot make more appointments until you cancel your current appointment.",
     "VIEW_MY_APPOINTMENTS": "View my appointments",
+    "NO_TIME_SLOTS_FOR_SERVICE_TITLE": "No time slots available",
+    "NO_TIME_SLOTS_FOR_SERVICE_MESSAGE": "This service cannot be booked at any available time. Try a different service or date.",
+    "SELECT_DIFFERENT_SERVICE": "Select different service",
     "SELECTION_REQUIRED": "Selection required",
     "SELECT_SERVICE_FIRST": "Please select a service first",
     "SELECT_DATE_FIRST": "Please select a date first",
@@ -397,6 +403,9 @@
     },
     "VIEW_DETAIL": "View detail",
     "BACK_TO_HOME": "Back to home",
+    "DOWNLOAD_CALENDAR": "Download calendar",
+    "DOWNLOAD_CALENDAR_DESCRIPTION": "Download a calendar file (.ics) with your booking details and your calendar will automatically open to add the event.",
+    "DOWNLOAD_ICS": "Download ICS file",
     "EMAIL": {
       "SUBJECT": "Booking confirmation - {{businessName}}",
       "GREETING": "Hello {{clientName}},",
