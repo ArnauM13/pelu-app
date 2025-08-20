@@ -558,12 +558,13 @@
      .ics-section {
        width: 100%;
 
-       .summary-section {
+       .ics-content {
          h3 {
            font-size: 1.25rem;
            font-weight: 600;
            color: var(--text-color);
-           margin-bottom: 1.5rem;
+           margin-bottom: 0.75rem;
+           margin-top: 0; // Remove default margin
          }
 
          .ics-description {
@@ -572,6 +573,11 @@
            margin-bottom: 1rem;
            line-height: 1.4;
            font-style: italic;
+         }
+
+         // Ensure proper spacing for the button
+         pelu-button {
+           margin-top: 0.5rem;
          }
        }
      }

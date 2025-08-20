@@ -397,60 +397,64 @@
 
         <!-- Service Display -->
         @if (selectedService()) {
-          <div class="summary-section">
-            <h3>{{ 'COMMON.SELECTION.SELECTED_SERVICE' | translate }}</h3>
-            <div class="service-card selected">
-              <div class="service-header">
-                <div class="service-icon">{{ selectedService()!.icon }}</div>
-                <div class="service-info">
-                  <div class="service-name">{{ selectedService()!.name }}</div>
-                  <div class="service-description">
-                    {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                  </div>
-                </div>
-                <div class="service-price">{{ selectedService()!.price | currency }}</div>
-              </div>
-              <div class="service-details">
-                <div class="service-meta">
-                  <span class="service-duration">
-                    ⏱️ {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                  </span>
-                  @if (selectedService()!.isPopular) {
-                    <div class="popular-badge">
-                      <span class="badge-icon">🔥</span>
-                      <span class="badge-text">{{ 'SERVICES.POPULAR' | translate }}</span>
+          <pelu-card variant="default">
+            <div class="summary-section">
+              <h3>{{ 'COMMON.SELECTION.SELECTED_SERVICE' | translate }}</h3>
+              <div class="service-card selected">
+                <div class="service-header">
+                  <div class="service-icon">{{ selectedService()!.icon }}</div>
+                  <div class="service-info">
+                    <div class="service-name">{{ selectedService()!.name }}</div>
+                    <div class="service-description">
+                      {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
                     </div>
-                  }
+                  </div>
+                  <div class="service-price">{{ selectedService()!.price | currency }}</div>
+                </div>
+                <div class="service-details">
+                  <div class="service-meta">
+                    <span class="service-duration">
+                      ⏱️ {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
+                    </span>
+                    @if (selectedService()!.isPopular) {
+                      <div class="popular-badge">
+                        <span class="badge-icon">🔥</span>
+                        <span class="badge-text">{{ 'SERVICES.POPULAR' | translate }}</span>
+                      </div>
+                    }
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </pelu-card>
         }
 
         <!-- Client Information Section -->
-        <div class="summary-section">
-          <h3>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h3>
-          <div class="client-info-form">
-            <pelu-input-text
-              [label]="'COMMON.NAME'"
-              [placeholder]="'COMMON.NAME_PLACEHOLDER'"
-              [required]="true"
-              [value]="bookingDetails().clientName || ''"
-              (valueChange)="onClientNameChanged($event)"
-            >
-            </pelu-input-text>
+        <pelu-card variant="default">
+          <div class="summary-section">
+            <h3>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h3>
+            <div class="client-info-form">
+              <pelu-input-text
+                [label]="'COMMON.NAME'"
+                [placeholder]="'COMMON.NAME_PLACEHOLDER'"
+                [required]="true"
+                [value]="bookingDetails().clientName || ''"
+                (valueChange)="onClientNameChanged($event)"
+              >
+              </pelu-input-text>
 
-            <pelu-input-text
-              [label]="'COMMON.EMAIL'"
-              [placeholder]="'COMMON.EMAIL_PLACEHOLDER'"
-              type="email"
-              [required]="true"
-              [value]="bookingDetails().email || ''"
-              (valueChange)="onEmailChanged($event)"
-            >
-            </pelu-input-text>
+              <pelu-input-text
+                [label]="'COMMON.EMAIL'"
+                [placeholder]="'COMMON.EMAIL_PLACEHOLDER'"
+                type="email"
+                [required]="true"
+                [value]="bookingDetails().email || ''"
+                (valueChange)="onEmailChanged($event)"
+              >
+              </pelu-input-text>
+            </div>
           </div>
-        </div>
+        </pelu-card>
 
 
 
@@ -489,7 +493,7 @@
 
       <!-- Download ICS Section -->
       <pelu-card variant="default">
-        <div class="summary-section">
+        <div class="ics-content">
           <h3>📅 {{ 'BOOKING.DOWNLOAD_CALENDAR' | translate }}</h3>
           <p class="ics-description">{{ 'BOOKING.DOWNLOAD_CALENDAR_DESCRIPTION' | translate }}</p>
           <pelu-button
