@@ -9,6 +9,7 @@ import { ButtonComponent } from '../buttons/button.component';
 
 @Component({
   selector: 'pelu-filters-inline',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -72,29 +73,6 @@ export class FiltersInlineComponent {
     ];
   });
 
-  // Input configurations for specific inputs
-  readonly dateFilterConfig = {
-    type: 'date' as const,
-    label: 'COMMON.FILTERS.FILTER_BY_DATE',
-    showLabel: true,
-  };
-
-  readonly clientFilterConfig = {
-    type: 'text' as const,
-    label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
-    placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
-    showLabel: true,
-  };
-
-  readonly serviceFilterConfig = computed(() => ({
-    type: 'select' as const,
-    label: 'COMMON.FILTERS.FILTER_BY_SERVICE',
-    placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
-    options: this.serviceOptions(),
-    showLabel: true,
-    clearable: true,
-  }));
-
   constructor() {
     // Initialize reactive form
     this.filtersForm = this.fb.group({
@@ -136,24 +114,6 @@ export class FiltersInlineComponent {
     });
   }
 
-  onDateChangeHandler(value: string | Date | null) {
-    if (typeof value === 'string') {
-      this.filtersForm.patchValue({ date: value });
-    } else if (value instanceof Date) {
-      this.filtersForm.patchValue({ date: value.toISOString().split('T')[0] });
-    } else {
-      this.filtersForm.patchValue({ date: '' });
-    }
-  }
-
-  onClientChangeHandler(value: string) {
-    this.filtersForm.patchValue({ client: value });
-  }
-
-  onServiceChangeHandler(value: string | undefined) {
-    this.filtersForm.patchValue({ service: value || '' });
-  }
-
   onResetHandler() {
     // Reset the form to initial state
     this.filtersForm.patchValue({
@@ -167,10 +127,5 @@ export class FiltersInlineComponent {
 
     // Emit the reset event
     this.filtersReset.emit();
-
-    // Force a manual reset of the form controls
-    this.filtersForm.get('date')?.setValue('');
-    this.filtersForm.get('client')?.setValue('');
-    this.filtersForm.get('service')?.setValue('');
   }
 }
