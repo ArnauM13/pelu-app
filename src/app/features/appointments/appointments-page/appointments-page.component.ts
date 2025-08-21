@@ -211,7 +211,7 @@ export class AppointmentsPageComponent {
         try {
           const appointmentDate = parseISO(app.data);
           return isFuture(appointmentDate);
-        } catch (_error) {
+        } catch {
           return false;
         }
       }).length,
@@ -301,7 +301,7 @@ export class AppointmentsPageComponent {
           }
 
           return new Date(year, month - 1, day, hour || 0, minute || 0);
-        } catch (_error) {
+        } catch {
           // If parsing fails, return default date
           return new Date(0);
         }
@@ -367,7 +367,7 @@ export class AppointmentsPageComponent {
     try {
       await this.appointmentService.deleteBooking(booking.id!);
       this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.DELETE_SUCCESS');
-          } catch (_error) {
+          } catch {
         this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
       }
   }

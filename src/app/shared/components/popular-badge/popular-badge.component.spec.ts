@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { PopularBadgeComponent, PopularBadgeConfig } from './popular-badge.component';
+import { PopularBadgeComponent } from './popular-badge.component';
 
 describe('PopularBadgeComponent', () => {
   let component: PopularBadgeComponent;
@@ -44,7 +44,7 @@ describe('PopularBadgeComponent', () => {
       size: 'large',
       variant: 'filled',
     };
-    
+
     const cssClasses = component.cssClasses();
     expect(cssClasses).toBe('popular-badge-large popular-badge-filled');
   });
@@ -54,7 +54,7 @@ describe('PopularBadgeComponent', () => {
       size: 'small',
       variant: 'outline',
     };
-    
+
     const cssClasses = component.cssClasses();
     expect(cssClasses).toBe('popular-badge-small popular-badge-outline');
   });
@@ -125,7 +125,7 @@ describe('PopularBadgeComponent', () => {
 
   it('should render with different variants', () => {
     const variants: Array<'default' | 'outline' | 'filled'> = ['default', 'outline', 'filled'];
-    
+
     variants.forEach(variant => {
       component.config.variant = variant;
       fixture.detectChanges();
@@ -138,7 +138,7 @@ describe('PopularBadgeComponent', () => {
 
   it('should render with different sizes', () => {
     const sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
-    
+
     sizes.forEach(size => {
       component.config.size = size;
       fixture.detectChanges();

@@ -50,17 +50,17 @@ class TestWrapperComponent {
   selected = false;
   compact = false;
 
-  onCardClick(service: FirebaseService) {}
-  onEditClick(service: FirebaseService) {}
-  onDeleteClick(service: FirebaseService) {}
-  onTogglePopularClick(service: FirebaseService) {}
+  onCardClick(_service: FirebaseService) {}
+  onEditClick(_service: FirebaseService) {}
+  onDeleteClick(_service: FirebaseService) {}
+  onTogglePopularClick(_service: FirebaseService) {}
 }
 
 describe('ServiceCardComponent', () => {
   let component: ServiceCardComponent;
   let wrapperComponent: TestWrapperComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
-  let actionsService: jasmine.SpyObj<ActionsService>;
+  let _actionsService: jasmine.SpyObj<ActionsService>;
 
 
 
@@ -81,7 +81,7 @@ describe('ServiceCardComponent', () => {
     wrapperComponent = fixture.componentInstance;
     fixture.detectChanges();
     component = fixture.debugElement.children[0].componentInstance;
-    actionsService = TestBed.inject(ActionsService) as jasmine.SpyObj<ActionsService>;
+    _actionsService = TestBed.inject(ActionsService) as jasmine.SpyObj<ActionsService>;
   });
 
   it('should create', () => {
@@ -169,18 +169,18 @@ describe('ServiceCardComponent', () => {
     spyOn(component.cardClick, 'emit');
     // In Angular 17+, we can't set input signals in tests, so we test the default behavior
     // Default clickable is false, so this should not emit
-    
+
     component.onCardClick();
-    
+
     expect(component.cardClick.emit).not.toHaveBeenCalled();
   });
 
   it('should not emit cardClick when onCardClick is called and clickable is false', () => {
     spyOn(component.cardClick, 'emit');
     // Default clickable is false
-    
+
     component.onCardClick();
-    
+
     expect(component.cardClick.emit).not.toHaveBeenCalled();
   });
 
@@ -188,9 +188,9 @@ describe('ServiceCardComponent', () => {
     spyOn(component.editClick, 'emit');
     const mockEvent = new Event('click');
     spyOn(mockEvent, 'stopPropagation');
-    
+
     component.onEditClick(mockEvent);
-    
+
     expect(mockEvent.stopPropagation).toHaveBeenCalled();
     expect(component.editClick.emit).toHaveBeenCalledWith(wrapperComponent.testService);
   });
@@ -199,9 +199,9 @@ describe('ServiceCardComponent', () => {
     spyOn(component.deleteClick, 'emit');
     const mockEvent = new Event('click');
     spyOn(mockEvent, 'stopPropagation');
-    
+
     component.onDeleteClick(mockEvent);
-    
+
     expect(mockEvent.stopPropagation).toHaveBeenCalled();
     expect(component.deleteClick.emit).toHaveBeenCalledWith(wrapperComponent.testService);
   });
@@ -210,9 +210,9 @@ describe('ServiceCardComponent', () => {
     spyOn(component.togglePopularClick, 'emit');
     const mockEvent = new Event('click');
     spyOn(mockEvent, 'stopPropagation');
-    
+
     component.onTogglePopularClick(mockEvent);
-    
+
     expect(mockEvent.stopPropagation).toHaveBeenCalled();
     expect(component.togglePopularClick.emit).toHaveBeenCalledWith(wrapperComponent.testService);
   });
@@ -235,7 +235,7 @@ describe('ServiceCardComponent', () => {
 
   it('should return actionContext with correct structure', () => {
     const context = component.actionContext;
-    
+
     expect(context.type).toBe('service');
     expect(context.item).toBe(wrapperComponent.testService);
     expect(typeof context.onEdit).toBe('function');
@@ -246,7 +246,7 @@ describe('ServiceCardComponent', () => {
   it('should call editClick emit when actionContext.onEdit is called', () => {
     spyOn(component.editClick, 'emit');
     const context = component.actionContext;
-    
+
     if (context.onEdit) {
       context.onEdit();
       expect(component.editClick.emit).toHaveBeenCalledWith(wrapperComponent.testService);
@@ -256,7 +256,7 @@ describe('ServiceCardComponent', () => {
   it('should call deleteClick emit when actionContext.onDelete is called', () => {
     spyOn(component.deleteClick, 'emit');
     const context = component.actionContext;
-    
+
     if (context.onDelete) {
       context.onDelete();
       expect(component.deleteClick.emit).toHaveBeenCalledWith(wrapperComponent.testService);
@@ -266,7 +266,7 @@ describe('ServiceCardComponent', () => {
   it('should call togglePopularClick emit when actionContext.onTogglePopular is called', () => {
     spyOn(component.togglePopularClick, 'emit');
     const context = component.actionContext;
-    
+
     if (context.onTogglePopular) {
       context.onTogglePopular();
       expect(component.togglePopularClick.emit).toHaveBeenCalledWith(wrapperComponent.testService);

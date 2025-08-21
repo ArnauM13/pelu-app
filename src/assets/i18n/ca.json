@@ -81,6 +81,10 @@
       "AT_TIME": "A les",
       "APPOINTMENT_TITLE": "{{nom}} - {{data}} a les {{hora}}"
     },
+    "THEME": {
+      "LIGHT": "Clar",
+      "DARK": "Fosc"
+    },
     "SELECTION": {
       "NO_SELECTION": "Sense selecció",
       "SELECTED": "Seleccionat",
@@ -475,6 +479,8 @@
     "USERNAME": "Nom d'usuari",
     "EMAIL": "Correu electrònic",
     "USER_ID": "ID d'usuari",
+    "LANGUAGE": "Idioma",
+    "THEME": "Tema",
     "CREATION_DATE": "Data de creació",
     "LAST_ACCESS": "Últim accés",
     "ACCOUNT_STATUS": "Estat del compte",

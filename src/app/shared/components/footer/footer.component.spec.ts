@@ -6,7 +6,7 @@ describe('FooterComponent', () => {
 	let component: FooterComponent;
 	let fixture: ComponentFixture<FooterComponent>;
 
-	const mockConfig: FooterConfig = {
+	const _mockConfig: FooterConfig = {
 		showInfoNote: true,
 		infoNoteText: 'Test info note',
 		infoNoteIcon: 'ℹ️',
@@ -36,7 +36,7 @@ describe('FooterComponent', () => {
 					provide: TranslateService,
 					useValue: {
 						instant: (key: string) => key,
-						get: (key: string) => ({ subscribe: (fn: any) => { fn(key); return { unsubscribe: () => {} }; } }),
+						get: (key: string) => ({ subscribe: (fn: unknown) => { fn(key); return { unsubscribe: () => {} }; } }),
 						onTranslationChange: { subscribe: () => ({ unsubscribe: () => {} }) },
 						onDefaultLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
 						onLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
@@ -46,7 +46,7 @@ describe('FooterComponent', () => {
 					provide: TranslateStore,
 					useValue: {
 						get: (key: string) => key,
-						set: (_key: string, _value: any) => {},
+						set: (_key: string, _value: unknown) => {},
 						has: (_key: string) => true,
 					},
 				},

@@ -53,7 +53,7 @@ export class InputTextareaComponent implements ControlValueAccessor {
   readonly valueChange = output<string>();
 
   // ControlValueAccessor callbacks
-  private onChange = (value: string) => {};
+  private onChange = (_value: string) => {};
   private onTouched = () => {};
 
   // Get unique ID
@@ -62,9 +62,9 @@ export class InputTextareaComponent implements ControlValueAccessor {
   }
 
   // Event handler for input changes
-  onInputChange(value: string) {
-    this.onChange(value);
-    this.valueChange.emit(value);
+  onInputChange(_value: string) {
+    this.onChange(_value);
+    this.valueChange.emit(_value);
   }
 
   // Event handler for input blur
@@ -73,11 +73,11 @@ export class InputTextareaComponent implements ControlValueAccessor {
   }
 
   // ControlValueAccessor methods
-  writeValue(value: string): void {
+  writeValue(_value: string): void {
     // PrimeNG handles this automatically
   }
 
-  registerOnChange(fn: (value: string) => void): void {
+  registerOnChange(fn: (_value: string) => void): void {
     this.onChange = fn;
   }
 
@@ -85,7 +85,7 @@ export class InputTextareaComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  setDisabledState(_isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }
