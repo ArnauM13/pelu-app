@@ -56,7 +56,11 @@ export class InputMultiSelectComponent implements ControlValueAccessor {
   private _internalValue: (string | number)[] = [];
 
   get safeValue(): (string | number)[] {
-    console.log('InputMultiSelect safeValue getter returning:', this._internalValue);
+    // Use the input value if available, otherwise use internal value
+    const inputValue = this.value();
+    if (Array.isArray(inputValue)) {
+      return inputValue;
+    }
     return this._internalValue;
   }
 
@@ -102,6 +106,7 @@ export class InputMultiSelectComponent implements ControlValueAccessor {
 
   // Template content projections
   @ContentChild('item') itemTemplate?: TemplateRef<{ $implicit: MultiSelectOption }>;
+  @ContentChild('selectedItems') selectedItemsTemplate?: TemplateRef<{ $implicit: (string | number)[], removeChip: (value: string | number) => void }>;
   @ContentChild('group') groupTemplate?: TemplateRef<{ $implicit: { label: string; value: string; items: MultiSelectOption[] } }>;
   @ContentChild('dropdownicon') dropdownIconTemplate?: TemplateRef<void>;
   @ContentChild('header') headerTemplate?: TemplateRef<void>;
@@ -132,13 +137,20 @@ export class InputMultiSelectComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
+  // Method to remove a chip/value
+  removeChip(valueToRemove: string | number) {
+    const newValue = this._internalValue.filter(val => val !== valueToRemove);
+    this._internalValue = newValue;
+    this.onChange(newValue);
+    this.valueChange.emit(newValue);
+  }
+
   // ControlValueAccessor methods
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   writeValue(value: (string | number)[]): void {
     // Ensure value is always an array for PrimeNG MultiSelect
-    console.log('InputMultiSelect writeValue called with:', value);
-    this._internalValue = Array.isArray(value) ? value : [];
-    console.log('InputMultiSelect _internalValue set to:', this._internalValue);
+    const newValue = Array.isArray(value) ? value : [];
+    this._internalValue = newValue;
   }
 
   registerOnChange(fn: (value: (string | number)[]) => void): void {
