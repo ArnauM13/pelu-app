@@ -23,7 +23,7 @@ describe('PopupModalComponent', () => {
   });
 
   it('should have output properties defined', () => {
-    expect(component.close).toBeDefined();
+    expect(component.closeModal).toBeDefined();
   });
 
   it('should initialize with default values', () => {
@@ -35,7 +35,7 @@ describe('PopupModalComponent', () => {
   });
 
   it('should handle backdrop click when target equals currentTarget', () => {
-    spyOn(component.close, 'emit');
+    spyOn(component.closeModal, 'emit');
 
     const sameElement = document.createElement('div');
     const mockEvent = {
@@ -45,11 +45,11 @@ describe('PopupModalComponent', () => {
 
     component.onBackdropClick(mockEvent);
 
-    expect(component.close.emit).toHaveBeenCalled();
+    expect(component.closeModal.emit).toHaveBeenCalled();
   });
 
   it('should not handle backdrop click when target is different from currentTarget', () => {
-    spyOn(component.close, 'emit');
+    spyOn(component.closeModal, 'emit');
 
     const mockEvent = {
       target: document.createElement('div'),
@@ -58,7 +58,7 @@ describe('PopupModalComponent', () => {
 
     component.onBackdropClick(mockEvent);
 
-    expect(component.close.emit).not.toHaveBeenCalled();
+    expect(component.closeModal.emit).not.toHaveBeenCalled();
   });
 
   it('should have proper component structure', () => {

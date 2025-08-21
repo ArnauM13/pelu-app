@@ -15,6 +15,7 @@ export interface InputTextConfig {
 
 @Component({
   selector: 'pelu-input-text',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, InputTextModule],
   templateUrl: './input-text.component.html',
   styleUrls: ['./input-text.component.scss'],

@@ -17,15 +17,15 @@ describe('LoaderComponent', () => {
           provide: TranslateService,
           useValue: {
             instant: (key: string) => key,
-            get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+            get: (key: string) => ({ subscribe: (fn: (value: string) => void) => fn(key) }),
           },
         },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
-            set: (key: string, value: any) => {},
-            has: (key: string) => true,
+            set: () => {},
+            has: () => true,
           },
         },
       ],

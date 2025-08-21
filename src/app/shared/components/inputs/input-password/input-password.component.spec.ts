@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 
@@ -80,8 +80,9 @@ class TestWrapperComponent {
   mediumLabel = signal('INPUTS.PASSWORD_MEDIUM_LABEL');
   strongLabel = signal('INPUTS.PASSWORD_STRONG_LABEL');
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
+  constructor() {
+    const fb = inject(FormBuilder);
+    this.form = fb.group({
       passwordField: ['', this.required() ? Validators.required : null]
     });
   }

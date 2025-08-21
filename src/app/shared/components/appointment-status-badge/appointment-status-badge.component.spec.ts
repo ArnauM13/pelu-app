@@ -62,8 +62,8 @@ describe('AppointmentStatusBadgeComponent', () => {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
-            set: (key: string, value: any) => {},
-            has: (key: string) => true,
+            set: () => {},
+            has: () => true,
           },
         },
       ],

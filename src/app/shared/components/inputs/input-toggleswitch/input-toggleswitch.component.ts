@@ -60,7 +60,7 @@ export class InputToggleSwitchComponent implements ControlValueAccessor {
   @ContentChild('handle') handleTemplate?: TemplateRef<{ checked: boolean }>;
 
   // ControlValueAccessor callbacks
-  private onChange = (_value: boolean) => {};
+  private onChange: (value: boolean) => void = () => {};
   private onTouched = () => {};
 
   // Get unique ID
@@ -69,22 +69,22 @@ export class InputToggleSwitchComponent implements ControlValueAccessor {
   }
 
   // Event handler for toggle switch changes
-  onToggleChange(_checked: boolean) {
-    this.onChange(_checked);
-    this.valueChange.emit(_checked);
+  onToggleChange(checked: boolean) {
+    this.onChange(checked);
+    this.valueChange.emit(checked);
   }
 
   // Event handler for blur
-  onBlurHandler(_event: Event) {
+  onBlurHandler() {
     this.onTouched();
   }
 
   // ControlValueAccessor methods
-  writeValue(_value: boolean): void {
+  writeValue(): void {
     // PrimeNG handles this automatically
   }
 
-  registerOnChange(fn: (_value: boolean) => void): void {
+  registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
   }
 
@@ -92,7 +92,7 @@ export class InputToggleSwitchComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(_isDisabled: boolean): void {
+  setDisabledState(): void {
     // PrimeNG handles disabled state automatically
   }
 }

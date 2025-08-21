@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 
@@ -74,21 +74,22 @@ class TestWrapperComponent {
   errorText = signal('');
   successText = signal('');
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
+  constructor() {
+    const fb = inject(FormBuilder);
+    this.form = fb.group({
       toggleField: [false, this.required() ? Validators.required : null]
     });
   }
 
-  onValueChange(value: any) {
+  onValueChange(value: boolean) {
     this.currentValue.set(value);
   }
 
-  setFormValue(value: any) {
+  setFormValue(value: boolean) {
     this.form.patchValue({ toggleField: value });
   }
 
-  getFormValue(): any {
+  getFormValue(): boolean {
     return this.form.get('toggleField')?.value;
   }
 
