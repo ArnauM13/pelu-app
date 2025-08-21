@@ -36,7 +36,7 @@ describe('FooterComponent', () => {
 					provide: TranslateService,
 					useValue: {
 						instant: (key: string) => key,
-						get: (key: string) => ({ subscribe: (fn: unknown) => { fn(key); return { unsubscribe: () => {} }; } }),
+						get: (key: string) => ({ subscribe: (fn: (value: string) => void) => { fn(key); return { unsubscribe: () => {} }; } }),
 						onTranslationChange: { subscribe: () => ({ unsubscribe: () => {} }) },
 						onDefaultLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
 						onLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },

@@ -184,7 +184,6 @@ export class PerfilPageComponent {
       () => {
         const userRole = this.roleService.userRole();
         const isLoading = this.roleService.isLoadingRole();
-        
         this.userRoleSignal.set(userRole);
         this.isLoadingSignal.set(isLoading);
       }

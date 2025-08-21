@@ -72,7 +72,7 @@ export class LoggerService {
     const logMessage = this.formatErrorMessage(errorDetails);
     if (this.isDevelopment) {
       console.error(logMessage);
-      console.error('Error Stack:', error?.stack);
+      console.error('Error Stack:', (error as Error)?.stack);
       console.error('Error Context:', logContext);
     }
 
@@ -101,7 +101,7 @@ export class LoggerService {
     // Log crític sempre visible
     const logMessage = this.formatErrorMessage(errorDetails);
     console.error('🚨 CRITICAL ERROR:', logMessage);
-    console.error('Error Stack:', error?.stack);
+    console.error('Error Stack:', (error as Error)?.stack);
     console.error('Error Context:', logContext);
 
     // Enviar a servei de logging amb prioritat alta
@@ -182,7 +182,7 @@ export class LoggerService {
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.NETWORK_ERROR');
-    errorDetails.technicalDetails = `Network error calling ${endpoint}: ${error?.message || 'Unknown network error'}`;
+    errorDetails.technicalDetails = `Network error calling ${endpoint}: ${(error as Error)?.message || 'Unknown network error'}`;
 
     this.error(error, logContext, true);
   }
@@ -195,7 +195,7 @@ export class LoggerService {
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.AUTH_ERROR');
-    errorDetails.technicalDetails = `Authentication error: ${error?.message || 'Unknown auth error'}`;
+    errorDetails.technicalDetails = `Authentication error: ${(error as Error)?.message || 'Unknown auth error'}`;
 
     this.error(error, logContext, true);
   }
@@ -209,7 +209,7 @@ export class LoggerService {
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.FIREBASE_ERROR');
-    errorDetails.technicalDetails = `Firebase ${operation} error: ${error?.message || 'Unknown Firebase error'}`;
+    errorDetails.technicalDetails = `Firebase ${operation} error: ${(error as Error)?.message || 'Unknown Firebase error'}`;
 
     this.error(error, logContext, true);
   }
@@ -248,7 +248,7 @@ export class LoggerService {
   }
 
   private formatErrorMessage(errorDetails: ErrorDetails): string {
-    const { error, context, technicalDetails, severity } = errorDetails;
+    const { context, technicalDetails, severity } = errorDetails;
     const timestamp = context['timestamp'] || new Date().toISOString();
     const component = context['component'] ? `[${context['component']}]` : '';
     const method = context['method'] ? `.${context['method']}` : '';

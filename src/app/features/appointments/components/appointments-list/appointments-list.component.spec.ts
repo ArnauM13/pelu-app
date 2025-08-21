@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppointmentsListComponent } from './appointments-list.component';
 import { configureTestBed, resetMocks, setupDefaultMocks } from '../../../../../testing/test-setup';
 import { Component, signal } from '@angular/core';
+import { Booking } from '../../../../core/interfaces/booking.interface';
 
 // Test wrapper component to provide input signals
 @Component({
@@ -94,25 +95,25 @@ describe('AppointmentsListComponent', () => {
   });
 
   it('should get client name from booking', () => {
-    const booking: any = { clientName: 'John Doe', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
+    const booking: Booking = { clientName: 'John Doe', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('John Doe');
   });
 
   it('should return default client name if name is empty', () => {
-    const booking: any = { clientName: '', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
+    const booking: Booking = { clientName: '', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('Client');
   });
 
   it('should get client name from clientName', () => {
-    const booking: any = { clientName: 'Bob Johnson', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
+    const booking: Booking = { clientName: 'Bob Johnson', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('Bob Johnson');
   });
 
   it('should return default client name if no name is available', () => {
-    const booking: any = { id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
+    const booking: Booking = { id: '1', clientName: '', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
     const result = component.getClientName(booking);
     expect(result).toBe('Client');
   });

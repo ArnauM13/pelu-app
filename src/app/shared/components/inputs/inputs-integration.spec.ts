@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Import all input components
@@ -90,8 +90,9 @@ class TestParentComponent {
     text: this.textValue(),
     description: this.descriptionValue()
   }));
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
+  constructor() {
+    const fb = inject(FormBuilder);
+    this.form = fb.group({
       name: ['Valor inicial'],
       description: ['Descripció inicial']
     });
@@ -102,7 +103,7 @@ class TestParentComponent {
   onDescriptionChange(value: string) {
     this.descriptionValue.set(value);
   }
-  setFormValue(controlName: string, value: any) {
+  setFormValue(controlName: string, value: unknown) {
     this.form.get(controlName)?.setValue(value);
   }
   getFormValue(controlName: string) {

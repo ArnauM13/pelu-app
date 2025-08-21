@@ -5,7 +5,9 @@ import { RoleService } from '../app/core/services/role.service';
 import { UserService } from '../app/core/services/user.service';
 import { CurrencyService } from '../app/core/services/currency.service';
 import { ToastService } from '../app/shared/services/toast.service';
-import { of } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
+
 import {
   provideMockFirebase,
 } from './firebase-mocks';
@@ -94,50 +96,27 @@ export function configureTestBed(components: unknown[] = [], additionalProviders
  * Reset all mocks to their initial state
  */
 export function resetMocks() {
-  // Reset TranslateService mocks
-  mockTranslateService.instant.calls.reset();
-  mockTranslateService.get.calls.reset();
-  mockTranslateService.use.calls.reset();
-  mockTranslateService.addLangs.calls.reset();
-  mockTranslateService.getBrowserLang.calls.reset();
-  mockTranslateService.setDefaultLang.calls.reset();
-  mockTranslateService.getLangs.calls.reset();
-
-  // Reset AuthService mocks
-  mockAuthService.registre.calls.reset();
-  mockAuthService.login.calls.reset();
-  mockAuthService.logout.calls.reset();
-  mockAuthService.canActivate.calls.reset();
-
-  // Reset MessageService mocks
-  mockMessageService.add.calls.reset();
-  mockMessageService.clear.calls.reset();
-  mockMessageService.addAll.calls.reset();
+  // Mock reset function - no actual mocks to reset in this setup
 }
 
 /**
  * Set up default mock return values
  */
 export function setupDefaultMocks() {
-  // Set up default return values for commonly used mocks
-  mockTranslateService.instant.and.returnValue('Mocked Translation');
-  mockTranslateService.get.and.returnValue(of('Mocked Translation'));
-  mockTranslateService.addLangs.and.returnValue(undefined);
-  mockTranslateService.getBrowserLang.and.returnValue('ca');
-
-  mockAuthService.canActivate.and.returnValue(true);
+  // Mock setup function - no actual mocks to set up in this configuration
 }
 
 /**
  * Create a test component with input signals
  */
 export function createTestComponent<T>(componentClass: unknown, inputs: Record<string, unknown> = {}): T {
-  const component = TestBed.createComponent(componentClass as { new (): unknown }).componentInstance as unknown;
+  const component = TestBed.createComponent(componentClass as { new (): unknown }).componentInstance as Record<string, unknown>;
 
   // Set input signals
   Object.keys(inputs).forEach(key => {
-    if (component[key] && typeof component[key].set === 'function') {
-      component[key].set(inputs[key]);
+    const componentKey = component[key];
+    if (componentKey && typeof componentKey === 'object' && 'set' in componentKey && typeof (componentKey as { set: unknown }).set === 'function') {
+      (componentKey as { set: (value: unknown) => void }).set(inputs[key]);
     }
   });
 
