@@ -14,7 +14,7 @@ export interface LogData {
 }
 
 export interface ErrorDetails {
-  error: Error | any;
+  error: Error | unknown;
   context: LogContext;
   userMessage?: string;
   technicalDetails?: string;
@@ -35,7 +35,7 @@ export class LoggerService {
   /**
    * Log informatiu amb context detallat
    */
-  info(message: string, context?: LogContext, data?: any): void {
+  info(message: string, context?: LogContext, data?: unknown): void {
     const logContext = this.buildLogContext(context);
     const logMessage = this.formatLogMessage('INFO', message, logContext, data);
 
@@ -50,7 +50,7 @@ export class LoggerService {
   /**
    * Log d'advertència amb context detallat
    */
-  warn(message: string, context?: LogContext, data?: any): void {
+  warn(message: string, context?: LogContext, data?: unknown): void {
     const logContext = this.buildLogContext(context);
     const logMessage = this.formatLogMessage('WARN', message, logContext, data);
 
@@ -64,7 +64,7 @@ export class LoggerService {
   /**
    * Log d'error detallat amb gestió d'errors per a l'usuari
    */
-  error(error: Error | any, context?: LogContext, showUserToast: boolean = true): void {
+  error(error: Error | unknown, context?: LogContext, _showUserToast: boolean = true): void {
     const logContext = this.buildLogContext(context);
     const errorDetails = this.buildErrorDetails(error, logContext);
 
@@ -93,7 +93,7 @@ export class LoggerService {
   /**
    * Log crític per a errors greus
    */
-  critical(error: Error | any, context?: LogContext): void {
+  critical(error: Error | unknown, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.severity = 'critical';
@@ -119,7 +119,7 @@ export class LoggerService {
   /**
    * Log de debug (només en desenvolupament)
    */
-  debug(message: string, context?: LogContext, data?: any): void {
+  debug(message: string, context?: LogContext, data?: unknown): void {
     if (!this.isDevelopment) return;
 
     const logContext = this.buildLogContext(context);
@@ -144,7 +144,7 @@ export class LoggerService {
   /**
    * Log d'acció de l'usuari
    */
-  userAction(action: string, context?: LogContext, data?: any): void {
+  userAction(action: string, context?: LogContext, data?: unknown): void {
     const logContext = this.buildLogContext(context);
     logContext['action'] = action;
 
@@ -160,7 +160,7 @@ export class LoggerService {
   /**
    * Log d'error de validació
    */
-  validationError(field: string, value: any, context?: LogContext): void {
+  validationError(field: string, value: unknown, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
     const message = `Validation error for field '${field}' with value: ${JSON.stringify(value)}`;
 
@@ -176,7 +176,7 @@ export class LoggerService {
   /**
    * Log d'error de xarxa
    */
-  networkError(error: any, endpoint: string, context?: LogContext): void {
+  networkError(error: unknown, endpoint: string, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
     logContext['data'] = JSON.stringify({ endpoint });
 
@@ -190,7 +190,7 @@ export class LoggerService {
   /**
    * Log d'error d'autenticació
    */
-  authError(error: any, context?: LogContext): void {
+  authError(error: unknown, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
 
     const errorDetails = this.buildErrorDetails(error, logContext);
@@ -203,7 +203,7 @@ export class LoggerService {
   /**
    * Log d'error de Firebase
    */
-  firebaseError(error: any, operation: string, context?: LogContext): void {
+  firebaseError(error: unknown, operation: string, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
     logContext['data'] = JSON.stringify({ operation, firebaseError: true });
 
@@ -223,7 +223,7 @@ export class LoggerService {
     };
   }
 
-  private buildErrorDetails(error: Error | any, context: LogContext): ErrorDetails {
+  private buildErrorDetails(error: Error | unknown, context: LogContext): ErrorDetails {
     return {
       error,
       context,
@@ -236,7 +236,7 @@ export class LoggerService {
     level: string,
     message: string,
     context: LogContext,
-    data?: any
+    _data?: unknown
   ): string {
     const timestamp = context['timestamp'] || new Date().toISOString();
     const component = context['component'] ? `[${context['component']}]` : '';
@@ -270,7 +270,7 @@ export class LoggerService {
     level: string,
     message: string,
     context: LogContext,
-    data?: any
+    _data?: unknown
   ): void {
     // En un entorn de producció, aquí enviaríem els logs a un servei extern
     // com ara Sentry, LogRocket, o un servei personalitzat
@@ -306,8 +306,8 @@ export class LoggerService {
       }
 
       localStorage.setItem('app_logs', JSON.stringify(logs));
-    } catch (error) {
-      console.error('Error saving log to localStorage:', error);
+    } catch {
+      console.error('Error saving log to localStorage');
     }
   }
 
@@ -317,7 +317,7 @@ export class LoggerService {
   getStoredLogs(): LogData[] {
     try {
       return JSON.parse(localStorage.getItem('app_logs') || '[]');
-    } catch (error) {
+    } catch {
       return [];
     }
   }

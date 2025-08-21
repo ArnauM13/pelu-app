@@ -58,7 +58,7 @@ export class InputPasswordComponent implements ControlValueAccessor {
   readonly valueChange = output<string>();
 
   // ControlValueAccessor callbacks
-  private onChange = (value: string) => {};
+  private onChange = (_value: string) => {};
   private onTouched = () => {};
 
   // Computed property to get the appropriate placeholder
@@ -80,9 +80,9 @@ export class InputPasswordComponent implements ControlValueAccessor {
   }
 
   // Event handler for password changes
-  onPasswordChange(value: string) {
-    this.onChange(value);
-    this.valueChange.emit(value);
+  onPasswordChange(_value: string) {
+    this.onChange(_value);
+    this.valueChange.emit(_value);
   }
 
   // Event handler for password blur
@@ -91,11 +91,11 @@ export class InputPasswordComponent implements ControlValueAccessor {
   }
 
   // ControlValueAccessor methods
-  writeValue(value: string): void {
+  writeValue(_value: string): void {
     // PrimeNG handles this automatically
   }
 
-  registerOnChange(fn: (value: string) => void): void {
+  registerOnChange(fn: (_value: string) => void): void {
     this.onChange = fn;
   }
 
@@ -103,7 +103,7 @@ export class InputPasswordComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  setDisabledState(_isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }

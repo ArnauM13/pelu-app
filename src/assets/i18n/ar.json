@@ -78,6 +78,10 @@
       "AT_TIME": "في",
       "APPOINTMENT_TITLE": "{{nom}} - {{data}} في {{hora}}"
     },
+    "THEME": {
+      "LIGHT": "فاتح",
+      "DARK": "داكن"
+    },
     "SELECTION": {
       "NO_SELECTION": "لا يوجد اختيار",
       "SELECTED": "مختار",
@@ -424,6 +428,8 @@
     "USERNAME": "اسم المستخدم",
     "EMAIL": "البريد الإلكتروني",
     "USER_ID": "معرف المستخدم",
+    "LANGUAGE": "اللغة",
+    "THEME": "المظهر",
     "CREATION_DATE": "تاريخ الإنشاء",
     "LAST_ACCESS": "آخر وصول",
     "ACCOUNT_STATUS": "حالة الحساب",

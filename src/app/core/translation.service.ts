@@ -59,11 +59,11 @@ export class TranslationService {
     ];
   }
 
-  getTranslation(key: string, params?: Record<string, any>): Observable<string> {
+  getTranslation(key: string, params?: Record<string, unknown>): Observable<string> {
     return this.translate.get(key, params);
   }
 
-  getTranslationInstant(key: string, params?: Record<string, any>): string {
+  getTranslationInstant(key: string, params?: Record<string, unknown>): string {
     return this.translate.instant(key, params);
   }
 

@@ -38,7 +38,7 @@ export class PopupStackComponent {
   // Compatibility output and handlers expected by specs
   popupClosed = {
     emit: (_id?: string) => {},
-  } as any;
+  } as { emit: (id?: string) => void };
 
   addPopup(popup: PopupItem): void {
     this.popupsSignal.update(popups => [...popups, popup]);

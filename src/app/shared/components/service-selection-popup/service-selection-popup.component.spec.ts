@@ -13,7 +13,7 @@ describe('ServiceSelectionPopupComponent', () => {
   let toastService: jasmine.SpyObj<ToastService>;
   let serviceTranslationService: jasmine.SpyObj<ServiceTranslationService>;
   let firebaseServicesService: jasmine.SpyObj<FirebaseServicesService>;
-  let translateService: jasmine.SpyObj<TranslateService>;
+  let _translateService: jasmine.SpyObj<TranslateService>;
 
   const mockService: FirebaseService = {
     id: 'service1',
@@ -87,7 +87,7 @@ describe('ServiceSelectionPopupComponent', () => {
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
     serviceTranslationService = TestBed.inject(ServiceTranslationService) as jasmine.SpyObj<ServiceTranslationService>;
     firebaseServicesService = TestBed.inject(FirebaseServicesService) as jasmine.SpyObj<FirebaseServicesService>;
-    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    _translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
   });
 
   it('should create', () => {
@@ -157,9 +157,9 @@ describe('ServiceSelectionPopupComponent', () => {
 
   it('should set selected service when onServiceSelect is called', () => {
     expect(component.selectedService()).toBeNull();
-    
+
     component.onServiceSelect(mockService);
-    
+
     expect(component.selectedService()).toBe(mockService);
   });
 
@@ -167,9 +167,9 @@ describe('ServiceSelectionPopupComponent', () => {
     spyOn(component.serviceSelected, 'emit');
     component.onServiceSelect(mockService);
     component.selectionDetails = mockSelectionDetails;
-    
+
     component.onConfirm();
-    
+
     expect(component.serviceSelected.emit).toHaveBeenCalledWith({
       details: mockSelectionDetails,
       service: mockService,
@@ -179,9 +179,9 @@ describe('ServiceSelectionPopupComponent', () => {
   it('should show validation error when onConfirm is called without selected service', () => {
     spyOn(component.serviceSelected, 'emit');
     expect(component.selectedService()).toBeNull();
-    
+
     component.onConfirm();
-    
+
     expect(toastService.showValidationError).toHaveBeenCalledWith('servei');
     expect(component.serviceSelected.emit).not.toHaveBeenCalled();
   });
@@ -190,9 +190,9 @@ describe('ServiceSelectionPopupComponent', () => {
     spyOn(component.cancelled, 'emit');
     component.onServiceSelect(mockService);
     expect(component.selectedService()).toBe(mockService);
-    
+
     component.onCancel();
-    
+
     expect(component.cancelled.emit).toHaveBeenCalled();
     expect(component.selectedService()).toBeNull();
   });
@@ -203,12 +203,12 @@ describe('ServiceSelectionPopupComponent', () => {
       target: document.createElement('div'),
       currentTarget: document.createElement('div'),
     } as any;
-    
+
     // Make target equal to currentTarget
     mockEvent.currentTarget = mockEvent.target;
-    
+
     component.onBackdropClick(mockEvent);
-    
+
     expect(component.onCancel).toHaveBeenCalled();
   });
 
@@ -218,12 +218,12 @@ describe('ServiceSelectionPopupComponent', () => {
       target: document.createElement('div'),
       currentTarget: document.createElement('div'),
     } as any;
-    
+
     // Make target different from currentTarget
     mockEvent.currentTarget = document.createElement('span');
-    
+
     component.onBackdropClick(mockEvent);
-    
+
     expect(component.onCancel).not.toHaveBeenCalled();
   });
 
@@ -260,7 +260,7 @@ describe('ServiceSelectionPopupComponent', () => {
 
   it('should return dialog config with correct structure', () => {
     const config = component.dialogConfig();
-    
+
     expect(config.title).toBe('Translated Text');
     expect(config.size).toBe('large');
     expect(config.closeOnBackdropClick).toBe(true);
@@ -272,7 +272,7 @@ describe('ServiceSelectionPopupComponent', () => {
   it('should have confirm button when no service is selected', () => {
     const config = component.dialogConfig();
     const confirmAction = config.footerActions?.[0];
-    
+
     if (confirmAction) {
       expect(confirmAction.label).toBeDefined();
       expect(confirmAction.action).toBeDefined();
@@ -283,7 +283,7 @@ describe('ServiceSelectionPopupComponent', () => {
     component.onServiceSelect(mockService);
     const config = component.dialogConfig();
     const confirmAction = config.footerActions?.[0];
-    
+
     if (confirmAction) {
       expect(confirmAction.label).toBeDefined();
       expect(confirmAction.action).toBeDefined();
@@ -294,7 +294,7 @@ describe('ServiceSelectionPopupComponent', () => {
     spyOn(component, 'onConfirm');
     const config = component.dialogConfig();
     const confirmAction = config.footerActions?.[0];
-    
+
     if (confirmAction) {
       confirmAction.action();
       expect(component.onConfirm).toHaveBeenCalled();
@@ -303,9 +303,9 @@ describe('ServiceSelectionPopupComponent', () => {
 
   it('should set open input correctly', () => {
     expect(component.isOpen()).toBe(false);
-    
+
     component.open = true;
-    
+
     expect(component.isOpen()).toBe(true);
   });
 
@@ -317,9 +317,9 @@ describe('ServiceSelectionPopupComponent', () => {
       clientName: '',
       email: '',
     });
-    
+
     component.selectionDetails = mockSelectionDetails;
-    
+
     expect(component.selectionDetailsComputed()).toEqual(mockSelectionDetails);
   });
 

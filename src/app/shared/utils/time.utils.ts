@@ -3,7 +3,6 @@ import {
   format,
   isToday,
   isSameDay,
-  isPast,
   isFuture,
   startOfDay,
   addDays as addDaysToDate,

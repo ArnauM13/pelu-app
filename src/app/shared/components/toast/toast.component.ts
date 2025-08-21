@@ -256,7 +256,7 @@ export class ToastComponent {
     this.messageService.clear();
   }
 
-  onToastClick(event: any) {
+  onToastClick(event: unknown) {
     const appointmentId = event.message?.data?.appointmentId;
     const action = event.message?.data?.action;
 

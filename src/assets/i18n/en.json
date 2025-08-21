@@ -78,6 +78,10 @@
       "AT_TIME": "At",
       "APPOINTMENT_TITLE": "{{nom}} - {{data}} at {{hora}}"
     },
+    "THEME": {
+      "LIGHT": "Light",
+      "DARK": "Dark"
+    },
     "SELECTION": {
       "NO_SELECTION": "No selection",
       "SELECTED": "Selected",
@@ -442,6 +446,8 @@
     "USERNAME": "Username",
     "EMAIL": "Email",
     "USER_ID": "User ID",
+    "LANGUAGE": "Language",
+    "THEME": "Theme",
     "CREATION_DATE": "Creation date",
     "LAST_ACCESS": "Last access",
     "ACCOUNT_STATUS": "Account status",
