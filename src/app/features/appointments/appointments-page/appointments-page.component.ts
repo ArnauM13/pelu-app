@@ -34,6 +34,7 @@ interface FilterState {
   status: string | null;
   service: string | null;
   client: string | null;
+  quickFilter: 'all' | 'today' | 'upcoming' | 'mine' | null;
 }
 
 interface AppointmentStats {
@@ -85,6 +86,7 @@ export class AppointmentsPageComponent {
     status: null,
     service: null,
     client: null,
+    quickFilter: null,
   });
 
   // View state
@@ -139,6 +141,8 @@ export class AppointmentsPageComponent {
     appointments = this.applyDateFilter(appointments);
     appointments = this.applyStatusFilter(appointments);
     appointments = this.applyServiceFilter(appointments);
+    appointments = this.applyClientFilter(appointments);
+    appointments = this.applyQuickFilter(appointments);
     return this.sortAppointmentsByDateTime(appointments);
   });
 
@@ -151,11 +155,11 @@ export class AppointmentsPageComponent {
   );
 
   // List view data depending on role
-  readonly listAppointments = computed(() =>
-    this.isAdmin()
+  readonly listAppointments = computed(() => {
+    return this.isAdmin()
       ? this.filteredAppointments()
-      : this.sortAppointmentsByDateTime(this.userAppointments())
-  );
+      : this.sortAppointmentsByDateTime(this.userAppointments());
+  });
 
   // Calendar events
   readonly calendarEvents = computed((): AppointmentEvent[] => {
@@ -230,15 +234,15 @@ export class AppointmentsPageComponent {
   // Filter methods
   readonly setFilterDate = (value: string | Date) => {
     const date = typeof value === 'string' ? new Date(value) : value;
-    this.filterStateSignal.update(state => ({ ...state, date }));
+    this.filterStateSignal.update(state => ({ ...state, date, quickFilter: null }));
   };
 
   readonly setFilterStatus = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, status: value }));
+    this.filterStateSignal.update(state => ({ ...state, status: value, quickFilter: null }));
   };
 
   readonly setFilterService = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, service: value }));
+    this.filterStateSignal.update(state => ({ ...state, service: value, quickFilter: null }));
   };
 
   readonly setViewMode = (mode: 'list' | 'calendar' | Event) => {
@@ -247,17 +251,23 @@ export class AppointmentsPageComponent {
     this.viewStateSignal.update(state => ({ ...state, mode: viewMode as 'list' | 'calendar' }));
   };
 
-  readonly setQuickFilter = (filter: string) => {
-    // Implementation for quick filter
-    console.log('Quick filter:', filter);
+  readonly setQuickFilter = (filter: 'all' | 'today' | 'upcoming' | 'mine') => {
+    this.filterStateSignal.update(state => ({
+      ...state,
+      quickFilter: filter,
+      date: null,
+      status: null,
+      service: null,
+      client: null
+    }));
   };
 
   readonly setFilterClient = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, client: value }));
+    this.filterStateSignal.update(state => ({ ...state, client: value, quickFilter: null }));
   };
 
   readonly clearAllFilters = () => {
-    this.filterStateSignal.set({ date: null, status: null, service: null, client: null });
+    this.filterStateSignal.set({ date: null, status: null, service: null, client: null, quickFilter: null });
   };
 
   // Filter methods
@@ -276,7 +286,48 @@ export class AppointmentsPageComponent {
   private applyServiceFilter(appointments: Booking[]): Booking[] {
     const filterService = this.filterService();
     if (!filterService) return appointments;
-    return appointments.filter(appointment => appointment.data === filterService);
+    return appointments.filter(appointment => appointment.serviceId === filterService);
+  }
+
+  private applyClientFilter(appointments: Booking[]): Booking[] {
+    const filterClient = this.filterClient();
+    if (!filterClient) return appointments;
+    const lowerFilter = filterClient.toLowerCase();
+    return appointments.filter(appointment =>
+      appointment.clientName.toLowerCase().includes(lowerFilter)
+    );
+  }
+
+  private applyQuickFilter(appointments: Booking[]): Booking[] {
+    const quickFilter = this.filterState().quickFilter;
+
+    if (!quickFilter || quickFilter === 'all') return appointments;
+
+    const today = new Date().toISOString().split('T')[0];
+
+    switch (quickFilter) {
+      case 'today':
+        return appointments.filter(appointment => appointment.data === today);
+      case 'upcoming':
+        return appointments.filter(appointment => {
+          if (!appointment.data || typeof appointment.data !== 'string') return false;
+          try {
+            const appointmentDate = new Date(appointment.data);
+            const appointmentTime = appointment.hora || '00:00';
+            const [hours, minutes] = appointmentTime.split(':').map(Number);
+            appointmentDate.setHours(hours, minutes, 0, 0);
+
+            const now = new Date();
+            return appointmentDate > now;
+          } catch {
+            return false;
+          }
+        });
+      case 'mine':
+        return appointments.filter(appointment => this.appointmentService.isOwnBooking(appointment));
+      default:
+        return appointments;
+    }
   }
 
   private sortAppointmentsByDateTime(appointments: Booking[]): Booking[] {
@@ -309,7 +360,7 @@ export class AppointmentsPageComponent {
 
       const dateTimeA = createLocalDateTime(a.data, a.hora);
       const dateTimeB = createLocalDateTime(b.data, b.hora);
-      return dateTimeB.getTime() - dateTimeA.getTime();
+      return dateTimeA.getTime() - dateTimeB.getTime(); // Changed to show oldest appointments first
     });
   }
 
