@@ -27,7 +27,11 @@ export interface AppState {
   showLoader: boolean;
 
   // Business state
-  businessName: string;
+  businessInfo: {
+    name: string;
+    address: string;
+    phone: string;
+  };
   businessHours: unknown;
   preventCancellation: boolean;
   cancellationTimeLimit: number;
@@ -72,7 +76,11 @@ export class AppStateService {
     isMobile: false,
     currentRoute: '',
     showLoader: false,
-    businessName: 'PeluApp',
+    businessInfo: {
+      name: 'PeluApp',
+      address: '',
+      phone: '',
+    },
     businessHours: { start: 8, end: 20 },
     preventCancellation: false,
     cancellationTimeLimit: 24,
@@ -116,7 +124,10 @@ export class AppStateService {
   readonly showLoader = computed(() => this.appState().showLoader);
 
   // Business state
-  readonly businessName = computed(() => this.appState().businessName);
+  readonly businessInfo = computed(() => this.appState().businessInfo);
+  readonly businessName = computed(() => this.appState().businessInfo.name);
+  readonly businessAddress = computed(() => this.appState().businessInfo.address);
+  readonly businessPhone = computed(() => this.appState().businessInfo.phone);
   readonly businessHours = computed(() => this.appState().businessHours);
   readonly preventCancellation = computed(() => this.appState().preventCancellation);
   readonly cancellationTimeLimit = computed(() => this.appState().cancellationTimeLimit);
@@ -145,7 +156,7 @@ export class AppStateService {
   );
 
   readonly isBusinessOpen = computed(() => {
-    const hours = this.businessHours();
+    const hours = this.businessHours() as { start: number; end: number };
     const now = new Date();
     const currentHour = now.getHours();
     return currentHour >= hours.start && currentHour < hours.end;
@@ -190,7 +201,7 @@ export class AppStateService {
     effect(() => {
       const settings = this.systemParametersService.settings();
       const businessState = {
-        businessName: settings.businessName,
+        businessInfo: settings.businessInfo,
         businessHours: settings.businessHours,
         preventCancellation: settings.preventCancellation,
         cancellationTimeLimit: settings.cancellationTimeLimit,

@@ -98,6 +98,13 @@
     "OTHER_SERVICES": "Altres serveis",
     "RECENTLY_BOOKED": "Reservats Recentment",
     "NO_SERVICES_AVAILABLE": "No hi ha serveis disponibles",
+    "CALENDAR": {
+      "EVENT_DESCRIPTION": "Reserva de {{serviceName}} per a {{clientName}}",
+      "ADD_TO_CALENDAR": "Afegir al calendari",
+      "CALENDAR_EVENT": "Esdeveniment del calendari",
+      "EVENT_ADDED_SUCCESS": "Esdeveniment afegit al calendari correctament",
+      "EVENT_ADDED_ERROR": "Error al afegir l'esdeveniment al calendari"
+    },
     "NO_BOOKABLE_SERVICES_AVAILABLE": "No hi ha serveis disponibles per aquest horari",
     "TIME_SLOT_CONFLICT": "No hi ha espai disponible per aquest horari",
     "AVAILABLE_SERVICES_FOR_TIME": "Serveis disponibles per l'hora seleccionada"
@@ -514,12 +521,15 @@
       "EDIT_MODE": "Mode edició",
       "BUSINESS_INFO": "Informació del negoci",
       "BUSINESS_NAME": "Nom del negoci",
+      "BUSINESS_ADDRESS": "Adreça del negoci",
+      "BUSINESS_PHONE": "Telèfon del negoci",
       "BUSINESS_HOURS": "Horari comercial",
       "BUSINESS_HOURS_START": "Hora d'inici",
       "BUSINESS_HOURS_END": "Hora de tancament",
       "LUNCH_BREAK": "Pausa per dinar",
       "LUNCH_BREAK_START": "Inici pausa per dinar",
       "LUNCH_BREAK_END": "Fi pausa per dinar",
+      "SCHEDULE_HOURS": "Horaris i Dies",
       "WORKING_DAYS": "Dies laborables",
       "WORKING_DAYS_PLACEHOLDER": "Selecciona els dies laborables",
       "APPOINTMENT_SETTINGS": "Configuració de reserves",
@@ -531,6 +541,7 @@
       "PREVENT_CANCELLATION": "No permetre cancel·lació",
       "CANCELLATION_TIME_LIMIT": "Temps límit per cancel·lar",
       "CANCELLATION_TIME_LIMIT_HELP": "Temps en hores abans de la reserva que es pot cancel·lar",
+      "SYSTEM_BOOKING": "Sistema i Reserva",
       "BOOKING_SYSTEM_SETTINGS": "Configuració de reserves i sistema",
       "BOOKING_ADVANCE_DAYS": "Dies de marge per reservar",
       "BOOKING_ADVANCE_DAYS_HELP": "Dies d'antelació amb els que es pot fer una reserva",
@@ -540,7 +551,7 @@
       "CURRENCY": "Moneda",
       "CURRENCY_HELP": "La moneda s'aplicarà a tots els preus de l'aplicació",
       "SAVE_SETTINGS": "Desar configuració",
-      "RESET_DEFAULTS": "Restaurar per defecte",
+  
       "LOADING": "Carregant configuració..."
     }
 

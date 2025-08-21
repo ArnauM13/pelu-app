@@ -28,8 +28,6 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  max-height: 90vh;
-  overflow: hidden;
 }
 
 .dashboard-header {
@@ -191,8 +189,13 @@
 }
 
 @media (max-width: 480px) {
+  .admin-dashboard.single-screen {
+    padding: 0;
+  }
+
   .dashboard-card {
     padding: 1rem;
+    border-radius: 0;
   }
 
   .dashboard-header h1 {

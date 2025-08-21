@@ -21,7 +21,6 @@
     [filter]="filter()"
     [filterBy]="filterBy()"
     [filterMatchMode]="filterMatchMode()"
-
     [showClear]="showClear()"
     [appendTo]="appendTo()"
     [scrollHeight]="scrollHeight()"
@@ -35,7 +34,6 @@
     [display]="display()"
     [ngModel]="safeValue"
     (ngModelChange)="onSelectChange($event)"
-    (onChange)="onSelectChange($event.value)"
     (onBlur)="onBlurHandler($event)"
     class="w-full"
   >
@@ -43,6 +41,13 @@
     @if (itemTemplate) {
       <ng-template #item let-option>
         <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: option }"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Selected Items Template -->
+    @if (selectedItemsTemplate) {
+      <ng-template #selectedItems let-value let-removeChip="removeChip">
+        <ng-container *ngTemplateOutlet="selectedItemsTemplate; context: { $implicit: value, removeChip: removeChip }"></ng-container>
       </ng-template>
     }
 

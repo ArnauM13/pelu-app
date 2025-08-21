@@ -95,6 +95,13 @@
     "OTHER_SERVICES": "Otros servicios",
     "RECENTLY_BOOKED": "Reservados Recientemente",
     "NO_SERVICES_AVAILABLE": "No hay servicios disponibles",
+    "CALENDAR": {
+      "EVENT_DESCRIPTION": "Reserva de {{serviceName}} para {{clientName}}",
+      "ADD_TO_CALENDAR": "Añadir al calendario",
+      "CALENDAR_EVENT": "Evento del calendario",
+      "EVENT_ADDED_SUCCESS": "Evento añadido al calendario correctamente",
+      "EVENT_ADDED_ERROR": "Error al añadir el evento al calendario"
+    },
     "NO_BOOKABLE_SERVICES_AVAILABLE": "No hay servicios disponibles para este horario",
     "TIME_SLOT_CONFLICT": "No hay espacio disponible para este horario",
     "AVAILABLE_SERVICES_FOR_TIME": "Servicios disponibles para la hora seleccionada"
@@ -481,12 +488,15 @@
       "EDIT_MODE": "Modo edición",
       "BUSINESS_INFO": "Información del negocio",
       "BUSINESS_NAME": "Nombre del negocio",
+      "BUSINESS_ADDRESS": "Dirección del negocio",
+      "BUSINESS_PHONE": "Teléfono del negocio",
       "BUSINESS_HOURS": "Horario comercial",
       "BUSINESS_HOURS_START": "Hora de inicio",
       "BUSINESS_HOURS_END": "Hora de cierre",
       "LUNCH_BREAK": "Pausa para comer",
       "LUNCH_BREAK_START": "Inicio pausa para comer",
       "LUNCH_BREAK_END": "Fin pausa para comer",
+      "SCHEDULE_HOURS": "Horarios y Días",
       "WORKING_DAYS": "Días laborables",
       "WORKING_DAYS_PLACEHOLDER": "Selecciona los días laborables",
       "APPOINTMENT_SETTINGS": "Configuración de reservas",
@@ -498,6 +508,7 @@
       "PREVENT_CANCELLATION": "No permitir cancelación",
       "CANCELLATION_TIME_LIMIT": "Tiempo límite para cancelar",
       "CANCELLATION_TIME_LIMIT_HELP": "Tiempo en horas antes de la reserva que se puede cancelar",
+      "SYSTEM_BOOKING": "Sistema y Reserva",
       "BOOKING_SYSTEM_SETTINGS": "Configuración de reservas y sistema",
       "BOOKING_ADVANCE_DAYS": "Días de margen para reservar",
       "BOOKING_ADVANCE_DAYS_HELP": "Días de antelación con los que se puede hacer una reserva",
@@ -507,7 +518,7 @@
       "CURRENCY": "Moneda",
       "CURRENCY_HELP": "La moneda se aplicará a todos los precios de la aplicación",
       "SAVE_SETTINGS": "Guardar configuración",
-      "RESET_DEFAULTS": "Restaurar por defecto",
+  
       "LOADING": "Cargando configuración..."
     }
 
