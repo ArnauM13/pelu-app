@@ -18,35 +18,37 @@
       <!-- Filters (admins only) -->
       @if (isAdmin()) {
         <div class="content-section">
-          <pelu-appointments-stats
+          <pelu-filters-collapsible
             [stats]="appointmentStats()"
-            (quickFilterChange)="setQuickFilter($event)"
-          />
-        </div>
-
-        <div class="content-section">
-          <pelu-filters-inline
             [filterDate]="filterDate"
             [filterClient]="filterClient"
             [filterService]="filterService"
+            [quickFilter]="quickFilterString()"
+            [hasActiveFilters]="hasActiveFilters()"
             [onDateChange]="setFilterDate"
             [onClientChange]="setFilterClient"
             [onServiceChange]="setFilterService"
             [onReset]="clearAllFilters"
-            (reset)="clearAllFilters()"
+            (quickFilterChange)="setQuickFilter($event)"
           />
         </div>
       }
+
+
 
       <!-- Appointments List View -->
       <div class="content-section">
         <pelu-appointments-list
           [bookings]="listAppointments()"
           [hasActiveFilters]="isAdmin() ? hasActiveFilters() : false"
+          [isSelectionMode]="isSelectionMode()"
+          [selectedIds]="selectedIds()"
+          [isAdmin]="isAdmin()"
           (viewBooking)="viewAppointmentDetail($event)"
-          (editBooking)="editBookingFromList($event)"
           (deleteBooking)="deleteBookingFromList($event)"
           (clearFilters)="clearAllFilters()"
+          (toggleSelection)="toggleAppointmentSelection($event)"
+          (bulkDelete)="onBulkDeleteRequested($event)"
         >
         </pelu-appointments-list>
       </div>

@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -6,6 +6,7 @@ export interface AppointmentStats {
   total: number;
   today: number;
   upcoming: number;
+  past: number;
   mine: number;
 }
 
@@ -14,15 +15,7 @@ export interface AppointmentStats {
   imports: [CommonModule, TranslateModule],
   template: `
     <div class="stats-grid" style="view-transition-name: stats-grid">
-              <div class="stat-card clickable" (click)="quickFilterChange.emit('all')">
-        <div class="stat-icon">📅</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ stats().total }}</div>
-          <div class="stat-label">{{ 'APPOINTMENTS.TOTAL_APPOINTMENTS' | translate }}</div>
-        </div>
-      </div>
-
-              <div class="stat-card clickable" (click)="quickFilterChange.emit('today')">
+      <div class="stat-card clickable" [class.active]="isTodayActive()" (click)="toggleToday()">
         <div class="stat-icon">🎯</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().today }}</div>
@@ -30,7 +23,7 @@ export interface AppointmentStats {
         </div>
       </div>
 
-              <div class="stat-card clickable" (click)="quickFilterChange.emit('upcoming')">
+      <div class="stat-card clickable" [class.active]="isUpcomingActive()" (click)="toggleUpcoming()">
         <div class="stat-icon">⏰</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().upcoming }}</div>
@@ -38,7 +31,15 @@ export interface AppointmentStats {
         </div>
       </div>
 
-              <div class="stat-card clickable" (click)="quickFilterChange.emit('mine')">
+      <div class="stat-card clickable" [class.active]="isPastActive()" (click)="togglePast()">
+        <div class="stat-icon">📜</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats().past }}</div>
+          <div class="stat-label">{{ 'APPOINTMENTS.PAST_APPOINTMENTS' | translate }}</div>
+        </div>
+      </div>
+
+      <div class="stat-card clickable" [class.active]="isMineActive()" (click)="toggleMine()">
         <div class="stat-icon">👨</div>
         <div class="stat-content">
           <div class="stat-number">{{ stats().mine }}</div>
@@ -50,6 +51,7 @@ export interface AppointmentStats {
   styles: [
     `
       .stats-grid {
+        padding-top: 1rem;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
@@ -70,6 +72,20 @@ export interface AppointmentStats {
       .stat-card:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .stat-card.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .stat-card.active .stat-number {
+        color: white;
+      }
+
+      .stat-card.active .stat-label {
+        color: rgba(255, 255, 255, 0.8);
       }
 
       .stat-icon {
@@ -119,6 +135,20 @@ export interface AppointmentStats {
         .stat-card:hover {
           transform: translateY(-1px);
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.active {
+          background: var(--primary-color);
+          color: white;
+          border-color: var(--primary-color);
+        }
+
+        .stat-card.active .stat-number {
+          color: white;
+        }
+
+        .stat-card.active .stat-label {
+          color: rgba(255, 255, 255, 0.8);
         }
 
         .stat-icon {
@@ -175,6 +205,19 @@ export interface AppointmentStats {
 })
 export class AppointmentsStatsComponent {
   stats = input.required<AppointmentStats>();
+  currentQuickFilters = input<string>('all');
 
-  quickFilterChange = output<'all' | 'today' | 'upcoming' | 'mine'>();
+  quickFilterChange = output<'all' | 'today' | 'upcoming' | 'past' | 'mine'>();
+
+  // Computed properties to check if filters are active
+  readonly isTodayActive = computed(() => this.currentQuickFilters().includes('today'));
+  readonly isUpcomingActive = computed(() => this.currentQuickFilters().includes('upcoming'));
+  readonly isPastActive = computed(() => this.currentQuickFilters().includes('past'));
+  readonly isMineActive = computed(() => this.currentQuickFilters().includes('mine'));
+
+  // Methods to handle filter toggling
+  readonly toggleToday = () => this.quickFilterChange.emit('today');
+  readonly toggleUpcoming = () => this.quickFilterChange.emit('upcoming');
+  readonly togglePast = () => this.quickFilterChange.emit('past');
+  readonly toggleMine = () => this.quickFilterChange.emit('mine');
 }

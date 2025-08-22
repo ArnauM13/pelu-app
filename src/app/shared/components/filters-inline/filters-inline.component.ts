@@ -5,7 +5,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ServicesService } from '../../../core/services/services.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
-import { ButtonComponent } from '../buttons/button.component';
 
 @Component({
   selector: 'pelu-filters-inline',
@@ -17,7 +16,6 @@ import { ButtonComponent } from '../buttons/button.component';
     InputTextComponent,
     InputDateComponent,
     InputSelectComponent,
-    ButtonComponent,
   ],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss'],
@@ -39,8 +37,7 @@ export class FiltersInlineComponent {
   readonly onServiceChange = input<((value: string) => void) | undefined>();
   readonly onReset = input<(() => void) | undefined>();
 
-  // Output events
-  readonly filtersReset = output<void>();
+  // Output events - removed filtersReset since reset button will be moved to parent
 
   // Reactive Form
   readonly filtersForm: FormGroup;
@@ -114,18 +111,5 @@ export class FiltersInlineComponent {
     });
   }
 
-  onResetHandler() {
-    // Reset the form to initial state
-    this.filtersForm.patchValue({
-      date: '',
-      client: '',
-      service: ''
-    }, { emitEvent: false });
-
-    // Call the callback to notify parent component
-    this.onReset()?.();
-
-    // Emit the reset event
-    this.filtersReset.emit();
-  }
+  // Reset method removed - reset functionality will be handled by parent component
 }
