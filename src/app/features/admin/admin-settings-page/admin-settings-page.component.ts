@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -50,6 +50,7 @@ import { LoadingStateComponent } from '../../../shared/components/loading-state/
 export class AdminSettingsPageComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
@@ -80,13 +81,13 @@ export class AdminSettingsPageComponent implements OnInit {
 
   private generateWorkingDaysOptions(): void {
     this.workingDaysOptions = [
-      { label: 'DAYS.MONDAY', value: 1 },
-      { label: 'DAYS.TUESDAY', value: 2 },
-      { label: 'DAYS.WEDNESDAY', value: 3 },
-      { label: 'DAYS.THURSDAY', value: 4 },
-      { label: 'DAYS.FRIDAY', value: 5 },
-      { label: 'DAYS.SATURDAY', value: 6 },
-      { label: 'DAYS.SUNDAY', value: 0 },
+      { label: this.translateService.instant('DAYS.MONDAY'), value: 1 },
+      { label: this.translateService.instant('DAYS.TUESDAY'), value: 2 },
+      { label: this.translateService.instant('DAYS.WEDNESDAY'), value: 3 },
+      { label: this.translateService.instant('DAYS.THURSDAY'), value: 4 },
+      { label: this.translateService.instant('DAYS.FRIDAY'), value: 5 },
+      { label: this.translateService.instant('DAYS.SATURDAY'), value: 6 },
+      { label: this.translateService.instant('DAYS.SUNDAY'), value: 0 },
     ];
   }
 
@@ -110,6 +111,8 @@ export class AdminSettingsPageComponent implements OnInit {
   ];
 
   ngOnInit() {
+    // Regenerate options when component initializes to ensure translations are loaded
+    this.generateWorkingDaysOptions();
     this.initializeForm();
     this.loadSettings();
   }
@@ -127,7 +130,9 @@ export class AdminSettingsPageComponent implements OnInit {
     };
 
     this.settingsForm = this.fb.group({
-      businessName: [currentParameters.businessName],
+      businessName: [currentParameters.businessInfo.name],
+      businessAddress: [currentParameters.businessInfo.address],
+      businessPhone: [currentParameters.businessInfo.phone],
       businessHoursStart: [createTimeDate(businessHours.start)],
       businessHoursEnd: [createTimeDate(businessHours.end)],
       lunchBreakStart: [createTimeDate(lunchBreak.start)],
@@ -173,7 +178,9 @@ export class AdminSettingsPageComponent implements OnInit {
       };
 
       this.settingsForm.patchValue({
-        businessName: currentParameters.businessName,
+        businessName: currentParameters.businessInfo.name,
+        businessAddress: currentParameters.businessInfo.address,
+        businessPhone: currentParameters.businessInfo.phone,
         businessHoursStart: createTimeDate(businessHours.start),
         businessHoursEnd: createTimeDate(businessHours.end),
         lunchBreakStart: createTimeDate(lunchBreak.start),
@@ -208,6 +215,12 @@ export class AdminSettingsPageComponent implements OnInit {
   setViewMode() {
     this.isEditModeSignal.set(false);
     this.originalFormValues = null;
+  }
+
+  // Helper method to get day label by value
+  getDayLabelByValue(value: string | number): string {
+    const option = this.workingDaysOptions.find(opt => opt.value === value);
+    return option ? option.label : '';
   }
 
   async saveSettings() {
@@ -262,7 +275,11 @@ export class AdminSettingsPageComponent implements OnInit {
 
         // Save other settings using the system parameters service
         await this.systemParametersService.saveParameters({
-          businessName: formValue.businessName,
+          businessInfo: {
+            name: formValue.businessName,
+            address: formValue.businessAddress,
+            phone: formValue.businessPhone,
+          },
           workingDays: formValue.workingDays,
           appointmentDuration: formValue.appointmentDuration,
           maxAppointmentsPerUser: formValue.maxAppointmentsPerUser,
@@ -293,18 +310,5 @@ export class AdminSettingsPageComponent implements OnInit {
     }
   }
 
-  resetToDefaults() {
-    if (confirm('Estàs segur que vols restaurar la configuració per defecte?')) {
-      this.systemParametersService
-        .resetToDefaults()
-        .then(() => {
-          this.toastService.showSuccess('Èxit', 'Configuració restaurada correctament');
-          this.loadSettings();
-        })
-        .catch((error: unknown) => {
-          console.error('Error resetting settings:', error);
-          this.toastService.showError('Error', 'Error al restaurar la configuració');
-        });
-    }
-  }
+
 }

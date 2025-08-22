@@ -1,120 +1,96 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { UserService } from '../../../core/services/user.service';
+import { RoleService, UserRole } from '../../../core/services/role.service';
+import { User } from '../../../core/interfaces/user.interface';
 import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
 import { AvatarData } from '../../../shared/components/avatar/avatar.component';
-import {
-  DetailViewComponent,
-  DetailViewConfig,
-  DetailAction,
-} from '../../../shared/components/detail-view/detail-view.component';
+import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../../shared/components/detail-view/detail-view.component';
 
 @Component({
   selector: 'pelu-perfil-page',
-  imports: [CommonModule, RouterModule, TranslateModule, DetailViewComponent],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    TranslateModule,
+    DetailViewComponent,
+  ],
   templateUrl: './perfil-page.component.html',
   styleUrls: ['./perfil-page.component.scss'],
 })
 export class PerfilPageComponent {
-  private auth = inject(Auth);
   private router = inject(Router);
   private authService = inject(AuthService);
   private userService = inject(UserService);
+  private roleService = inject(RoleService);
 
   // Internal state
-  private readonly userSignal = signal<any>(null);
+  private readonly userRoleSignal = signal<UserRole | null>(null);
   private readonly isLoadingSignal = signal(true);
-  private readonly isEditingSignal = signal(false);
-  private readonly isEditingNotesSignal = signal(false);
 
   // Public computed signals
-  readonly user = computed(() => this.userSignal());
+  readonly userRole = computed(() => this.userRoleSignal());
   readonly isLoading = computed(() => this.isLoadingSignal());
-  readonly isEditing = computed(() => this.isEditingSignal());
-  readonly isEditingNotes = computed(() => this.isEditingNotesSignal());
 
-  // Avatar data
+  // Avatar data from Firebase
   readonly avatarData = computed((): AvatarData => {
-    const user = this.user();
+    const userRole = this.userRole();
 
-    if (!user) return {};
+    if (!userRole) return {};
 
     return {
-      imageUrl: user.photoURL || undefined,
-      name: user.displayName?.split(' ')[0] || undefined,
-      surname: user.displayName?.split(' ').slice(1).join(' ') || undefined,
-      email: user.email || undefined,
+      imageUrl: userRole.photoURL || undefined,
+      name: userRole.displayName?.split(' ')[0] || undefined,
+      surname: userRole.displayName?.split(' ').slice(1).join(' ') || undefined,
+      email: userRole.email || undefined,
     };
   });
 
-  // Computed properties
+  // Computed properties from Firebase data
   readonly displayName = computed(() => {
-    const user = this.user();
-    return user?.displayName || user?.email?.split('@')[0] || '';
+    const userRole = this.userRole();
+    return userRole?.displayName || userRole?.email?.split('@')[0] || '';
   });
 
-  readonly email = computed(() => this.user()?.email || '');
+  readonly email = computed(() => this.userRole()?.email || '');
 
-  readonly uid = computed(() => this.user()?.uid || '');
+  readonly uid = computed(() => this.userRole()?.uid || '');
 
-  readonly creationDate = computed(() => {
-    const user = this.user();
-    if (user?.metadata?.creationTime) {
-      return new Date(user.metadata.creationTime).toLocaleDateString('ca-ES');
-    }
-    return '';
+  readonly userRoleText = computed(() => {
+    const userRole = this.userRole();
+    if (!userRole) return '';
+
+    return userRole.role === 'admin' ? 'ADMIN.ADMIN_ROLE' : 'ADMIN.CLIENT_ROLE';
   });
 
-  readonly lastSignIn = computed(() => {
-    const user = this.user();
-    if (user?.metadata?.lastSignInTime) {
-      return new Date(user.metadata.lastSignInTime).toLocaleDateString('ca-ES');
-    }
-    return '';
+  readonly language = computed(() => {
+    const userRole = this.userRole();
+    if (!userRole) return '';
+
+    const languageMap: Record<string, string> = {
+      'ca': 'Català',
+      'es': 'Español',
+      'en': 'English'
+    };
+    return languageMap[userRole.lang] || userRole.lang;
   });
 
-  readonly userRole = computed(() => {
-    const role = this.userService.currentRole();
-    if (!role) return '';
+  readonly theme = computed(() => {
+    const userRole = this.userRole();
+    if (!userRole) return '';
 
-    return role.role === 'admin' ? 'ADMIN.ADMIN_ROLE' : 'ADMIN.CLIENT_ROLE';
+    const themeMap: Record<string, string> = {
+      'light': 'COMMON.THEME.LIGHT',
+      'dark': 'COMMON.THEME.DARK'
+    };
+    return themeMap[userRole.theme] || userRole.theme;
   });
 
-  // Notes del client (dades d'exemple)
-  private readonly clientNotesSignal = signal<InfoItemData[]>([
-    {
-      icon: '📝',
-      label: 'PROFILE.PREFERRED_STYLE',
-      value: 'Estil modern i minimalista',
-    },
-    {
-      icon: '💇‍♀️',
-      label: 'PROFILE.HAIR_TYPE',
-      value: 'Cabell fi, tendència a ser sec',
-    },
-    {
-      icon: '🎨',
-      label: 'PROFILE.COLOR_PREFERENCES',
-      value: 'Tons càlids, morens i rossos',
-    },
-    {
-      icon: '⚠️',
-      label: 'PROFILE.ALLERGIES',
-      value: 'Al·lèrgia a productes amb amoníac',
-    },
-    {
-      icon: '💡',
-      label: 'PROFILE.SPECIAL_REQUESTS',
-      value: 'Preferència per tallades asimètriques',
-    },
-  ]);
-
-  readonly clientNotes = computed(() => this.clientNotesSignal());
-
+  // Info items from Firebase data
   readonly infoItems = computed((): InfoItemData[] => {
     const baseItems: InfoItemData[] = [
       {
@@ -127,58 +103,50 @@ export class PerfilPageComponent {
         label: 'PROFILE.EMAIL',
         value: this.email(),
       },
+      {
+        icon: '🆔',
+        label: 'PROFILE.USER_ID',
+        value: this.uid(),
+      },
+      {
+        icon: '👑',
+        label: 'PROFILE.ROLE',
+        value: this.userRoleText(),
+      },
+      {
+        icon: '🌐',
+        label: 'PROFILE.LANGUAGE',
+        value: this.language(),
+      },
+      {
+        icon: '🎨',
+        label: 'PROFILE.THEME',
+        value: this.theme(),
+      },
     ];
-
-    // Only show admin-specific information if user is admin
-    if (this.userService.isAdmin()) {
-      baseItems.push(
-        {
-          icon: '🔑',
-          label: 'ADMIN.ROLE',
-          value: this.userRole(),
-        },
-        {
-          icon: '📅',
-          label: 'PROFILE.CREATION_DATE',
-          value: this.creationDate(),
-        },
-        {
-          icon: '🕒',
-          label: 'PROFILE.LAST_ACCESS',
-          value: this.lastSignIn(),
-        },
-        {
-          icon: '✅',
-          label: 'PROFILE.ACCOUNT_STATUS',
-          value: 'PROFILE.ACTIVE',
-          status: 'active',
-          statusText: 'PROFILE.ACTIVE',
-        }
-      );
-    }
 
     return baseItems;
   });
 
-  // Detail page configuration
+  // Detail page configuration (read-only)
   readonly detailConfig = computed(
     (): DetailViewConfig => ({
       type: 'profile',
       loading: this.isLoading(),
-      notFound: !this.isLoading() && !this.user(),
-      user: this.user(),
+      notFound: !this.isLoading() && !this.userRole(),
+      user: this.userRole() ? {
+        id: this.userRole()!.uid,
+        name: this.userRole()!.displayName || this.userRole()!.email,
+        email: this.userRole()!.email,
+        displayName: this.userRole()!.displayName,
+        photoURL: this.userRole()!.photoURL,
+        isActive: true,
+        createdAt: undefined, // Not available in UserRole
+      } as User & { displayName?: string; photoURL?: string } : undefined,
       infoSections: [
         {
           title: 'PROFILE.PERSONAL_INFO',
           items: this.infoItems(),
-        },
-        {
-          title: 'PROFILE.CLIENT_NOTES',
-          items: this.clientNotes(),
-          isEditing: this.isEditingNotes(),
-          onEdit: () => this.onEditNotes(),
-          onSave: (data: any) => this.onSaveNotes(data),
-          onCancel: () => this.onCancelEditNotes(),
         },
       ],
       actions: this.getActions(),
@@ -211,57 +179,20 @@ export class PerfilPageComponent {
   }
 
   constructor() {
-    // Use the centralized auth service instead of direct Firebase auth
+    // Use the role service to get user data from Firebase
     effect(
       () => {
-        const user = this.authService.user();
-        this.userSignal.set(user);
-        this.isLoadingSignal.set(false);
+        const userRole = this.roleService.userRole();
+        const isLoading = this.roleService.isLoadingRole();
+        this.userRoleSignal.set(userRole);
+        this.isLoadingSignal.set(isLoading);
       }
     );
   }
 
-  // Event handlers for detail page
+  // Event handlers for detail page (read-only)
   goBack() {
     this.router.navigate(['/']);
-  }
-
-  onEditProfile() {
-    this.isEditingSignal.set(true);
-  }
-
-  onSaveProfile(data: any) {
-    this.isEditingSignal.set(false);
-    // Handle save logic here
-  }
-
-  onCancelEdit() {
-    this.isEditingSignal.set(false);
-  }
-
-  onDeleteProfile() {
-    // Handle delete logic here
-  }
-
-  onUpdateForm(data: any) {
-    // Handle form update logic here
-  }
-
-  // Notes editing methods
-  onEditNotes() {
-    this.isEditingNotesSignal.set(true);
-  }
-
-  onSaveNotes(data: any) {
-    // Update the notes with the new data
-    if (data && data.notes) {
-      this.clientNotesSignal.set(data.notes);
-    }
-    this.isEditingNotesSignal.set(false);
-  }
-
-  onCancelEditNotes() {
-    this.isEditingNotesSignal.set(false);
   }
 
   logout() {

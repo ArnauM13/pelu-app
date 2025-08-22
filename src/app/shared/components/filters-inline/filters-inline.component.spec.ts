@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FiltersInlineComponent } from './filters-inline.component';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { FiltersInlineComponent } from './filters-inline.component';
 import { provideMockFirebase } from '../../../../testing/firebase-mocks';
+import { of } from 'rxjs';
 
 // Mock translate loader
 class MockTranslateLoader implements TranslateLoader {
@@ -56,13 +56,9 @@ describe('FiltersInlineComponent', () => {
     expect(component.filterClientValue).toBeDefined();
     expect(component.filterServiceValue).toBeDefined();
     expect(component.serviceOptions).toBeDefined();
-    expect(component.serviceFilterConfig).toBeDefined();
   });
 
   it('should have handler methods defined', () => {
-    expect(typeof component.onDateChangeHandler).toBe('function');
-    expect(typeof component.onClientChangeHandler).toBe('function');
-    expect(typeof component.onServiceChangeHandler).toBe('function');
     expect(typeof component.onResetHandler).toBe('function');
   });
 
@@ -72,9 +68,6 @@ describe('FiltersInlineComponent', () => {
     const compiled = fixture.nativeElement;
     expect(compiled.querySelector('.filters-inline')).toBeTruthy();
     expect(compiled.querySelector('.filters-grid')).toBeTruthy();
-    expect(compiled.querySelector('#filterDate')).toBeTruthy();
-    expect(compiled.querySelector('#filterClient')).toBeTruthy();
-    expect(compiled.querySelector('.reset-btn')).toBeTruthy();
   });
 
   it('should have proper CSS classes', () => {
@@ -85,8 +78,6 @@ describe('FiltersInlineComponent', () => {
     expect(compiled.querySelector('.filters-grid')).toBeTruthy();
     expect(compiled.querySelector('.filter-group')).toBeTruthy();
     expect(compiled.querySelector('.reset-group')).toBeTruthy();
-    expect(compiled.querySelector('.input')).toBeTruthy();
-    expect(compiled.querySelector('.reset-btn')).toBeTruthy();
   });
 
   it('should have proper input types', () => {

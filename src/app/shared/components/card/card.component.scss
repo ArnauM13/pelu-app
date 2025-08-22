@@ -4,7 +4,6 @@
   border-radius: 12px;
   box-shadow: var(--box-shadow);
   padding: 1.5rem;
-  margin-bottom: 1rem;
 }
 
 .pelu-card:hover {
@@ -21,4 +20,10 @@
 
 .pelu-card.no-margin {
   margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .pelu-card {
+    padding: 1rem;
+  }
 }

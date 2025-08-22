@@ -8,7 +8,11 @@ import { RoleService } from './role.service';
  */
 export interface SystemParameters {
   // Informació del negoci
-  businessName: string;
+  businessInfo: {
+    name: string;
+    address: string;
+    phone: string;
+  };
   businessHours: {
     start: number;
     end: number;
@@ -39,7 +43,11 @@ export interface SystemParameters {
  * Segueix el principi de Open/Closed (OCP)
  */
 const DEFAULT_PARAMETERS: SystemParameters = {
-  businessName: 'PeluApp',
+  businessInfo: {
+    name: 'PeluApp',
+    address: '',
+    phone: '',
+  },
   businessHours: {
     start: 8,
     end: 20,
@@ -89,7 +97,10 @@ export class SystemParametersService {
   readonly lastSync = computed(() => this.lastSyncSignal());
 
   // Computed signals per paràmetres específics (Interface Segregation)
-  readonly businessName = computed(() => this.parameters().businessName);
+  readonly businessInfo = computed(() => this.parameters().businessInfo);
+  readonly businessName = computed(() => this.parameters().businessInfo.name);
+  readonly businessAddress = computed(() => this.parameters().businessInfo.address);
+  readonly businessPhone = computed(() => this.parameters().businessInfo.phone);
   readonly businessHours = computed(() => this.parameters().businessHours);
   readonly workingDays = computed(() => this.parameters().workingDays);
   readonly appointmentDuration = computed(() => this.parameters().appointmentDuration);
@@ -231,18 +242,25 @@ export class SystemParametersService {
     });
   }
 
-  /**
-   * Restaura els paràmetres als valors per defecte
-   */
-  async resetToDefaults(): Promise<void> {
-    await this.saveParameters(DEFAULT_PARAMETERS);
-  }
+
 
 
 
   // Mètodes de conveniència per accés directe
+  getBusinessInfo() {
+    return this.businessInfo();
+  }
+
   getBusinessName(): string {
     return this.businessName();
+  }
+
+  getBusinessAddress(): string {
+    return this.businessAddress();
+  }
+
+  getBusinessPhone(): string {
+    return this.businessPhone();
   }
 
   getBusinessHours() {

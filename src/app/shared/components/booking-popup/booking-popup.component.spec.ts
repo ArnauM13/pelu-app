@@ -9,6 +9,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { ServiceTranslationService } from '../../../core/services/service-translation.service';
 import { ConfirmationService } from 'primeng/api';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { IdTokenResult } from '@firebase/auth';
 
 // Mock TranslateLoader
 class MockTranslateLoader implements TranslateLoader {
@@ -30,11 +31,11 @@ describe('BookingPopupComponent', () => {
   beforeEach(async () => {
     const translateSpy = {
       instant: (key: string) => key,
-      get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+      get: (key: string) => ({ subscribe: (fn: (value: string) => void) => fn(key) }),
       addLangs: () => {},
       getBrowserLang: () => 'ca',
-      use: () => ({ subscribe: (fn: any) => fn({}) }),
-      reloadLang: () => ({ subscribe: (fn: any) => fn({}) }),
+      use: () => ({ subscribe: (fn: (value: unknown) => void) => fn({}) }),
+      reloadLang: () => ({ subscribe: (fn: (value: unknown) => void) => fn({}) }),
       setDefaultLang: () => {},
       getDefaultLang: () => 'ca',
       getLangs: () => ['ca', 'es', 'en', 'ar'],
@@ -70,13 +71,13 @@ describe('BookingPopupComponent', () => {
 
     fixture = TestBed.createComponent(BookingPopupComponent);
     component = fixture.componentInstance;
-    translateService = TestBed.inject(TranslateService) as any;
+    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
     servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
     serviceTranslationService = TestBed.inject(ServiceTranslationService) as jasmine.SpyObj<ServiceTranslationService>;
-    
+
     // Setup ServiceTranslationService mock
     serviceTranslationSpy.getServiceName.and.returnValue('Test Service');
     serviceTranslationSpy.translateServiceName.and.returnValue('Test Service');
@@ -95,7 +96,7 @@ describe('BookingPopupComponent', () => {
       tenantId: null,
       delete: () => Promise.resolve(),
       getIdToken: () => Promise.resolve(''),
-      getIdTokenResult: () => Promise.resolve({} as any),
+      getIdTokenResult: () => Promise.resolve({} as IdTokenResult),
       reload: () => Promise.resolve(),
       toJSON: () => ({}),
       displayName: null,
@@ -191,8 +192,8 @@ describe('BookingPopupComponent', () => {
     });
 
     it('should have onBackdropClick method that can be called', () => {
-      const mockEvent = { target: { classList: { contains: () => true } } };
-      expect(() => component.onBackdropClick(mockEvent as any)).not.toThrow();
+      const mockEvent = { target: { classList: { contains: () => true } } } as unknown as Event;
+      expect(() => component.onBackdropClick(mockEvent)).not.toThrow();
     });
   });
 

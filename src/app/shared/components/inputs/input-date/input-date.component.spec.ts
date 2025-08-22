@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -89,8 +89,9 @@ class TestWrapperComponent {
   maxDate = signal<Date | null>(null);
   preventPastMonths = signal(false);
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
+  constructor() {
+    const fb = inject(FormBuilder);
+    this.form = fb.group({
       dateField: [null, this.required() ? Validators.required : null]
     });
   }

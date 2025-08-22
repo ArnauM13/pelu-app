@@ -30,7 +30,7 @@ export class LogoutButtonComponent {
 
     try {
       await this.authService.logout();
-    } catch (error) {
+    } catch {
       // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);

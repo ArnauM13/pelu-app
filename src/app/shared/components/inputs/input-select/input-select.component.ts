@@ -37,6 +37,7 @@ export interface InputSelectConfig {
 
 @Component({
   selector: 'pelu-input-select',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule, MultiSelectModule],
   templateUrl: './input-select.component.html',
   styleUrls: ['./input-select.component.scss'],

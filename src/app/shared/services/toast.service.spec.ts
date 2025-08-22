@@ -9,10 +9,10 @@ import { LoggerService } from './logger.service';
 describe('ToastService', () => {
   let service: ToastService;
   let messageService: jasmine.SpyObj<MessageService>;
-  let router: jasmine.SpyObj<Router>;
-  let authService: jasmine.SpyObj<AuthService>;
-  let translateService: jasmine.SpyObj<TranslateService>;
-  let loggerService: jasmine.SpyObj<LoggerService>;
+  let _router: jasmine.SpyObj<Router>;
+  let _authService: jasmine.SpyObj<AuthService>;
+  let _translateService: jasmine.SpyObj<TranslateService>;
+  let _loggerService: jasmine.SpyObj<LoggerService>;
 
   beforeEach(() => {
     const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add', 'clear']);
@@ -52,10 +52,10 @@ describe('ToastService', () => {
 
     service = TestBed.inject(ToastService);
     messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-    loggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
+    _router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    _authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    _translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    _loggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
   });
 
   it('should be created', () => {

@@ -20,6 +20,13 @@
     "NO_APPOINTMENTS_MESSAGE": "Para esta fecha no tienes citas programadas. Puedes seleccionar otra fecha o añadir nuevas citas.",
     "CLICK_TO_VIEW": "Clic para ver",
     "DELETE_CONFIRMATION": "Eliminar cita",
+    "BULK_DELETE_CONFIRMATION": "Eliminar citas seleccionadas",
+    "SELECT_APPOINTMENTS": "Seleccionar citas",
+    "CANCEL_SELECTION": "Cancelar selección",
+    "SELECT_ALL": "Seleccionar todas",
+    "DESELECT_ALL": "Deseleccionar todas",
+    "DELETE_SELECTED": "Eliminar seleccionadas",
+    "SELECTED": "seleccionadas",
     "NO_APPOINTMENTS": "No hay citas",
     "NO_APPOINTMENTS_FILTERED": "No se encontraron citas con los filtros aplicados.",
     "NO_APPOINTMENTS_SCHEDULED": "Aún no tienes citas programadas.",
@@ -78,6 +85,10 @@
       "AT_TIME": "A las",
       "APPOINTMENT_TITLE": "{{nom}} - {{data}} a las {{hora}}"
     },
+    "THEME": {
+      "LIGHT": "Claro",
+      "DARK": "Oscuro"
+    },
     "SELECTION": {
       "NO_SELECTION": "Sin selección",
       "SELECTED": "Seleccionado",
@@ -95,6 +106,13 @@
     "OTHER_SERVICES": "Otros servicios",
     "RECENTLY_BOOKED": "Reservados Recientemente",
     "NO_SERVICES_AVAILABLE": "No hay servicios disponibles",
+    "CALENDAR": {
+      "EVENT_DESCRIPTION": "Reserva de {{serviceName}} para {{clientName}}",
+      "ADD_TO_CALENDAR": "Añadir al calendario",
+      "CALENDAR_EVENT": "Evento del calendario",
+      "EVENT_ADDED_SUCCESS": "Evento añadido al calendario correctamente",
+      "EVENT_ADDED_ERROR": "Error al añadir el evento al calendario"
+    },
     "NO_BOOKABLE_SERVICES_AVAILABLE": "No hay servicios disponibles para este horario",
     "TIME_SLOT_CONFLICT": "No hay espacio disponible para este horario",
     "AVAILABLE_SERVICES_FOR_TIME": "Servicios disponibles para la hora seleccionada"
@@ -125,8 +143,16 @@
     "CALENDAR_VIEW": "Vista de calendario",
     "CALENDAR_VIEW_LABEL": "Visualiza las citas en formato calendario",
     "FILTERS": {
-      "FILTERS": "Filtros",
-      "OPEN_FILTERS": "Abrir filtros",
+      "TITLE": "Filtros",
+      "ACTIVE_FILTERS": "Filtros activos",
+      "EXPAND": "Expandir filtros",
+      "COLLAPSE": "Colapsar filtros",
+              "FILTERS": "Filtros",
+        "OPEN_FILTERS": "Abrir filtros",
+        "DATE_FILTER": "Filtro por fecha",
+        "CLIENT_FILTER": "Filtro por cliente",
+        "SERVICE_FILTER": "Filtro por servicio",
+        "REMOVE_FILTER": "Eliminar filtro",
       "CLEAR_FILTERS_BUTTON": "Limpiar filtros",
       "ADVANCED": "Avanzado",
       "ADVANCED_FILTERS": "Filtros avanzados",
@@ -289,8 +315,11 @@
     "TOTAL_APPOINTMENTS": "Total Citas",
     "TODAY_APPOINTMENTS": "Citas hoy",
     "UPCOMING_APPOINTMENTS": "Próximas Citas",
+    "PAST_APPOINTMENTS": "Citas Pasadas",
     "MY_APPOINTMENTS": "Mis Citas",
     "NEW_APPOINTMENT": "Nueva cita",
+    "EXPAND": "Expandir",
+    "COLLAPSE": "Contraer",
     "APPOINTMENT_DETAILS": "Detalles de la cita",
     "APPOINTMENT_DETAIL": "Detalle de la cita",
     "STATUS": "Estado",
@@ -346,10 +375,15 @@
     "EDIT_APPOINTMENT_DETAILS": "Editar detalles de la cita",
     "UPDATE_SUCCESS": "Cita actualizada correctamente",
     "DELETE_SUCCESS": "Cita eliminada correctamente",
+    "BULK_DELETE_SUCCESS": "Citas eliminadas correctamente",
+    "BULK_DELETE_ERROR": "Error al eliminar las citas",
     "DELETE_ERROR": "Error al eliminar la cita",
-    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "¿Estás seguro de que quieres eliminar esta cita? Esta acción no se puede deshacer."
+    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "¿Estás seguro de que quieres eliminar esta cita? Esta acción no se puede deshacer.",
+    "BULK_DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar las citas seleccionadas? Esta acción no se puede deshacer."
   },
   "BOOKING": {
+    "TITLE": "Reservar",
+    "SUBTITLE": "Selecciona el servicio y la fecha que mejor te convenga",
     "SELECT_SERVICE": "Nueva reserva",
     "SELECT_DATE": "Seleccionar fecha",
     "SELECT_DATE_PLACEHOLDER": "Selecciona una fecha",
@@ -434,6 +468,8 @@
     "USERNAME": "Nombre de usuario",
     "EMAIL": "Correo electrónico",
     "USER_ID": "ID de usuario",
+    "LANGUAGE": "Idioma",
+    "THEME": "Tema",
     "CREATION_DATE": "Fecha de creación",
     "LAST_ACCESS": "Último acceso",
     "ACCOUNT_STATUS": "Estado de la cuenta",
@@ -481,12 +517,15 @@
       "EDIT_MODE": "Modo edición",
       "BUSINESS_INFO": "Información del negocio",
       "BUSINESS_NAME": "Nombre del negocio",
+      "BUSINESS_ADDRESS": "Dirección del negocio",
+      "BUSINESS_PHONE": "Teléfono del negocio",
       "BUSINESS_HOURS": "Horario comercial",
       "BUSINESS_HOURS_START": "Hora de inicio",
       "BUSINESS_HOURS_END": "Hora de cierre",
       "LUNCH_BREAK": "Pausa para comer",
       "LUNCH_BREAK_START": "Inicio pausa para comer",
       "LUNCH_BREAK_END": "Fin pausa para comer",
+      "SCHEDULE_HOURS": "Horarios y Días",
       "WORKING_DAYS": "Días laborables",
       "WORKING_DAYS_PLACEHOLDER": "Selecciona los días laborables",
       "APPOINTMENT_SETTINGS": "Configuración de reservas",
@@ -498,6 +537,7 @@
       "PREVENT_CANCELLATION": "No permitir cancelación",
       "CANCELLATION_TIME_LIMIT": "Tiempo límite para cancelar",
       "CANCELLATION_TIME_LIMIT_HELP": "Tiempo en horas antes de la reserva que se puede cancelar",
+      "SYSTEM_BOOKING": "Sistema y Reserva",
       "BOOKING_SYSTEM_SETTINGS": "Configuración de reservas y sistema",
       "BOOKING_ADVANCE_DAYS": "Días de margen para reservar",
       "BOOKING_ADVANCE_DAYS_HELP": "Días de antelación con los que se puede hacer una reserva",
@@ -507,7 +547,7 @@
       "CURRENCY": "Moneda",
       "CURRENCY_HELP": "La moneda se aplicará a todos los precios de la aplicación",
       "SAVE_SETTINGS": "Guardar configuración",
-      "RESET_DEFAULTS": "Restaurar por defecto",
+
       "LOADING": "Cargando configuración..."
     }
 

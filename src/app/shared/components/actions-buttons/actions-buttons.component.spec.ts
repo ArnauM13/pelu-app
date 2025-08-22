@@ -33,7 +33,7 @@ describe('ActionsButtonsComponent', () => {
       serviceId: 'service-1',
       status: 'confirmed',
       createdAt: new Date(),
-    } as any,
+    },
   };
 
   beforeEach(async () => {
@@ -45,7 +45,7 @@ describe('ActionsButtonsComponent', () => {
     // Safe TranslateService stub following established pattern
     const translateServiceStub = {
       instant: (key: string) => key,
-      get: (key: string) => ({ subscribe: (fn: any) => fn(key) }),
+      get: (key: string) => ({ subscribe: (fn: (value: string) => void) => fn(key) }),
       onTranslationChange: { subscribe: () => ({ unsubscribe: () => {} }) },
       onDefaultLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
       onLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
@@ -66,8 +66,8 @@ describe('ActionsButtonsComponent', () => {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
-            set: (key: string, value: any) => {},
-            has: (key: string) => true,
+            set: () => {},
+            has: () => true,
           },
         },
       ],
@@ -118,12 +118,12 @@ describe('ActionsButtonsComponent', () => {
     });
 
     it('should handle service errors gracefully', () => {
-      const errorSpy = spyOn(console, 'error');
+      spyOn(console, 'error');
       (actionsService.getActions as jasmine.Spy).and.throwError('Service error');
-      
+
       expect(() => {
         component.context = mockContext;
-        component.actions;
+        expect(component.actions).toBeDefined();
       }).not.toThrow();
     });
   });
@@ -151,10 +151,10 @@ describe('ActionsButtonsComponent', () => {
         { ...mockActionConfig, id: 'action2', label: 'Action 2' },
       ];
       (actionsService.getActions as jasmine.Spy).and.returnValue(multipleActions);
-      
+
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.actions.length).toBe(2);
     });
   });
@@ -163,40 +163,40 @@ describe('ActionsButtonsComponent', () => {
     it('should apply success button class', () => {
       const successAction = { ...mockActionConfig, type: 'success' };
       (actionsService.getActions as jasmine.Spy).and.returnValue([successAction]);
-      
+
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.actions[0].type).toBe('success');
     });
 
     it('should apply primary button class', () => {
       const primaryAction = { ...mockActionConfig, type: 'primary' };
       (actionsService.getActions as jasmine.Spy).and.returnValue([primaryAction]);
-      
+
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.actions[0].type).toBe('primary');
     });
 
     it('should apply secondary button class', () => {
       const secondaryAction = { ...mockActionConfig, type: 'secondary' };
       (actionsService.getActions as jasmine.Spy).and.returnValue([secondaryAction]);
-      
+
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.actions[0].type).toBe('secondary');
     });
 
     it('should apply danger button class', () => {
       const dangerAction = { ...mockActionConfig, type: 'danger' };
       (actionsService.getActions as jasmine.Spy).and.returnValue([dangerAction]);
-      
+
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.actions[0].type).toBe('danger');
     });
   });
@@ -245,10 +245,10 @@ describe('ActionsButtonsComponent', () => {
     it('should disable button when action is disabled', () => {
       const disabledAction = { ...mockActionConfig, disabled: true };
       (actionsService.getActions as jasmine.Spy).and.returnValue([disabledAction]);
-      
+
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.actions[0].disabled).toBe(true);
     });
   });
@@ -257,7 +257,7 @@ describe('ActionsButtonsComponent', () => {
     it('should handle button click events', () => {
       component.context = mockContext;
       fixture.detectChanges();
-      
+
       expect(component.onActionClick).toBeDefined();
       expect(typeof component.onActionClick).toBe('function');
     });
