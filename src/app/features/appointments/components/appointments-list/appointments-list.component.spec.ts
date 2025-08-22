@@ -12,9 +12,14 @@ import { provideMockFirebase } from '../../../../../testing/firebase-mocks';
     <pelu-appointments-list
       [bookings]="bookings()"
       [hasActiveFilters]="hasActiveFilters()"
+      [isSelectionMode]="isSelectionMode()"
+      [selectedIds]="selectedIds()"
+      [isAdmin]="isAdmin()"
       (viewBooking)="onViewBooking($event)"
       (deleteBooking)="onDeleteBooking($event)"
       (clearFilters)="onClearFilters()"
+      (toggleSelection)="onToggleSelection($event)"
+      (bulkDelete)="onBulkDelete($event)"
     >
     </pelu-appointments-list>
   `,
@@ -23,10 +28,15 @@ import { provideMockFirebase } from '../../../../../testing/firebase-mocks';
 class TestWrapperComponent {
   bookings = signal<Booking[]>([]);
   hasActiveFilters = signal(false);
+  isSelectionMode = signal(false);
+  selectedIds = signal<Set<string>>(new Set());
+  isAdmin = signal(false);
 
   onViewBooking(_booking: unknown) {}
   onDeleteBooking(_booking: unknown) {}
   onClearFilters() {}
+  onToggleSelection(_id: string) {}
+  onBulkDelete(_ids: string[]) {}
 }
 
 describe('AppointmentsListComponent', () => {
@@ -69,15 +79,15 @@ describe('AppointmentsListComponent', () => {
   it('should have required input signals', () => {
     expect(component.bookings).toBeDefined();
     expect(component.hasActiveFilters).toBeDefined();
+    expect(component.isSelectionMode).toBeDefined();
+    expect(component.selectedIds).toBeDefined();
+    expect(component.isAdmin).toBeDefined();
   });
 
   it('should have output signals', () => {
     expect(component.viewBooking).toBeDefined();
     expect(component.deleteBooking).toBeDefined();
     expect(component.clearFilters).toBeDefined();
-  });
-
-  it('should have selection-related outputs', () => {
     expect(component.toggleSelection).toBeDefined();
     expect(component.bulkDelete).toBeDefined();
   });
@@ -297,33 +307,103 @@ describe('AppointmentsListComponent', () => {
 
       expect(component.bookings()).toEqual(mockBookings);
     });
+
+    it('should handle selection mode with bookings', () => {
+      const mockBookings: Booking[] = [
+        {
+          id: '1',
+          clientName: 'John Doe',
+          email: 'john@example.com',
+          data: '2024-01-15',
+          hora: '10:00',
+          serviceId: '1',
+          status: 'confirmed',
+          createdAt: new Date()
+        },
+        {
+          id: '2',
+          clientName: 'Jane Smith',
+          email: 'jane@example.com',
+          data: '2024-01-16',
+          hora: '14:00',
+          serviceId: '2',
+          status: 'confirmed',
+          createdAt: new Date()
+        }
+      ];
+
+      const wrapperComponent = fixture.componentInstance;
+      wrapperComponent.bookings.set(mockBookings);
+      wrapperComponent.isSelectionMode.set(true);
+      wrapperComponent.selectedIds.set(new Set(['1']));
+      fixture.detectChanges();
+
+      expect(component.bookings()).toEqual(mockBookings);
+      expect(component.isSelectionMode()).toBe(true);
+      expect(component.selectedIds().has('1')).toBe(true);
+      expect(component.selectedIds().has('2')).toBe(false);
+    });
+
+    it('should handle admin mode with selection', () => {
+      const wrapperComponent = fixture.componentInstance;
+
+      wrapperComponent.isAdmin.set(true);
+      wrapperComponent.isSelectionMode.set(true);
+      fixture.detectChanges();
+
+      expect(component.isAdmin()).toBe(true);
+      expect(component.isSelectionMode()).toBe(true);
+    });
   });
 
   describe('Selection functionality', () => {
-    it('should have selection mode input', () => {
-      expect(component.isSelectionMode).toBeDefined();
-    });
-
-    it('should have selected IDs input', () => {
-      expect(component.selectedIds).toBeDefined();
-    });
-
-    it('should have admin input', () => {
-      expect(component.isAdmin).toBeDefined();
-    });
-
     it('should handle selection mode changes', () => {
-      // Test that the component can handle selection mode changes
-      expect(component.isSelectionMode).toBeDefined();
+      const wrapperComponent = fixture.componentInstance;
+
+      // Test selection mode off
+      wrapperComponent.isSelectionMode.set(false);
+      fixture.detectChanges();
+      expect(component.isSelectionMode()).toBe(false);
+
+      // Test selection mode on
+      wrapperComponent.isSelectionMode.set(true);
+      fixture.detectChanges();
+      expect(component.isSelectionMode()).toBe(true);
     });
 
     it('should handle selected IDs changes', () => {
-      // Test that the component can handle selected IDs changes
-      expect(component.selectedIds).toBeDefined();
+      const wrapperComponent = fixture.componentInstance;
+
+      // Test empty selection
+      wrapperComponent.selectedIds.set(new Set());
+      fixture.detectChanges();
+      expect(component.selectedIds().size).toBe(0);
+
+      // Test with selected IDs
+      const selectedSet = new Set(['1', '2']);
+      wrapperComponent.selectedIds.set(selectedSet);
+      fixture.detectChanges();
+      expect(component.selectedIds().size).toBe(2);
+      expect(component.selectedIds().has('1')).toBe(true);
+      expect(component.selectedIds().has('2')).toBe(true);
+    });
+
+    it('should handle admin mode changes', () => {
+      const wrapperComponent = fixture.componentInstance;
+
+      // Test admin mode off
+      wrapperComponent.isAdmin.set(false);
+      fixture.detectChanges();
+      expect(component.isAdmin()).toBe(false);
+
+      // Test admin mode on
+      wrapperComponent.isAdmin.set(true);
+      fixture.detectChanges();
+      expect(component.isAdmin()).toBe(true);
     });
   });
 
-  describe('Filter integration', () => {
+    describe('Filter integration', () => {
     it('should properly handle active filters state', () => {
       const wrapperComponent = fixture.componentInstance;
 
@@ -352,6 +432,33 @@ describe('AppointmentsListComponent', () => {
       fixture.detectChanges();
       config = component.notFoundConfig;
       expect(config.message).toBe('COMMON.NO_APPOINTMENTS_FILTERED');
+    });
+
+    it('should handle empty state with clear filters button when filters are active', () => {
+      const wrapperComponent = fixture.componentInstance;
+
+      // Set up empty bookings with active filters
+      wrapperComponent.bookings.set([]);
+      wrapperComponent.hasActiveFilters.set(true);
+      fixture.detectChanges();
+
+      const config = component.notFoundConfig;
+      expect(config.showButton).toBe(true);
+      expect(config.buttonText).toBe('COMMON.CLEAR_FILTERS_BUTTON');
+      expect(config.message).toBe('COMMON.NO_APPOINTMENTS_FILTERED');
+    });
+
+    it('should handle empty state without clear filters button when no filters are active', () => {
+      const wrapperComponent = fixture.componentInstance;
+
+      // Set up empty bookings with no active filters
+      wrapperComponent.bookings.set([]);
+      wrapperComponent.hasActiveFilters.set(false);
+      fixture.detectChanges();
+
+      const config = component.notFoundConfig;
+      expect(config.showButton).toBe(false);
+      expect(config.message).toBe('COMMON.NO_APPOINTMENTS_SCHEDULED');
     });
   });
 });
