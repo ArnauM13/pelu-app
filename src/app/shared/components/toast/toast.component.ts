@@ -256,9 +256,10 @@ export class ToastComponent {
     this.messageService.clear();
   }
 
-  onToastClick(event: any) {
-    const appointmentId = event.message?.data?.appointmentId;
-    const action = event.message?.data?.action;
+  onToastClick(event: unknown) {
+    const eventData = event as { message?: { data?: { appointmentId?: string; action?: () => void } } };
+    const appointmentId = eventData.message?.data?.appointmentId;
+    const action = eventData.message?.data?.action;
 
     if (action && typeof action === 'function') {
       this.executeAction(action);

@@ -358,9 +358,11 @@ export class DetailViewComponent {
     if (appointment) {
       this.save.emit({
         clientName: appointment.clientName || '',
+        email: appointment.email || '',
         data: appointment.data || '',
         hora: appointment.hora || '',
-        notes: appointment.notes || ''
+        notes: appointment.notes || '',
+        serviceId: appointment.serviceId || ''
       });
     }
   }

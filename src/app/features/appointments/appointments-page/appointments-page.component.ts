@@ -7,10 +7,9 @@ import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AppointmentsListComponent } from '../../appointments/components/appointments-list/appointments-list.component';
-import { AppointmentsStatsComponent } from '../../appointments/components/appointments-stats/appointments-stats.component';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
-import { FiltersInlineComponent } from '../../../shared/components/filters-inline/filters-inline.component';
+import { FiltersCollapsibleComponent } from '../../../shared/components/filters-collapsible/filters-collapsible.component';
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -34,12 +33,14 @@ interface FilterState {
   status: string | null;
   service: string | null;
   client: string | null;
+  quickFilters: Set<'today' | 'upcoming' | 'past' | 'mine'>;
 }
 
 interface AppointmentStats {
   total: number;
   today: number;
   upcoming: number;
+  past: number;
   completed: number;
   cancelled: number;
   mine: number;
@@ -56,10 +57,9 @@ interface AppointmentStats {
     DatePickerModule,
     TranslateModule,
     AppointmentsListComponent,
-    AppointmentsStatsComponent,
     LoadingStateComponent,
     NextAppointmentComponent,
-    FiltersInlineComponent,
+    FiltersCollapsibleComponent,
     ConfirmationPopupComponent,
   ],
   templateUrl: './appointments-page.component.html',
@@ -85,6 +85,7 @@ export class AppointmentsPageComponent {
     status: null,
     service: null,
     client: null,
+    quickFilters: new Set(),
   });
 
   // View state
@@ -93,10 +94,16 @@ export class AppointmentsPageComponent {
     selectedDate: null as Date | null,
   });
 
+  // Selection state
+  private readonly selectionStateSignal = signal({
+    isSelectionMode: false,
+    selectedIds: new Set<string>(),
+  });
+
   // Confirmation popup state
   private readonly confirmationPopupSignal = signal({
     isOpen: false,
-    data: null as (ConfirmationData & { booking?: Booking }) | null,
+    data: null as (ConfirmationData & { booking?: Booking; selectedIds?: string[] }) | null,
   });
 
   // Computed properties
@@ -105,11 +112,37 @@ export class AppointmentsPageComponent {
   readonly viewMode = computed(() => this.viewState().mode);
   readonly selectedDate = computed(() => this.viewState().selectedDate);
   readonly confirmationPopup = computed(() => this.confirmationPopupSignal());
+  readonly selectionState = computed(() => this.selectionStateSignal());
+
+  // Selection computed properties
+  readonly isSelectionMode = computed(() => this.selectionState().isSelectionMode);
+  readonly selectedIds = computed(() => this.selectionState().selectedIds);
+  readonly selectedCount = computed(() => this.selectedIds().size);
+  readonly hasSelection = computed(() => this.selectedCount() > 0);
+  readonly isAllSelected = computed(() => {
+    const currentAppointments = this.listAppointments();
+    return currentAppointments.length > 0 && this.selectedCount() === currentAppointments.length;
+  });
+  readonly isPartiallySelected = computed(() => {
+    const currentAppointments = this.listAppointments();
+    return this.selectedCount() > 0 && this.selectedCount() < currentAppointments.length;
+  });
 
   // Filter signals for template
-  readonly filterDate = computed(() => this.filterState().date?.toISOString().split('T')[0] || '');
+  readonly filterDate = computed(() => {
+    const date = this.filterState().date;
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      return '';
+    }
+    return date.toISOString().split('T')[0];
+  });
   readonly filterClient = computed(() => this.filterState().client || '');
   readonly filterService = computed(() => this.filterState().service || '');
+  readonly quickFilterString = computed(() => {
+    const quickFilters = this.filterState().quickFilters;
+    if (quickFilters.size === 0) return 'all';
+    return Array.from(quickFilters).join(',');
+  });
 
   readonly filterStatus = computed(() => this.filterState().status || '');
 
@@ -139,6 +172,8 @@ export class AppointmentsPageComponent {
     appointments = this.applyDateFilter(appointments);
     appointments = this.applyStatusFilter(appointments);
     appointments = this.applyServiceFilter(appointments);
+    appointments = this.applyClientFilter(appointments);
+    appointments = this.applyQuickFilter(appointments);
     return this.sortAppointmentsByDateTime(appointments);
   });
 
@@ -151,11 +186,11 @@ export class AppointmentsPageComponent {
   );
 
   // List view data depending on role
-  readonly listAppointments = computed(() =>
-    this.isAdmin()
+  readonly listAppointments = computed(() => {
+    return this.isAdmin()
       ? this.filteredAppointments()
-      : this.sortAppointmentsByDateTime(this.userAppointments())
-  );
+      : this.sortAppointmentsByDateTime(this.userAppointments());
+  });
 
   // Calendar events
   readonly calendarEvents = computed((): AppointmentEvent[] => {
@@ -206,12 +241,31 @@ export class AppointmentsPageComponent {
     return {
       total: appointments.length,
       today: appointments.filter(app => app.data === today).length,
-      upcoming: appointments.filter(app => {
-        if (!app.data || typeof app.data !== 'string') return false;
+      upcoming: appointments.filter(appointment => {
+        if (!appointment.data || typeof appointment.data !== 'string') return false;
         try {
-          const appointmentDate = parseISO(app.data);
-          return isFuture(appointmentDate);
-        } catch (_error) {
+          const appointmentDate = new Date(appointment.data);
+          const appointmentTime = appointment.hora || '00:00';
+          const [hours, minutes] = appointmentTime.split(':').map(Number);
+          appointmentDate.setHours(hours, minutes, 0, 0);
+
+          const now = new Date();
+          return appointmentDate > now;
+        } catch {
+          return false;
+        }
+      }).length,
+      past: appointments.filter(appointment => {
+        if (!appointment.data || typeof appointment.data !== 'string') return false;
+        try {
+          const appointmentDate = new Date(appointment.data);
+          const appointmentTime = appointment.hora || '00:00';
+          const [hours, minutes] = appointmentTime.split(':').map(Number);
+          appointmentDate.setHours(hours, minutes, 0, 0);
+
+          const now = new Date();
+          return appointmentDate < now;
+        } catch {
           return false;
         }
       }).length,
@@ -224,21 +278,35 @@ export class AppointmentsPageComponent {
   // Check if there are active filters
   readonly hasActiveFilters = computed(() => {
     const state = this.filterState();
-    return state.date !== null || state.status !== null || state.service !== null;
+    return state.date !== null || state.status !== null || state.service !== null || state.quickFilters.size > 0;
   });
 
   // Filter methods
   readonly setFilterDate = (value: string | Date) => {
-    const date = typeof value === 'string' ? new Date(value) : value;
-    this.filterStateSignal.update(state => ({ ...state, date }));
+    let date: Date | null = null;
+
+    if (typeof value === 'string') {
+      if (value.trim() === '') {
+        date = null;
+      } else {
+        const parsedDate = new Date(value);
+        date = isNaN(parsedDate.getTime()) ? null : parsedDate;
+      }
+    } else if (value instanceof Date) {
+      date = isNaN(value.getTime()) ? null : value;
+    }
+
+    this.filterStateSignal.update(state => ({ ...state, date, quickFilters: new Set() }));
   };
 
   readonly setFilterStatus = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, status: value }));
+    const status = value.trim() === '' ? null : value;
+    this.filterStateSignal.update(state => ({ ...state, status, quickFilters: new Set() }));
   };
 
   readonly setFilterService = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, service: value }));
+    const service = value.trim() === '' ? null : value;
+    this.filterStateSignal.update(state => ({ ...state, service, quickFilters: new Set() }));
   };
 
   readonly setViewMode = (mode: 'list' | 'calendar' | Event) => {
@@ -247,17 +315,40 @@ export class AppointmentsPageComponent {
     this.viewStateSignal.update(state => ({ ...state, mode: viewMode as 'list' | 'calendar' }));
   };
 
-  readonly setQuickFilter = (filter: string) => {
-    // Implementation for quick filter
-    console.log('Quick filter:', filter);
+  readonly setQuickFilter = (filter: 'all' | 'today' | 'upcoming' | 'past' | 'mine') => {
+    this.filterStateSignal.update(state => {
+      if (filter === 'all') {
+        return {
+          ...state,
+          quickFilters: new Set(),
+          date: null,
+          status: null,
+          service: null,
+          client: null
+        };
+      }
+
+      const newQuickFilters = new Set(state.quickFilters);
+      if (newQuickFilters.has(filter)) {
+        newQuickFilters.delete(filter);
+      } else {
+        newQuickFilters.add(filter);
+      }
+
+      return {
+        ...state,
+        quickFilters: newQuickFilters
+      };
+    });
   };
 
   readonly setFilterClient = (value: string) => {
-    this.filterStateSignal.update(state => ({ ...state, client: value }));
+    const client = value.trim() === '' ? null : value;
+    this.filterStateSignal.update(state => ({ ...state, client, quickFilters: new Set() }));
   };
 
   readonly clearAllFilters = () => {
-    this.filterStateSignal.set({ date: null, status: null, service: null, client: null });
+    this.filterStateSignal.set({ date: null, status: null, service: null, client: null, quickFilters: new Set() });
   };
 
   // Filter methods
@@ -276,7 +367,70 @@ export class AppointmentsPageComponent {
   private applyServiceFilter(appointments: Booking[]): Booking[] {
     const filterService = this.filterService();
     if (!filterService) return appointments;
-    return appointments.filter(appointment => appointment.data === filterService);
+    return appointments.filter(appointment => appointment.serviceId === filterService);
+  }
+
+  private applyClientFilter(appointments: Booking[]): Booking[] {
+    const filterClient = this.filterClient();
+    if (!filterClient) return appointments;
+    const lowerFilter = filterClient.toLowerCase();
+    return appointments.filter(appointment =>
+      appointment.clientName.toLowerCase().includes(lowerFilter)
+    );
+  }
+
+  private applyQuickFilter(appointments: Booking[]): Booking[] {
+    const quickFilters = this.filterState().quickFilters;
+
+    if (quickFilters.size === 0) return appointments;
+
+    const today = new Date().toISOString().split('T')[0];
+    let filteredAppointments = appointments;
+
+    // Apply each quick filter
+    if (quickFilters.has('today')) {
+      filteredAppointments = filteredAppointments.filter(appointment => appointment.data === today);
+    }
+
+    if (quickFilters.has('upcoming')) {
+      filteredAppointments = filteredAppointments.filter(appointment => {
+        if (!appointment.data || typeof appointment.data !== 'string') return false;
+        try {
+          const appointmentDate = new Date(appointment.data);
+          const appointmentTime = appointment.hora || '00:00';
+          const [hours, minutes] = appointmentTime.split(':').map(Number);
+          appointmentDate.setHours(hours, minutes, 0, 0);
+
+          const now = new Date();
+          return appointmentDate > now;
+        } catch {
+          return false;
+        }
+      });
+    }
+
+    if (quickFilters.has('past')) {
+      filteredAppointments = filteredAppointments.filter(appointment => {
+        if (!appointment.data || typeof appointment.data !== 'string') return false;
+        try {
+          const appointmentDate = new Date(appointment.data);
+          const appointmentTime = appointment.hora || '00:00';
+          const [hours, minutes] = appointmentTime.split(':').map(Number);
+          appointmentDate.setHours(hours, minutes, 0, 0);
+
+          const now = new Date();
+          return appointmentDate < now;
+        } catch {
+          return false;
+        }
+      });
+    }
+
+    if (quickFilters.has('mine')) {
+      filteredAppointments = filteredAppointments.filter(appointment => this.appointmentService.isOwnBooking(appointment));
+    }
+
+    return filteredAppointments;
   }
 
   private sortAppointmentsByDateTime(appointments: Booking[]): Booking[] {
@@ -301,7 +455,7 @@ export class AppointmentsPageComponent {
           }
 
           return new Date(year, month - 1, day, hour || 0, minute || 0);
-        } catch (_error) {
+        } catch {
           // If parsing fails, return default date
           return new Date(0);
         }
@@ -309,9 +463,99 @@ export class AppointmentsPageComponent {
 
       const dateTimeA = createLocalDateTime(a.data, a.hora);
       const dateTimeB = createLocalDateTime(b.data, b.hora);
-      return dateTimeB.getTime() - dateTimeA.getTime();
+      return dateTimeA.getTime() - dateTimeB.getTime(); // Changed to show oldest appointments first
     });
   }
+
+  // Selection methods
+  readonly toggleSelectionMode = () => {
+    this.selectionStateSignal.update(state => ({
+      ...state,
+      isSelectionMode: !state.isSelectionMode,
+      selectedIds: new Set() // Clear selection when toggling mode
+    }));
+  };
+
+  readonly selectAll = () => {
+    const currentAppointments = this.listAppointments();
+    const allIds = currentAppointments
+      .filter(appointment => appointment.id)
+      .map(appointment => appointment.id!);
+
+    this.selectionStateSignal.update(state => ({
+      ...state,
+      selectedIds: new Set(allIds)
+    }));
+  };
+
+  readonly deselectAll = () => {
+    this.selectionStateSignal.update(state => ({
+      ...state,
+      selectedIds: new Set()
+    }));
+  };
+
+  readonly toggleAppointmentSelection = (appointmentId: string) => {
+    this.selectionStateSignal.update(state => {
+      const newSelectedIds = new Set(state.selectedIds);
+      if (newSelectedIds.has(appointmentId)) {
+        newSelectedIds.delete(appointmentId);
+      } else {
+        newSelectedIds.add(appointmentId);
+      }
+      return {
+        ...state,
+        selectedIds: newSelectedIds
+      };
+    });
+  };
+
+  readonly isAppointmentSelected = (appointmentId: string): boolean => {
+    return this.selectedIds().has(appointmentId);
+  };
+
+  readonly bulkDeleteSelected = () => {
+    const selectedIdsArray = Array.from(this.selectedIds());
+    if (selectedIdsArray.length === 0) return;
+
+    this.confirmationPopupSignal.set({
+      isOpen: true,
+      data: {
+        title: 'COMMON.BULK_DELETE_CONFIRMATION',
+        message: 'APPOINTMENTS.BULK_DELETE_CONFIRMATION_MESSAGE',
+        confirmText: 'COMMON.ACTIONS.DELETE',
+        cancelText: 'COMMON.ACTIONS.CANCEL',
+        severity: 'danger',
+        selectedIds: selectedIdsArray
+      }
+    });
+  };
+
+  readonly onBulkDeleteConfirmed = async () => {
+    const popupData = this.confirmationPopup().data;
+    if (popupData?.selectedIds) {
+      await this.performBulkDelete(popupData.selectedIds);
+    }
+    this.closeConfirmationPopup();
+  };
+
+  private async performBulkDelete(selectedIds: string[]): Promise<void> {
+    try {
+      const deletePromises = selectedIds.map(id => this.appointmentService.deleteBooking(id));
+      await Promise.all(deletePromises);
+
+      // Clear selection after successful deletion
+      this.selectionStateSignal.update(state => ({
+        ...state,
+        selectedIds: new Set(),
+        isSelectionMode: false
+      }));
+
+      this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.BULK_DELETE_SUCCESS');
+    } catch {
+      this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.BULK_DELETE_ERROR');
+    }
+  };
 
   // Appointment actions
   async deleteAppointment(appointment: AppointmentEvent): Promise<void> {
@@ -343,8 +587,8 @@ export class AppointmentsPageComponent {
       data: {
         title: 'COMMON.DELETE_CONFIRMATION',
         message: 'APPOINTMENTS.DELETE_CONFIRMATION_MESSAGE_SIMPLE',
-        confirmText: 'COMMON.DELETE',
-        cancelText: 'COMMON.CANCEL',
+        confirmText: 'COMMON.ACTIONS.DELETE',
+        cancelText: 'COMMON.ACTIONS.CANCEL',
         severity: 'danger',
         booking: booking
       }
@@ -353,7 +597,11 @@ export class AppointmentsPageComponent {
 
   onDeleteConfirmed(): void {
     const popupData = this.confirmationPopup().data;
-    if (popupData?.booking?.id) {
+    if (popupData?.selectedIds) {
+      // Bulk delete
+      this.performBulkDelete(popupData.selectedIds);
+    } else if (popupData?.booking?.id) {
+      // Single delete
       this.performDelete(popupData.booking);
     }
     this.closeConfirmationPopup();
@@ -367,9 +615,9 @@ export class AppointmentsPageComponent {
     try {
       await this.appointmentService.deleteBooking(booking.id!);
       this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.DELETE_SUCCESS');
-          } catch (_error) {
-        this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
-      }
+    } catch {
+      this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
+    }
   }
 
   private closeConfirmationPopup(): void {
@@ -490,6 +738,28 @@ export class AppointmentsPageComponent {
         canView: true,
       },
     };
+  }
+
+  // Translation helper method
+  getTranslation(key: string): string {
+    return this.translateService.instant(key);
+  }
+
+  // Handle bulk delete from appointments list
+  onBulkDeleteRequested(selectedIds: string[]): void {
+    if (selectedIds.length === 0) return;
+
+    this.confirmationPopupSignal.set({
+      isOpen: true,
+      data: {
+        title: 'COMMON.BULK_DELETE_CONFIRMATION',
+        message: 'APPOINTMENTS.BULK_DELETE_CONFIRMATION_MESSAGE',
+        confirmText: 'COMMON.ACTIONS.DELETE',
+        cancelText: 'COMMON.ACTIONS.CANCEL',
+        severity: 'danger',
+        selectedIds: selectedIds
+      }
+    });
   }
 
   get loadingConfig() {

@@ -69,7 +69,7 @@ export class HeaderComponent {
     try {
       this.isLoggingOutSignal.set(true);
       await this.#userService.logout();
-    } catch (_error) {
+    } catch {
       // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);

@@ -15,14 +15,18 @@ import { of } from 'rxjs';
 // Mock TranslateLoader
 class MockTranslateLoader implements TranslateLoader {
   getTranslation() {
-    return of({});
+    return of({
+      'COMMON.TIME.TODAY': 'Avui',
+      'COMMON.TIME.PAST': 'Passat',
+      'COMMON.TIME.UPCOMING': 'Properament',
+      'COMMON.UPCOMING': 'Properament'
+    });
   }
 }
 
 describe('AppointmentStatusBadgeComponent', () => {
   let component: AppointmentStatusBadgeComponent;
   let fixture: ComponentFixture<AppointmentStatusBadgeComponent>;
-  let translateService: jasmine.SpyObj<TranslateService>;
 
   const mockAppointmentData: AppointmentStatusData = {
     date: '2024-01-15',
@@ -57,13 +61,23 @@ describe('AppointmentStatusBadgeComponent', () => {
         }),
       ],
       providers: [
-        { provide: TranslateService, useValue: translateSpy },
+        { 
+          provide: TranslateService, 
+          useValue: {
+            ...translateSpy,
+            get: (key: string) => of(key), // Return observable with subscribe method
+            instant: (key: string) => key,
+            onLangChange: of({ lang: 'ca', translations: {} }),
+            onTranslationChange: of({ lang: 'ca', translations: {} }),
+            onDefaultLangChange: of({ lang: 'ca', translations: {} }),
+          }
+        },
         {
           provide: TranslateStore,
           useValue: {
             get: (key: string) => key,
-            set: (key: string, value: any) => {},
-            has: (key: string) => true,
+            set: () => {},
+            has: () => true,
           },
         },
       ],
@@ -71,21 +85,10 @@ describe('AppointmentStatusBadgeComponent', () => {
 
     fixture = TestBed.createComponent(AppointmentStatusBadgeComponent);
     component = fixture.componentInstance;
-    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
 
-    // Setup default mock return values
-    translateService.get.and.returnValue(of('translated text'));
-    translateService.instant.and.returnValue('translated text');
-    translateService.addLangs.and.returnValue(undefined);
-    translateService.getBrowserLang.and.returnValue('ca');
-    translateService.use.and.returnValue(of({}));
-    translateService.reloadLang.and.returnValue(of({}));
-    translateService.setDefaultLang.and.returnValue(undefined);
-    translateService.getDefaultLang.and.returnValue('ca');
-    translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
-
-    fixture = TestBed.createComponent(AppointmentStatusBadgeComponent);
-    component = fixture.componentInstance;
+    // Set up component inputs
+    component.appointmentData = mockAppointmentData;
+    component.config = mockConfig;
   });
 
   it('should create', () => {
@@ -111,10 +114,7 @@ describe('AppointmentStatusBadgeComponent', () => {
   });
 
   it('should be a standalone component', () => {
-    expect(AppointmentStatusBadgeComponent.prototype.constructor).toBeDefined();
-    expect(AppointmentStatusBadgeComponent.prototype.constructor.name).toBe(
-      'AppointmentStatusBadgeComponent'
-    );
+    expect(component.constructor.name).toBe('AppointmentStatusBadgeComponent');
   });
 
   it('should have component metadata', () => {

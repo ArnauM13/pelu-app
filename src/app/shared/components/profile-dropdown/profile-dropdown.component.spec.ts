@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateModule } from '@ngx-translate/core';
+import { IdTokenResult } from '@firebase/auth';
 import { ProfileDropdownComponent, ProfileDropdownItem } from './profile-dropdown.component';
 import { UserService } from '../../../core/services/user.service';
 
@@ -9,7 +9,6 @@ describe('ProfileDropdownComponent', () => {
   let component: ProfileDropdownComponent;
   let fixture: ComponentFixture<ProfileDropdownComponent>;
   let userService: jasmine.SpyObj<UserService>;
-  let router: any;
 
   const mockUser = {
     uid: 'user123',
@@ -18,7 +17,7 @@ describe('ProfileDropdownComponent', () => {
     photoURL: 'https://example.com/photo.jpg',
     emailVerified: true,
     isAnonymous: false,
-    metadata: {} as any,
+    metadata: { creationTime: '', lastSignInTime: '' },
     providerData: [],
     refreshToken: 'token',
     tenantId: null,
@@ -26,7 +25,7 @@ describe('ProfileDropdownComponent', () => {
     providerId: 'password',
     delete: () => Promise.resolve(),
     getIdToken: () => Promise.resolve('token'),
-    getIdTokenResult: () => Promise.resolve({} as any),
+    getIdTokenResult: () => Promise.resolve({} as IdTokenResult),
     reload: () => Promise.resolve(),
     toJSON: () => ({}),
   };
@@ -47,7 +46,7 @@ describe('ProfileDropdownComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        ProfileDropdownComponent, 
+        ProfileDropdownComponent,
         TranslateModule.forRoot(),
         RouterTestingModule
       ],
@@ -59,7 +58,6 @@ describe('ProfileDropdownComponent', () => {
     fixture = TestBed.createComponent(ProfileDropdownComponent);
     component = fixture.componentInstance;
     userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
-    router = TestBed.inject(Router);
 
     // Setup default mocks
     userService.currentUser.and.returnValue(mockUser);
@@ -104,7 +102,7 @@ describe('ProfileDropdownComponent', () => {
 
   it('should include admin items when user is admin and showAdminItems is true', () => {
     userService.isAdmin.and.returnValue(true);
-    
+
     const items = component.dropdownItems();
     expect(items.length).toBe(4); // 1 default + 3 admin items
     expect(items[1].label).toBe('NAVIGATION.ADMIN_DASHBOARD');
@@ -117,9 +115,9 @@ describe('ProfileDropdownComponent', () => {
     // Test the logic directly since we can't modify input signals in tests
     const showAdminItems = false;
     const isAdmin = true;
-    
+
     // Simulate the logic from the component
-    const items: any[] = [
+    const items: ProfileDropdownItem[] = [
       {
         label: 'NAVIGATION.PROFILE',
         emoji: '👤',
@@ -153,9 +151,9 @@ describe('ProfileDropdownComponent', () => {
   it('should include custom items', () => {
     // Test the logic directly since we can't modify input signals in tests
     const customItems = mockCustomItems;
-    
+
     // Simulate the logic from the component
-    const items: any[] = [
+    const items: ProfileDropdownItem[] = [
       {
         label: 'NAVIGATION.PROFILE',
         emoji: '👤',
@@ -164,17 +162,17 @@ describe('ProfileDropdownComponent', () => {
     ];
 
     items.push(...customItems);
-    
+
     expect(items.length).toBe(2); // 1 default + 1 custom
     expect(items[1]).toEqual(mockCustomItems[0]);
   });
 
   it('should handle dropdown toggle', () => {
     expect(component.isDropdownOpen()).toBe(false);
-    
+
     component.toggleDropdown(new Event('click'));
     expect(component.isDropdownOpen()).toBe(true);
-    
+
     component.toggleDropdown(new Event('click'));
     expect(component.isDropdownOpen()).toBe(false);
   });
@@ -182,7 +180,7 @@ describe('ProfileDropdownComponent', () => {
   it('should close dropdown', () => {
     component.toggleDropdown(new Event('click'));
     expect(component.isDropdownOpen()).toBe(true);
-    
+
     component.closeDropdown();
     expect(component.isDropdownOpen()).toBe(false);
   });
@@ -192,12 +190,12 @@ describe('ProfileDropdownComponent', () => {
       label: 'Test Item',
       onClick: jasmine.createSpy('onClick'),
     };
-    
+
     const event = new Event('click');
     spyOn(event, 'stopPropagation');
-    
+
     component.onItemClick(mockItem, event);
-    
+
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(mockItem.onClick).toHaveBeenCalled();
     expect(component.isDropdownOpen()).toBe(false);
@@ -209,9 +207,9 @@ describe('ProfileDropdownComponent', () => {
       disabled: true,
       onClick: jasmine.createSpy('onClick'),
     };
-    
+
     component.onItemClick(mockItem);
-    
+
     expect(mockItem.onClick).not.toHaveBeenCalled();
   });
 
@@ -220,9 +218,9 @@ describe('ProfileDropdownComponent', () => {
       label: 'Test Item',
       onClick: jasmine.createSpy('onClick'),
     };
-    
+
     component.onItemClick(mockItem);
-    
+
     expect(mockItem.onClick).toHaveBeenCalled();
     expect(component.isDropdownOpen()).toBe(false);
   });
@@ -255,7 +253,7 @@ describe('ProfileDropdownComponent', () => {
 
     const userName = fixture.nativeElement.querySelector('.user-name');
     const userEmail = fixture.nativeElement.querySelector('.user-email');
-    
+
     expect(userName.textContent.trim()).toBe('John Doe');
     expect(userEmail.textContent.trim()).toBe('test@example.com');
   });
@@ -264,8 +262,9 @@ describe('ProfileDropdownComponent', () => {
     userService.currentUser.and.returnValue({
       ...mockUser,
       displayName: null,
+      metadata: { creationTime: '', lastSignInTime: '' },
     });
-    
+
     fixture.detectChanges();
 
     const userName = fixture.nativeElement.querySelector('.user-name');

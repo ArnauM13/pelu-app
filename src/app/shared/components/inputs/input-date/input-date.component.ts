@@ -15,6 +15,7 @@ export interface InputDateConfig {
 
 @Component({
   selector: 'pelu-input-date',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, DatePickerModule],
   templateUrl: './input-date.component.html',
   styleUrls: ['./input-date.component.scss'],

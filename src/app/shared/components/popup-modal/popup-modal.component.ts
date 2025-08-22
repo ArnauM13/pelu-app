@@ -13,12 +13,12 @@ export class PopupModalComponent {
   @Input() isOpen = false;
   @Output() backdropClick = new EventEmitter<void>();
   // Compatibility output expected by specs
-  @Output() close = new EventEmitter<void>();
+  @Output() closeModal = new EventEmitter<void>();
 
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
       this.backdropClick.emit();
-      this.close.emit();
+      this.closeModal.emit();
     }
   }
 }

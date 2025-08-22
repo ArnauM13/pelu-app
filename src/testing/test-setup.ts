@@ -1,28 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { TranslationService } from '../app/core/services/translation.service';
 import { ServiceColorsService } from '../app/core/services/service-colors.service';
-import { AuthService } from '../app/core/auth/auth.service';
 import { ServicesService } from '../app/core/services/services.service';
-import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
 import { RoleService } from '../app/core/services/role.service';
-import { Auth } from '@angular/fire/auth';
-import { Firestore } from '@angular/fire/firestore';
 import { UserService } from '../app/core/services/user.service';
 import { CurrencyService } from '../app/core/services/currency.service';
 import { ToastService } from '../app/shared/services/toast.service';
-import { of } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
+
 import {
   provideMockFirebase,
-  mockAuthService,
-  mockTranslateService,
-  mockTranslateStore,
-  mockTranslationService,
-  mockMessageService,
-  mockRouter,
-  mockActivatedRoute,
 } from './firebase-mocks';
 
 // Mock classes per a serveis que depenen de Firebase/AngularFire
@@ -48,8 +35,8 @@ class MockServicesService {
   getAllServices() {
     return Promise.resolve([]);
   }
-  getServiceName(service: any) {
-    return service?.name || 'Unknown Service';
+  getServiceName(service: unknown) {
+    return (service as { name?: string })?.name || 'Unknown Service';
   }
 }
 
@@ -87,7 +74,7 @@ class MockServiceColorsService {
 /**
  * Configure TestBed with common providers for all tests
  */
-export function configureTestBed(components: any[] = [], additionalProviders: any[] = []) {
+export function configureTestBed(components: unknown[] = [], additionalProviders: unknown[] = []) {
   const allProviders = [
     ...provideMockFirebase(),
     { provide: ServiceColorsService, useClass: MockServiceColorsService },
@@ -109,50 +96,27 @@ export function configureTestBed(components: any[] = [], additionalProviders: an
  * Reset all mocks to their initial state
  */
 export function resetMocks() {
-  // Reset TranslateService mocks
-  mockTranslateService.instant.calls.reset();
-  mockTranslateService.get.calls.reset();
-  mockTranslateService.use.calls.reset();
-  mockTranslateService.addLangs.calls.reset();
-  mockTranslateService.getBrowserLang.calls.reset();
-  mockTranslateService.setDefaultLang.calls.reset();
-  mockTranslateService.getLangs.calls.reset();
-
-  // Reset AuthService mocks
-  mockAuthService.registre.calls.reset();
-  mockAuthService.login.calls.reset();
-  mockAuthService.logout.calls.reset();
-  mockAuthService.canActivate.calls.reset();
-
-  // Reset MessageService mocks
-  mockMessageService.add.calls.reset();
-  mockMessageService.clear.calls.reset();
-  mockMessageService.addAll.calls.reset();
+  // Mock reset function - no actual mocks to reset in this setup
 }
 
 /**
  * Set up default mock return values
  */
 export function setupDefaultMocks() {
-  // Set up default return values for commonly used mocks
-  mockTranslateService.instant.and.returnValue('Mocked Translation');
-  mockTranslateService.get.and.returnValue(of('Mocked Translation'));
-  mockTranslateService.addLangs.and.returnValue(undefined);
-  mockTranslateService.getBrowserLang.and.returnValue('ca');
-
-  mockAuthService.canActivate.and.returnValue(true);
+  // Mock setup function - no actual mocks to set up in this configuration
 }
 
 /**
  * Create a test component with input signals
  */
-export function createTestComponent<T>(componentClass: any, inputs: Record<string, any> = {}): T {
-  const component = TestBed.createComponent(componentClass).componentInstance as any;
+export function createTestComponent<T>(componentClass: unknown, inputs: Record<string, unknown> = {}): T {
+  const component = TestBed.createComponent(componentClass as { new (): unknown }).componentInstance as Record<string, unknown>;
 
   // Set input signals
   Object.keys(inputs).forEach(key => {
-    if (component[key] && typeof component[key].set === 'function') {
-      component[key].set(inputs[key]);
+    const componentKey = component[key];
+    if (componentKey && typeof componentKey === 'object' && 'set' in componentKey && typeof (componentKey as { set: unknown }).set === 'function') {
+      (componentKey as { set: (value: unknown) => void }).set(inputs[key]);
     }
   });
 
@@ -163,8 +127,8 @@ export function createTestComponent<T>(componentClass: any, inputs: Record<strin
  * Create a test component without rendering (for unit tests)
  */
 export function createTestComponentNoRender<T>(
-  componentClass: any,
-  inputs: Record<string, any> = {}
+  componentClass: unknown,
+  inputs: Record<string, unknown> = {}
 ): T {
   return createTestComponent<T>(componentClass, inputs);
 }
@@ -239,7 +203,7 @@ export function setupTestEnvironment() {
 }
 
 // Funció per configurar tests individuals
-export function configureTestModule(additionalProviders: any[] = []) {
+export function configureTestModule(additionalProviders: unknown[] = []) {
   const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add', 'clear']);
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 

@@ -9,9 +9,11 @@ export interface Service {
 
 export interface BookingForm {
   clientName: string;
+  email: string;
   data: string;
   hora: string;
   notes?: string;
+  serviceId: string;
 }
 
 export interface Booking {

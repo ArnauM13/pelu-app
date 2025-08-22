@@ -5,10 +5,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ServicesService } from '../../../core/services/services.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { InputTextComponent, InputDateComponent, InputSelectComponent } from '../inputs';
-import { ButtonComponent } from '../buttons/button.component';
 
 @Component({
   selector: 'pelu-filters-inline',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -16,7 +16,6 @@ import { ButtonComponent } from '../buttons/button.component';
     InputTextComponent,
     InputDateComponent,
     InputSelectComponent,
-    ButtonComponent,
   ],
   templateUrl: './filters-inline.component.html',
   styleUrls: ['./filters-inline.component.scss'],
@@ -38,8 +37,7 @@ export class FiltersInlineComponent {
   readonly onServiceChange = input<((value: string) => void) | undefined>();
   readonly onReset = input<(() => void) | undefined>();
 
-  // Output events
-  readonly filtersReset = output<void>();
+  // Output events - removed filtersReset since reset button will be moved to parent
 
   // Reactive Form
   readonly filtersForm: FormGroup;
@@ -71,29 +69,6 @@ export class FiltersInlineComponent {
       })),
     ];
   });
-
-  // Input configurations for specific inputs
-  readonly dateFilterConfig = {
-    type: 'date' as const,
-    label: 'COMMON.FILTERS.FILTER_BY_DATE',
-    showLabel: true,
-  };
-
-  readonly clientFilterConfig = {
-    type: 'text' as const,
-    label: 'COMMON.FILTERS.FILTER_BY_CLIENT',
-    placeholder: 'COMMON.SEARCH.SEARCH_BY_NAME',
-    showLabel: true,
-  };
-
-  readonly serviceFilterConfig = computed(() => ({
-    type: 'select' as const,
-    label: 'COMMON.FILTERS.FILTER_BY_SERVICE',
-    placeholder: 'COMMON.SELECTION.SELECT_SERVICE',
-    options: this.serviceOptions(),
-    showLabel: true,
-    clearable: true,
-  }));
 
   constructor() {
     // Initialize reactive form
@@ -136,41 +111,5 @@ export class FiltersInlineComponent {
     });
   }
 
-  onDateChangeHandler(value: string | Date | null) {
-    if (typeof value === 'string') {
-      this.filtersForm.patchValue({ date: value });
-    } else if (value instanceof Date) {
-      this.filtersForm.patchValue({ date: value.toISOString().split('T')[0] });
-    } else {
-      this.filtersForm.patchValue({ date: '' });
-    }
-  }
-
-  onClientChangeHandler(value: string) {
-    this.filtersForm.patchValue({ client: value });
-  }
-
-  onServiceChangeHandler(value: string | undefined) {
-    this.filtersForm.patchValue({ service: value || '' });
-  }
-
-  onResetHandler() {
-    // Reset the form to initial state
-    this.filtersForm.patchValue({
-      date: '',
-      client: '',
-      service: ''
-    }, { emitEvent: false });
-
-    // Call the callback to notify parent component
-    this.onReset()?.();
-
-    // Emit the reset event
-    this.filtersReset.emit();
-
-    // Force a manual reset of the form controls
-    this.filtersForm.get('date')?.setValue('');
-    this.filtersForm.get('client')?.setValue('');
-    this.filtersForm.get('service')?.setValue('');
-  }
+  // Reset method removed - reset functionality will be handled by parent component
 }

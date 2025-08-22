@@ -82,7 +82,7 @@ export class EmailService {
     try {
       const formattedPrice = this.formatPrice(data.price);
       const greeting = this.translateService.instant('BOOKING.EMAIL.GREETING', { clientName: data.clientName });
-      const subject = this.translateService.instant('BOOKING.EMAIL.SUBJECT');
+      // const subject = this.translateService.instant('BOOKING.EMAIL.SUBJECT');
       const service = this.translateService.instant('BOOKING.EMAIL.SERVICE');
       const date = this.translateService.instant('BOOKING.EMAIL.DATE');
       const time = this.translateService.instant('BOOKING.EMAIL.TIME');

@@ -5,7 +5,7 @@ describe('AvatarComponent', () => {
   let component: AvatarComponent;
   let fixture: ComponentFixture<AvatarComponent>;
 
-  const mockData: AvatarData = {
+  const _mockData: AvatarData = {
     imageUrl: 'https://example.com/avatar.jpg',
     name: 'John',
     surname: 'Doe',

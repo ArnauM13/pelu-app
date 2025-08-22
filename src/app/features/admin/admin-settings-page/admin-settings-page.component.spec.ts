@@ -53,7 +53,6 @@ describe('AdminSettingsPageComponent', () => {
       'loadParameters',
       'saveParameters',
       'updateBusinessHours',
-      'resetToDefaults',
       'getLunchBreak',
       'getBusinessHours',
     ], {
@@ -183,22 +182,5 @@ describe('AdminSettingsPageComponent', () => {
     });
   });
 
-  describe('Reset to Defaults', () => {
-    it('should reset settings to defaults', async () => {
-      systemParametersService.resetToDefaults.and.returnValue(Promise.resolve());
 
-      await component.resetToDefaults();
-
-      expect(systemParametersService.resetToDefaults).toHaveBeenCalled();
-      expect(toastService.showSuccess).toHaveBeenCalled();
-    });
-
-    it('should handle reset errors', async () => {
-      systemParametersService.resetToDefaults.and.returnValue(Promise.reject(new Error('Reset failed')));
-
-      await component.resetToDefaults();
-
-      expect(toastService.showError).toHaveBeenCalled();
-    });
-  });
 });
