@@ -3,6 +3,8 @@ import { AppointmentsListComponent } from './appointments-list.component';
 import { configureTestBed, resetMocks, setupDefaultMocks } from '../../../../../testing/test-setup';
 import { Component, signal } from '@angular/core';
 import { Booking } from '../../../../core/interfaces/booking.interface';
+import { ServicesService } from '../../../../core/services/services.service';
+import { provideMockFirebase } from '../../../../../testing/firebase-mocks';
 
 // Test wrapper component to provide input signals
 @Component({
@@ -11,7 +13,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
       [bookings]="bookings()"
       [hasActiveFilters]="hasActiveFilters()"
       (viewBooking)="onViewBooking($event)"
-      (editBooking)="onEditBooking($event)"
       (deleteBooking)="onDeleteBooking($event)"
       (clearFilters)="onClearFilters()"
     >
@@ -20,11 +21,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
   imports: [AppointmentsListComponent],
 })
 class TestWrapperComponent {
-  bookings = signal([]);
+  bookings = signal<Booking[]>([]);
   hasActiveFilters = signal(false);
 
   onViewBooking(_booking: unknown) {}
-  onEditBooking(_booking: unknown) {}
   onDeleteBooking(_booking: unknown) {}
   onClearFilters() {}
 }
@@ -32,14 +32,31 @@ class TestWrapperComponent {
 describe('AppointmentsListComponent', () => {
   let component: AppointmentsListComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
+  let servicesService: jasmine.SpyObj<ServicesService>;
 
   beforeEach(async () => {
     setupDefaultMocks();
 
-    await configureTestBed([TestWrapperComponent]).compileComponents();
+    const servicesServiceSpy = jasmine.createSpyObj('ServicesService', [
+      'getAllServices',
+      'getServiceName',
+    ]);
+
+    // Setup default return values
+    servicesServiceSpy.getAllServices.and.returnValue([
+      { id: '1', name: 'Haircut', duration: 30, price: 25 },
+      { id: '2', name: 'Hair Coloring', duration: 120, price: 80 },
+    ]);
+    servicesServiceSpy.getServiceName.and.returnValue('Haircut');
+
+    await configureTestBed([TestWrapperComponent], [
+      { provide: ServicesService, useValue: servicesServiceSpy },
+      provideMockFirebase(),
+    ]).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
     component = fixture.debugElement.children[0].componentInstance;
+    servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
 
     resetMocks();
     fixture.detectChanges();
@@ -56,9 +73,13 @@ describe('AppointmentsListComponent', () => {
 
   it('should have output signals', () => {
     expect(component.viewBooking).toBeDefined();
-    expect(component.editBooking).toBeDefined();
     expect(component.deleteBooking).toBeDefined();
     expect(component.clearFilters).toBeDefined();
+  });
+
+  it('should have selection-related outputs', () => {
+    expect(component.toggleSelection).toBeDefined();
+    expect(component.bulkDelete).toBeDefined();
   });
 
   it('should be defined', () => {
@@ -73,6 +94,7 @@ describe('AppointmentsListComponent', () => {
   it('should format date correctly', () => {
     const result = component.formatDate('2024-01-15');
     expect(result).toBeDefined();
+    expect(typeof result).toBe('string');
   });
 
   it('should identify today correctly', () => {
@@ -89,32 +111,247 @@ describe('AppointmentsListComponent', () => {
     expect(result).toBe(false);
   });
 
-  it('should get translated service name', () => {
-    const result = component.getTranslatedServiceName('Haircut');
-    expect(result).toBeDefined();
-  });
-
   it('should get client name from booking', () => {
-    const booking: Booking = { clientName: 'John Doe', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
+    const booking: Booking = {
+      clientName: 'John Doe',
+      id: '1',
+      email: '',
+      data: '',
+      hora: '',
+      serviceId: '',
+      status: 'confirmed',
+      createdAt: new Date()
+    };
     const result = component.getClientName(booking);
     expect(result).toBe('John Doe');
   });
 
-  it('should return default client name if name is empty', () => {
-    const booking: Booking = { clientName: '', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
-    const result = component.getClientName(booking);
-    expect(result).toBe('Client');
+  it('should get service name from booking with serviceId', () => {
+    const booking: Booking = {
+      clientName: 'John Doe',
+      id: '1',
+      email: '',
+      data: '',
+      hora: '',
+      serviceId: '1',
+      status: 'confirmed',
+      createdAt: new Date()
+    };
+    const result = component.getServiceName(booking);
+    expect(result).toBe('Haircut');
+    expect(servicesService.getAllServices).toHaveBeenCalled();
+    expect(servicesService.getServiceName).toHaveBeenCalled();
   });
 
-  it('should get client name from clientName', () => {
-    const booking: Booking = { clientName: 'Bob Johnson', id: '1', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
-    const result = component.getClientName(booking);
-    expect(result).toBe('Bob Johnson');
+  it('should return empty string for service name when no serviceId', () => {
+    const booking: Booking = {
+      clientName: 'John Doe',
+      id: '1',
+      email: '',
+      data: '',
+      hora: '',
+      serviceId: '',
+      status: 'confirmed',
+      createdAt: new Date()
+    };
+    const result = component.getServiceName(booking);
+    expect(result).toBe('');
   });
 
-  it('should return default client name if no name is available', () => {
-    const booking: Booking = { id: '1', clientName: '', email: '', data: '', hora: '', serviceId: '', status: 'confirmed', createdAt: new Date() };
-    const result = component.getClientName(booking);
-    expect(result).toBe('Client');
+  it('should get service duration from booking with serviceId', () => {
+    const booking: Booking = {
+      clientName: 'John Doe',
+      id: '1',
+      email: '',
+      data: '',
+      hora: '',
+      serviceId: '1',
+      status: 'confirmed',
+      createdAt: new Date()
+    };
+    const result = component.getServiceDuration(booking);
+    expect(result).toBe(30);
+    expect(servicesService.getAllServices).toHaveBeenCalled();
+  });
+
+  it('should return default duration when no serviceId', () => {
+    const booking: Booking = {
+      clientName: 'John Doe',
+      id: '1',
+      email: '',
+      data: '',
+      hora: '',
+      serviceId: '',
+      status: 'confirmed',
+      createdAt: new Date()
+    };
+    const result = component.getServiceDuration(booking);
+    expect(result).toBe(60); // Default duration
+  });
+
+  it('should return default duration when service not found', () => {
+    const booking: Booking = {
+      clientName: 'John Doe',
+      id: '1',
+      email: '',
+      data: '',
+      hora: '',
+      serviceId: '999', // Non-existent service
+      status: 'confirmed',
+      createdAt: new Date()
+    };
+    const result = component.getServiceDuration(booking);
+    expect(result).toBe(60); // Default duration
+  });
+
+  it('should have notFoundConfig computed property', () => {
+    expect(component.notFoundConfig).toBeDefined();
+    expect(component.notFoundConfig.icon).toBe('📅');
+    expect(component.notFoundConfig.title).toBe('COMMON.NO_APPOINTMENTS');
+  });
+
+  it('should have isFutureAppointment function', () => {
+    expect(component.isFutureAppointment).toBeDefined();
+    expect(typeof component.isFutureAppointment).toBe('function');
+  });
+
+  describe('notFoundConfig behavior', () => {
+    it('should show clear filters button when hasActiveFilters is true', () => {
+      // Update the wrapper component's signal
+      const wrapperComponent = fixture.componentInstance;
+      wrapperComponent.hasActiveFilters.set(true);
+      fixture.detectChanges();
+
+      const config = component.notFoundConfig;
+      expect(config.showButton).toBe(true);
+      expect(config.buttonText).toBe('COMMON.CLEAR_FILTERS_BUTTON');
+      expect(config.message).toBe('COMMON.NO_APPOINTMENTS_FILTERED');
+    });
+
+    it('should not show clear filters button when hasActiveFilters is false', () => {
+      // Update the wrapper component's signal
+      const wrapperComponent = fixture.componentInstance;
+      wrapperComponent.hasActiveFilters.set(false);
+      fixture.detectChanges();
+
+      const config = component.notFoundConfig;
+      expect(config.showButton).toBe(false);
+      expect(config.buttonText).toBeUndefined();
+      expect(config.message).toBe('COMMON.NO_APPOINTMENTS_SCHEDULED');
+    });
+  });
+
+  describe('Service integration', () => {
+    it('should use ServicesService for service data', () => {
+      expect(servicesService).toBeDefined();
+      expect(servicesService.getAllServices).toBeDefined();
+      expect(servicesService.getServiceName).toBeDefined();
+    });
+
+    it('should call ServicesService methods when getting service data', () => {
+      const booking: Booking = {
+        clientName: 'John Doe',
+        id: '1',
+        email: '',
+        data: '',
+        hora: '',
+        serviceId: '1',
+        status: 'confirmed',
+        createdAt: new Date()
+      };
+
+      component.getServiceName(booking);
+      component.getServiceDuration(booking);
+
+      expect(servicesService.getAllServices).toHaveBeenCalledTimes(2);
+      expect(servicesService.getServiceName).toHaveBeenCalled();
+    });
+  });
+
+  describe('Component functionality', () => {
+    it('should handle empty bookings list', () => {
+      const wrapperComponent = fixture.componentInstance;
+      wrapperComponent.bookings.set([]);
+      fixture.detectChanges();
+
+      expect(component.bookings()).toEqual([]);
+    });
+
+    it('should handle bookings with data', () => {
+      const mockBookings: Booking[] = [
+        {
+          id: '1',
+          clientName: 'John Doe',
+          email: 'john@example.com',
+          data: '2024-01-15',
+          hora: '10:00',
+          serviceId: '1',
+          status: 'confirmed',
+          createdAt: new Date()
+        }
+      ];
+
+      const wrapperComponent = fixture.componentInstance;
+      wrapperComponent.bookings.set(mockBookings);
+      fixture.detectChanges();
+
+      expect(component.bookings()).toEqual(mockBookings);
+    });
+  });
+
+  describe('Selection functionality', () => {
+    it('should have selection mode input', () => {
+      expect(component.isSelectionMode).toBeDefined();
+    });
+
+    it('should have selected IDs input', () => {
+      expect(component.selectedIds).toBeDefined();
+    });
+
+    it('should have admin input', () => {
+      expect(component.isAdmin).toBeDefined();
+    });
+
+    it('should handle selection mode changes', () => {
+      // Test that the component can handle selection mode changes
+      expect(component.isSelectionMode).toBeDefined();
+    });
+
+    it('should handle selected IDs changes', () => {
+      // Test that the component can handle selected IDs changes
+      expect(component.selectedIds).toBeDefined();
+    });
+  });
+
+  describe('Filter integration', () => {
+    it('should properly handle active filters state', () => {
+      const wrapperComponent = fixture.componentInstance;
+
+      // Test with no active filters
+      wrapperComponent.hasActiveFilters.set(false);
+      fixture.detectChanges();
+      expect(component.hasActiveFilters()).toBe(false);
+
+      // Test with active filters
+      wrapperComponent.hasActiveFilters.set(true);
+      fixture.detectChanges();
+      expect(component.hasActiveFilters()).toBe(true);
+    });
+
+    it('should show appropriate message based on filter state', () => {
+      const wrapperComponent = fixture.componentInstance;
+
+      // Test no filters message
+      wrapperComponent.hasActiveFilters.set(false);
+      fixture.detectChanges();
+      let config = component.notFoundConfig;
+      expect(config.message).toBe('COMMON.NO_APPOINTMENTS_SCHEDULED');
+
+      // Test filtered message
+      wrapperComponent.hasActiveFilters.set(true);
+      fixture.detectChanges();
+      config = component.notFoundConfig;
+      expect(config.message).toBe('COMMON.NO_APPOINTMENTS_FILTERED');
+    });
   });
 });

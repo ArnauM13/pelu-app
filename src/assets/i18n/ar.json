@@ -20,6 +20,13 @@
     "NO_APPOINTMENTS_MESSAGE": "لهذا التاريخ لا توجد مواعيد مجدولة. يمكنك اختيار تاريخ آخر أو إضافة مواعيد جديدة.",
     "CLICK_TO_VIEW": "انقر للعرض",
     "DELETE_CONFIRMATION": "حذف الموعد",
+    "BULK_DELETE_CONFIRMATION": "حذف المواعيد المختارة",
+    "SELECT_APPOINTMENTS": "اختيار المواعيد",
+    "CANCEL_SELECTION": "إلغاء الاختيار",
+    "SELECT_ALL": "اختيار الكل",
+    "DESELECT_ALL": "إلغاء اختيار الكل",
+    "DELETE_SELECTED": "حذف المختارة",
+    "SELECTED": "مختارة",
     "NO_APPOINTMENTS": "لا توجد مواعيد",
     "NO_APPOINTMENTS_FILTERED": "لم يتم العثور على مواعيد مع الفلاتر المطبقة.",
     "NO_APPOINTMENTS_SCHEDULED": "ليس لديك مواعيد مجدولة بعد.",
@@ -129,8 +136,16 @@
     "CALENDAR_VIEW": "عرض التقويم",
     "CALENDAR_VIEW_LABEL": "عرض المواعيد بتنسيق التقويم",
     "FILTERS": {
-      "FILTERS": "الفلاتر",
-      "OPEN_FILTERS": "فتح الفلاتر",
+      "TITLE": "المرشحات",
+      "ACTIVE_FILTERS": "المرشحات النشطة",
+      "EXPAND": "توسيع المرشحات",
+      "COLLAPSE": "طي المرشحات",
+        "FILTERS": "المرشحات",
+        "OPEN_FILTERS": "فتح الفلاتر",
+        "DATE_FILTER": "فلتر التاريخ",
+        "CLIENT_FILTER": "فلتر العميل",
+        "SERVICE_FILTER": "فلتر الخدمة",
+        "REMOVE_FILTER": "إزالة الفلتر",
       "CLEAR_FILTERS_BUTTON": "مسح الفلاتر",
       "ADVANCED": "متقدم",
       "ADVANCED_FILTERS": "فلاتر متقدمة",
@@ -291,8 +306,11 @@
     "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
     "TODAY_APPOINTMENTS": "مواعيد اليوم",
     "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
+    "PAST_APPOINTMENTS": "المواعيد السابقة",
     "MY_APPOINTMENTS": "مواعيدي",
     "NEW_APPOINTMENT": "موعد جديد",
+    "EXPAND": "توسيع",
+    "COLLAPSE": "طي",
     "APPOINTMENT_DETAILS": "تفاصيل الموعد",
     "APPOINTMENT_DETAIL": "تفصيل الموعد",
     "STATUS": "الحالة",
@@ -349,10 +367,15 @@
     "EDIT_APPOINTMENT_DETAILS": "تعديل تفاصيل الموعد",
     "UPDATE_SUCCESS": "تم تحديث الموعد بنجاح",
     "DELETE_SUCCESS": "تم حذف الموعد بنجاح",
+    "BULK_DELETE_SUCCESS": "تم حذف المواعيد بنجاح",
+    "BULK_DELETE_ERROR": "خطأ في حذف المواعيد",
     "DELETE_ERROR": "خطأ في حذف الموعد",
-    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "هل أنت متأكد من أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء."
+    "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "هل أنت متأكد من أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.",
+    "BULK_DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من أنك تريد حذف المواعيد المختارة؟ لا يمكن التراجع عن هذا الإجراء."
   },
   "BOOKING": {
+    "TITLE": "احجز",
+    "SUBTITLE": "اختر الخدمة والتاريخ الذي يناسبك",
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
     "SELECT_DATE_PLACEHOLDER": "اختر تاريخاً",
@@ -506,7 +529,7 @@
       "CURRENCY": "العملة",
       "CURRENCY_HELP": "سيتم تطبيق العملة على جميع الأسعار في التطبيق",
       "SAVE_SETTINGS": "حفظ الإعدادات",
-  
+
       "LOADING": "جاري تحميل الإعدادات..."
     }
 

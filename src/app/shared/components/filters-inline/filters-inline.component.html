@@ -1,38 +1,26 @@
-<div class="filters-inline">
-  <form [formGroup]="filtersForm" class="filters-grid">
-    <div class="filter-group">
-      <pelu-input-date
-        label="COMMON.FILTERS.FILTER_BY_DATE"
-        formControlName="date"
-      >
-      </pelu-input-date>
-    </div>
-    <div class="filter-group">
-      <pelu-input-text
-        label='COMMON.FILTERS.FILTER_BY_CLIENT'
-        placeholder='COMMON.FILTERS.FILTER_BY_CLIENT'
-        formControlName="client"
-      >
-      </pelu-input-text>
-    </div>
-    <div class="filter-group">
-      <pelu-input-select
-        [label]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
-        [placeholder]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
-        [options]="serviceOptions()"
-        formControlName="service"
-      >
-      </pelu-input-select>
-    </div>
-    <div class="reset-group">
-      <pelu-button
-        label="COMMON.FILTERS.CLEAR_FILTERS_BUTTON"
-        severity="danger"
-        icon="pi pi-trash"
-        iconPos="right"
-        (clicked)="onResetHandler()"
-      >
-      </pelu-button>
-    </div>
-  </form>
-</div>
+<form [formGroup]="filtersForm" class="filters-grid">
+  <div class="filter-group">
+    <pelu-input-date
+      label="COMMON.FILTERS.FILTER_BY_DATE"
+      formControlName="date"
+    >
+    </pelu-input-date>
+  </div>
+  <div class="filter-group">
+    <pelu-input-text
+      label='COMMON.FILTERS.FILTER_BY_CLIENT'
+      placeholder='COMMON.FILTERS.FILTER_BY_CLIENT'
+      formControlName="client"
+    >
+    </pelu-input-text>
+  </div>
+  <div class="filter-group">
+    <pelu-input-select
+      [label]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
+      [placeholder]="'COMMON.FILTERS.FILTER_BY_SERVICE'"
+      [options]="serviceOptions()"
+      formControlName="service"
+    >
+    </pelu-input-select>
+  </div>
+</form>
