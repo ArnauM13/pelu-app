@@ -26,6 +26,7 @@
     "SELECT_ALL": "Seleccionar totes",
     "DESELECT_ALL": "Deseleccionar totes",
     "DELETE_SELECTED": "Eliminar seleccionades",
+    "EXPORT_CSV": "Descarregar CSV",
     "SELECTED": "seleccionades",
     "CLEAR_FILTERS_BUTTON": "Netejar filtres",
     "APPOINTMENTS_LIST": "Cites",
@@ -408,11 +409,13 @@
     "DELETE_SUCCESS": "Cita eliminada correctament",
     "BULK_DELETE_SUCCESS": "Cites eliminades correctament",
     "BULK_DELETE_ERROR": "Error en eliminar les cites",
-    "DELETE_ERROR": "Error en eliminar la cita"
+    "DELETE_ERROR": "Error en eliminar la cita",
+    "CSV_EXPORT_SUCCESS": "CSV descarregat correctament"
   },
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servei i la data que més t'ajusti",
+    "CREATING_BOOKING": "Creant reserva...",
     "SELECT_SERVICE": "Nova reserva",
     "SELECT_DATE": "Seleccionar data",
     "SELECT_DATE_PLACEHOLDER": "Selecciona una data",

@@ -9,7 +9,7 @@ import {
   AuthPopupConfig,
 } from '../../../shared/components/auth-popup/auth-popup.component';
 import { TranslationService } from '../../../core/services/translation.service';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 // Define error interface for better type safety
 interface AuthError {
@@ -19,7 +19,7 @@ interface AuthError {
 
 @Component({
   selector: 'pelu-register-page',
-  imports: [CommonModule, TranslateModule, AuthPopupComponent, LoadingStateComponent],
+  imports: [CommonModule, TranslateModule, AuthPopupComponent],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss'],
 })
@@ -29,6 +29,7 @@ export class RegisterPageComponent {
   #router = inject(Router);
   #authService = inject(AuthService);
   #translation = inject(TranslationService);
+  #loader = inject(LoaderService);
 
   // Internal state
   private readonly isLoading = signal(false);
@@ -52,16 +53,6 @@ export class RegisterPageComponent {
   readonly isSubmitting = computed(() => this.isLoading());
   readonly hasError = computed(() => this.errorMessage() !== '');
 
-  readonly loadingConfig = computed(() => ({
-    message: this.#translation.get('AUTH.REGISTERING'),
-    spinnerSize: 'medium' as const,
-    showMessage: true,
-    fullHeight: false,
-    overlay: true,
-  }));
-
-
-
   onPasswordMismatch(mismatch: boolean) {
     this.passwordMismatch.set(mismatch);
 
@@ -76,6 +67,7 @@ export class RegisterPageComponent {
 
     this.isLoading.set(true);
     this.errorMessage.set('');
+    this.#loader.show({ message: 'AUTH.REGISTERING' });
 
     try {
       // Validate password match
@@ -117,6 +109,7 @@ export class RegisterPageComponent {
       this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
+      this.#loader.hide();
     }
   }
 
@@ -125,6 +118,7 @@ export class RegisterPageComponent {
 
     this.isLoading.set(true);
     this.errorMessage.set('');
+    this.#loader.show({ message: 'AUTH.REGISTERING_WITH_GOOGLE' });
 
     try {
       await this.#authService.loginWithGoogle();
@@ -151,6 +145,7 @@ export class RegisterPageComponent {
       this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
+      this.#loader.hide();
     }
   }
 }

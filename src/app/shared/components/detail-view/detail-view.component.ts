@@ -10,7 +10,7 @@ import { ca } from 'date-fns/locale';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
-import { LoadingStateComponent } from '../loading-state/loading-state.component';
+
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
@@ -81,7 +81,7 @@ export interface DetailViewConfig {
     AvatarComponent,
     AppointmentStatusBadgeComponent,
     NotFoundStateComponent,
-    LoadingStateComponent,
+
     RouterModule,
     InputTextComponent,
     InputTextareaComponent,

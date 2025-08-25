@@ -4,9 +4,7 @@
     <p class="hero-subtitle" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 100ms">{{ 'ABOUT.DESCRIPTION' | translate }}</p>
   </div>
 
-  @if (isLoading()) {
-    <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: false }"></pelu-loading-state>
-  } @else {
+
     <section class="services-showcase" pAnimateOnScroll enterClass="aos-fade-in" [threshold]="0.1" [once]="true">
       <h2 class="section-title" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 0ms">{{ 'ABOUT.WHAT_WE_OFFER' | translate }}</h2>
       <p class="section-subtitle" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 100ms">{{ 'ABOUT.WHAT_WE_OFFER_DESC' | translate }}</p>
@@ -42,7 +40,6 @@
         </div>
       }
     </section>
-  }
 </div>
 
 

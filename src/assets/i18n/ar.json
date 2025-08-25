@@ -383,6 +383,7 @@
   "BOOKING": {
     "TITLE": "احجز",
     "SUBTITLE": "اختر الخدمة والتاريخ الذي يناسبك",
+    "CREATING_BOOKING": "جاري إنشاء الحجز...",
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
     "SELECT_DATE_PLACEHOLDER": "اختر تاريخاً",

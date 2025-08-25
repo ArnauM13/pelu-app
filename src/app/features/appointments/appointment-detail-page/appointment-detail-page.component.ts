@@ -22,6 +22,7 @@ import { Service } from '../../../core/services/services.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
 import { ResponsiveService } from '../../../core/services/responsive.service';
 import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
@@ -55,6 +56,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   private servicesService = inject(ServicesService);
   private responsiveService = inject(ResponsiveService);
   private appointmentManagementService = inject(AppointmentManagementService);
+  private loaderService = inject(LoaderService);
 
   // Public computed signals from service
   readonly booking = this.appointmentManagementService.appointment;
@@ -218,11 +220,17 @@ export class AppointmentDetailPageComponent implements OnInit {
   private async loadAppointment(): Promise<void> {
     const appointmentId = this.route.snapshot.paramMap.get('id');
     if (appointmentId) {
-      await this.appointmentManagementService.loadAppointment(appointmentId);
-      // Load service data after booking is loaded
-      await this.loadServiceData();
+      this.loaderService.show({ message: 'APPOINTMENTS.LOADING_APPOINTMENT' });
 
-
+      try {
+        await this.appointmentManagementService.loadAppointment(appointmentId);
+        // Load service data after booking is loaded
+        await this.loadServiceData();
+      } catch (error) {
+        console.error('Error loading appointment:', error);
+      } finally {
+        this.loaderService.hide();
+      }
     }
   }
 
@@ -267,8 +275,16 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   async deleteAppointment(): Promise<void> {
-    await this.appointmentManagementService.deleteAppointment();
-    this.goBack();
+    this.loaderService.show({ message: 'APPOINTMENTS.DELETING_APPOINTMENT' });
+
+    try {
+      await this.appointmentManagementService.deleteAppointment();
+      this.goBack();
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+    } finally {
+      this.loaderService.hide();
+    }
   }
 
   goBack(): void {
