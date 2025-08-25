@@ -22,16 +22,6 @@
       </nav>
     </div>
     <div class="user-actions">
-      @if (isAdmin()) {
-        <button
-          class="playground-button"
-          [attr.aria-label]="'NAVIGATION.PLAYGROUND' | translate"
-          (click)="navigateToPlayground()"
-          type="button"
-        >
-          🎮
-        </button>
-      }
       <pelu-language-selector class="language-selector" />
       <pelu-profile-dropdown
         [customItems]="customDropdownItems()"

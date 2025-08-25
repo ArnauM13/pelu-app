@@ -26,6 +26,7 @@
     "SELECT_ALL": "Seleccionar todas",
     "DESELECT_ALL": "Deseleccionar todas",
     "DELETE_SELECTED": "Eliminar seleccionadas",
+    "EXPORT_CSV": "Descargar CSV",
     "SELECTED": "seleccionadas",
     "NO_APPOINTMENTS": "No hay citas",
     "NO_APPOINTMENTS_FILTERED": "No se encontraron citas con los filtros aplicados.",
@@ -297,6 +298,7 @@
     "ABOUT": "Sobre nosotros",
     "BOOK": "Reservar",
     "APPOINTMENTS": "Citas",
+    "VIEW_APPOINTMENTS": "Ver citas",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Panel de admin",
     "ADMIN_SERVICES": "Gestionar Servicios",
@@ -306,12 +308,16 @@
   "LANDING": {
     "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva tu momento. Rápido, fácil y sin llamadas.",
+    "MAIN_ACTIONS": "Acciones principales",
+    "SECONDARY_ACTIONS": "Otras opciones",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Citas",
     "PROFILE": "Perfil",
     "SERVICES": "Servicios"
   },
   "APPOINTMENTS": {
+    "TITLE": "Mis Citas",
+    "SUBTITLE": "Gestiona y visualiza todas tus citas programadas",
     "TOTAL_APPOINTMENTS": "Total Citas",
     "TODAY_APPOINTMENTS": "Citas hoy",
     "UPCOMING_APPOINTMENTS": "Próximas Citas",
@@ -378,12 +384,14 @@
     "BULK_DELETE_SUCCESS": "Citas eliminadas correctamente",
     "BULK_DELETE_ERROR": "Error al eliminar las citas",
     "DELETE_ERROR": "Error al eliminar la cita",
+    "CSV_EXPORT_SUCCESS": "CSV descargado correctamente",
     "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "¿Estás seguro de que quieres eliminar esta cita? Esta acción no se puede deshacer.",
     "BULK_DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar las citas seleccionadas? Esta acción no se puede deshacer."
   },
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servicio y la fecha que mejor te convenga",
+    "CREATING_BOOKING": "Creando reserva...",
     "SELECT_SERVICE": "Nueva reserva",
     "SELECT_DATE": "Seleccionar fecha",
     "SELECT_DATE_PLACEHOLDER": "Selecciona una fecha",

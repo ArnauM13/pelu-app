@@ -19,8 +19,10 @@ import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { BookingValidationService } from './booking-validation.service';
 import { HybridEmailService } from './hybrid-email.service';
+import { LoaderService } from '../../shared/services/loader.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../interfaces/booking.interface';
+import { ServicesService } from './services.service';
 
 
 @Injectable({
@@ -34,6 +36,8 @@ export class BookingService {
   private readonly logger = inject(LoggerService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly emailService = inject(HybridEmailService);
+  private readonly loaderService = inject(LoaderService);
+  private readonly servicesService = inject(ServicesService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -85,6 +89,8 @@ export class BookingService {
     bookingData: Omit<Booking, 'id' | 'createdAt'>,
     showToast: boolean = true
   ): Promise<Booking | null> {
+    this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
+
     try {
       this.isLoadingSignal.set(true);
       this.errorSignal.set(null);
@@ -172,6 +178,7 @@ export class BookingService {
       return null;
     } finally {
       this.isLoadingSignal.set(false);
+      this.loaderService.hide();
     }
   }
 
@@ -746,5 +753,76 @@ export class BookingService {
       };
       checkAuth();
     });
+  }
+
+  // Export selected bookings to CSV
+  exportBookingsToCSV(bookings: Booking[]): void {
+    if (bookings.length === 0) {
+      return;
+    }
+
+    // CSV headers
+    const headers = [
+      'Client Name',
+      'Email',
+      'Phone',
+      'Service',
+      'Date',
+      'Time',
+      'Status',
+      'Notes',
+      'Created At'
+    ];
+
+    // Convert bookings to CSV rows
+    const csvRows = bookings.map(booking => [
+      booking.clientName || '',
+      booking.email || '',
+      '', // Phone field not available in Booking interface
+      this.getServiceName(booking),
+      booking.data || '',
+      booking.hora || '',
+      booking.status || '',
+      booking.notes || '',
+      booking.createdAt ? this.formatCreatedAt(booking.createdAt) : ''
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [headers, ...csvRows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `appointments_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private getServiceName(booking: Booking): string {
+    if (!booking.serviceId) {
+      return 'Servei general';
+    }
+
+    const service = this.servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    return service ? this.servicesService.getServiceName(service) : 'Servei general';
+  }
+
+  private formatCreatedAt(createdAt: Date | string | FieldValue): string {
+    if (createdAt instanceof Date) {
+      return createdAt.toLocaleString();
+    }
+    if (typeof createdAt === 'string') {
+      return new Date(createdAt).toLocaleString();
+    }
+    // If it's a FieldValue, we can't format it, so return empty string
+    return '';
   }
 }

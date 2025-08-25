@@ -2,10 +2,7 @@
   class="detail-view-container"
   [style.view-transition-name]="viewTransitionName()"
 >
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <pelu-loading-state [config]="loadingConfig()"> </pelu-loading-state>
-  }
+
 
   <!-- Not Found State -->
   @if (notFound()) {
@@ -22,7 +19,7 @@
       @if (type() === 'appointment' && appointment()) {
         <div class="mobile-appointment-header">
           <pelu-button
-            label="←"
+            icon="pi pi-arrow-left"
             [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
             variant="text"
             severity="contrast"
@@ -81,10 +78,9 @@
             <div class="appointment-content">
               <!-- Back Button -->
               <pelu-button
-                label="←"
+                icon="pi pi-arrow-left"
                 [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
                 variant="text"
-                severity="contrast"
                 [rounded]="true"
                 class="back-btn-emoji"
                 (clicked)="onBack()"

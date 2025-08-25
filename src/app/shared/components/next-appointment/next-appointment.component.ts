@@ -1,4 +1,4 @@
-import { Component, computed, input, inject, signal } from '@angular/core';
+import { Component, computed, input, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   imports: [CommonModule, TranslateModule, ButtonModule],
   template: `
     @if (nextBooking(); as booking) {
-      <div class="next-appointment-card" [ngClass]="serviceCssClass()" [class.collapsed]="isCollapsed()" (click)="isCollapsed() ? toggleCollapse() : null">
+      <div class="next-appointment-card" [ngClass]="serviceCssClass()" [class.collapsed]="isCollapsed()" [class.animate-in]="shouldAnimate()" (click)="isCollapsed() ? toggleCollapse() : null">
         <div class="appointment-header" (click)="toggleCollapse(); $event.stopPropagation()">
           <div class="header-icon" [style.background]="serviceColor().color">⏰</div>
           <div class="header-content">
@@ -104,6 +104,62 @@ import { Router } from '@angular/router';
   `,
   styles: [
     `
+      /* Animation keyframes */
+      @keyframes subtle-bounce {
+        0% {
+          transform: translateY(0) scale(1);
+        }
+        25% {
+          transform: translateY(-8px) scale(1.03);
+        }
+        50% {
+          transform: translateY(-3px) scale(1.015);
+        }
+        75% {
+          transform: translateY(-1px) scale(1.005);
+        }
+        100% {
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes horizontal-vibration {
+        0% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-2px);
+        }
+        40% {
+          transform: translateX(2px);
+        }
+        60% {
+          transform: translateX(-1px);
+        }
+        80% {
+          transform: translateX(1px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes soft-glow {
+        0% {
+          box-shadow: var(--box-shadow);
+        }
+        50% {
+          box-shadow: 0 4px 15px rgba(var(--primary-color-rgb, 59, 130, 246), 0.15);
+        }
+        100% {
+          box-shadow: var(--box-shadow);
+        }
+      }
+
+      .next-appointment-card.animate-in {
+        animation: subtle-bounce 1s ease-out, horizontal-vibration 0.6s ease-in-out 1s, soft-glow 1s ease-in-out 0.3s;
+      }
+
       .next-appointment-card.collapsed {
         cursor: pointer;
       }
@@ -123,6 +179,7 @@ import { Router } from '@angular/router';
         box-shadow: var(--box-shadow);
         border: 2px solid var(--border-color);
         transition: all 0.3s ease;
+        opacity: 1;
       }
 
       .next-appointment-card:hover {
@@ -601,14 +658,25 @@ import { Router } from '@angular/router';
     `,
   ],
 })
-export class NextAppointmentComponent {
+export class NextAppointmentComponent implements OnInit {
   readonly bookings = input.required<Booking[]>();
   #servicesService = inject(ServicesService);
   #router = inject(Router);
 
+  // Animation state
+  private readonly animationSignal = signal(false);
+  readonly shouldAnimate = computed(() => this.animationSignal());
+
   // Collapse state
   private readonly collapsedSignal = signal(true);
   readonly isCollapsed = computed(() => this.collapsedSignal());
+
+  ngOnInit() {
+    // Wait for everything to load and then trigger a subtle animation
+    setTimeout(() => {
+      this.animationSignal.set(true);
+    }, 800);
+  }
 
   readonly toggleCollapse = () => {
     this.collapsedSignal.update(state => !state);

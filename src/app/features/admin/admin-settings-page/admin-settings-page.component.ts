@@ -21,7 +21,8 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
 import { InputMultiSelectComponent, MultiSelectOption } from '../../../shared/components/inputs/input-multiselect/input-multiselect.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-admin-settings-page',
@@ -42,7 +43,7 @@ import { LoadingStateComponent } from '../../../shared/components/loading-state/
     InputMultiSelectComponent,
     InputDateComponent,
     ButtonComponent,
-    LoadingStateComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './admin-settings-page.component.html',
   styleUrls: ['./admin-settings-page.component.scss'],
@@ -55,6 +56,7 @@ export class AdminSettingsPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
   private systemParametersService = inject(SystemParametersService);
+  private loaderService = inject(LoaderService);
 
   settingsForm!: FormGroup;
 
@@ -153,6 +155,8 @@ export class AdminSettingsPageComponent implements OnInit {
   }
 
   async loadSettings() {
+    this.loaderService.show({ message: 'ADMIN.LOADING_SETTINGS' });
+
     try {
       await this.systemParametersService.loadParameters();
       // Reinitialize form with new settings
@@ -161,6 +165,8 @@ export class AdminSettingsPageComponent implements OnInit {
     } catch (error) {
       console.error('Error loading settings:', error);
       this.toastService.showError('Error', 'Error al carregar la configuració');
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -226,6 +232,7 @@ export class AdminSettingsPageComponent implements OnInit {
   async saveSettings() {
     if (this.settingsForm.valid) {
       this.saving.set(true);
+      this.loaderService.show({ message: 'ADMIN.SAVING_SETTINGS' });
 
       try {
         const formValue = this.settingsForm.value;
@@ -306,6 +313,7 @@ export class AdminSettingsPageComponent implements OnInit {
         this.toastService.showError('Error', 'Error al desar la configuració');
       } finally {
         this.saving.set(false);
+        this.loaderService.hide();
       }
     }
   }

@@ -15,7 +15,6 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
@@ -25,10 +24,12 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 
 import { FirebaseServicesService, ServiceCategory } from '../../../core/services/firebase-services.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-admin-services-page',
@@ -47,7 +48,6 @@ import { FirebaseService } from '../../../core/services/firebase-services.servic
     ToastModule,
     TooltipModule,
     TranslateModule,
-    LoadingStateComponent,
     ConfirmationPopupComponent,
     ServiceCardComponent,
     ButtonComponent,
@@ -57,6 +57,7 @@ import { FirebaseService } from '../../../core/services/firebase-services.servic
     InputNumberComponent,
     InputCheckboxComponent,
     PopupDialogComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './admin-services-page.component.html',
   styleUrls: ['./admin-services-page.component.scss'],
@@ -69,6 +70,7 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
+  private readonly loaderService = inject(LoaderService);
 
   // Dialog visibility signals
   private readonly _showCreateDialog = signal<boolean>(false);
@@ -141,7 +143,7 @@ export class AdminServicesPageComponent implements OnInit {
     { label: '🎯 Express', value: '🎯' },
     { label: '🕐 Ràpid', value: '🕐' },
     { label: '🌿 Natural', value: '🌿' },
-    { label: '🔥 Tendència', value: '🔥' },
+    { label: '�� Tendència', value: '🔥' },
   ];
 
   // Services by category with reactive popular status
@@ -285,15 +287,24 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   async loadServices(): Promise<void> {
-    await this.firebaseServicesService.loadServices();
+    this.loaderService.show({ message: 'SERVICES.LOADING_SERVICES' });
 
-    // Initialize popular status signals after services are loaded
-    const services = this.services();
-    const statusMap = new Map<string, boolean>();
-    services.forEach(service => {
-      statusMap.set(service.id!, service.isPopular ?? false);
-    });
-    this._servicePopularStatus.set(statusMap);
+    try {
+      await this.firebaseServicesService.loadServices();
+
+      // Initialize popular status signals after services are loaded
+      const services = this.services();
+      const statusMap = new Map<string, boolean>();
+      services.forEach(service => {
+        statusMap.set(service.id!, service.isPopular ?? false);
+      });
+      this._servicePopularStatus.set(statusMap);
+    } catch (error) {
+      console.error('Error loading services:', error);
+      this.toastService.showError('SERVICES.ERROR_LOADING_SERVICES');
+    } finally {
+      this.loaderService.hide();
+    }
   }
 
   showCreateService(): void {
@@ -332,6 +343,8 @@ export class AdminServicesPageComponent implements OnInit {
       return;
     }
 
+    this.loaderService.show({ message: 'SERVICES.CREATING_SERVICE' });
+
     try {
       const formValue = form.value as {
         name: string;
@@ -364,6 +377,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.ERROR_CREATING_SERVICE')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -378,6 +393,8 @@ export class AdminServicesPageComponent implements OnInit {
       );
       return;
     }
+
+    this.loaderService.show({ message: 'SERVICES.UPDATING_SERVICE' });
 
     try {
       const formValue = form.value as {
@@ -411,6 +428,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.ERROR_UPDATING_SERVICE')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -447,6 +466,8 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   private async deleteServiceConfirmed(service: FirebaseService): Promise<void> {
+    this.loaderService.show({ message: 'SERVICES.DELETING_SERVICE' });
+
     try {
       await this.firebaseServicesService.deleteService(service.id!);
       this.toastService.showSuccess(
@@ -459,10 +480,14 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.ERROR_DELETING_SERVICE')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   private async deleteCategoryConfirmed(category: ServiceCategory): Promise<void> {
+    this.loaderService.show({ message: 'SERVICES.DELETING_CATEGORY' });
+
     try {
       await this.firebaseServicesService.deleteCategory(category.id);
       this.toastService.showSuccess(
@@ -476,6 +501,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_DELETING_CATEGORY')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -526,7 +553,16 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   async refreshServices(): Promise<void> {
-    await this.firebaseServicesService.refreshServices();
+    this.loaderService.show({ message: 'SERVICES.REFRESHING_SERVICES' });
+
+    try {
+      await this.firebaseServicesService.refreshServices();
+    } catch (error) {
+      console.error('Error refreshing services:', error);
+      this.toastService.showError('SERVICES.ERROR_REFRESHING_SERVICES');
+    } finally {
+      this.loaderService.hide();
+    }
   }
 
 
@@ -534,16 +570,7 @@ export class AdminServicesPageComponent implements OnInit {
     this._showCategoriesManagerDialog.set(true);
   }
 
-  get loadingConfig() {
-    return {
-      message: this.translateService.instant('ADMIN.SERVICES.LOADING_MESSAGE'),
-      showSpinner: true,
-      spinnerSize: 'large' as const,
-      overlay: true,
-      overlayOpacity: 0.7,
-      zIndex: 1000
-    };
-  }
+
 
   showCreateCategory(): void {
     this.resetCategoryForm();
@@ -579,6 +606,8 @@ export class AdminServicesPageComponent implements OnInit {
       return;
     }
 
+    this.loaderService.show({ message: 'SERVICES.UPDATING_CATEGORY' });
+
     try {
       const formValue = form.value;
       const categoryData = {
@@ -598,6 +627,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_UPDATING_CATEGORY')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -610,6 +641,8 @@ export class AdminServicesPageComponent implements OnInit {
       );
       return;
     }
+
+    this.loaderService.show({ message: 'SERVICES.CREATING_CATEGORY' });
 
     try {
       const formValue = form.value;
@@ -631,6 +664,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_CREATING_CATEGORY')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 

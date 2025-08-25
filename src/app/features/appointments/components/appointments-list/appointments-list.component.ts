@@ -92,6 +92,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
               @if (hasSelection()) {
                 <p-button
+                  icon="pi pi-download"
+                  [label]="getTranslation('COMMON.EXPORT_CSV')"
+                  severity="info"
+                  [size]="'small'"
+                  (onClick)="exportSelectedToCSV()"
+                />
+                <p-button
                   icon="pi pi-trash"
                   [label]="getTranslation('COMMON.DELETE_SELECTED')"
                   severity="danger"
@@ -628,6 +635,7 @@ export class AppointmentsListComponent {
   readonly clearFilters = output<void>();
   readonly toggleSelection = output<string>();
   readonly bulkDelete = output<string[]>();
+  readonly exportCSV = output<Booking[]>();
 
   // Internal selection state
   private readonly internalSelectionStateSignal = signal({
@@ -893,6 +901,22 @@ export class AppointmentsListComponent {
         isSelectionMode: false
       }));
     }
+  };
+
+  readonly exportSelectedToCSV = () => {
+    const selectedIdsArray = this.internalSelectionMode()
+      ? Array.from(this.internalSelectedIds())
+      : Array.from(this.selectedIds());
+
+    if (selectedIdsArray.length === 0) return;
+
+    // Get the selected bookings
+    const selectedBookings = this.bookings().filter(booking =>
+      booking.id && selectedIdsArray.includes(booking.id)
+    );
+
+    // Emit the export event
+    this.exportCSV.emit(selectedBookings);
   };
 
   // Selection methods

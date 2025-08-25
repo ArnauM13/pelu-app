@@ -287,22 +287,29 @@
   "NAVIGATION": {
     "HOME": "الرئيسية",
     "SERVICES": "الخدمات",
+    "ABOUT": "من نحن",
     "BOOK": "حجز",
     "APPOINTMENTS": "المواعيد",
+    "VIEW_APPOINTMENTS": "عرض المواعيد",
     "PROFILE": "الملف الشخصي",
     "ADMIN_DASHBOARD": "لوحة الإدارة",
+    "ADMIN_SERVICES": "إدارة الخدمات",
     "ADMIN_SETTINGS": "الإعدادات",
     "PLAYGROUND": "ملعب"
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "احجز لحظتك. سريع وسهل وبدون مكالمات.",
+    "MAIN_ACTIONS": "الإجراءات الرئيسية",
+    "SECONDARY_ACTIONS": "خيارات أخرى",
     "BOOK_NOW": "احجز الآن",
     "APPOINTMENTS": "المواعيد",
     "PROFILE": "الملف الشخصي",
     "SERVICES": "الخدمات"
   },
   "APPOINTMENTS": {
+    "TITLE": "مواعيدي",
+    "SUBTITLE": "إدارة وعرض جميع مواعيدك المجدولة",
     "TOTAL_APPOINTMENTS": "إجمالي المواعيد",
     "TODAY_APPOINTMENTS": "مواعيد اليوم",
     "UPCOMING_APPOINTMENTS": "المواعيد القادمة",
@@ -376,6 +383,7 @@
   "BOOKING": {
     "TITLE": "احجز",
     "SUBTITLE": "اختر الخدمة والتاريخ الذي يناسبك",
+    "CREATING_BOOKING": "جاري إنشاء الحجز...",
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
     "SELECT_DATE_PLACEHOLDER": "اختر تاريخاً",
