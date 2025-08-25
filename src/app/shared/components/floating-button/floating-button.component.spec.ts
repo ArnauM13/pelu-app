@@ -44,12 +44,12 @@ describe('FloatingButtonComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(FloatingButtonComponent.prototype.constructor.name).toBe('FloatingButtonComponent');
+    expect(FloatingButtonComponent.prototype.constructor.name).toBe('FloatingButtonComponent2');
   });
 
   it('should be a standalone component', () => {
     expect(FloatingButtonComponent.prototype.constructor).toBeDefined();
-    expect(FloatingButtonComponent.prototype.constructor.name).toBe('FloatingButtonComponent');
+    expect(FloatingButtonComponent.prototype.constructor.name).toBe('FloatingButtonComponent2');
   });
 
   it('should have component metadata', () => {

@@ -28,7 +28,7 @@ class TestWrapperComponent {
   subtitle = 'Test Subtitle';
   message = 'Test Message';
   actionText = 'Test Action';
-  actionCallback = () => {};
+  actionCallback: (() => void) | undefined = () => {};
   showAction = true;
 }
 
@@ -151,51 +151,47 @@ describe('NoAppointmentsMessageComponent', () => {
   });
 
   it('should not render action button when actionText is empty', () => {
-    // Note: In Angular 17+, we can't set input signals in tests
-    // We test the default behavior instead
-
+    // Set actionText to empty to test the condition
+    component.actionText = '';
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn');
-    // By default, actionText is empty, so no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 
   it('should not render action button when actionCallback is undefined', () => {
-    // Note: In Angular 17+, we can't set input signals in tests
-    // We test the default behavior instead
-
+    // Set actionCallback to undefined to test the condition
+    component.actionCallback = undefined;
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn');
-    // By default, actionCallback is undefined, so no button should be rendered
     expect(actionButton).toBeFalsy();
   });
 
   it('should render action button when both actionText and actionCallback are provided', () => {
-    // Note: In Angular 17+, we can't set input signals in tests
-    // We test the default behavior instead
-
+    // Both actionText and actionCallback are provided in the wrapper, so button should be rendered
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn') as HTMLElement;
-    // By default, actionText is empty and actionCallback is undefined, so no button should be rendered
-    expect(actionButton).toBeFalsy();
+    expect(actionButton).toBeTruthy();
   });
 
   it('should call action callback when button is clicked', () => {
-    // Note: In Angular 17+, we can't set input signals in tests
-    // We test the default behavior instead
-
+    // Create a spy for the callback
+    const callbackSpy = jasmine.createSpy('actionCallback');
+    component.actionCallback = callbackSpy;
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn') as HTMLElement;
-    // By default, no button should be rendered
-    expect(actionButton).toBeFalsy();
+    expect(actionButton).toBeTruthy();
+    
+    // Click the button
+    actionButton.click();
+    expect(callbackSpy).toHaveBeenCalled();
   });
 
   it('should have correct CSS classes for warning type', () => {
@@ -255,14 +251,19 @@ describe('NoAppointmentsMessageComponent', () => {
   });
 
   it('should handle multiple action button clicks', () => {
-    // Note: In Angular 17+, we can't set input signals in tests
-    // We test the default behavior instead
-
+    // Create a spy for the callback
+    const callbackSpy = jasmine.createSpy('actionCallback');
+    component.actionCallback = callbackSpy;
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const actionButton = compiled.querySelector('.btn') as HTMLElement;
-    // By default, no button should be rendered
-    expect(actionButton).toBeFalsy();
+    expect(actionButton).toBeTruthy();
+    
+    // Click the button multiple times
+    actionButton.click();
+    actionButton.click();
+    actionButton.click();
+    expect(callbackSpy).toHaveBeenCalledTimes(3);
   });
 });
