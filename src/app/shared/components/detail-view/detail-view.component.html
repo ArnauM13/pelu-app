@@ -2,10 +2,7 @@
   class="detail-view-container"
   [style.view-transition-name]="viewTransitionName()"
 >
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <pelu-loading-state [config]="loadingConfig()"> </pelu-loading-state>
-  }
+
 
   <!-- Not Found State -->
   @if (notFound()) {

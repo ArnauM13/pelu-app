@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CalendarComponent } from '../../../features/calendar/core/calendar.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import {
   BookingPopupComponent,
@@ -32,6 +31,7 @@ import { NoAppointmentsMessageComponent } from '../../../shared/components/no-ap
 import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 import { TimeUtils } from '../../../shared/utils/time.utils';
 import { startOfWeek, endOfWeek } from 'date-fns';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -40,7 +40,6 @@ import { startOfWeek, endOfWeek } from 'date-fns';
     FormsModule,
     TranslateModule,
     CalendarComponent,
-    LoadingStateComponent,
     BookingPopupComponent,
     ServiceSelectionPopupComponent,
     PopupDialogComponent,
@@ -66,6 +65,7 @@ export class BookingPageComponent {
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly timeUtils = inject(TimeUtils);
+  private readonly loaderService = inject(LoaderService);
 
   // Mobile detection using centralized service
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -181,12 +181,16 @@ export class BookingPageComponent {
   }
 
   private async loadServices() {
+    this.loaderService.show({ message: 'BOOKING.LOADING_SERVICES' });
+
     try {
       await this.firebaseServicesService.loadServices();
       const services = this.firebaseServicesService.activeServices();
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -215,6 +219,8 @@ export class BookingPageComponent {
   }
 
   async onBookingConfirmed(details: BookingDetails) {
+    this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
+
     try {
       const bookingData = {
         clientName: details.clientName,
@@ -236,6 +242,8 @@ export class BookingPageComponent {
       this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 

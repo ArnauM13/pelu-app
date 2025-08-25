@@ -11,9 +11,7 @@
         subtitle="BOOKING.SUBTITLE"
       ></pelu-title>
 
-      @if (availableServices().length === 0) {
-        <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
-      }
+
 
       <!-- User appointment limit validation message -->
       @if (hasReachedAppointmentLimit()) {

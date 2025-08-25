@@ -8,6 +8,7 @@ import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-t
 import { UserService } from '../../../core/services/user.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-admin-dashboard-page',
@@ -26,6 +27,7 @@ export class AdminDashboardPageComponent {
   userService = inject(UserService);
   #bookingService = inject(BookingService);
   #toast = inject(ToastService);
+  #loader = inject(LoaderService);
 
   // Computed properties per a la UI (unified from both services)
   readonly isAdmin = computed(() => this.userService.isAdmin());
@@ -46,15 +48,22 @@ export class AdminDashboardPageComponent {
     this.isConfirmOpen = true;
   }
 
-  onConfirmDeleteAll() {
+  async onConfirmDeleteAll() {
     this.isConfirmOpen = false;
-    this.#bookingService.deleteAllBookings().then(count => {
+    this.#loader.show({ message: 'ADMIN.DELETING_ALL_BOOKINGS' });
+
+    try {
+      const count = await this.#bookingService.deleteAllBookings();
       if (count > 0) {
         this.#toast.showSuccess('ADMIN.BOOKINGS_DELETED_SUCCESS');
       } else {
         this.#toast.showWarning('ADMIN.NO_BOOKINGS_DELETED');
       }
-    });
+    } catch (error) {
+      this.#toast.showError('ADMIN.ERROR_DELETING_BOOKINGS');
+    } finally {
+      this.#loader.hide();
+    }
   }
 
   onCancelDeleteAll() {
