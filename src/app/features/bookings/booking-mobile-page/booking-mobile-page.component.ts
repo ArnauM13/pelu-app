@@ -30,6 +30,7 @@ import { ButtonComponent } from '../../../shared/components/buttons/button.compo
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { IcsUtils } from '../../../shared/utils/ics.utils';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -50,7 +51,8 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     NoAppointmentsMessageComponent,
     ButtonComponent,
     ServiceCardComponent,
-    CardComponent
+    CardComponent,
+    PeluTitleComponent
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],

@@ -319,6 +319,7 @@
     "ABOUT": "Qui som",
     "BOOK": "Reservar",
     "APPOINTMENTS": "Cites",
+    "VIEW_APPOINTMENTS": "Veure cites",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Taulell d'admin",
     "ADMIN_SERVICES": "Gestionar Serveis",
@@ -328,12 +329,16 @@
   "LANDING": {
     "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva el teu moment. Ràpid, fàcil i sense trucades.",
+    "MAIN_ACTIONS": "Accions principals",
+    "SECONDARY_ACTIONS": "Altres opcions",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Cites",
     "PROFILE": "Perfil",
     "SERVICES": "Serveis"
   },
   "APPOINTMENTS": {
+    "TITLE": "Les meves cites",
+    "SUBTITLE": "Gestiona i visualitza totes les teves cites programades",
     "TOTAL_APPOINTMENTS": "Total Cites",
     "TODAY_APPOINTMENTS": "Cites avui",
     "UPCOMING_APPOINTMENTS": "Pròximes Cites",

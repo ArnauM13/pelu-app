@@ -25,6 +25,7 @@ import { InputSelectComponent } from '../../../shared/components/inputs/input-se
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 
 import { FirebaseServicesService, ServiceCategory } from '../../../core/services/firebase-services.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -57,6 +58,7 @@ import { FirebaseService } from '../../../core/services/firebase-services.servic
     InputNumberComponent,
     InputCheckboxComponent,
     PopupDialogComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './admin-services-page.component.html',
   styleUrls: ['./admin-services-page.component.scss'],
