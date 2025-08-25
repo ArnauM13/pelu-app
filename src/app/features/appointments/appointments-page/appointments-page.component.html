@@ -1,11 +1,5 @@
 <div class="container" [style.view-transition-name]="'appointments-container'">
-  <!-- Full Screen Loading State -->
-  @if (loading()) {
-    <pelu-loading-state [config]="loadingConfig"> </pelu-loading-state>
-  }
-
   <!-- Main Content -->
-  @if (!loading()) {
             <!-- Hero Section with Title -->
         <pelu-title
           title="APPOINTMENTS.TITLE"
@@ -55,6 +49,7 @@
           (clearFilters)="clearAllFilters()"
           (toggleSelection)="toggleAppointmentSelection($event)"
           (bulkDelete)="onBulkDeleteRequested($event)"
+          (exportCSV)="onExportCSV($event)"
         >
         </pelu-appointments-list>
       </div>
@@ -66,8 +61,6 @@
         (viewModeChange)="setViewMode($event)"
       >
       </pelu-appointments-view-controls> -->
-
-  }
 
   <!-- Confirmation Popup -->
   <pelu-confirmation-popup
