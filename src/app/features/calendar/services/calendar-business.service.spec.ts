@@ -19,8 +19,8 @@ describe('CalendarBusinessService', () => {
   describe('Business Configuration', () => {
     it('should get business configuration', () => {
       const config = service.getBusinessConfig();
-      expect(config.hours.start).toBe(8);
-      expect(config.hours.end).toBe(20);
+      expect(config.businessHours.start).toBe(8);
+      expect(config.businessHours.end).toBe(20);
       expect(config.days.start).toBe(1); // Monday
       expect(config.days.end).toBe(6); // Saturday
       expect(config.lunchBreak.start).toBe(13);

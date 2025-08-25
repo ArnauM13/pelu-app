@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 export interface Language {
@@ -9,47 +9,34 @@ export interface Language {
   rtl?: boolean;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class TranslationService {
-  // Internal state signals
   private readonly currentLanguageSignal = signal<string>('ca');
 
-  // Public computed signals
+  // Computed signals
   readonly currentLanguage = computed(() => this.currentLanguageSignal());
   readonly currentLanguageInfo = computed(() => {
-    const currentLang = this.currentLanguage();
-    return this.availableLanguages.find(lang => lang.code === currentLang);
+    return this.availableLanguages.find(lang => lang.code === this.currentLanguage());
   });
 
   readonly availableLanguages: Language[] = [
-    { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
+    { code: 'ca', name: 'Català', flag: '🇪🇸' },
     { code: 'es', name: 'Español', flag: '🇪🇸' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true },
   ];
 
-  constructor(private translate: TranslateService) {
+  private translate = inject(TranslateService);
+
+  constructor() {
     this.initializeLanguage();
   }
 
   private initializeLanguage(): void {
-    // Set available languages
-    this.translate.addLangs(this.availableLanguages.map(lang => lang.code));
-
-    // Get saved language or browser language
     const savedLanguage = localStorage.getItem('preferredLanguage');
-    const browserLanguage = this.translate.getBrowserLang();
-
-    // Determine initial language
-    let initialLanguage = 'ca'; // Default
-
-    if (savedLanguage && this.isLanguageAvailable(savedLanguage)) {
-      initialLanguage = savedLanguage;
-    } else if (browserLanguage && this.isLanguageAvailable(browserLanguage)) {
-      initialLanguage = browserLanguage;
-    }
-
-    // Set language without saving to localStorage during initialization
+    const initialLanguage = savedLanguage || this.translate.getBrowserLang() || 'ca';
     this.setLanguage(initialLanguage, false);
   }
 
@@ -108,12 +95,12 @@ export class TranslationService {
   }
 
   // Helper method to get translated text
-  get(key: string, params?: any): string {
+  get(key: string, params?: Record<string, string | number>): string {
     return this.translate.instant(key, params);
   }
 
   // Helper method to get translated text as observable
-  get$(key: string, params?: any) {
+  get$(key: string, params?: Record<string, string | number>) {
     return this.translate.get(key, params);
   }
 

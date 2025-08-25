@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ export interface InputTextConfig {
 
 @Component({
   selector: 'pelu-input-text',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, InputTextModule],
   templateUrl: './input-text.component.html',
   styleUrls: ['./input-text.component.scss'],
@@ -51,8 +52,11 @@ export class InputTextComponent implements ControlValueAccessor {
   readonly valueChange = output<string>();
 
   // ControlValueAccessor callbacks
-  private onChange = (value: string) => {};
+  private onChange = (_value: string) => {};
   private onTouched = () => {};
+
+  // Internal value signal for ControlValueAccessor
+  readonly internalValueSignal = signal<string>('');
 
   // Computed property to get the appropriate placeholder based on type
   readonly displayPlaceholder = computed(() => {
@@ -76,25 +80,46 @@ export class InputTextComponent implements ControlValueAccessor {
     }
   });
 
+  // Computed property to determine the display value
+  readonly displayValue = computed(() => {
+    // If using formControlName, use internalValueSignal
+    if (this.formControlName()) {
+      return this.internalValueSignal();
+    }
+    // Otherwise, use the direct value input
+    return this.value();
+  });
+
+  constructor() {
+    // Watch for changes in the value input and update internal signal
+    effect(() => {
+      const directValue = this.value();
+      if (directValue !== undefined && directValue !== null) {
+        this.internalValueSignal.set(directValue);
+      }
+    });
+  }
+
   // Get unique ID
   getElementId(): string {
     return this.uniqueId;
   }
 
   // Event handler for input changes
-  onInputChange(value: string) {
-    this.onChange(value);
-    this.valueChange.emit(value);
+  onInputChange(_value: string): void {
+    this.internalValueSignal.set(_value);
+    this.onChange(_value);
+    this.valueChange.emit(_value);
   }
 
   // Event handler for input blur
-  onInputBlur() {
+  onInputBlur(): void {
     this.onTouched();
   }
 
   // ControlValueAccessor methods
   writeValue(value: string): void {
-    // PrimeNG handles this automatically
+    this.internalValueSignal.set(value || '');
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -105,7 +130,7 @@ export class InputTextComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  setDisabledState(_isDisabled: boolean): void {
     // PrimeNG handles disabled state automatically
   }
 }

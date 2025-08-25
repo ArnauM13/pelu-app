@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 
@@ -108,8 +108,9 @@ class TestWrapperComponent {
   errorText = signal('');
   successText = signal('');
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
+  constructor() {
+    const fb = inject(FormBuilder);
+    this.form = fb.group({
       selectField: ['', this.required() ? Validators.required : null]
     });
   }
@@ -203,31 +204,31 @@ describe('InputSelectComponent', () => {
 
   describe('Select Input Interaction', () => {
     it('should emit valueChange when selection changes', () => {
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
       const testValue = 'option2';
 
-      // Simulate selection change
-      selectElement.componentInstance.onChange({ value: testValue });
+      // Simulate selection change by calling the component's method directly
+      inputSelectComponent.onSelectChange(testValue);
       fixture.detectChanges();
 
       expect(component.currentValue()).toBe(testValue);
     });
 
     it('should update form control value when selection changes', () => {
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
       const testValue = 'option1';
 
       // Simulate selection change
-      selectElement.componentInstance.onChange({ value: testValue });
+      inputSelectComponent.onSelectChange(testValue);
       fixture.detectChanges();
 
       expect(component.getFormValue()).toBe(testValue);
     });
 
     it('should handle blur event correctly', () => {
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
 
-      selectElement.componentInstance.onBlur(new Event('blur'));
+      inputSelectComponent.onBlurHandler(new Event('blur'));
       fixture.detectChanges();
 
       expect(component.form.get('selectField')?.touched).toBe(true);
@@ -237,8 +238,8 @@ describe('InputSelectComponent', () => {
       component.multiple.set(true);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('multiple')).toBe('true');
+      const multiSelectElement = fixture.debugElement.query(By.css('p-multiselect'));
+      expect(multiSelectElement).toBeTruthy();
     });
   });
 
@@ -248,7 +249,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('disabled')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-disabled')).toBe('true');
     });
 
     it('should apply required state correctly', () => {
@@ -256,7 +257,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('required')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-required')).toBe('true');
     });
 
     it('should apply readonly state correctly', () => {
@@ -264,7 +265,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('readonly')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-readonly')).toBe('true');
     });
 
     it('should apply loading state correctly', () => {
@@ -272,7 +273,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('loading')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-loading')).toBe('true');
     });
 
     it('should apply editable state correctly', () => {
@@ -280,7 +281,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('editable')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-editable')).toBe('true');
     });
 
     it('should apply checkmark state correctly', () => {
@@ -288,7 +289,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('checkmark')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-checkmark')).toBe('true');
     });
   });
 
@@ -298,7 +299,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('filter')).toBe('false');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter')).toBe('false');
     });
 
     it('should apply filterBy configuration correctly', () => {
@@ -306,7 +307,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('filterby')).toBe('value');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter-by')).toBe('value');
     });
 
     it('should apply filterMatchMode configuration correctly', () => {
@@ -314,7 +315,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('filtermatchmode')).toBe('startsWith');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter-match-mode')).toBe('startsWith');
     });
 
     it('should apply filterPlaceholder correctly', () => {
@@ -322,7 +323,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('filterplaceholder')).toBe('Custom filter placeholder');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter-placeholder')).toBe('Custom filter placeholder');
     });
   });
 
@@ -344,7 +345,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('optionlabel')).toBe('name');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-option-label')).toBe('name');
     });
 
     it('should apply optionValue configuration correctly', () => {
@@ -352,7 +353,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('optionvalue')).toBe('id');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-option-value')).toBe('id');
     });
 
     it('should apply optionDisabled configuration correctly', () => {
@@ -360,7 +361,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('optiondisabled')).toBe('isDisabled');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-option-disabled')).toBe('isDisabled');
     });
   });
 
@@ -370,7 +371,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('showclear')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-show-clear')).toBe('true');
     });
 
     it('should apply appendTo configuration correctly', () => {
@@ -378,7 +379,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('appendto')).toBe('document.body');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-append-to')).toBe('document.body');
     });
 
     it('should apply scrollHeight configuration correctly', () => {
@@ -386,7 +387,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('scrollheight')).toBe('300px');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-scroll-height')).toBe('300px');
     });
 
     it('should apply virtualScroll configuration correctly', () => {
@@ -394,7 +395,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('virtualscroll')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-virtual-scroll')).toBe('true');
     });
 
     it('should apply virtualScrollItemSize configuration correctly', () => {
@@ -402,7 +403,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('virtualscrollitemsize')).toBe('50');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-virtual-scroll-item-size')).toBe('50');
     });
 
     it('should apply group configuration correctly', () => {
@@ -410,7 +411,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('group')).toBe('true');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-group')).toBe('true');
     });
   });
 
@@ -420,7 +421,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('placeholder')).toBe('Custom select placeholder');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-placeholder')).toBe('Custom select placeholder');
     });
 
     it('should use default placeholder when no custom placeholder provided', () => {
@@ -428,7 +429,7 @@ describe('InputSelectComponent', () => {
       fixture.detectChanges();
 
       const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('placeholder')).toBe('Selecciona una opció...');
+      expect(selectElement.nativeElement.getAttribute('ng-reflect-placeholder')).toBe('INPUTS.SELECT_PLACEHOLDER');
     });
   });
 
@@ -481,8 +482,8 @@ describe('InputSelectComponent', () => {
       component.setFormValue('option1');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.componentInstance.value).toBe('option1');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.value()).toBe('option1');
     });
 
     it('should handle form validation correctly', () => {
@@ -499,18 +500,18 @@ describe('InputSelectComponent', () => {
     });
 
     it('should mark form as dirty when value changes', () => {
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
 
-      selectElement.componentInstance.onChange({ value: 'option2' });
+      inputSelectComponent.onSelectChange('option2');
       fixture.detectChanges();
 
       expect(component.form.dirty).toBe(true);
     });
 
     it('should mark form as touched when input loses focus', () => {
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
 
-      selectElement.componentInstance.onBlur(new Event('blur'));
+      inputSelectComponent.onBlurHandler(new Event('blur'));
       fixture.detectChanges();
 
       expect(component.form.touched).toBe(true);

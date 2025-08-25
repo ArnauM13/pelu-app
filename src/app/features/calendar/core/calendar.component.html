@@ -7,21 +7,9 @@
   <!-- Calendar Content (only show when bookings are loaded) -->
   @else {
     <!-- Calendar Body -->
-    <div class="calendar-body">
+    <div class="calendar-body" [class.blocked]="isBlocked()">
 
-      <!-- Previous Week Button -->
-      <pelu-button
-        icon="pi pi-chevron-left"
-        [disabled]="!canNavigateToPreviousWeek()"
-        ariaLabel="COMMON.VIEWS.CALENDAR.PREVIOUS_WEEK"
-        size="small"
-        severity="secondary"
-        variant="outlined"
-        class="nav-btn"
-        (clicked)="previousWeek()"
-      />
-
-      <div class="horizontal-week-view" [style.--calendar-slot-count]="timeSlots().length">
+      <div class="horizontal-week-view" [style.--calendar-slot-count]="SLOT_COUNT()">
         <!-- Time Column -->
         <pelu-calendar-time-column [timeSlots]="timeColumnSlots()"> </pelu-calendar-time-column>
 
@@ -41,17 +29,6 @@
           }
         </div>
       </div>
-
-      <!-- Next Week Button -->
-      <pelu-button
-        icon="pi pi-chevron-right"
-        ariaLabel="COMMON.VIEWS.CALENDAR.NEXT_WEEK"
-        size="small"
-        severity="secondary"
-        variant="outlined"
-        class="nav-btn"
-        (clicked)="nextWeek()"
-      />
 
     </div>
 

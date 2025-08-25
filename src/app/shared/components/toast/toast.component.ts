@@ -256,9 +256,10 @@ export class ToastComponent {
     this.messageService.clear();
   }
 
-  onToastClick(event: any) {
-    const appointmentId = event.message?.data?.appointmentId;
-    const action = event.message?.data?.action;
+  onToastClick(event: unknown) {
+    const eventData = event as { message?: { data?: { appointmentId?: string; action?: () => void } } };
+    const appointmentId = eventData.message?.data?.appointmentId;
+    const action = eventData.message?.data?.action;
 
     if (action && typeof action === 'function') {
       this.executeAction(action);
@@ -288,7 +289,7 @@ export class ToastComponent {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: this.authService.user()?.uid,
-      data: { appointmentId },
+      data: JSON.stringify({ appointmentId }),
     });
 
     this.clearToast();
@@ -298,21 +299,19 @@ export class ToastComponent {
       this.logger.warn('No user found when trying to view appointment detail', {
         component: 'ToastComponent',
         method: 'viewAppointmentDetail',
-        data: { appointmentId },
+        data: JSON.stringify({ appointmentId }),
       });
       return;
     }
-
-    const clientId = user.uid;
-    const uniqueId = `${clientId}-${appointmentId}`;
 
     this.logger.info('Navigating to appointment detail', {
       component: 'ToastComponent',
       method: 'viewAppointmentDetail',
       userId: user.uid,
-      data: { appointmentId, uniqueId },
+      data: JSON.stringify({ appointmentId }),
     });
 
-    this.router.navigate(['/appointments', uniqueId]);
+    // Navigate directly to the appointment using the appointmentId (UUID)
+    this.router.navigate(['/appointments', appointmentId]);
   }
 }

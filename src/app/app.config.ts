@@ -6,10 +6,10 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import Aura from '@primeuix/themes/aura';
+import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
@@ -28,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({ theme: { preset: Aura }}),
     provideAnimationsAsync(),
     MessageService,
+    ConfirmationService,
 
     provideZoneChangeDetection({
       eventCoalescing: true,

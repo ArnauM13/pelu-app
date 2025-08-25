@@ -1,0 +1,45 @@
+<div class="about-page">
+  <div class="hero" pAnimateOnScroll enterClass="aos-fade-in" [threshold]="0.1" [once]="true">
+    <h1 class="hero-title" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 0ms">{{ 'ABOUT.TITLE' | translate }}</h1>
+    <p class="hero-subtitle" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 100ms">{{ 'ABOUT.DESCRIPTION' | translate }}</p>
+  </div>
+
+
+    <section class="services-showcase" pAnimateOnScroll enterClass="aos-fade-in" [threshold]="0.1" [once]="true">
+      <h2 class="section-title" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 0ms">{{ 'ABOUT.WHAT_WE_OFFER' | translate }}</h2>
+      <p class="section-subtitle" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 100ms">{{ 'ABOUT.WHAT_WE_OFFER_DESC' | translate }}</p>
+
+      @for (category of servicesByCategory(); track category.id) {
+        <div class="category-block" pAnimateOnScroll enterClass="aos-fade-in" [threshold]="0.1" [once]="true" style="--aos-delay: 0ms">
+          <div class="category-header" pAnimateOnScroll enterClass="aos-fade-up" [once]="true" style="--aos-delay: 50ms">
+            <span class="category-icon">{{ getCategoryIcon(category.id) }}</span>
+            <h3>{{ getCategoryName(category.id) }}</h3>
+          </div>
+
+          <div class="services-grid">
+            @for (service of category.services; track service.id) {
+              <pelu-service-card
+                pAnimateOnScroll
+                enterClass="aos-fade-up"
+                [threshold]="0.1"
+                [once]="true"
+                [style]="{'--aos-delay': (50 + ($index * 50)) + 'ms'}"
+                [service]="service"
+                [showActions]="false"
+                [showPopularBadge]="true"
+                [showCategory]="false"
+                [showDuration]="true"
+                [showPrice]="true"
+                [showDescription]="true"
+                [clickable]="false"
+                [selected]="false"
+                [compact]="false"
+              />
+            }
+          </div>
+        </div>
+      }
+    </section>
+</div>
+
+

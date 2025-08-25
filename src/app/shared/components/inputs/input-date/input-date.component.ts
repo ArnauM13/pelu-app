@@ -15,6 +15,7 @@ export interface InputDateConfig {
 
 @Component({
   selector: 'pelu-input-date',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, DatePickerModule],
   templateUrl: './input-date.component.html',
   styleUrls: ['./input-date.component.scss'],
@@ -38,6 +39,7 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly readonly = input<boolean>(false);
+  readonly invalid = input<boolean>(false);
   readonly enabled = input<boolean>(true);
 
   // DatePicker specific properties

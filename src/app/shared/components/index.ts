@@ -15,6 +15,9 @@ export type { LoaderConfig } from './loader';
 export { FooterComponent } from './footer';
 export type { FooterConfig, FooterAlert } from './footer';
 
+// Title component
+export { PeluTitleComponent } from './pelu-title/pelu-title.component';
+
 // Existing components (if any)
 // Add other shared components here as needed
 
@@ -39,6 +42,9 @@ export * from './buttons';
 // Service card component
 export { ServiceCardComponent } from './service-card/service-card.component';
 
+// Card component
+export { CardComponent } from './card/card.component';
+
 // Actions buttons component
 export { ActionsButtonsComponent } from './actions-buttons';
 export type { ActionConfig, ActionContext } from '../../core/services/actions.service';
@@ -46,3 +52,6 @@ export type { ActionConfig, ActionContext } from '../../core/services/actions.se
 // Popular badge component
 export { PopularBadgeComponent } from './popular-badge/popular-badge.component';
 export type { PopularBadgeConfig } from './popular-badge/popular-badge.component';
+
+// No appointments message component
+export { NoAppointmentsMessageComponent } from './no-appointments-message/no-appointments-message.component';

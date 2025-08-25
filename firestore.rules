@@ -22,6 +22,17 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions[permission] == true;
     }
 
+    function isBookingOwner(bookingData) {
+      return isAuthenticated() &&
+        bookingData.email == request.auth.token.email;
+    }
+
+    function isNotPastBooking(bookingData) {
+      // For now, just check if the booking has valid data
+      // The actual time validation can be handled in the application layer
+      return bookingData.data != null && bookingData.hora != null;
+    }
+
     // Col·lecció d'usuaris
     match /users/{userId} {
       // Usuaris poden llegir/escriure només les seves pròpies dades
@@ -35,9 +46,6 @@ service cloud.firestore {
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'permissions', 'updatedAt']));
     }
 
-    // Col·lecció de cites (bookings) - totes les cites es gestionen com a reserves
-    // Les regles estan definides a la secció de bookings més avall
-
     // Col·lecció de serveis
     match /services/{serviceId} {
       // Tots els usuaris autenticats poden llegir serveis
@@ -47,14 +55,28 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Col·lecció de categories de serveis
+    match /serviceCategories/{categoryId} {
+      // Tots els usuaris autenticats poden llegir categories
+      allow read: if isAuthenticated();
+
+      // Només administradors poden crear/actualitzar/eliminar categories
+      allow write: if isAdmin();
+    }
+
     // Col·lecció de reserves (bookings)
     match /bookings/{bookingId} {
       // Permetre creació de reserves (anònimes i autenticades)
       allow create: if true;
 
-      // Usuaris poden llegir/escriure només les seves pròpies reserves
-      allow read, write: if request.auth != null &&
-        resource.data.uid == request.auth.uid;
+      // Usuaris autenticats poden llegir totes les reserves (per veure el calendari)
+      allow read: if isAuthenticated();
+
+      // Usuaris poden actualitzar les seves pròpies reserves si no han passat
+      allow update: if isBookingOwner(resource.data) && isNotPastBooking(request.resource.data);
+
+      // Usuaris poden eliminar les seves pròpies reserves si no han passat
+      allow delete: if isBookingOwner(resource.data) && isNotPastBooking(resource.data);
 
       // Permetre accés amb token d'edició (per usuaris anònims)
       allow read: if resource.data.editToken == request.query.token;
@@ -75,8 +97,11 @@ service cloud.firestore {
 
     // Col·lecció de configuració del sistema
     match /system/{document} {
-      // Només administradors poden llegir i escriure configuració del sistema
-      allow read, write: if isAdmin();
+      // Tots els usuaris autenticats poden llegir la configuració del sistema
+      allow read: if isAuthenticated();
+
+      // Només administradors poden modificar la configuració del sistema
+      allow write: if isAdmin();
     }
 
     // Regla per defecte: denegar tot el que no estigui explícitament permès

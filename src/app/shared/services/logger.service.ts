@@ -3,16 +3,18 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 
 export interface LogContext {
-  component?: string;
-  method?: string;
-  userId?: string;
-  action?: string;
-  data?: any;
-  timestamp?: Date;
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+export interface LogData {
+  message: string;
+  context?: LogContext;
+  timestamp?: string;
+  level?: 'info' | 'warn' | 'error' | 'debug';
 }
 
 export interface ErrorDetails {
-  error: Error | any;
+  error: Error | unknown;
   context: LogContext;
   userMessage?: string;
   technicalDetails?: string;
@@ -27,11 +29,13 @@ export class LoggerService {
   // private readonly toastService = inject(ToastService); // ELIMINAT
 
   private readonly isDevelopment = !environment.production;
+  private readonly logHistory: LogData[] = [];
+  private readonly maxHistorySize = 100;
 
   /**
    * Log informatiu amb context detallat
    */
-  info(message: string, context?: LogContext, data?: any): void {
+  info(message: string, context?: LogContext, data?: unknown): void {
     const logContext = this.buildLogContext(context);
     const logMessage = this.formatLogMessage('INFO', message, logContext, data);
 
@@ -46,7 +50,7 @@ export class LoggerService {
   /**
    * Log d'advertència amb context detallat
    */
-  warn(message: string, context?: LogContext, data?: any): void {
+  warn(message: string, context?: LogContext, data?: unknown): void {
     const logContext = this.buildLogContext(context);
     const logMessage = this.formatLogMessage('WARN', message, logContext, data);
 
@@ -60,7 +64,7 @@ export class LoggerService {
   /**
    * Log d'error detallat amb gestió d'errors per a l'usuari
    */
-  error(error: Error | any, context?: LogContext, showUserToast: boolean = true): void {
+  error(error: Error | unknown, context?: LogContext, _showUserToast: boolean = true): void {
     const logContext = this.buildLogContext(context);
     const errorDetails = this.buildErrorDetails(error, logContext);
 
@@ -68,7 +72,7 @@ export class LoggerService {
     const logMessage = this.formatErrorMessage(errorDetails);
     if (this.isDevelopment) {
       console.error(logMessage);
-      console.error('Error Stack:', error?.stack);
+      console.error('Error Stack:', (error as Error)?.stack);
       console.error('Error Context:', logContext);
     }
 
@@ -89,7 +93,7 @@ export class LoggerService {
   /**
    * Log crític per a errors greus
    */
-  critical(error: Error | any, context?: LogContext): void {
+  critical(error: Error | unknown, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.severity = 'critical';
@@ -97,7 +101,7 @@ export class LoggerService {
     // Log crític sempre visible
     const logMessage = this.formatErrorMessage(errorDetails);
     console.error('🚨 CRITICAL ERROR:', logMessage);
-    console.error('Error Stack:', error?.stack);
+    console.error('Error Stack:', (error as Error)?.stack);
     console.error('Error Context:', logContext);
 
     // Enviar a servei de logging amb prioritat alta
@@ -115,7 +119,7 @@ export class LoggerService {
   /**
    * Log de debug (només en desenvolupament)
    */
-  debug(message: string, context?: LogContext, data?: any): void {
+  debug(message: string, context?: LogContext, data?: unknown): void {
     if (!this.isDevelopment) return;
 
     const logContext = this.buildLogContext(context);
@@ -140,9 +144,9 @@ export class LoggerService {
   /**
    * Log d'acció de l'usuari
    */
-  userAction(action: string, context?: LogContext, data?: any): void {
+  userAction(action: string, context?: LogContext, data?: unknown): void {
     const logContext = this.buildLogContext(context);
-    logContext.action = action;
+    logContext['action'] = action;
 
     const logMessage = this.formatLogMessage('USER', `User action: ${action}`, logContext, data);
 
@@ -156,7 +160,7 @@ export class LoggerService {
   /**
    * Log d'error de validació
    */
-  validationError(field: string, value: any, context?: LogContext): void {
+  validationError(field: string, value: unknown, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
     const message = `Validation error for field '${field}' with value: ${JSON.stringify(value)}`;
 
@@ -172,13 +176,13 @@ export class LoggerService {
   /**
    * Log d'error de xarxa
    */
-  networkError(error: any, endpoint: string, context?: LogContext): void {
+  networkError(error: unknown, endpoint: string, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
-    logContext.data = { endpoint };
+    logContext['data'] = JSON.stringify({ endpoint });
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.NETWORK_ERROR');
-    errorDetails.technicalDetails = `Network error calling ${endpoint}: ${error?.message || 'Unknown network error'}`;
+    errorDetails.technicalDetails = `Network error calling ${endpoint}: ${(error as Error)?.message || 'Unknown network error'}`;
 
     this.error(error, logContext, true);
   }
@@ -186,12 +190,12 @@ export class LoggerService {
   /**
    * Log d'error d'autenticació
    */
-  authError(error: any, context?: LogContext): void {
+  authError(error: unknown, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.AUTH_ERROR');
-    errorDetails.technicalDetails = `Authentication error: ${error?.message || 'Unknown auth error'}`;
+    errorDetails.technicalDetails = `Authentication error: ${(error as Error)?.message || 'Unknown auth error'}`;
 
     this.error(error, logContext, true);
   }
@@ -199,13 +203,13 @@ export class LoggerService {
   /**
    * Log d'error de Firebase
    */
-  firebaseError(error: any, operation: string, context?: LogContext): void {
+  firebaseError(error: unknown, operation: string, context?: LogContext): void {
     const logContext = this.buildLogContext(context);
-    logContext.data = { operation, firebaseError: true };
+    logContext['data'] = JSON.stringify({ operation, firebaseError: true });
 
     const errorDetails = this.buildErrorDetails(error, logContext);
     errorDetails.userMessage = this.translateService.instant('COMMON.ERRORS.FIREBASE_ERROR');
-    errorDetails.technicalDetails = `Firebase ${operation} error: ${error?.message || 'Unknown Firebase error'}`;
+    errorDetails.technicalDetails = `Firebase ${operation} error: ${(error as Error)?.message || 'Unknown Firebase error'}`;
 
     this.error(error, logContext, true);
   }
@@ -214,16 +218,16 @@ export class LoggerService {
 
   private buildLogContext(context?: LogContext): LogContext {
     return {
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       ...context,
     };
   }
 
-  private buildErrorDetails(error: Error | any, context: LogContext): ErrorDetails {
+  private buildErrorDetails(error: Error | unknown, context: LogContext): ErrorDetails {
     return {
       error,
       context,
-      technicalDetails: error?.message || 'Unknown error occurred',
+      technicalDetails: error instanceof Error ? error.message : String(error),
       severity: 'medium',
     };
   }
@@ -232,31 +236,25 @@ export class LoggerService {
     level: string,
     message: string,
     context: LogContext,
-    data?: any
+    _data?: unknown
   ): string {
-    const timestamp = context.timestamp?.toISOString() || new Date().toISOString();
-    const component = context.component ? `[${context.component}]` : '';
-    const method = context.method ? `.${context.method}` : '';
-    const userId = context.userId ? `[User: ${context.userId}]` : '';
-    const action = context.action ? `[Action: ${context.action}]` : '';
+    const timestamp = context['timestamp'] || new Date().toISOString();
+    const component = context['component'] ? `[${context['component']}]` : '';
+    const method = context['method'] ? `.${context['method']}` : '';
+    const userId = context['userId'] ? `[User: ${context['userId']}]` : '';
+    const action = context['action'] ? `[Action: ${context['action']}]` : '';
 
-    let logMessage = `[${timestamp}] ${level} ${component}${method} ${userId} ${action}: ${message}`;
-
-    if (data) {
-      logMessage += ` | Data: ${JSON.stringify(data, null, 2)}`;
-    }
-
-    return logMessage;
+    return `${timestamp} ${level} ${component}${method} ${userId} ${action} ${message}`;
   }
 
   private formatErrorMessage(errorDetails: ErrorDetails): string {
-    const { error, context, technicalDetails, severity } = errorDetails;
-    const timestamp = context.timestamp?.toISOString() || new Date().toISOString();
-    const component = context.component ? `[${context.component}]` : '';
-    const method = context.method ? `.${context.method}` : '';
-    const userId = context.userId ? `[User: ${context.userId}]` : '';
+    const { context, technicalDetails, severity } = errorDetails;
+    const timestamp = context['timestamp'] || new Date().toISOString();
+    const component = context['component'] ? `[${context['component']}]` : '';
+    const method = context['method'] ? `.${context['method']}` : '';
+    const userId = context['userId'] ? `[User: ${context['userId']}]` : '';
 
-    return `[${timestamp}] ERROR ${severity.toUpperCase()} ${component}${method} ${userId}: ${technicalDetails}`;
+    return `${timestamp} ERROR ${severity.toUpperCase()} ${component}${method} ${userId} ${technicalDetails}`;
   }
 
   // private showUserFriendlyError(errorDetails: ErrorDetails): void {
@@ -272,22 +270,23 @@ export class LoggerService {
     level: string,
     message: string,
     context: LogContext,
-    data?: any
+    _data?: unknown
   ): void {
     // En un entorn de producció, aquí enviaríem els logs a un servei extern
     // com ara Sentry, LogRocket, o un servei personalitzat
 
-    const logEntry = {
-      level,
+    const logEntry: LogData = {
       message,
       context,
-      data,
+      level: level as 'info' | 'warn' | 'error' | 'debug',
       timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
     };
 
-    // Per ara, només guardem en localStorage per a debugging
+    this.logHistory.push(logEntry);
+    if (this.logHistory.length > this.maxHistorySize) {
+      this.logHistory.splice(0, this.logHistory.length - this.maxHistorySize);
+    }
+
     if (this.isDevelopment) {
       this.saveToLocalStorage(logEntry);
     }
@@ -296,7 +295,7 @@ export class LoggerService {
     // this.sendToExternalService(logEntry);
   }
 
-  private saveToLocalStorage(logEntry: any): void {
+  private saveToLocalStorage(logEntry: LogData): void {
     try {
       const logs = JSON.parse(localStorage.getItem('app_logs') || '[]');
       logs.push(logEntry);
@@ -307,18 +306,18 @@ export class LoggerService {
       }
 
       localStorage.setItem('app_logs', JSON.stringify(logs));
-    } catch (error) {
-      console.error('Error saving log to localStorage:', error);
+    } catch {
+      console.error('Error saving log to localStorage');
     }
   }
 
   /**
    * Obtenir logs guardats (útil per a debugging)
    */
-  getStoredLogs(): any[] {
+  getStoredLogs(): LogData[] {
     try {
       return JSON.parse(localStorage.getItem('app_logs') || '[]');
-    } catch (error) {
+    } catch {
       return [];
     }
   }

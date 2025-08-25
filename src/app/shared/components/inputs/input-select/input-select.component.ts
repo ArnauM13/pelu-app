@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 export interface SelectOption {
   label: string;
@@ -20,7 +21,6 @@ export interface SelectOption {
   duration?: number;
   description?: string;
   category?: string;
-  popular?: boolean;
   new?: boolean;
   discount?: number;
   available?: boolean;
@@ -37,7 +37,8 @@ export interface InputSelectConfig {
 
 @Component({
   selector: 'pelu-input-select',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SelectModule, MultiSelectModule],
   templateUrl: './input-select.component.html',
   styleUrls: ['./input-select.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -60,6 +61,7 @@ export class InputSelectComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly readonly = input<boolean>(false);
+  readonly invalid = input<boolean>(false);
   readonly helpText = input<string>('');
   readonly errorText = input<string>('');
   readonly successText = input<string>('');
@@ -120,7 +122,7 @@ export class InputSelectComponent implements ControlValueAccessor {
 
   // Event handler for blur
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onBlurHandler(event: Event) {
+  onBlurHandler(event: Event | { originalEvent: Event }) {
     this.onTouched();
   }
 

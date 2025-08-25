@@ -80,7 +80,7 @@ export class AppointmentDetailService {
       this.logger.firebaseError(error, 'loadBookingById', {
         component: 'AppointmentDetailService',
         method: 'loadBookingById',
-        data: { uniqueId },
+        uniqueId,
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error loading booking';
@@ -114,11 +114,9 @@ export class AppointmentDetailService {
 
     return (
       booking.clientName !== form.clientName ||
-      booking.email !== form.email ||
       booking.data !== form.data ||
       booking.hora !== form.hora ||
-      booking.notes !== form.notes ||
-      booking.serviceId !== form.serviceId
+      booking.notes !== form.notes
     );
   }
 

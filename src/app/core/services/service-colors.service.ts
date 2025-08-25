@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslationService } from './translation.service';
 
 export interface ServiceColor {
@@ -75,7 +75,9 @@ export class ServiceColorsService {
 
   private readonly serviceColorMap = new Map<string, ServiceColor>();
 
-  constructor(private translationService: TranslationService) {
+  private translationService = inject(TranslationService);
+
+  constructor() {
     // Inicialitzar el mapa de colors
     this.serviceColors.forEach(color => {
       this.serviceColorMap.set(color.id, color);

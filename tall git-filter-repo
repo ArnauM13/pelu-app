@@ -1,0 +1,4 @@
+# Coveralls configuration
+service_name: github
+repo_token: G6xogvtv43jVPYdTtqrhZjaVfDWM0xeMr
+coverage_report: ./coverage/pelu-app/lcov.info

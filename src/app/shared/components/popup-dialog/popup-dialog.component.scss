@@ -1,212 +1,58 @@
-/* Popup Dialog Styles */
-.popup-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease;
+// Use PrimeNG default theming (Aura) for ConfirmDialog.
+// Minimal overrides to add rounded corners and ensure column layout inside content.
+
+.pelu-confirmdialog.p-confirmdialog {
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-.popup-dialog {
-  background: white;
-  border-radius: var(--border-radius-lg, 16px);
-  box-shadow: var(--shadow-xl, 0 20px 40px rgba(0, 0, 0, 0.15));
+// Ensure projected message content is flex column
+.pelu-confirmdialog .p-confirmdialog-content {
   display: flex;
   flex-direction: column;
-  animation: slideIn 0.3s ease-out;
-  position: relative;
-  z-index: 1000;
-  max-height: 90vh;
-  overflow: hidden;
-
-  // Size variants
-  &.popup-dialog-small {
-    max-width: 400px;
-    width: 90vw;
-  }
-
-  &.popup-dialog-medium {
-    max-width: 600px;
-    width: 90vw;
-  }
-
-  &.popup-dialog-large {
-    max-width: 800px;
-    width: 90vw;
-  }
-
-  &.popup-dialog-full {
-    max-width: 95vw;
-    width: 95vw;
-    height: 95vh;
-  }
-
-  @media (max-width: 768px) {
-    width: 95vw;
-    margin: 10px;
-  }
+  gap: 0.75rem;
+  align-items: stretch;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.popup-header {
+// And also target our inner wrapper for completeness
+.pelu-confirmdialog .pelu-confirmdialog-content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Pre-delete confirmation variant: wider and less tall, with comfortable paddings */
+.pelu-confirmdialog.p-confirmdialog.pelu-confirmdelete {
+  width: 480px !important; /* modest width */
+  max-width: min(92vw, 520px) !important;
+}
+
+.pelu-confirmdialog.p-confirmdialog.pelu-confirmdelete .p-confirmdialog-content {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.pelu-confirmdialog.p-confirmdialog.pelu-confirmdelete .p-confirmdialog-footer {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Icon + text row for headless message */
+.pelu-confirmdialog .pelu-confirmdialog-content .confirm-row {
+  display: flex;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
-  background: var(--surface-color, white);
-
-  .popup-title {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-color-primary, #1f2937);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .close-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-color-secondary, #6b7280);
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    position: relative;
-    z-index: 1;
-
-    &:hover {
-      background-color: var(--surface-color-hover, #f3f4f6);
-      color: var(--text-color-primary, #374151);
-      transform: scale(1.1);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    &:focus {
-      outline: 2px solid var(--primary-color, #3b82f6);
-      outline-offset: 2px;
-    }
-
-    .close-icon {
-      font-size: 1.5rem;
-      font-weight: 300;
-      line-height: 1;
-    }
-  }
+  gap: 0.75rem;
 }
 
-.popup-content {
-  padding: 1.5rem;
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
+.pelu-confirmdialog .pelu-confirmdialog-content .confirm-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
 }
 
-.popup-footer {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-color, #e5e7eb);
-  justify-content: flex-end;
-  background: var(--surface-color, white);
-  flex-wrap: wrap;
-
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    min-width: 120px;
-    justify-content: center;
-
-    &.btn-primary {
-      background: var(--gradient-primary, linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%));
-      color: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-      &:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-    }
-
-    &.btn-secondary {
-      background: var(--gradient-secondary, linear-gradient(135deg, #6b7280 0%, #4b5563 100%));
-      color: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-      &:hover {
-        background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-    }
-
-    &.btn-danger {
-      background: var(--gradient-error, linear-gradient(135deg, #ef4444 0%, #dc2626 100%));
-      color: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-      &:hover {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-
-    .btn {
-      width: 100%;
-      min-width: auto;
-    }
-  }
+.pelu-confirmdialog .pelu-confirmdialog-content .confirm-text {
+  flex: 1 1 auto;
 }

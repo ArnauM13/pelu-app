@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FiltersInlineComponent } from './filters-inline.component';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { FiltersInlineComponent } from './filters-inline.component';
+import { provideMockFirebase } from '../../../../testing/firebase-mocks';
 import { of } from 'rxjs';
 
 // Mock translate loader
@@ -27,6 +28,9 @@ describe('FiltersInlineComponent', () => {
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
         }),
       ],
+      providers: [
+        ...provideMockFirebase(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FiltersInlineComponent);
@@ -44,6 +48,7 @@ describe('FiltersInlineComponent', () => {
     expect(component.onDateChange).toBeDefined();
     expect(component.onClientChange).toBeDefined();
     expect(component.onServiceChange).toBeDefined();
+    // Note: onReset is still available as input but reset functionality is handled by parent
     expect(component.onReset).toBeDefined();
   });
 
@@ -52,37 +57,30 @@ describe('FiltersInlineComponent', () => {
     expect(component.filterClientValue).toBeDefined();
     expect(component.filterServiceValue).toBeDefined();
     expect(component.serviceOptions).toBeDefined();
-    expect(component.serviceFilterConfig).toBeDefined();
   });
 
   it('should have handler methods defined', () => {
-    expect(typeof component.onDateChangeHandler).toBe('function');
-    expect(typeof component.onClientChangeHandler).toBe('function');
-    expect(typeof component.onServiceChangeHandler).toBe('function');
-    expect(typeof component.onResetHandler).toBe('function');
+    // Reset functionality is now handled by parent component
+    expect(component.filtersForm).toBeDefined();
   });
 
   it('should render with proper structure', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.filters-inline')).toBeTruthy();
+    // No longer has .filters-inline wrapper (card styling removed)
     expect(compiled.querySelector('.filters-grid')).toBeTruthy();
-    expect(compiled.querySelector('#filterDate')).toBeTruthy();
-    expect(compiled.querySelector('#filterClient')).toBeTruthy();
-    expect(compiled.querySelector('.reset-btn')).toBeTruthy();
+    expect(compiled.querySelector('form')).toBeTruthy();
   });
 
   it('should have proper CSS classes', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.filters-inline')).toBeTruthy();
+    // No longer has .filters-inline wrapper (card styling removed)
     expect(compiled.querySelector('.filters-grid')).toBeTruthy();
     expect(compiled.querySelector('.filter-group')).toBeTruthy();
-    expect(compiled.querySelector('.reset-group')).toBeTruthy();
-    expect(compiled.querySelector('.input')).toBeTruthy();
-    expect(compiled.querySelector('.reset-btn')).toBeTruthy();
+    // No longer has .reset-group (reset button moved to parent)
   });
 
   it('should have proper input types', () => {

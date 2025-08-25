@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -143,7 +143,7 @@ import {
 export class ActionsButtonsComponent {
   @Input() context!: ActionContext;
 
-  constructor(private actionsService: ActionsService) {}
+  private readonly actionsService = inject(ActionsService);
 
   get actions(): ActionConfig[] {
     return this.actionsService.getActions(this.context);

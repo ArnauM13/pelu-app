@@ -1,17 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 
-export interface Appointment {
-  id?: string;
-  nom: string;
+export interface AppointmentData {
+  id: string;
+  clientName: string;
   data: string;
-  hora?: string;
-  servei?: string;
-  serviceName?: string;
-  duration?: number;
-  preu?: number;
+  hora: string;
+  duration: number;
+  serviceName: string;
   notes?: string;
-  userId?: string;
-  [key: string]: any;
+  preu?: number;
+  userId: string;
+  serviceId: string;
+}
+
+export function formatAppointmentForDisplay(appointment: AppointmentData): string {
+  return `${appointment.clientName} - ${appointment.serviceName} (${appointment.data} ${appointment.hora})`;
 }
 
 /**
@@ -21,9 +24,9 @@ export interface Appointment {
  * @returns Migrated appointments array
  */
 export function migrateOldAppointments(
-  appointments: Appointment[],
+  appointments: AppointmentData[],
   currentUserId?: string
-): Appointment[] {
+): AppointmentData[] {
   return appointments.map(appointment => {
     const updatedAppointment = { ...appointment };
 
@@ -53,8 +56,8 @@ export function migrateOldAppointments(
  * @returns True if any appointment was migrated
  */
 export function needsMigration(
-  originalAppointments: Appointment[],
-  migratedAppointments: Appointment[]
+  originalAppointments: AppointmentData[],
+  migratedAppointments: AppointmentData[]
 ): boolean {
   return migratedAppointments.some((appointment, index) => {
     const original = originalAppointments[index];
@@ -66,7 +69,7 @@ export function needsMigration(
  * Save migrated appointments to localStorage
  * @param appointments Migrated appointments to save
  */
-export function saveMigratedAppointments(appointments: Appointment[]): void {
+export function saveMigratedAppointments(appointments: AppointmentData[]): void {
   try {
     localStorage.setItem('cites', JSON.stringify(appointments));
   } catch (error) {
@@ -114,17 +117,6 @@ export function isMigrationCompleted(): boolean {
     return migrationFlag === 'true';
   } catch {
     return false;
-  }
-}
-
-/**
- * Mark one-time migration as completed
- */
-export function markMigrationCompleted(): void {
-  try {
-    localStorage.setItem('appointment_migration_completed', 'true');
-  } catch (error) {
-    console.error('Error marking migration as completed:', error);
   }
 }
 

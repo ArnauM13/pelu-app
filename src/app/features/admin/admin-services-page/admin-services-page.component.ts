@@ -1,3 +1,4 @@
+import { UserService } from './../../../core/services/user.service';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -14,8 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
-import { AlertPopupComponent } from '../../../shared/components/alert-popup/alert-popup.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
@@ -23,31 +23,13 @@ import { InputTextareaComponent } from '../../../shared/components/inputs/input-
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../../../shared/components/popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 
-import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
-import { ServicesMigrationService } from '../../../core/services/services-migration.service';
-import { UserService } from '../../../core/services/user.service';
+import { FirebaseServicesService, ServiceCategory } from '../../../core/services/firebase-services.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
-
-interface AlertData {
-  title: string;
-  message: string;
-  confirmText: string;
-  cancelText: string;
-  severity: 'warning' | 'danger';
-  onConfirm: () => void;
-}
-
-interface ServiceCategory {
-  id: string;
-  name: string;
-  icon: string;
-  custom?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-admin-services-page',
@@ -66,8 +48,7 @@ interface ServiceCategory {
     ToastModule,
     TooltipModule,
     TranslateModule,
-    LoadingStateComponent,
-    AlertPopupComponent,
+    ConfirmationPopupComponent,
     ServiceCardComponent,
     ButtonComponent,
     InputTextComponent,
@@ -76,6 +57,7 @@ interface ServiceCategory {
     InputNumberComponent,
     InputCheckboxComponent,
     PopupDialogComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './admin-services-page.component.html',
   styleUrls: ['./admin-services-page.component.scss'],
@@ -84,11 +66,11 @@ export class AdminServicesPageComponent implements OnInit {
   // Inject services
   private readonly router = inject(Router);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
-  private readonly servicesMigrationService = inject(ServicesMigrationService);
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
+  private readonly loaderService = inject(LoaderService);
 
   // Dialog visibility signals
   private readonly _showCreateDialog = signal<boolean>(false);
@@ -99,7 +81,9 @@ export class AdminServicesPageComponent implements OnInit {
   private readonly _showCategoriesManagerDialog = signal<boolean>(false);
   private readonly _selectedCategory = signal<ServiceCategory | null>(null);
   private readonly _showAlertDialog = signal<boolean>(false);
-  private readonly _alertData = signal<AlertData | null>(null);
+  private readonly _alertData = signal<ConfirmationData | null>(null);
+  private readonly _pendingDeleteService = signal<FirebaseService | null>(null);
+  private readonly _pendingDeleteCategory = signal<ServiceCategory | null>(null);
 
   // Service popular status signals - reactive state for each service
   private readonly _servicePopularStatus = signal<Map<string, boolean>>(new Map());
@@ -125,7 +109,6 @@ export class AdminServicesPageComponent implements OnInit {
 
   // Admin access signals
   readonly isAdmin = computed(() => this.userService.isAdmin());
-  readonly hasAdminAccess = computed(() => this.userService.hasAdminAccess());
 
   // Service categories
   readonly serviceCategories = computed(() => this.firebaseServicesService.serviceCategories());
@@ -160,7 +143,7 @@ export class AdminServicesPageComponent implements OnInit {
     { label: '🎯 Express', value: '🎯' },
     { label: '🕐 Ràpid', value: '🕐' },
     { label: '🌿 Natural', value: '🌿' },
-    { label: '🔥 Tendència', value: '🔥' },
+    { label: '�� Tendència', value: '🔥' },
   ];
 
   // Services by category with reactive popular status
@@ -186,7 +169,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.CREATE_SERVICE'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.createService()
       }
     ]
@@ -200,7 +183,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.EDIT_SERVICE'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.updateService()
       }
     ]
@@ -221,7 +204,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.CREATE_CATEGORY'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.createCategory()
       }
     ]
@@ -235,7 +218,7 @@ export class AdminServicesPageComponent implements OnInit {
     footerActions: [
       {
         label: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.EDIT_CATEGORY'),
-        type: 'save' as FooterActionType,
+        severity: 'primary',
         action: () => this.updateCategory()
       }
     ]
@@ -258,7 +241,7 @@ export class AdminServicesPageComponent implements OnInit {
       duration: [30, [Validators.required, Validators.min(5), Validators.max(480)]],
       category: ['haircut', [Validators.required]],
       icon: ['✂️', [Validators.required]],
-      popular: [false]
+      isPopular: [false]
     });
 
     // Initialize category form
@@ -304,15 +287,24 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   async loadServices(): Promise<void> {
-    await this.firebaseServicesService.loadServices();
+    this.loaderService.show({ message: 'SERVICES.LOADING_SERVICES' });
 
-    // Initialize popular status signals after services are loaded
-    const services = this.services();
-    const statusMap = new Map<string, boolean>();
-    services.forEach(service => {
-      statusMap.set(service.id!, service.isPopular ?? false);
-    });
-    this._servicePopularStatus.set(statusMap);
+    try {
+      await this.firebaseServicesService.loadServices();
+
+      // Initialize popular status signals after services are loaded
+      const services = this.services();
+      const statusMap = new Map<string, boolean>();
+      services.forEach(service => {
+        statusMap.set(service.id!, service.isPopular ?? false);
+      });
+      this._servicePopularStatus.set(statusMap);
+    } catch (error) {
+      console.error('Error loading services:', error);
+      this.toastService.showError('SERVICES.ERROR_LOADING_SERVICES');
+    } finally {
+      this.loaderService.hide();
+    }
   }
 
   showCreateService(): void {
@@ -336,7 +328,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: service.duration,
         category: service.category,
         icon: service.icon,
-        isPopular: service.isPopular
+        isPopular: service.isPopular ?? false
       });
     }
   }
@@ -351,13 +343,27 @@ export class AdminServicesPageComponent implements OnInit {
       return;
     }
 
+    this.loaderService.show({ message: 'SERVICES.CREATING_SERVICE' });
+
     try {
-      const formValue = form.value;
-      const serviceData = {
-        ...formValue,
-        createdAt: new Date(),
-        updatedAt: new Date()
+      const formValue = form.value as {
+        name: string;
+        description: string;
+        price: number;
+        duration: number;
+        category: string;
+        icon: string;
+        isPopular?: boolean;
       };
+      const serviceData = {
+        name: formValue.name,
+        description: formValue.description,
+        price: formValue.price,
+        duration: formValue.duration,
+        category: formValue.category,
+        icon: formValue.icon,
+        isPopular: Boolean(formValue.isPopular),
+      } satisfies Omit<FirebaseService, 'id'>;
 
       await this.firebaseServicesService.createService(serviceData);
       this.toastService.showSuccess(
@@ -371,6 +377,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.ERROR_CREATING_SERVICE')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -386,11 +394,26 @@ export class AdminServicesPageComponent implements OnInit {
       return;
     }
 
+    this.loaderService.show({ message: 'SERVICES.UPDATING_SERVICE' });
+
     try {
-      const formValue = form.value;
-      const serviceData = {
-        ...formValue,
-        updatedAt: new Date()
+      const formValue = form.value as {
+        name: string;
+        description: string;
+        price: number;
+        duration: number;
+        category: string;
+        icon: string;
+        isPopular?: boolean;
+      };
+      const serviceData: Partial<FirebaseService> = {
+        name: formValue.name,
+        description: formValue.description,
+        price: formValue.price,
+        duration: formValue.duration,
+        category: formValue.category,
+        icon: formValue.icon,
+        isPopular: Boolean(formValue.isPopular),
       };
 
       await this.firebaseServicesService.updateService(selectedService.id!, serviceData);
@@ -405,28 +428,36 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.ERROR_UPDATING_SERVICE')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   deleteService(service: FirebaseService): void {
+    this._pendingDeleteService.set(service);
+    this._pendingDeleteCategory.set(null);
     this._alertData.set({
       title: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
       message: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION_MESSAGE', { name: service.name }),
-      confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+      confirmText: this.translateService.instant('SERVICES.MANAGEMENT.DELETE_CONFIRMATION'),
+      cancelText: this.translateService.instant('COMMON.CONFIRMATION.NO'),
       severity: 'danger',
-      onConfirm: () => this.deleteServiceConfirmed(service)
     });
     this._showAlertDialog.set(true);
   }
 
   onAlertConfirmed(): void {
-    const alertData = this.alertData();
-    if (alertData) {
-      alertData.onConfirm();
+    const service = this._pendingDeleteService();
+    const category = this._pendingDeleteCategory();
+    if (service) {
+      this.deleteServiceConfirmed(service);
+    } else if (category) {
+      this.deleteCategoryConfirmed(category);
     }
     this._showAlertDialog.set(false);
     this._alertData.set(null);
+    this._pendingDeleteService.set(null);
+    this._pendingDeleteCategory.set(null);
   }
 
   onAlertCancelled(): void {
@@ -435,6 +466,8 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   private async deleteServiceConfirmed(service: FirebaseService): Promise<void> {
+    this.loaderService.show({ message: 'SERVICES.DELETING_SERVICE' });
+
     try {
       await this.firebaseServicesService.deleteService(service.id!);
       this.toastService.showSuccess(
@@ -447,10 +480,14 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.ERROR_DELETING_SERVICE')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   private async deleteCategoryConfirmed(category: ServiceCategory): Promise<void> {
+    this.loaderService.show({ message: 'SERVICES.DELETING_CATEGORY' });
+
     try {
       await this.firebaseServicesService.deleteCategory(category.id);
       this.toastService.showSuccess(
@@ -464,6 +501,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.DELETE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_DELETING_CATEGORY')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -496,7 +535,7 @@ export class AdminServicesPageComponent implements OnInit {
         duration: 30,
         category: 'haircut',
         icon: '✂️',
-        popular: false
+        isPopular: false
       });
     }
   }
@@ -514,47 +553,24 @@ export class AdminServicesPageComponent implements OnInit {
   }
 
   async refreshServices(): Promise<void> {
-    await this.firebaseServicesService.refreshServices();
-  }
+    this.loaderService.show({ message: 'SERVICES.REFRESHING_SERVICES' });
 
-  async migrateServices(): Promise<void> {
     try {
-      this.toastService.showInfo(
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES')
-      );
-
-      const migratedCount = await this.servicesMigrationService.migrateServicesToFirebase();
-
-      this.toastService.showSuccess(
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES'),
-        this.translateService.instant('SERVICES.MANAGEMENT.MIGRATE_SERVICES') + ` (${migratedCount} services)`
-      );
-
-      await this.refreshServices();
+      await this.firebaseServicesService.refreshServices();
     } catch (error) {
-      console.error('Error migrating services:', error);
-      this.toastService.showError(
-        this.translateService.instant('COMMON.ERRORS.MIGRATION_ERROR'),
-        this.translateService.instant('ADMIN.SERVICES.MIGRATION.ERROR_MESSAGE')
-      );
+      console.error('Error refreshing services:', error);
+      this.toastService.showError('SERVICES.ERROR_REFRESHING_SERVICES');
+    } finally {
+      this.loaderService.hide();
     }
   }
+
 
   showCategoriesManager(): void {
     this._showCategoriesManagerDialog.set(true);
   }
 
-  get loadingConfig() {
-    return {
-      message: this.translateService.instant('ADMIN.SERVICES.LOADING_MESSAGE'),
-      showSpinner: true,
-      spinnerSize: 'large' as const,
-      overlay: true,
-      overlayOpacity: 0.7,
-      zIndex: 1000
-    };
-  }
+
 
   showCreateCategory(): void {
     this.resetCategoryForm();
@@ -590,6 +606,8 @@ export class AdminServicesPageComponent implements OnInit {
       return;
     }
 
+    this.loaderService.show({ message: 'SERVICES.UPDATING_CATEGORY' });
+
     try {
       const formValue = form.value;
       const categoryData = {
@@ -609,6 +627,8 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.UPDATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_UPDATING_CATEGORY')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -621,6 +641,8 @@ export class AdminServicesPageComponent implements OnInit {
       );
       return;
     }
+
+    this.loaderService.show({ message: 'SERVICES.CREATING_CATEGORY' });
 
     try {
       const formValue = form.value;
@@ -642,17 +664,20 @@ export class AdminServicesPageComponent implements OnInit {
         this.translateService.instant('COMMON.ERRORS.CREATE_ERROR'),
         this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.ERROR_CREATING_CATEGORY')
       );
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   deleteCategory(category: ServiceCategory): void {
+    this._pendingDeleteService.set(null);
+    this._pendingDeleteCategory.set(category);
     this._alertData.set({
       title: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
       message: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION_MESSAGE', { name: category.name }),
-      confirmText: this.translateService.instant('COMMON.ACTIONS.DELETE'),
-      cancelText: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+      confirmText: this.translateService.instant('SERVICES.MANAGEMENT.CATEGORIES.DELETE_CATEGORY_CONFIRMATION'),
+      cancelText: this.translateService.instant('COMMON.CONFIRMATION.NO'),
       severity: 'danger',
-      onConfirm: () => this.deleteCategoryConfirmed(category)
     });
     this._showAlertDialog.set(true);
   }
@@ -705,7 +730,7 @@ export class AdminServicesPageComponent implements OnInit {
       // Prepare the update data
       const updatedService = {
         ...service,
-        popular: newPopularStatus,
+        isPopular: newPopularStatus,
         updatedAt: new Date()
       };
 

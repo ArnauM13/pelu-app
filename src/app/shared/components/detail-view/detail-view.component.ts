@@ -1,26 +1,31 @@
 import { Component, input, output, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { RouterModule } from '@angular/router';
+import { format, parseISO } from 'date-fns';
+import { ca } from 'date-fns/locale';
 
 import { AvatarComponent } from '../avatar/avatar.component';
-import { InfoItemComponent } from '../info-item/info-item.component';
-import { AppointmentStatusBadgeComponent } from '../appointment-status-badge';
+import { AppointmentStatusBadgeComponent } from '../appointment-status-badge/appointment-status-badge.component';
 import { NotFoundStateComponent } from '../not-found-state/not-found-state.component';
-import { LoadingStateComponent } from '../loading-state/loading-state.component';
+
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
-import { ActionsButtonsComponent } from '../actions-buttons';
+import { ActionsButtonsComponent } from '../actions-buttons/actions-buttons.component';
 import { ButtonComponent } from '../buttons/button.component';
+import { ServiceCardComponent } from '../service-card/service-card.component';
+import { CardComponent } from '../card/card.component';
+
 import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
 import { ServicesService } from '../../../core/services/services.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
+import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
+import { IcsUtils } from '../../utils/ics.utils';
 import { User } from '../../../core/interfaces/user.interface';
 import { Booking, BookingForm } from '../../../core/interfaces/booking.interface';
 
@@ -74,16 +79,17 @@ export interface DetailViewConfig {
     InputTextModule,
     TooltipModule,
     AvatarComponent,
-    InfoItemComponent,
     AppointmentStatusBadgeComponent,
     NotFoundStateComponent,
-    LoadingStateComponent,
+
     RouterModule,
     InputTextComponent,
     InputTextareaComponent,
     InputDateComponent,
     ActionsButtonsComponent,
     ButtonComponent,
+    ServiceCardComponent,
+    CardComponent,
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss'],
@@ -108,6 +114,7 @@ export class DetailViewComponent {
   #toastService = inject(ToastService);
   #actionsService = inject(ActionsService);
   #bookingValidationService = inject(BookingValidationService);
+  #firebaseServicesService = inject(FirebaseServicesService);
 
   // Computed properties from service
   readonly appointment = this.#appointmentManagementService.appointment;
@@ -130,7 +137,7 @@ export class DetailViewComponent {
   readonly filteredActions = computed(() => {
     return this.actions().filter(
       action =>
-        action.label !== 'COMMON.ACTIONS.BACK' &&
+        action.label !== 'COMMON.BACK' &&
         action.label !== 'Back' &&
         action.label !== 'Tornar endarrere'
     );
@@ -184,6 +191,29 @@ export class DetailViewComponent {
     };
   });
 
+  // Appointment client avatar data
+  readonly appointmentClientAvatarData = computed(() => {
+    const appointment = this.appointment();
+    if (!appointment) return null;
+
+    // Parse clientName to separate name and surname
+    const clientName = appointment.clientName || '';
+    const nameParts = clientName.split(' ');
+    const name = nameParts[0] || '';
+    const surname = nameParts.slice(1).join(' ') || '';
+
+    // Try to get photo URL from the appointment data (if loaded by AppointmentManagementService)
+    const appointmentWithService = appointment as Booking & { clientPhotoURL?: string };
+    const photoURL = appointmentWithService?.clientPhotoURL || '';
+
+    return {
+      name: name,
+      surname: surname,
+      email: appointment.email || '',
+      imageUrl: photoURL,
+    };
+  });
+
   readonly displayName = computed(() => {
     const user = this.user();
     return (user as User & { displayName?: string })?.displayName || user?.email?.split('@')[0] || 'COMMON.USER';
@@ -191,6 +221,22 @@ export class DetailViewComponent {
 
   readonly email = computed(() => {
     return this.user()?.email || 'COMMON.NOT_AVAILABLE';
+  });
+
+  // Appointment title and subtitle (similar to profile)
+  readonly appointmentTitle = computed(() => {
+    const appointment = this.appointment();
+    return appointment?.clientName || 'COMMON.NOT_AVAILABLE';
+  });
+
+  readonly appointmentSubtitle = computed(() => {
+    const appointment = this.appointment();
+    if (!appointment?.data || !appointment?.hora) {
+      return 'COMMON.NOT_AVAILABLE';
+    }
+    const formattedDate = this.formatDate(appointment.data);
+    const formattedTime = this.formatTime(appointment.hora);
+    return `${formattedDate} - ${formattedTime}`;
   });
 
   // Appointment specific computed properties
@@ -246,7 +292,7 @@ export class DetailViewComponent {
       icon: this.type() === 'profile' ? '👤' : '📅',
       title: this.type() === 'profile' ? 'PROFILE.NOT_FOUND' : 'APPOINTMENTS.NOT_FOUND',
       message: this.type() === 'profile' ? 'AUTH.LOGIN_TO_VIEW_PROFILE' : 'COMMON.NO_DATA',
-      buttonText: 'COMMON.ACTIONS.BACK',
+      buttonText: 'COMMON.BACK',
       showButton: true,
     };
   });
@@ -294,17 +340,17 @@ export class DetailViewComponent {
         this.#appointmentManagementService.loadAppointment(appointmentId);
       }
     });
+
+
   }
 
   // Event handlers
   onBack(): void {
     this.back.emit();
-    this.#appointmentManagementService.goBack();
   }
 
   onEdit(): void {
     this.edit.emit();
-    this.#appointmentManagementService.startEditing();
   }
 
   onSave(): void {
@@ -315,22 +361,18 @@ export class DetailViewComponent {
         email: appointment.email || '',
         data: appointment.data || '',
         hora: appointment.hora || '',
-        serviceId: appointment.serviceId || '',
-        notes: appointment.notes || ''
+        notes: appointment.notes || '',
+        serviceId: appointment.serviceId || ''
       });
     }
-    // Remove duplicate saveAppointment call - let the parent component handle it
-    // this.#appointmentManagementService.saveAppointment();
   }
 
   onCancelEdit(): void {
     this.cancelEdit.emit();
-    this.#appointmentManagementService.cancelEditing();
   }
 
   onDelete(): void {
     this.delete.emit();
-    this.#appointmentManagementService.deleteAppointment();
   }
 
   onUpdateForm(field: string, value: string | number | Date | null): void {
@@ -346,22 +388,19 @@ export class DetailViewComponent {
     }
 
     this.updateForm.emit({ field, value: processedValue });
-    this.#appointmentManagementService.updateForm(field as keyof BookingForm, processedValue);
   }
 
   // Utility methods
   formatDate(dateString: string): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ca-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    try {
+      const date = parseISO(dateString);
+      return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ca });
+    } catch {
+      return dateString;
+    }
   }
 
   formatTime(timeString: string): string {
-    if (!timeString) return '';
     return timeString;
   }
 
@@ -375,5 +414,54 @@ export class DetailViewComponent {
 
   viewAppointmentDetail(appointmentId: string): void {
     this.#appointmentManagementService.navigateToAppointment(appointmentId);
+  }
+
+  /**
+   * Downloads ICS file with appointment details and opens calendar
+   */
+  async downloadIcsFile(): Promise<void> {
+    const appointment = this.appointment();
+
+    if (!appointment) {
+      this.#toastService.showError('No s\'ha trobat la reserva per generar l\'arxiu ICS');
+      return;
+    }
+
+    try {
+      // Get service details from the appointment
+      const service = await this.#firebaseServicesService.getServiceById(appointment.serviceId);
+
+      if (!service) {
+        this.#toastService.showError('No s\'ha trobat el servei per generar l\'arxiu ICS');
+        return;
+      }
+
+      const icsData = {
+        clientName: appointment.clientName,
+        email: appointment.email,
+        date: appointment.data,
+        time: appointment.hora,
+        serviceName: service.name,
+        duration: service.duration,
+        price: service.price,
+        businessName: 'PeluApp',
+        businessAddress: '',
+        businessPhone: ''
+      };
+
+      const icsContent = IcsUtils.generateIcsContent(icsData);
+      const filename = IcsUtils.generateFilename(
+        appointment.clientName,
+        appointment.data,
+        service.name
+      );
+
+      // Download and open calendar
+      await IcsUtils.downloadAndOpenCalendar(icsContent, filename);
+      this.#toastService.showSuccess('Arxiu ICS descarregat i calendari obert correctament');
+    } catch (error) {
+      console.error('Error generating ICS file:', error);
+      this.#toastService.showError('Error al generar l\'arxiu ICS');
+    }
   }
 }

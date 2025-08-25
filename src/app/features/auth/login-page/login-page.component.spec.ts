@@ -6,7 +6,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { mockAuth } from '../../../../testing/firebase-mocks';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';
 
 // Mock translate loader

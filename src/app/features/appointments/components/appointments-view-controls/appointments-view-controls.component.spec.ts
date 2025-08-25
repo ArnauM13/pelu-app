@@ -19,7 +19,7 @@ class MockTranslateLoader implements TranslateLoader {
   template: `
     <pelu-appointments-view-controls
       [viewButtons]="viewButtons()"
-      (onViewModeChange)="onViewModeChange($event)"
+      (viewModeChange)="onViewModeChange($event)"
     >
     </pelu-appointments-view-controls>
   `,
@@ -45,14 +45,12 @@ class TestWrapperComponent {
     },
   ]);
 
-  onViewModeChange(mode: 'list' | 'calendar') {}
+  onViewModeChange(_mode: 'list' | 'calendar') {}
 }
 
 describe('AppointmentsViewControlsComponent', () => {
   let component: AppointmentsViewControlsComponent;
   let fixture: ComponentFixture<TestWrapperComponent>;
-  let wrapperComponent: TestWrapperComponent;
-  let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
     const translateSpy = jasmine.createSpyObj('TranslateService', [
@@ -67,6 +65,17 @@ describe('AppointmentsViewControlsComponent', () => {
       'getLangs',
     ]);
 
+    // Setup default mock return values with proper observables
+    translateSpy.get.and.returnValue(of('translated text'));
+    translateSpy.instant.and.returnValue('translated text');
+    translateSpy.addLangs.and.returnValue(undefined);
+    translateSpy.getBrowserLang.and.returnValue('ca');
+    translateSpy.use.and.returnValue(of({}));
+    translateSpy.reloadLang.and.returnValue(of({}));
+    translateSpy.setDefaultLang.and.returnValue(undefined);
+    translateSpy.getDefaultLang.and.returnValue('ca');
+    translateSpy.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
+
     await TestBed.configureTestingModule({
       imports: [
         TestWrapperComponent,
@@ -74,27 +83,20 @@ describe('AppointmentsViewControlsComponent', () => {
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
         }),
       ],
-      providers: [{ provide: TranslateService, useValue: translateSpy }],
+      providers: [
+        {
+          provide: TranslateService,
+          useValue: {
+            ...translateSpy,
+            onLangChange: of({ lang: 'ca', translations: {} }),
+            onTranslationChange: of({ lang: 'ca', translations: {} }),
+            onDefaultLangChange: of({ lang: 'ca', translations: {} }),
+          }
+        }
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
-    component = fixture.debugElement.children[0].componentInstance;
-    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-
-    // Setup default mock return values
-    translateService.get.and.returnValue(of('translated text'));
-    translateService.instant.and.returnValue('translated text');
-    translateService.addLangs.and.returnValue(undefined);
-    translateService.getBrowserLang.and.returnValue('ca');
-    translateService.use.and.returnValue(of({}));
-    translateService.reloadLang.and.returnValue(of({}));
-    translateService.setDefaultLang.and.returnValue(undefined);
-    translateService.getDefaultLang.and.returnValue('ca');
-    translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
-
-    fixture = TestBed.createComponent(TestWrapperComponent);
-    wrapperComponent = fixture.componentInstance;
     component = fixture.debugElement.children[0].componentInstance;
     fixture.detectChanges();
   });
@@ -112,20 +114,20 @@ describe('AppointmentsViewControlsComponent', () => {
 
   it('should emit view mode change when first button is clicked', () => {
     const compiled = fixture.nativeElement;
-    const spy = spyOn(component.onViewModeChange, 'emit');
+    const spy = spyOn(component.viewModeChange, 'emit');
 
     const firstButton = compiled.querySelector('pelu-floating-button');
-    firstButton.click();
+    firstButton.dispatchEvent(new CustomEvent('clicked'));
 
     expect(spy).toHaveBeenCalledWith('list');
   });
 
   it('should emit view mode change when second button is clicked', () => {
     const compiled = fixture.nativeElement;
-    const spy = spyOn(component.onViewModeChange, 'emit');
+    const spy = spyOn(component.viewModeChange, 'emit');
 
     const buttons = compiled.querySelectorAll('pelu-floating-button');
-    buttons[1].click();
+    buttons[1].dispatchEvent(new CustomEvent('clicked'));
 
     expect(spy).toHaveBeenCalledWith('calendar');
   });
@@ -141,7 +143,7 @@ describe('AppointmentsViewControlsComponent', () => {
     const compiled = fixture.nativeElement;
     const viewToggleFab = compiled.querySelector('.view-toggle-fab');
 
-    expect(viewToggleFab.getAttribute('aria-label')).toBe('COMMON.CHANGE_VIEW');
+    expect(viewToggleFab.getAttribute('aria-label')).toBe('translated text');
   });
 
   it('should have correct role', () => {

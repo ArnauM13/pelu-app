@@ -1,7 +1,7 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../popup-dialog/popup-dialog.component';
 
 export interface AlertData {
   title?: string;
@@ -113,15 +113,15 @@ export class AlertPopupComponent {
     const confirmText = this.data()?.confirmText;
     if (confirmText) return confirmText;
 
-    const translated = this.translateService.instant('COMMON.ACTIONS.YES');
-    return translated !== 'COMMON.ACTIONS.YES' ? translated : 'Sí';
+    const translated = this.translateService.instant('COMMON.CONFIRMATION.YES');
+    return translated !== 'COMMON.CONFIRMATION.YES' ? translated : 'Sí';
   }
 
   getCancelText(): string {
     const cancelText = this.data()?.cancelText;
     if (cancelText) return cancelText;
 
-    const translated = this.translateService.instant('COMMON.ACTIONS.NO');
-    return translated !== 'COMMON.ACTIONS.NO' ? translated : 'No';
+    const translated = this.translateService.instant('COMMON.CONFIRMATION.NO');
+    return translated !== 'COMMON.CONFIRMATION.NO' ? translated : 'No';
   }
 }

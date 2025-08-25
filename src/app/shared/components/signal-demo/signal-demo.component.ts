@@ -57,8 +57,9 @@ interface FilterState {
 
         <div class="filters">
           <div class="filter-group">
-            <label>Buscar:</label>
+            <label for="search-input">Buscar:</label>
             <input
+              id="search-input"
               type="text"
               [ngModel]="filterState().search"
               (ngModelChange)="updateSearch($event)"
@@ -67,8 +68,9 @@ interface FilterState {
           </div>
 
           <div class="filter-group">
-            <label>Rol:</label>
+            <label for="role-select">Rol:</label>
             <select
+              id="role-select"
               [ngModel]="filterState().role"
               (ngModelChange)="updateRole($event)"
             >
@@ -79,8 +81,9 @@ interface FilterState {
           </div>
 
           <div class="filter-group">
-            <label>Estat:</label>
+            <label for="status-select">Estat:</label>
             <select
+              id="status-select"
               [ngModel]="filterState().status"
               (ngModelChange)="updateStatus($event)"
             >
@@ -499,7 +502,7 @@ export class SignalDemoComponent {
     this.performanceSignal.update(metrics => ({
       computations: metrics.computations + 1,
       lastUpdate: new Date(),
-      memoryUsage: Math.round(performance.memory?.usedJSHeapSize / 1024 / 1024 || 0),
+      memoryUsage: Math.round(((performance as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize || 0) / 1024 / 1024),
     }));
   }
 }

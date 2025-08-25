@@ -1,101 +1,72 @@
 <div class="container" [style.view-transition-name]="'appointments-container'">
-  <!-- Full Screen Loading State -->
-  @if (loading()) {
-    <pelu-loading-state [config]="loadingConfig"> </pelu-loading-state>
-  }
-
   <!-- Main Content -->
-  @if (!loading()) {
+            <!-- Hero Section with Title -->
+        <pelu-title
+          title="APPOINTMENTS.TITLE"
+          subtitle="APPOINTMENTS.SUBTITLE"
+        ></pelu-title>
+
     <div class="appointments-content">
-      <!-- Statistics Cards -->
+      <!-- Next Appointment -->
       <div class="content-section">
-        <pelu-appointments-stats
-          [stats]="appointmentStats()"
-          (quickFilterChange)="setQuickFilter($event)"
+        <pelu-next-appointment
+          [bookings]="isAdmin() ? appointments() : userAppointments()"
         >
-        </pelu-appointments-stats>
+        </pelu-next-appointment>
       </div>
 
-          <!-- Next Appointment -->
-    <div class="content-section">
-      <pelu-next-appointment
-        [bookings]="appointments()"
-        (viewDetail)="viewAppointmentDetail($event)"
-      >
-      </pelu-next-appointment>
-    </div>
-
-      <!-- Inline Filters -->
-      <div class="content-section">
-        <pelu-filters-inline
-          [filterDate]="filterDate"
-          [filterClient]="filterClient"
-          [filterService]="filterService"
-          [onDateChange]="setFilterDate"
-          [onClientChange]="setFilterClient"
-          [onServiceChange]="setFilterService"
-          [onReset]="clearAllFilters"
-          (reset)="clearAllFilters()"
-        >
-        </pelu-filters-inline>
-      </div>
-
-      <!-- Calendar View -->
-      @if (viewMode() === 'calendar') {
+      <!-- Filters (admins only) -->
+      @if (isAdmin()) {
         <div class="content-section">
-          <div class="calendar-layout">
-            <!-- Calendar Component -->
-            <div class="calendar-section">
-              <pelu-card variant="large" style="view-transition-name: calendar-view">
-                <div class="card-header">
-                  <h3>📅 {{ 'COMMON.APPOINTMENTS_CALENDAR' | translate }}</h3>
-                  <p class="calendar-subtitle">{{ 'COMMON.VIEW_APPOINTMENTS' | translate }}</p>
-                </div>
-
-                <div class="calendar-container">
-                  @defer {
-                    <pelu-calendar-component
-                      [events]="calendarEvents()"
-                      [mini]="false"
-                      (editAppointment)="editAppointment($event)"
-                      (deleteAppointment)="deleteAppointment($event)"
-                    >
-                    </pelu-calendar-component>
-                  } @placeholder {
-                    <div class="calendar-placeholder">
-                      <pelu-loading-state [config]="loadingConfig"> </pelu-loading-state>
-                    </div>
-                  }
-                </div>
-              </pelu-card>
-            </div>
-          </div>
+          <pelu-filters-collapsible
+            [stats]="appointmentStats()"
+            [filterDate]="filterDate"
+            [filterClient]="filterClient"
+            [filterService]="filterService"
+            [quickFilter]="quickFilterString()"
+            [hasActiveFilters]="hasActiveFilters()"
+            [onDateChange]="setFilterDate"
+            [onClientChange]="setFilterClient"
+            [onServiceChange]="setFilterService"
+            [onReset]="clearAllFilters"
+            (quickFilterChange)="setQuickFilter($event)"
+          />
         </div>
       }
+
+
 
       <!-- Appointments List View -->
-      @if (viewMode() === 'list') {
-        <div class="content-section">
-          <pelu-appointments-list
-            [bookings]="filteredAppointments()"
-            [hasActiveFilters]="hasActiveFilters()"
-            (viewBooking)="viewAppointmentDetail($event)"
-            (editBooking)="editBookingFromList($event)"
-            (deleteBooking)="deleteBookingFromList($event)"
-            (clearFilters)="clearAllFilters()"
-          >
-          </pelu-appointments-list>
-        </div>
-      }
+      <div class="content-section">
+        <pelu-appointments-list
+          [bookings]="listAppointments()"
+          [hasActiveFilters]="isAdmin() ? hasActiveFilters() : false"
+          [isSelectionMode]="isSelectionMode()"
+          [selectedIds]="selectedIds()"
+          [isAdmin]="isAdmin()"
+          (viewBooking)="viewAppointmentDetail($event)"
+          (deleteBooking)="deleteBookingFromList($event)"
+          (clearFilters)="clearAllFilters()"
+          (toggleSelection)="toggleAppointmentSelection($event)"
+          (bulkDelete)="onBulkDeleteRequested($event)"
+          (exportCSV)="onExportCSV($event)"
+        >
+        </pelu-appointments-list>
+      </div>
     </div>
 
-    <!-- TODO -->
-      <!-- View Mode Toggle -->
+      <!-- View Mode Toggle (always visible)
       <pelu-appointments-view-controls
         [viewButtons]="viewButtons()"
-        (onViewModeChange)="setViewMode($event)"
+        (viewModeChange)="setViewMode($event)"
       >
-      </pelu-appointments-view-controls>
+      </pelu-appointments-view-controls> -->
 
-  }
+  <!-- Confirmation Popup -->
+  <pelu-confirmation-popup
+    [isOpen]="confirmationPopup().isOpen"
+    [data]="confirmationPopup().data"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
 </div>

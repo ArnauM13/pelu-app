@@ -1,0 +1,47 @@
+<div class="dialogs-demo">
+  <div class="actions">
+    <p-button label="Diàleg bàsic" (onClick)="openBasicDialog()" />
+    <p-button label="Confirmació" (onClick)="openConfirm()" />
+    <p-button label="Alerta" severity="success" (onClick)="openAlert()" />
+    <p-button label="Modal simple" severity="secondary" (onClick)="openModal()" />
+  </div>
+
+  <!-- Basic popup dialog -->
+  <pelu-popup-dialog
+    [isOpen]="isBasicDialogOpen()"
+    [config]="basicDialogConfig()"
+    (closed)="closeBasicDialog()"
+  >
+    <div class="dialog-content">
+      <p>Això és un diàleg bàsic amb títol, mida i accions de peu.</p>
+    </div>
+  </pelu-popup-dialog>
+
+  <!-- Confirmation popup wrapper -->
+  <pelu-confirmation-popup
+    [isOpen]="isConfirmOpen()"
+    [data]="confirmData()"
+    (confirmed)="onConfirm()"
+    (cancelled)="onCancelConfirm()"
+  />
+
+  <!-- Alert popup wrapper -->
+  <pelu-alert-popup
+    [isOpen]="isAlertOpen()"
+    [data]="alertData()"
+    (confirmed)="onAlertClose()"
+    (cancelled)="onAlertClose()"
+  />
+
+  <!-- Simple custom modal -->
+  <pelu-popup-modal
+    [isOpen]="isModalOpen()"
+    (backdropClick)="closeModal()"
+  >
+    <h3>Modal simple</h3>
+    <p>Contingut arbitrari dins d'un contenidor modal mínim.</p>
+    <p-button label="Tancar" (onClick)="closeModal()" />
+  </pelu-popup-modal>
+</div>
+
+

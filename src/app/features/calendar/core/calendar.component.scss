@@ -7,6 +7,88 @@
   flex-direction: column;
 }
 
+.calendar-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Blocked calendar state - only affects the calendar body */
+.calendar-body.blocked {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+  /* Ensure the blocking only affects this specific element */
+  isolation: isolate;
+}
+
+.calendar-body.blocked::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(128, 128, 128, 0.1);
+  pointer-events: none;
+  z-index: 1;
+  /* Ensure overlay only covers this element */
+  border-radius: inherit;
+}
+
+.calendar-body.blocked .horizontal-week-view {
+  filter: grayscale(0.3);
+  /* Ensure the filter only applies to the week view */
+  position: relative;
+  z-index: 0;
+}
+
+/* Blocked calendar message overlay - positioned within the calendar body */
+.calendar-body.blocked::before {
+  content: 'Has arribat al límit de reserves';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(245, 158, 11, 0.9);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  z-index: 2;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Ensure the message stays within the calendar body bounds */
+  max-width: calc(100% - 2rem);
+  text-align: center;
+}
+
+/* Ensure time slots are properly disabled when calendar body is blocked */
+.calendar-body.blocked .time-slot {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.calendar-body.blocked .time-slot.clickable {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Ensure day columns are disabled when calendar body is blocked */
+.calendar-body.blocked .day-column {
+  pointer-events: none !important;
+}
+
+/* Ensure the blocking doesn't affect other page elements */
+.calendar-body.blocked ~ *,
+.calendar-body.blocked + * {
+  pointer-events: auto;
+  opacity: 1;
+  filter: none;
+}
+
 .calendar-loader {
   position: fixed;
   top: 0;
@@ -132,12 +214,18 @@
   align-items: center;
 }
 
-.calendar-body {
+/* Week navigation header */
+.week-nav {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  overflow-x: auto;
+  justify-content: center;
+  gap: 0.75rem;
   width: 100%;
+}
+
+.week-range {
+  font-weight: 600;
+  color: var(--text-color, #1f2937);
 }
 
 // Horizontal Weekly View Styles
@@ -148,7 +236,8 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   overflow: hidden;
-  height: calc(var(--calendar-slot-count, 24) * 30px + 40px);
+  /* Add a little extra height to avoid clipping the last appointment's bottom corners/shadow */
+  height: calc(var(--calendar-slot-count, 24) * 30px + 46px);
 }
 
 // Day Columns Container
@@ -171,11 +260,7 @@
 
 /* Lunch break slots have no hover effects - they remain static */
 
-// Hover effects for booked slots
-.day-time-slot.booked:hover {
-  background: #e9ecef;
-  opacity: 0.9;
-}
+// booked slot visuals removed
 
 // Hover effects for appointment slots
 .day-time-slot.appointment-slot:hover {
@@ -644,16 +729,33 @@
   position: absolute;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-  border: 2px solid #fdcb6e;
-  border-radius: 6px;
+  background: rgba(255, 243, 205, 0.6);
+  border: 1px solid #fdcb6e;
+  border-radius: 4px;
   pointer-events: none;
   z-index: var(--z-interactive);
-  opacity: 0.9;
+  opacity: 0.8;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(0.5px);
+}
+
+.lunch-break-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(253, 203, 110, 0.3) 2px,
+    rgba(253, 203, 110, 0.3) 4px
+  );
+  pointer-events: none;
 }
 
 .lunch-break-content {
@@ -666,11 +768,13 @@
   font-size: 0.75rem;
   text-align: center;
   padding: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .lunch-break-content i {
   font-size: 1rem;
-  color: #6c5ce7;
+  color: #856404;
 }
 
 .lunch-break-content span {

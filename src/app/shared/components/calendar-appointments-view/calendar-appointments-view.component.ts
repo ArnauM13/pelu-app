@@ -118,7 +118,7 @@
 //                       <button
 //                         class="btn btn-secondary"
 //                         (click)="$event.stopPropagation(); onEditBooking.emit(booking)"
-//                         [pTooltip]="'COMMON.ACTIONS.EDIT' | translate"
+//                         [pTooltip]="'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS' | translate"
 //                         pTooltipPosition="left"
 //                       >
 //                         ✏️

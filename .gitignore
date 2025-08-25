@@ -7,6 +7,7 @@
 /bazel-out
 
 # Node
+server/node_modules
 /node_modules
 npm-debug.log
 yarn-error.log
@@ -40,3 +41,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+.vercel
+.env*.local
+
+.env.local
+
