@@ -1,0 +1,5 @@
+# Coveralls configuration
+service_name: github
+# repo_token: Set via COVERALLS_REPO_TOKEN environment variable
+# For GitHub Actions, use: repo_token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+coverage_report: ./coverage/pelu-app/lcov.info

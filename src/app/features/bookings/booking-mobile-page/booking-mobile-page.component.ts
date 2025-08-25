@@ -21,7 +21,6 @@ import { UserService } from '../../../core/services/user.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
 import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
@@ -30,6 +29,8 @@ import { ButtonComponent } from '../../../shared/components/buttons/button.compo
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { IcsUtils } from '../../../shared/utils/ics.utils';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
@@ -46,11 +47,11 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     CurrencyPipe,
     InputTextComponent,
     NextAppointmentComponent,
-    LoadingStateComponent,
     NoAppointmentsMessageComponent,
     ButtonComponent,
     ServiceCardComponent,
-    CardComponent
+    CardComponent,
+    PeluTitleComponent
   ],
   templateUrl: './booking-mobile-page.component.html',
   styleUrls: ['./booking-mobile-page.component.scss'],
@@ -67,6 +68,7 @@ export class BookingMobilePageComponent {
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly timeUtils = inject(TimeUtils);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly loaderService = inject(LoaderService);
 
   // Step management signals
   private readonly currentStepSignal = signal<BookingStep>('service');
@@ -448,6 +450,8 @@ export class BookingMobilePageComponent {
       return;
     }
 
+    this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
+
     try {
       // Create booking using the booking service
       const bookingData = {
@@ -478,18 +482,26 @@ export class BookingMobilePageComponent {
     } catch (error) {
       console.error('Error creating booking:', error);
       // Don't show toast - the booking service already handles success/error toasts
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   private async loadServices() {
+    this.loaderService.show({ message: 'BOOKING.LOADING_SERVICES' });
+
     try {
       await this.firebaseServicesService.loadServices();
     } catch (error) {
       console.error('Error loading services:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   private async loadAppointments() {
+    this.loaderService.show({ message: 'BOOKING.LOADING_APPOINTMENTS' });
+
     try {
       // Load appointments from BookingService (Firebase)
       await this.bookingService.loadBookings();
@@ -497,6 +509,8 @@ export class BookingMobilePageComponent {
       this.appointmentsSignal.set(bookings);
     } catch (error) {
       console.error('Error loading appointments:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -998,6 +1012,8 @@ export class BookingMobilePageComponent {
       return;
     }
 
+    this.loaderService.show({ message: 'BOOKING.ADDING_TO_CALENDAR' });
+
     try {
       // Get service details from the booking
       const service = await this.firebaseServicesService.getServiceById(booking.serviceId);
@@ -1041,6 +1057,8 @@ export class BookingMobilePageComponent {
       } else {
         this.toastService.showError('No s\'ha pogut afegir directament al calendari. Prova descarregant l\'arxiu manualment.');
       }
+    } finally {
+      this.loaderService.hide();
     }
   }
 }

@@ -2,8 +2,10 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1>🛠️ {{ 'SERVICES.MANAGEMENT.TITLE' | translate }}</h1>
-      <p>{{ 'SERVICES.MANAGEMENT.SUBTITLE' | translate }}</p>
+      <pelu-title
+        title="SERVICES.MANAGEMENT.TITLE"
+        subtitle="SERVICES.MANAGEMENT.SUBTITLE"
+      ></pelu-title>
     </div>
     <div class="header-actions">
       <pelu-button
@@ -24,13 +26,7 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <pelu-loading-state [config]="loadingConfig"></pelu-loading-state>
-  }
-
   <!-- Services Content -->
-  @if (!isLoading()) {
     <div class="services-content">
       <!-- Services by Category -->
       @for (category of servicesByCategory(); track category.id) {
@@ -72,7 +68,6 @@
         </div>
       }
     </div>
-  }
 
   <!-- Create Service Dialog -->
   <pelu-popup-dialog
@@ -407,7 +402,7 @@
             <div class="category-actions">
               @if (category.custom) {
                 <pelu-button
-                  label="✏️"
+                  icon="pi pi-pencil"
                   variant="text"
                   severity="secondary"
                   [rounded]="true"
@@ -415,7 +410,7 @@
                 >
                 </pelu-button>
                 <pelu-button
-                  label="🗑️"
+                  icon="pi pi-trash"
                   variant="text"
                   severity="danger"
                   [rounded]="true"

@@ -1,13 +1,11 @@
 <div class="mobile-booking-container">
   <!-- Hero Section with Title -->
-  <div class="hero">
-    <h1 class="hero-title">{{ 'BOOKING.TITLE' | translate }}</h1>
-    <p class="hero-subtitle">{{ 'BOOKING.SUBTITLE' | translate }}</p>
-  </div>
+  <pelu-title
+    title="BOOKING.TITLE"
+    subtitle="BOOKING.SUBTITLE"
+  ></pelu-title>
 
-  @if (availableServices().length === 0 || appointments().length === 0) {
-    <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: false, overlay: true }"></pelu-loading-state>
-  }
+
 
   <!-- User appointment limit validation message -->
   @if (hasReachedAppointmentLimit()) {

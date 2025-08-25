@@ -1,14 +1,12 @@
 <div class="admin-settings-page single-screen">
-  @if (loading()) {
-    <pelu-loading-state [config]="{ message: 'COMMON.STATUS.LOADING', spinnerSize: 'large', showMessage: true, fullHeight: true, overlay: true }"></pelu-loading-state>
-  }
-
   <div class="settings-card">
     <div class="settings-header">
       <div class="header-content">
         <div class="header-text">
-          <h1>{{ 'ADMIN.SETTINGS_PAGE.TITLE' | translate }}</h1>
-          <p>{{ 'ADMIN.SETTINGS_PAGE.SUBTITLE' | translate }}</p>
+          <pelu-title
+            title="ADMIN.SETTINGS_PAGE.TITLE"
+            subtitle="ADMIN.SETTINGS_PAGE.SUBTITLE"
+          ></pelu-title>
         </div>
                  <div class="header-actions">
                        @if (isEditMode()) {

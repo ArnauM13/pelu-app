@@ -24,6 +24,7 @@ class TestWrapperComponent {
     total: 10,
     today: 3,
     upcoming: 7,
+    past: 2,
     mine: 5,
   });
 

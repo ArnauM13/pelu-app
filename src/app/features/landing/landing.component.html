@@ -2,28 +2,35 @@
   <!-- Hero Section -->
   <section class="hero-section" style="view-transition-name: hero-section">
     <div class="hero-content">
-      <h1 class="hero-title" style="view-transition-name: hero-title">
-        {{ 'LANDING.HERO_TITLE' | translate }}
-      </h1>
-      <p class="hero-subtitle" style="view-transition-name: hero-subtitle">
-        {{ 'LANDING.HERO_SUBTITLE' | translate }}
-      </p>
+      <!-- Hero Section with Title -->
+      <pelu-title
+        title="LANDING.HERO_TITLE"
+        subtitle="LANDING.HERO_SUBTITLE"
+      ></pelu-title>
 
-      <div class="hero-buttons" style="view-transition-name: hero-buttons">
-        <button
-          pButton
-          [label]="'LANDING.SERVICES' | translate"
-          routerLink="/services"
-          class="btn-services"
-        >
-        </button>
-        <button
-          pButton
-          [label]="'LANDING.BOOK_NOW' | translate"
-          routerLink="/booking"
-          class="btn-primary"
-        >
-        </button>
+      <!-- Main Actions -->
+      <div class="main-actions" style="view-transition-name: main-actions">
+        <div class="primary-buttons">
+          <pelu-button
+            label="NAVIGATION.BOOK"
+            severity="primary"
+            icon="pi pi-calendar-plus"
+            iconPos="left"
+            [raised]="true"
+            routerLink="/booking"
+            class="primary-action"
+          >
+          </pelu-button>
+          <pelu-button
+            label="NAVIGATION.VIEW_APPOINTMENTS"
+            severity="success"
+            icon="pi pi-calendar"
+            iconPos="left"
+            routerLink="/appointments"
+            class="primary-action"
+          >
+          </pelu-button>
+        </div>
       </div>
     </div>
   </section>

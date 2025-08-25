@@ -26,6 +26,7 @@
     "SELECT_ALL": "Seleccionar totes",
     "DESELECT_ALL": "Deseleccionar totes",
     "DELETE_SELECTED": "Eliminar seleccionades",
+    "EXPORT_CSV": "Descarregar CSV",
     "SELECTED": "seleccionades",
     "CLEAR_FILTERS_BUTTON": "Netejar filtres",
     "APPOINTMENTS_LIST": "Cites",
@@ -319,6 +320,7 @@
     "ABOUT": "Qui som",
     "BOOK": "Reservar",
     "APPOINTMENTS": "Cites",
+    "VIEW_APPOINTMENTS": "Veure cites",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Taulell d'admin",
     "ADMIN_SERVICES": "Gestionar Serveis",
@@ -328,12 +330,16 @@
   "LANDING": {
     "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva el teu moment. Ràpid, fàcil i sense trucades.",
+    "MAIN_ACTIONS": "Accions principals",
+    "SECONDARY_ACTIONS": "Altres opcions",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Cites",
     "PROFILE": "Perfil",
     "SERVICES": "Serveis"
   },
   "APPOINTMENTS": {
+    "TITLE": "Les meves cites",
+    "SUBTITLE": "Gestiona i visualitza totes les teves cites programades",
     "TOTAL_APPOINTMENTS": "Total Cites",
     "TODAY_APPOINTMENTS": "Cites avui",
     "UPCOMING_APPOINTMENTS": "Pròximes Cites",
@@ -403,11 +409,13 @@
     "DELETE_SUCCESS": "Cita eliminada correctament",
     "BULK_DELETE_SUCCESS": "Cites eliminades correctament",
     "BULK_DELETE_ERROR": "Error en eliminar les cites",
-    "DELETE_ERROR": "Error en eliminar la cita"
+    "DELETE_ERROR": "Error en eliminar la cita",
+    "CSV_EXPORT_SUCCESS": "CSV descarregat correctament"
   },
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servei i la data que més t'ajusti",
+    "CREATING_BOOKING": "Creant reserva...",
     "SELECT_SERVICE": "Nova reserva",
     "SELECT_DATE": "Seleccionar data",
     "SELECT_DATE_PLACEHOLDER": "Selecciona una data",

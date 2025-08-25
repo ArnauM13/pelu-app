@@ -48,6 +48,7 @@ describe('FiltersInlineComponent', () => {
     expect(component.onDateChange).toBeDefined();
     expect(component.onClientChange).toBeDefined();
     expect(component.onServiceChange).toBeDefined();
+    // Note: onReset is still available as input but reset functionality is handled by parent
     expect(component.onReset).toBeDefined();
   });
 
@@ -59,25 +60,27 @@ describe('FiltersInlineComponent', () => {
   });
 
   it('should have handler methods defined', () => {
-    expect(typeof component.onResetHandler).toBe('function');
+    // Reset functionality is now handled by parent component
+    expect(component.filtersForm).toBeDefined();
   });
 
   it('should render with proper structure', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.filters-inline')).toBeTruthy();
+    // No longer has .filters-inline wrapper (card styling removed)
     expect(compiled.querySelector('.filters-grid')).toBeTruthy();
+    expect(compiled.querySelector('form')).toBeTruthy();
   });
 
   it('should have proper CSS classes', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.filters-inline')).toBeTruthy();
+    // No longer has .filters-inline wrapper (card styling removed)
     expect(compiled.querySelector('.filters-grid')).toBeTruthy();
     expect(compiled.querySelector('.filter-group')).toBeTruthy();
-    expect(compiled.querySelector('.reset-group')).toBeTruthy();
+    // No longer has .reset-group (reset button moved to parent)
   });
 
   it('should have proper input types', () => {

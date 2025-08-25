@@ -7,13 +7,13 @@ import {
   AuthPopupComponent,
   AuthPopupConfig,
 } from '../../../shared/components/auth-popup/auth-popup.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TranslationService } from '../../../core/services/translation.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-login-page',
-  imports: [CommonModule, TranslateModule, AuthPopupComponent, LoadingStateComponent],
+  imports: [CommonModule, TranslateModule, AuthPopupComponent],
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
 })
@@ -23,6 +23,7 @@ export class LoginPageComponent implements OnDestroy {
   #router = inject(Router);
   #authService = inject(AuthService);
   #translation = inject(TranslationService);
+  #loader = inject(LoaderService);
 
   // Internal state
   private readonly isLoadingSignal = signal(true);
@@ -50,14 +51,6 @@ export class LoginPageComponent implements OnDestroy {
     })
   );
 
-  readonly loadingConfig = computed(() => ({
-    message: this.#translation.get('AUTH.CHECKING_AUTH'),
-    spinnerSize: 'medium' as const,
-    showMessage: true,
-    fullHeight: true,
-    overlay: false,
-  }));
-
   constructor() {
     this.authUnsubscribe.set(
       onAuthStateChanged(this.#auth, user => {
@@ -77,6 +70,7 @@ export class LoginPageComponent implements OnDestroy {
   async onLoginSubmit(formData: { email: string; password: string }) {
     this.isLoadingSignal.set(true);
     this.errorMessage.set('');
+    this.#loader.show({ message: 'AUTH.SIGNING_IN' });
 
     try {
       await this.#authService.login(formData.email, formData.password);
@@ -87,12 +81,14 @@ export class LoginPageComponent implements OnDestroy {
       );
     } finally {
       this.isLoadingSignal.set(false);
+      this.#loader.hide();
     }
   }
 
   async onGoogleAuth() {
     this.isLoadingSignal.set(true);
     this.errorMessage.set('');
+    this.#loader.show({ message: 'AUTH.SIGNING_IN_WITH_GOOGLE' });
 
     try {
       await this.#authService.loginWithGoogle();
@@ -103,6 +99,7 @@ export class LoginPageComponent implements OnDestroy {
       );
     } finally {
       this.isLoadingSignal.set(false);
+      this.#loader.hide();
     }
   }
 }

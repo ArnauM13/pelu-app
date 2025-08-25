@@ -134,6 +134,11 @@ export class ProfileDropdownComponent {
           label: 'NAVIGATION.ADMIN_SETTINGS',
           emoji: '⚙️',
           routerLink: '/admin/settings',
+        },
+        {
+          label: 'NAVIGATION.PLAYGROUND',
+          emoji: '🎮',
+          routerLink: '/playground',
         }
       );
     }
