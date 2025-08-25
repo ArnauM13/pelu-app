@@ -79,22 +79,14 @@ describe('AppointmentSlotComponent', () => {
     );
   });
 
-  it('should have computed service color', () => {
-    // Set data using writeSignal (Angular 17+ way)
-    (component.data as any).set(mockSlotData);
-    const color = component.serviceColor();
-
-    expect(mockServiceColorsService.getServiceColor).toHaveBeenCalledWith('Test Service');
-  });
+  // serviceColor getter removed in component; color handled via servicesService within CSS class
 
   it('should handle missing data gracefully', () => {
     // Set data using writeSignal (Angular 17+ way)
     (component.data as any).set(null);
 
     const position = component.position();
-    const color = component.serviceColor();
 
     expect(position).toEqual({ top: 0, height: 0 });
-    expect(mockServiceColorsService.getDefaultColor).toHaveBeenCalled();
   });
 });

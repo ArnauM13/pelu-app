@@ -20,11 +20,18 @@ import {
 } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { BusinessSettingsService } from '../../../core/services/business-settings.service';
+import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
+import { BookingValidationService } from '../../../core/services/booking-validation.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
+import { CalendarStateService } from '../../calendar/services/calendar-state.service';
+import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
+import { TimeUtils } from '../../../shared/utils/time.utils';
+import { startOfWeek, endOfWeek } from 'date-fns';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-booking-page',
@@ -39,6 +46,8 @@ import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobil
     ButtonComponent,
     InputDateComponent,
     BookingMobilePageComponent,
+    NoAppointmentsMessageComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss'],
@@ -51,8 +60,12 @@ export class BookingPageComponent {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly translateService = inject(TranslateService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
   private readonly responsiveService = inject(ResponsiveService);
+  private readonly calendarStateService = inject(CalendarStateService);
+  private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly timeUtils = inject(TimeUtils);
+  private readonly loaderService = inject(LoaderService);
 
   // Mobile detection using centralized service
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -91,12 +104,34 @@ export class BookingPageComponent {
     return today;
   });
 
+  // Check if user has reached appointment limit for first screen validation
+  readonly hasReachedAppointmentLimit = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
+  });
+
+  // Check if calendar should be blocked due to appointment limit
+  readonly isCalendarBlocked = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
+  });
+
+  // Computed week info that updates when calendar view changes
+  readonly weekInfo = computed(() => {
+    const referenceDate = this.calendarStateService.viewDate();
+    const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
+    const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
+
+    const formatDate = (date: Date) =>
+      date.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' });
+
+    return `${formatDate(start)} - ${formatDate(end)}`;
+  });
+
   // Calendar footer configuration
   readonly calendarFooterConfig = computed((): FooterConfig => {
     const today = new Date();
     const isWeekend = today.getDay() === 0 || today.getDay() === 6;
-    const businessHours = this.businessSettingsService.getBusinessHours();
-    const lunchBreak = this.businessSettingsService.getLunchBreakNumeric();
+    const businessHours = this.systemParametersService.businessHours();
+    const lunchBreak = this.systemParametersService.lunchBreak();
 
     return {
       showInfoNote: false,
@@ -113,15 +148,23 @@ export class BookingPageComponent {
     };
   });
 
+  // Available days for booking (consistent with mobile)
+  readonly availableDays = computed(() => {
+    const referenceDate = this.calendarStateService.viewDate();
+    const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
+    const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
+    return this.bookingValidationService.generateAvailableDays(start, end);
+  });
+
   // Login prompt dialog configuration
   readonly loginPromptDialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.translateService.instant('BOOKING.SUCCESS_TITLE'),
+    title: this.translateService.instant('BOOKING.LOGIN_PROMPT_TITLE'),
     size: 'medium',
     closeOnBackdropClick: true,
     showFooter: true,
     footerActions: [
       {
-        label: this.translateService.instant('COMMON.ACTIONS.LOGIN'),
+        label: this.translateService.instant('AUTH.SIGN_IN'),
         type: 'login',
         action: () => this.onLoginPromptLogin()
       }
@@ -138,28 +181,46 @@ export class BookingPageComponent {
   }
 
   private async loadServices() {
+    this.loaderService.show({ message: 'BOOKING.LOADING_SERVICES' });
+
     try {
       await this.firebaseServicesService.loadServices();
       const services = this.firebaseServicesService.activeServices();
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   onTimeSlotSelected(event: { date: string; time: string }) {
-    const details: ServiceSelectionDetails = {
+    // Check if user has reached appointment limit
+    if (!this.canUserBookMoreAppointments()) {
+      this.translateService.get('BOOKING.USER_LIMIT_REACHED_MESSAGE').subscribe(message => {
+        // You can add a toast service here if needed
+        console.log(message);
+      });
+      return;
+    }
+
+    const selectedDate = new Date(event.date);
+    this.selectedDateSignal.set(selectedDate);
+
+    // Show service selection popup
+    this.serviceSelectionDetailsSignal.set({
       date: event.date,
       time: event.time,
       clientName: this.isAuthenticated() ? this.authService.userDisplayName() || '' : '',
       email: this.isAuthenticated() ? this.authService.user()?.email || '' : '',
-    };
+    });
 
-    this.serviceSelectionDetailsSignal.set(details);
     this.showServiceSelectionPopupSignal.set(true);
   }
 
   async onBookingConfirmed(details: BookingDetails) {
+    this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
+
     try {
       const bookingData = {
         clientName: details.clientName,
@@ -181,19 +242,20 @@ export class BookingPageComponent {
       this.bookingDetailsSignal.set({ date: '', time: '', clientName: '', email: '' });
     } catch (error) {
       console.error('Error creating booking:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   onServiceSelected(event: { details: ServiceSelectionDetails; service: FirebaseService }) {
     this.showServiceSelectionPopupSignal.set(false);
 
-    // Fill from user if missing
+    // Always fill from user if authenticated
     let clientName = event.details.clientName;
     let email = event.details.email;
-    if (!clientName && this.isAuthenticated()) {
+
+    if (this.isAuthenticated()) {
       clientName = this.authService.userDisplayName() || '';
-    }
-    if (!email && this.isAuthenticated()) {
       email = this.authService.user()?.email || '';
     }
 
@@ -235,8 +297,12 @@ export class BookingPageComponent {
   }
 
   onTodayClicked() {
-    this.selectedDateSignal.set(new Date());
-    this.calendarComponent?.today();
+    // Always go to the first business day of the current week
+    const today = new Date();
+    const firstBusinessDayOfWeek = this.timeUtils.getFirstBusinessDayOfWeek(today, [1, 2, 3, 4, 5, 6]);
+
+    this.selectedDateSignal.set(firstBusinessDayOfWeek);
+    this.calendarComponent?.onDateChange(firstBusinessDayOfWeek);
   }
 
   onDateChange(event: Date | string | null): void {
@@ -246,21 +312,23 @@ export class BookingPageComponent {
     }
   }
 
-  getWeekInfo(): string {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('ca-ES', {
-        day: 'numeric',
-        month: 'short'
-      });
-    };
-
-    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
+  // User appointment limit methods
+  canUserBookMoreAppointments(): boolean {
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.canUserBookMoreAppointments(currentBookings);
   }
+
+  getUserAppointmentCount(): number {
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.getUserAppointmentCount(currentBookings);
+  }
+
+  getMaxAppointmentsPerUser(): number {
+    return this.systemParametersService.getMaxAppointmentsPerUser();
+  }
+
+  onViewMyAppointments = () => {
+    this.router.navigate(['/appointments']);
+  };
+
 }

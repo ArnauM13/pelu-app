@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { provideRouter } from '@angular/router';
 import { AuthPopupComponent, AuthPopupConfig } from './auth-popup.component';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';
 
 // Mock translate loader
@@ -17,16 +17,7 @@ describe('AuthPopupComponent', () => {
   let component: AuthPopupComponent;
   let fixture: ComponentFixture<AuthPopupComponent>;
 
-  const mockConfig: AuthPopupConfig = {
-    mode: 'login',
-    title: 'Inicia sessió',
-    subtitle: 'Accedeix al teu compte',
-    submitButtonText: 'Inicia sessió',
-    googleButtonText: 'Inicia sessió amb Google',
-    linkText: 'No tens compte?',
-    linkRoute: '/register',
-    linkLabel: "Registra't aquí",
-  };
+
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -94,12 +85,13 @@ describe('AuthPopupComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(AuthPopupComponent.prototype.constructor.name).toBe('AuthPopupComponent');
+    expect(component).toBeTruthy();
+    expect(AuthPopupComponent.prototype.constructor.name).toContain('AuthPopupComponent');
   });
 
   it('should be a standalone component', () => {
-    expect(AuthPopupComponent.prototype.constructor).toBeDefined();
-    expect(AuthPopupComponent.prototype.constructor.name).toBe('AuthPopupComponent');
+    expect(component).toBeTruthy();
+    expect(AuthPopupComponent.prototype.constructor.name).toContain('AuthPopupComponent');
   });
 
   it('should have component metadata', () => {

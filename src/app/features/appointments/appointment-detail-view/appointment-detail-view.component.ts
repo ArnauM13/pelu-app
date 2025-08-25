@@ -1,5 +1,5 @@
 import { Component, input, computed, inject, effect, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, takeUntil } from 'rxjs/operators';
@@ -39,6 +39,7 @@ export class AppointmentDetailViewComponent implements OnDestroy {
   // Inject services
   #router = inject(Router);
   #route = inject(ActivatedRoute);
+  #location = inject(Location);
   #appointmentManagementService = inject(AppointmentManagementService);
   #toastService = inject(ToastService);
   #destroy$ = new Subject<void>();
@@ -78,7 +79,7 @@ export class AppointmentDetailViewComponent implements OnDestroy {
             },
             {
               icon: '⏰',
-              label: 'COMMON.TIME',
+              label: 'COMMON.HOURS',
               value: appointment?.hora || 'N/A',
             },
             {
@@ -106,19 +107,19 @@ export class AppointmentDetailViewComponent implements OnDestroy {
       ],
       actions: [
         {
-          label: 'COMMON.ACTIONS.BACK',
+          label: 'COMMON.BACK',
           icon: '←',
           type: 'secondary' as const,
           onClick: () => this.onBack(),
         },
         ...(this.canEdit() ? [{
-          label: 'COMMON.ACTIONS.EDIT',
+          label: 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS',
           icon: '✏️',
           type: 'primary' as const,
           onClick: () => this.onEdit(),
         }] : []),
         ...(this.canDelete() ? [{
-          label: 'COMMON.ACTIONS.DELETE',
+          label: 'APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION',
           icon: '🗑️',
           type: 'danger' as const,
           onClick: () => this.onDelete(),
@@ -163,7 +164,11 @@ export class AppointmentDetailViewComponent implements OnDestroy {
 
   // Event handlers
   onBack(): void {
-    this.#router.navigate(['/appointments']);
+    if (window.history.length > 1) {
+      this.#location.back();
+    } else {
+      this.#router.navigate(['/appointments']);
+    }
   }
 
   onEdit(): void {

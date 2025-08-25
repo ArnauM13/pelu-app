@@ -3,26 +3,47 @@
     <div class="settings-header">
       <div class="header-content">
         <div class="header-text">
-          <h1>{{ 'ADMIN.SETTINGS_PAGE.TITLE' | translate }}</h1>
-          <p>{{ 'ADMIN.SETTINGS_PAGE.SUBTITLE' | translate }}</p>
+          <pelu-title
+            title="ADMIN.SETTINGS_PAGE.TITLE"
+            subtitle="ADMIN.SETTINGS_PAGE.SUBTITLE"
+          ></pelu-title>
         </div>
-        <div class="header-actions">
-          <pelu-button
-            type="button"
-            [label]="isEditMode() ? 'COMMON.ACTIONS.CANCEL' : 'COMMON.ACTIONS.EDIT' | translate"
-            [icon]="isEditMode() ? 'pi pi-times' : 'pi pi-pencil'"
-            [severity]="isEditMode() ? 'secondary' : 'primary'"
-            (clicked)="isEditMode() ? cancelEditMode() : setEditMode()"
-          >
-          </pelu-button>
-        </div>
+                 <div class="header-actions">
+                       @if (isEditMode()) {
+                             <pelu-button
+                 type="button"
+                 [icon]="'pi pi-times'"
+                 [severity]="'danger'"
+                 (clicked)="cancelEditMode()"
+               >
+               </pelu-button>
+
+               <pelu-button
+                 type="button"
+                 [loading]="saving()"
+                 [disabled]="saving()"
+                 [icon]="'pi pi-save'"
+                 [severity]="'success'"
+                 (clicked)="saveSettings()"
+               >
+               </pelu-button>
+             } @else {
+               <pelu-button
+                 type="button"
+                 [icon]="'pi pi-pencil'"
+                 [severity]="'primary'"
+                 (clicked)="setEditMode()"
+               >
+               </pelu-button>
+            }
+         </div>
       </div>
     </div>
 
     <!-- Settings Content -->
     <div class="settings-content">
       <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
-        <div class="settings-grid">
+        <div class="settings-grid-4">
           <!-- Column 1: Business Information -->
           <div class="settings-column">
             <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.BUSINESS_INFO' | translate }}</h3>
@@ -38,6 +59,35 @@
               >
               </pelu-input-text>
             </div>
+
+            <!-- Business Address -->
+            <div class="settings-group">
+              <pelu-input-text
+                [label]="'ADMIN.SETTINGS_PAGE.BUSINESS_ADDRESS'"
+                [placeholder]="'ADMIN.SETTINGS_PAGE.BUSINESS_ADDRESS'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('businessAddress')?.value"
+                (valueChange)="settingsForm.get('businessAddress')?.setValue($event)"
+              >
+              </pelu-input-text>
+            </div>
+
+            <!-- Business Phone -->
+            <div class="settings-group">
+              <pelu-input-text
+                [label]="'ADMIN.SETTINGS_PAGE.BUSINESS_PHONE'"
+                [placeholder]="'ADMIN.SETTINGS_PAGE.BUSINESS_PHONE'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('businessPhone')?.value"
+                (valueChange)="settingsForm.get('businessPhone')?.setValue($event)"
+              >
+              </pelu-input-text>
+            </div>
+          </div>
+
+          <!-- Column 2: Schedule & Hours -->
+          <div class="settings-column">
+            <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.SCHEDULE_HOURS' | translate }}</h3>
 
             <!-- Business Hours Start -->
             <div class="settings-group">
@@ -102,9 +152,24 @@
               >
               </pelu-input-date>
             </div>
+
+            <!-- Working Days -->
+            <div class="settings-group">
+                            <pelu-input-multiselect
+                [label]="'ADMIN.SETTINGS_PAGE.WORKING_DAYS'"
+                [placeholder]="'ADMIN.SETTINGS_PAGE.WORKING_DAYS_PLACEHOLDER'"
+                [options]="workingDaysOptions"
+                [showClear]="true"
+                [readonly]="!isEditMode()"
+                [maxSelectedLabels]="5"
+                [value]="settingsForm.get('workingDays')?.value || []"
+                (valueChange)="settingsForm.get('workingDays')?.setValue($event)"
+              >
+              </pelu-input-multiselect>
+            </div>
           </div>
 
-          <!-- Column 2: Appointment Settings -->
+          <!-- Column 3: Appointment Settings -->
           <div class="settings-column">
             <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.APPOINTMENT_SETTINGS' | translate }}</h3>
 
@@ -123,15 +188,16 @@
               </pelu-input-number>
             </div>
 
-            <!-- Max Appointments -->
+            <!-- Max Appointments Per User -->
             <div class="settings-group">
               <pelu-input-number
-                [label]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS'"
+                [label]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS_PER_USER'"
                 [min]="1"
-                [max]="100"
+                [max]="10"
+                [helpText]="'ADMIN.SETTINGS_PAGE.MAX_APPOINTMENTS_PER_USER_HELP'"
                 [readonly]="!isEditMode()"
-                [value]="settingsForm.get('maxAppointments')?.value"
-                (valueChange)="settingsForm.get('maxAppointments')?.setValue($event)"
+                [value]="settingsForm.get('maxAppointmentsPerUser')?.value"
+                (valueChange)="settingsForm.get('maxAppointmentsPerUser')?.setValue($event)"
               >
               </pelu-input-number>
             </div>
@@ -157,37 +223,11 @@
               >
               </pelu-input-checkbox>
             </div>
-
-            <!-- Prevent Cancellation -->
-            <div class="settings-group">
-              <pelu-input-checkbox
-                [label]="'ADMIN.SETTINGS_PAGE.PREVENT_CANCELLATION'"
-                [readonly]="!isEditMode()"
-                [value]="settingsForm.get('preventCancellation')?.value"
-                (valueChange)="settingsForm.get('preventCancellation')?.setValue($event)"
-              >
-              </pelu-input-checkbox>
-            </div>
-
-            <!-- Cancellation Time Limit -->
-            <div class="settings-group" *ngIf="settingsForm.get('preventCancellation')?.value">
-              <pelu-input-number
-                [label]="'ADMIN.SETTINGS_PAGE.CANCELLATION_TIME_LIMIT'"
-                [min]="1"
-                [max]="168"
-                [suffix]="' h'"
-                [helpText]="'ADMIN.SETTINGS_PAGE.CANCELLATION_TIME_LIMIT_HELP'"
-                [readonly]="!isEditMode()"
-                [value]="settingsForm.get('cancellationTimeLimit')?.value"
-                (valueChange)="settingsForm.get('cancellationTimeLimit')?.setValue($event)"
-              >
-              </pelu-input-number>
-            </div>
           </div>
 
-          <!-- Column 3: Booking & System Settings -->
+          <!-- Column 4: System & Booking -->
           <div class="settings-column">
-            <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.BOOKING_SYSTEM_SETTINGS' | translate }}</h3>
+            <h3 class="column-title">{{ 'ADMIN.SETTINGS_PAGE.SYSTEM_BOOKING' | translate }}</h3>
 
             <!-- Booking Advance Days -->
             <div class="settings-group">
@@ -216,6 +256,32 @@
                 [readonly]="!isEditMode()"
                 [value]="settingsForm.get('bookingAdvanceTime')?.value"
                 (valueChange)="settingsForm.get('bookingAdvanceTime')?.setValue($event)"
+              >
+              </pelu-input-number>
+            </div>
+
+            <!-- Prevent Cancellation -->
+            <div class="settings-group">
+              <pelu-input-checkbox
+                [label]="'ADMIN.SETTINGS_PAGE.PREVENT_CANCELLATION'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('preventCancellation')?.value"
+                (valueChange)="settingsForm.get('preventCancellation')?.setValue($event)"
+              >
+              </pelu-input-checkbox>
+            </div>
+
+            <!-- Cancellation Time Limit -->
+            <div class="settings-group" *ngIf="settingsForm.get('preventCancellation')?.value">
+              <pelu-input-number
+                [label]="'ADMIN.SETTINGS_PAGE.CANCELLATION_TIME_LIMIT'"
+                [min]="1"
+                [max]="168"
+                [suffix]="' h'"
+                [helpText]="'ADMIN.SETTINGS_PAGE.CANCELLATION_TIME_LIMIT_HELP'"
+                [readonly]="!isEditMode()"
+                [value]="settingsForm.get('cancellationTimeLimit')?.value"
+                (valueChange)="settingsForm.get('cancellationTimeLimit')?.setValue($event)"
               >
               </pelu-input-number>
             </div>
@@ -249,30 +315,8 @@
               </pelu-input-select>
             </div>
           </div>
-        </div>
-
-        <!-- Save Actions (only visible in edit mode) -->
-        <div class="settings-actions" *ngIf="isEditMode()">
-          <pelu-button
-            type="submit"
-            [label]="'ADMIN.SETTINGS_PAGE.SAVE_SETTINGS' | translate"
-            [loading]="saving()"
-            [disabled]="saving()"
-            icon="pi pi-save"
-            severity="primary"
-          >
-          </pelu-button>
-          <pelu-button
-            type="button"
-            severity="secondary"
-            [label]="'ADMIN.SETTINGS_PAGE.RESET_DEFAULTS' | translate"
-            [disabled]="saving()"
-            icon="pi pi-refresh"
-            (clicked)="resetToDefaults()"
-          >
-          </pelu-button>
-        </div>
-      </form>
+                 </div>
+       </form>
     </div>
   </div>
 </div>

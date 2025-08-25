@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import {
   CalendarCoreService,
   CoordinatePosition,
-  TimePosition,
   GridConfiguration,
 } from './calendar-core.service';
 import { CalendarStateService } from './calendar-state.service';
@@ -15,11 +14,11 @@ import { LoggerService } from '../../../shared/services/logger.service';
 
 describe('CalendarCoreService', () => {
   let service: CalendarCoreService;
-  let mockStateService: jasmine.SpyObj<CalendarStateService>;
-  let mockToastService: jasmine.SpyObj<ToastService>;
-  let mockAuthService: jasmine.SpyObj<AuthService>;
-  let mockRoleService: jasmine.SpyObj<RoleService>;
-  let mockLoggerService: jasmine.SpyObj<LoggerService>;
+  let _mockStateService: jasmine.SpyObj<CalendarStateService>;
+  let _mockToastService: jasmine.SpyObj<ToastService>;
+  let _mockAuthService: jasmine.SpyObj<AuthService>;
+  let _mockRoleService: jasmine.SpyObj<RoleService>;
+  let _mockLoggerService: jasmine.SpyObj<LoggerService>;
 
   beforeEach(() => {
     const stateServiceSpy = jasmine.createSpyObj('CalendarStateService', [
@@ -35,7 +34,6 @@ describe('CalendarCoreService', () => {
     const roleServiceSpy = jasmine.createSpyObj('RoleService', [
       'isAdmin',
       'isClient',
-      'hasAdminAccess',
     ]);
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
       'log',
@@ -62,11 +60,10 @@ describe('CalendarCoreService', () => {
       providerId: 'password',
       refreshToken: 'mock-refresh-token',
       tenantId: null,
-    } as any);
+    } as unknown);
     authServiceSpy.isAuthenticated.and.returnValue(true);
     roleServiceSpy.isAdmin.and.returnValue(false);
     roleServiceSpy.isClient.and.returnValue(true);
-    roleServiceSpy.hasAdminAccess.and.returnValue(false);
 
     TestBed.configureTestingModule({
       providers: [
@@ -81,11 +78,11 @@ describe('CalendarCoreService', () => {
     });
 
     service = TestBed.inject(CalendarCoreService);
-    mockStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
-    mockToastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
-    mockAuthService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    mockRoleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
-    mockLoggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
+    _mockStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
+    _mockToastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
+    _mockAuthService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    _mockRoleService = TestBed.inject(RoleService) as jasmine.SpyObj<RoleService>;
+    _mockLoggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
   });
 
   it('should be created', () => {

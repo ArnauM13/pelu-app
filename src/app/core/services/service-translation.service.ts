@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslationService } from './translation.service';
 
 @Injectable({
@@ -90,7 +90,9 @@ export class ServiceTranslationService {
     ['test', 'SERVICES.NAMES.TEST_SERVICE'],
   ]);
 
-  constructor(private translationService: TranslationService) {}
+  private translationService = inject(TranslationService);
+
+  constructor() {}
 
   /**
    * Translates a service name to the current language
@@ -109,7 +111,7 @@ export class ServiceTranslationService {
           return serviceName;
         }
         return translated;
-      } catch (error) {
+      } catch {
         return serviceName;
       }
     }

@@ -2,8 +2,10 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1>🛠️ {{ 'SERVICES.MANAGEMENT.TITLE' | translate }}</h1>
-      <p>{{ 'SERVICES.MANAGEMENT.SUBTITLE' | translate }}</p>
+      <pelu-title
+        title="SERVICES.MANAGEMENT.TITLE"
+        subtitle="SERVICES.MANAGEMENT.SUBTITLE"
+      ></pelu-title>
     </div>
     <div class="header-actions">
       <pelu-button
@@ -18,16 +20,13 @@
         (clicked)="showCategoriesManager()"
       >
       </pelu-button>
+
+      <!-- Docs: Afegir serveis d'exemple per demo (el codi està eliminat). Si cal, reintroduir un helper al servei i reapuntar aquest botó. -->
+
     </div>
   </div>
 
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <pelu-loading-state [config]="loadingConfig"></pelu-loading-state>
-  }
-
   <!-- Services Content -->
-  @if (!isLoading()) {
     <div class="services-content">
       <!-- Services by Category -->
       @for (category of servicesByCategory(); track category.id) {
@@ -69,7 +68,6 @@
         </div>
       }
     </div>
-  }
 
   <!-- Create Service Dialog -->
   <pelu-popup-dialog
@@ -210,7 +208,7 @@
             <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
             <div class="form-field">
               <pelu-input-checkbox
-                formControlName="popular"
+                formControlName="isPopular"
                 [label]="'SERVICES.MANAGEMENT.MARK_AS_POPULAR'"
               >
               </pelu-input-checkbox>
@@ -360,7 +358,7 @@
             <h3>{{ 'COMMON.OPTIONS' | translate }}</h3>
             <div class="form-field">
               <pelu-input-checkbox
-                formControlName="popular"
+                formControlName="isPopular"
                 [label]="'SERVICES.MANAGEMENT.MARK_AS_POPULAR'"
               >
               </pelu-input-checkbox>
@@ -404,7 +402,7 @@
             <div class="category-actions">
               @if (category.custom) {
                 <pelu-button
-                  label="✏️"
+                  icon="pi pi-pencil"
                   variant="text"
                   severity="secondary"
                   [rounded]="true"
@@ -412,7 +410,7 @@
                 >
                 </pelu-button>
                 <pelu-button
-                  label="🗑️"
+                  icon="pi pi-trash"
                   variant="text"
                   severity="danger"
                   [rounded]="true"
@@ -579,12 +577,13 @@
 
   <!-- Alert Dialog -->
   @if (showAlertDialog()) {
-    <pelu-alert-popup
+    <pelu-confirmation-popup
+      [isOpen]="true"
       [data]="alertData()!"
       (confirmed)="onAlertConfirmed()"
       (cancelled)="onAlertCancelled()"
     >
-    </pelu-alert-popup>
+    </pelu-confirmation-popup>
   }
 
 </div>

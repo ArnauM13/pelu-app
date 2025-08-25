@@ -11,10 +11,9 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
-import { InfoItemData } from '../../../shared/components/info-item/info-item.component';
-import { DetailViewComponent, DetailViewConfig, DetailAction } from '../../../shared/components/detail-view/detail-view.component';
+import { DetailViewComponent, DetailViewConfig, DetailAction, InfoItemData } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
-import { AlertPopupComponent, AlertData } from '../../../shared/components/alert-popup/alert-popup.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { AppointmentDetailService } from '../../../core/services/appointment-detail.service';
 import { AppointmentDetailData } from '../../../core/interfaces/booking.interface';
@@ -22,6 +21,8 @@ import { ServicesService } from '../../../core/services/services.service';
 import { Service } from '../../../core/services/services.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
 import { ResponsiveService } from '../../../core/services/responsive.service';
+import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
@@ -37,7 +38,7 @@ import { ResponsiveService } from '../../../core/services/responsive.service';
     TranslateModule,
     DetailViewComponent,
     AppointmentDetailPopupComponent,
-    AlertPopupComponent,
+    ConfirmationPopupComponent,
   ],
   templateUrl: './appointment-detail-page.component.html',
   styleUrls: ['./appointment-detail-page.component.scss'],
@@ -54,12 +55,14 @@ export class AppointmentDetailPageComponent implements OnInit {
   private appointmentDetailService = inject(AppointmentDetailService);
   private servicesService = inject(ServicesService);
   private responsiveService = inject(ResponsiveService);
+  private appointmentManagementService = inject(AppointmentManagementService);
+  private loaderService = inject(LoaderService);
 
   // Public computed signals from service
-  readonly booking = this.appointmentDetailService.booking;
-  readonly isLoading = this.appointmentDetailService.isLoading;
-  readonly canEdit = this.appointmentDetailService.canEdit;
-  readonly canDelete = this.appointmentDetailService.canDelete;
+  readonly booking = this.appointmentManagementService.appointment;
+  readonly isLoading = this.appointmentManagementService.isLoading;
+  readonly canEdit = this.appointmentManagementService.canEdit;
+  readonly canDelete = this.appointmentManagementService.canDelete;
 
   // Mobile detection
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -68,9 +71,14 @@ export class AppointmentDetailPageComponent implements OnInit {
   private loadedService = signal<Service | null>(null);
   readonly service = computed(() => this.loadedService());
 
+  // Appointment ID for detail view
+  readonly appointmentId = computed(() => this.route.snapshot.paramMap.get('id'));
+
+
+
   // UI state signals
   private showDeleteAlertSignal = signal<boolean>(false);
-  private deleteAlertDataSignal = signal<AlertData | null>(null);
+  private deleteAlertDataSignal = signal<ConfirmationData | null>(null);
 
   readonly showDeleteAlert = computed(() => this.showDeleteAlertSignal());
   readonly deleteAlertData = computed(() => this.deleteAlertDataSignal());
@@ -83,18 +91,21 @@ export class AppointmentDetailPageComponent implements OnInit {
     const items: InfoItemData[] = [
       {
         icon: '👤',
-        label: 'COMMON.CLIENT',
+        label: 'COMMON.CLIENT_NAME',
         value: booking.clientName,
+        field: 'clientName',
       },
       {
         icon: '📅',
         label: 'COMMON.DATE',
         value: this.formatDate(booking.data),
+        field: 'data',
       },
       {
         icon: '⏰',
-        label: 'COMMON.TIME.TODAY',
+        label: 'COMMON.HOURS',
         value: this.formatTime(booking.hora),
+        field: 'hora',
       },
       {
         icon: '✂️',
@@ -116,8 +127,9 @@ export class AppointmentDetailPageComponent implements OnInit {
     if (booking.notes) {
       items.push({
         icon: '📝',
-        label: 'APPOINTMENTS.NOTES',
+        label: 'COMMON.NOTES',
         value: booking.notes,
+        field: 'notes',
       });
     }
 
@@ -158,7 +170,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     if (canEdit) {
       actions.push({
-        label: 'COMMON.ACTIONS.EDIT',
+        label: 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS',
         icon: '✏️',
         type: 'primary',
         onClick: () => this.editAppointment(),
@@ -167,7 +179,7 @@ export class AppointmentDetailPageComponent implements OnInit {
 
     if (canDelete) {
       actions.push({
-        label: 'COMMON.ACTIONS.DELETE',
+        label: 'APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION',
         icon: '🗑️',
         type: 'danger',
         onClick: () => this.showDeleteConfirmation(),
@@ -189,17 +201,36 @@ export class AppointmentDetailPageComponent implements OnInit {
     };
   });
 
+
+
   ngOnInit() {
     // Load from route parameters
     this.loadAppointment();
+
+    // Auto-trigger delete confirmation if requested via query param
+    const confirmDelete = this.route.snapshot.queryParamMap.get('confirmDelete');
+    if (confirmDelete === 'true') {
+      // Defer to allow booking to load if needed
+      setTimeout(() => this.showDeleteConfirmation(), 0);
+    }
+
+
   }
 
   private async loadAppointment(): Promise<void> {
     const appointmentId = this.route.snapshot.paramMap.get('id');
     if (appointmentId) {
-      await this.appointmentDetailService.loadBookingById(appointmentId);
-      // Load service data after booking is loaded
-      await this.loadServiceData();
+      this.loaderService.show({ message: 'APPOINTMENTS.LOADING_APPOINTMENT' });
+
+      try {
+        await this.appointmentManagementService.loadAppointment(appointmentId);
+        // Load service data after booking is loaded
+        await this.loadServiceData();
+      } catch (error) {
+        console.error('Error loading appointment:', error);
+      } finally {
+        this.loaderService.hide();
+      }
     }
   }
 
@@ -222,17 +253,10 @@ export class AppointmentDetailPageComponent implements OnInit {
     const booking = this.booking();
     if (!booking) return;
 
-    const clientName = booking.clientName || 'Client';
-    const appointmentDate = this.formatDate(booking.data);
-
-    const alertData: AlertData = {
+    const alertData: ConfirmationData = {
       title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
-      message: `Estàs segur que vols eliminar la cita de ${clientName} del ${appointmentDate}? Aquesta acció no es pot desfer.`,
-      emoji: '⚠️',
+      message: 'APPOINTMENTS.DELETE_CONFIRMATION_MESSAGE',
       severity: 'danger',
-      confirmText: 'COMMON.ACTIONS.DELETE',
-      cancelText: 'COMMON.ACTIONS.CANCEL',
-      showCancel: true,
     };
 
     this.deleteAlertDataSignal.set(alertData);
@@ -251,17 +275,23 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   async deleteAppointment(): Promise<void> {
-    const success = await this.appointmentDetailService.deleteBooking();
-    if (success) {
+    this.loaderService.show({ message: 'APPOINTMENTS.DELETING_APPOINTMENT' });
+
+    try {
+      await this.appointmentManagementService.deleteAppointment();
       this.goBack();
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+    } finally {
+      this.loaderService.hide();
     }
   }
 
   goBack(): void {
-    if (this.responsiveService.isMobile()) {
-      this.router.navigate(['/bookings']);
-    } else {
+    if (window.history.length > 1) {
       this.location.back();
+    } else {
+      this.router.navigate(['/appointments']);
     }
   }
 
@@ -313,8 +343,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.router.navigate(['/appointments', booking.id]);
   }
 
+  onEditRequested(): void {
+    // Use the appointment management service to start editing in-place
+    this.appointmentManagementService.startEditing();
+  }
+
   editAppointment(): void {
-    this.router.navigate(['/appointments', this.booking()?.id, 'edit']);
+    // This method is used by the DetailViewConfig actions
+    this.onEditRequested();
   }
 }
 

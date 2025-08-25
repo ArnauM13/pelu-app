@@ -14,7 +14,7 @@ export interface ServiceColor {
   textColor: string;
 }
 
-// Re-export FirebaseService interface for backward compatibility
+// Re-export FirebaseService interface
 export type Service = FirebaseService;
 export type ServiceCategory = import('./firebase-services.service').ServiceCategory;
 

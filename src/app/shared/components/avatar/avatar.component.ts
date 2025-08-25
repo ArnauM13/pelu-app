@@ -4,7 +4,6 @@ import {
   computed,
   signal,
   OnInit,
-  OnDestroy,
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
@@ -54,7 +53,7 @@ export interface AvatarData {
     </div>
   `,
 })
-export class AvatarComponent implements OnInit, OnDestroy, OnChanges {
+export class AvatarComponent implements OnInit, OnChanges {
   @Input() data: AvatarData = {};
   @Input() size: 'small' | 'medium' | 'large' | 'xlarge' = 'medium';
 
@@ -120,9 +119,7 @@ export class AvatarComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  ngOnDestroy() {
-    // Cleanup if needed
-  }
+
 
   onImageLoad() {
     this.imageLoadedSignal.set(true);

@@ -10,83 +10,146 @@
   }
 
   <!-- PrimeNG Select -->
-  <p-select
-    [inputId]="getElementId()"
-    [options]="options()"
-    [placeholder]="(placeholder() || 'INPUTS.SELECT_PLACEHOLDER') | translate"
-    [required]="required()"
-    [disabled]="disabled()"
-    [readonly]="readonly()"
-    [loading]="loading()"
-    [editable]="editable()"
-    [checkmark]="checkmark()"
-    [filter]="filter()"
-    [filterBy]="filterBy()"
-    [filterMatchMode]="filterMatchMode()"
-    [filterPlaceholder]="(filterPlaceholder() || 'INPUTS.SELECT_FILTER_PLACEHOLDER') | translate"
-    [showClear]="showClear()"
-    [appendTo]="appendTo()"
-    [scrollHeight]="scrollHeight()"
-    [virtualScroll]="virtualScroll()"
-    [virtualScrollItemSize]="virtualScrollItemSize()"
-    [optionLabel]="optionLabel()"
-    [optionValue]="optionValue()"
-    [optionDisabled]="optionDisabled()"
-    [group]="group()"
-    [(ngModel)]="value"
-    (onChange)="onSelectChange($event.value)"
-    (onBlur)="onBlurHandler($event)"
-    class="w-full"
-  >
-    <!-- Selected Item Template -->
-    @if (selectedItemTemplate) {
-      <ng-template #selectedItem let-selectedOption>
-        <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: selectedOption }"></ng-container>
-      </ng-template>
-    }
+  @if (!multiple()) {
+    <p-select
+      [inputId]="getElementId()"
+      [options]="options()"
+      [placeholder]="(placeholder() || 'INPUTS.SELECT_PLACEHOLDER') | translate"
+      [required]="required()"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      [loading]="loading()"
+      [editable]="editable()"
+      [checkmark]="checkmark()"
+      [filter]="filter()"
+      [filterBy]="filterBy()"
+      [filterMatchMode]="filterMatchMode()"
+      [filterPlaceholder]="(filterPlaceholder() || 'INPUTS.SELECT_FILTER_PLACEHOLDER') | translate"
+      [showClear]="showClear()"
+      [appendTo]="appendTo()"
+      [scrollHeight]="scrollHeight()"
+      [virtualScroll]="virtualScroll()"
+      [virtualScrollItemSize]="virtualScrollItemSize()"
+      [optionLabel]="optionLabel()"
+      [optionValue]="optionValue()"
+      [optionDisabled]="optionDisabled()"
+      [group]="group()"
+      [(ngModel)]="value"
+      (onChange)="onSelectChange($event.value)"
+      (onBlur)="onBlurHandler($event)"
+      class="w-full"
+    >
+      <!-- Selected Item Template -->
+      @if (selectedItemTemplate) {
+        <ng-template #selectedItem let-selectedOption>
+          <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: selectedOption }"></ng-container>
+        </ng-template>
+      }
 
-    <!-- Item Template -->
-    @if (itemTemplate) {
-      <ng-template #item let-option>
-        <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: option }"></ng-container>
-      </ng-template>
-    }
+      <!-- Item Template -->
+      @if (itemTemplate) {
+        <ng-template #item let-option>
+          <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: option }"></ng-container>
+        </ng-template>
+      }
 
-    <!-- Group Template -->
-    @if (groupTemplate) {
-      <ng-template #group let-group>
-        <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: group }"></ng-container>
-      </ng-template>
-    }
+      <!-- Group Template -->
+      @if (groupTemplate) {
+        <ng-template #group let-group>
+          <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: group }"></ng-container>
+        </ng-template>
+      }
 
-    <!-- Dropdown Icon Template -->
-    @if (dropdownIconTemplate) {
-      <ng-template #dropdownicon>
-        <ng-container *ngTemplateOutlet="dropdownIconTemplate"></ng-container>
-      </ng-template>
-    }
+      <!-- Dropdown Icon Template -->
+      @if (dropdownIconTemplate) {
+        <ng-template #dropdownicon>
+          <ng-container *ngTemplateOutlet="dropdownIconTemplate"></ng-container>
+        </ng-template>
+      }
 
-    <!-- Header Template -->
-    @if (headerTemplate) {
-      <ng-template #header>
-        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
-      </ng-template>
-    }
+      <!-- Header Template -->
+      @if (headerTemplate) {
+        <ng-template #header>
+          <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+        </ng-template>
+      }
 
-    <!-- Footer Template -->
-    @if (footerTemplate) {
-      <ng-template #footer>
-        <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
-      </ng-template>
-    }
+      <!-- Footer Template -->
+      @if (footerTemplate) {
+        <ng-template #footer>
+          <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+        </ng-template>
+      }
 
-    <!-- Empty Message Template -->
-    @if (emptyMessageTemplate) {
-      <ng-template #emptyMessage>
-        <ng-container *ngTemplateOutlet="emptyMessageTemplate"></ng-container>
-      </ng-template>
-    }
-  </p-select>
+      <!-- Empty Message Template -->
+      @if (emptyMessageTemplate) {
+        <ng-template #emptyMessage>
+          <ng-container *ngTemplateOutlet="emptyMessageTemplate"></ng-container>
+        </ng-template>
+      }
+    </p-select>
+  } @else {
+    <p-multiSelect
+      [inputId]="getElementId()"
+      [options]="options()"
+      [placeholder]="(placeholder() || 'INPUTS.SELECT_PLACEHOLDER') | translate"
+      [required]="required()"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      [loading]="loading()"
+      [filter]="filter()"
+      [filterBy]="filterBy()"
+      [filterMatchMode]="filterMatchMode()"
+      [showClear]="showClear()"
+      [appendTo]="appendTo()"
+      [scrollHeight]="scrollHeight()"
+      [virtualScroll]="virtualScroll()"
+      [virtualScrollItemSize]="virtualScrollItemSize()"
+      [optionLabel]="optionLabel()"
+      [optionValue]="optionValue()"
+      [optionDisabled]="optionDisabled()"
+      [group]="group()"
+      [(ngModel)]="value"
+      (onChange)="onSelectChange($event.value)"
+      (onBlur)="onBlurHandler($event)"
+      class="w-full"
+    >
+      <!-- Item Template -->
+      @if (itemTemplate) {
+        <ng-template #item let-option>
+          <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: option }"></ng-container>
+        </ng-template>
+      }
+
+      <!-- Group Template -->
+      @if (groupTemplate) {
+        <ng-template #group let-group>
+          <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: group }"></ng-container>
+        </ng-template>
+      }
+
+      <!-- Header Template -->
+      @if (headerTemplate) {
+        <ng-template #header>
+          <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+        </ng-template>
+      }
+
+      <!-- Footer Template -->
+      @if (footerTemplate) {
+        <ng-template #footer>
+          <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+        </ng-template>
+      }
+
+      <!-- Empty Message Template -->
+      @if (emptyMessageTemplate) {
+        <ng-template #emptyMessage>
+          <ng-container *ngTemplateOutlet="emptyMessageTemplate"></ng-container>
+        </ng-template>
+      }
+    </p-multiSelect>
+  }
 
   <!-- Help text -->
   @if (helpText()) {

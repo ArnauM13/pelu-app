@@ -1,15 +1,13 @@
-import { Component, input, output, signal, computed, inject, HostListener } from '@angular/core';
+import { Component, input, output, computed, HostListener, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonComponent } from '../buttons/button.component';
-
-// Footer action types interface
-export type FooterActionType = 'confirm' | 'cancel' | 'close' | 'edit' | 'delete' | 'save' | 'login' | 'register';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ButtonModule } from 'primeng/button';
 
 // Footer action interface
 export interface FooterAction {
   label: string;
-  type: FooterActionType;
+  severity?: 'primary' | 'secondary' | 'danger';
   action: () => void;
 }
 
@@ -26,9 +24,10 @@ export interface PopupDialogConfig {
 @Component({
   selector: 'pelu-popup-dialog',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, ConfirmDialogModule, ButtonModule],
   templateUrl: './popup-dialog.component.html',
   styleUrls: ['./popup-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class PopupDialogComponent {
   // Input signals
@@ -49,6 +48,22 @@ export class PopupDialogComponent {
   readonly footerActions = computed(() => this.config().footerActions ?? []);
   readonly customClass = computed(() => this.config().customClass ?? '');
 
+  // Inline style per size
+  readonly dialogStyle = computed(() => {
+    const size = this.config().size ?? 'medium';
+    switch (size) {
+      case 'small':
+        return { width: '22rem', maxWidth: '95vw' } as const;
+      case 'large':
+        return { width: '44rem', maxWidth: '95vw' } as const;
+      case 'full':
+        return { width: '95vw', height: '90vh' } as const;
+      case 'medium':
+      default:
+        return { width: '30rem', maxWidth: '95vw' } as const;
+    }
+  });
+
   // Methods
   onClose(): void {
     this.closed.emit();
@@ -60,26 +75,23 @@ export class PopupDialogComponent {
     }
   }
 
+  onHide(): void {
+    this.closed.emit();
+  }
+
   onActionClick(action: FooterAction): void {
     action.action();
   }
 
-  getActionClass(action: FooterAction): string {
-    switch (action.type) {
-      case 'confirm':
-      case 'save':
-        return 'btn-primary';
-      case 'edit':
-        return 'btn-secondary';
-      case 'delete':
-        return 'btn-danger';
-      case 'login':
-      case 'register':
-        return 'btn-primary';
-      case 'cancel':
-      case 'close':
+  getActionSeverity(action: FooterAction): 'secondary' | 'danger' | undefined {
+    switch (action.severity) {
+      case 'secondary':
+        return 'secondary';
+      case 'danger':
+        return 'danger';
+      case 'primary':
       default:
-        return 'btn-secondary';
+        return undefined; // primary
     }
   }
 

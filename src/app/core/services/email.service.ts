@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Booking } from '../interfaces/booking.interface';
 import { FirebaseServicesService } from './firebase-services.service';
 import { LoggerService } from '../../shared/services/logger.service';
+import { SystemParametersService } from './system-parameters.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ export class EmailService {
   private readonly translateService = inject(TranslateService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly logger = inject(LoggerService);
+  private readonly systemParametersService = inject(SystemParametersService);
 
   /**
    * Send booking confirmation email
@@ -22,7 +24,7 @@ export class EmailService {
         this.logger.warn('Missing required fields for email', {
           component: 'EmailService',
           method: 'sendBookingConfirmationEmail',
-          data: { bookingId: booking.id, hasEmail: !!booking.email, hasName: !!booking.clientName }
+          data: JSON.stringify({ bookingId: booking.id, hasEmail: !!booking.email, hasName: !!booking.clientName })
         });
         return;
       }
@@ -33,7 +35,7 @@ export class EmailService {
         this.logger.warn('Service not found for email', {
           component: 'EmailService',
           method: 'sendBookingConfirmationEmail',
-          data: { bookingId: booking.id, serviceId: booking.serviceId }
+          data: JSON.stringify({ bookingId: booking.id, serviceId: booking.serviceId })
         });
         return;
       }
@@ -57,7 +59,7 @@ export class EmailService {
       this.logger.error('Error sending booking confirmation email', {
         component: 'EmailService',
         method: 'sendBookingConfirmationEmail',
-        data: { bookingId: booking.id, error: error instanceof Error ? error.message : 'Unknown error' }
+        data: JSON.stringify({ bookingId: booking.id, error: error instanceof Error ? error.message : 'Unknown error' })
       });
     }
   }
@@ -80,7 +82,7 @@ export class EmailService {
     try {
       const formattedPrice = this.formatPrice(data.price);
       const greeting = this.translateService.instant('BOOKING.EMAIL.GREETING', { clientName: data.clientName });
-      const subject = this.translateService.instant('BOOKING.EMAIL.SUBJECT');
+      // const subject = this.translateService.instant('BOOKING.EMAIL.SUBJECT');
       const service = this.translateService.instant('BOOKING.EMAIL.SERVICE');
       const date = this.translateService.instant('BOOKING.EMAIL.DATE');
       const time = this.translateService.instant('BOOKING.EMAIL.TIME');
@@ -90,35 +92,68 @@ export class EmailService {
       const noNotes = this.translateService.instant('BOOKING.EMAIL.NO_NOTES');
       const footer = this.translateService.instant('BOOKING.EMAIL.FOOTER');
 
-      const emailContent = `
-${greeting}
+			const htmlContent = `
+			<div style="font-family: Arial, sans-serif; line-height: 1.5;">
+				<p>${greeting}</p>
+				<p><strong>${service}:</strong> ${data.serviceName}</p>
+				<p>${data.serviceDescription}</p>
+				<p><strong>${date}:</strong> ${data.data}</p>
+				<p><strong>${time}:</strong> ${data.hora}</p>
+				<p><strong>${duration}:</strong> ${data.duration} min</p>
+				<p><strong>${price}:</strong> ${formattedPrice}</p>
+				<p><strong>${notes}:</strong> ${data.notes || noNotes}</p>
+				<p>${footer}</p>
+			</div>
+			      `.trim();
 
-${subject}
+      // Build payload for Vercel serverless function
+			const subjectLine = this.translateService.instant('BOOKING.EMAIL.SUBJECT');
+			const payload = {
+				to: data.email,
+				subject: subjectLine,
+				html: htmlContent,
+			} as const;
 
-${service}: ${data.serviceName}
-${data.serviceDescription}
+      // Call the API route deployed on Vercel (same domain)
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-${date}: ${data.data}
-${time}: ${data.hora}
-${duration}: ${data.duration} min
-${price}: ${formattedPrice}
+      const responseBody: unknown = await response.json().catch(() => ({}));
 
-${notes}: ${data.notes || noNotes}
+      if (!response.ok) {
+        const hasErrorField = (value: unknown): value is { error?: unknown; details?: unknown } =>
+          typeof value === 'object' && value !== null && (('error' in (value as Record<string, unknown>)) || ('details' in (value as Record<string, unknown>)));
 
-${footer}
-      `.trim();
+        const errorMessage = hasErrorField(responseBody)
+          ? String((responseBody.error || responseBody.details) ?? `HTTP ${response.status}`)
+          : `HTTP ${response.status}`;
 
-      // For now, just log the email content
-      // In a real implementation, you would send this via your email API
-      this.logger.info('Email content generated', {
+        this.logger.error('Email API call failed', {
+          component: 'EmailService',
+          method: 'sendEmailViaAPI',
+          data: JSON.stringify({
+            bookingId: data.bookingId,
+            to: data.email,
+            status: response.status,
+            error: errorMessage,
+            serverResponse: responseBody,
+          })
+        });
+
+        return { success: false, error: errorMessage };
+      }
+
+      this.logger.info('Email sent via API', {
         component: 'EmailService',
         method: 'sendEmailViaAPI',
-        data: {
+        data: JSON.stringify({
+          bookingId: data.bookingId,
           to: data.email,
-          subject,
-          content: emailContent,
-          bookingId: data.bookingId
-        }
+          apiResponse: responseBody,
+        })
       });
 
       return { success: true };
@@ -127,7 +162,7 @@ ${footer}
       this.logger.error('Error sending email via API', {
         component: 'EmailService',
         method: 'sendEmailViaAPI',
-        data: { error: error instanceof Error ? error.message : 'Unknown error' }
+        data: JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })
       });
 
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };

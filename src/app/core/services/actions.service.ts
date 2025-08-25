@@ -6,6 +6,28 @@ import { BookingService } from './booking.service';
 import { Booking } from '../interfaces/booking.interface';
 import { BookingValidationService } from './booking-validation.service';
 
+// Define proper interfaces for action context items
+export interface ServiceActionItem {
+  id?: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  category: string;
+  icon: string;
+  isPopular?: boolean;
+  isActive?: boolean;
+}
+
+export interface UserActionItem {
+  id?: string;
+  uid?: string;
+  name: string;
+  email: string;
+  role?: string;
+  isActive?: boolean;
+}
+
 export interface ActionConfig {
   id: string;
   label: string;
@@ -14,12 +36,12 @@ export interface ActionConfig {
   tooltip?: string;
   disabled?: boolean;
   visible?: boolean;
-  onClick: (item: any) => void;
+  onClick: (item: Booking | ServiceActionItem | UserActionItem) => void;
 }
 
 export interface ActionContext {
   type: 'appointment' | 'service' | 'user' | 'booking';
-  item: any;
+  item: Booking | ServiceActionItem | UserActionItem;
   permissions?: {
     canEdit?: boolean;
     canDelete?: boolean;
@@ -81,7 +103,14 @@ export class ActionsService {
         icon: '👁️',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
-        onClick: item => this.viewAppointment(item),
+        onClick: item => {
+          // Use context callback if available, otherwise use default action
+          if (context.onView) {
+            context.onView();
+          } else {
+            this.viewAppointment(item as Booking);
+          }
+        },
       });
     }
 
@@ -94,8 +123,12 @@ export class ActionsService {
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
         onClick: item => {
-          // This will be handled by the context callback if provided
-          console.log('Edit appointment:', item);
+          // Use context callback if available, otherwise use default action
+          if (context.onEdit) {
+            context.onEdit();
+          } else {
+            this.editAppointment(item as Booking);
+          }
         },
       });
     }
@@ -107,10 +140,14 @@ export class ActionsService {
         label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
         type: 'danger',
-        tooltip: 'COMMON.DELETE_CONFIRMATION',
+        tooltip: 'COMMON.ACTIONS.DELETE',
         onClick: item => {
-          // This will be handled by the context callback if provided
-          console.log('Delete appointment:', item);
+          // Use context callback if available, otherwise use default action
+          if (context.onDelete) {
+            context.onDelete();
+          } else {
+            this.deleteAppointment(item as Booking);
+          }
         },
       });
     }
@@ -122,16 +159,16 @@ export class ActionsService {
    * Get service-specific actions
    */
   private getServiceActions(context: ActionContext): ActionConfig[] {
-    const service = context.item;
+    const service = context.item as ServiceActionItem;
     const actions: ActionConfig[] = [];
 
     // Toggle popular action (first, so it appears first)
     actions.push({
       id: 'toggle-popular',
-      label: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
-      icon: service.popular ? '⭐' : '☆',
+      label: service.isPopular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
+      icon: service.isPopular ? '⭐' : '☆',
       type: 'success',
-      tooltip: service.popular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
+      tooltip: service.isPopular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
       onClick: item => {
         // This will be handled by the context callback if provided
         console.log('Toggle popular for service:', item);
@@ -171,7 +208,6 @@ export class ActionsService {
    * Get user-specific actions
    */
   private getUserActions(context: ActionContext): ActionConfig[] {
-    const user = context.item;
     const actions: ActionConfig[] = [];
 
     // View profile action (only if canView permission is true)
@@ -182,7 +218,7 @@ export class ActionsService {
         icon: '👤',
         type: 'primary',
         tooltip: 'COMMON.VIEW_PROFILE',
-        onClick: item => this.viewUserProfile(item),
+        onClick: item => this.viewUserProfile(item as UserActionItem),
       });
     }
 
@@ -194,7 +230,7 @@ export class ActionsService {
         icon: '✏️',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
-        onClick: item => this.editUser(item),
+        onClick: item => this.editUser(item as UserActionItem),
       });
     }
 
@@ -216,7 +252,7 @@ export class ActionsService {
         icon: '👁️',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
-        onClick: item => this.viewBooking(item),
+        onClick: item => this.viewBooking(item as Booking),
       });
     }
 
@@ -228,7 +264,7 @@ export class ActionsService {
         icon: '✏️',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
-        onClick: item => this.editBooking(item),
+        onClick: item => this.editBooking(item as Booking),
       });
     }
 
@@ -239,8 +275,8 @@ export class ActionsService {
         label: 'COMMON.ACTIONS.DELETE',
         icon: '🗑️',
         type: 'danger',
-        tooltip: 'COMMON.DELETE_CONFIRMATION',
-        onClick: item => this.deleteBooking(item),
+        tooltip: 'COMMON.ACTIONS.DELETE',
+        onClick: item => this.deleteBooking(item as Booking),
       });
     }
 
@@ -303,7 +339,7 @@ export class ActionsService {
           .then(() => {
             // Don't show toast here - let the calling component handle it
           })
-          .catch(error => {
+          .catch(() => {
             this.#toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
           });
       }
@@ -311,16 +347,17 @@ export class ActionsService {
   }
 
   // Action handlers for services
-  private editService(service: any): void {
-    this.#router.navigate(['/admin/services', service.id, 'edit']);
+  private editService(service: ServiceActionItem): void {
+    const serviceObj = service as { id: string };
+    this.#router.navigate(['/admin/services', serviceObj.id, 'edit']);
   }
 
-  private toggleServicePopular(service: any): void {
+  private toggleServicePopular(service: ServiceActionItem): void {
     // Implementation would depend on your service management
     console.log('Toggle popular for service:', service);
   }
 
-  private deleteService(service: any): void {
+  private deleteService(service: ServiceActionItem): void {
     if (confirm(this.#translateService.instant('COMMON.DELETE_CONFIRMATION'))) {
       // Implementation would depend on your service management
       console.log('Delete service:', service);
@@ -328,12 +365,18 @@ export class ActionsService {
   }
 
   // Action handlers for users
-  private viewUserProfile(user: any): void {
-    this.#router.navigate(['/profile', user.uid]);
+  private viewUserProfile(user: UserActionItem): void {
+    const uid = user.uid || user.id;
+    if (uid) {
+      this.#router.navigate(['/profile', uid]);
+    }
   }
 
-  private editUser(user: any): void {
-    this.#router.navigate(['/profile', user.uid, 'edit']);
+  private editUser(user: UserActionItem): void {
+    const uid = user.uid || user.id;
+    if (uid) {
+      this.#router.navigate(['/profile', uid, 'edit']);
+    }
   }
 
   // Action handlers for bookings

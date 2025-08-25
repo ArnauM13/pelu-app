@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -6,7 +6,7 @@ import { FirebaseService } from '../../../core/services/firebase-services.servic
 import { CurrencyPipe } from '../../pipes/currency.pipe';
 import { ActionsButtonsComponent } from '../actions-buttons';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
-import { ActionsService, ActionContext } from '../../../core/services/actions.service';
+import { ActionContext } from '../../../core/services/actions.service';
 
 @Component({
   selector: 'pelu-service-card',
@@ -37,6 +37,7 @@ export class ServiceCardComponent {
   readonly clickable = input<boolean>(false);
   readonly selected = input<boolean>(false);
   readonly compact = input<boolean>(false);
+  readonly simpleMode = input<boolean>(false);
 
   // Output signals
   readonly cardClick = output<FirebaseService>();
@@ -44,13 +45,11 @@ export class ServiceCardComponent {
   readonly deleteClick = output<FirebaseService>();
   readonly togglePopularClick = output<FirebaseService>();
 
-  // Injected services
-  private readonly actionsService = inject(ActionsService);
-
   // Computed signals for reactive template
   readonly isClickable = computed(() => this.clickable());
   readonly isSelected = computed(() => this.selected());
   readonly isCompact = computed(() => this.compact());
+  readonly isSimpleMode = computed(() => this.simpleMode());
 
   // Event handlers
   onCardClick(): void {
@@ -72,6 +71,18 @@ export class ServiceCardComponent {
   onTogglePopularClick(event: Event): void {
     event.stopPropagation();
     this.togglePopularClick.emit(this.service());
+  }
+
+  // Simple mode state management
+  private expanded = false;
+
+  toggleExpanded(event: Event): void {
+    event.stopPropagation();
+    this.expanded = !this.expanded;
+  }
+
+  get isExpanded(): boolean {
+    return this.expanded;
   }
 
   getCategoryName(category: string): string {

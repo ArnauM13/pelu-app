@@ -75,7 +75,7 @@ describe('AppComponent', () => {
       providerId: 'password',
       refreshToken: 'mock-refresh-token',
       tenantId: null,
-    } as any);
+    } as unknown);
     authServiceSpy.isAuthenticated.and.returnValue(true);
     authServiceSpy.isLoading.and.returnValue(false);
     translateServiceSpy.instant.and.returnValue('Translated text');
@@ -235,7 +235,7 @@ describe('AppComponent', () => {
   describe('Template Rendering', () => {
     it('should render app title', () => {
       const compiled = fixture.nativeElement;
-      expect(compiled.querySelector('app-root')).toBeTruthy();
+      expect(compiled.querySelector('pelu-app-root')).toBeTruthy();
     });
 
     it('should have router outlet', () => {

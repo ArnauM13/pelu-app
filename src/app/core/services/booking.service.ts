@@ -11,16 +11,18 @@ import {
   getDocs,
   serverTimestamp,
   orderBy,
+  FieldValue,
 } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { BookingValidationService } from './booking-validation.service';
-import { EmailService } from './email.service';
-import { FirebaseServicesService } from './firebase-services.service';
+import { HybridEmailService } from './hybrid-email.service';
+import { LoaderService } from '../../shared/services/loader.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../interfaces/booking.interface';
+import { ServicesService } from './services.service';
 
 
 @Injectable({
@@ -33,8 +35,9 @@ export class BookingService {
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
   private readonly bookingValidationService = inject(BookingValidationService);
-  private readonly emailService = inject(EmailService);
-  private readonly firebaseServicesService = inject(FirebaseServicesService);
+  private readonly emailService = inject(HybridEmailService);
+  private readonly loaderService = inject(LoaderService);
+  private readonly servicesService = inject(ServicesService);
 
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
@@ -48,14 +51,18 @@ export class BookingService {
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly error = computed(() => this.errorSignal());
   readonly isInitialized = computed(() => this.isInitializedSignal());
+  readonly isAdmin = computed(() => this.roleService.isAdmin());
   readonly hasCachedData = computed(
     () => this.bookingsSignal().length > 0 && this.isInitializedSignal()
   );
 
+  // Cache configuration - INCREASED CACHE DURATION
+  private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes (increased from 5)
+
   constructor() {
     // Only load bookings if we don't have cached data
     if (!this.hasCachedData()) {
-      this.loadBookings();
+      this.initializeBookings();
     }
 
     // Set up a periodic check for auth state changes to clear cache on logout
@@ -68,12 +75,22 @@ export class BookingService {
   }
 
   /**
+   * Initialize bookings with proper auth waiting
+   */
+  private async initializeBookings(): Promise<void> {
+    await this.waitForAuthInitialization();
+    await this.loadBookings();
+  }
+
+  /**
    * Create a complete booking with all required information
    */
   async createBooking(
     bookingData: Omit<Booking, 'id' | 'createdAt'>,
     showToast: boolean = true
   ): Promise<Booking | null> {
+    this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
+
     try {
       this.isLoadingSignal.set(true);
       this.errorSignal.set(null);
@@ -83,10 +100,13 @@ export class BookingService {
         throw new Error('Authentication required for complete bookings');
       }
 
-      // Validate booking using the new validation service
-      const bookingDate = new Date(bookingData.data || '');
-      if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '')) {
-        throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+      // Validate booking using the new validation service (skip validation for admins)
+      if (!this.isAdmin()) {
+        const bookingDate = new Date(bookingData.data || '');
+        const currentBookings = this.bookings();
+        if (!this.bookingValidationService.canBookAppointment(bookingDate, bookingData.hora || '', currentBookings)) {
+          throw new Error('ERROR_BOOKING_NOT_ALLOWED');
+        }
       }
 
       // Generate unique UUID for the booking
@@ -96,6 +116,7 @@ export class BookingService {
         id: uniqueId,
         clientName: bookingData.clientName || '',
         email: bookingData.email || '',
+        uid: currentUser.uid,
         data: bookingData.data || '',
         hora: bookingData.hora || '',
         notes: bookingData.notes || '',
@@ -116,17 +137,18 @@ export class BookingService {
       // Update local state
       this.bookingsSignal.update(bookings => [newBooking, ...bookings]);
 
-      // Send confirmation email
-      try {
-        await this.emailService.sendBookingConfirmationEmail(newBooking);
-      } catch (emailError) {
-        // Log email error but don't fail the booking creation
-        this.logger.error(emailError, {
-          component: 'BookingService',
-          method: 'createBooking',
-          data: { bookingId: uniqueId, clientEmail: bookingData.email }
-        });
-      }
+      // Email sending disabled - system is configured but not active
+      // To enable email sending, update PUBLIC_KEY in emailjs-config.ts
+      // try {
+      //   await this.emailService.sendBookingConfirmationEmail(newBooking);
+      // } catch (emailError) {
+      //   // Log email error but don't fail the booking creation
+      //   this.logger.error(emailError, {
+      //     component: 'BookingService',
+      //     method: 'createBooking',
+      //     data: JSON.stringify({ bookingId: uniqueId, clientEmail: bookingData.email })
+      //   });
+      // }
 
       if (showToast) {
         this.toastService.showAppointmentCreated(bookingData.clientName || 'Client', uniqueId);
@@ -141,7 +163,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'createBooking',
         userId: currentUser?.uid,
-        data: { bookingData: { ...bookingData, email: '[REDACTED]' } },
+        data: JSON.stringify({ bookingData: { ...bookingData, email: '[REDACTED]' } }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error creating booking';
@@ -156,6 +178,7 @@ export class BookingService {
       return null;
     } finally {
       this.isLoadingSignal.set(false);
+      this.loaderService.hide();
     }
   }
 
@@ -179,15 +202,14 @@ export class BookingService {
       }
 
       // Check if user is admin or owns the booking
-      const isAdmin = this.roleService.isAdmin();
       const isOwner = currentBooking.email === currentUser.email;
 
-      if (!isAdmin && !isOwner) {
+      if (!this.isAdmin() && !isOwner) {
         throw new Error('Access denied');
       }
 
-      // Validate that the updated booking is allowed
-      if (updates.data && updates.hora) {
+      // Validate that the updated booking is allowed (skip validation for admins)
+      if (updates.data && updates.hora && !this.isAdmin()) {
         const bookingDate = new Date(updates.data);
         if (!this.bookingValidationService.canBookAppointment(bookingDate, updates.hora)) {
           throw new Error('ERROR_BOOKING_NOT_ALLOWED');
@@ -219,7 +241,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'updateBooking',
         userId: currentUser?.uid,
-        data: { bookingId, updates: { ...updates, email: '[REDACTED]' } },
+        data: JSON.stringify({ bookingId, updates: { ...updates, email: '[REDACTED]' } }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating booking';
@@ -238,7 +260,7 @@ export class BookingService {
   }
 
   /**
-   * Load all bookings from Firebase
+   * Load all bookings from Firebase - OPTIMIZED
    */
   async loadBookings(): Promise<void> {
     try {
@@ -256,8 +278,7 @@ export class BookingService {
 
       await this.loadAllBookingsWithFullDetails();
 
-      // Filter sensitive details for non-admin users
-      if (!this.roleService.isAdmin()) {
+      if (!this.isAdmin()) {
         this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
       }
 
@@ -278,7 +299,7 @@ export class BookingService {
   }
 
   /**
-   * Load all bookings with full details from Firebase
+   * Load all bookings with full details from Firebase - OPTIMIZED
    */
   private async loadAllBookingsWithFullDetails(): Promise<void> {
     const bookingsRef = collection(this.firestore, 'bookings');
@@ -322,7 +343,7 @@ export class BookingService {
         // Hide sensitive details for bookings that don't belong to the user
         return {
           ...booking,
-          clientName: 'Ocupat',
+          clientName: 'Reservada',
           email: '', // Hide email
           notes: '', // Hide notes
         } as Booking;
@@ -333,7 +354,7 @@ export class BookingService {
   }
 
   /**
-   * Get booking by ID with validation
+   * Get booking by ID with validation - OPTIMIZED
    */
   async getBookingByIdWithToken(bookingId: string): Promise<Booking | null> {
     try {
@@ -342,6 +363,19 @@ export class BookingService {
         throw new Error('Authentication required');
       }
 
+      // First check local cache
+      const localBooking = this.bookings().find(booking => booking.id === bookingId);
+      if (localBooking) {
+        // Verify access: either ownership, valid token, or admin role
+        const isOwner = localBooking.email === currentUser.email;
+
+        if (isOwner || this.isAdmin()) {
+          return localBooking;
+        }
+        return null;
+      }
+
+      // If not in cache, fetch from Firebase
       const docRef = doc(this.firestore, 'bookings', bookingId);
       const docSnap = await getDoc(docRef);
 
@@ -362,9 +396,8 @@ export class BookingService {
 
         // Verify access: either ownership, valid token, or admin role
         const isOwner = booking.email === currentUser.email;
-        const isAdmin = this.roleService.isAdmin();
 
-        if (isOwner || isAdmin) {
+        if (isOwner || this.isAdmin()) {
           return booking;
         }
 
@@ -382,10 +415,17 @@ export class BookingService {
   }
 
   /**
-   * Get booking by ID
+   * Get booking by ID - OPTIMIZED to use cache first
    */
   async getBookingById(bookingId: string): Promise<Booking | null> {
     try {
+      // First check local cache
+      const localBooking = this.bookings().find(booking => booking.id === bookingId);
+      if (localBooking) {
+        return localBooking;
+      }
+
+      // If not in cache, fetch from Firebase
       const docRef = doc(this.firestore, 'bookings', bookingId);
       const docSnap = await getDoc(docRef);
 
@@ -437,10 +477,9 @@ export class BookingService {
       }
 
       // Check if user is admin or owns the booking
-      const isAdmin = this.roleService.isAdmin();
       const isOwner = currentBooking.email === currentUser.email;
 
-      if (!isAdmin && !isOwner) {
+      if (!this.isAdmin() && !isOwner) {
         throw new Error('Access denied');
       }
 
@@ -462,7 +501,7 @@ export class BookingService {
         component: 'BookingService',
         method: 'deleteBooking',
         userId: currentUser?.uid,
-        data: { bookingId },
+        data: JSON.stringify({ bookingId }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting booking';
@@ -470,6 +509,40 @@ export class BookingService {
 
       // Don't show toast here - let the calling component handle it
       return false;
+    } finally {
+      this.isLoadingSignal.set(false);
+    }
+  }
+
+  /**
+   * Admin-only: delete all bookings in the 'bookings' collection.
+   * Returns number of deleted documents.
+   */
+  async deleteAllBookings(): Promise<number> {
+    try {
+      if (!this.roleService.isAdmin()) {
+        throw new Error('Access denied');
+      }
+      this.isLoadingSignal.set(true);
+      this.errorSignal.set(null);
+
+      const bookingsRef = collection(this.firestore, 'bookings');
+      const snapshot = await getDocs(bookingsRef);
+      let deleted = 0;
+      for (const docSnap of snapshot.docs) {
+        await deleteDoc(doc(this.firestore, 'bookings', docSnap.id));
+        deleted++;
+      }
+      // Clear local cache
+      this.clearCache();
+      return deleted;
+    } catch (error) {
+      this.logger.firebaseError(error, 'deleteAllBookings', {
+        component: 'BookingService',
+        method: 'deleteAllBookings',
+      });
+      this.errorSignal.set('Error deleting all bookings');
+      return 0;
     } finally {
       this.isLoadingSignal.set(false);
     }
@@ -528,6 +601,45 @@ export class BookingService {
   }
 
   /**
+   * Get the 3 most recently booked services by the current user
+   */
+  getRecentlyBookedServices(): string[] {
+    const currentUser = this.authService.user();
+    if (!currentUser?.email) {
+      return [];
+    }
+
+    // Get all confirmed bookings for the current user
+    const userBookings = this.bookings().filter(booking =>
+      booking.email === currentUser.email &&
+      booking.status === 'confirmed' &&
+      booking.serviceId
+    );
+
+    // Sort by creation date (most recent first) and get unique service IDs
+    const recentServiceIds = userBookings
+      .sort((a, b) => {
+        // Handle different types of createdAt field
+        const getDateValue = (createdAt: Date | string | FieldValue | undefined): number => {
+          if (!createdAt) return 0;
+          if (typeof createdAt === 'string') return new Date(createdAt).getTime();
+          if (createdAt instanceof Date) return createdAt.getTime();
+          // If it's FieldValue, we can't convert it, so use 0
+          return 0;
+        };
+
+        const dateA = getDateValue(a.createdAt);
+        const dateB = getDateValue(b.createdAt);
+        return dateB - dateA; // Most recent first
+      })
+      .map(booking => booking.serviceId!)
+      .filter((serviceId, index, array) => array.indexOf(serviceId) === index) // Remove duplicates
+      .slice(0, 3); // Get only the first 3
+
+    return recentServiceIds;
+  }
+
+  /**
    * Check if a booking is complete
    */
   isBookingComplete(booking: Booking): boolean {
@@ -538,13 +650,6 @@ export class BookingService {
       booking.hora &&
       booking.serviceId
     );
-  }
-
-  /**
-   * Check if a booking is public (for calendar display)
-   */
-  isPublicBooking(booking: Booking): boolean {
-    return booking.clientName === 'Ocupat';
   }
 
   /**
@@ -572,7 +677,7 @@ export class BookingService {
   }
 
   /**
-   * Silent refresh bookings (without loading indicators)
+   * Silent refresh bookings (without loading indicators) - OPTIMIZED
    */
   async silentRefreshBookings(): Promise<void> {
     try {
@@ -585,8 +690,7 @@ export class BookingService {
 
       await this.loadAllBookingsWithFullDetails();
 
-      // Filter sensitive details for non-admin users
-      if (!this.roleService.isAdmin()) {
+      if (!this.isAdmin()) {
         this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
       }
 
@@ -601,17 +705,16 @@ export class BookingService {
   }
 
   /**
-   * Check if cache should be refreshed
+   * Check if cache should be refreshed - OPTIMIZED
    */
   private shouldRefreshCache(): boolean {
     const lastSync = this.lastCacheTimeSignal();
     const now = Date.now();
-    const cacheDuration = 5 * 60 * 1000; // 5 minutes
-    return now - lastSync > cacheDuration;
+    return now - lastSync > this.CACHE_DURATION;
   }
 
   /**
-   * Get bookings with cache management
+   * Get bookings with cache management - OPTIMIZED
    */
   async getBookingsWithCache(): Promise<Booking[]> {
     if (this.shouldRefreshCache()) {
@@ -650,5 +753,76 @@ export class BookingService {
       };
       checkAuth();
     });
+  }
+
+  // Export selected bookings to CSV
+  exportBookingsToCSV(bookings: Booking[]): void {
+    if (bookings.length === 0) {
+      return;
+    }
+
+    // CSV headers
+    const headers = [
+      'Client Name',
+      'Email',
+      'Phone',
+      'Service',
+      'Date',
+      'Time',
+      'Status',
+      'Notes',
+      'Created At'
+    ];
+
+    // Convert bookings to CSV rows
+    const csvRows = bookings.map(booking => [
+      booking.clientName || '',
+      booking.email || '',
+      '', // Phone field not available in Booking interface
+      this.getServiceName(booking),
+      booking.data || '',
+      booking.hora || '',
+      booking.status || '',
+      booking.notes || '',
+      booking.createdAt ? this.formatCreatedAt(booking.createdAt) : ''
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [headers, ...csvRows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `appointments_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private getServiceName(booking: Booking): string {
+    if (!booking.serviceId) {
+      return 'Servei general';
+    }
+
+    const service = this.servicesService.getAllServices().find(s => s.id === booking.serviceId);
+    return service ? this.servicesService.getServiceName(service) : 'Servei general';
+  }
+
+  private formatCreatedAt(createdAt: Date | string | FieldValue): string {
+    if (createdAt instanceof Date) {
+      return createdAt.toLocaleString();
+    }
+    if (typeof createdAt === 'string') {
+      return new Date(createdAt).toLocaleString();
+    }
+    // If it's a FieldValue, we can't format it, so return empty string
+    return '';
   }
 }

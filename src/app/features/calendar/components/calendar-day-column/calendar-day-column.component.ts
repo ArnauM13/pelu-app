@@ -17,6 +17,10 @@ import {
   CalendarDropIndicatorComponent,
   DropIndicatorData,
 } from '../calendar-drop-indicator/calendar-drop-indicator.component';
+import {
+  CalendarLunchBreakComponent,
+  LunchBreakData,
+} from '../calendar-lunch-break/calendar-lunch-break.component';
 
 export interface DayColumnData {
   date: Date;
@@ -30,16 +34,19 @@ export interface DayColumnData {
   isDragOver: boolean;
   isDropValid: boolean;
   isDropInvalid: boolean;
+  lunchBreak: LunchBreakData | null;
 }
 
 @Component({
   selector: 'pelu-calendar-day-column',
+  standalone: true,
   imports: [
     CommonModule,
     AppointmentSlotComponent,
     CalendarDayHeaderComponent,
     CalendarTimeSlotComponent,
     CalendarDropIndicatorComponent,
+    CalendarLunchBreakComponent,
   ],
   template: `
     <div class="day-column" [class.past]="data().isPast" [class.disabled]="data().isDisabled">
@@ -79,6 +86,12 @@ export interface DayColumnData {
           <pelu-calendar-drop-indicator [data]="data().dropIndicator!">
           </pelu-calendar-drop-indicator>
         }
+
+        <!-- Lunch Break Overlay -->
+        @if (data().lunchBreak) {
+          <pelu-calendar-lunch-break [data]="data().lunchBreak!">
+          </pelu-calendar-lunch-break>
+        }
       </div>
     </div>
   `,
@@ -113,7 +126,8 @@ export interface DayColumnData {
         grid-row: 2 / -1;
         display: grid;
         grid-template-rows: repeat(var(--calendar-slot-count, 24), 30px);
-        min-height: calc(var(--calendar-slot-count, 24) * 30px);
+        /* Use inline CSS variable for accurate height based on SLOT_COUNT */
+        min-height: calc(var(--calendar-slot-count, 24) * 30px + 6px); /* extra space to prevent bottom clipping */
       }
 
       .time-slots-container.drag-over {

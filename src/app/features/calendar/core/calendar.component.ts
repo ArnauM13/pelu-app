@@ -1,13 +1,4 @@
-import {
-  Component,
-  input,
-  output,
-  computed,
-  signal,
-  inject,
-  ChangeDetectionStrategy,
-  effect,
-} from '@angular/core';
+import { Component, input, output, computed, signal, inject, effect, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -17,7 +8,7 @@ import {
   DateAdapter,
   CalendarA11y,
 } from 'angular-calendar';
-import { startOfWeek, endOfWeek, format as dateFnsFormat, isSameDay, addMinutes } from 'date-fns';
+import { format as dateFnsFormat, isSameDay, addMinutes } from 'date-fns';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,11 +18,10 @@ import { AppointmentSlotData } from '../slots/appointment-slot.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { Booking } from '../../../core/interfaces/booking.interface';
-import { RoleService } from '../../../core/services/role.service';
+import { UserService } from '../../../core/services/user.service';
 import { CalendarCoreService } from '../services/calendar-core.service';
 import { CalendarBusinessService } from '../services/calendar-business.service';
 import { CalendarStateService } from '../services/calendar-state.service';
-import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { ServicesService } from '../../../core/services/services.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
@@ -43,9 +33,12 @@ import {
   DayColumnData,
   DragPreviewData,
 } from '../components';
+import {
+  LunchBreakData,
+} from '../components/calendar-lunch-break/calendar-lunch-break.component';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { Service } from '../../../core/services/services.service';
+import { TimeUtils } from '../../../shared/utils/time.utils';
 
 // Interface for appointment with duration
 export interface AppointmentEvent {
@@ -57,7 +50,6 @@ export interface AppointmentEvent {
   serviceName?: string;
   clientName?: string;
   uid?: string; // User ID who owns this appointment
-  isPublicBooking?: boolean;
   isOwnBooking?: boolean;
   canDrag?: boolean;
   canViewDetails?: boolean;
@@ -65,6 +57,7 @@ export interface AppointmentEvent {
 
 @Component({
   selector: 'pelu-calendar-component',
+  standalone: true,
   imports: [
     CommonModule,
     CalendarModule,
@@ -75,7 +68,6 @@ export interface AppointmentEvent {
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
     CalendarDragPreviewComponent,
-    ButtonComponent,
   ],
   providers: [
     CalendarUtils,
@@ -85,31 +77,33 @@ export interface AppointmentEvent {
       useFactory: adapterFactory,
     },
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarComponent {
   // Inject services
   private readonly authService = inject(AuthService);
   private readonly appointmentService = inject(BookingService);
-  private readonly roleService = inject(RoleService);
+  private readonly userService = inject(UserService);
   private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
   readonly calendarCoreService = inject(CalendarCoreService);
+  private readonly timeUtils = inject(TimeUtils);
+  private readonly stateService   = inject(CalendarStateService);
   private readonly businessService = inject(CalendarBusinessService);
-  private readonly stateService = inject(CalendarStateService);
-  private readonly serviceColorsService = inject(ServiceColorsService);
   private readonly servicesService = inject(ServicesService);
   private readonly toastService = inject(ToastService);
+  private readonly injector = inject(Injector);
 
-  // Service data for popup
+  // Service data for popup - now using cached services
   private loadedService = signal<Service | null>(null);
   readonly service = computed(() => this.loadedService());
 
   // Input signals
   readonly mini = input<boolean>(false);
   readonly events = input<AppointmentEvent[]>([]);
+  readonly isBlocked = input<boolean>(false);
 
   // Output signals
   readonly dateSelected = output<{ date: string; time: string }>();
@@ -124,6 +118,7 @@ export class CalendarComponent {
   readonly selectedAppointment = this.stateService.selectedAppointment;
   readonly appointments = this.appointmentService.bookings;
   readonly isLoading = this.appointmentService.isLoading;
+  readonly isAdmin = this.userService.isAdmin;
   private readonly isInitializedSignal = signal<boolean>(false);
   private readonly calendarMountedSignal = signal<boolean>(false);
   readonly isBookingsLoaded = computed(
@@ -146,140 +141,101 @@ export class CalendarComponent {
 
   // Constants
   readonly view: CalendarView = CalendarView.Week;
-  readonly businessHours = this.businessService.getBusinessConfig().hours;
-  readonly lunchBreak = this.businessService.getBusinessConfig().lunchBreak;
-  readonly businessDays = this.businessService.getBusinessConfig().days;
-  readonly SLOT_DURATION_MINUTES = this.calendarCoreService.gridConfiguration().slotDurationMinutes;
-  readonly PIXELS_PER_MINUTE = this.calendarCoreService.gridConfiguration().pixelsPerMinute;
-  readonly SLOT_HEIGHT_PX = this.calendarCoreService.gridConfiguration().slotHeightPx;
 
-  // Computed events that combines input events with Firebase bookings
+  // Reactive business configuration - will update automatically when parameters change
+  readonly businessHours = computed(() => this.businessService.getBusinessConfig().businessHours);
+  readonly lunchBreak = computed(() => this.businessService.getBusinessConfig().lunchBreak);
+  readonly businessDays = computed(() => this.businessService.getBusinessConfig().days);
+
+  // Dynamic slot configuration based on booking duration
+  readonly SLOT_DURATION_MINUTES = computed(() => this.calendarCoreService.reactiveSlotDuration());
+  readonly PIXELS_PER_MINUTE = computed(() => this.calendarCoreService.reactivePixelsPerMinute());
+  readonly SLOT_HEIGHT_PX = computed(() => this.calendarCoreService.reactiveSlotHeight());
+
+  // Calculate number of slots based on business hours and slot duration
+  readonly SLOT_COUNT = computed(() => {
+    const businessHours = this.businessHours();
+    const slotDuration = this.calendarCoreService.reactiveSlotDuration();
+    const totalMinutes = (businessHours.end - businessHours.start) * 60;
+    return Math.ceil(totalMinutes / slotDuration);
+  });
+
+  // Computed events that combines input events with Firebase bookings - SIMPLIFIED
   readonly allEvents = computed((): AppointmentEvent[] => {
     // Use provided events or load from appointments signal
     const providedEvents = this.events();
     if (providedEvents.length > 0) {
-      // Ensure all provided events have unique IDs
       return providedEvents.map(event => ({
         ...event,
-        id: event.id || uuidv4(), // Generate unique ID if not exists
+        id: event.id || uuidv4(),
       }));
     }
 
-    // Use appointments from signal - ensure it's always an array
+    // Use appointments from signal
     const appointments = this.appointments() || [];
     const currentUser = this.authService.user();
-    const isAdmin = this.roleService.isAdmin();
+    const allServices = this.servicesService.getAllServices();
 
-    console.log('Calendar allEvents - User info:', {
-      currentUser: currentUser?.email,
-      isAdmin,
-      appointmentsCount: appointments.length,
-      roleService: {
-        userRole: this.roleService.userRole(),
-        isLoadingRole: this.roleService.isLoadingRole(),
-        isClient: this.roleService.isClient(),
-        isAdmin: this.roleService.isAdmin()
-      }
-    });
+    return appointments.map(booking => {
+      // Get service information
+      const service = booking.serviceId ? allServices.find(s => s.id === booking.serviceId) : null;
+      const serviceName = service?.name || '';
+      const serviceDuration = service?.duration || 60;
 
-    const events = appointments.map(c => {
-      // Ensure proper date and time formatting
-      const date = c.data || '';
-      const time = c.hora || '00:00';
-      const duration = 60; // Will be fetched from service
-
-      // Create proper ISO string for start with local timezone
+      // Create date strings
+      const date = booking.data || '';
+      const time = booking.hora || '00:00';
       const startString = `${date}T${time}:00`;
 
-      // Calculate end time based on duration
       const startDate = new Date(startString);
-      const endDate = addMinutes(startDate, duration);
+      const endDate = addMinutes(startDate, serviceDuration);
+      const endString = this.formatLocalDateTime(endDate);
 
-      // Format dates in local timezone to avoid UTC conversion issues
-      const formatLocalDateTime = (date: Date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-      };
+            // Determine permissions
+      const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
+      const isAdmin = this.isAdmin();
 
-      const endString = formatLocalDateTime(endDate);
+      // Check if the booking is in the past
+      const bookingDate = new Date(startString);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const isPastBooking = bookingDate < today;
 
-      // Check if this is a public booking (not owned by current user)
-      const isOwnBooking = !!(currentUser?.email && c.email === currentUser.email);
-      const isPublicBooking = !isAdmin && !isOwnBooking && c.clientName === 'Ocupat';
-
-      // Get service information
-      let serviceName = '';
-      let serviceDuration = duration;
-
-      if (c.serviceId) {
-        // Try to find the service by ID
-        const allServices = this.servicesService.getAllServices();
-        const service = allServices.find(s => s.id === c.serviceId);
-        if (service) {
-          serviceName = service.name;
-          serviceDuration = service.duration;
-        } else {
-          // If service not found, try to get it asynchronously
-          this.servicesService.getServiceById(c.serviceId).then(service => {
-            if (service) {
-              // Update the appointment with the correct service info
-              // This will trigger a re-computation of allEvents
-              console.log('Service found asynchronously:', service.name);
-            }
-          }).catch(error => {
-            console.warn('Error loading service:', error);
-          });
-        }
-      }
-
-      const canDrag = isAdmin || isOwnBooking;
+      // Admin can see all details and manage all bookings (including past ones)
+      // Non-admin can only see and manage their own bookings, but not past ones
+      const canDrag = isAdmin || (isOwnBooking && !isPastBooking);
       const canViewDetails = isAdmin || isOwnBooking;
 
-      console.log('Appointment permissions:', {
-        clientName: c.clientName,
-        isAdmin,
-        isOwnBooking,
-        canDrag,
-        canViewDetails
-      });
+      // Admin can see all client names, non-admin only sees their own or "Reservada" for others
+      const title = isAdmin ? booking.clientName : (isOwnBooking ? booking.clientName : this.translateService.instant('COMMON.STATUS.RESERVED'));
 
       return {
-        id: c.id || uuidv4(), // Generate unique ID if not exists
-        title: isPublicBooking
-          ? this.translateService.instant('COMMON.STATUS.RESERVED')
-          : c.clientName || 'Client',
+        id: booking.id || uuidv4(),
+        title: title || 'Client',
         start: startString,
         end: endString,
         duration: serviceDuration,
         serviceName: serviceName,
-        clientName: c.clientName || 'Client',
-        uid: c.email || '', // Use email as identifier
-        isPublicBooking: isPublicBooking,
+        clientName: booking.clientName || 'Client',
+        uid: booking.email || '',
         isOwnBooking: isOwnBooking,
         canDrag: canDrag,
         canViewDetails: canViewDetails,
       };
     });
-
-    return events.map(event => ({
-      ...event,
-      title: event.title || 'Client',
-      serviceName: event.serviceName || '',
-      clientName: event.clientName || 'Client',
-    }));
   });
 
   readonly timeSlots = computed(() => {
+    // Generate time slots based on current business config (duration and hours)
     return this.businessService.generateTimeSlots();
   });
 
   // Computed properties
   readonly weekDays = computed(() => {
-    const allBusinessDays = this.businessService.getBusinessDaysForWeek(this.viewDate());
+    const startDate = this.viewDate();
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6);
+    const allBusinessDays = this.businessService.getBusinessDaysForWeek(startDate, endDate);
 
     // Filter out days that have no available time slots
     return allBusinessDays.filter(day => {
@@ -321,8 +277,8 @@ export class CalendarComponent {
   readonly timeColumnSlots = computed((): TimeSlot[] => {
     return this.timeSlots().map(time => ({
       time,
-      isBlocked: this.isTimeSlotBlocked(time),
-      isDisabled: this.isTimeSlotBlocked(time),
+      isBlocked: this.isLunchBreak(time),
+      isDisabled: this.isLunchBreak(time),
     }));
   });
 
@@ -332,19 +288,14 @@ export class CalendarComponent {
       const timeSlots = this.timeSlots().map(time => ({
         date: day,
         time,
-        isAvailable: this.isTimeSlotAvailable(day, time),
-        isBooked:
-          !this.isTimeSlotAvailable(day, time) &&
-          !this.isTimeSlotBlocked(time) &&
-          !this.isPastDate(day) &&
-          !this.isPastTimeSlot(day, time),
+        isAvailable: this.isBlocked() ? false : this.isTimeSlotAvailable(day, time),
         isLunchBreak: this.isLunchBreak(time),
         isPastDate: this.isPastDate(day),
         isPastTime: this.isPastTimeSlot(day, time),
-        isClickable: this.isTimeSlotAvailable(day, time),
+        isClickable: this.isBlocked() ? false : this.isTimeSlotAvailable(day, time),
         isDisabled:
-          this.isPastDate(day) || this.isPastTimeSlot(day, time) || this.isTimeSlotBlocked(time),
-        tooltip: this.getTimeSlotTooltip(day, time),
+          this.isBlocked() || this.isPastDate(day) || this.isPastTimeSlot(day, time) || this.isLunchBreak(time),
+        tooltip: this.isBlocked() ? 'Has arribat al límit de reserves' : this.getTimeSlotTooltip(day, time),
       }));
 
       const dropIndicator =
@@ -367,6 +318,9 @@ export class CalendarComponent {
             })()
           : null;
 
+      // Calculate lunch break data
+      const lunchBreakData = this.calculateLunchBreakData(day);
+
       return {
         date: day,
         dayName: this.getDayName(day),
@@ -381,6 +335,7 @@ export class CalendarComponent {
           this.calendarCoreService.isDragging() && this.calendarCoreService.isValidDrop(),
         isDropInvalid:
           this.calendarCoreService.isDragging() && !this.calendarCoreService.isValidDrop(),
+        lunchBreak: lunchBreakData,
       };
     });
   });
@@ -429,6 +384,19 @@ export class CalendarComponent {
       console.log('Service updated, refreshing calendar appointments');
     });
 
+    // Listen for system parameters updates to refresh calendar configuration
+    window.addEventListener('systemParametersUpdated', () => {
+      console.log('System parameters updated, refreshing calendar configuration');
+      // Force re-initialization of coordinate service with new business configuration
+      this.initializeCoordinateService();
+
+      // Force a complete calendar refresh
+      setTimeout(() => {
+        // Trigger change detection by updating a signal
+        this.isInitializedSignal.update(() => true);
+      }, 100);
+    });
+
     // Mark calendar as mounted after a delay to ensure complete rendering
     if (this.isInitializedSignal()) {
       this.calendarMountedSignal.set(true);
@@ -445,6 +413,23 @@ export class CalendarComponent {
       if (currentViewDate && !this.selectedDate()) {
         this.selectedDate.set(currentViewDate);
       }
+    });
+
+        // Effect to reinitialize coordinate service when business parameters change
+    effect(() => {
+      // Access business parameters to trigger reactivity
+      const _businessHours = this.businessHours();
+      const _lunchBreak = this.lunchBreak();
+      const _businessDays = this.businessDays();
+
+      // Reinitialize coordinate service when parameters change
+      this.initializeCoordinateService();
+
+      // Force calendar refresh when business parameters change
+      console.log('Business parameters changed, refreshing calendar...');
+
+      // Force change detection by updating a signal
+      this.isInitializedSignal.update(() => true);
     });
   }
 
@@ -463,21 +448,21 @@ export class CalendarComponent {
   }
 
   getAppointmentsForDay(date: Date) {
-    return this.businessService.getAppointmentsForDay(date, this.allEvents());
+    return this.timeUtils.getAppointmentsForDay(date, this.allEvents());
   }
 
   openAppointmentPopup(appointmentEvent: AppointmentEvent) {
     // Check permissions before opening the popup
     const currentUser = this.authService.user();
-    const isAdmin = this.roleService.isAdmin();
 
     // If user is not admin, check if they can view this appointment
-    if (!isAdmin) {
+    if (!this.isAdmin()) {
       const isOwnBooking = appointmentEvent.isOwnBooking;
       const canViewDetails = appointmentEvent.canViewDetails;
 
       // If user cannot view details, don't open the popup
       if (!canViewDetails || !isOwnBooking) {
+        console.log('❌ Calendar - User cannot view this appointment');
         return;
       }
     }
@@ -492,8 +477,8 @@ export class CalendarComponent {
         originalAppointment.email = currentUser.email;
       }
 
-      // Load service data before opening popup
-      this.loadServiceData(originalAppointment.serviceId);
+      // Load service data before opening popup - OPTIMIZED to use cached services
+      this.loadServiceDataFromCache(originalAppointment.serviceId);
 
       this.stateService.openAppointmentDetail(originalAppointment);
     } else {
@@ -501,35 +486,55 @@ export class CalendarComponent {
       // Generate a unique ID if not available
       const appointmentId = appointmentEvent.id || uuidv4();
 
-      const convertedAppointment = {
+      const convertedAppointment: Booking = {
         id: appointmentId,
-        nom: appointmentEvent.title || appointmentEvent.clientName || '',
+        clientName: appointmentEvent.title || appointmentEvent.clientName || '',
+        email: currentUser?.email || '',
         data: appointmentEvent.start ? appointmentEvent.start.split('T')[0] : '',
         hora: appointmentEvent.start ? appointmentEvent.start.split('T')[1]?.substring(0, 5) : '',
-        duration: appointmentEvent.duration || 60,
-        serviceName: appointmentEvent.serviceName || '',
-        servei: appointmentEvent.serviceName || '',
         notes: '',
-        preu: 0,
-        userId: currentUser?.uid || '',
         serviceId: '',
+        status: 'confirmed' as const,
+        createdAt: new Date(),
       };
 
-      // Load service data before opening popup
-      this.loadServiceData(convertedAppointment.serviceId);
+      // Load service data before opening popup - OPTIMIZED to use cached services
+      this.loadServiceDataFromCache(convertedAppointment.serviceId);
 
       this.stateService.openAppointmentDetail(convertedAppointment);
     }
   }
 
-  private async loadServiceData(serviceId: string): Promise<void> {
+  // OPTIMIZED: Load service data from cache instead of making Firebase calls
+  private loadServiceDataFromCache(serviceId: string): void {
+    if (!serviceId) {
+      this.loadedService.set(null);
+      return;
+    }
+
+    // Get service from cached services - NO FIREBASE CALL
+    const allServices = this.servicesService.getAllServices();
+    const service = allServices.find(s => s.id === serviceId);
+
+    if (service) {
+      this.loadedService.set(service);
+    } else {
+      // Only make Firebase call if service is not in cache
+      this.loadServiceDataAsync(serviceId);
+    }
+  }
+
+  // Fallback method for async service loading (only when not in cache)
+  private async loadServiceDataAsync(serviceId: string): Promise<void> {
     if (!serviceId) {
       this.loadedService.set(null);
       return;
     }
 
     try {
-      const service = await this.servicesService.getServiceById(serviceId);
+      // Use injector to ensure proper injection context
+      const servicesService = this.injector.get(ServicesService);
+      const service = await servicesService.getServiceById(serviceId) as Service | null;
       this.loadedService.set(service);
     } catch (error) {
       console.error('Error loading service:', error);
@@ -538,11 +543,27 @@ export class CalendarComponent {
   }
 
   isLunchBreak(time: string): boolean {
-    return this.businessService.isLunchBreak(time);
+    return this.calendarCoreService.isLunchBreakTime(time);
+  }
+
+  calculateLunchBreakData(day: Date): LunchBreakData | null {
+    // Only show lunch break on business days
+    if (this.isPastDate(day) || !this.businessService.isBusinessDay(day)) {
+      return null;
+    }
+
+    const position = this.calendarCoreService.getLunchBreakPosition();
+    const timeRange = this.calendarCoreService.getLunchBreakTimeRange();
+
+    return {
+      top: position.top,
+      height: position.height,
+      timeRange,
+    };
   }
 
   isTimeSlotBlocked(time: string): boolean {
-    return !this.businessService.isTimeSlotBookable(time);
+    return this.isLunchBreak(time);
   }
 
   getAppointmentForTimeSlot(date: Date, time: string) {
@@ -616,7 +637,8 @@ export class CalendarComponent {
       ? new Date(appointment.end)
       : addMinutes(appointmentStart, appointment.duration || 60);
 
-    const slotEnd = addMinutes(slotStart, this.SLOT_DURATION_MINUTES);
+    const slotDuration = this.SLOT_DURATION_MINUTES();
+    const slotEnd = addMinutes(slotStart, slotDuration);
 
     const overlapStart = appointmentStart > slotStart ? appointmentStart : slotStart;
     const overlapEnd = appointmentEnd < slotEnd ? appointmentEnd : slotEnd;
@@ -624,7 +646,7 @@ export class CalendarComponent {
     if (overlapStart >= overlapEnd) return 0;
 
     const overlapMinutes = (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60);
-    return (overlapMinutes / this.SLOT_DURATION_MINUTES) * 100;
+    return (overlapMinutes / slotDuration) * 100;
   }
 
   shouldShowAppointmentInfo(date: Date, time: string): boolean {
@@ -658,6 +680,11 @@ export class CalendarComponent {
       return;
     }
 
+    // Prevent selection of lunch break time slots
+    if (this.isLunchBreak(time)) {
+      return;
+    }
+
     if (!this.isTimeSlotAvailable(date, time)) {
       return;
     }
@@ -672,8 +699,8 @@ export class CalendarComponent {
       return;
     }
 
-    // Prevent selection of blocked time slots
-    if (this.isTimeSlotBlocked(time)) {
+    // Prevent selection of lunch break time slots
+    if (this.isLunchBreak(time)) {
       return;
     }
 
@@ -693,30 +720,20 @@ export class CalendarComponent {
   }
 
   canNavigateToPreviousWeek(): boolean {
-    const isAdmin = this.roleService.isAdmin();
-
-    // If user is admin, allow navigation to past weeks
-    if (isAdmin) {
-      return true;
-    }
-
-    // For non-admin users, use the business logic to prevent navigation to past weeks
-    return this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
+    // Always allow navigation to past weeks
+    return true;
   }
 
-  getViewDateInfo(): string {
-    const viewDate = this.viewDate();
-    const start = startOfWeek(viewDate, { weekStartsOn: 1 });
-    const end = endOfWeek(viewDate, { weekStartsOn: 1 });
-    return `${dateFnsFormat(start, 'dd/MM')} - ${dateFnsFormat(end, 'dd/MM')}`;
-  }
+  // Removed duplicated week info method; booking page displays the indicator
 
   isBusinessDay(dayOfWeek: number): boolean {
-    return this.businessService.isBusinessDay(dayOfWeek);
+    const date = new Date();
+    date.setDate(date.getDate() + (dayOfWeek - date.getDay()));
+    return this.timeUtils.isBusinessDay(date);
   }
 
   getBusinessDaysInfo(): string {
-    return this.businessService.getBusinessDaysInfo();
+    return this.timeUtils.getBusinessDaysInfo();
   }
 
   getEventForTimeSlot(date: Date, time: string) {
@@ -724,16 +741,7 @@ export class CalendarComponent {
   }
 
   previousWeek() {
-    const isAdmin = this.roleService.isAdmin();
-
-    // If user is not admin, check if navigation to previous week is allowed
-    if (!isAdmin) {
-      const canNavigate = this.businessService.canNavigateToPreviousWeek(this.viewDate(), this.allEvents());
-      if (!canNavigate) {
-        return;
-      }
-    }
-
+    // Always allow navigation to previous week
     this.stateService.previousWeek();
   }
 
@@ -755,12 +763,21 @@ export class CalendarComponent {
     return dateFnsFormat(date, formatString, { locale: ca });
   }
 
+  private formatLocalDateTime(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
   isPastDate(date: Date): boolean {
-    return this.businessService.isPastDate(date);
+    return this.timeUtils.isPastDay(date);
   }
 
   isPastTimeSlot(date: Date, time: string): boolean {
-    return this.businessService.isPastTimeSlot(date, time);
+    return this.timeUtils.isPastTimeSlot(date, time);
   }
 
   getDayName(date: Date): string {
@@ -784,7 +801,7 @@ export class CalendarComponent {
       return this.translateService.instant('COMMON.PAST_TIME');
     }
 
-    if (this.isTimeSlotBlocked(time)) {
+    if (this.isLunchBreak(time)) {
       return 'Pausa per dinar';
     }
 
@@ -833,22 +850,26 @@ export class CalendarComponent {
 
         // Convert Booking to AppointmentEvent and emit to parent
         const currentUser = this.authService.user();
-        const isAdmin = this.roleService.isAdmin();
         const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
+
+        // Get service information from serviceId
+        const allServices = this.servicesService.getAllServices();
+        const service = booking.serviceId ? allServices.find(s => s.id === booking.serviceId) : null;
+        const serviceName = service?.name || 'Service';
+        const serviceDuration = service?.duration || 60;
 
         const appointmentEvent: AppointmentEvent = {
           id: booking.id || '',
           title: booking.clientName || 'Appointment',
           start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
           end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
-          duration: 60, // Will be fetched from service
-          serviceName: 'Service', // Will be fetched from service
+          duration: serviceDuration,
+          serviceName: serviceName,
           clientName: booking.clientName,
           uid: booking.email || '',
-          isPublicBooking: false,
           isOwnBooking: isOwnBooking,
-          canDrag: isAdmin || isOwnBooking,
-          canViewDetails: isAdmin || isOwnBooking,
+          canDrag: this.isAdmin() || isOwnBooking,
+          canViewDetails: this.isAdmin() || isOwnBooking,
         };
         this.deleteAppointment.emit(appointmentEvent);
       } else {
@@ -860,50 +881,14 @@ export class CalendarComponent {
     }
   }
 
-  onAppointmentEditRequested(booking: Booking) {
-    const currentUser = this.authService.user();
-    if (!currentUser?.uid) {
-      console.warn('No user found');
-      return;
-    }
-
-    // All appointments are now bookings, so use the direct ID
-    this.router.navigate(['/appointments', booking.id || ''], {
-      queryParams: {
-        edit: 'true',
-      },
-    });
-
-    // Close the popup
-    this.stateService.closeAppointmentDetail();
-
-    // Convert Booking to AppointmentEvent and emit to parent
-    const isAdmin = this.roleService.isAdmin();
-    const isOwnBooking = !!(currentUser?.email && booking.email === currentUser.email);
-
-    const appointmentEvent: AppointmentEvent = {
-      id: booking.id || '',
-      title: booking.clientName || 'Appointment',
-      start: (booking.data || '') + 'T' + (booking.hora || '00:00'),
-      end: (booking.data || '') + 'T' + (booking.hora || '23:59'),
-      duration: 60, // Will be fetched from service
-      serviceName: 'Service', // Will be fetched from service
-      clientName: booking.clientName,
-      uid: booking.email || '',
-      isPublicBooking: false,
-      isOwnBooking: isOwnBooking,
-      canDrag: isAdmin || isOwnBooking,
-      canViewDetails: isAdmin || isOwnBooking,
-    };
-    this.editAppointment.emit(appointmentEvent);
+  onAppointmentEditRequested(_booking: Booking) {
+    // Now handled inline within the popup; no navigation
   }
 
   onViewDetailRequested(booking: Booking) {
     // Navigate to appointment detail page
     this.router.navigate(['/appointments', booking.id || '']);
-
-    // Close the popup
-    this.stateService.closeAppointmentDetail();
+    // Do not close the popup on view navigation
   }
 
   reloadAppointments() {
@@ -939,38 +924,11 @@ export class CalendarComponent {
   }
 
   onDateChange(event: Date | string | null): void {
-    const isAdmin = this.roleService.isAdmin();
-
     if (event instanceof Date) {
       const dateString = dateFnsFormat(event, 'yyyy-MM-dd');
-
-      // For non-admin users, check if the selected date is in the past
-      if (!isAdmin) {
-        const selectedDate = new Date(dateString);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-          console.log('Non-admin user cannot navigate to past dates');
-          return;
-        }
-      }
-
       this.stateService.navigateToDate(dateString);
       this.selectedDate.set(event);
     } else if (typeof event === 'string') {
-      // For non-admin users, check if the selected date is in the past
-      if (!isAdmin) {
-        const selectedDate = new Date(event);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-          console.log('Non-admin user cannot navigate to past dates');
-          return;
-        }
-      }
-
       this.stateService.navigateToDate(event);
       // Convert string to Date for the selectedDate signal
       const date = new Date(event);
@@ -1035,15 +993,17 @@ export class CalendarComponent {
     };
   }
 
-  // Get service CSS class for drag preview
+  // Get service CSS class for drag preview - OPTIMIZED to use cached services
   getServiceCssClass(appointment: AppointmentEvent): string {
     const serviceName = appointment.serviceName || '';
     if (!serviceName) {
       return 'service-color-default';
     }
 
-    // Try to find service by name first, then by ID
+    // Get all cached services to avoid Firebase calls
     const allServices = this.servicesService.getAllServices();
+
+    // Try to find service by name first, then by ID
     let service = allServices.find(s => s.name === serviceName);
 
     // If not found by name, try by ID (for backward compatibility)
@@ -1118,51 +1078,10 @@ export class CalendarComponent {
    */
   private initializeCoordinateService(): void {
     console.log('Initializing calendar core service...');
-    const businessConfig = this.businessService.getBusinessConfig();
-    console.log('Business config:', businessConfig);
-
+    // Business hours and lunch break are now updated reactively via effects
+    // Only set the slot height which doesn't change dynamically
     this.calendarCoreService.updateGridConfiguration({
       slotHeightPx: 30,
-      // pixelsPerMinute and slotDurationMinutes are now updated reactively
-      businessStartHour: businessConfig.hours.start,
-      businessEndHour: businessConfig.hours.end,
-      lunchBreakStart: businessConfig.lunchBreak.start,
-      lunchBreakEnd: businessConfig.lunchBreak.end,
     });
-
-    console.log(
-      'Calendar core service initialized with config:',
-      this.calendarCoreService.gridConfiguration()
-    );
-  }
-
-  /**
-   * Demo method to show reactive positioning with different booking durations
-   * This demonstrates how the grid automatically recalculates positions
-   */
-  demoReactivePositioning(): void {
-    console.log('Demo: Testing reactive positioning with different booking durations');
-
-    // Test with 30-minute bookings
-    this.updateBookingDuration(30);
-    console.log('Updated to 30-minute bookings');
-
-    // Test with 60-minute bookings
-    setTimeout(() => {
-      this.updateBookingDuration(60);
-      console.log('Updated to 60-minute bookings');
-    }, 2000);
-
-    // Test with 90-minute bookings
-    setTimeout(() => {
-      this.updateBookingDuration(90);
-      console.log('Updated to 90-minute bookings');
-    }, 4000);
-
-    // Reset to default
-    setTimeout(() => {
-      this.updateBookingDuration(60);
-      console.log('Reset to default 60-minute bookings');
-    }, 6000);
   }
 }

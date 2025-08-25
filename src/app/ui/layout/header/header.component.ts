@@ -39,12 +39,12 @@ export class HeaderComponent {
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
   readonly isLoading = computed(() => this.#userService.isLoading());
-  readonly hasAdminAccess = computed(() => this.#userService.hasAdminAccess());
+  readonly isAdmin = computed(() => this.#userService.isAdmin());
 
   readonly customDropdownItems = computed((): ProfileDropdownItem[] => {
     return [
       {
-        label: 'COMMON.ACTIONS.LOGOUT',
+        label: 'AUTH.SIGN_OUT',
         emoji: '🚪',
         type: 'danger',
         onClick: () => this.onLogout(),
@@ -61,15 +61,11 @@ export class HeaderComponent {
     }
   }
 
-  navigateToPlayground() {
-    this.#router.navigate(['/playground']);
-  }
-
   async onLogout() {
     try {
       this.isLoggingOutSignal.set(true);
       await this.#userService.logout();
-    } catch (error) {
+    } catch {
       // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);

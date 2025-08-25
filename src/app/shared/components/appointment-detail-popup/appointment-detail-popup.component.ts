@@ -1,12 +1,12 @@
-import { Component, input, output, signal, computed, inject, effect } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { PopupDialogComponent, PopupDialogConfig, FooterActionType } from '../popup-dialog/popup-dialog.component';
-import { AdminWarningPopupComponent } from '../admin-warning-popup/admin-warning-popup.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../popup-dialog/popup-dialog.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../confirmation-popup/confirmation-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { RoleService } from '../../../core/services/role.service';
+import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../services/toast.service';
 
 import { Booking } from '../../../core/interfaces/booking.interface';
@@ -15,10 +15,12 @@ import { Service } from '../../../core/services/services.service';
 import { format, parseISO } from 'date-fns';
 import { ca } from 'date-fns/locale';
 import { isFutureAppointment } from '../../services';
+import { BookingService } from '../../../core/services/booking.service';
 // Import input components
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
+import { FooterAction } from '../popup-dialog/popup-dialog.component';
 
 @Component({
   selector: 'pelu-appointment-detail-popup',
@@ -27,7 +29,7 @@ import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.
     ButtonModule,
     TranslateModule,
     PopupDialogComponent,
-    AdminWarningPopupComponent,
+    ConfirmationPopupComponent,
     // Add input components
     InputTextComponent,
     InputDateComponent,
@@ -39,10 +41,11 @@ import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.
 export class AppointmentDetailPopupComponent {
   // Inject services
   #authService = inject(AuthService);
-  #roleService = inject(RoleService);
+  #userService = inject(UserService);
   #translateService = inject(TranslateService);
   #toastService = inject(ToastService);
   #servicesService = inject(ServicesService);
+  #bookingService = inject(BookingService);
 
   // Input signals
   readonly open = input<boolean>(false);
@@ -62,10 +65,24 @@ export class AppointmentDetailPopupComponent {
   readonly isLoading = signal<boolean>(false);
   readonly loadError = signal<boolean>(false);
   private loadedBooking = signal<Booking | null>(null);
+  private isEditingSignal = signal<boolean>(false);
+  readonly isEditing = computed(() => this.isEditingSignal());
 
-  // Admin warning popup state
-  readonly showAdminWarningPopup = signal<boolean>(false);
-  readonly adminWarningBookingOwner = signal<string>('');
+  // Edit form state signals
+  editName = signal<string>('');
+  editEmail = signal<string>('');
+  editDate = signal<string | Date>('');
+  editTime = signal<string>('');
+  editNotes = signal<string>('');
+  private readonly showDeleteConfirmSignal = signal<boolean>(false);
+  readonly showDeleteConfirm = computed(() => this.showDeleteConfirmSignal());
+  readonly deleteConfirmData = computed<ConfirmationData>(() => ({
+    title: this.#translateService.instant('COMMON.CONFIRMATION.TITLE'),
+    message: this.#translateService.instant('COMMON.CONFIRMATION.MESSAGE'),
+    severity: 'danger'
+  }));
+
+
 
   // Computed properties
   readonly isOpen = computed(() => this.open() && !this.isClosing());
@@ -117,7 +134,7 @@ export class AppointmentDetailPopupComponent {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
-    const isAdmin = this.#roleService.isAdmin();
+    const isAdmin = this.#userService.isAdmin();
 
     // Admin can edit any booking
     if (isAdmin) return true;
@@ -136,7 +153,7 @@ export class AppointmentDetailPopupComponent {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
-    const isAdmin = this.#roleService.isAdmin();
+    const isAdmin = this.#userService.isAdmin();
 
     // Admin can delete any booking
     if (isAdmin) return true;
@@ -162,7 +179,7 @@ export class AppointmentDetailPopupComponent {
     const currentUser = this.#authService.user();
     if (!currentUser?.uid) return false;
 
-    const isAdmin = this.#roleService.isAdmin();
+    const isAdmin = this.#userService.isAdmin();
     const isOwner = booking.email === currentUser.email || !booking.email;
 
     // Show warning if admin is viewing someone else's booking
@@ -170,50 +187,62 @@ export class AppointmentDetailPopupComponent {
   });
 
   // Popup dialog configuration
-  readonly dialogConfig = computed<PopupDialogConfig>(() => ({
-    title: this.#translateService.instant('COMMON.BOOKING_DETAILS'),
-    size: 'medium',
-    closeOnBackdropClick: true,
-    showFooter: true,
-    footerActions: [
-      ...(this.canEdit() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
-        type: 'edit' as FooterActionType,
-        action: () => this.onEdit()
-      }] : []),
-      ...(this.canDelete() ? [{
-        label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
-        type: 'delete' as FooterActionType,
-        action: () => this.onDelete()
-      }] : [])
-    ]
-  }));
-
-  constructor() {
-    // Watch for changes in the popup state and admin warning
-    effect(() => {
-      const isOpen = this.isOpen();
-      if (isOpen && this.showAdminWarning()) {
-        const booking = this.currentBooking();
-        if (booking) {
-          this.adminWarningBookingOwner.set(booking.clientName || 'Usuari anònim');
-          this.showAdminWarningPopup.set(true);
-        }
-      } else if (!isOpen) {
-        this.showAdminWarningPopup.set(false);
-        this.adminWarningBookingOwner.set('');
+  readonly dialogConfig = computed<PopupDialogConfig>(() => {
+    const actions: FooterAction[] = [];
+    
+    if (this.isEditing()) {
+      // Save/Cancel during editing
+      actions.push({
+        label: this.#translateService.instant('COMMON.ACTIONS.CANCEL'),
+        severity: 'danger',
+        action: () => this.onCancelEdit()
+      });
+      actions.push({
+        label: this.#translateService.instant('COMMON.ACTIONS.SAVE'),
+        severity: 'primary',
+        action: () => this.onSaveEdit()
+      });
+    } else {
+      // Normal view mode
+      if (this.canDelete()) {
+        actions.push({
+          label: this.#translateService.instant('COMMON.ACTIONS.DELETE'),
+          severity: 'danger',
+          action: () => this.onDelete()
+        });
       }
-    });
-  }
+      
+      if (this.canEdit()) {
+        actions.push({
+          label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
+          severity: 'secondary',
+          action: () => this.onEdit()
+        });
+      }
+      
+      if (!this.hideViewDetailButton()) {
+        actions.push({
+          label: this.#translateService.instant('APPOINTMENTS.VIEW_DETAIL'),
+          severity: 'primary',
+          action: () => this.onViewDetail()
+        });
+      }
+    }
+
+    return {
+      title: this.#translateService.instant('COMMON.BOOKING_DETAILS'),
+      size: 'medium',
+      closeOnBackdropClick: true,
+      showFooter: true,
+      footerActions: actions
+    };
+  });
+
 
   onClose(): void {
     if (this.isClosing()) return;
 
     this.isClosing.set(true);
-
-    // Close admin warning popup
-    this.showAdminWarningPopup.set(false);
-    this.adminWarningBookingOwner.set('');
 
     // Emit immediately to avoid timing issues
     this.closed.emit();
@@ -226,23 +255,80 @@ export class AppointmentDetailPopupComponent {
 
   onEdit(): void {
     const booking = this.currentBooking();
-    if (booking) {
-      this.editRequested.emit(booking);
-      this.onClose();
+    if (!booking) return;
+    // Initialize edit fields from current booking
+    this.editName.set(booking.clientName || '');
+    this.editEmail.set(booking.email || '');
+    this.editDate.set(booking.data || '');
+    this.editTime.set(booking.hora || '');
+    this.editNotes.set(booking.notes || '');
+    this.isEditingSignal.set(true);
+  }
+
+  async onSaveEdit(): Promise<void> {
+    const booking = this.currentBooking();
+    if (!booking?.id) return;
+    try {
+      // Normalize date to 'yyyy-MM-dd' string to avoid Firestore Timestamp issues
+      const rawDate = this.editDate();
+      const normalizedDate = rawDate instanceof Date
+        ? rawDate.toISOString().split('T')[0]
+        : (typeof rawDate === 'string' ? rawDate : '');
+
+      // Normalize time to 'HH:mm' string
+      const rawTime = this.editTime();
+      const normalizedTime = typeof rawTime === 'string' ? rawTime : '';
+
+      const updates: Partial<Booking> = {
+        clientName: this.editName(),
+        email: this.editEmail(),
+        data: normalizedDate,
+        hora: normalizedTime,
+        notes: this.editNotes(),
+      };
+      this.isLoading.set(true);
+      const ok = await this.#bookingService.updateBooking(booking.id, updates);
+      if (ok) {
+        this.#toastService.showSuccess(this.#translateService.instant('COMMON.STATUS.STATUS_SUCCESS'));
+        // Update local state view
+        this.loadedBooking.set({ ...booking, ...updates });
+        this.isEditingSignal.set(false);
+        // notify listeners to refresh
+        window.dispatchEvent(new CustomEvent('appointmentUpdated'));
+        // close popup after save as requested
+        this.onClose();
+      } else {
+        this.#toastService.showError(this.#translateService.instant('COMMON.STATUS.STATUS_ERROR'));
+      }
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
+  onCancelEdit(): void {
+    this.isEditingSignal.set(false);
+  }
+
   onDelete(): void {
+    // Open confirmation popup
+    this.showDeleteConfirmSignal.set(true);
+  }
+
+  onDeleteConfirmed(): void {
     const booking = this.currentBooking();
     if (!booking || !booking.id) {
       this.#toastService.showGenericError('Booking not found');
       this.onClose();
+      this.showDeleteConfirmSignal.set(false);
       return;
     }
-
-    // Emit delete event to parent component
     this.deleted.emit(booking);
+    this.showDeleteConfirmSignal.set(false);
     this.onClose();
+  }
+
+  onDeleteCancelled(): void {
+    this.showDeleteConfirmSignal.set(false);
   }
 
 
@@ -251,14 +337,9 @@ export class AppointmentDetailPopupComponent {
     const booking = this.currentBooking();
     if (booking && booking.id) {
       this.viewDetailRequested.emit(booking);
+      // Close popup when navigating to view detail
       this.onClose();
     }
-  }
-
-  // Admin warning popup methods
-  onAdminWarningClosed(): void {
-    this.showAdminWarningPopup.set(false);
-    this.adminWarningBookingOwner.set('');
   }
 
   // Helper methods
@@ -269,8 +350,6 @@ export class AppointmentDetailPopupComponent {
   getClientEmail(booking: Booking): string {
     return booking.email || 'N/A';
   }
-
-
 
   formatBookingDate(date: string): string {
     if (!date) return 'N/A';
@@ -331,5 +410,19 @@ export class AppointmentDetailPopupComponent {
       default:
         return 'var(--text-color-light)';
     }
+  }
+
+  // Methods expected by specs
+  formatDate(date: string): string {
+    if (!date) return 'N/A';
+    try {
+      return format(parseISO(date), 'yyyy-MM-dd');
+    } catch {
+      return date;
+    }
+  }
+
+  formatTime(time: string): string {
+    return time;
   }
 }

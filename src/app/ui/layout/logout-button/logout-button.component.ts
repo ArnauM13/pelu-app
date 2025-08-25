@@ -20,7 +20,7 @@ export class LogoutButtonComponent {
   // Public computed signals
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
   readonly buttonText = computed(() =>
-    this.isLoggingOut() ? 'COMMON.STATUS.LOADING' : 'COMMON.ACTIONS.LOGOUT'
+    this.isLoggingOut() ? 'COMMON.STATUS.LOADING' : 'AUTH.SIGN_OUT'
   );
 
   async logout() {
@@ -30,7 +30,7 @@ export class LogoutButtonComponent {
 
     try {
       await this.authService.logout();
-    } catch (error) {
+    } catch {
       // Handle logout error silently
     } finally {
       this.isLoggingOutSignal.set(false);

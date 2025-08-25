@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  setDoc,
 } from '@angular/fire/firestore';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
@@ -36,7 +37,7 @@ export interface ServiceCategory {
   name: string;
   icon: string;
   custom?: boolean; // Flag to identify custom categories
-  createdAt?: any;
+  createdAt?: unknown;
   createdBy?: string;
 }
 
@@ -50,6 +51,9 @@ export class FirebaseServicesService {
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
   private readonly translateService = inject(TranslateService);
+  private readonly envInjector = inject(EnvironmentInjector);
+
+  readonly isAdmin = this.roleService.isAdmin;
 
   // Core signals
   private readonly _services = signal<FirebaseService[]>([]);
@@ -57,8 +61,8 @@ export class FirebaseServicesService {
   private readonly _error = signal<string | null>(null);
   private readonly _lastSync = signal<number>(0);
 
-  // Cache configuration
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  // Cache configuration - INCREASED CACHE DURATION
+  private readonly CACHE_DURATION = 15 * 60 * 1000; // 15 minutes (increased from 5)
   private readonly CACHE_KEY = 'pelu-services-cache';
   private readonly CACHE_TIMESTAMP_KEY = 'pelu-services-cache-timestamp';
 
@@ -108,24 +112,37 @@ export class FirebaseServicesService {
     }));
   });
 
-  // Admin access computed
-  readonly hasAdminAccess = computed(() => {
-    const currentRole = this.roleService.userRole();
-    return currentRole?.role === 'admin';
-  });
-
   constructor() {
     this.initializeServices();
   }
 
-  private initializeServices(): void {
+  private async initializeServices(): Promise<void> {
+    // Wait for authentication to be initialized
+    await this.waitForAuthInitialization();
+
     this.loadServicesFromCache();
     this.loadServices();
     this.loadCustomCategories();
   }
 
   /**
-   * Load services from Firebase with cache management
+   * Wait for authentication to be initialized
+   */
+  private async waitForAuthInitialization(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      const checkAuth = () => {
+        if (this.authService.isInitialized()) {
+          resolve();
+        } else {
+          setTimeout(checkAuth, 100);
+        }
+      };
+      checkAuth();
+    });
+  }
+
+  /**
+   * Load services from Firebase with cache management - OPTIMIZED
    */
   async loadServices(): Promise<void> {
     try {
@@ -139,20 +156,31 @@ export class FirebaseServicesService {
 
       const servicesRef = collection(this.firestore, 'services');
       const q = query(servicesRef, orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(q));
 
       const services: FirebaseService[] = [];
       querySnapshot.forEach(doc => {
-        const service = { id: doc.id, ...doc.data() } as FirebaseService;
-        if (service.isActive !== false) {
-          // Only active services
-          services.push(service);
-        }
+        const raw = { id: doc.id, ...doc.data() } as Record<string, unknown>;
+        const service: FirebaseService = {
+          id: String(raw['id']),
+          name: String(raw['name']),
+          description: String(raw['description']),
+          price: Number(raw['price']),
+          duration: Number(raw['duration']),
+          category: String(raw['category']),
+          icon: String(raw['icon']),
+          isPopular: raw['isPopular'] === true,
+          isActive: ((raw['isActive'] as boolean | undefined) ?? true) !== false,
+        };
+        const isActive = service.isActive !== false;
+        if (isActive) services.push(service);
       });
 
       this._services.set(services);
       this._lastSync.set(Date.now());
       this.saveServicesToCache(services);
+
+      // No background normalizations; only the new schema is supported
 
       this.logger.info('Services loaded from Firebase', {
         component: 'FirebaseServicesService',
@@ -181,31 +209,37 @@ export class FirebaseServicesService {
   ): Promise<FirebaseService | null> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
       this._isLoading.set(true);
       this._error.set(null);
-
       const currentUser = this.authService.user();
       if (!currentUser?.uid) {
         throw new Error('Authentication required');
       }
 
-              const service = {
-          ...serviceData,
-          isActive: true,
-        };
+      // Generate UUID v4 for the service ID (store as document ID and in the document itself)
+      const generatedId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}-${Math.random().toString(16).slice(2, 10)}`;
 
-      // Save to Firestore
-      const docRef = await addDoc(collection(this.firestore, 'services'), service);
-
-      // Create new service with ID
       const newService: FirebaseService = {
-        ...service,
-        id: docRef.id,
+        ...serviceData,
+        id: generatedId,
+        isActive: true,
+        isPopular: serviceData.isPopular ?? false,
       };
+
+      // Save to Firestore with explicit ID and timestamps
+      const docRef = doc(this.firestore, 'services', generatedId);
+      await setDoc(docRef, {
+        ...newService,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        createdBy: currentUser.uid,
+      });
 
       // Update local state
       this._services.update(services => [newService, ...services]);
@@ -254,7 +288,7 @@ export class FirebaseServicesService {
   ): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -272,7 +306,7 @@ export class FirebaseServicesService {
       const updateData = {
         ...updates,
         updatedAt: serverTimestamp(),
-      };
+      } as Partial<FirebaseService> & { updatedAt: unknown };
 
       // Update in Firestore
       const docRef = doc(this.firestore, 'services', serviceId);
@@ -280,7 +314,7 @@ export class FirebaseServicesService {
 
       // Update local state
       this._services.update(services =>
-        services.map(service => (service.id === serviceId ? { ...service, ...updates } : service))
+        services.map(service => (service.id === serviceId ? { ...service, ...updates } as FirebaseService : service))
       );
       this._lastSync.set(Date.now());
 
@@ -321,7 +355,7 @@ export class FirebaseServicesService {
   async deleteService(serviceId: string, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -333,11 +367,12 @@ export class FirebaseServicesService {
         throw new Error('Authentication required');
       }
 
-      // Soft delete by setting active to false
+      // Soft delete by setting active to false (and keep isActive for legacy reads)
       const docRef = doc(this.firestore, 'services', serviceId);
-              await updateDoc(docRef, {
-          isActive: false,
-        });
+      await updateDoc(docRef, {
+        isActive: false,
+        updatedAt: serverTimestamp(),
+      });
 
       // Remove from local state
       this._services.update(services => services.filter(service => service.id !== serviceId));
@@ -376,7 +411,7 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Get service by ID
+   * Get service by ID - OPTIMIZED to use cache first
    */
   async getServiceById(serviceId: string): Promise<FirebaseService | null> {
     try {
@@ -386,13 +421,19 @@ export class FirebaseServicesService {
         return localService;
       }
 
+      // If not in cache and we have recent data, don't fetch individually
+      if (this.shouldUseCache()) {
+        return null;
+      }
+
       // If not in cache, fetch from Firebase
       const docRef = doc(this.firestore, 'services', serviceId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const service = { id: docSnap.id, ...docSnap.data() } as FirebaseService;
-        return service.isActive !== false ? service : null;
+        const isActive = (service.isActive ?? true) !== false;
+        return isActive ? { ...service, isActive } : null;
       }
 
       return null;
@@ -421,7 +462,7 @@ export class FirebaseServicesService {
 
     try {
       return this.translateService.instant(categoryKey);
-    } catch (error) {
+    } catch {
       return categoryKey;
     }
   }
@@ -443,149 +484,68 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Create sample services for development (admin only)
+   * One-time migration to new schema: ensure services only use isPopular and isActive fields
+   * - Copies legacy fields (popular -> isPopular, active -> isActive)
+   * - Ensures 'id' field matches document ID
+   * - Removes legacy fields 'popular' and 'active'
+   * Returns counts of updates performed
    */
-  async createSampleServices(): Promise<boolean> {
-    try {
-      // Check admin permissions
-      if (!this.hasAdminAccess()) {
-        throw new Error('Access denied - admin required');
-      }
-
-      this._isLoading.set(true);
-      this._error.set(null);
-
-      const currentUser = this.authService.user();
-      if (!currentUser?.uid) {
-        throw new Error('Authentication required');
-      }
-
-      const sampleServices: Omit<
-        FirebaseService,
-        'id' | 'createdAt' | 'updatedAt' | 'createdBy'
-      >[] = [
-        {
-          name: 'Tall Masculí',
-          description: 'Corte clàssic o modern segons les teves preferències',
-          price: 25,
-          duration: 30,
-          category: 'haircut',
-          icon: '✂️',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Tall + Afaitat',
-          description: 'Corte complet amb afaitat de barba inclòs',
-          price: 35,
-          duration: 45,
-          category: 'haircut',
-          icon: '✂️',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Afaitat de Barba',
-          description: 'Afaitat tradicional amb navalla o màquina',
-          price: 15,
-          duration: 20,
-          category: 'beard',
-          icon: '🧔',
-          isActive: true,
-        },
-        {
-          name: 'Arreglada de Barba',
-          description: 'Perfilat i arreglada de barba',
-          price: 12,
-          duration: 15,
-          category: 'beard',
-          icon: '🧔',
-          isActive: true,
-        },
-        {
-          name: 'Lavada i Tractament',
-          description: 'Lavada professional amb productes de qualitat',
-          price: 18,
-          duration: 25,
-          category: 'treatment',
-          icon: '💆',
-          isActive: true,
-        },
-        {
-          name: 'Coloració',
-          description: 'Coloració completa o retocs',
-          price: 45,
-          duration: 60,
-          category: 'treatment',
-          icon: '💆',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Pentinat Especial',
-          description: 'Peinat per a esdeveniments especials',
-          price: 30,
-          duration: 40,
-          category: 'styling',
-          icon: '💇',
-          isPopular: true,
-          isActive: true,
-        },
-        {
-          name: 'Tall Infantil',
-          description: 'Tall especial per a nens i nenes',
-          price: 20,
-          duration: 25,
-          category: 'haircut',
-          icon: '👶',
-          isActive: true,
-        },
-      ];
-
-      let createdCount = 0;
-      for (const serviceData of sampleServices) {
-        try {
-          const result = await this.createService(serviceData);
-          if (result) {
-            createdCount++;
-          }
-        } catch (error) {
-          this.logger.error(`Error creating sample service: ${serviceData.name}`, {
-            component: 'FirebaseServicesService',
-            method: 'createSampleServices',
-          });
-        }
-      }
-
-      if (createdCount > 0) {
-        this.toastService.showSuccess(`${createdCount} serveis d'exemple creats`);
-        this.logger.info('Sample services created', {
-          component: 'FirebaseServicesService',
-          method: 'createSampleServices',
-          data: { count: createdCount },
-        });
-      }
-
-      return createdCount > 0;
-    } catch (error) {
-      this.logger.firebaseError(error, 'createSampleServices', {
-        component: 'FirebaseServicesService',
-        method: 'createSampleServices',
-        userId: this.authService.user()?.uid,
-      });
-
-      const errorMessage =
-        error instanceof Error ? error.message : 'Error creating sample services';
-      this._error.set(errorMessage);
-      this.toastService.showGenericError('COMMON.ERROR_CREATING_SAMPLE_SERVICES');
-      return false;
-    } finally {
-      this._isLoading.set(false);
+  async migrateLegacyFieldsToNewSchema(): Promise<{ total: number; updated: number; skipped: number }> {
+    if (!this.isAdmin()) {
+      return { total: 0, updated: 0, skipped: 0 };
     }
+    const servicesRef = collection(this.firestore, 'services');
+    const snapshot = await runInInjectionContext(this.envInjector, () => getDocs(servicesRef));
+    let updated = 0;
+    let skipped = 0;
+    const total = snapshot.size;
+
+    for (const docSnap of snapshot.docs) {
+      const raw = { id: docSnap.id, ...docSnap.data() } as Record<string, unknown>;
+
+      const desiredIsPopular = (raw['isPopular'] === undefined)
+        ? Boolean((raw['popular'] as boolean | undefined) ?? false)
+        : Boolean(raw['isPopular']);
+      const desiredIsActive = (raw['isActive'] === undefined)
+        ? (((raw['active'] as boolean | undefined) ?? true) !== false)
+        : Boolean(raw['isActive']);
+      const desiredId = docSnap.id;
+
+      const currentIsPopular = Boolean(raw['isPopular']);
+      const currentIsActive = raw['isActive'] !== undefined ? Boolean(raw['isActive']) : undefined;
+      const currentId = String(raw['id'] ?? '');
+
+      const needsIsPopularUpdate = currentIsPopular !== desiredIsPopular;
+      const needsIsActiveUpdate = currentIsActive === undefined || currentIsActive !== desiredIsActive;
+      const needsIdUpdate = currentId !== desiredId;
+
+      const updates: Partial<FirebaseService> & { [key: string]: unknown } = {};
+      if (needsIsPopularUpdate) updates['isPopular'] = desiredIsPopular;
+      if (needsIsActiveUpdate) updates['isActive'] = desiredIsActive;
+      if (needsIdUpdate) updates['id'] = desiredId;
+      // no-op: legacy fields are ignored in new app version
+      if (Object.keys(updates).length > 0) {
+        updates['updatedAt'] = serverTimestamp();
+        const ref = doc(this.firestore, 'services', docSnap.id);
+        await updateDoc(ref, updates as { [x: string]: import('@angular/fire/firestore').FieldValue | Partial<unknown> | undefined });
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    // Refresh local cache/state if anything changed
+    if (updated > 0) {
+      await this.refreshServices();
+    }
+
+    return { total, updated, skipped };
   }
 
+  // Development helper (removed): createSampleServices()
+
   /**
-   * Check if we should use cache instead of fetching from Firebase
+   * Check if we should use cache instead of fetching from Firebase - OPTIMIZED
    */
   private shouldUseCache(): boolean {
     const lastSync = this.lastSync();
@@ -600,7 +560,7 @@ export class FirebaseServicesService {
     try {
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(services));
       localStorage.setItem(this.CACHE_TIMESTAMP_KEY, Date.now().toString());
-    } catch (error) {
+    } catch {
       this.logger.warn('Failed to save services to cache', {
         component: 'FirebaseServicesService',
         method: 'saveServicesToCache',
@@ -617,7 +577,18 @@ export class FirebaseServicesService {
       const cacheTimestamp = localStorage.getItem(this.CACHE_TIMESTAMP_KEY);
 
       if (cachedServices && cacheTimestamp) {
-        const services = JSON.parse(cachedServices) as FirebaseService[];
+        const parsed = JSON.parse(cachedServices) as Array<Record<string, unknown>>;
+        const services: FirebaseService[] = parsed.map(raw => ({
+          id: String(raw['id'] ?? ''),
+          name: String(raw['name'] ?? ''),
+          description: String(raw['description'] ?? ''),
+          price: Number(raw['price'] ?? 0),
+          duration: Number(raw['duration'] ?? 0),
+          category: String(raw['category'] ?? ''),
+          icon: String(raw['icon'] ?? ''),
+          isPopular: Boolean(raw['isPopular'] === true),
+          isActive: ((raw['isActive'] as boolean | undefined) ?? true) !== false,
+        }));
         const timestamp = parseInt(cacheTimestamp, 10);
         const now = Date.now();
 
@@ -631,7 +602,7 @@ export class FirebaseServicesService {
           });
         }
       }
-    } catch (error) {
+    } catch {
       this.logger.warn('Failed to load services from cache', {
         component: 'FirebaseServicesService',
         method: 'loadServicesFromCache',
@@ -646,7 +617,7 @@ export class FirebaseServicesService {
     try {
       localStorage.removeItem(this.CACHE_KEY);
       localStorage.removeItem(this.CACHE_TIMESTAMP_KEY);
-    } catch (error) {
+    } catch {
       this.logger.warn('Failed to clear cache', {
         component: 'FirebaseServicesService',
         method: 'clearCache',
@@ -657,12 +628,17 @@ export class FirebaseServicesService {
   // ===== CATEGORY MANAGEMENT =====
 
   /**
-   * Load custom categories from Firebase
+   * Load custom categories from Firebase - OPTIMIZED with caching
    */
   private async loadCustomCategories(): Promise<void> {
     try {
+      // Check if we have recent data
+      if (this._customCategories().length > 0) {
+        return;
+      }
+
       const categoriesRef = collection(this.firestore, 'serviceCategories');
-      const querySnapshot = await getDocs(categoriesRef);
+      const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(categoriesRef));
 
       const customCategories: ServiceCategory[] = [];
       querySnapshot.forEach(doc => {
@@ -682,19 +658,28 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Get all categories (static + custom from Firebase)
+   * Get all categories (static + custom from Firebase) - OPTIMIZED
    */
   async getAllCategories(): Promise<ServiceCategory[]> {
     try {
-      // Get custom categories from Firebase
+      // Use cached categories if available
+      const cachedCategories = this._customCategories();
+      if (cachedCategories.length > 0) {
+        return [...this._staticCategories, ...cachedCategories];
+      }
+
+      // Get custom categories from Firebase only if not cached
       const categoriesRef = collection(this.firestore, 'serviceCategories');
-      const querySnapshot = await getDocs(categoriesRef);
+      const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(categoriesRef));
 
       const customCategories: ServiceCategory[] = [];
       querySnapshot.forEach(doc => {
         const category = { id: doc.id, ...doc.data() } as ServiceCategory;
         customCategories.push(category);
       });
+
+      // Update cache
+      this._customCategories.set(customCategories);
 
       // Combine static and custom categories
       return [...this._staticCategories, ...customCategories];
@@ -717,7 +702,7 @@ export class FirebaseServicesService {
   ): Promise<ServiceCategory | null> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -793,7 +778,7 @@ export class FirebaseServicesService {
   ): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -826,7 +811,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
         userId: currentUser.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       return true;
@@ -835,7 +820,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'updateCategory',
         userId: this.authService.user()?.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error updating category';
@@ -855,7 +840,7 @@ export class FirebaseServicesService {
   async deleteCategory(categoryId: string, showToast: boolean = true): Promise<boolean> {
     try {
       // Check admin permissions
-      if (!this.hasAdminAccess()) {
+      if (!this.isAdmin()) {
         throw new Error('Access denied - admin required');
       }
 
@@ -890,7 +875,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
         userId: currentUser.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       return true;
@@ -899,7 +884,7 @@ export class FirebaseServicesService {
         component: 'FirebaseServicesService',
         method: 'deleteCategory',
         userId: this.authService.user()?.uid,
-        data: { categoryId },
+        data: JSON.stringify({ categoryId }),
       });
 
       const errorMessage = error instanceof Error ? error.message : 'Error deleting category';

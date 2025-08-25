@@ -1,0 +1,110 @@
+<div class="input-multiselect-container">
+  <!-- Label -->
+  @if (label()) {
+    <label
+      [for]="getElementId()"
+      class="input-multiselect-label"
+      [class.required]="required()">
+      {{ label() | translate }}
+    </label>
+  }
+
+  <!-- PrimeNG MultiSelect -->
+  <p-multiSelect
+    [inputId]="getElementId()"
+    [options]="options()"
+    [placeholder]="(placeholder() || 'INPUTS.MULTISELECT_PLACEHOLDER') | translate"
+    [required]="required()"
+    [disabled]="disabled()"
+    [readonly]="readonly()"
+    [loading]="loading()"
+    [filter]="filter()"
+    [filterBy]="filterBy()"
+    [filterMatchMode]="filterMatchMode()"
+    [showClear]="showClear()"
+    [appendTo]="appendTo()"
+    [scrollHeight]="scrollHeight()"
+    [virtualScroll]="virtualScroll()"
+    [virtualScrollItemSize]="virtualScrollItemSize()"
+    [optionLabel]="optionLabel()"
+    [optionValue]="optionValue()"
+    [optionDisabled]="optionDisabled()"
+    [group]="group()"
+    [maxSelectedLabels]="maxSelectedLabels()"
+    [display]="display()"
+    [ngModel]="safeValue"
+    (ngModelChange)="onSelectChange($event)"
+    (onBlur)="onBlurHandler($event)"
+    class="w-full"
+  >
+    <!-- Item Template -->
+    @if (itemTemplate) {
+      <ng-template #item let-option>
+        <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: option }"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Selected Items Template -->
+    @if (selectedItemsTemplate) {
+      <ng-template #selectedItems let-value let-removeChip="removeChip">
+        <ng-container *ngTemplateOutlet="selectedItemsTemplate; context: { $implicit: value, removeChip: removeChip }"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Group Template -->
+    @if (groupTemplate) {
+      <ng-template #group let-group>
+        <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: group }"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Dropdown Icon Template -->
+    @if (dropdownIconTemplate) {
+      <ng-template #dropdownicon>
+        <ng-container *ngTemplateOutlet="dropdownIconTemplate"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Header Template -->
+    @if (headerTemplate) {
+      <ng-template #header>
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Footer Template -->
+    @if (footerTemplate) {
+      <ng-template #footer>
+        <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+      </ng-template>
+    }
+
+    <!-- Empty Message Template -->
+    @if (emptyMessageTemplate) {
+      <ng-template #emptyMessage>
+        <ng-container *ngTemplateOutlet="emptyMessageTemplate"></ng-container>
+      </ng-template>
+    }
+  </p-multiSelect>
+
+  <!-- Help text -->
+  @if (helpText()) {
+    <div class="input-help">
+      {{ (helpText() || '') | translate }}
+    </div>
+  }
+
+  <!-- Error text -->
+  @if (errorText()) {
+    <div class="input-error">
+      {{ (errorText() || '') | translate }}
+    </div>
+  }
+
+  <!-- Success text -->
+  @if (successText()) {
+    <div class="input-success">
+      {{ (successText() || '') | translate }}
+    </div>
+  }
+</div>

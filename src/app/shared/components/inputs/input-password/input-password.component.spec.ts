@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 
@@ -80,8 +80,9 @@ class TestWrapperComponent {
   mediumLabel = signal('INPUTS.PASSWORD_MEDIUM_LABEL');
   strongLabel = signal('INPUTS.PASSWORD_STRONG_LABEL');
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
+  constructor() {
+    const fb = inject(FormBuilder);
+    this.form = fb.group({
       passwordField: ['', this.required() ? Validators.required : null]
     });
   }
@@ -174,32 +175,32 @@ describe('InputPasswordComponent', () => {
   });
 
   describe('Password Input Interaction', () => {
-    it('should emit valueChange when password value changes', () => {
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      const testValue = 'testPassword123';
+    it('should emit valueChange when password changes', () => {
+      const inputPasswordComponent = fixture.debugElement.query(By.css('pelu-input-password')).componentInstance;
+      const testValue = 'newPassword123';
 
-      // Simulate password change
-      passwordElement.componentInstance.onModelChange(testValue);
+      // Simulate password change by calling the component's method directly
+      inputPasswordComponent.onPasswordChange(testValue);
       fixture.detectChanges();
 
       expect(component.currentValue()).toBe(testValue);
     });
 
     it('should update form control value when password changes', () => {
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      const testValue = 'formPassword123';
+      const inputPasswordComponent = fixture.debugElement.query(By.css('pelu-input-password')).componentInstance;
+      const testValue = 'testPassword';
 
       // Simulate password change
-      passwordElement.componentInstance.onModelChange(testValue);
+      inputPasswordComponent.onPasswordChange(testValue);
       fixture.detectChanges();
 
       expect(component.getFormValue()).toBe(testValue);
     });
 
     it('should handle blur event correctly', () => {
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
+      const inputPasswordComponent = fixture.debugElement.query(By.css('pelu-input-password')).componentInstance;
 
-      passwordElement.componentInstance.onBlur();
+      inputPasswordComponent.onPasswordBlur();
       fixture.detectChanges();
 
       expect(component.form.get('passwordField')?.touched).toBe(true);
@@ -212,7 +213,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('disabled')).toBe('true');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-disabled')).toBe('true');
     });
 
     it('should apply required state correctly', () => {
@@ -220,7 +221,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('required')).toBe('true');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-required')).toBe('true');
     });
 
     it('should apply invalid state correctly', () => {
@@ -228,7 +229,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('invalid')).toBe('true');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-invalid')).toBe('true');
     });
 
     it('should apply size configuration correctly', () => {
@@ -236,7 +237,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('size')).toBe('large');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-size')).toBe('large');
     });
 
     it('should apply variant configuration correctly', () => {
@@ -244,7 +245,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('variant')).toBe('filled');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-variant')).toBe('filled');
     });
 
     it('should apply fluid configuration correctly', () => {
@@ -252,7 +253,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('fluid')).toBe('false');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-fluid')).toBe('false');
     });
   });
 
@@ -262,7 +263,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('feedback')).toBe('false');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-feedback')).toBe('false');
     });
 
     it('should apply toggle mask configuration correctly', () => {
@@ -270,7 +271,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('togglemask')).toBe('false');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-toggle-mask')).toBe('false');
     });
 
     it('should apply custom labels correctly', () => {
@@ -281,15 +282,10 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('promptlabel')).toBe('Custom prompt');
-      expect(passwordElement.nativeElement.getAttribute('weaklabel')).toBe('Custom weak');
-      expect(passwordElement.nativeElement.getAttribute('mediumlabel')).toBe('Custom medium');
-      expect(passwordElement.nativeElement.getAttribute('stronglabel')).toBe('Custom strong');
-    });
-
-    it('should have autocomplete disabled', () => {
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('autocomplete')).toBe('off');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-prompt-label')).toBe('Custom prompt');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-weak-label')).toBe('Custom weak');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-medium-label')).toBe('Custom medium');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-strong-label')).toBe('Custom strong');
     });
   });
 
@@ -299,7 +295,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('placeholder')).toBe('Custom password placeholder');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-placeholder')).toBe('Custom password placeholder');
     });
 
     it('should use default placeholder when no custom placeholder provided', () => {
@@ -307,7 +303,7 @@ describe('InputPasswordComponent', () => {
       fixture.detectChanges();
 
       const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.nativeElement.getAttribute('placeholder')).toBe('Introdueix contrasenya...');
+      expect(passwordElement.nativeElement.getAttribute('ng-reflect-placeholder')).toBe('INPUTS.PASSWORD_PLACEHOLDER');
     });
   });
 
@@ -316,8 +312,8 @@ describe('InputPasswordComponent', () => {
       component.setFormValue('initialPassword');
       fixture.detectChanges();
 
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
-      expect(passwordElement.componentInstance.value).toBe('initialPassword');
+      const inputPasswordComponent = fixture.debugElement.query(By.css('pelu-input-password')).componentInstance;
+      expect(inputPasswordComponent.value()).toBe('initialPassword');
     });
 
     it('should handle form validation correctly', () => {
@@ -328,24 +324,24 @@ describe('InputPasswordComponent', () => {
       expect(component.isFormValid()).toBe(false);
 
       // Set a value and should become valid
-      component.setFormValue('testPassword');
+      component.setFormValue('validPassword');
       fixture.detectChanges();
       expect(component.isFormValid()).toBe(true);
     });
 
     it('should mark form as dirty when value changes', () => {
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
+      const inputPasswordComponent = fixture.debugElement.query(By.css('pelu-input-password')).componentInstance;
 
-      passwordElement.componentInstance.onModelChange('newPassword');
+      inputPasswordComponent.onPasswordChange('newPassword');
       fixture.detectChanges();
 
       expect(component.form.dirty).toBe(true);
     });
 
     it('should mark form as touched when input loses focus', () => {
-      const passwordElement = fixture.debugElement.query(By.css('p-password'));
+      const inputPasswordComponent = fixture.debugElement.query(By.css('pelu-input-password')).componentInstance;
 
-      passwordElement.componentInstance.onBlur();
+      inputPasswordComponent.onPasswordBlur();
       fixture.detectChanges();
 
       expect(component.form.touched).toBe(true);

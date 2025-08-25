@@ -13,11 +13,13 @@ import {
   DocumentData,
 } from '@angular/fire/firestore';
 import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
-import { UserRole as AppUserRole } from '../interfaces/user.interface';
+
 
 export interface UserRole {
   uid: string;
   email: string;
+  displayName?: string;
+  photoURL?: string;
   lang: string;
   role: 'client' | 'admin';
   theme: string;
@@ -31,13 +33,13 @@ export class RoleService {
   // Internal state
   private readonly userRoleSignal = signal<UserRole | null>(null);
   private readonly isLoadingRoleSignal = signal<boolean>(true);
+  private unsubscribeRole?: () => void;
 
   // Public computed signals
   readonly userRole = computed(() => this.userRoleSignal());
   readonly isLoadingRole = computed(() => this.isLoadingRoleSignal());
   readonly isClient = computed(() => this.userRoleSignal()?.role === 'client');
   readonly isAdmin = computed(() => this.userRoleSignal()?.role === 'admin');
-  readonly hasAdminAccess = computed(() => this.userRoleSignal()?.role === 'admin');
 
   constructor() {
     this.initializeRoleListener();
@@ -91,7 +93,7 @@ export class RoleService {
           }, 0);
         }
       );
-      (this as any).unsubscribeRole = unsubscribe;
+      this.unsubscribeRole = unsubscribe;
     } catch (error) {
       console.error('❌ RoleService: Error in loadUserRole:', error);
       // Use setTimeout to avoid signal write conflicts
@@ -106,6 +108,8 @@ export class RoleService {
     const defaultRole: UserRole = {
       uid: user.uid,
       email: user.email || '',
+      displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
       lang: 'ca',
       role: 'client',
       theme: 'light',
@@ -160,6 +164,16 @@ export class RoleService {
     }
   }
 
+  async getUserProfilePhoto(uid: string): Promise<string | null> {
+    try {
+      const userRole = await this.getUserRole(uid);
+      return userRole?.photoURL || null;
+    } catch (error) {
+      console.error('Error getting user profile photo:', error);
+      return null;
+    }
+  }
+
   async listAllUsers(): Promise<UserRole[]> {
     try {
       const usersCol = collection(this.firestore, 'users') as CollectionReference<DocumentData>;
@@ -172,8 +186,8 @@ export class RoleService {
   }
 
   cleanup() {
-    if ((this as any).unsubscribeRole) {
-      (this as any).unsubscribeRole();
+    if (this.unsubscribeRole) {
+      this.unsubscribeRole();
     }
   }
 }

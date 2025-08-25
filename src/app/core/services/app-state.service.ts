@@ -1,9 +1,9 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { UserService } from './user.service';
+import { SystemParametersService } from './system-parameters.service';
 import { BookingService } from './booking.service';
-import { BusinessSettingsService } from './business-settings.service';
 import { ToastService } from '../../shared/services/toast.service';
+import { RoleService } from './role.service';
 
 export interface AppState {
   // Authentication state
@@ -12,9 +12,8 @@ export interface AppState {
   isInitialized: boolean;
 
   // User state
-  currentUser: any;
+  currentUser: unknown;
   userRole: string | null;
-  hasAdminAccess: boolean;
 
   // Data state
   hasAppointments: boolean;
@@ -28,8 +27,12 @@ export interface AppState {
   showLoader: boolean;
 
   // Business state
-  businessName: string;
-  businessHours: any;
+  businessInfo: {
+    name: string;
+    address: string;
+    phone: string;
+  };
+  businessHours: unknown;
   preventCancellation: boolean;
   cancellationTimeLimit: number;
   bookingAdvanceDays: number;
@@ -54,9 +57,9 @@ export interface AppStats {
 })
 export class AppStateService {
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly roleService = inject(RoleService);
   private readonly bookingService = inject(BookingService);
-  private readonly businessSettingsService = inject(BusinessSettingsService);
+  private readonly systemParametersService = inject(SystemParametersService);
   private readonly toastService = inject(ToastService);
 
   // Internal state signals
@@ -66,7 +69,6 @@ export class AppStateService {
     isInitialized: false,
     currentUser: null,
     userRole: null,
-    hasAdminAccess: false,
     hasAppointments: false,
     appointmentCount: 0,
     hasServices: false,
@@ -74,7 +76,11 @@ export class AppStateService {
     isMobile: false,
     currentRoute: '',
     showLoader: false,
-    businessName: 'PeluApp',
+    businessInfo: {
+      name: 'PeluApp',
+      address: '',
+      phone: '',
+    },
     businessHours: { start: 8, end: 20 },
     preventCancellation: false,
     cancellationTimeLimit: 24,
@@ -105,7 +111,6 @@ export class AppStateService {
   // User state
   readonly currentUser = computed(() => this.appState().currentUser);
   readonly userRole = computed(() => this.appState().userRole);
-  readonly hasAdminAccess = computed(() => this.appState().hasAdminAccess);
 
   // Data state
   readonly hasAppointments = computed(() => this.appState().hasAppointments);
@@ -119,7 +124,10 @@ export class AppStateService {
   readonly showLoader = computed(() => this.appState().showLoader);
 
   // Business state
-  readonly businessName = computed(() => this.appState().businessName);
+  readonly businessInfo = computed(() => this.appState().businessInfo);
+  readonly businessName = computed(() => this.appState().businessInfo.name);
+  readonly businessAddress = computed(() => this.appState().businessInfo.address);
+  readonly businessPhone = computed(() => this.appState().businessInfo.phone);
   readonly businessHours = computed(() => this.appState().businessHours);
   readonly preventCancellation = computed(() => this.appState().preventCancellation);
   readonly cancellationTimeLimit = computed(() => this.appState().cancellationTimeLimit);
@@ -136,11 +144,11 @@ export class AppStateService {
   );
 
   readonly canAccessAppointments = computed(() =>
-    this.isAuthenticated() && this.hasAdminAccess()
+    this.isAuthenticated() && this.userRole() === 'admin'
   );
 
   readonly canManageServices = computed(() =>
-    this.isAuthenticated() && this.hasAdminAccess()
+    this.isAuthenticated() && this.userRole() === 'admin'
   );
 
   readonly hasData = computed(() =>
@@ -148,7 +156,7 @@ export class AppStateService {
   );
 
   readonly isBusinessOpen = computed(() => {
-    const hours = this.businessHours();
+    const hours = this.businessHours() as { start: number; end: number };
     const now = new Date();
     const currentHour = now.getHours();
     return currentHour >= hours.start && currentHour < hours.end;
@@ -173,12 +181,9 @@ export class AppStateService {
 
     // Sync user state
     effect(() => {
-      const userState = {
-        userRole: this.userService.currentRole()?.role || null,
-        hasAdminAccess: this.userService.hasAdminAccess(),
-      };
-
-      this.updateUserState(userState);
+      this.updateUserState({
+        userRole: this.roleService.userRole()?.role || null
+      });
     });
 
     // Sync appointments state
@@ -194,9 +199,9 @@ export class AppStateService {
 
     // Sync business settings
     effect(() => {
-      const settings = this.businessSettingsService.settings();
+      const settings = this.systemParametersService.settings();
       const businessState = {
-        businessName: settings.businessName,
+        businessInfo: settings.businessInfo,
         businessHours: settings.businessHours,
         preventCancellation: settings.preventCancellation,
         cancellationTimeLimit: settings.cancellationTimeLimit,

@@ -72,9 +72,7 @@ class MockTranslateLoader implements TranslateLoader {
           [label]="'COMMON.NAME'"
           [placeholder]="'INPUTS.TEXT_PLACEHOLDER'"
           [required]="true"
-          [type]="'text'"
           [invalid]="isFieldInvalid('name')"
-          [errorText]="getFieldError('name')"
           (valueChange)="onNameChange($event)">
         </pelu-input-text>
 
@@ -82,23 +80,21 @@ class MockTranslateLoader implements TranslateLoader {
           formControlName="email"
           [label]="'COMMON.EMAIL'"
           [placeholder]="'INPUTS.TEXT_EMAIL_PLACEHOLDER'"
-          [required]="true"
           [type]="'email'"
+          [required]="true"
           [invalid]="isFieldInvalid('email')"
-          [errorText]="getFieldError('email')"
           (valueChange)="onEmailChange($event)">
         </pelu-input-text>
 
-        <pelu-input-password
+        <pelu-input-text
           formControlName="password"
-          [label]="'AUTH.PASSWORD'"
-          [placeholder]="'INPUTS.PASSWORD_PLACEHOLDER'"
+          [label]="'COMMON.PASSWORD'"
+          [placeholder]="'INPUTS.TEXT_PASSWORD_PLACEHOLDER'"
+          [type]="'password'"
           [required]="true"
-          [feedback]="true"
           [invalid]="isFieldInvalid('password')"
-          [errorText]="getFieldError('password')"
           (valueChange)="onPasswordChange($event)">
-        </pelu-input-password>
+        </pelu-input-text>
 
         <pelu-input-number
           formControlName="age"
@@ -106,7 +102,7 @@ class MockTranslateLoader implements TranslateLoader {
           [placeholder]="'INPUTS.NUMBER_PLACEHOLDER'"
           [min]="0"
           [max]="120"
-          [mode]="'decimal'"
+          [required]="true"
           [invalid]="isFieldInvalid('age')"
           [errorText]="getFieldError('age')"
           (valueChange)="onAgeChange($event)">
@@ -119,7 +115,6 @@ class MockTranslateLoader implements TranslateLoader {
           [dateFormat]="'dd/mm/yy'"
           [showIcon]="true"
           [invalid]="isFieldInvalid('birthDate')"
-          [errorText]="getFieldError('birthDate')"
           (valueChange)="onBirthDateChange($event)">
         </pelu-input-date>
 
@@ -156,7 +151,6 @@ class MockTranslateLoader implements TranslateLoader {
           [showIcon]="true"
           [preventPastMonths]="true"
           [invalid]="isFieldInvalid('appointmentDate')"
-          [errorText]="getFieldError('appointmentDate')"
           (valueChange)="onAppointmentDateChange($event)">
         </pelu-input-date>
 
@@ -167,7 +161,6 @@ class MockTranslateLoader implements TranslateLoader {
           [rows]="3"
           [maxlength]="500"
           [invalid]="isFieldInvalid('notes')"
-          [errorText]="getFieldError('notes')"
           (valueChange)="onNotesChange($event)">
         </pelu-input-textarea>
 
@@ -224,7 +217,6 @@ class TestRealDataComponent {
       description: 'Tall de cabell professional',
       category: 'Cabell',
       icon: 'pi pi-user',
-      popular: true,
       new: false,
       discount: 0,
       available: true
@@ -238,7 +230,6 @@ class TestRealDataComponent {
       description: 'Coloració professional',
       category: 'Cabell',
       icon: 'pi pi-palette',
-      popular: true,
       new: false,
       discount: 10,
       available: true
@@ -252,7 +243,6 @@ class TestRealDataComponent {
       description: 'Estilitzat professional',
       category: 'Cabell',
       icon: 'pi pi-star',
-      popular: false,
       new: false,
       discount: 0,
       available: true
@@ -266,7 +256,6 @@ class TestRealDataComponent {
       description: 'Tractament capil·lar',
       category: 'Tractament',
       icon: 'pi pi-heart',
-      popular: false,
       new: true,
       discount: 0,
       available: true
@@ -430,17 +419,15 @@ describe('Input Components Real Data Tests', () => {
       description: 'Tall de cabell professional',
       category: 'Cabell',
       icon: 'pi pi-user',
-      popular: true,
       new: false,
       discount: 0,
       available: true
     });
 
-    // Check popular services
-    const popularServices = options.filter(service => service.popular);
-    expect(popularServices).toHaveSize(2);
-    expect(popularServices[0].label).toBe('Tall de Cabell');
-    expect(popularServices[1].label).toBe('Coloració');
+    // Check popular services (removed isPopular property)
+    const popularServices = options.filter(service => service.new);
+    expect(popularServices).toHaveSize(1);
+    expect(popularServices[0].label).toBe('Tractament');
 
     // Check new service
     const newServices = options.filter(service => service.new);

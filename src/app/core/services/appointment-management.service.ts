@@ -1,129 +1,125 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { BookingService } from './booking.service';
-import { ServicesService } from './services.service';
-import { Booking } from '../interfaces/booking.interface';
-import { Service } from './services.service';
-import { BookingForm } from '../interfaces/booking.interface';
-import { BookingValidationService } from './booking-validation.service';
-import { ToastService } from '../../shared/services/toast.service';
-import { TranslateService } from '@ngx-translate/core';
+import { Firestore, doc, getDoc, updateDoc, deleteDoc, serverTimestamp } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { Booking } from '../interfaces/booking.interface';
+import { FirebaseServicesService, FirebaseService } from './firebase-services.service';
+import { ToastService } from '../../shared/services/toast.service';
+import { LoggerService } from '../../shared/services/logger.service';
+import { RoleService } from './role.service';
 
-export interface AppointmentManagementState {
-  appointment: Booking | null;
-  service: Service | null;
-  isLoading: boolean;
-  isEditing: boolean;
-  hasChanges: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
-  availableTimeSlots: string[];
-  availableServices: Service[];
+export interface AppointmentWithService extends Booking {
+  service?: FirebaseService;
+  clientPhotoURL?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppointmentManagementService {
-  // Inject services
-  #bookingService = inject(BookingService);
-  #servicesService = inject(ServicesService);
-  #bookingValidationService = inject(BookingValidationService);
-  #toastService = inject(ToastService);
-  #translateService = inject(TranslateService);
-  #router = inject(Router);
+  private readonly firestore = inject(Firestore);
+  private readonly router = inject(Router);
+  private readonly servicesService = inject(FirebaseServicesService);
+  private readonly toastService = inject(ToastService);
+  private readonly logger = inject(LoggerService);
+  private readonly roleService = inject(RoleService);
 
-  // State signals
-  private readonly appointmentSignal = signal<Booking | null>(null);
-  private readonly serviceSignal = signal<Service | null>(null);
+  // Internal state
+  private readonly appointmentSignal = signal<AppointmentWithService | null>(null);
   private readonly isLoadingSignal = signal<boolean>(false);
   private readonly isEditingSignal = signal<boolean>(false);
   private readonly hasChangesSignal = signal<boolean>(false);
+  private readonly canEditSignal = signal<boolean>(false);
+  private readonly canDeleteSignal = signal<boolean>(false);
   private readonly availableTimeSlotsSignal = signal<string[]>([]);
-  private readonly availableServicesSignal = signal<Service[]>([]);
+  private readonly availableServicesSignal = signal<FirebaseService[]>([]);
 
-  // Computed properties
+  // Public computed signals
   readonly appointment = computed(() => this.appointmentSignal());
-  readonly service = computed(() => this.serviceSignal());
+  readonly service = computed(() => this.appointment()?.service);
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly isEditing = computed(() => this.isEditingSignal());
   readonly hasChanges = computed(() => this.hasChangesSignal());
+  readonly canEdit = computed(() => this.canEditSignal());
+  readonly canDelete = computed(() => this.canDeleteSignal());
   readonly availableTimeSlots = computed(() => this.availableTimeSlotsSignal());
   readonly availableServices = computed(() => this.availableServicesSignal());
 
-  readonly canEdit = computed(() => {
-    const appointment = this.appointment();
-    if (!appointment) return false;
+  constructor() {
+    // Load available services on initialization
+    this.loadAvailableServices();
+  }
 
-    // Check if appointment is in the future
-    const appointmentDate = new Date(appointment.data);
-    const appointmentTime = appointment.hora;
-    const now = new Date();
-
-    if (appointmentTime) {
-      const [hours, minutes] = appointmentTime.split(':');
-      appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    }
-
-    return appointmentDate > now;
-  });
-
-  readonly canDelete = computed(() => {
-    const appointment = this.appointment();
-    if (!appointment) return false;
-
-    // Use validation service to check if cancellation is allowed
-    if (appointment.data && appointment.hora) {
-      const appointmentDate = new Date(appointment.data);
-      return this.#bookingValidationService.canCancelBooking(appointmentDate, appointment.hora);
-    }
-
-    return false;
-  });
-
-  readonly state = computed<AppointmentManagementState>(() => ({
-    appointment: this.appointment(),
-    service: this.service(),
-    isLoading: this.isLoading(),
-    isEditing: this.isEditing(),
-    hasChanges: this.hasChanges(),
-    canEdit: this.canEdit(),
-    canDelete: this.canDelete(),
-    availableTimeSlots: this.availableTimeSlots(),
-    availableServices: this.availableServices(),
-  }));
-
-  // Methods
-  async loadAppointment(appointmentId: string): Promise<void> {
+  /**
+   * Load appointment by ID with service details and client photo
+   */
+  async loadAppointment(appointmentId: string, autoEdit: boolean = false): Promise<void> {
     try {
       this.isLoadingSignal.set(true);
-      this.appointmentSignal.set(null); // Clear previous appointment
-      this.serviceSignal.set(null); // Clear previous service
 
-      const appointment = await this.#bookingService.getBookingByIdWithToken(appointmentId);
-      if (appointment) {
-        this.appointmentSignal.set(appointment);
+      const appointmentDocRef = doc(this.firestore, 'bookings', appointmentId);
+      const appointmentDoc = await getDoc(appointmentDocRef);
 
-        // Load service data
-        if (appointment.serviceId) {
-          const service = await this.#servicesService.getServiceById(appointment.serviceId);
-          this.serviceSignal.set(service);
-        }
-
-        // Load available services
-        const allServices = this.#servicesService.getAllServices();
-        this.availableServicesSignal.set(allServices);
-      } else {
-        // Appointment not found
+      if (!appointmentDoc.exists()) {
         this.appointmentSignal.set(null);
-        this.serviceSignal.set(null);
-        console.warn(`Appointment with ID ${appointmentId} not found`);
+        return;
       }
+
+      const appointmentData = appointmentDoc.data() as Booking;
+
+      // Load service details
+      let service: FirebaseService | undefined;
+      if (appointmentData.serviceId) {
+        service = this.servicesService.services().find((s: FirebaseService) => s.id === appointmentData.serviceId);
+      }
+
+      // Load client profile photo if user has UID
+      let clientPhotoURL: string | undefined;
+      if (appointmentData.uid) {
+        try {
+          const photoURL = await this.roleService.getUserProfilePhoto(appointmentData.uid);
+          clientPhotoURL = photoURL || undefined;
+        } catch (error) {
+          this.logger.warn('Could not load client photo', {
+            component: 'AppointmentManagementService',
+            method: 'loadAppointment',
+            appointmentId,
+            userId: appointmentData.uid,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+
+      const appointmentWithService: AppointmentWithService = {
+        ...appointmentData,
+        service,
+        clientPhotoURL,
+      };
+
+            this.appointmentSignal.set(appointmentWithService);
+
+      // Update permissions
+      this.updatePermissions(appointmentWithService);
+
+      // Auto-start editing if requested
+      if (autoEdit) {
+        this.startEditing();
+      }
+
+      this.logger.info('Appointment loaded', {
+        component: 'AppointmentManagementService',
+        method: 'loadAppointment',
+        appointmentId,
+        hasService: !!service,
+        hasClientPhoto: !!clientPhotoURL,
+      });
     } catch (error) {
-      console.error('Error loading appointment:', error);
-      this.#toastService.showGenericError('Error loading appointment');
-      this.appointmentSignal.set(null);
-      this.serviceSignal.set(null);
+      this.logger.error('Error loading appointment', {
+        component: 'AppointmentManagementService',
+        method: 'loadAppointment',
+        appointmentId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      this.toastService.showError('APPOINTMENTS.LOAD_ERROR');
     } finally {
       this.isLoadingSignal.set(false);
     }
@@ -140,6 +136,40 @@ export class AppointmentManagementService {
     }
   }
 
+  private loadAvailableServices(): void {
+    try {
+      const allServices = this.servicesService.services();
+      this.availableServicesSignal.set(allServices);
+    } catch (error) {
+      console.error('Error loading available services:', error);
+      this.availableServicesSignal.set([]);
+    }
+  }
+
+  private updatePermissions(appointment: AppointmentWithService): void {
+    if (!appointment) {
+      this.canEditSignal.set(false);
+      this.canDeleteSignal.set(false);
+      return;
+    }
+
+    // Check if appointment is in the future
+    const appointmentDate = new Date(appointment.data);
+    const appointmentTime = appointment.hora;
+    const now = new Date();
+
+    if (appointmentTime) {
+      const [hours, minutes] = appointmentTime.split(':');
+      appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    }
+
+    const canEdit = appointmentDate > now;
+    const canDelete = appointmentDate > now;
+
+    this.canEditSignal.set(canEdit);
+    this.canDeleteSignal.set(canDelete);
+  }
+
   startEditing(): void {
     this.isEditingSignal.set(true);
     this.hasChangesSignal.set(true);
@@ -150,12 +180,12 @@ export class AppointmentManagementService {
     this.hasChangesSignal.set(false);
   }
 
-  updateForm(field: keyof BookingForm, value: string | number): void {
+  updateForm(field: keyof Booking, value: string | number): void {
     const appointment = this.appointment();
     if (!appointment) return;
 
     // Create updated appointment
-    const updatedAppointment: Booking = {
+    const updatedAppointment: AppointmentWithService = {
       ...appointment,
       [field]: value,
     };
@@ -171,31 +201,37 @@ export class AppointmentManagementService {
 
   async saveAppointment(): Promise<boolean> {
     const appointment = this.appointment();
-    if (!appointment) return false;
+    if (!appointment?.id) return false;
 
     try {
       this.isLoadingSignal.set(true);
 
-      // For now, skip validation since validateBooking doesn't exist
-      // TODO: Implement when BookingValidationService has this method
-
       // Update appointment in Firebase
-      const success = await this.#bookingService.updateBooking(appointment.id!, appointment);
+      const appointmentDocRef = doc(this.firestore, 'bookings', appointment.id);
+      await updateDoc(appointmentDocRef, {
+        ...appointment,
+        updatedAt: serverTimestamp(),
+      });
 
-      if (success) {
-        this.#toastService.showSuccess(
-          this.#translateService.instant('APPOINTMENTS.UPDATE_SUCCESS')
-        );
-        this.isEditingSignal.set(false);
-        this.hasChangesSignal.set(false);
-        return true;
-      } else {
-        this.#toastService.showGenericError('Error updating appointment');
-        return false;
-      }
+      this.toastService.showSuccess('APPOINTMENTS.UPDATE_SUCCESS');
+      this.isEditingSignal.set(false);
+      this.hasChangesSignal.set(false);
+
+      this.logger.info('Appointment saved', {
+        component: 'AppointmentManagementService',
+        method: 'saveAppointment',
+        appointmentId: appointment.id,
+      });
+
+      return true;
     } catch (error) {
-      console.error('Error saving appointment:', error);
-      this.#toastService.showGenericError('Error saving appointment');
+      this.logger.error('Error saving appointment', {
+        component: 'AppointmentManagementService',
+        method: 'saveAppointment',
+        appointmentId: appointment.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      this.toastService.showError('APPOINTMENTS.UPDATE_ERROR');
       return false;
     } finally {
       this.isLoadingSignal.set(false);
@@ -209,40 +245,44 @@ export class AppointmentManagementService {
     try {
       this.isLoadingSignal.set(true);
 
-      const success = await this.#bookingService.deleteBooking(appointment.id);
+      // Delete appointment from Firebase
+      const appointmentDocRef = doc(this.firestore, 'bookings', appointment.id);
+      await deleteDoc(appointmentDocRef);
 
-      if (success) {
-        // Don't show toast here - let the calling component handle it
-        return true;
-      } else {
-        this.#toastService.showGenericError('Error deleting appointment');
-        return false;
-      }
+      this.toastService.showSuccess('APPOINTMENTS.DELETE_SUCCESS');
+
+      this.logger.info('Appointment deleted', {
+        component: 'AppointmentManagementService',
+        method: 'deleteAppointment',
+        appointmentId: appointment.id,
+      });
+
+      return true;
     } catch (error) {
-      console.error('Error deleting appointment:', error);
-      this.#toastService.showGenericError('Error deleting appointment');
+      this.logger.error('Error deleting appointment', {
+        component: 'AppointmentManagementService',
+        method: 'deleteAppointment',
+        appointmentId: appointment.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      this.toastService.showError('APPOINTMENTS.DELETE_ERROR');
       return false;
     } finally {
       this.isLoadingSignal.set(false);
     }
   }
 
-  navigateToAppointment(appointmentId: string): void {
-    this.#router.navigate(['/appointments', appointmentId]);
-  }
-
-  goBack(): void {
-    this.#router.navigate(['/appointments']);
-  }
-
-  // Reset state
-  reset(): void {
+  clearAppointment(): void {
     this.appointmentSignal.set(null);
-    this.serviceSignal.set(null);
-    this.isLoadingSignal.set(false);
     this.isEditingSignal.set(false);
     this.hasChangesSignal.set(false);
-    this.availableTimeSlotsSignal.set([]);
-    this.availableServicesSignal.set([]);
+  }
+
+  navigateToAppointment(appointmentId: string): void {
+    this.router.navigate(['/appointments', appointmentId]);
+  }
+
+  navigateBack(): void {
+    this.router.navigate(['/appointments']);
   }
 }

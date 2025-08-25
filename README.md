@@ -1,26 +1,27 @@
-# 🏪 PeluApp - Sistema de Gestió de Reserves de Perruqueria
+# 🏪 PeluApp - Hair Salon Booking Management System
 
 [![Angular](https://img.shields.io/badge/Angular-20.1.2-red.svg)](https://angular.io/)
 [![PrimeNG](https://img.shields.io/badge/PrimeNG-20.0.0-blue.svg)](https://primeng.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-20.0.1-orange.svg)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Last Updated](https://img.shields.io/badge/Last%20Updated-Juliol%202025-brightgreen.svg)](DOCUMENTATION.md)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](https://github.com/ArnauM13/pelu-app/actions)
+[![Coverage](https://img.shields.io/badge/Coverage-80%25-brightgreen.svg)](https://github.com/ArnauM13/pelu-app/actions)
 
-Una aplicació web moderna per a la gestió de reserves de perruqueria desenvolupada amb Angular 20, PrimeNG i Firebase. Ofereix una solució completa per a la gestió de cites amb una interfície intuïtiva i funcionalitats avançades.
+A modern web application for hair salon booking management developed with Angular 20, PrimeNG, and Firebase. It offers a complete solution for appointment management with an intuitive interface and advanced features.
 
-## 🚀 Característiques Principals
+## ✨ Key Features
 
-- ✅ **Sistema de Reserves**: Creació i gestió de cites amb validació en temps real
-- ✅ **Calendari Drag & Drop**: Visualització i reorganització de cites en temps real
-- ✅ **Sistema de Permisos**: Control d'accés basat en rols (Admin/User/Guest)
-- ✅ **Multiidioma**: Suport complet per català, castellà, anglès i àrab amb RTL
-- ✅ **Responsive Design**: Optimitzat per mòbil, tablet i desktop
-- ✅ **Notificacions**: Sistema de toast unificat amb múltiples tipus
-- ✅ **Codi Net**: ESLint i Prettier configurats per mantenir estàndards
-- ✅ **Testing**: Cobertura completa amb Jasmine, Karma i Cypress
-- ✅ **Performance**: Optimitzacions per càrrega ràpida i UX fluida
+- ✅ **Booking System**: Real-time appointment creation and management with validation
+- ✅ **Drag & Drop Calendar**: Visual appointment management with real-time reorganization
+- ✅ **Role-Based Access Control**: Multi-level permissions (Admin/User/Guest)
+- ✅ **Multi-language Support**: Complete support for Catalan, Spanish, English, and Arabic with RTL
+- ✅ **Responsive Design**: Optimized for mobile, tablet, and desktop
+- ✅ **Unified Notifications**: Toast system with multiple types and consistent styling
+- ✅ **Clean Code**: ESLint and Prettier configured to maintain standards
+- ✅ **Comprehensive Testing**: Full coverage with Jasmine, Karma, and Cypress
+- ✅ **Performance Optimized**: Fast loading and smooth UX
 
-## 🛠️ Stack Tecnològic
+## 🛠️ Tech Stack
 
 - **Frontend**: Angular 20.1.2
 - **UI Framework**: PrimeNG 20.0.0 + PrimeFlex 4.0.0
@@ -31,288 +32,274 @@ Una aplicació web moderna per a la gestió de reserves de perruqueria desenvolu
 - **Code Quality**: ESLint + Prettier
 - **Build Tool**: Angular CLI
 
-## 📦 Instal·lació
+## 🚀 Quick Start
 
-### Prerequisits
+### Prerequisites
 
-- **Node.js**: 18.x LTS o superior
-- **npm**: 9.x o yarn 1.22+
+- **Node.js**: 18.x LTS or higher
+- **npm**: 9.x or yarn 1.22+
 - **Angular CLI**: 20.1.1+
 - **Git**: 2.30+
 
-### Pasos d'Instal·lació
+### Installation
 
 ```bash
-# Clonar el repositori
+# Clone the repository
 git clone https://github.com/ArnauM13/pelu-app.git
 cd pelu-app
 
-# Instal·lar dependències
+# Install dependencies
 npm install
 
-# Configurar Firebase (opcional)
+# Setup Firebase (optional)
 npm run setup:firebase
 
-# Verificar instal·lació
+# Verify installation
 npm run lint:format
 npm test
 
-# Iniciar servidor de desenvolupament
+# Start development server
 npm start
 ```
 
-L'aplicació estarà disponible a `http://localhost:4200`
+The application will be available at `http://localhost:4200`
 
-## 🎯 Comandaments Principals
+## 📋 Available Scripts
 
 ```bash
-# Desenvolupament
-npm start              # Servidor de desenvolupament (http://localhost:4200)
-npm run build          # Build de producció optimitzat
-npm run watch          # Build en mode watch per desenvolupament
+# Development
+npm start              # Development server (http://localhost:4200)
+npm run build          # Production build
+npm run watch          # Watch mode for development
 
 # Testing
-npm test               # Tests unitaris amb Karma
-npm run test:coverage  # Tests amb report de cobertura
-npm run e2e            # Tests end-to-end amb Cypress
+npm test               # Unit tests with Karma
+npm run test:coverage  # Tests with coverage report
+npm run e2e            # End-to-end tests with Cypress
 
-# Qualitat de Codi
-npm run lint           # Comprovar errors de lint
-npm run lint:fix       # Corregir errors automàticament
-npm run format:fix     # Formatar codi amb Prettier
-npm run lint:format    # Lint + Format combinat
+# Code Quality
+npm run lint           # Check for linting errors
+npm run lint:fix       # Fix errors automatically
+npm run format:fix     # Format code with Prettier
+npm run lint:format    # Combined lint + format
 
-# Desplegament
-npm run build:prod     # Build optimitzat per producció
-firebase deploy        # Desplegament a Firebase
+# Deployment
+npm run build:prod     # Optimized production build
+firebase deploy        # Deploy to Firebase
 ```
 
-## 🏗️ Arquitectura
+## 🏗️ Project Architecture
 
-### Estructura del Projecte
+### Directory Structure
 
 ```
 pelu-app/
 ├── src/
 │   ├── app/
-│   │   ├── core/                     # Serveis i lògica de negoci
-│   │   │   ├── auth/                 # Autenticació i autorització
-│   │   │   ├── guards/               # Guards de ruta
-│   │   │   ├── services/             # Serveis compartits
-│   │   │   └── interceptors/         # Interceptors HTTP
-│   │   ├── features/                 # Mòduls de funcionalitats
-│   │   │   ├── admin/                # Funcionalitats d'administració
-│   │   │   ├── appointments/         # Gestió de cites
-│   │   │   ├── auth/                 # Pàgines d'autenticació
-│   │   │   ├── bookings/             # Sistema de reserves
-│   │   │   ├── calendar/             # Component de calendari
-│   │   │   ├── landing/              # Pàgina d'inici
-│   │   │   ├── profile/              # Gestió de perfil
-│   │   │   └── services/             # Gestió de serveis
-│   │   ├── shared/                   # Components compartits
-│   │   │   ├── components/           # Components UI reutilitzables
-│   │   │   ├── pipes/                # Pipes personalitzats
-│   │   │   └── services/             # Serveis compartits
-│   │   └── ui/                       # Components d'interfície
-│   │       ├── layout/               # Layout principal
-│   │       └── navigation/           # Navegació
+│   │   ├── core/                     # Core services and business logic
+│   │   │   ├── auth/                 # Authentication and authorization
+│   │   │   ├── guards/               # Route guards
+│   │   │   ├── services/             # Shared services
+│   │   │   └── interceptors/         # HTTP interceptors
+│   │   ├── features/                 # Feature modules
+│   │   │   ├── admin/                # Administration features
+│   │   │   ├── appointments/         # Appointment management
+│   │   │   ├── auth/                 # Authentication pages
+│   │   │   ├── bookings/             # Booking system
+│   │   │   ├── calendar/             # Calendar component
+│   │   │   ├── landing/              # Landing page
+│   │   │   ├── profile/              # Profile management
+│   │   │   └── services/             # Service management
+│   │   ├── shared/                   # Shared components
+│   │   │   ├── components/           # Reusable UI components
+│   │   │   ├── pipes/                # Custom pipes
+│   │   │   └── services/             # Shared services
+│   │   └── ui/                       # UI components
+│   │       ├── layout/               # Main layout
+│   │       └── navigation/           # Navigation
 │   ├── assets/
-│   │   ├── i18n/                     # Fitxers de traducció
-│   │   │   ├── ca.json               # Català
-│   │   │   ├── es.json               # Castellà
-│   │   │   ├── en.json               # Anglès
-│   │   │   └── ar.json               # Àrab
-│   │   └── images/                   # Imatges optimitzades
-│   │       ├── optimized/            # Imatges comprimides
-│   │       └── responsive/           # Imatges responsive
-│   ├── environments/                 # Configuracions per entorns
-│   │   ├── environment.ts            # Desenvolupament
-│   │   └── environment.prod.ts       # Producció
-│   └── testing/                      # Configuració de testing
-├── .prettierrc                       # Configuració de Prettier
-├── .eslintrc.json                   # Configuració d'ESLint
-├── .prettierignore                   # Fitxers ignorats per Prettier
-├── firebase.json                     # Configuració de Firebase
-├── firestore.rules                   # Regles de seguretat
-├── firestore.indexes.json           # Índexs de Firestore
-└── LINT_FORMAT_GUIDE.md             # Guia de lint i format
+│   │   ├── i18n/                     # Translation files
+│   │   │   ├── ca.json               # Catalan
+│   │   │   ├── es.json               # Spanish
+│   │   │   ├── en.json               # English
+│   │   │   └── ar.json               # Arabic
+│   │   └── images/                   # Optimized images
+│   ├── environments/                 # Environment configurations
+│   └── testing/                      # Testing configuration
+├── .prettierrc                       # Prettier configuration
+├── .eslintrc.json                   # ESLint configuration
+├── firebase.json                     # Firebase configuration
+├── firestore.rules                   # Security rules
+└── firestore.indexes.json           # Firestore indexes
 ```
 
-### Patrons de Disseny
+### Design Patterns
 
-- **Feature-based Architecture**: Organització per funcionalitats
-- **Shared Components**: Reutilització de components
-- **Service Layer**: Lògica de negoci centralitzada
-- **Reactive Programming**: RxJS per gestió d'estats
-- **Dependency Injection**: Injecció de dependències d'Angular
-- **Signal-based State Management**: Estat reactiu amb Angular Signals
+- **Feature-based Architecture**: Organization by functionality
+- **Shared Components**: Component reusability
+- **Service Layer**: Centralized business logic
+- **Reactive Programming**: RxJS for state management
+- **Dependency Injection**: Angular's DI system
+- **Signal-based State Management**: Reactive state with Angular Signals
 
-## 🧩 Components Principals
+## 🧩 Core Components
 
-### Sistema d'Inputs Unificats
+### Unified Input System
 
-Sistema complet d'inputs amb estils consistents:
+Complete input system with consistent styling:
 
-- **8 tipus d'inputs**: text, textarea, email, password, number, date, select, checkbox
-- **Mides unificades**: 44px per inputs, 80px per textareas
-- **Estats visuals**: normal, focus, error, success, disabled
-- **Validació integrada** i **accessibilitat completa**
+- **8 input types**: text, textarea, email, password, number, date, select, checkbox
+- **Unified sizing**: 44px for inputs, 80px for textareas
+- **Visual states**: normal, focus, error, success, disabled
+- **Integrated validation** and **full accessibility**
 
-### Components UI
+### UI Components
 
-- `CardComponent`: Contenidor amb estils consistents
-- `LoaderComponent`: Indicador de càrrega
-- `ToastComponent`: Notificacions temporals
-- `PopupModalComponent`: Modals reutilitzables
-- `AvatarComponent`: Avatars d'usuari
-- `ServiceCardComponent`: Targetes de serveis
+- `CardComponent`: Container with consistent styling
+- `LoaderComponent`: Loading indicator
+- `ToastComponent`: Temporary notifications
+- `PopupModalComponent`: Reusable modals
+- `AvatarComponent`: User avatars
+- `ServiceCardComponent`: Service cards
 
-### Funcionalitats Avançades
+### Advanced Features
 
-- **Calendari Interactiu**: Drag & drop, estats visuals, gestió de pausa
-- **Sistema de Permisos**: Rols múltiples amb guards i interceptors
-- **Multiidioma**: 4 idiomes amb suport RTL i traducció dinàmica
-- **Sincronització**: Events personalitzats i cache management
+- **Interactive Calendar**: Drag & drop, visual states, break management
+- **Permission System**: Multiple roles with guards and interceptors
+- **Multi-language**: 4 languages with RTL support and dynamic translation
+- **Synchronization**: Custom events and cache management
 
-## 🔧 Desenvolupament
+## 🔧 Development Guide
 
-### Creació de Components
+### Creating Components
 
 ```bash
-# Generar component amb Angular CLI
-ng generate component shared/components/nou-component
+# Generate component with Angular CLI
+ng generate component shared/components/new-component
 
-# Generar component standalone
-ng generate component shared/components/nou-component --standalone
+# Generate standalone component
+ng generate component shared/components/new-component --standalone
 ```
 
-### Lint i Format
+### Code Quality
 
-El projecte té configurat ESLint i Prettier per mantenir un codi net i consistent.
+The project has ESLint and Prettier configured to maintain clean and consistent code.
 
 ```bash
-# Abans de fer commit
+# Before committing
 npm run lint:format
 
-# Per desenvolupament diari
+# For daily development
 npm run format:fix
 ```
 
 ### Testing
 
 ```bash
-# Tests unitaris
+# Unit tests
 npm test
 
-# Tests amb coverage
+# Tests with coverage
 npm run test:coverage
 
-# Tests e2e
+# End-to-end tests
 npm run e2e
 ```
 
-### Gestió d'Estat amb Signals
+### State Management with Signals
 
 ```typescript
 export class MyComponent {
-  // Signals per estat reactiu
+  // Signals for reactive state
   private readonly dataSignal = signal<any[]>([]);
   private readonly loadingSignal = signal<boolean>(false);
 
   // Computed values
   readonly hasData = computed(() => this.dataSignal().length > 0);
 
-  // Mètodes per actualitzar estat
+  // Methods to update state
   updateData(newData: any[]) {
     this.dataSignal.set(newData);
   }
 }
 ```
 
-## 🚀 Desplegament
+## 🚀 Deployment
 
-### Configuració de Firebase
+### Firebase Configuration
 
-1. Crear projecte Firebase
-2. Configurar Firestore Database
-3. Configurar Authentication
-4. Configurar Hosting
+1. Create Firebase project
+2. Configure Firestore Database
+3. Configure Authentication
+4. Configure Hosting
 
-### Desplegament a Producció
+### Production Deployment
 
 ```bash
-# Build de producció
+# Production build
 npm run build
 
-# Desplegament a Firebase
+# Deploy to Firebase
 firebase deploy
 ```
 
-## 📚 Documentació
+## 📚 Documentation
 
-### Documentació Principal
+### Main Documentation
 
-- **[DOCUMENTATION.md](DOCUMENTATION.md)**: Documentació completa del projecte
-- **[DOCS_INDEX.md](DOCS_INDEX.md)**: Índex de tota la documentació disponible
-- **[LINT_FORMAT_GUIDE.md](LINT_FORMAT_GUIDE.md)**: Guia de lint i format
+- **[DOCUMENTATION.md](DOCUMENTATION.md)**: Complete project documentation
+- **[DOCS_INDEX.md](DOCS_INDEX.md)**: Index of all available documentation
+- **[LINT_FORMAT_GUIDE.md](LINT_FORMAT_GUIDE.md)**: Lint and format guide
 
-### Guies Específiques
+### Specific Guides
 
-- [Sistema d'Inputs](src/app/shared/components/inputs/README.md)
-- [Sincronització de Serveis](src/app/core/services/SERVICES_SYNC.md)
-- [Visibilitat d'Accions](src/app/shared/components/detail-view/ACTIONS_VISIBILITY.md)
-- [Flux de Reserves Mòbils](src/app/features/bookings/booking-mobile-page/MOBILE_BOOKING_FLOW.md)
+- [Input System](src/app/shared/components/inputs/README.md)
+- [Service Synchronization](src/app/core/services/SERVICES_SYNC.md)
+- [Action Visibility](src/app/shared/components/detail-view/ACTIONS_VISIBILITY.md)
+- [Mobile Booking Flow](src/app/features/bookings/booking-mobile-page/MOBILE_BOOKING_FLOW.md)
 
-### Recursos Externs
+### External Resources
 
-- [Documentació d'Angular](https://angular.dev/)
-- [Documentació de PrimeNG](https://primeng.org/)
-- [Documentació de Firebase](https://firebase.google.com/docs)
-- [Documentació de TypeScript](https://www.typescriptlang.org/docs/)
+- [Angular Documentation](https://angular.dev/)
+- [PrimeNG Documentation](https://primeng.org/)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 
-## 🤝 Contribució
+## 🤝 Contributing
 
-1. Fork del repositori
-2. Crear branca per feature (`git checkout -b feature/nova-funcionalitat`)
-3. Desenvolupar canvis
-4. Executar tests i lint (`npm run lint:format`)
-5. Crear Pull Request
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/new-feature`)
+3. Develop changes
+4. Run tests and lint (`npm run lint:format`)
+5. Create Pull Request
 
-### Estàndards de Codi
+### Code Standards
 
-- **TypeScript**: Configuració estricta
-- **ESLint**: Regles de linting
-- **Prettier**: Format de codi
-- **Conventional Commits**: Format de commits
+- **TypeScript**: Strict configuration
+- **ESLint**: Linting rules
+- **Prettier**: Code formatting
+- **Conventional Commits**: Commit format
 
-### Testing
+### Testing Requirements
 
-- **Coverage mínim**: 80%
-- **Tests unitaris**: Per a tots els components
-- **Tests d'integració**: Per a fluxos crítics
-- **Tests e2e**: Per a funcionalitats principals
+- **Minimum coverage**: 80%
+- **Unit tests**: For all components
+- **Integration tests**: For critical flows
+- **E2E tests**: For main features
 
-## 📞 Suport
+## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/ArnauM13/pelu-app/issues)
-- **Documentació**: [Documentació Completa](DOCUMENTATION.md)
-- **Email**: suport@peluapp.com
+- **Documentation**: [Complete Documentation](DOCUMENTATION.md)
+- **Email**: support@peluapp.com
 
-## 📊 Estadístiques del Projecte
+## 📄 License
 
-- **Versió**: 0.0.3
-- **Última actualització**: Juliol 2025
-- **Fitxers de documentació**: 30+
-- **Components**: 50+
-- **Tests**: 200+
-- **Cobertura de codi**: 85%+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 📄 Llicència
+## 🙏 Acknowledgments
 
-Aquest projecte està sota llicència MIT. Vegeu el fitxer [LICENSE](LICENSE) per més detalls.
+- [Angular Team](https://angular.io/) for the amazing framework
+- [PrimeNG Team](https://primeng.org/) for the UI components
+- [Firebase Team](https://firebase.google.com/) for the backend services
 
----
-
-**Desenvolupat amb ❤️ per l'equip de PeluApp**
-
-*Última actualització: Juliol 2025*
