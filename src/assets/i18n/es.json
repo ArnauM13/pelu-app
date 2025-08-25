@@ -297,6 +297,7 @@
     "ABOUT": "Sobre nosotros",
     "BOOK": "Reservar",
     "APPOINTMENTS": "Citas",
+    "VIEW_APPOINTMENTS": "Ver citas",
     "PROFILE": "Perfil",
     "ADMIN_DASHBOARD": "Panel de admin",
     "ADMIN_SERVICES": "Gestionar Servicios",
@@ -306,12 +307,16 @@
   "LANDING": {
     "HERO_TITLE": "PeluApp",
     "HERO_SUBTITLE": "Reserva tu momento. Rápido, fácil y sin llamadas.",
+    "MAIN_ACTIONS": "Acciones principales",
+    "SECONDARY_ACTIONS": "Otras opciones",
     "BOOK_NOW": "Reservar",
     "APPOINTMENTS": "Citas",
     "PROFILE": "Perfil",
     "SERVICES": "Servicios"
   },
   "APPOINTMENTS": {
+    "TITLE": "Mis Citas",
+    "SUBTITLE": "Gestiona y visualiza todas tus citas programadas",
     "TOTAL_APPOINTMENTS": "Total Citas",
     "TODAY_APPOINTMENTS": "Citas hoy",
     "UPCOMING_APPOINTMENTS": "Próximas Citas",

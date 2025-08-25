@@ -61,10 +61,6 @@ export class HeaderComponent {
     }
   }
 
-  navigateToPlayground() {
-    this.#router.navigate(['/playground']);
-  }
-
   async onLogout() {
     try {
       this.isLoggingOutSignal.set(true);

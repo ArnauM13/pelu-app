@@ -1,16 +1,24 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 import { UserService } from '../../../core/services/user.service';
-import { ButtonComponent } from '../../../shared/components/buttons';
 import { BookingService } from '../../../core/services/booking.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'pelu-admin-dashboard-page',
-  imports: [CommonModule, RouterModule, TranslateModule, ButtonComponent, ConfirmationPopupComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TranslateModule,
+    ButtonComponent,
+    ConfirmationPopupComponent,
+    PeluTitleComponent,
+  ],
   templateUrl: './admin-dashboard-page.component.html',
   styleUrls: ['./admin-dashboard-page.component.scss'],
 })

@@ -29,6 +29,7 @@ import { InputDateComponent } from '../../../shared/components/inputs/input-date
 import { BookingMobilePageComponent } from '../booking-mobile-page/booking-mobile-page.component';
 import { CalendarStateService } from '../../calendar/services/calendar-state.service';
 import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 import { TimeUtils } from '../../../shared/utils/time.utils';
 import { startOfWeek, endOfWeek } from 'date-fns';
 
@@ -47,6 +48,7 @@ import { startOfWeek, endOfWeek } from 'date-fns';
     InputDateComponent,
     BookingMobilePageComponent,
     NoAppointmentsMessageComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './booking-page.component.html',
   styleUrls: ['./booking-page.component.scss'],

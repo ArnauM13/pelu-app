@@ -27,6 +27,7 @@ import { ToastConfig } from '../../../shared/components/toast/toast.component';
 import { AppointmentEvent } from '../../../features/calendar/core/calendar.component';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 
 interface FilterState {
   date: Date | null;
@@ -61,6 +62,7 @@ interface AppointmentStats {
     NextAppointmentComponent,
     FiltersCollapsibleComponent,
     ConfirmationPopupComponent,
+    PeluTitleComponent,
   ],
   templateUrl: './appointments-page.component.html',
   styleUrls: ['./appointments-page.component.scss'],

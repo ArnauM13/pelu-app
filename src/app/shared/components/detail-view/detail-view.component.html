@@ -22,7 +22,7 @@
       @if (type() === 'appointment' && appointment()) {
         <div class="mobile-appointment-header">
           <pelu-button
-            label="←"
+            icon="pi pi-arrow-left"
             [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
             variant="text"
             severity="contrast"
@@ -81,10 +81,9 @@
             <div class="appointment-content">
               <!-- Back Button -->
               <pelu-button
-                label="←"
+                icon="pi pi-arrow-left"
                 [ariaLabel]="'COMMON.ACTIONS.BACK' | translate"
                 variant="text"
-                severity="contrast"
                 [rounded]="true"
                 class="back-btn-emoji"
                 (clicked)="onBack()"

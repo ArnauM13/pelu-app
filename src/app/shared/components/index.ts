@@ -15,6 +15,9 @@ export type { LoaderConfig } from './loader';
 export { FooterComponent } from './footer';
 export type { FooterConfig, FooterAlert } from './footer';
 
+// Title component
+export { PeluTitleComponent } from './pelu-title/pelu-title.component';
+
 // Existing components (if any)
 // Add other shared components here as needed
 

@@ -65,7 +65,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { viewTransitionName: 'about' },
   },
-  { path: 'services', redirectTo: 'about', pathMatch: 'full' },
   {
     path: 'playground',
     component: PlaygroundPageComponent,

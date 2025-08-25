@@ -297,6 +297,7 @@
     "ABOUT": "About",
     "BOOK": "Book",
     "APPOINTMENTS": "Appointments",
+    "VIEW_APPOINTMENTS": "View appointments",
     "PROFILE": "Profile",
     "ADMIN_DASHBOARD": "Admin Dashboard",
     "ADMIN_SERVICES": "Manage Services",
@@ -305,13 +306,17 @@
   },
   "LANDING": {
     "HERO_TITLE": "PeluApp",
-    "HERO_SUBTITLE": "Book your moment. Fast, easy and no calls.",
+    "HERO_SUBTITLE": "Book your moment. Fast, easy and no phone calls.",
+    "MAIN_ACTIONS": "Main actions",
+    "SECONDARY_ACTIONS": "Other options",
     "BOOK_NOW": "Book now",
     "APPOINTMENTS": "Appointments",
     "PROFILE": "Profile",
     "SERVICES": "Services"
   },
   "APPOINTMENTS": {
+    "TITLE": "My Appointments",
+    "SUBTITLE": "Manage and view all your scheduled appointments",
     "TOTAL_APPOINTMENTS": "Total Appointments",
     "TODAY_APPOINTMENTS": "Today's Appointments",
     "UPCOMING_APPOINTMENTS": "Upcoming Appointments",
