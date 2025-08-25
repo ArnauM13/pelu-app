@@ -1,0 +1,10 @@
+[33m8915e18[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtest_coverage[m[33m, [m[1;31morigin/test_coverage[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m fix build config
+[33mb7d1f34[m fixes master branch
+[33mbef7455[m Merge branch 'ux_improvements' into dev
+[33m7a9dfd5[m coverall
+[33m76df752[m update readme
+[33me299a36[m loading service
+[33m7ff696b[m add csv
+[33m255ecfd[m animacio next
+[33m20f34d6[m min styling
+[33me59785b[m tests wip
