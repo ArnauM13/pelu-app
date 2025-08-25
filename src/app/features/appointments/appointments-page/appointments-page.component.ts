@@ -7,7 +7,6 @@ import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AppointmentsListComponent } from '../../appointments/components/appointments-list/appointments-list.component';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { FiltersCollapsibleComponent } from '../../../shared/components/filters-collapsible/filters-collapsible.component';
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
@@ -28,6 +27,7 @@ import { AppointmentEvent } from '../../../features/calendar/core/calendar.compo
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
+import { LoaderService } from '../../../shared/services/loader.service';
 
 interface FilterState {
   date: Date | null;
@@ -58,7 +58,6 @@ interface AppointmentStats {
     DatePickerModule,
     TranslateModule,
     AppointmentsListComponent,
-    LoadingStateComponent,
     NextAppointmentComponent,
     FiltersCollapsibleComponent,
     ConfirmationPopupComponent,
@@ -76,6 +75,7 @@ export class AppointmentsPageComponent {
   private readonly toastService = inject(ToastService);
   private readonly userService = inject(UserService);
   private readonly translateService = inject(TranslateService);
+  private readonly loaderService = inject(LoaderService);
 
   // Core data
   readonly appointments = this.appointmentService.bookings;
@@ -542,6 +542,8 @@ export class AppointmentsPageComponent {
   };
 
   private async performBulkDelete(selectedIds: string[]): Promise<void> {
+    this.loaderService.show({ message: 'APPOINTMENTS.DELETING_APPOINTMENTS' });
+
     try {
       const deletePromises = selectedIds.map(id => this.appointmentService.deleteBooking(id));
       await Promise.all(deletePromises);
@@ -556,6 +558,8 @@ export class AppointmentsPageComponent {
       this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.BULK_DELETE_SUCCESS');
     } catch {
       this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.BULK_DELETE_ERROR');
+    } finally {
+      this.loaderService.hide();
     }
   };
 
@@ -614,11 +618,15 @@ export class AppointmentsPageComponent {
   }
 
   private async performDelete(booking: Booking): Promise<void> {
+    this.loaderService.show({ message: 'APPOINTMENTS.DELETING_APPOINTMENT' });
+
     try {
       await this.appointmentService.deleteBooking(booking.id!);
       this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.DELETE_SUCCESS');
     } catch {
       this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
+    } finally {
+      this.loaderService.hide();
     }
   }
 
@@ -764,11 +772,13 @@ export class AppointmentsPageComponent {
     });
   }
 
-  get loadingConfig() {
-    return {
-      message: 'CARGANT.CITAS',
-      showSpinner: true,
-      overlay: false,
-    };
+  // Handle CSV export from appointments list
+  onExportCSV(selectedBookings: Booking[]): void {
+    if (selectedBookings.length === 0) return;
+
+    this.appointmentService.exportBookingsToCSV(selectedBookings);
+    this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.CSV_EXPORT_SUCCESS');
   }
+
+
 }
