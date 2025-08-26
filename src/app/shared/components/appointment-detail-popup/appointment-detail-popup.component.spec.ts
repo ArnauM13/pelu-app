@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppointmentDetailPopupComponent } from './appointment-detail-popup.component';
 import { configureTestBed, resetMocks, setupDefaultMocks } from '../../../../testing/test-setup';
+import { ConfirmationService } from 'primeng/api';
 
 describe('AppointmentDetailPopupComponent', () => {
   let component: AppointmentDetailPopupComponent;
@@ -21,7 +22,9 @@ describe('AppointmentDetailPopupComponent', () => {
   beforeEach(async () => {
     setupDefaultMocks();
 
-    await configureTestBed([AppointmentDetailPopupComponent]).compileComponents();
+    await configureTestBed([AppointmentDetailPopupComponent], [
+      ConfirmationService
+    ]).compileComponents();
 
     fixture = TestBed.createComponent(AppointmentDetailPopupComponent);
     component = fixture.componentInstance;

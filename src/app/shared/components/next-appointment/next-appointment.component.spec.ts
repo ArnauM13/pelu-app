@@ -359,7 +359,7 @@ describe('NextAppointmentComponent', () => {
     servicesService.getServiceName.and.returnValue('Servei general');
     const booking = mockBookings[0];
     booking.serviceId = 'nonexistent-service';
-    
+
     const serviceName = component.getServiceName(booking);
     expect(serviceName).toBe('Servei general');
   });
@@ -367,7 +367,7 @@ describe('NextAppointmentComponent', () => {
   it('should return default duration when service not found', () => {
     const booking = mockBookings[0];
     booking.serviceId = 'nonexistent-service';
-    
+
     const duration = component.getServiceDuration(booking);
     expect(duration).toBe(60);
   });

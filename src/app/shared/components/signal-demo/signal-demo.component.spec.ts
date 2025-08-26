@@ -125,7 +125,7 @@ describe('SignalDemoComponent', () => {
   it('should add random user correctly', () => {
     const initialCount = component.totalUsers();
     component.addRandomUser();
-    
+
     expect(component.totalUsers()).toBe(initialCount + 1);
     expect(toastService.showSuccess).toHaveBeenCalledWith(
       'Usuari afegit',

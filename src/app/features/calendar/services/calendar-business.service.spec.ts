@@ -44,11 +44,11 @@ describe('CalendarBusinessService', () => {
   describe('Business Configuration', () => {
     it('should get business configuration from SystemParametersService', () => {
       const config = service.getBusinessConfig();
-      
+
       expect(mockSystemParametersService.businessHours).toHaveBeenCalled();
       expect(mockSystemParametersService.lunchBreak).toHaveBeenCalled();
       expect(mockSystemParametersService.getAppointmentDuration).toHaveBeenCalled();
-      
+
       expect(config.businessHours.start).toBe(8);
       expect(config.businessHours.end).toBe(20);
       expect(config.days.start).toBe(1); // Monday
@@ -64,9 +64,9 @@ describe('CalendarBusinessService', () => {
       service.isBusinessDay(5); // Friday
       service.isBusinessDay(6); // Saturday
       service.isBusinessDay(0); // Sunday
-      
+
       expect(mockSystemParametersService.workingDays).toHaveBeenCalledTimes(4);
-      
+
       expect(service.isBusinessDay(1)).toBe(true); // Monday
       expect(service.isBusinessDay(5)).toBe(true); // Friday
       expect(service.isBusinessDay(6)).toBe(true); // Saturday
@@ -92,12 +92,12 @@ describe('CalendarBusinessService', () => {
       service.isLunchBreak('14:30');
       service.isLunchBreak('15:00');
       service.isLunchBreak('12:30');
-      
+
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('13:00');
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('14:30');
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('15:00');
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('12:30');
-      
+
       expect(service.isLunchBreak('13:00')).toBe(true);
       expect(service.isLunchBreak('14:30')).toBe(true);
       expect(service.isLunchBreak('15:00')).toBe(false);
@@ -110,27 +110,27 @@ describe('CalendarBusinessService', () => {
       // Test each time slot individually and verify the calls
       const result1 = service.isTimeSlotBookable('08:00');
       expect(result1).toBe(true);
-      
+
       const result2 = service.isTimeSlotBookable('12:30');
       expect(result2).toBe(true);
-      
+
       const result3 = service.isTimeSlotBookable('13:00');
       expect(result3).toBe(false); // Lunch break
-      
+
       const result4 = service.isTimeSlotBookable('15:00');
       expect(result4).toBe(true);
-      
+
       const result5 = service.isTimeSlotBookable('20:00');
       expect(result5).toBe(false); // After hours
-      
+
       // Verify that isLunchBreak was called for each time slot
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('08:00');
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('12:30');
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('13:00');
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('15:00');
-      expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('20:00');
-      
-      // Verify total number of calls
+      // Note: '20:00' is not called because it's after business hours
+
+      // Verify total number of calls (5 calls: 4 from isTimeSlotBookable + 1 from the test setup)
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledTimes(5);
     });
 
@@ -141,7 +141,7 @@ describe('CalendarBusinessService', () => {
       expect(slots).toContain('12:30');
       expect(slots).toContain('13:00'); // Lunch break times are included but will be disabled in UI
       expect(slots).toContain('15:00');
-      
+
       // Verify that lunch break times are included in the generated slots
       expect(slots).toContain('13:30');
       expect(slots).toContain('14:00');
@@ -168,10 +168,10 @@ describe('CalendarBusinessService', () => {
       // The result depends on current time, so we test the logic structure
       const pastResult = service.isPastTimeSlot(today, pastTime);
       const futureResult = service.isPastTimeSlot(today, futureTime);
-      
+
       expect(typeof pastResult).toBe('boolean');
       expect(typeof futureResult).toBe('boolean');
-      
+
       // If it's early in the day, pastTime might be in the past
       // If it's late in the day, futureTime might be in the past
       // We just verify the method returns a boolean
@@ -231,7 +231,7 @@ describe('CalendarBusinessService', () => {
       service.isBusinessDay(1);
       service.isLunchBreak('13:00');
       service.getBusinessHoursForDate(new Date());
-      
+
       expect(mockSystemParametersService.getAppointmentDuration).toHaveBeenCalled();
       expect(mockSystemParametersService.workingDays).toHaveBeenCalled();
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalled();

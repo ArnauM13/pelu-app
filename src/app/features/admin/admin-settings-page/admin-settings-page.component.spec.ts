@@ -60,6 +60,9 @@ describe('AdminSettingsPageComponent', () => {
       loading: computed(() => false),
       error: computed(() => null),
     });
+    
+    // Ensure parameters signal is properly set
+    systemParametersSpy.parameters = computed(() => mockSettings);
 
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getCurrentCurrency',
