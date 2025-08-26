@@ -45,14 +45,15 @@ describe('AppointmentDetailPopupComponent', () => {
     expect(component.closed).toBeDefined();
     expect(component.deleted).toBeDefined();
     expect(component.editRequested).toBeDefined();
+    expect(component.viewDetailRequested).toBeDefined();
   });
 
   it('should have computed properties', () => {
     expect(component.currentBooking).toBeDefined();
     expect(component.isOpen).toBeDefined();
-    expect(component.canEdit).toBeDefined();
-    expect(component.canDelete).toBeDefined();
-    expect(component.isFuture).toBeDefined();
+    expect(component.serviceName).toBeDefined();
+    expect(component.serviceDuration).toBeDefined();
+    expect(component.servicePrice).toBeDefined();
   });
 
   it('should have required methods', () => {
@@ -60,38 +61,13 @@ describe('AppointmentDetailPopupComponent', () => {
     expect(typeof component.onEdit).toBe('function');
     expect(typeof component.onDelete).toBe('function');
     expect(typeof component.onViewDetail).toBe('function');
-    expect(typeof component.formatDate).toBe('function');
-    expect(typeof component.formatTime).toBe('function');
   });
 
-  it('should emit closed event when onClose is called', done => {
+  it('should emit closed event when onClose is called', () => {
     spyOn(component.closed, 'emit');
     component.onClose();
-
-    // Wait for the setTimeout to complete
-    setTimeout(() => {
-      expect(component.closed.emit).toHaveBeenCalled();
-      done();
-    }, 350); // Slightly longer than the 300ms timeout in the component
+    expect(component.closed.emit).toHaveBeenCalled();
   });
 
-  it('should format date correctly', () => {
-    const result = component.formatDate('2024-01-15');
-    expect(result).toBeDefined();
-  });
 
-  it('should format time correctly', () => {
-    const result = component.formatTime('10:30');
-    expect(result).toBe('10:30');
-  });
-
-  it('should format date correctly', () => {
-    const result = component.formatDate('2024-01-15');
-    expect(result).toBeDefined();
-  });
-
-  it('should format time correctly', () => {
-    const result = component.formatTime('10:30');
-    expect(result).toBe('10:30');
-  });
 });

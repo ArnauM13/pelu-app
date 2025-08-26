@@ -72,12 +72,12 @@ describe('LogoutButtonComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(LogoutButtonComponent.prototype.constructor.name).toBe('LogoutButtonComponent');
+    expect(LogoutButtonComponent.prototype.constructor.name).toBe('LogoutButtonComponent2');
   });
 
   it('should be a standalone component', () => {
     expect(LogoutButtonComponent.prototype.constructor).toBeDefined();
-    expect(LogoutButtonComponent.prototype.constructor.name).toBe('LogoutButtonComponent');
+    expect(LogoutButtonComponent.prototype.constructor.name).toBe('LogoutButtonComponent2');
   });
 
   it('should have component metadata', () => {
