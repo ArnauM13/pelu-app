@@ -247,53 +247,42 @@ export const getDocMock = jasmine.createSpy('getDoc').and.returnValue(
 );
 
 // Mock AuthService with signals
-export const mockAuthService: jasmine.SpyObj<AuthService> = jasmine.createSpyObj(
-  'AuthService',
-  [
-    'registre',
-    'login',
-    'loginWithGoogle',
-    'logout',
-    'redirectToLogin',
-    'redirectToHome',
-    'canActivate',
-    'canActivateAsync',
-    'saveCurrentUserLanguage',
-    'isAuthenticated',
-    'isInitialized',
-  ],
-  {
-    registre: jasmine.createSpy('registre').and.returnValue(Promise.resolve({ user: mockUser })),
-    login: jasmine.createSpy('login').and.returnValue(Promise.resolve({ user: mockUser })),
-    loginWithGoogle: jasmine
-      .createSpy('loginWithGoogle')
-      .and.returnValue(Promise.resolve({ user: mockUser })),
-    logout: jasmine.createSpy('logout').and.returnValue(Promise.resolve()),
-    redirectToLogin: jasmine.createSpy('redirectToLogin'),
-    redirectToHome: jasmine.createSpy('redirectToHome'),
-    canActivate: jasmine.createSpy('canActivate').and.returnValue(true),
-    canActivateAsync: jasmine.createSpy('canActivateAsync').and.returnValue(Promise.resolve(true)),
-    saveCurrentUserLanguage: jasmine.createSpy('saveCurrentUserLanguage'),
-    isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true),
-    isInitialized: jasmine.createSpy('isInitialized').and.returnValue(true),
-    user: computed(() => mockUser),
-    isLoading: computed(() => false),
-    userDisplayName: computed(() => 'Test User'),
-  }
-);
+export const mockAuthService = {
+  registre: jasmine.createSpy('registre').and.returnValue(Promise.resolve({ user: mockUser })),
+  login: jasmine.createSpy('login').and.returnValue(Promise.resolve({ user: mockUser })),
+  loginWithGoogle: jasmine
+    .createSpy('loginWithGoogle')
+    .and.returnValue(Promise.resolve({ user: mockUser })),
+  logout: jasmine.createSpy('logout').and.returnValue(Promise.resolve()),
+  redirectToLogin: jasmine.createSpy('redirectToLogin'),
+  redirectToHome: jasmine.createSpy('redirectToHome'),
+  canActivate: jasmine.createSpy('canActivate').and.returnValue(true),
+  canActivateAsync: jasmine.createSpy('canActivateAsync').and.returnValue(Promise.resolve(true)),
+  saveCurrentUserLanguage: jasmine.createSpy('saveCurrentUserLanguage'),
+  // Signal properties
+  user: computed(() => mockUser),
+  isLoading: computed(() => false),
+  isAuthenticated: computed(() => true),
+  isInitialized: computed(() => true),
+  userDisplayName: computed(() => 'Test User'),
+  error: computed(() => null),
+};
 
 // Mock PrimeNG services
-export const mockMessageService: jasmine.SpyObj<MessageService> = jasmine.createSpyObj(
-  'MessageService',
-  ['add', 'addAll', 'clear', 'get', 'remove', 'replace', 'update'],
-  {
-    messages: of([]),
-    onMessage: of(),
-  }
-);
+export const mockMessageService = {
+  add: jasmine.createSpy('add'),
+  addAll: jasmine.createSpy('addAll'),
+  clear: jasmine.createSpy('clear'),
+  get: jasmine.createSpy('get'),
+  remove: jasmine.createSpy('remove'),
+  replace: jasmine.createSpy('replace'),
+  update: jasmine.createSpy('update'),
+  messages: of([]),
+  onMessage: of(),
+};
 
 // Create a more comprehensive mock for ConfirmationService
-const mockConfirmationServiceObj = {
+export const mockConfirmationService = {
   onAccept: of({}),
   onReject: of({}),
   onClose: of({}),
@@ -310,102 +299,91 @@ const mockConfirmationServiceObj = {
   onClose$: of({}),
 };
 
-export const mockConfirmationService: jasmine.SpyObj<ConfirmationService> = jasmine.createSpyObj(
-  'ConfirmationService',
-  ['confirm', 'close', 'require', 'accept', 'reject', 'clear'],
-  mockConfirmationServiceObj
-);
-
 // Mock Router
-export const mockRouter: jasmine.SpyObj<Router> = jasmine.createSpyObj('Router', ['navigate']);
+export const mockRouter = {
+  navigate: jasmine.createSpy('navigate'),
+  navigateByUrl: jasmine.createSpy('navigateByUrl'),
+  createUrlTree: jasmine.createSpy('createUrlTree'),
+  serializeUrl: jasmine.createSpy('serializeUrl'),
+  parseUrl: jasmine.createSpy('parseUrl'),
+  isActive: jasmine.createSpy('isActive'),
+  events: of(),
+  url: '/',
+  routerState: {
+    snapshot: {
+      url: '/',
+      root: {
+        children: [],
+        data: {},
+        fragment: null,
+        outlet: 'primary',
+        params: {},
+        queryParams: {},
+        url: [],
+      },
+    },
+  },
+};
 
 // Mock ActivatedRoute
-export const mockActivatedRoute: jasmine.SpyObj<ActivatedRoute> = jasmine.createSpyObj(
-  'ActivatedRoute',
-  [],
-  {
-    params: of({}),
-    queryParams: of({}),
-    fragment: of(null),
-    data: of({}),
-    url: of([]),
-    snapshot: {
-      params: {},
-      queryParams: {},
-      fragment: null,
-      data: {},
-      url: [],
-    },
-  }
-);
+export const mockActivatedRoute = {
+  params: of({}),
+  queryParams: of({}),
+  fragment: of(null),
+  data: of({}),
+  url: of([]),
+  snapshot: {
+    params: {},
+    queryParams: {},
+    fragment: null,
+    data: {},
+    url: [],
+  },
+};
 
 // Mock Translation services
 const mockTranslateStoreObj = {
   onLangChange: of({ lang: 'en', translations: {} }),
   onTranslationChange: of({ lang: 'en', translations: {} }),
   onDefaultLangChange: of({ lang: 'en', translations: {} }),
-  subscribe: of({ lang: 'en', translations: {} }).subscribe,
 };
 
-export const mockTranslateStore: jasmine.SpyObj<TranslateStore> = jasmine.createSpyObj(
-  'TranslateStore',
-  ['onLangChange', 'onTranslationChange', 'onDefaultLangChange'],
-  mockTranslateStoreObj
-);
+export const mockTranslateStore = {
+  onLangChange: of({ lang: 'en', translations: {} }),
+  onTranslationChange: of({ lang: 'en', translations: {} }),
+  onDefaultLangChange: of({ lang: 'en', translations: {} }),
+};
 
-export const mockTranslateService: jasmine.SpyObj<TranslateService> = jasmine.createSpyObj(
-  'TranslateService',
-  [
-    'get',
-    'instant',
-    'setDefaultLang',
-    'use',
-    'addLangs',
-    'getLangs',
-    'getBrowserLang',
-    'getBrowserCultureLang',
-    'onLangChange',
-    'onTranslationChange',
-    'onDefaultLangChange',
-    'store',
-    'currentLoader',
-    'isolate',
-    'getTranslation',
-    'setTranslation',
-    'addLangs',
-    'getLangs',
-    'getBrowserLang',
-    'getBrowserCultureLang',
-    'onLangChange',
-    'onTranslationChange',
-    'onDefaultLangChange',
-    'store',
-    'currentLoader',
-    'isolate',
-    'getTranslation',
-    'setTranslation',
-  ],
-  {
-    get: jasmine.createSpy('get').and.returnValue(of('translated text')),
-    instant: jasmine.createSpy('instant').and.returnValue('translated text'),
-    onLangChange: of({ lang: 'en', translations: {} }),
-    onTranslationChange: of({ lang: 'en', translations: {} }),
-    onDefaultLangChange: of({ lang: 'en', translations: {} }),
-    subscribe: of({ lang: 'en', translations: {} }).subscribe,
-    store: mockTranslateStoreObj,
-  }
-);
+export const mockTranslateService = {
+  get: jasmine.createSpy('get').and.returnValue(of('translated text')),
+  instant: jasmine.createSpy('instant').and.returnValue('translated text'),
+  setDefaultLang: jasmine.createSpy('setDefaultLang'),
+  use: jasmine.createSpy('use'),
+  addLangs: jasmine.createSpy('addLangs'),
+  getLangs: jasmine.createSpy('getLangs').and.returnValue(['en', 'ca']),
+  getBrowserLang: jasmine.createSpy('getBrowserLang').and.returnValue('en'),
+  getBrowserCultureLang: jasmine.createSpy('getBrowserCultureLang').and.returnValue('en'),
+  onLangChange: of({ lang: 'en', translations: {} }),
+  onTranslationChange: of({ lang: 'en', translations: {} }),
+  onDefaultLangChange: of({ lang: 'en', translations: {} }),
+  store: mockTranslateStoreObj,
+  currentLoader: jasmine.createSpy('currentLoader'),
+  isolate: jasmine.createSpy('isolate'),
+  getTranslation: jasmine.createSpy('getTranslation').and.returnValue(of({})),
+  setTranslation: jasmine.createSpy('setTranslation'),
+};
 
-export const mockTranslationService: jasmine.SpyObj<TranslationService> = jasmine.createSpyObj(
-  'TranslationService',
-  ['getCurrentLang', 'setLanguage', 'getAvailableLanguages', 'translate', 'translateInstant', 'get'],
-  {
-    getCurrentLang: jasmine.createSpy('getCurrentLang').and.returnValue('en'),
-    translate: jasmine.createSpy('translate').and.returnValue(of('translated text')),
-    translateInstant: jasmine.createSpy('translateInstant').and.returnValue('translated text'),
-    get: jasmine.createSpy('get').and.returnValue('translated text'),
-  }
-);
+export const mockTranslationService = {
+  getCurrentLang: jasmine.createSpy('getCurrentLang').and.returnValue('en'),
+  setLanguage: jasmine.createSpy('setLanguage'),
+  getAvailableLanguages: jasmine.createSpy('getAvailableLanguages').and.returnValue(['en', 'ca']),
+  translate: jasmine.createSpy('translate').and.returnValue(of('translated text')),
+  translateInstant: jasmine.createSpy('translateInstant').and.returnValue('translated text'),
+  get: jasmine.createSpy('get').and.returnValue('translated text'),
+  getCurrentLanguageInfo: jasmine.createSpy('getCurrentLanguageInfo').and.returnValue({ code: 'en', name: 'English' }),
+  getBrowserLanguage: jasmine.createSpy('getBrowserLanguage').and.returnValue('en'),
+  restoreUserLanguagePreference: jasmine.createSpy('restoreUserLanguagePreference'),
+};
 
 // Mock Firebase providers for tests
 export const provideMockFirebase = () => [

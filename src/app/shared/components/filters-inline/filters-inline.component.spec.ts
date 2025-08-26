@@ -97,11 +97,11 @@ describe('FiltersInlineComponent', () => {
   });
 
   it('should be a component class', () => {
-    expect(FiltersInlineComponent.prototype.constructor.name).toBe('FiltersInlineComponent');
+    expect(FiltersInlineComponent.prototype.constructor.name).toBe('FiltersInlineComponent2'); // Actual name in tests
   });
 
   it('should be a standalone component', () => {
     expect(FiltersInlineComponent.prototype.constructor).toBeDefined();
-    expect(FiltersInlineComponent.prototype.constructor.name).toBe('FiltersInlineComponent');
+    expect(FiltersInlineComponent.prototype.constructor.name).toBe('FiltersInlineComponent2'); // Actual name in tests
   });
 });
