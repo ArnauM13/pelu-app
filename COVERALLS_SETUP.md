@@ -21,27 +21,32 @@ This guide explains how to set up and use Coveralls for test coverage tracking i
 
 The following files have been configured:
 
-#### **Coveralls Token**
-- **No cal token manual** per repositoris públics
-- **GitHub Actions** usa `secrets.GITHUB_TOKEN` automàticament
-- **Més simple** i segur per repos públics
+#### **Coveralls Token (SECURE SETUP)**
+- **Repository Secret**: `COVERALLS_REPO_TOKEN` configured in GitHub repository secrets
+- **Token Value**: (configured as secret, never exposed in code)
+- **Security**: Token is stored in GitHub repository secrets, not in code
+- **GitHub Actions** uses the secret automatically via `${{ secrets.COVERALLS_REPO_TOKEN }}`
+- **Secure**: Token is never exposed in code or logs
 
 #### `karma.conf.js`
-- Configures Karma to generate coverage reports
 - Uses Chrome Headless for CI environments (no GUI required)
 - Generates LCOV reports for Coveralls integration
-
-#### `.coveralls.yml`
-- **No cal** per repositoris públics
-- GitHub Actions gestiona l'autenticació automàticament
-- Més simple i segur
 
 #### `.github/workflows/test-coverage.yml`
 - GitHub Actions workflow for automated testing
 - Runs tests with coverage on push and pull requests
-- Uploads coverage data to Coveralls
+- Uploads coverage data to Coveralls using secure token
 
-### 3. Local Testing
+### 3. GitHub Repository Secrets Setup
+
+1. **Go to your GitHub repository**
+2. **Navigate to Settings > Secrets and variables > Actions**
+3. **Click "New repository secret"**
+4. **Name**: `COVERALLS_REPO_TOKEN`
+5. **Value**: Your Coveralls repository token (from Coveralls dashboard)
+6. **Click "Add secret"**
+
+### 4. Local Testing
 
 Test coverage locally before pushing:
 
@@ -53,22 +58,12 @@ npm run test:coverage
 npm run test:coverage:local
 ```
 
-## 📊 Understanding Coverage Reports
+### 5. Verification
 
-### Coverage Metrics
-
-- **Statements**: Percentage of code statements executed
-- **Branches**: Percentage of conditional branches executed
-- **Functions**: Percentage of functions called
-- **Lines**: Percentage of code lines executed
-
-### Minimum Thresholds
-
-The project is configured with 80% minimum coverage for:
-- Statements
-- Branches  
-- Functions
-- Lines
+```bash
+# Verify Coveralls setup
+npm run verify:coveralls
+```
 
 ## 🚀 Workflow
 
@@ -80,93 +75,60 @@ The project is configured with 80% minimum coverage for:
 4. **Coveralls dashboard** updates with new coverage data
 5. **PR comments** are added with coverage impact analysis
 
-### Manual Process
+### Manual Upload (if needed)
 
-1. **Run tests locally**: `npm run test:coverage`
-2. **Check coverage report**: Open `coverage/pelu-app/index.html`
-3. **Verify thresholds**: Ensure coverage meets 80% minimum
-4. **Commit and push**: Coverage will be uploaded automatically
+```bash
+# Install coveralls locally
+npm install -g coveralls
 
-## 📈 Viewing Reports
+# Upload coverage manually
+cat ./coverage/lcov.info | coveralls
+```
 
-### Coveralls Dashboard
+## 🔒 Security Notes
 
-- **Main dashboard**: [https://coveralls.io/github/ArnauM13/pelu-app](https://coveralls.io/github/ArnauM13/pelu-app?branch=master)
-- **Historical trends**: Track coverage over time
-- **File-by-file analysis**: Detailed coverage for each file
-- **Line-by-line coverage**: See exactly which lines are covered
+- **Token is stored securely** in GitHub repository secrets
+- **Never commit tokens** to version control
+- **Token is automatically used** by GitHub Actions
+- **No manual token management** required
 
-### Local Reports
+## 📊 Coverage Reports
 
-- **HTML report**: `coverage/pelu-app/index.html`
-- **Text summary**: Console output during test run
-- **LCOV file**: `coverage/pelu-app/lcov.info` (for CI/CD)
+- **Coveralls Dashboard**: https://coveralls.io/github/ArnauM13/pelu-app?branch=master
+- **Coverage Badge**: Automatically updated in README.md
+- **PR Comments**: Coverage impact shown on pull requests
 
-## 🔍 Troubleshooting
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-#### Coverage not uploading
-- Check GitHub Actions workflow execution
-- Verify Coveralls repository token
-- Ensure LCOV file is generated correctly
+1. **Token not found**: Ensure `COVERALLS_REPO_TOKEN` secret is configured in GitHub
+2. **Coverage not uploading**: Check GitHub Actions logs for errors
+3. **Badge not updating**: Wait a few minutes for Coveralls to process
 
-#### Low coverage
-- Add more test cases
-- Focus on uncovered functions and branches
-- Use coverage report to identify gaps
+### Debug Commands
 
-#### Build failures
-- Check Karma configuration
-- Verify all dependencies are installed
-- Review test syntax and imports
-- **Chrome Headless**: Ensure `ChromeHeadless` is used in `karma.conf.js` for CI environments
+```bash
+# Check if coverage report exists
+ls -la ./coverage/lcov.info
 
-### Debug Mode
+# Verify LCOV format
+head -10 ./coverage/lcov.info
 
-The GitHub Actions workflow includes debug mode:
-```yaml
-debug: true
+# Test local coverage generation
+npm run test:coverage
 ```
 
-This provides detailed logging for troubleshooting.
+## 📈 Coverage Goals
 
-## 📚 Best Practices
+- **Target**: >80% overall coverage
+- **Critical paths**: >90% coverage
+- **New features**: >85% coverage required
+- **Legacy code**: >70% coverage maintained
 
-### Writing Tests
+## 🔄 Maintenance
 
-1. **Test all public methods** in services and components
-2. **Cover edge cases** and error conditions
-3. **Test async operations** properly
-4. **Mock external dependencies** consistently
-
-### Maintaining Coverage
-
-1. **Review coverage reports** regularly
-2. **Set realistic thresholds** (80% is good)
-3. **Focus on critical code paths**
-4. **Don't sacrifice quality for coverage**
-
-### Team Workflow
-
-1. **Check coverage before PRs**
-2. **Address coverage decreases** in PRs
-3. **Use coverage comments** to guide improvements
-4. **Celebrate coverage improvements**
-
-## 🎯 Next Steps
-
-1. **Push your changes** to trigger the first coverage run
-2. **Check Coveralls dashboard** for initial results
-3. **Review coverage gaps** and add tests as needed
-4. **Monitor coverage trends** over time
-
-## 📞 Support
-
-- **Coveralls Documentation**: [https://docs.coveralls.io/](https://docs.coveralls.io/)
-- **GitHub Actions**: [https://docs.github.com/en/actions](https://docs.github.com/en/actions)
-- **Karma Coverage**: [https://github.com/karma-runner/karma-coverage](https://github.com/karma-runner/karma-coverage)
-
----
-
-**Happy testing! 🧪✨**
+- **Regular monitoring** of coverage trends
+- **Coverage alerts** for significant drops
+- **Automatic reporting** on all PRs
+- **Coverage badges** in README and documentation

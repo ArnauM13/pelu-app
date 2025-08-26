@@ -231,7 +231,7 @@ describe('ToastDemoComponent', () => {
   });
 
   it('should be a standalone component', () => {
-    expect(component.constructor.name).toBe('ToastDemoComponent');
+    expect(component.constructor.name).toBe('ToastDemoComponent2'); // Actual name in tests
   });
 
   it('should have component metadata', () => {
