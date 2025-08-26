@@ -183,16 +183,16 @@ describe('InputNumberComponent', () => {
     it('should generate unique ID for each instance', () => {
       const firstComponent = fixture.debugElement.query(By.css('p-inputnumber'));
       const firstId = firstComponent.componentInstance.inputId;
-      
+
       expect(firstId).toBeTruthy();
       expect(firstId).toContain('number-');
-      
+
       // Create a second instance to test uniqueness
       const secondFixture = TestBed.createComponent(TestWrapperComponent);
       secondFixture.detectChanges();
       const secondComponent = secondFixture.debugElement.query(By.css('p-inputnumber'));
       const secondId = secondComponent.componentInstance.inputId;
-      
+
       expect(secondId).not.toBe(firstId);
     });
   });
@@ -232,9 +232,9 @@ describe('InputNumberComponent', () => {
     it('should handle blur event correctly', () => {
       const inputElement = fixture.debugElement.query(By.css('p-inputnumber'));
       const blurEvent = new Event('blur');
-      
+
       inputElement.componentInstance.onBlur.emit(blurEvent);
-      
+
       // Verify the blur event was handled
       expect(inputElement.componentInstance.onBlur.emit).toHaveBeenCalledWith(blurEvent);
     });
@@ -507,11 +507,11 @@ describe('InputNumberComponent', () => {
 
     it('should mark form as dirty when value changes', () => {
       const inputElement = fixture.debugElement.query(By.css('p-inputnumber'));
-      
+
       // Simulate value change
       inputElement.componentInstance.onModelChange.emit(42);
       fixture.detectChanges();
-      
+
       expect(component.form.get('numberField')?.dirty).toBe(true);
     });
 

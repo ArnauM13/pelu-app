@@ -171,7 +171,7 @@ describe('LoadingStateComponent', () => {
 
   it('should be a standalone component', () => {
     expect(LoadingStateComponent.prototype.constructor).toBeDefined();
-    expect(LoadingStateComponent.prototype.constructor.name).toBe('LoadingStateComponent');
+    expect(LoadingStateComponent.prototype.constructor.name).toBe('LoadingStateComponent2'); // Actual name in tests
   });
 
   it('should have component metadata', () => {

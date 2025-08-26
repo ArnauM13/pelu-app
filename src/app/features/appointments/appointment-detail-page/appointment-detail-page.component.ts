@@ -8,8 +8,6 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
-import { format, parseISO } from 'date-fns';
-import { ca } from 'date-fns/locale';
 import { TranslateModule } from '@ngx-translate/core';
 import { DetailViewComponent, DetailViewConfig, DetailAction, InfoItemData } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
@@ -23,6 +21,7 @@ import { Booking } from '../../../core/interfaces/booking.interface';
 import { ResponsiveService } from '../../../core/services/responsive.service';
 import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
 import { LoaderService } from '../../../shared/services/loader.service';
+import { TimeUtils } from '../../../shared/utils/time.utils';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
@@ -57,6 +56,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   private responsiveService = inject(ResponsiveService);
   private appointmentManagementService = inject(AppointmentManagementService);
   private loaderService = inject(LoaderService);
+  private timeUtils = inject(TimeUtils);
 
   // Public computed signals from service
   readonly booking = this.appointmentManagementService.appointment;
@@ -73,8 +73,6 @@ export class AppointmentDetailPageComponent implements OnInit {
 
   // Appointment ID for detail view
   readonly appointmentId = computed(() => this.route.snapshot.paramMap.get('id'));
-
-
 
   // UI state signals
   private showDeleteAlertSignal = signal<boolean>(false);
@@ -98,13 +96,13 @@ export class AppointmentDetailPageComponent implements OnInit {
       {
         icon: '📅',
         label: 'COMMON.DATE',
-        value: this.formatDate(booking.data),
+        value: this.timeUtils.formatDateString(booking.data),
         field: 'data',
       },
       {
         icon: '⏰',
         label: 'COMMON.HOURS',
-        value: this.formatTime(booking.hora),
+        value: this.timeUtils.formatTimeString(booking.hora),
         field: 'hora',
       },
       {
@@ -139,19 +137,19 @@ export class AppointmentDetailPageComponent implements OnInit {
   readonly isToday = computed(() => {
     const booking = this.booking();
     if (!booking) return false;
-    return this.isTodayDate(booking.data);
+    return this.timeUtils.isTodayDateString(booking.data);
   });
 
   readonly isPast = computed(() => {
     const booking = this.booking();
     if (!booking) return false;
-    return this.isPastDate(booking.data);
+    return this.timeUtils.isPastDateString(booking.data);
   });
 
   readonly statusBadge = computed(() => {
-    if (this.isToday()) return { text: 'COMMON.TIME.TODAY', class: 'today' };
-    if (this.isPast()) return { text: 'COMMON.TIME.PAST', class: 'past' };
-    return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
+    const booking = this.booking();
+    if (!booking) return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
+    return this.timeUtils.getDateStatus(booking.data);
   });
 
   // Detail page configuration
@@ -201,8 +199,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     };
   });
 
-
-
   ngOnInit() {
     // Load from route parameters
     this.loadAppointment();
@@ -213,8 +209,6 @@ export class AppointmentDetailPageComponent implements OnInit {
       // Defer to allow booking to load if needed
       setTimeout(() => this.showDeleteConfirmation(), 0);
     }
-
-
   }
 
   private async loadAppointment(): Promise<void> {
@@ -293,36 +287,6 @@ export class AppointmentDetailPageComponent implements OnInit {
     } else {
       this.router.navigate(['/appointments']);
     }
-  }
-
-  // Utility methods
-  formatDate(dateString: string): string {
-    try {
-      return format(parseISO(dateString), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ca });
-    } catch {
-      return dateString;
-    }
-  }
-
-  formatTime(timeString: string): string {
-    try {
-      const [hours, minutes] = timeString.split(':');
-      return `${hours}:${minutes}`;
-    } catch {
-      return timeString;
-    }
-  }
-
-  isTodayDate(dateString: string): boolean {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    return dateString === today;
-  }
-
-  isPastDate(dateString: string): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const appointmentDate = new Date(dateString);
-    return appointmentDate < today;
   }
 
   onToastClick(event: { message?: { data?: { appointmentId?: string } } }): void {

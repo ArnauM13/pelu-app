@@ -3,7 +3,7 @@ import { SystemParametersService } from './system-parameters.service';
 import { AuthService } from '../auth/auth.service';
 import { Booking } from '../interfaces/booking.interface';
 import { FirebaseServicesService } from './firebase-services.service';
-import { TimeSlot } from '../../shared/utils/time.utils';
+import { TimeSlot, TimeUtils } from '../../shared/utils/time.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +12,7 @@ export class BookingValidationService {
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly authService = inject(AuthService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
+  private readonly timeUtils = inject(TimeUtils);
 
   /**
    * Validates if a booking can be made at the specified time
@@ -142,7 +143,7 @@ export class BookingValidationService {
     const bookingEnd = new Date(bookingStart.getTime() + serviceDuration * 60 * 1000);
 
     // Check conflicts with existing bookings
-    const dateString = this.formatDateISO(bookingDate);
+    const dateString = this.timeUtils.formatDateISO(bookingDate);
 
     return allBookings.some(existingBooking => {
       // Only check confirmed bookings on the same date
@@ -174,12 +175,7 @@ export class BookingValidationService {
     });
   }
 
-  /**
-   * Formats a date to ISO string format (YYYY-MM-DD)
-   */
-  private formatDateISO(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
+
 
   /**
    * Checks if a service would overlap with blocked hours (lunch break)
@@ -233,7 +229,7 @@ export class BookingValidationService {
    * Checks if a slot is booked for a given date and time
    */
   isSlotBooked(date: Date, time: string, serviceDuration: number, allBookings: Booking[]): boolean {
-    const dateString = this.formatDateISO(date);
+    const dateString = this.timeUtils.formatDateISO(date);
     const [startHour, startMinute] = time.split(':').map(Number);
 
     // Calculate time ranges
@@ -274,7 +270,7 @@ export class BookingValidationService {
    * Gets the booking for a specific slot
    */
   getBookingForSlot(date: Date, time: string, serviceDuration: number, allBookings: Booking[]): Booking | undefined {
-    const dateString = this.formatDateISO(date);
+    const dateString = this.timeUtils.formatDateISO(date);
     const [startHour, startMinute] = time.split(':').map(Number);
 
     // Calculate the time range for the slot we're checking
@@ -348,7 +344,7 @@ export class BookingValidationService {
     const startHour = businessHours.start;
     const endHour = businessHours.end;
     const now = new Date();
-    const isToday = this.isSameDay(date, now);
+    const isToday = this.timeUtils.isSameDay(date, now);
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotDuration) {
@@ -416,14 +412,7 @@ export class BookingValidationService {
     return service?.icon || '🔧';
   }
 
-  /**
-   * Checks if two dates are the same day
-   */
-  private isSameDay(date1: Date, date2: Date): boolean {
-    return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
-  }
+
 
   /**
    * Validates if the current user can book more appointments
