@@ -630,4 +630,91 @@ export class TimeUtils {
     }
     return `${hours}h ${remainingMinutes}min`;
   }
+
+  /**
+   * Format date string to display format (e.g., "dilluns, 15 de gener de 2024")
+   */
+  formatDateString(dateString: string): string {
+    try {
+      const date = parseISO(dateString);
+      if (!isValid(date)) {
+        return dateString;
+      }
+      return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: this.DEFAULT_LOCALE });
+    } catch {
+      return dateString;
+    }
+  }
+
+  /**
+   * Format time string (HH:MM)
+   */
+  formatTimeString(timeString: string): string {
+    try {
+      const [hours, minutes] = timeString.split(':');
+      return `${hours}:${minutes}`;
+    } catch {
+      return timeString;
+    }
+  }
+
+  /**
+   * Check if a date string is today
+   */
+  isTodayDateString(dateString: string): boolean {
+    try {
+      const date = parseISO(dateString);
+      if (!isValid(date)) {
+        return false;
+      }
+      return isToday(date);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if a date string is in the past
+   */
+  isPastDateString(dateString: string): boolean {
+    try {
+      const date = parseISO(dateString);
+      if (!isValid(date)) {
+        return false;
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return date < today;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if a date string is in the future
+   */
+  isFutureDateString(dateString: string): boolean {
+    try {
+      const date = parseISO(dateString);
+      if (!isValid(date)) {
+        return false;
+      }
+      return isFuture(startOfDay(date));
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Get status badge info for a date string
+   */
+  getDateStatus(dateString: string): { text: string; class: string } {
+    if (this.isTodayDateString(dateString)) {
+      return { text: 'COMMON.TIME.TODAY', class: 'today' };
+    }
+    if (this.isPastDateString(dateString)) {
+      return { text: 'COMMON.TIME.PAST', class: 'past' };
+    }
+    return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
+  }
 }

@@ -77,11 +77,6 @@ describe('PopupModalComponent', () => {
 
   it('should have proper component type', () => {
     expect(typeof PopupModalComponent).toBe('function');
-    expect(PopupModalComponent.name).toBe('PopupModalComponent');
-  });
-
-  it('should have proper component type', () => {
-    expect(typeof PopupModalComponent).toBe('function');
-    expect(PopupModalComponent.name).toBe('PopupModalComponent');
+    expect(PopupModalComponent.name).toBe('PopupModalComponent2');
   });
 });
