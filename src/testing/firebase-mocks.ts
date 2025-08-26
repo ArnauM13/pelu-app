@@ -259,6 +259,8 @@ export const mockAuthService: jasmine.SpyObj<AuthService> = jasmine.createSpyObj
     'canActivate',
     'canActivateAsync',
     'saveCurrentUserLanguage',
+    'isAuthenticated',
+    'isInitialized',
   ],
   {
     registre: jasmine.createSpy('registre').and.returnValue(Promise.resolve({ user: mockUser })),
@@ -272,10 +274,10 @@ export const mockAuthService: jasmine.SpyObj<AuthService> = jasmine.createSpyObj
     canActivate: jasmine.createSpy('canActivate').and.returnValue(true),
     canActivateAsync: jasmine.createSpy('canActivateAsync').and.returnValue(Promise.resolve(true)),
     saveCurrentUserLanguage: jasmine.createSpy('saveCurrentUserLanguage'),
+    isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(true),
+    isInitialized: jasmine.createSpy('isInitialized').and.returnValue(true),
     user: computed(() => mockUser),
     isLoading: computed(() => false),
-    isInitialized: computed(() => true),
-    isAuthenticated: computed(() => true),
     userDisplayName: computed(() => 'Test User'),
   }
 );
@@ -290,14 +292,28 @@ export const mockMessageService: jasmine.SpyObj<MessageService> = jasmine.create
   }
 );
 
+// Create a more comprehensive mock for ConfirmationService
+const mockConfirmationServiceObj = {
+  onAccept: of({}),
+  onReject: of({}),
+  onClose: of({}),
+  confirm: jasmine.createSpy('confirm'),
+  close: jasmine.createSpy('close'),
+  require: jasmine.createSpy('require'),
+  // Add missing properties that p-confirmDialog expects
+  accept: jasmine.createSpy('accept'),
+  reject: jasmine.createSpy('reject'),
+  clear: jasmine.createSpy('clear'),
+  // Add the observable properties that p-confirmDialog subscribes to
+  onAccept$: of({}),
+  onReject$: of({}),
+  onClose$: of({}),
+};
+
 export const mockConfirmationService: jasmine.SpyObj<ConfirmationService> = jasmine.createSpyObj(
   'ConfirmationService',
-  ['confirm', 'close', 'require'],
-  {
-    onAccept: of(),
-    onReject: of(),
-    onClose: of(),
-  }
+  ['confirm', 'close', 'require', 'accept', 'reject', 'clear'],
+  mockConfirmationServiceObj
 );
 
 // Mock Router

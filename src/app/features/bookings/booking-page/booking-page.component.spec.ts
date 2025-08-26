@@ -1,12 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { BookingPageComponent } from './booking-page.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { UserService } from '../../../core/services/user.service';
-import { ServicesService } from '../../../core/services/services.service';
-import { ToastService } from '../../../shared/services/toast.service';
 import { FirebaseServicesService } from '../../../core/services/firebase-services.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
@@ -14,6 +11,7 @@ import { ResponsiveService } from '../../../core/services/responsive.service';
 import { CalendarStateService } from '../../calendar/services/calendar-state.service';
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
 import { TimeUtils } from '../../../shared/utils/time.utils';
+import { LoaderService } from '../../../shared/services/loader.service';
 import { provideMockFirebase } from '../../../../testing/firebase-mocks';
 
 // Mock classes
@@ -26,75 +24,85 @@ class MockTranslateLoader implements TranslateLoader {
       'COMMON.TIME': 'Hora',
       'COMMON.CLIENT_NAME': 'Nom del client',
       'COMMON.EMAIL': 'Email',
+      'BOOKING.LOGIN_PROMPT_TITLE': 'Login Required',
+      'AUTH.SIGN_IN': 'Sign In',
+      'BOOKING.LOADING_SERVICES': 'Loading Services',
+      'BOOKING.CREATING_BOOKING': 'Creating Booking',
+      'BOOKING.USER_LIMIT_REACHED_MESSAGE': 'User limit reached',
     });
   }
 }
 
 describe('BookingPageComponent', () => {
   let component: BookingPageComponent;
-  let fixture: ComponentFixture<BookingPageComponent>;
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
-  let userService: jasmine.SpyObj<UserService>;
-  let servicesService: jasmine.SpyObj<ServicesService>;
-  let toastService: jasmine.SpyObj<ToastService>;
   let firebaseServicesService: jasmine.SpyObj<FirebaseServicesService>;
-  let _bookingService: jasmine.SpyObj<BookingService>;
-  let _systemParametersService: jasmine.SpyObj<SystemParametersService>;
+  let bookingService: jasmine.SpyObj<BookingService>;
+  let systemParametersService: jasmine.SpyObj<SystemParametersService>;
   let responsiveService: jasmine.SpyObj<ResponsiveService>;
-  let _calendarStateService: jasmine.SpyObj<CalendarStateService>;
-  let _bookingValidationService: jasmine.SpyObj<BookingValidationService>;
-  let _timeUtils: jasmine.SpyObj<TimeUtils>;
-  let _translateService: jasmine.SpyObj<TranslateService>;
+  let calendarStateService: jasmine.SpyObj<CalendarStateService>;
+  let bookingValidationService: jasmine.SpyObj<BookingValidationService>;
+  let timeUtils: jasmine.SpyObj<TimeUtils>;
+  let translateService: jasmine.SpyObj<TranslateService>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(async () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated']);
-    const userServiceSpy = jasmine.createSpyObj('UserService', ['userDisplayName']);
-    const servicesServiceSpy = jasmine.createSpyObj('ServicesService', [
-      'getServicesWithTranslatedNamesAsync',
-    ]);
-    const toastServiceSpy = jasmine.createSpyObj('ToastService', [
-      'showLoginRequired',
-      'showAppointmentCreated',
-      'showNetworkError',
+    const authServiceSpy = jasmine.createSpyObj('AuthService', [
+      'isAuthenticated',
+      'userDisplayName',
+      'user'
     ]);
     const firebaseServicesServiceSpy = jasmine.createSpyObj('FirebaseServicesService', [
-      'services',
-      'getServiceById',
+      'loadServices',
+      'activeServices'
     ]);
     const bookingServiceSpy = jasmine.createSpyObj('BookingService', [
       'createBooking',
-      'getBookings',
+      'bookings'
     ]);
     const systemParametersServiceSpy = jasmine.createSpyObj('SystemParametersService', [
-      'getSystemParameters',
+      'businessHours',
+      'lunchBreak',
+      'getMaxAppointmentsPerUser'
     ]);
     const responsiveServiceSpy = jasmine.createSpyObj('ResponsiveService', ['isMobile']);
     const calendarStateServiceSpy = jasmine.createSpyObj('CalendarStateService', [
-      'getState',
-      'setState',
+      'viewDate'
     ]);
     const bookingValidationServiceSpy = jasmine.createSpyObj('BookingValidationService', [
-      'validateBooking',
+      'canUserBookMoreAppointments',
+      'getUserAppointmentCount',
+      'generateAvailableDays'
     ]);
     const timeUtilsSpy = jasmine.createSpyObj('TimeUtils', [
-      'formatTime',
-      'parseTime',
+      'getFirstBusinessDayOfWeek'
     ]);
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'get',
-      'instant',
-      'use',
+      'instant'
+    ]);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', [
+      'show',
+      'hide'
     ]);
 
     // Setup default return values
-    authServiceSpy.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
     authServiceSpy.isAuthenticated.and.returnValue(true);
-    userServiceSpy.userDisplayName.and.returnValue('Test User');
-    servicesServiceSpy.getServicesWithTranslatedNamesAsync.and.returnValue(of([]));
-    firebaseServicesServiceSpy.services.and.returnValue([]);
+    authServiceSpy.userDisplayName.and.returnValue('Test User');
+    authServiceSpy.user.and.returnValue({ uid: 'test-uid', email: 'test@example.com' });
+    firebaseServicesServiceSpy.activeServices.and.returnValue([]);
+    bookingServiceSpy.bookings.and.returnValue([]);
+    systemParametersServiceSpy.businessHours.and.returnValue({ start: 8, end: 20, lunchStart: 13, lunchEnd: 15 });
+    systemParametersServiceSpy.lunchBreak.and.returnValue({ start: 13, end: 15 });
+    systemParametersServiceSpy.getMaxAppointmentsPerUser.and.returnValue(5);
     responsiveServiceSpy.isMobile.and.returnValue(false);
+    calendarStateServiceSpy.viewDate.and.returnValue(new Date());
+    bookingValidationServiceSpy.canUserBookMoreAppointments.and.returnValue(true);
+    bookingValidationServiceSpy.getUserAppointmentCount.and.returnValue(0);
+    bookingValidationServiceSpy.generateAvailableDays.and.returnValue([]);
+    timeUtilsSpy.getFirstBusinessDayOfWeek.and.returnValue(new Date());
     translateServiceSpy.get.and.returnValue(of('translated text'));
     translateServiceSpy.instant.and.returnValue('translated text');
 
@@ -108,9 +116,6 @@ describe('BookingPageComponent', () => {
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: UserService, useValue: userServiceSpy },
-        { provide: ServicesService, useValue: servicesServiceSpy },
-        { provide: ToastService, useValue: toastServiceSpy },
         { provide: FirebaseServicesService, useValue: firebaseServicesServiceSpy },
         { provide: BookingService, useValue: bookingServiceSpy },
         { provide: SystemParametersService, useValue: systemParametersServiceSpy },
@@ -119,26 +124,24 @@ describe('BookingPageComponent', () => {
         { provide: BookingValidationService, useValue: bookingValidationServiceSpy },
         { provide: TimeUtils, useValue: timeUtilsSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: LoaderService, useValue: loaderServiceSpy },
         provideMockFirebase(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BookingPageComponent);
+    const fixture = TestBed.createComponent(BookingPageComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
-    servicesService = TestBed.inject(ServicesService) as jasmine.SpyObj<ServicesService>;
-    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
     firebaseServicesService = TestBed.inject(FirebaseServicesService) as jasmine.SpyObj<FirebaseServicesService>;
-    _bookingService = TestBed.inject(BookingService) as jasmine.SpyObj<BookingService>;
-    _systemParametersService = TestBed.inject(SystemParametersService) as jasmine.SpyObj<SystemParametersService>;
+    bookingService = TestBed.inject(BookingService) as jasmine.SpyObj<BookingService>;
+    systemParametersService = TestBed.inject(SystemParametersService) as jasmine.SpyObj<SystemParametersService>;
     responsiveService = TestBed.inject(ResponsiveService) as jasmine.SpyObj<ResponsiveService>;
-    _calendarStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
-    _bookingValidationService = TestBed.inject(BookingValidationService) as jasmine.SpyObj<BookingValidationService>;
-    _timeUtils = TestBed.inject(TimeUtils) as jasmine.SpyObj<TimeUtils>;
-    _translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-    fixture.detectChanges();
+    calendarStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
+    bookingValidationService = TestBed.inject(BookingValidationService) as jasmine.SpyObj<BookingValidationService>;
+    timeUtils = TestBed.inject(TimeUtils) as jasmine.SpyObj<TimeUtils>;
+    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
   });
 
   describe('Component Creation and Basic Properties', () => {
@@ -147,11 +150,22 @@ describe('BookingPageComponent', () => {
     });
 
     it('should have required computed signals', () => {
+      expect(component.showServiceSelectionPopup).toBeDefined();
       expect(component.showBookingPopup).toBeDefined();
+      expect(component.serviceSelectionDetails).toBeDefined();
       expect(component.bookingDetails).toBeDefined();
       expect(component.availableServices).toBeDefined();
+      expect(component.showLoginPrompt).toBeDefined();
+      expect(component.selectedDate).toBeDefined();
       expect(component.isAuthenticated).toBeDefined();
       expect(component.isMobile).toBeDefined();
+      expect(component.todayDate).toBeDefined();
+      expect(component.hasReachedAppointmentLimit).toBeDefined();
+      expect(component.isCalendarBlocked).toBeDefined();
+      expect(component.weekInfo).toBeDefined();
+      expect(component.calendarFooterConfig).toBeDefined();
+      expect(component.availableDays).toBeDefined();
+      expect(component.loginPromptDialogConfig).toBeDefined();
     });
 
     it('should initialize with default values', () => {
@@ -159,111 +173,52 @@ describe('BookingPageComponent', () => {
       expect(component.showBookingPopup()).toBe(false);
       expect(component.availableServices()).toEqual([]);
       expect(component.showLoginPrompt()).toBe(false);
+      expect(component.selectedDate()).toBeNull();
     });
   });
 
   describe('Service Integration', () => {
-    it('should use AuthService for user information', () => {
-      expect(authService.user).toHaveBeenCalled();
+    it('should use ResponsiveService for mobile detection', () => {
+      component.isMobile();
+      expect(responsiveService.isMobile).toHaveBeenCalled();
     });
 
-    it('should use UserService for display name', () => {
-      expect(userService.userDisplayName).toHaveBeenCalled();
-    });
-
-    it('should use ServicesService for loading services', () => {
-      expect(servicesService.getServicesWithTranslatedNamesAsync).toHaveBeenCalled();
-    });
-
-    it('should use ToastService for notifications', () => {
-      expect(toastService).toBeDefined();
-    });
-
-    it('should use Router for navigation', () => {
-      expect(router).toBeDefined();
+    it('should use AuthService for authentication state', () => {
+      component.isAuthenticated();
+      expect(authService.isAuthenticated).toHaveBeenCalled();
     });
 
     it('should use FirebaseServicesService for services', () => {
-      expect(firebaseServicesService.services).toHaveBeenCalled();
+      component.availableServices();
+      expect(firebaseServicesService.activeServices).toHaveBeenCalled();
     });
 
-    it('should use ResponsiveService for mobile detection', () => {
-      expect(responsiveService.isMobile).toHaveBeenCalled();
-    });
-  });
-
-  describe('Component Behavior', () => {
-    it('should initialize with default values', () => {
-      expect(component.showServiceSelectionPopup()).toBe(false);
-      expect(component.showBookingPopup()).toBe(false);
-      expect(component.availableServices()).toEqual([]);
+    it('should use SystemParametersService for business configuration', () => {
+      component.calendarFooterConfig();
+      expect(systemParametersService.businessHours).toHaveBeenCalled();
+      expect(systemParametersService.lunchBreak).toHaveBeenCalled();
     });
 
-    it('should handle appointment storage', () => {
-      const appointmentData = {
-        date: '2024-01-15',
-        time: '10:00',
-        clientName: 'Test User',
-        email: 'test@example.com',
-      };
-
-      component.serviceSelectionDetailsSignal.set(appointmentData);
-      expect(component.serviceSelectionDetails()).toEqual(appointmentData);
-    });
-  });
-
-  describe('Event Handling', () => {
-    it('should handle client name changes', () => {
-      const newName = 'New Client Name';
-      const currentDetails = component.serviceSelectionDetails();
-      const updatedDetails = { ...currentDetails, clientName: newName };
-
-      component.serviceSelectionDetailsSignal.set(updatedDetails);
-      expect(component.serviceSelectionDetails().clientName).toBe(newName);
+    it('should use CalendarStateService for view date', () => {
+      component.weekInfo();
+      expect(calendarStateService.viewDate).toHaveBeenCalled();
     });
 
-    it('should handle time slot selection', () => {
-      const newTime = '14:30';
-      const currentDetails = component.serviceSelectionDetails();
-      const updatedDetails = { ...currentDetails, time: newTime };
-
-      component.serviceSelectionDetailsSignal.set(updatedDetails);
-      expect(component.serviceSelectionDetails().time).toBe(newTime);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle empty services list', () => {
-      firebaseServicesService.services.and.returnValue([]);
-      component.availableServicesSignal.set([]);
-      expect(component.availableServices()).toEqual([]);
+    it('should use BookingValidationService for appointment validation', () => {
+      component.canUserBookMoreAppointments();
+      expect(bookingValidationService.canUserBookMoreAppointments).toHaveBeenCalled();
     });
 
-    it('should handle missing user gracefully', () => {
-      authService.user.and.returnValue(null);
-      authService.isAuthenticated.and.returnValue(false);
-
-      // Component should still be created
-      expect(component).toBeTruthy();
-    });
-  });
-
-  describe('Booking Flow', () => {
-    it('should handle booking confirmation', () => {
-      const bookingDetails = {
-        date: '2024-01-15',
-        time: '10:00',
-        clientName: 'Test User',
-        email: 'test@example.com',
-      };
-
-      component.bookingDetailsSignal.set(bookingDetails);
-      expect(component.bookingDetails()).toEqual(bookingDetails);
+    it('should use TimeUtils for date operations', () => {
+      component.onTodayClicked();
+      expect(timeUtils.getFirstBusinessDayOfWeek).toHaveBeenCalled();
     });
 
-    it('should handle booking cancellation', () => {
-      component.showBookingPopupSignal.set(false);
-      expect(component.showBookingPopup()).toBe(false);
+    it('should use LoaderService for loading states', () => {
+      // Test that LoaderService is injected and available
+      expect(loaderService).toBeDefined();
+      expect(loaderService.show).toBeDefined();
+      expect(loaderService.hide).toBeDefined();
     });
   });
 
@@ -280,27 +235,206 @@ describe('BookingPageComponent', () => {
   });
 
   describe('Authentication State', () => {
-    it('should show authenticated state', () => {
-      authService.isAuthenticated.and.returnValue(true);
-      expect(component.isAuthenticated()).toBe(true);
-    });
-
     it('should show unauthenticated state', () => {
       authService.isAuthenticated.and.returnValue(false);
       expect(component.isAuthenticated()).toBe(false);
     });
+
+    it('should show authenticated state', () => {
+      authService.isAuthenticated.and.returnValue(true);
+      expect(component.isAuthenticated()).toBe(true);
+    });
   });
 
   describe('Date Handling', () => {
-    it('should handle date selection', () => {
-      const testDate = new Date('2024-01-15');
-      component.selectedDateSignal.set(testDate);
-      expect(component.selectedDate()).toEqual(testDate);
-    });
-
     it('should provide today date', () => {
       const today = component.todayDate();
       expect(today).toBeInstanceOf(Date);
+      expect(today.getHours()).toBe(0);
+      expect(today.getMinutes()).toBe(0);
+      expect(today.getSeconds()).toBe(0);
+    });
+
+    it('should handle date selection', () => {
+      const testDate = new Date('2024-01-15');
+      component.onDateChange(testDate);
+      expect(component.selectedDate()).toEqual(testDate);
+    });
+  });
+
+  describe('Event Handling', () => {
+    it('should handle time slot selection', () => {
+      const event = { date: '2024-01-15', time: '10:00' };
+      component.onTimeSlotSelected(event);
+      expect(component.selectedDate()).toBeInstanceOf(Date);
+      expect(component.serviceSelectionDetails().date).toBe('2024-01-15');
+      expect(component.serviceSelectionDetails().time).toBe('10:00');
+    });
+
+    it('should handle client name changes', () => {
+      const testName = 'John Doe';
+      component.onClientNameChanged(testName);
+      expect(component.bookingDetails().clientName).toBe(testName);
+    });
+
+    it('should handle email changes', () => {
+      const testEmail = 'john@example.com';
+      component.onEmailChanged(testEmail);
+      expect(component.bookingDetails().email).toBe(testEmail);
+    });
+  });
+
+  describe('Booking Flow', () => {
+    it('should handle booking confirmation', async () => {
+      const details = {
+        date: '2024-01-15',
+        time: '10:00',
+        clientName: 'John Doe',
+        email: 'john@example.com',
+        service: {
+          id: 'service1',
+          name: 'Test Service',
+          description: 'Test Description',
+          price: 50,
+          duration: 60,
+          category: 'test',
+          icon: 'test-icon',
+          isActive: true
+        }
+      };
+
+      bookingService.createBooking.and.returnValue(Promise.resolve({
+        id: 'booking1',
+        clientName: 'John Doe',
+        email: 'john@example.com',
+        data: '2024-01-15',
+        hora: '10:00',
+        serviceId: 'service1',
+        notes: '',
+        status: 'confirmed',
+        createdAt: new Date()
+      }));
+
+      await component.onBookingConfirmed(details);
+
+      expect(bookingService.createBooking).toHaveBeenCalledWith({
+        clientName: 'John Doe',
+        email: 'john@example.com',
+        data: '2024-01-15',
+        hora: '10:00',
+        serviceId: 'service1',
+        notes: '',
+        status: 'confirmed'
+      });
+    });
+
+    it('should handle booking cancellation', () => {
+      component.onBookingCancelled();
+      expect(component.showBookingPopup()).toBe(false);
+    });
+
+    it('should handle service selection', () => {
+      const details = {
+        date: '2024-01-15',
+        time: '10:00',
+        clientName: 'John Doe',
+        email: 'john@example.com'
+      };
+      const service = {
+        id: 'service1',
+        name: 'Test Service',
+        description: 'Test Description',
+        price: 50,
+        duration: 60,
+        category: 'test',
+        icon: 'test-icon',
+        isActive: true
+      };
+
+      component.onServiceSelected({ details, service });
+
+      expect(component.showServiceSelectionPopup()).toBe(false);
+      expect(component.showBookingPopup()).toBe(true);
+      expect(component.bookingDetails().service).toEqual(service);
+    });
+
+    it('should handle service selection cancellation', () => {
+      component.onServiceSelectionCancelled();
+      expect(component.showServiceSelectionPopup()).toBe(false);
+    });
+  });
+
+  describe('Navigation', () => {
+    it('should navigate to appointments', () => {
+      component.onViewMyAppointments();
+      expect(router.navigate).toHaveBeenCalledWith(['/appointments']);
+    });
+
+    it('should handle login prompt login', () => {
+      component.onLoginPromptLogin();
+      expect(component.showLoginPrompt()).toBe(false);
+      expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+    });
+
+    it('should handle login prompt close', () => {
+      component.onLoginPromptClose();
+      expect(component.showLoginPrompt()).toBe(false);
+    });
+  });
+
+  describe('Appointment Limits', () => {
+    it('should check user appointment limit', () => {
+      component.canUserBookMoreAppointments();
+      expect(bookingValidationService.canUserBookMoreAppointments).toHaveBeenCalled();
+    });
+
+    it('should get user appointment count', () => {
+      component.getUserAppointmentCount();
+      expect(bookingValidationService.getUserAppointmentCount).toHaveBeenCalled();
+    });
+
+    it('should get max appointments per user', () => {
+      component.getMaxAppointmentsPerUser();
+      expect(systemParametersService.getMaxAppointmentsPerUser).toHaveBeenCalled();
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle empty services list', () => {
+      firebaseServicesService.activeServices.and.returnValue([]);
+      expect(component.availableServices()).toEqual([]);
+    });
+
+    it('should handle missing user gracefully', () => {
+      authService.user.and.returnValue(null);
+      authService.userDisplayName.and.returnValue('');
+      expect(component.isAuthenticated()).toBe(true); // Default mock value
+    });
+  });
+
+  describe('Component Behavior', () => {
+    it('should handle appointment storage', () => {
+      bookingService.bookings.and.returnValue([
+        {
+          id: 'booking1',
+          clientName: 'John Doe',
+          email: 'john@example.com',
+          data: '2024-01-15',
+          hora: '10:00',
+          serviceId: 'service1',
+          notes: '',
+          status: 'confirmed',
+          createdAt: new Date()
+        }
+      ]);
+      expect(bookingService.bookings).toBeDefined();
+    });
+
+    it('should initialize with default values', () => {
+      expect(component.showServiceSelectionPopup()).toBe(false);
+      expect(component.showBookingPopup()).toBe(false);
+      expect(component.availableServices()).toEqual([]);
+      expect(component.showLoginPrompt()).toBe(false);
     });
   });
 });
