@@ -3,6 +3,9 @@ import { AppointmentSlotComponent, AppointmentSlotData } from './appointment-slo
 import { CalendarCoreService } from '../services/calendar-core.service';
 import { AppointmentEvent } from '../core/calendar.component';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { provideMockFirebase } from '../../../../testing/firebase-mocks';
 
 describe('AppointmentSlotComponent', () => {
   let component: AppointmentSlotComponent;
@@ -32,10 +35,18 @@ describe('AppointmentSlotComponent', () => {
     ]);
 
     await TestBed.configureTestingModule({
-      imports: [AppointmentSlotComponent],
+      imports: [
+        AppointmentSlotComponent,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: class MockTranslateLoader implements TranslateLoader {
+            getTranslation() { return of({}); }
+          }}
+        })
+      ],
       providers: [
         { provide: CalendarCoreService, useValue: coreSpy },
         { provide: ServiceColorsService, useValue: colorsSpy },
+        provideMockFirebase(),
       ],
     }).compileComponents();
 

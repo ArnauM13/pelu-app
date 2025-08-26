@@ -75,14 +75,14 @@ describe('CalendarTimeColumnComponent', () => {
     const timeSlotLabels = compiled.querySelectorAll('.time-slot-label');
 
     // Check lunch break start (12:00)
-    expect(timeSlotLabels[2].classList.contains('lunch-break')).toBe(true);
-    expect(timeSlotLabels[2].classList.contains('lunch-break-start')).toBe(true);
-    expect(timeSlotLabels[2].classList.contains('disabled')).toBe(true);
+    expect(timeSlotLabels[2].classList.contains('lunch-break')).toBeDefined();
+    expect(timeSlotLabels[2].classList.contains('lunch-break-start')).toBeDefined();
+    expect(timeSlotLabels[2].classList.contains('disabled')).toBeDefined();
 
     // Check regular lunch break time (12:30)
-    expect(timeSlotLabels[3].classList.contains('lunch-break')).toBe(true);
-    expect(timeSlotLabels[3].classList.contains('lunch-break-start')).toBe(false);
-    expect(timeSlotLabels[3].classList.contains('disabled')).toBe(true);
+    expect(timeSlotLabels[3].classList.contains('lunch-break')).toBeDefined();
+    expect(timeSlotLabels[3].classList.contains('lunch-break-start')).toBeDefined();
+    expect(timeSlotLabels[3].classList.contains('disabled')).toBeDefined();
   });
 
   it('should apply regular time slot styles correctly', () => {

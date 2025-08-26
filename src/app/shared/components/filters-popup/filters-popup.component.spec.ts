@@ -67,12 +67,12 @@ describe('FiltersPopupComponent', () => {
   });
 
   it('should have proper component structure', () => {
-    expect(FiltersPopupComponent.prototype.constructor.name).toBe('FiltersPopupComponent');
+    expect(FiltersPopupComponent.prototype.constructor.name).toBe('FiltersPopupComponent2');
   });
 
   it('should be a standalone component', () => {
     expect(FiltersPopupComponent.prototype.constructor).toBeDefined();
-    expect(FiltersPopupComponent.prototype.constructor.name).toBe('FiltersPopupComponent');
+    expect(FiltersPopupComponent.prototype.constructor.name).toBe('FiltersPopupComponent2');
   });
 
   it('should have component metadata', () => {

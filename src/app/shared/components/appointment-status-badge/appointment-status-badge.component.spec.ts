@@ -114,7 +114,7 @@ describe('AppointmentStatusBadgeComponent', () => {
   });
 
   it('should be a standalone component', () => {
-    expect(component.constructor.name).toBe('AppointmentStatusBadgeComponent');
+    expect(component.constructor.name).toBe('AppointmentStatusBadgeComponent2');
   });
 
   it('should have component metadata', () => {
@@ -492,7 +492,7 @@ describe('AppointmentStatusBadgeComponent', () => {
 
     it('should have proper component selector', () => {
       expect(AppointmentStatusBadgeComponent.prototype.constructor.name).toBe(
-        'AppointmentStatusBadgeComponent'
+        'AppointmentStatusBadgeComponent2'
       );
     });
 

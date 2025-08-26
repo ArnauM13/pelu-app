@@ -1,6 +1,7 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { Auth } from '@angular/fire/auth';
+import { Firestore } from '@angular/fire/firestore';
 import { provideRouter } from '@angular/router';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
 import { TranslationService } from './core/services/translation.service';
@@ -8,9 +9,10 @@ import { AuthService } from './core/auth/auth.service';
 import { ScrollService } from './core/services/scroll.service';
 import { ToastService } from './shared/services/toast.service';
 import { LoggerService } from './shared/services/logger.service';
+import { HybridEmailService } from './core/services/hybrid-email.service';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
-import { mockAuth, mockTranslateStore, mockTranslationService } from '../testing/firebase-mocks';
+import { mockAuth, mockFirestore, mockTranslateStore, mockTranslationService } from '../testing/firebase-mocks';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -20,6 +22,7 @@ describe('AppComponent', () => {
   let toastService: jasmine.SpyObj<ToastService>;
   let translateService: jasmine.SpyObj<TranslateService>;
   let loggerService: jasmine.SpyObj<LoggerService>;
+  let emailService: jasmine.SpyObj<HybridEmailService>;
 
   beforeEach(async () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', [
@@ -57,6 +60,11 @@ describe('AppComponent', () => {
       'debug',
       'firebaseError',
     ]);
+    const emailServiceSpy = jasmine.createSpyObj('HybridEmailService', [
+      'initializeEmailJS',
+      'sendBookingConfirmationEmail',
+      'isInDemoMode',
+    ]);
 
     // Setup default spy returns
     authServiceSpy.user.and.returnValue({
@@ -84,6 +92,7 @@ describe('AppComponent', () => {
       imports: [AppComponent],
       providers: [
         { provide: Auth, useValue: mockAuth },
+        { provide: Firestore, useValue: mockFirestore },
         { provide: TranslateService, useValue: translateServiceSpy },
         { provide: TranslateStore, useValue: mockTranslateStore },
         { provide: TranslationService, useValue: mockTranslationService },
@@ -91,6 +100,7 @@ describe('AppComponent', () => {
         { provide: ScrollService, useValue: scrollServiceSpy },
         { provide: ToastService, useValue: toastServiceSpy },
         { provide: LoggerService, useValue: loggerServiceSpy },
+        { provide: HybridEmailService, useValue: emailServiceSpy },
         MessageService,
         ConfirmationService,
         provideRouter([]),
@@ -106,6 +116,7 @@ describe('AppComponent', () => {
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
     loggerService = TestBed.inject(LoggerService) as jasmine.SpyObj<LoggerService>;
+    emailService = TestBed.inject(HybridEmailService) as jasmine.SpyObj<HybridEmailService>;
   });
 
   describe('Component Creation and Basic Properties', () => {
@@ -229,6 +240,12 @@ describe('AppComponent', () => {
       expect(toastService).toBeDefined();
       expect(translateService).toBeDefined();
       expect(loggerService).toBeDefined();
+      expect(emailService).toBeDefined();
+    });
+
+    it('should initialize EmailJS on component initialization', () => {
+      component.ngOnInit();
+      expect(emailService.initializeEmailJS).toHaveBeenCalled();
     });
   });
 
