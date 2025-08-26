@@ -72,7 +72,7 @@ describe('AppointmentsViewControlsComponent', () => {
     translateSpy.getBrowserLang.and.returnValue('ca');
     translateSpy.use.and.returnValue(of({}));
     translateSpy.reloadLang.and.returnValue(of({}));
-    translateSpy.setDefaultLang.and.returnValue(undefined);
+    translateSpy.setDefaultLang.and.returnValue(of({}));
     translateSpy.getDefaultLang.and.returnValue('ca');
     translateSpy.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
 
