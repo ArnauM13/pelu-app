@@ -71,7 +71,7 @@ export class BookingService {
         // User logged out, clear cache
         this.clearCache();
       }
-    }, 1000); // Check every second
+    }, 2000); // Check every 2 seconds
   }
 
   /**

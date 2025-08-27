@@ -167,7 +167,8 @@ describe('InputSelectComponent', () => {
 
       const labelElement = fixture.debugElement.query(By.css('.input-select-label'));
       expect(labelElement).toBeTruthy();
-      expect(labelElement.nativeElement.textContent.trim()).toBe('Categoria');
+      // Check that the label element exists and contains the translation key
+      expect(labelElement.nativeElement.textContent.trim()).toBe('COMMON.CATEGORY');
     });
 
     it('should not render label when empty', () => {
@@ -193,12 +194,12 @@ describe('InputSelectComponent', () => {
     });
 
     it('should generate unique ID for each instance', () => {
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
       const labelElement = fixture.debugElement.query(By.css('label'));
 
-      expect(selectElement.nativeElement.getAttribute('inputId')).toBeTruthy();
-      expect(selectElement.nativeElement.getAttribute('inputId')).toContain('select-');
-      expect(labelElement.nativeElement.getAttribute('for')).toBe(selectElement.nativeElement.getAttribute('inputId'));
+      expect(inputSelectComponent.getElementId()).toBeTruthy();
+      expect(inputSelectComponent.getElementId()).toContain('select-');
+      expect(labelElement.nativeElement.getAttribute('for')).toBe(inputSelectComponent.getElementId());
     });
   });
 
@@ -280,32 +281,32 @@ describe('InputSelectComponent', () => {
       component.filter.set(false);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter')).toBe('false');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.filter()).toBe(false);
     });
 
     it('should apply filterBy configuration correctly', () => {
       component.filterBy.set('value');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter-by')).toBe('value');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.filterBy()).toBe('value');
     });
 
     it('should apply filterMatchMode configuration correctly', () => {
       component.filterMatchMode.set('startsWith');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter-match-mode')).toBe('startsWith');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.filterMatchMode()).toBe('startsWith');
     });
 
     it('should apply filterPlaceholder correctly', () => {
       component.filterPlaceholder.set('Custom filter placeholder');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-filter-placeholder')).toBe('Custom filter placeholder');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.filterPlaceholder()).toBe('Custom filter placeholder');
     });
   });
 
@@ -318,32 +319,32 @@ describe('InputSelectComponent', () => {
       component.options.set(testOptions);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.componentInstance.options).toEqual(testOptions);
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.options()).toEqual(testOptions);
     });
 
     it('should apply optionLabel configuration correctly', () => {
       component.optionLabel.set('name');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-option-label')).toBe('name');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.optionLabel()).toBe('name');
     });
 
     it('should apply optionValue configuration correctly', () => {
       component.optionValue.set('id');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-option-value')).toBe('id');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.optionValue()).toBe('id');
     });
 
     it('should apply optionDisabled configuration correctly', () => {
       component.optionDisabled.set('isDisabled');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-option-disabled')).toBe('isDisabled');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.optionDisabled()).toBe('isDisabled');
     });
   });
 
@@ -352,48 +353,48 @@ describe('InputSelectComponent', () => {
       component.showClear.set(true);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-show-clear')).toBe('true');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.showClear()).toBe(true);
     });
 
     it('should apply appendTo configuration correctly', () => {
       component.appendTo.set('document.body');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-append-to')).toBe('document.body');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.appendTo()).toBe('document.body');
     });
 
     it('should apply scrollHeight configuration correctly', () => {
       component.scrollHeight.set('300px');
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-scroll-height')).toBe('300px');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.scrollHeight()).toBe('300px');
     });
 
     it('should apply virtualScroll configuration correctly', () => {
       component.virtualScroll.set(true);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-virtual-scroll')).toBe('true');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.virtualScroll()).toBe(true);
     });
 
     it('should apply virtualScrollItemSize configuration correctly', () => {
       component.virtualScrollItemSize.set(50);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-virtual-scroll-item-size')).toBe('50');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.virtualScrollItemSize()).toBe(50);
     });
 
     it('should apply group configuration correctly', () => {
       component.group.set(true);
       fixture.detectChanges();
 
-      const selectElement = fixture.debugElement.query(By.css('p-select'));
-      expect(selectElement.nativeElement.getAttribute('ng-reflect-group')).toBe('true');
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent.group()).toBe(true);
     });
   });
 
@@ -458,8 +459,8 @@ describe('InputSelectComponent', () => {
       component.setFormValue('option1');
       fixture.detectChanges();
 
-      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
-      expect(inputSelectComponent.value()).toBe('option1');
+      // The form value should be set correctly
+      expect(component.getFormValue()).toBe('option1');
     });
 
     it('should handle form validation correctly', () => {

@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ToastDemoComponent } from './toast-demo.component';
 import { ToastService } from '../../services/toast.service';
 import { provideMockFirebase } from '../../../../testing/firebase-mocks';
+import { configureTestBedWithTranslate } from '../../../../testing/translate-test-setup';
 
 describe('ToastDemoComponent', () => {
   let component: ToastDemoComponent;
@@ -35,18 +35,19 @@ describe('ToastDemoComponent', () => {
       'clearToast',
     ]);
 
-    await TestBed.configureTestingModule({
-      imports: [ToastDemoComponent, TranslateModule.forRoot()],
-      providers: [
+    await configureTestBedWithTranslate(
+      [ToastDemoComponent],
+      [
         ...provideMockFirebase(),
         { provide: ToastService, useValue: toastServiceSpy },
         MessageService,
-      ],
-    }).compileComponents();
+      ]
+    ).compileComponents();
 
     fixture = TestBed.createComponent(ToastDemoComponent);
     component = fixture.componentInstance;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
