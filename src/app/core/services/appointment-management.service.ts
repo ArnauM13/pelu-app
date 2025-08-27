@@ -6,6 +6,9 @@ import { FirebaseServicesService, FirebaseService } from './firebase-services.se
 import { ToastService } from '../../shared/services/toast.service';
 import { LoggerService } from '../../shared/services/logger.service';
 import { RoleService } from './role.service';
+import { BookingValidationService } from './booking-validation.service';
+import { BookingService } from './booking.service';
+import { TimeSlot } from '../../shared/utils/time.utils';
 
 export interface AppointmentWithService extends Booking {
   service?: FirebaseService;
@@ -22,6 +25,8 @@ export class AppointmentManagementService {
   private readonly toastService = inject(ToastService);
   private readonly logger = inject(LoggerService);
   private readonly roleService = inject(RoleService);
+  private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly bookingService = inject(BookingService);
 
   // Internal state
   private readonly appointmentSignal = signal<AppointmentWithService | null>(null);
@@ -30,8 +35,9 @@ export class AppointmentManagementService {
   private readonly hasChangesSignal = signal<boolean>(false);
   private readonly canEditSignal = signal<boolean>(false);
   private readonly canDeleteSignal = signal<boolean>(false);
-  private readonly availableTimeSlotsSignal = signal<string[]>([]);
+  private readonly availableTimeSlotsSignal = signal<TimeSlot[]>([]);
   private readonly availableServicesSignal = signal<FirebaseService[]>([]);
+  private readonly availableDaysSignal = signal<Date[]>([]);
 
   // Public computed signals
   readonly appointment = computed(() => this.appointmentSignal());
@@ -43,6 +49,7 @@ export class AppointmentManagementService {
   readonly canDelete = computed(() => this.canDeleteSignal());
   readonly availableTimeSlots = computed(() => this.availableTimeSlotsSignal());
   readonly availableServices = computed(() => this.availableServicesSignal());
+  readonly availableDays = computed(() => this.availableDaysSignal());
 
   constructor() {
     // Load available services on initialization
@@ -127,12 +134,49 @@ export class AppointmentManagementService {
 
   async loadAvailableTimeSlots(): Promise<void> {
     try {
-      // For now, return empty array since getAvailableTimeSlots doesn't exist
-      // TODO: Implement when BookingService has this method
-      this.availableTimeSlotsSignal.set([]);
+      const appointment = this.appointment();
+      if (!appointment?.data || !appointment?.serviceId) {
+        this.availableTimeSlotsSignal.set([]);
+        return;
+      }
+
+      const service = this.servicesService.services().find(s => s.id === appointment.serviceId);
+      if (!service) {
+        this.availableTimeSlotsSignal.set([]);
+        return;
+      }
+
+      const bookingDate = new Date(appointment.data);
+      const allBookings = this.bookingService.bookings();
+
+      // Filter out the current appointment to avoid showing it as occupied
+      const otherBookings = allBookings.filter(booking => booking.id !== appointment.id);
+
+      // Generate time slots for the selected date and service
+      const timeSlots = this.bookingValidationService.generateTimeSlotsForService(
+        bookingDate,
+        service.duration,
+        otherBookings
+      );
+
+      this.availableTimeSlotsSignal.set(timeSlots);
     } catch (error) {
       console.error('Error loading available time slots:', error);
       this.availableTimeSlotsSignal.set([]);
+    }
+  }
+
+  async loadAvailableDays(): Promise<void> {
+    try {
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 365); // 1 year ahead
+
+      const availableDays = this.bookingValidationService.generateAvailableDays(startDate, endDate);
+      this.availableDaysSignal.set(availableDays);
+    } catch (error) {
+      console.error('Error loading available days:', error);
+      this.availableDaysSignal.set([]);
     }
   }
 
@@ -193,8 +237,17 @@ export class AppointmentManagementService {
     this.appointmentSignal.set(updatedAppointment);
     this.hasChangesSignal.set(true);
 
-    // If date or time changed, reload available time slots
-    if (field === 'data' || field === 'hora') {
+    // If date changed, reload available time slots and days
+    if (field === 'data') {
+      this.loadAvailableDays();
+      // Wait a bit for the appointment to update, then load time slots
+      setTimeout(() => {
+        this.loadAvailableTimeSlots();
+      }, 100);
+    }
+
+    // If time changed, reload available time slots
+    if (field === 'hora') {
       this.loadAvailableTimeSlots();
     }
   }

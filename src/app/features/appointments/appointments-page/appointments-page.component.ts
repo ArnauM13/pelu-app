@@ -555,9 +555,9 @@ export class AppointmentsPageComponent {
         isSelectionMode: false
       }));
 
-      this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.BULK_DELETE_SUCCESS');
+      this.toastService.showSuccess(this.getTranslation('COMMON.STATUS.STATUS_SUCCESS'), this.getTranslation('APPOINTMENTS.BULK_DELETE_SUCCESS'));
     } catch {
-      this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.BULK_DELETE_ERROR');
+      this.toastService.showError(this.getTranslation('COMMON.ERROR'), this.getTranslation('APPOINTMENTS.BULK_DELETE_ERROR'));
     } finally {
       this.loaderService.hide();
     }
@@ -622,9 +622,9 @@ export class AppointmentsPageComponent {
 
     try {
       await this.appointmentService.deleteBooking(booking.id!);
-      this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.DELETE_SUCCESS');
+      this.toastService.showSuccess(this.getTranslation('COMMON.STATUS.STATUS_SUCCESS'), this.getTranslation('APPOINTMENTS.DELETE_SUCCESS'));
     } catch {
-      this.toastService.showError('COMMON.ERROR', 'APPOINTMENTS.DELETE_ERROR');
+      this.toastService.showError(this.getTranslation('COMMON.ERROR'), this.getTranslation('APPOINTMENTS.DELETE_ERROR'));
     } finally {
       this.loaderService.hide();
     }
@@ -777,7 +777,7 @@ export class AppointmentsPageComponent {
     if (selectedBookings.length === 0) return;
 
     this.appointmentService.exportBookingsToCSV(selectedBookings);
-    this.toastService.showSuccess('COMMON.SUCCESS', 'APPOINTMENTS.CSV_EXPORT_SUCCESS');
+    this.toastService.showSuccess(this.getTranslation('COMMON.STATUS.STATUS_SUCCESS'), this.getTranslation('APPOINTMENTS.CSV_EXPORT_SUCCESS'));
   }
 
 

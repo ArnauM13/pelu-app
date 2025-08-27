@@ -143,27 +143,39 @@
                       </pelu-input-text>
                     </div>
 
-                    <!-- Date - EDITABLE -->
+                    <!-- Date - EDITABLE with validation -->
                     <div class="form-group">
                       <pelu-input-date
                         [label]="'COMMON.DATE'"
                         [required]="true"
                         [value]="appointment()?.data || ''"
+                        [minDate]="minDate()"
+                        [maxDate]="maxDate()"
+                        [preventPastMonths]="true"
                         (valueChange)="onUpdateForm('data', $event)"
                       >
                       </pelu-input-date>
                     </div>
 
-                    <!-- Time - EDITABLE -->
+                    <!-- Time - EDITABLE with validation -->
                     <div class="form-group">
-                      <pelu-input-text
-                        [label]="'COMMON.HOURS'"
-                        [placeholder]="'HH:MM'"
-                        [required]="true"
-                        [value]="appointment()?.hora || ''"
-                        (valueChange)="onUpdateForm('hora', $event)"
-                      >
-                      </pelu-input-text>
+                      @if (isLoadingTimeSlots()) {
+                        <div class="loading-time-slots">
+                          <p>Carregant hores disponibles...</p>
+                        </div>
+                      } @else {
+                        <pelu-input-select
+                          [label]="'COMMON.HOURS'"
+                          [placeholder]="'Selecciona una hora disponible'"
+                          [required]="true"
+                          [options]="availableTimeSlotOptions()"
+                          [value]="appointment()?.hora || ''"
+                          [searchable]="true"
+                          [clearable]="false"
+                          (valueChange)="onUpdateForm('hora', $event || '')"
+                        >
+                        </pelu-input-select>
+                      }
                     </div>
 
                     <!-- Notes - EDITABLE -->

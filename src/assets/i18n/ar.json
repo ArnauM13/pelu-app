@@ -56,7 +56,8 @@
       "CONFIRM_BOOKING": "تأكيد الحجز",
       "CONTINUE": "متابعة",
       "LOGIN": "تسجيل الدخول",
-      "TRY_AGAIN": "حاول مرة أخرى"
+      "TRY_AGAIN": "حاول مرة أخرى",
+      "VIEW_DETAILS": "عرض التفاصيل"
     },
     "STATUS": {
       "LOADING": "جاري التحميل...",

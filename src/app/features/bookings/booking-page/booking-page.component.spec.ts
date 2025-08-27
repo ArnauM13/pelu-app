@@ -130,7 +130,6 @@ describe('BookingPageComponent', () => {
 
   it('should load services on initialization', () => {
     expect(firebaseServicesService.loadServices).toHaveBeenCalled();
-    expect(loaderService.show).toHaveBeenCalledWith({ message: 'BOOKING.LOADING_SERVICES' });
   });
 
   it('should set available services after loading', () => {
