@@ -1,24 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 
 import { InputNumberComponent } from './input-number.component';
+import { configureTestBedWithTranslate } from '../../../../../testing/translate-test-setup';
 
-// Mock translate loader
-class MockTranslateLoader implements TranslateLoader {
-  getTranslation() {
-    return of({
-      'COMMON.AGE': 'Edat',
-      'COMMON.PRICE': 'Preu',
-      'COMMON.QUANTITY': 'Quantitat',
-      'INPUTS.NUMBER_PLACEHOLDER': 'Introdueix un número...'
-    });
-  }
-}
+// Mock translate loader - now handled by translate-test-setup
 
 // Test wrapper component
 @Component({
@@ -129,14 +119,7 @@ describe('InputNumberComponent', () => {
   let fixture: ComponentFixture<TestWrapperComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        TestWrapperComponent,
-        TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ]
-    }).compileComponents();
+    await configureTestBedWithTranslate([TestWrapperComponent]).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
     component = fixture.componentInstance;

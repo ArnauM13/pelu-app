@@ -409,9 +409,6 @@ export class SignalDemoComponent {
       filtered = filtered.filter(user => user.isActive === isActive);
     }
 
-    // Update performance metrics
-    this.updatePerformanceMetrics();
-
     return filtered;
   });
 
@@ -431,6 +428,12 @@ export class SignalDemoComponent {
         activeFilters: Object.values(filters).filter(v => v !== 'all' && v !== ''),
         filteredCount: this.filteredUsers().length,
       });
+    });
+
+    // Effect to update performance metrics when filtered users change
+    effect(() => {
+      this.filteredUsers(); // Track the computed signal
+      this.updatePerformanceMetrics();
     });
 
     // Initialize performance tracking
