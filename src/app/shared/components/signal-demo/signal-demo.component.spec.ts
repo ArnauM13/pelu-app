@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { SignalDemoComponent } from './signal-demo.component';
 import { ToastService } from '../../services/toast.service';
 import { UserRole } from '../../../core/interfaces/user.interface';
+import { configureTestBedWithTranslate } from '../../../../testing/translate-test-setup';
 
 describe('SignalDemoComponent', () => {
   let component: SignalDemoComponent;
@@ -16,16 +16,15 @@ describe('SignalDemoComponent', () => {
       'showWarning',
     ]);
 
-    await TestBed.configureTestingModule({
-      imports: [SignalDemoComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: ToastService, useValue: toastServiceSpy },
-      ],
-    }).compileComponents();
+    await configureTestBedWithTranslate(
+      [SignalDemoComponent],
+      [{ provide: ToastService, useValue: toastServiceSpy }]
+    ).compileComponents();
 
     fixture = TestBed.createComponent(SignalDemoComponent);
     component = fixture.componentInstance;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
