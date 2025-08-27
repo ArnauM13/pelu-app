@@ -18,8 +18,8 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 
 // Factory function for TranslateHttpLoader
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+export function HttpLoaderFactory() {
+  return new TranslateHttpLoader();
 }
 
 export const appConfig: ApplicationConfig = {

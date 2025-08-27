@@ -70,7 +70,7 @@ describe('AppointmentsStatsComponent', () => {
     translateService.getBrowserLang.and.returnValue('ca');
     translateService.use.and.returnValue(of({}));
     translateService.reloadLang.and.returnValue(of({}));
-    translateService.setDefaultLang.and.returnValue(undefined);
+    translateService.setDefaultLang.and.returnValue(of({}));
     translateService.getDefaultLang.and.returnValue('ca');
     translateService.getLangs.and.returnValue(['ca', 'es', 'en', 'ar']);
 
