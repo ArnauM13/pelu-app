@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -15,28 +14,12 @@ import { BookingValidationService } from '../../../core/services/booking-validat
 import { CalendarStateService } from '../../calendar/services/calendar-state.service';
 import { TimeUtils } from '../../../shared/utils/time.utils';
 import { LoaderService } from '../../../shared/services/loader.service';
+import { configureTestBedWithTranslate } from '../../../../testing/translate-test-setup';
+import { provideMockFirebase } from '../../../../testing/firebase-mocks';
 
 // Mock services
 class MockRouter {
   navigate = jasmine.createSpy('navigate');
-}
-
-class MockTranslateLoader implements TranslateLoader {
-  getTranslation() {
-    return of({
-      'BOOKING.TITLE': 'Reserva una cita',
-      'BOOKING.SUBTITLE': 'Selecciona data i hora',
-      'BOOKING.LOADING_SERVICES': 'Carregant serveis...',
-      'BOOKING.CREATING_BOOKING': 'Creant reserva...',
-      'BOOKING.USER_LIMIT_REACHED_TITLE': 'Límit assolit',
-      'BOOKING.USER_LIMIT_REACHED_MESSAGE': 'Has assolit el límit de cites',
-      'BOOKING.VIEW_MY_APPOINTMENTS': 'Veure les meves cites',
-      'BOOKING.LOGIN_PROMPT_TITLE': 'Inicia sessió',
-      'AUTH.SIGN_IN': 'Iniciar sessió',
-      'BOOKING.SUCCESS_MESSAGE': 'Reserva creada amb èxit',
-      'BOOKING.EMAIL_NOTICE': 'Rebràs un email de confirmació'
-    });
-  }
 }
 
 class MockFirebaseServicesService {
@@ -100,17 +83,13 @@ describe('BookingPageComponent', () => {
   let calendarStateService: MockCalendarStateService;
   let timeUtils: MockTimeUtils;
   let loaderService: MockLoaderService;
-  let translateService: TranslateService;
+  let translateService: any; // Placeholder for TranslateService
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BookingPageComponent,
-        TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ],
-      providers: [
+    await configureTestBedWithTranslate(
+      [BookingPageComponent],
+      [
+        ...provideMockFirebase(),
         { provide: Router, useClass: MockRouter },
         { provide: FirebaseServicesService, useClass: MockFirebaseServicesService },
         { provide: AuthService, useClass: MockAuthService },
@@ -124,7 +103,7 @@ describe('BookingPageComponent', () => {
         MessageService,
         ConfirmationService
       ]
-    }).compileComponents();
+    ).compileComponents();
 
     fixture = TestBed.createComponent(BookingPageComponent);
     component = fixture.componentInstance;
@@ -140,7 +119,7 @@ describe('BookingPageComponent', () => {
     calendarStateService = TestBed.inject(CalendarStateService) as unknown as MockCalendarStateService;
     timeUtils = TestBed.inject(TimeUtils) as unknown as MockTimeUtils;
     loaderService = TestBed.inject(LoaderService) as unknown as MockLoaderService;
-    translateService = TestBed.inject(TranslateService);
+    // translateService is now provided by the test configuration
 
     fixture.detectChanges();
   });
