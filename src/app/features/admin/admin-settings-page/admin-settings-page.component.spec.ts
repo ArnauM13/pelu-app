@@ -7,12 +7,15 @@ import { SystemParametersService } from '../../../core/services/system-parameter
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { UserService } from '../../../core/services/user.service';
+import { LoaderService } from '../../../shared/services/loader.service';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { InputNumberComponent } from '../../../shared/components/inputs/input-number/input-number.component';
 import { InputCheckboxComponent } from '../../../shared/components/inputs/input-checkbox/input-checkbox.component';
 import { InputSelectComponent } from '../../../shared/components/inputs/input-select/input-select.component';
+import { InputMultiSelectComponent } from '../../../shared/components/inputs/input-multiselect/input-multiselect.component';
 import { InputDateComponent } from '../../../shared/components/inputs/input-date/input-date.component';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
+import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 import { resetMocks } from '../../../../testing/test-setup';
 
 describe('AdminSettingsPageComponent', () => {
@@ -21,9 +24,14 @@ describe('AdminSettingsPageComponent', () => {
   let systemParametersService: jasmine.SpyObj<SystemParametersService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let toastService: jasmine.SpyObj<ToastService>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
 
   const mockSettings = {
-    businessName: 'Test Salon',
+    businessInfo: {
+      name: 'Test Salon',
+      address: 'Test Address',
+      phone: '123456789',
+    },
     businessHours: {
       start: 8,
       end: 20,
@@ -33,7 +41,7 @@ describe('AdminSettingsPageComponent', () => {
 
     workingDays: [1, 2, 3, 4, 5, 6],
     appointmentDuration: 60,
-    maxAppointmentsPerDay: 20,
+    maxAppointmentsPerUser: 20,
     autoConfirmAppointments: false,
     sendNotifications: true,
     backupFrequency: 'daily',
@@ -60,7 +68,7 @@ describe('AdminSettingsPageComponent', () => {
       loading: computed(() => false),
       error: computed(() => null),
     });
-    
+
     // Ensure parameters signal is properly set
     systemParametersSpy.parameters = computed(() => mockSettings);
 
@@ -78,6 +86,11 @@ describe('AdminSettingsPageComponent', () => {
 
     const userServiceSpy = jasmine.createSpyObj('UserService', [
       'getUser',
+    ]);
+
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', [
+      'show',
+      'hide',
     ]);
 
     // Configure default return values
@@ -104,20 +117,24 @@ describe('AdminSettingsPageComponent', () => {
         InputNumberComponent,
         InputCheckboxComponent,
         InputSelectComponent,
+        InputMultiSelectComponent,
         InputDateComponent,
         ButtonComponent,
+        PeluTitleComponent,
       ],
       providers: [
         { provide: SystemParametersService, useValue: systemParametersSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ToastService, useValue: toastServiceSpy },
         { provide: UserService, useValue: userServiceSpy },
+        { provide: LoaderService, useValue: loaderServiceSpy },
       ],
     }).compileComponents();
 
     systemParametersService = TestBed.inject(SystemParametersService) as jasmine.SpyObj<SystemParametersService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     fixture = TestBed.createComponent(AdminSettingsPageComponent);
     component = fixture.componentInstance;

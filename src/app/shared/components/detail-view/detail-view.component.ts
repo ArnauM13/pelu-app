@@ -14,6 +14,7 @@ import { NotFoundStateComponent } from '../not-found-state/not-found-state.compo
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
 import { InputDateComponent } from '../inputs/input-date/input-date.component';
+import { InputSelectComponent, SelectOption } from '../inputs/input-select/input-select.component';
 import { ActionsButtonsComponent } from '../actions-buttons/actions-buttons.component';
 import { ButtonComponent } from '../buttons/button.component';
 import { ServiceCardComponent } from '../service-card/service-card.component';
@@ -28,6 +29,7 @@ import { FirebaseServicesService } from '../../../core/services/firebase-service
 import { IcsUtils } from '../../utils/ics.utils';
 import { User } from '../../../core/interfaces/user.interface';
 import { Booking, BookingForm } from '../../../core/interfaces/booking.interface';
+import { TimeSlot } from '../../utils/time.utils';
 
 export interface DetailAction {
   label: string;
@@ -86,6 +88,7 @@ export interface DetailViewConfig {
     InputTextComponent,
     InputTextareaComponent,
     InputDateComponent,
+    InputSelectComponent,
     ActionsButtonsComponent,
     ButtonComponent,
     ServiceCardComponent,
@@ -126,6 +129,7 @@ export class DetailViewComponent {
   readonly canDelete = this.#appointmentManagementService.canDelete;
   readonly availableTimeSlots = this.#appointmentManagementService.availableTimeSlots;
   readonly availableServices = this.#appointmentManagementService.availableServices;
+  readonly availableDays = this.#appointmentManagementService.availableDays;
 
   // Computed properties for template
   readonly type = computed(() => this.config()?.type || 'appointment');
@@ -170,6 +174,101 @@ export class DetailViewComponent {
 
   readonly hasGeneralActions = computed(() => {
     return this.filteredActions().length > 0;
+  });
+
+  // Computed properties for available time slots and dates
+  readonly availableTimeSlotOptions = computed((): SelectOption[] => {
+    const timeSlots = this.availableTimeSlots();
+    const currentAppointment = this.appointment();
+    const isEditing = this.isEditing();
+
+    // If not editing, return empty array
+    if (!isEditing) {
+      return [];
+    }
+
+    // If no time slots available, show message
+    if (timeSlots.length === 0) {
+      const currentTime = currentAppointment?.hora;
+      if (currentTime) {
+        return [{
+          label: `${currentTime} (hora actual)`,
+          value: currentTime,
+          disabled: false,
+          icon: '📍',
+          description: 'Hora actual de la reserva'
+        }];
+      }
+      return [{
+        label: 'No hi ha hores disponibles per aquesta data',
+        value: '',
+        disabled: true,
+        icon: '⚠️',
+        description: 'Selecciona una altra data'
+      }];
+    }
+
+    // Add current appointment time if it's not in the available slots
+    const currentTime = currentAppointment?.hora;
+    const hasCurrentTime = timeSlots.some(slot => slot.time === currentTime);
+
+    let options = timeSlots.map(slot => ({
+      label: slot.time,
+      value: slot.time,
+      disabled: !slot.available,
+      icon: slot.available ? '🕐' : '❌',
+      description: slot.available
+        ? 'Disponible'
+        : slot.clientName
+          ? `Ocupat per ${slot.clientName}`
+          : 'No disponible'
+    }));
+
+    // Add current time if it's not in the list (for editing existing appointments)
+    if (currentTime && !hasCurrentTime) {
+      options.unshift({
+        label: `${currentTime} (hora actual)`,
+        value: currentTime,
+        disabled: false,
+        icon: '📍',
+        description: 'Hora actual de la reserva'
+      });
+    }
+
+    return options;
+  });
+
+  readonly availableDateOptions = computed((): SelectOption[] => {
+    const availableDays = this.availableDays();
+    const currentAppointment = this.appointment();
+
+    return availableDays.map(day => {
+      const dateString = this.formatDateForInput(day);
+      const isCurrentDate = currentAppointment?.data === dateString;
+
+      return {
+        label: this.formatDate(dateString),
+        value: dateString,
+        disabled: false,
+        icon: isCurrentDate ? '📅' : '📆',
+        description: isCurrentDate ? 'Data actual' : 'Disponible'
+      };
+    });
+  });
+
+  readonly minDate = computed(() => {
+    const today = new Date();
+    return today;
+  });
+
+  readonly maxDate = computed(() => {
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 365); // 1 year ahead
+    return maxDate;
+  });
+
+  readonly isLoadingTimeSlots = computed(() => {
+    return this.isEditing() && this.availableTimeSlots().length === 0 && !!this.appointment()?.data && !!this.appointment()?.serviceId;
   });
 
   // Profile specific computed properties
@@ -341,7 +440,17 @@ export class DetailViewComponent {
       }
     });
 
-
+    // Load available days and time slots when editing starts
+    effect(() => {
+      if (this.isEditing()) {
+        // Load available days and time slots when editing starts
+        this.#appointmentManagementService.loadAvailableDays();
+        // Wait a bit for the appointment to be loaded, then load time slots
+        setTimeout(() => {
+          this.#appointmentManagementService.loadAvailableTimeSlots();
+        }, 200);
+      }
+    });
   }
 
   // Event handlers
@@ -398,6 +507,10 @@ export class DetailViewComponent {
     } catch {
       return dateString;
     }
+  }
+
+  formatDateForInput(date: Date): string {
+    return format(date, 'yyyy-MM-dd');
   }
 
   formatTime(timeString: string): string {

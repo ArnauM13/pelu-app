@@ -54,7 +54,8 @@
       "CONFIRM_BOOKING": "Confirmar reserva",
       "CONTINUE": "Continuar",
       "LOGIN": "Iniciar sessió",
-      "TRY_AGAIN": "Tornar a provar"
+      "TRY_AGAIN": "Tornar a provar",
+      "VIEW_DETAILS": "Veure detalls"
     },
     "STATUS": {
       "LOADING": "Carregant...",

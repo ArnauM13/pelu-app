@@ -488,14 +488,10 @@ export class BookingMobilePageComponent {
   }
 
   private async loadServices() {
-    this.loaderService.show({ message: 'BOOKING.LOADING_SERVICES' });
-
     try {
       await this.firebaseServicesService.loadServices();
     } catch (error) {
       console.error('Error loading services:', error);
-    } finally {
-      this.loaderService.hide();
     }
   }
 
