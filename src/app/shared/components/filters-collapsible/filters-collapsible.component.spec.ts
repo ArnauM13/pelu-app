@@ -1,30 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { FiltersCollapsibleComponent } from './filters-collapsible.component';
-import { configureTestBed } from '../../../../testing/test-setup';
-import { of } from 'rxjs';
+import { configureTestBedWithTranslate } from '../../../../testing/translate-test-setup';
 import { signal, Component } from '@angular/core';
 import { AppointmentStats } from '../../../features/appointments/components/appointments-stats/appointments-stats.component';
-
-// Mock translate loader
-class MockTranslateLoader implements TranslateLoader {
-  getTranslation() {
-    return of({
-      'COMMON.FILTERS.TITLE': 'Filters',
-      'COMMON.FILTERS.EXPAND': 'Expand',
-      'COMMON.FILTERS.COLLAPSE': 'Collapse',
-      'COMMON.FILTERS.CLEAR_FILTERS_BUTTON': 'Clear Filters',
-      'COMMON.REMOVE_FILTER': 'Remove Filter',
-      'APPOINTMENTS.MESSAGES.TODAY_APPOINTMENTS_FILTER': 'Today',
-      'APPOINTMENTS.MESSAGES.UPCOMING_APPOINTMENTS_FILTER': 'Upcoming',
-      'APPOINTMENTS.MESSAGES.PAST_APPOINTMENTS_FILTER': 'Past',
-      'APPOINTMENTS.MESSAGES.MY_APPOINTMENTS_FILTER': 'Mine',
-      'COMMON.FILTERS.DATE_FILTER': 'Date Filter',
-      'COMMON.FILTERS.CLIENT_FILTER': 'Client Filter',
-      'COMMON.FILTERS.SERVICE_FILTER': 'Service Filter',
-    });
-  }
-}
 
 // Test wrapper component to provide input signals
 @Component({
@@ -73,12 +51,9 @@ describe('FiltersCollapsibleComponent', () => {
   let wrapper: TestWrapperComponent;
 
   beforeEach(async () => {
-    await configureTestBed([
+    await configureTestBedWithTranslate([
       TestWrapperComponent,
-      TranslateModule.forRoot({
-        loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
-      }),
-    ]);
+    ]).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);
     wrapper = fixture.componentInstance;

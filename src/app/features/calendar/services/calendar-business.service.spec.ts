@@ -130,8 +130,8 @@ describe('CalendarBusinessService', () => {
       expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledWith('15:00');
       // Note: '20:00' is not called because it's after business hours
 
-      // Verify total number of calls (5 calls: 4 from isTimeSlotBookable + 1 from the test setup)
-      expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledTimes(5);
+      // Verify total number of calls (4 calls from isTimeSlotBookable, '20:00' is outside business hours)
+      expect(mockSystemParametersService.isLunchBreak).toHaveBeenCalledTimes(4);
     });
 
     it('should generate time slots including lunch break times', () => {

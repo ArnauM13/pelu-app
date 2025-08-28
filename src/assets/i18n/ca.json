@@ -54,7 +54,8 @@
       "CONFIRM_BOOKING": "Confirmar reserva",
       "CONTINUE": "Continuar",
       "LOGIN": "Iniciar sessió",
-      "TRY_AGAIN": "Tornar a provar"
+      "TRY_AGAIN": "Tornar a provar",
+      "VIEW_DETAILS": "Veure detalls"
     },
     "STATUS": {
       "LOADING": "Carregant...",
@@ -200,6 +201,21 @@
     "ERROR_LOADING_BOOKING": "Error al carregar la reserva",
     "BOOKING_NOT_FOUND": "Reserva no trobada",
     "BOOKING_NOT_FOUND_MESSAGE": "No s'ha pogut trobar la reserva que busques",
+    "SERVICE_NOT_FOUND": "Servei no trobat",
+    "ICS_GENERATION_ERROR": "Error al generar l'arxiu ICS",
+    "ICS_DOWNLOAD_SUCCESS": "Arxiu ICS descarregat i calendari obert correctament",
+    "INCOMPLETE_BOOKING_INFO": "Informació incompleta per confirmar la reserva",
+    "TIME_SLOT_NO_LONGER_AVAILABLE": "Aquest horari ja no està disponible. Si us plau, selecciona un altre horari.",
+    "MAX_APPOINTMENTS_REACHED": "No pots fer més reserves. Ja tens el màxim de reserves actives.",
+    "PLEASE_SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
+    "PLEASE_SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",
+    "TIME_SLOT_NOT_AVAILABLE": "Aquest horari no està disponible. Si us plau, selecciona un altre horari.",
+    "BOOKING_NOT_FOUND_FOR_CALENDAR": "No s'ha trobat la reserva per afegir al calendari",
+    "SERVICE_NOT_FOUND_FOR_CALENDAR": "No s'ha trobat el servei per afegir al calendari",
+    "EVENT_ADDED_TO_CALENDAR": "Esdeveniment afegit al calendari correctament",
+    "FILE_DOWNLOADED": "Arxiu descarregat",
+    "CALENDAR_FILE_DOWNLOADED": "L'arxiu de calendari s'ha descarregat. Obre'l per afegir l'esdeveniment al teu calendari.",
+    "COULD_NOT_ADD_TO_CALENDAR": "No s'ha pogut afegir directament al calendari. Prova descarregant l'arxiu manualment.",
     "ERROR_PAST_BOOKING": "No es poden crear reserves en el passat",
     "ERROR_BOOKING_NOT_ALLOWED": "No es pot fer la reserva en aquesta data/hora",
     "ERROR_CANCELLATION_NOT_ALLOWED": "No es pot cancel·lar la reserva en aquest moment",
@@ -218,6 +234,17 @@
       "CLIENT_ERROR": "Error en les dades enviades. Verifica la informació introduïda.",
       "UNKNOWN_ERROR": "Error desconegut. Si us plau, contacta amb el suport tècnic."
     },
+    "SUCCESS": "Èxit",
+    "ERROR": "Error",
+    "INFO": "Informació",
+    "WARNING": "Advertència",
+    "VALIDATION_ERROR": "Error de validació",
+    "NETWORK_ERROR": "Error de connexió",
+    "NETWORK_ERROR_DETAIL": "No s'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.",
+    "UNAUTHORIZED_ERROR": "Accés denegat",
+    "UNAUTHORIZED_ERROR_DETAIL": "No tens permisos per realitzar aquesta acció.",
+    "LOGIN_REQUIRED": "Inici de sessió requerit",
+    "LOGIN_REQUIRED_DETAIL": "Has d'iniciar sessió per realitzar aquesta acció.",
     "VALIDATION": {
       "INVALID_EMAIL": "Si us plau, introdueix un email vàlid"
     },
@@ -410,7 +437,13 @@
     "BULK_DELETE_SUCCESS": "Cites eliminades correctament",
     "BULK_DELETE_ERROR": "Error en eliminar les cites",
     "DELETE_ERROR": "Error en eliminar la cita",
-    "CSV_EXPORT_SUCCESS": "CSV descarregat correctament"
+    "CSV_EXPORT_SUCCESS": "CSV descarregat correctament",
+    "CREATED_SUCCESS": "Cita creada",
+    "CREATED_DETAIL": "La teva cita s'ha creat correctament",
+    "CREATED_SUCCESS_WITH_NAME": "La cita de {{name}} s'ha creat correctament",
+    "UPDATE_SUCCESS_WITH_NAME": "La cita de {{name}} s'ha actualitzat correctament",
+    "DELETE_SUCCESS_WITH_NAME": "La cita de {{name}} s'ha eliminat correctament",
+    "LOAD_ERROR": "Error al carregar les cites"
   },
   "BOOKING": {
     "TITLE": "Reservar",
@@ -588,6 +621,9 @@
       "CURRENCY": "Moneda",
       "CURRENCY_HELP": "La moneda s'aplicarà a tots els preus de l'aplicació",
       "SAVE_SETTINGS": "Desar configuració",
+      "LOAD_SETTINGS_ERROR": "Error al carregar la configuració",
+      "SETTINGS_SAVED_SUCCESS": "Configuració desada correctament",
+      "SAVE_SETTINGS_ERROR": "Error al desar la configuració",
 
       "LOADING": "Carregant configuració..."
     }
@@ -825,5 +861,39 @@
     "INFO_NOTE": "Clica sobre qualsevol horari disponible per fer una reserva",
     "WEEKEND_INFO": "Els caps de setmana tenen horaris especials. Contacta amb nosaltres per més informació.",
     "BUSINESS_HOURS_INFO": "Horari d'atenció: Dilluns a Divendres de {{startHour}}:00 a {{endHour}}:00, Pausa per dinar de {{lunchStart}}:00 a {{lunchEnd}}:00"
+  },
+  "TOAST_DEMO": {
+    "OPERATION_COMPLETED": "La teva acció s'ha realitzat correctament",
+    "UNEXPECTED_ERROR": "Si us plau, torna-ho a provar més tard",
+    "IMPORTANT_INFO": "Aquest és un missatge informatiu per l'usuari",
+    "WARNING_MESSAGE": "Aquesta acció pot tenir conseqüències",
+    "SECONDARY_MESSAGE": "Aquest és un missatge de tipus secundari",
+    "CONTRAST_MESSAGE": "Aquest missatge destaca del fons",
+    "CASCADE_1": "Cascada 1",
+    "CASCADE_2": "Cascada 2",
+    "CASCADE_3": "Cascada 3",
+    "CASCADE_4": "Cascada 4"
+  },
+  "LOGGER_DEMO": {
+    "LOG_INFO": "Log Info",
+    "INFO_LOG_GENERATED": "S'ha generat un log informatiu",
+    "LOG_WARNING": "Log Warning",
+    "WARNING_LOG_GENERATED": "S'ha generat un log d'advertència",
+    "LOG_DEBUG": "Log Debug",
+    "DEBUG_LOG_GENERATED": "S'ha generat un log de debug (només visible en desenvolupament)",
+    "LOG_PERFORMANCE": "Log Performance",
+    "PERFORMANCE_OPERATION_COMPLETED": "Operació completada",
+    "VALIDATION_ERROR_GENERATED": "S'ha generat un error de validació",
+    "PERMISSION_ERROR_GENERATED": "S'ha generat un error de permisos",
+    "USER_ACTION": "Acció Usuari",
+    "USER_ACTION_REGISTERED": "S'ha registrat una acció d'usuari",
+    "ACTION_WITH_DATA": "Acció amb Dades",
+    "USER_ACTION_WITH_DATA_REGISTERED": "S'ha registrat una acció d'usuari amb dades",
+    "LOGS_LOADED": "Logs Carregats",
+    "LOGS_LOADED_COUNT": "S'han carregat logs",
+    "LOGS_CLEARED": "Logs Netejats",
+    "LOGS_CLEARED_SUCCESS": "S'han netejat tots els logs",
+    "LOGS_EXPORTED": "Logs Exportats",
+    "LOGS_EXPORTED_SUCCESS": "S'han exportat els logs a un fitxer JSON"
   }
 }

@@ -18,6 +18,8 @@
     [readonly]="readonly()"
     [autofocus]="autofocus()"
     [step]="step()"
+    [minFractionDigits]="minFractionDigits()"
+    [maxFractionDigits]="maxFractionDigits()"
     [mode]="mode()"
     [currency]="currency()"
     [currencyDisplay]="currencyDisplay()"
@@ -33,6 +35,8 @@
     (onInput)="onNumberChange($event.value)"
     (onBlur)="onBlurHandler($event)"
     class="pelu-inputnumber"
+    [attr.min]="min()"
+    [attr.max]="max()"
   />
 
   <!-- Help text -->

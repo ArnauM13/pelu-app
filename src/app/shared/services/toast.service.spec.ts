@@ -111,261 +111,295 @@ describe('ToastService', () => {
   });
 
   describe('showSuccess', () => {
-    it('should call showToast with success severity', () => {
+    it('should call showToast with translated success message', () => {
       spyOn(service, 'showToast');
-      const summary = 'Success message';
-      const detail = 'Success detail';
+      const summaryKey = 'COMMON.SUCCESS';
+      const detailKey = 'COMMON.OPERATION_COMPLETED';
       const data = {
         appointmentId: 'test-id',
         showViewButton: true
       };
 
-      service.showSuccess(summary, detail, data);
+      service.showSuccess(summaryKey, detailKey, data);
 
+      expect(_translateService.instant).toHaveBeenCalledWith(summaryKey);
+      expect(_translateService.instant).toHaveBeenCalledWith(detailKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'success',
-        summary,
-        detail,
+        summary: 'Translated text',
+        detail: 'Translated text',
         data
       });
     });
   });
 
   describe('showError', () => {
-    it('should call showToast with error severity', () => {
+    it('should call showToast with translated error message', () => {
       spyOn(service, 'showToast');
-      const summary = 'Error message';
-      const detail = 'Error detail';
+      const summaryKey = 'COMMON.ERROR';
+      const detailKey = 'COMMON.ERROR_DETAIL';
 
-      service.showError(summary, detail);
+      service.showError(summaryKey, detailKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith(summaryKey);
+      expect(_translateService.instant).toHaveBeenCalledWith(detailKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'error',
-        summary,
-        detail,
+        summary: 'Translated text',
+        detail: 'Translated text',
         data: undefined
       });
     });
   });
 
   describe('showInfo', () => {
-    it('should call showToast with info severity', () => {
+    it('should call showToast with translated info message', () => {
       spyOn(service, 'showToast');
-      const summary = 'Info message';
-      const detail = 'Info detail';
+      const summaryKey = 'COMMON.INFO';
+      const detailKey = 'COMMON.INFO_DETAIL';
 
-      service.showInfo(summary, detail);
+      service.showInfo(summaryKey, detailKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith(summaryKey);
+      expect(_translateService.instant).toHaveBeenCalledWith(detailKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'info',
-        summary,
-        detail,
+        summary: 'Translated text',
+        detail: 'Translated text',
         data: undefined
       });
     });
   });
 
   describe('showWarning', () => {
-    it('should call showToast with warn severity', () => {
+    it('should call showToast with translated warning message', () => {
       spyOn(service, 'showToast');
-      const summary = 'Warning message';
-      const detail = 'Warning detail';
+      const summaryKey = 'COMMON.WARNING';
+      const detailKey = 'COMMON.WARNING_DETAIL';
 
-      service.showWarning(summary, detail);
+      service.showWarning(summaryKey, detailKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith(summaryKey);
+      expect(_translateService.instant).toHaveBeenCalledWith(detailKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'warn',
-        summary,
-        detail,
+        summary: 'Translated text',
+        detail: 'Translated text',
         data: undefined
       });
     });
   });
 
   describe('showReservationCreated', () => {
-    it('should call showToast with correct parameters', () => {
+    it('should call showToast with translated parameters', () => {
       spyOn(service, 'showToast');
       const appointmentId = 'test-id';
 
       service.showReservationCreated(appointmentId);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.CREATED_SUCCESS');
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.CREATED_DETAIL');
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.ACTIONS.VIEW_DETAILS');
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'success',
-        summary: 'Cita creada',
-        detail: 'La teva cita s\'ha creat correctament',
+        summary: 'Translated text',
+        detail: 'Translated text',
         data: {
           appointmentId,
           showViewButton: true,
-          actionLabel: 'Veure cita',
+          actionLabel: 'Translated text',
         },
       });
     });
   });
 
   describe('showAppointmentDeleted', () => {
-    it('should call showToast with correct parameters', () => {
+    it('should call showToast with translated parameters', () => {
       spyOn(service, 'showToast');
       const appointmentName = 'John Doe';
 
       service.showAppointmentDeleted(appointmentName);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.DELETE_SUCCESS');
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.DELETE_SUCCESS_WITH_NAME', { name: appointmentName });
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'info',
-        summary: 'Cita eliminada',
-        detail: `La cita de ${appointmentName} s'ha eliminat correctament`,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showAppointmentUpdated', () => {
-    it('should call showToast with correct parameters', () => {
+    it('should call showToast with translated parameters', () => {
       spyOn(service, 'showToast');
       const appointmentName = 'John Doe';
 
       service.showAppointmentUpdated(appointmentName);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.UPDATE_SUCCESS');
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.UPDATE_SUCCESS_WITH_NAME', { name: appointmentName });
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'success',
-        summary: 'Cita actualitzada',
-        detail: `La cita de ${appointmentName} s'ha actualitzat correctament`,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showAppointmentCreated', () => {
-    it('should call showToast with correct parameters', () => {
+    it('should call showToast with translated parameters', () => {
       spyOn(service, 'showToast');
       const appointmentName = 'John Doe';
       const appointmentId = 'test-id';
 
       service.showAppointmentCreated(appointmentName, appointmentId);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.CREATED_SUCCESS');
+      expect(_translateService.instant).toHaveBeenCalledWith('APPOINTMENTS.CREATED_SUCCESS_WITH_NAME', { name: appointmentName });
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.ACTIONS.VIEW_DETAILS');
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'success',
-        summary: 'Cita creada',
-        detail: `La cita de ${appointmentName} s'ha creat correctament`,
+        summary: 'Translated text',
+        detail: 'Translated text',
         data: {
           appointmentId,
           showViewButton: true,
-          actionLabel: 'Veure cita',
+          actionLabel: 'Translated text',
         },
       });
     });
   });
 
   describe('showValidationError', () => {
-    it('should call showToast with correct parameters', () => {
+    it('should call showToast with translated parameters', () => {
       spyOn(service, 'showToast');
-      const message = 'Error de validació';
+      const messageKey = 'COMMON.VALIDATION_ERROR_MESSAGE';
 
-      service.showValidationError(message);
+      service.showValidationError(messageKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.VALIDATION_ERROR');
+      expect(_translateService.instant).toHaveBeenCalledWith(messageKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'error',
-        summary: 'Error de validació',
-        detail: message,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showNetworkError', () => {
-    it('should call showToast with network error message', () => {
+    it('should call showToast with translated network error message', () => {
       spyOn(service, 'showToast');
 
       service.showNetworkError();
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.NETWORK_ERROR');
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.NETWORK_ERROR_DETAIL');
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'error',
-        summary: 'Error de connexió',
-        detail: 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.',
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showUnauthorizedError', () => {
-    it('should call showToast with unauthorized error message', () => {
+    it('should call showToast with translated unauthorized error message', () => {
       spyOn(service, 'showToast');
 
       service.showUnauthorizedError();
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.UNAUTHORIZED_ERROR');
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.UNAUTHORIZED_ERROR_DETAIL');
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'error',
-        summary: 'Accés denegat',
-        detail: 'No tens permisos per realitzar aquesta acció.',
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showLoginRequired', () => {
-    it('should call showToast with login required message', () => {
+    it('should call showToast with translated login required message', () => {
       spyOn(service, 'showToast');
 
       service.showLoginRequired();
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.LOGIN_REQUIRED');
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.LOGIN_REQUIRED_DETAIL');
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'warn',
-        summary: 'Inici de sessió requerit',
-        detail: 'Has d\'iniciar sessió per realitzar aquesta acció.',
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showGenericSuccess', () => {
-    it('should call showToast with generic success message', () => {
+    it('should call showToast with translated generic success message', () => {
       spyOn(service, 'showToast');
-      const message = 'Operació completada';
+      const messageKey = 'COMMON.OPERATION_COMPLETED';
 
-      service.showGenericSuccess(message);
+      service.showGenericSuccess(messageKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.SUCCESS');
+      expect(_translateService.instant).toHaveBeenCalledWith(messageKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'success',
-        summary: 'Èxit',
-        detail: message,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showGenericError', () => {
-    it('should call showToast with generic error message', () => {
+    it('should call showToast with translated generic error message', () => {
       spyOn(service, 'showToast');
-      const message = 'Ha ocorregut un error';
+      const messageKey = 'COMMON.ERROR_DETAIL';
 
-      service.showGenericError(message);
+      service.showGenericError(messageKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.ERROR');
+      expect(_translateService.instant).toHaveBeenCalledWith(messageKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'error',
-        summary: 'Error',
-        detail: message,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showGenericInfo', () => {
-    it('should call showToast with generic info message', () => {
+    it('should call showToast with translated generic info message', () => {
       spyOn(service, 'showToast');
-      const message = 'Informació important';
+      const messageKey = 'COMMON.INFO_DETAIL';
 
-      service.showGenericInfo(message);
+      service.showGenericInfo(messageKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.INFO');
+      expect(_translateService.instant).toHaveBeenCalledWith(messageKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'info',
-        summary: 'Informació',
-        detail: message,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
 
   describe('showGenericWarning', () => {
-    it('should call showToast with generic warning message', () => {
+    it('should call showToast with translated generic warning message', () => {
       spyOn(service, 'showToast');
-      const message = 'Advertència important';
+      const messageKey = 'COMMON.WARNING_DETAIL';
 
-      service.showGenericWarning(message);
+      service.showGenericWarning(messageKey);
 
+      expect(_translateService.instant).toHaveBeenCalledWith('COMMON.WARNING');
+      expect(_translateService.instant).toHaveBeenCalledWith(messageKey);
       expect(service.showToast).toHaveBeenCalledWith({
         severity: 'warn',
-        summary: 'Advertència',
-        detail: message,
+        summary: 'Translated text',
+        detail: 'Translated text',
       });
     });
   });
