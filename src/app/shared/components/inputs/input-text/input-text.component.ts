@@ -57,7 +57,7 @@ export class InputTextComponent implements ControlValueAccessor {
 
   // Internal value signal for ControlValueAccessor
   readonly internalValueSignal = signal<string>('');
-  
+
   // Internal disabled state for ControlValueAccessor
   private readonly internalDisabledSignal = signal<boolean>(false);
 
