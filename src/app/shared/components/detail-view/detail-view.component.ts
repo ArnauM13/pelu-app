@@ -130,6 +130,7 @@ export class DetailViewComponent {
   readonly availableTimeSlots = this.#appointmentManagementService.availableTimeSlots;
   readonly availableServices = this.#appointmentManagementService.availableServices;
   readonly availableDays = this.#appointmentManagementService.availableDays;
+  readonly isLoadingTimeSlots = this.#appointmentManagementService.isLoadingTimeSlots;
 
   // Computed properties for template
   readonly type = computed(() => this.config()?.type || 'appointment');
@@ -267,9 +268,7 @@ export class DetailViewComponent {
     return maxDate;
   });
 
-  readonly isLoadingTimeSlots = computed(() => {
-    return this.isEditing() && this.availableTimeSlots().length === 0 && !!this.appointment()?.data && !!this.appointment()?.serviceId;
-  });
+
 
   // Profile specific computed properties
   readonly avatarData = computed(() => {
@@ -448,7 +447,10 @@ export class DetailViewComponent {
         // Load time slots for the current appointment date
         const appointment = this.appointment();
         if (appointment?.data) {
-          this.#appointmentManagementService.loadAvailableTimeSlotsForDate(appointment.data);
+          // Add a small delay to ensure the loading state is properly set
+          setTimeout(() => {
+            this.#appointmentManagementService.loadAvailableTimeSlotsForDate(appointment.data);
+          }, 100);
         }
       }
     });

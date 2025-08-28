@@ -57,6 +57,9 @@ export class InputTextComponent implements ControlValueAccessor {
 
   // Internal value signal for ControlValueAccessor
   readonly internalValueSignal = signal<string>('');
+  
+  // Internal disabled state for ControlValueAccessor
+  private readonly internalDisabledSignal = signal<boolean>(false);
 
   // Computed property to get the appropriate placeholder based on type
   readonly displayPlaceholder = computed(() => {
@@ -90,12 +93,30 @@ export class InputTextComponent implements ControlValueAccessor {
     return this.value();
   });
 
+  // Computed property to determine the disabled state
+  readonly isDisabled = computed(() => {
+    // If using formControlName, use internal disabled state
+    if (this.formControlName()) {
+      return this.internalDisabledSignal();
+    }
+    // Otherwise, use the direct disabled input
+    return this.disabled();
+  });
+
   constructor() {
     // Watch for changes in the value input and update internal signal
     effect(() => {
       const directValue = this.value();
       if (directValue !== undefined && directValue !== null) {
         this.internalValueSignal.set(directValue);
+      }
+    });
+
+    // Watch for changes in the disabled input and update internal signal
+    effect(() => {
+      const directDisabled = this.disabled();
+      if (directDisabled !== undefined && directDisabled !== null) {
+        this.internalDisabledSignal.set(directDisabled);
       }
     });
   }
@@ -130,7 +151,7 @@ export class InputTextComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(_isDisabled: boolean): void {
-    // PrimeNG handles disabled state automatically
+  setDisabledState(isDisabled: boolean): void {
+    this.internalDisabledSignal.set(isDisabled);
   }
 }

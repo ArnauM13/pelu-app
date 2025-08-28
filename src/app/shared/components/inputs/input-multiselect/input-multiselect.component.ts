@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation, ContentChild, TemplateRef } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, ContentChild, TemplateRef, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -98,6 +98,9 @@ export class InputMultiSelectComponent implements ControlValueAccessor {
   readonly maxSelectedLabels = input<number>(3);
   readonly display = input<'comma' | 'chip'>('comma');
 
+  // Internal disabled state for ControlValueAccessor
+  private readonly internalDisabledSignal = signal<boolean>(false);
+
   // Unique ID generated once
   private readonly uniqueId = 'multiselect-' + Math.random().toString(36).substr(2, 9);
 
@@ -117,6 +120,26 @@ export class InputMultiSelectComponent implements ControlValueAccessor {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onChange = (value: (string | number)[]) => {};
   private onTouched = () => {};
+
+  // Computed property to determine the disabled state
+  readonly isDisabled = computed(() => {
+    // If using formControlName, use internal disabled state
+    if (this.formControlName()) {
+      return this.internalDisabledSignal();
+    }
+    // Otherwise, use the direct disabled input
+    return this.disabled();
+  });
+
+  constructor() {
+    // Watch for changes in the disabled input and update internal signal
+    effect(() => {
+      const directDisabled = this.disabled();
+      if (directDisabled !== undefined && directDisabled !== null) {
+        this.internalDisabledSignal.set(directDisabled);
+      }
+    });
+  }
 
   // Get unique ID
   getElementId(): string {
@@ -161,8 +184,7 @@ export class InputMultiSelectComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDisabledState(isDisabled: boolean): void {
-    // PrimeNG handles disabled state automatically
+    this.internalDisabledSignal.set(isDisabled);
   }
 }

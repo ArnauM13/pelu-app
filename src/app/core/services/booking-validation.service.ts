@@ -336,6 +336,11 @@ export class BookingValidationService {
     const slotDuration = settings.appointmentDuration;
     const dayOfWeek = date.getDay();
 
+    // Check if parameters are loaded correctly
+    if (!settings || !businessHours || !settings.workingDays) {
+      return slots;
+    }
+
     // Check if it's a business day
     if (!settings.workingDays.includes(dayOfWeek)) {
       return slots;
@@ -346,6 +351,7 @@ export class BookingValidationService {
     const now = new Date();
     const isToday = this.timeUtils.isSameDay(date, now);
 
+    let slotsGenerated = 0;
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotDuration) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
@@ -397,6 +403,7 @@ export class BookingValidationService {
           bookingId: booking?.id,
           notes: booking?.notes,
         });
+        slotsGenerated++;
       }
     }
 
@@ -446,7 +453,9 @@ export class BookingValidationService {
     }
 
     const now = new Date();
-    const bookingDate = new Date(booking.data);
+    // Create date correctly to avoid timezone issues
+    const [year, month, day] = booking.data.split('-').map(Number);
+    const bookingDate = new Date(year, month - 1, day); // month is 0-indexed
     const [hour, minute] = booking.hora.split(':').map(Number);
     bookingDate.setHours(hour, minute, 0, 0);
 

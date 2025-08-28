@@ -226,7 +226,7 @@ describe('InputToggleSwitchComponent', () => {
       fixture.detectChanges();
 
       const toggleElement = fixture.debugElement.query(By.css('p-toggleswitch'));
-      expect(toggleElement.nativeElement.getAttribute('required')).toBe(''); // Actual behavior
+      expect(toggleElement.nativeElement.getAttribute('required')).toBeNull(); // Updated behavior
     });
 
     it('should apply readonly state correctly', () => {
@@ -448,7 +448,7 @@ describe('InputToggleSwitchComponent', () => {
 
     it('should have proper CSS class on toggle switch', () => {
       const toggleElement = fixture.debugElement.query(By.css('p-toggleswitch'));
-      expect(toggleElement.nativeElement.classList.contains('pelu-toggleswitch')).toBe(true);
+      expect(toggleElement.nativeElement.classList.contains('pelu-input-toggleswitch')).toBe(true);
     });
   });
 

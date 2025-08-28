@@ -14,7 +14,7 @@
     <p-datepicker
       [inputId]="getElementId()"
       [placeholder]="(placeholder() || 'INPUTS.DATE_PLACEHOLDER') | translate"
-      [disabled]="disabled() || !enabled()"
+      [disabled]="isDisabled() || !enabled()"
       [dateFormat]="dateFormat()"
       [showIcon]="showIcon() && !readonly()"
       [iconDisplay]="'input'"

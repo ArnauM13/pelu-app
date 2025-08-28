@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -61,6 +61,9 @@ export class InputNumberComponent implements ControlValueAccessor {
   readonly showClear = input<boolean>(false);
   readonly autofocus = input<boolean>(false);
 
+  // Internal disabled state for ControlValueAccessor
+  private readonly internalDisabledSignal = signal<boolean>(false);
+
   // Unique ID generated once
   private readonly uniqueId = 'number-' + Math.random().toString(36).substr(2, 9);
 
@@ -72,19 +75,39 @@ export class InputNumberComponent implements ControlValueAccessor {
   private onChange = (value: number | null) => {};
   private onTouched = () => {};
 
-    readonly displayValue = computed(() => {
+  readonly displayValue = computed(() => {
     const currentValue = this.value();
     if (currentValue === null || currentValue === undefined) return null;
     if (typeof currentValue === 'number' && !isNaN(currentValue)) return currentValue;
     return null;
   });
 
+  // Computed property to determine the disabled state
+  readonly isDisabled = computed(() => {
+    // If using formControlName, use internal disabled state
+    if (this.formControlName()) {
+      return this.internalDisabledSignal();
+    }
+    // Otherwise, use the direct disabled input
+    return this.disabled();
+  });
+
+  constructor() {
+    // Watch for changes in the disabled input and update internal signal
+    effect(() => {
+      const directDisabled = this.disabled();
+      if (directDisabled !== undefined && directDisabled !== null) {
+        this.internalDisabledSignal.set(directDisabled);
+      }
+    });
+  }
+
   // Get unique ID
   getElementId(): string {
     return this.uniqueId;
   }
 
-    // Event handler for number changes
+  // Event handler for number changes
   onNumberChange(value: number | string | null) {
     // Handle different value types
     let numValue: number | null = null;
@@ -122,8 +145,7 @@ export class InputNumberComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDisabledState(isDisabled: boolean): void {
-    // PrimeNG handles disabled state automatically
+    this.internalDisabledSignal.set(isDisabled);
   }
 }
