@@ -18,7 +18,6 @@ import {
   FirebaseService,
 } from '../../../core/services/firebase-services.service';
 import { UserService } from '../../../core/services/user.service';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { InputTextComponent } from '../../../shared/components/inputs/input-text/input-text.component';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
@@ -44,7 +43,6 @@ type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
     ButtonModule,
     SelectModule,
     TranslateModule,
-    CurrencyPipe,
     InputTextComponent,
     NextAppointmentComponent,
     NoAppointmentsMessageComponent,
