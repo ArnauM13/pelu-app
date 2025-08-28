@@ -38,6 +38,7 @@ export class AppointmentManagementService {
   private readonly availableTimeSlotsSignal = signal<TimeSlot[]>([]);
   private readonly availableServicesSignal = signal<FirebaseService[]>([]);
   private readonly availableDaysSignal = signal<Date[]>([]);
+  private readonly isLoadingTimeSlotsSignal = signal<boolean>(false);
 
   // Public computed signals
   readonly appointment = computed(() => this.appointmentSignal());
@@ -50,6 +51,7 @@ export class AppointmentManagementService {
   readonly availableTimeSlots = computed(() => this.availableTimeSlotsSignal());
   readonly availableServices = computed(() => this.availableServicesSignal());
   readonly availableDays = computed(() => this.availableDaysSignal());
+  readonly isLoadingTimeSlots = computed(() => this.isLoadingTimeSlotsSignal());
 
   constructor() {
     // Load available services on initialization
@@ -134,6 +136,8 @@ export class AppointmentManagementService {
 
   async loadAvailableTimeSlots(): Promise<void> {
     try {
+      this.isLoadingTimeSlotsSignal.set(true);
+
       const appointment = this.appointment();
       if (!appointment?.data || !appointment?.serviceId) {
         this.availableTimeSlotsSignal.set([]);
@@ -146,7 +150,9 @@ export class AppointmentManagementService {
         return;
       }
 
-      const bookingDate = new Date(appointment.data);
+      // Create date correctly to avoid timezone issues
+      const [year, month, day] = appointment.data.split('-').map(Number);
+      const bookingDate = new Date(year, month - 1, day); // month is 0-indexed
       const allBookings = this.bookingService.bookings();
 
       // Filter out the current appointment to avoid showing it as occupied
@@ -163,6 +169,8 @@ export class AppointmentManagementService {
     } catch (error) {
       console.error('Error loading available time slots:', error);
       this.availableTimeSlotsSignal.set([]);
+    } finally {
+      this.isLoadingTimeSlotsSignal.set(false);
     }
   }
 
@@ -198,7 +206,9 @@ export class AppointmentManagementService {
     }
 
     // Check if appointment is in the future
-    const appointmentDate = new Date(appointment.data);
+    // Create date correctly to avoid timezone issues
+    const [year, month, day] = appointment.data.split('-').map(Number);
+    const appointmentDate = new Date(year, month - 1, day); // month is 0-indexed
     const appointmentTime = appointment.hora;
     const now = new Date();
 
@@ -217,11 +227,15 @@ export class AppointmentManagementService {
   startEditing(): void {
     this.isEditingSignal.set(true);
     this.hasChangesSignal.set(true);
+    // Clear loading state when starting to edit
+    this.isLoadingTimeSlotsSignal.set(false);
   }
 
   cancelEditing(): void {
     this.isEditingSignal.set(false);
     this.hasChangesSignal.set(false);
+    // Clear loading state when canceling edit
+    this.isLoadingTimeSlotsSignal.set(false);
   }
 
   updateForm(field: keyof Booking, value: string | number): void {
@@ -240,8 +254,13 @@ export class AppointmentManagementService {
     // If date changed, reload available time slots and days
     if (field === 'data') {
       this.loadAvailableDays();
+      // Clear current time slots and start loading new ones
+      this.availableTimeSlotsSignal.set([]);
+      this.isLoadingTimeSlotsSignal.set(true);
       // Load time slots with the new date immediately
-      this.loadAvailableTimeSlotsForDate(value as string);
+      setTimeout(() => {
+        this.loadAvailableTimeSlotsForDate(value as string);
+      }, 50);
     }
 
     // If time changed, reload available time slots
@@ -252,6 +271,8 @@ export class AppointmentManagementService {
 
   async loadAvailableTimeSlotsForDate(date: string): Promise<void> {
     try {
+      this.isLoadingTimeSlotsSignal.set(true);
+
       const appointment = this.appointment();
       if (!appointment?.serviceId) {
         this.availableTimeSlotsSignal.set([]);
@@ -264,7 +285,9 @@ export class AppointmentManagementService {
         return;
       }
 
-      const bookingDate = new Date(date);
+      // Create date correctly to avoid timezone issues
+      const [year, month, day] = date.split('-').map(Number);
+      const bookingDate = new Date(year, month - 1, day); // month is 0-indexed
       const allBookings = this.bookingService.bookings();
 
       // Filter out the current appointment to avoid showing it as occupied
@@ -281,6 +304,8 @@ export class AppointmentManagementService {
     } catch (error) {
       console.error('Error loading available time slots for date:', error);
       this.availableTimeSlotsSignal.set([]);
+    } finally {
+      this.isLoadingTimeSlotsSignal.set(false);
     }
   }
 

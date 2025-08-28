@@ -1,9 +1,8 @@
-import { Component, input, output, forwardRef, ViewEncapsulation } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
-import { computed } from '@angular/core';
 
 @Component({
     selector: 'pelu-input-checkbox',
@@ -32,8 +31,8 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   readonly readonly = input<boolean>(false);
   readonly invalid = input<boolean>(false);
 
-  // Computed property for readonly mode
-  readonly isReadonlyMode = computed(() => this.readonly());
+  // Internal disabled state for ControlValueAccessor
+  private readonly internalDisabledSignal = signal<boolean>(false);
 
   // Unique ID generated once
   private readonly uniqueId = 'checkbox-' + Math.random().toString(36).substr(2, 9);
@@ -45,6 +44,29 @@ export class InputCheckboxComponent implements ControlValueAccessor {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onChange = (value: boolean) => {};
   private onTouched = () => {};
+
+  // Computed property for readonly mode
+  readonly isReadonlyMode = computed(() => this.readonly());
+
+  // Computed property to determine the disabled state
+  readonly isDisabled = computed(() => {
+    // If using formControlName, use internal disabled state
+    if (this.formControlName()) {
+      return this.internalDisabledSignal();
+    }
+    // Otherwise, use the direct disabled input
+    return this.disabled();
+  });
+
+  constructor() {
+    // Watch for changes in the disabled input and update internal signal
+    effect(() => {
+      const directDisabled = this.disabled();
+      if (directDisabled !== undefined && directDisabled !== null) {
+        this.internalDisabledSignal.set(directDisabled);
+      }
+    });
+  }
 
   // Get unique ID
   getElementId(): string {
@@ -71,7 +93,7 @@ export class InputCheckboxComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(): void {
-    // PrimeNG handles disabled state automatically
+  setDisabledState(isDisabled: boolean): void {
+    this.internalDisabledSignal.set(isDisabled);
   }
 }

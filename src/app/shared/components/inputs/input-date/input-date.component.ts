@@ -1,4 +1,4 @@
-import { Component, input, output, forwardRef, ViewEncapsulation, computed } from '@angular/core';
+import { Component, input, output, forwardRef, ViewEncapsulation, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -58,6 +58,9 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly maxDate = input<Date | null>(null);
   readonly preventPastMonths = input<boolean>(false);
 
+  // Internal disabled state for ControlValueAccessor
+  private readonly internalDisabledSignal = signal<boolean>(false);
+
   // Computed minDate that prevents past months when enabled or applies minDate restriction
   readonly computedMinDate = computed(() => {
     if (this.preventPastMonths()) {
@@ -107,8 +110,24 @@ export class InputDateComponent implements ControlValueAccessor {
     return null;
   });
 
+  // Computed property to determine the disabled state
+  readonly isDisabled = computed(() => {
+    // If using formControlName, use internal disabled state
+    if (this.formControlName()) {
+      return this.internalDisabledSignal();
+    }
+    // Otherwise, use the direct disabled input
+    return this.disabled();
+  });
+
   constructor() {
-    // No need for complex synchronization - let PrimeNG handle it natively
+    // Watch for changes in the disabled input and update internal signal
+    effect(() => {
+      const directDisabled = this.disabled();
+      if (directDisabled !== undefined && directDisabled !== null) {
+        this.internalDisabledSignal.set(directDisabled);
+      }
+    });
   }
 
   // Get unique ID
@@ -142,8 +161,6 @@ export class InputDateComponent implements ControlValueAccessor {
     this.valueChange.emit(date);
   }
 
-
-
   // ControlValueAccessor methods
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   writeValue(value: Date | string | null): void {
@@ -158,8 +175,7 @@ export class InputDateComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDisabledState(isDisabled: boolean): void {
-    // PrimeNG handles disabled state automatically
+    this.internalDisabledSignal.set(isDisabled);
   }
 }
