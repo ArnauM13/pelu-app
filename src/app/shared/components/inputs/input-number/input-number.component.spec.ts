@@ -561,7 +561,7 @@ describe('InputNumberComponent', () => {
 
     it('should have proper CSS class on input number', () => {
       const numberElement = fixture.debugElement.query(By.css('p-inputnumber'));
-      expect(numberElement.nativeElement.classList.contains('pelu-inputnumber')).toBe(true);
+      expect(numberElement.nativeElement.classList.contains('pelu-input-number')).toBe(true);
     });
   });
 });

@@ -14,7 +14,26 @@ import {
   mockRoleService,
   mockBookingService,
   mockLoggerService,
+  mockCollection,
+  mockDoc,
+  mockAddDoc,
+  mockGetDoc,
+  mockUpdateDoc,
+  mockDeleteDoc,
+  mockGetDocs,
+  mockServerTimestamp,
+  mockQuery,
+  mockOrderBy,
+  mockSetDoc,
+  mockRunInInjectionContext,
 } from './firebase-mocks';
+
+// Mock Firebase functions globally
+beforeEach(() => {
+  // Mock Firebase functions that are imported directly
+  // Note: These mocks are now handled by the global mocks file
+  // The setupFiles in karma.conf.js will handle the interception
+});
 
 // Mock classes per a serveis que depenen de Firebase/AngularFire
 class MockRoleService {
