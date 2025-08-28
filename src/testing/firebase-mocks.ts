@@ -577,57 +577,6 @@ export const provideMockFirebase = () => [
     provide: ActivatedRoute,
     useValue: mockActivatedRoute,
   },
-  // Add logger service mock
-  {
-    provide: 'LoggerService',
-    useValue: mockLoggerService,
-  },
-  // Add Firebase services mocks
-  {
-    provide: 'FirebaseServicesService',
-    useValue: mockFirebaseServicesService,
-  },
-  {
-    provide: 'RoleService',
-    useValue: mockRoleService,
-  },
-  {
-    provide: 'BookingService',
-    useValue: mockBookingService,
-  },
-  // Add Firebase functions mocks
-  {
-    provide: 'collection',
-    useValue: mockFirebaseFunctions.collection,
-  },
-  {
-    provide: 'query',
-    useValue: mockFirebaseFunctions.query,
-  },
-  {
-    provide: 'orderBy',
-    useValue: mockFirebaseFunctions.orderBy,
-  },
-  {
-    provide: 'getDocs',
-    useValue: mockFirebaseFunctions.getDocs,
-  },
-  {
-    provide: 'doc',
-    useValue: mockFirebaseFunctions.doc,
-  },
-  {
-    provide: 'setDoc',
-    useValue: mockFirebaseFunctions.setDoc,
-  },
-  {
-    provide: 'serverTimestamp',
-    useValue: mockFirebaseFunctions.serverTimestamp,
-  },
-  {
-    provide: 'runInInjectionContext',
-    useValue: mockRunInInjectionContext,
-  },
 ];
 
 // Test utilities
