@@ -267,32 +267,32 @@ describe('LoggerDemoComponent', () => {
   it('should call showInfo on toast service for info log', () => {
     component.showInfoLog();
     expect(toastService.showInfo).toHaveBeenCalledWith(
-      'Log Info',
-      "S'ha generat un log informatiu"
+      'LOGGER_DEMO.LOG_INFO',
+      'LOGGER_DEMO.INFO_LOG_GENERATED'
     );
   });
 
   it('should call showWarning on toast service for warning log', () => {
     component.showWarningLog();
     expect(toastService.showWarning).toHaveBeenCalledWith(
-      'Log Warning',
-      "S'ha generat un log d'advertència"
+      'LOGGER_DEMO.LOG_WARNING',
+      'LOGGER_DEMO.WARNING_LOG_GENERATED'
     );
   });
 
   it('should call showError on toast service for validation error', () => {
     component.showValidationError();
     expect(toastService.showError).toHaveBeenCalledWith(
-      'COMMON.ERRORS.VALIDATION_ERROR',
-      "S'ha generat un error de validació"
+      'COMMON.ERROR',
+      'LOGGER_DEMO.VALIDATION_ERROR_GENERATED'
     );
   });
 
   it('should call showSuccess on toast service for clear logs', () => {
     component.clearStoredLogs();
     expect(toastService.showSuccess).toHaveBeenCalledWith(
-      'Logs Netejats',
-      "S'han netejat tots els logs"
+      'LOGGER_DEMO.LOGS_CLEARED',
+      'LOGGER_DEMO.LOGS_CLEARED_SUCCESS'
     );
   });
 

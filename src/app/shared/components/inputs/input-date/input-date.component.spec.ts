@@ -8,6 +8,7 @@ import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { InputDateComponent } from './input-date.component';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 // Mock translate loader
 class MockTranslateLoader implements TranslateLoader {
@@ -122,6 +123,9 @@ describe('InputDateComponent', () => {
   let fixture: ComponentFixture<TestWrapperComponent>;
 
   beforeEach(async () => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated']);
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+
     await TestBed.configureTestingModule({
       imports: [
         TestWrapperComponent,
@@ -129,7 +133,10 @@ describe('InputDateComponent', () => {
           loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
         })
       ],
-      providers: [provideNoopAnimations()]
+      providers: [
+        provideNoopAnimations(),
+        { provide: AuthService, useValue: authServiceSpy }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestWrapperComponent);

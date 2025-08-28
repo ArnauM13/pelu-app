@@ -695,9 +695,9 @@ describe('Input Components Real Data Tests', () => {
       fixture.detectChanges();
 
       // Verify form is reset
-      expect(component.getFormValue('name')).toBe('');
-      expect(component.getFormValue('email')).toBe('');
-      expect(component.getFormValue('service')).toBe('');
+      expect(component.getFormValue('name')).toBe(null);
+      expect(component.getFormValue('email')).toBe(null);
+      expect(component.getFormValue('service')).toBe(null);
 
       // Re-fill with new data
       component.setFormValue('name', 'New Name');

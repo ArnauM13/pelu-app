@@ -295,7 +295,7 @@ export class LoggerDemoComponent {
       method: 'showInfoLog',
       userId: 'demo-user-123',
     });
-    this.toastService.showInfo('Log Info', "S'ha generat un log informatiu");
+    this.toastService.showInfo('LOGGER_DEMO.LOG_INFO', 'LOGGER_DEMO.INFO_LOG_GENERATED');
     this.loadStoredLogs();
   }
 
@@ -305,7 +305,7 @@ export class LoggerDemoComponent {
       method: 'showWarningLog',
       userId: 'demo-user-123',
     });
-    this.toastService.showWarning('Log Warning', "S'ha generat un log d'advertència");
+    this.toastService.showWarning('LOGGER_DEMO.LOG_WARNING', 'LOGGER_DEMO.WARNING_LOG_GENERATED');
     this.loadStoredLogs();
   }
 
@@ -316,8 +316,8 @@ export class LoggerDemoComponent {
       userId: 'demo-user-123',
     });
     this.toastService.showInfo(
-      'Log Debug',
-      "S'ha generat un log de debug (només visible en desenvolupament)"
+      'LOGGER_DEMO.LOG_DEBUG',
+      'LOGGER_DEMO.DEBUG_LOG_GENERATED'
     );
     this.loadStoredLogs();
   }
@@ -334,8 +334,8 @@ export class LoggerDemoComponent {
         userId: 'demo-user-123',
       });
       this.toastService.showSuccess(
-        'Log Performance',
-        `Operació completada en ${duration.toFixed(2)}ms`
+        'LOGGER_DEMO.LOG_PERFORMANCE',
+        `LOGGER_DEMO.PERFORMANCE_OPERATION_COMPLETED`
       );
       this.loadStoredLogs();
     }, 100);
@@ -390,8 +390,8 @@ export class LoggerDemoComponent {
       userId: 'demo-user-123',
     });
     this.toastService.showError(
-      'COMMON.ERRORS.VALIDATION_ERROR',
-      "S'ha generat un error de validació"
+      'COMMON.ERROR',
+      'LOGGER_DEMO.VALIDATION_ERROR_GENERATED'
     );
     this.loadStoredLogs();
   }
@@ -414,8 +414,8 @@ export class LoggerDemoComponent {
       userId: 'demo-user-123',
     });
     this.toastService.showError(
-      'COMMON.ERRORS.PERMISSION_ERROR',
-      "S'ha generat un error de permisos"
+      'COMMON.ERROR',
+      'LOGGER_DEMO.PERMISSION_ERROR_GENERATED'
     );
     this.loadStoredLogs();
   }
@@ -427,7 +427,7 @@ export class LoggerDemoComponent {
       method: 'showUserAction',
       userId: 'demo-user-123',
     });
-    this.toastService.showInfo('Acció Usuari', "S'ha registrat una acció d'usuari");
+    this.toastService.showInfo('LOGGER_DEMO.USER_ACTION', 'LOGGER_DEMO.USER_ACTION_REGISTERED');
     this.loadStoredLogs();
   }
 
@@ -441,20 +441,20 @@ export class LoggerDemoComponent {
       },
       { formData: { name: 'Test User', action: 'submit' } }
     );
-    this.toastService.showInfo('Acció amb Dades', "S'ha registrat una acció d'usuari amb dades");
+    this.toastService.showInfo('LOGGER_DEMO.ACTION_WITH_DATA', 'LOGGER_DEMO.USER_ACTION_WITH_DATA_REGISTERED');
     this.loadStoredLogs();
   }
 
   // Gestor de logs
   viewStoredLogs() {
     this.loadStoredLogs();
-    this.toastService.showInfo('Logs Carregats', `S'han carregat ${this.storedLogs.length} logs`);
+    this.toastService.showInfo('LOGGER_DEMO.LOGS_LOADED', `LOGGER_DEMO.LOGS_LOADED_COUNT`);
   }
 
   clearStoredLogs() {
     this.logger.clearStoredLogs();
     this.storedLogs = [];
-    this.toastService.showSuccess('Logs Netejats', "S'han netejat tots els logs");
+    this.toastService.showSuccess('LOGGER_DEMO.LOGS_CLEARED', 'LOGGER_DEMO.LOGS_CLEARED_SUCCESS');
   }
 
   exportLogs() {
@@ -467,7 +467,7 @@ export class LoggerDemoComponent {
     link.download = `app-logs-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
 
-    this.toastService.showSuccess('Logs Exportats', "S'han exportat els logs a un fitxer JSON");
+    this.toastService.showSuccess('LOGGER_DEMO.LOGS_EXPORTED', 'LOGGER_DEMO.LOGS_EXPORTED_SUCCESS');
   }
 
   private loadStoredLogs() {

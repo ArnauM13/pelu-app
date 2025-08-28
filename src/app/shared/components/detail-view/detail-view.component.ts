@@ -445,10 +445,11 @@ export class DetailViewComponent {
       if (this.isEditing()) {
         // Load available days and time slots when editing starts
         this.#appointmentManagementService.loadAvailableDays();
-        // Wait a bit for the appointment to be loaded, then load time slots
-        setTimeout(() => {
-          this.#appointmentManagementService.loadAvailableTimeSlots();
-        }, 200);
+        // Load time slots for the current appointment date
+        const appointment = this.appointment();
+        if (appointment?.data) {
+          this.#appointmentManagementService.loadAvailableTimeSlotsForDate(appointment.data);
+        }
       }
     });
   }
@@ -536,7 +537,7 @@ export class DetailViewComponent {
     const appointment = this.appointment();
 
     if (!appointment) {
-      this.#toastService.showError('No s\'ha trobat la reserva per generar l\'arxiu ICS');
+      this.#toastService.showError('COMMON.ERROR', 'COMMON.BOOKING_NOT_FOUND');
       return;
     }
 
@@ -545,7 +546,7 @@ export class DetailViewComponent {
       const service = await this.#firebaseServicesService.getServiceById(appointment.serviceId);
 
       if (!service) {
-        this.#toastService.showError('No s\'ha trobat el servei per generar l\'arxiu ICS');
+        this.#toastService.showError('COMMON.ERROR', 'COMMON.SERVICE_NOT_FOUND');
         return;
       }
 
@@ -571,10 +572,10 @@ export class DetailViewComponent {
 
       // Download and open calendar
       await IcsUtils.downloadAndOpenCalendar(icsContent, filename);
-      this.#toastService.showSuccess('Arxiu ICS descarregat i calendari obert correctament');
+      this.#toastService.showSuccess('COMMON.SUCCESS', 'COMMON.ICS_DOWNLOAD_SUCCESS');
     } catch (error) {
       console.error('Error generating ICS file:', error);
-      this.#toastService.showError('Error al generar l\'arxiu ICS');
+      this.#toastService.showError('COMMON.ERROR', 'COMMON.ICS_GENERATION_ERROR');
     }
   }
 }

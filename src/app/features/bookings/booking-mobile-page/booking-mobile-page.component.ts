@@ -435,7 +435,7 @@ export class BookingMobilePageComponent {
     const details = this.bookingDetails();
 
     if (!selectedTimeSlot || !selectedDate || !selectedService || !details.clientName || !details.email) {
-      this.toastService.showError('Informació incompleta per confirmar la reserva');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.INCOMPLETE_BOOKING_INFO');
       return;
     }
 
@@ -446,7 +446,7 @@ export class BookingMobilePageComponent {
       selectedService.duration,
       this.appointments()
     )) {
-      this.toastService.showError('Aquest horari ja no està disponible. Si us plau, selecciona un altre horari.');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.TIME_SLOT_NO_LONGER_AVAILABLE');
       return;
     }
 
@@ -618,21 +618,21 @@ export class BookingMobilePageComponent {
   selectTimeSlot(timeSlot: TimeSlot) {
     // Check if user has reached appointment limit
     if (!this.canUserBookMoreAppointments()) {
-      this.toastService.showError('No pots fer més reserves. Ja tens el màxim de reserves actives.');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.MAX_APPOINTMENTS_REACHED');
       return;
     }
 
     // Check if service is selected
     const selectedService = this.selectedService();
     if (!selectedService) {
-      this.toastService.showError('Si us plau, selecciona un servei primer');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.PLEASE_SELECT_SERVICE_FIRST');
       return;
     }
 
     // Check if date is selected
     const selectedDate = this.selectedDate();
     if (!selectedDate) {
-      this.toastService.showError('Si us plau, selecciona una data primer');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.PLEASE_SELECT_DATE_FIRST');
       return;
     }
 
@@ -643,7 +643,7 @@ export class BookingMobilePageComponent {
       selectedService.duration,
       this.appointments()
     )) {
-      this.toastService.showError('Aquest horari no està disponible. Si us plau, selecciona un altre horari.');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.TIME_SLOT_NOT_AVAILABLE');
       return;
     }
 
@@ -1004,7 +1004,7 @@ export class BookingMobilePageComponent {
     const booking = this.createdBooking();
 
     if (!booking) {
-      this.toastService.showError('No s\'ha trobat la reserva per afegir al calendari');
+      this.toastService.showError('COMMON.ERROR', 'COMMON.BOOKING_NOT_FOUND_FOR_CALENDAR');
       return;
     }
 
@@ -1015,7 +1015,7 @@ export class BookingMobilePageComponent {
       const service = await this.firebaseServicesService.getServiceById(booking.serviceId);
 
       if (!service) {
-        this.toastService.showError('No s\'ha trobat el servei per afegir al calendari');
+        this.toastService.showError('COMMON.ERROR', 'COMMON.SERVICE_NOT_FOUND_FOR_CALENDAR');
         return;
       }
 
@@ -1041,18 +1041,18 @@ export class BookingMobilePageComponent {
 
       // Try to add to calendar directly
       await IcsUtils.addToCalendar(icsContent, filename);
-      this.toastService.showSuccess('Esdeveniment afegit al calendari correctament');
+      this.toastService.showSuccess('COMMON.SUCCESS', 'COMMON.EVENT_ADDED_TO_CALENDAR');
     } catch (error) {
       console.error('Error adding to calendar:', error);
 
       // Show a more informative error message
       const errorMessage = error instanceof Error ? error.message : 'Error al afegir al calendari';
 
-      if (errorMessage.includes('descarregat')) {
-        this.toastService.showInfo('Arxiu descarregat', 'L\'arxiu de calendari s\'ha descarregat. Obre\'l per afegir l\'esdeveniment al teu calendari.');
-      } else {
-        this.toastService.showError('No s\'ha pogut afegir directament al calendari. Prova descarregant l\'arxiu manualment.');
-      }
+              if (errorMessage.includes('descarregat')) {
+          this.toastService.showInfo('COMMON.FILE_DOWNLOADED', 'COMMON.CALENDAR_FILE_DOWNLOADED');
+        } else {
+          this.toastService.showError('COMMON.ERROR', 'COMMON.COULD_NOT_ADD_TO_CALENDAR');
+        }
     } finally {
       this.loaderService.hide();
     }

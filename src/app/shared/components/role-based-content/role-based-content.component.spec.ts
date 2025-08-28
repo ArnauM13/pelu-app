@@ -295,8 +295,13 @@ describe('RoleBasedContentComponent', () => {
     let shouldShow = component.shouldShowContent();
     expect(shouldShow).toBe(true);
 
-    // Test with permission denied
+    // Test with permission denied - re-create component to force signal re-evaluation
     userService.hasPermission.and.returnValue(false);
+    fixture = TestBed.createComponent(RoleBasedContentComponent);
+    component = fixture.componentInstance;
+    component.roles = ['admin'];
+    component.permissions = ['manage_users'];
+    component.requireAllPermissions = false;
     shouldShow = component.shouldShowContent();
     expect(shouldShow).toBe(false);
   });

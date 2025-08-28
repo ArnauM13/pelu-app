@@ -164,7 +164,7 @@ export class AdminSettingsPageComponent implements OnInit {
       this.originalFormValues = null;
     } catch (error) {
       console.error('Error loading settings:', error);
-      this.toastService.showError('Error', 'Error al carregar la configuració');
+      this.toastService.showError('COMMON.ERROR', 'ADMIN.LOAD_SETTINGS_ERROR');
     } finally {
       this.loaderService.hide();
     }
@@ -301,7 +301,7 @@ export class AdminSettingsPageComponent implements OnInit {
           bookingAdvanceTime: formValue.bookingAdvanceTime,
         });
 
-        this.toastService.showSuccess('Èxit', 'Configuració desada correctament');
+        this.toastService.showSuccess('COMMON.SUCCESS', 'ADMIN.SETTINGS_SAVED_SUCCESS');
 
         // Clear original form values since changes are now permanent
         this.originalFormValues = null;
@@ -310,7 +310,7 @@ export class AdminSettingsPageComponent implements OnInit {
         this.setViewMode();
       } catch (error) {
         console.error('Error saving settings:', error);
-        this.toastService.showError('Error', 'Error al desar la configuració');
+        this.toastService.showError('COMMON.ERROR', 'ADMIN.SAVE_SETTINGS_ERROR');
       } finally {
         this.saving.set(false);
         this.loaderService.hide();

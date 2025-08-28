@@ -240,15 +240,47 @@ export class AppointmentManagementService {
     // If date changed, reload available time slots and days
     if (field === 'data') {
       this.loadAvailableDays();
-      // Wait a bit for the appointment to update, then load time slots
-      setTimeout(() => {
-        this.loadAvailableTimeSlots();
-      }, 100);
+      // Load time slots with the new date immediately
+      this.loadAvailableTimeSlotsForDate(value as string);
     }
 
     // If time changed, reload available time slots
     if (field === 'hora') {
-      this.loadAvailableTimeSlots();
+      this.loadAvailableTimeSlotsForDate(appointment.data);
+    }
+  }
+
+  async loadAvailableTimeSlotsForDate(date: string): Promise<void> {
+    try {
+      const appointment = this.appointment();
+      if (!appointment?.serviceId) {
+        this.availableTimeSlotsSignal.set([]);
+        return;
+      }
+
+      const service = this.servicesService.services().find(s => s.id === appointment.serviceId);
+      if (!service) {
+        this.availableTimeSlotsSignal.set([]);
+        return;
+      }
+
+      const bookingDate = new Date(date);
+      const allBookings = this.bookingService.bookings();
+
+      // Filter out the current appointment to avoid showing it as occupied
+      const otherBookings = allBookings.filter(booking => booking.id !== appointment.id);
+
+      // Generate time slots for the selected date and service using BookingValidationService
+      const timeSlots = this.bookingValidationService.generateTimeSlotsForService(
+        bookingDate,
+        service.duration,
+        otherBookings
+      );
+
+      this.availableTimeSlotsSignal.set(timeSlots);
+    } catch (error) {
+      console.error('Error loading available time slots for date:', error);
+      this.availableTimeSlotsSignal.set([]);
     }
   }
 

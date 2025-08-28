@@ -404,27 +404,27 @@ export class ToastDemoComponent {
 
   // Basic types
   showSuccess() {
-    this.toastService.showSuccess('Operació completada amb èxit', 'La teva acció s\'ha realitzat correctament');
+    this.toastService.showSuccess('COMMON.SUCCESS', 'TOAST_DEMO.OPERATION_COMPLETED');
   }
 
   showError() {
-    this.toastService.showError('Ha ocorregut un error inesperat', 'Si us plau, torna-ho a provar més tard');
+    this.toastService.showError('COMMON.ERROR', 'TOAST_DEMO.UNEXPECTED_ERROR');
   }
 
   showInfo() {
-    this.toastService.showInfo('Informació important', 'Aquest és un missatge informatiu per l\'usuari');
+    this.toastService.showInfo('COMMON.INFO', 'TOAST_DEMO.IMPORTANT_INFO');
   }
 
   showWarning() {
-    this.toastService.showWarning('Advertència', 'Aquesta acció pot tenir conseqüències');
+    this.toastService.showWarning('COMMON.WARNING', 'TOAST_DEMO.WARNING_MESSAGE');
   }
 
   showSecondary() {
-    this.toastService.showSecondary('Missatge secundari', 'Aquest és un missatge de tipus secundari');
+    this.toastService.showSecondary('COMMON.INFO', 'TOAST_DEMO.SECONDARY_MESSAGE');
   }
 
   showContrast() {
-    this.toastService.showContrast('Missatge de contrast', 'Aquest missatge destaca del fons');
+    this.toastService.showContrast('COMMON.INFO', 'TOAST_DEMO.CONTRAST_MESSAGE');
   }
 
   // Custom icons
@@ -588,10 +588,10 @@ export class ToastDemoComponent {
   }
 
   showCascadeToasts() {
-    setTimeout(() => this.toastService.showSuccess('Primer', 'Cascada 1'), 0);
-    setTimeout(() => this.toastService.showInfo('Segon', 'Cascada 2'), 1000);
-    setTimeout(() => this.toastService.showWarning('Tercer', 'Cascada 3'), 2000);
-    setTimeout(() => this.toastService.showError('Quart', 'Cascada 4'), 3000);
+    setTimeout(() => this.toastService.showSuccess('COMMON.SUCCESS', 'TOAST_DEMO.CASCADE_1'), 0);
+    setTimeout(() => this.toastService.showInfo('COMMON.INFO', 'TOAST_DEMO.CASCADE_2'), 1000);
+    setTimeout(() => this.toastService.showWarning('COMMON.WARNING', 'TOAST_DEMO.CASCADE_3'), 2000);
+    setTimeout(() => this.toastService.showError('COMMON.ERROR', 'TOAST_DEMO.CASCADE_4'), 3000);
   }
 
   // Custom classes
