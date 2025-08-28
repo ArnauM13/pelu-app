@@ -57,7 +57,8 @@
       "CONFIRM_BOOKING": "Confirmar reserva",
       "CONTINUE": "Continuar",
       "LOGIN": "Iniciar sesión",
-      "TRY_AGAIN": "Intentar de nuevo"
+      "TRY_AGAIN": "Intentar de nuevo",
+      "VIEW_DETAILS": "Ver detalles"
     },
     "STATUS": {
       "LOADING": "Cargando...",
@@ -197,6 +198,21 @@
     "ERROR_LOADING_BOOKING": "Error al cargar la reserva",
     "BOOKING_NOT_FOUND": "Reserva no encontrada",
     "BOOKING_NOT_FOUND_MESSAGE": "No se pudo encontrar la reserva que buscas",
+    "SERVICE_NOT_FOUND": "Servicio no encontrado",
+    "ICS_GENERATION_ERROR": "Error al generar el archivo ICS",
+    "ICS_DOWNLOAD_SUCCESS": "Archivo ICS descargado y calendario abierto correctamente",
+    "INCOMPLETE_BOOKING_INFO": "Información incompleta para confirmar la reserva",
+    "TIME_SLOT_NO_LONGER_AVAILABLE": "Este horario ya no está disponible. Por favor, selecciona otro horario.",
+    "MAX_APPOINTMENTS_REACHED": "No puedes hacer más reservas. Ya tienes el máximo de reservas activas.",
+    "PLEASE_SELECT_SERVICE_FIRST": "Por favor, selecciona un servicio primero",
+    "PLEASE_SELECT_DATE_FIRST": "Por favor, selecciona una fecha primero",
+    "TIME_SLOT_NOT_AVAILABLE": "Este horario no está disponible. Por favor, selecciona otro horario.",
+    "BOOKING_NOT_FOUND_FOR_CALENDAR": "No se ha encontrado la reserva para añadir al calendario",
+    "SERVICE_NOT_FOUND_FOR_CALENDAR": "No se ha encontrado el servicio para añadir al calendario",
+    "EVENT_ADDED_TO_CALENDAR": "Evento añadido al calendario correctamente",
+    "FILE_DOWNLOADED": "Archivo descargado",
+    "CALENDAR_FILE_DOWNLOADED": "El archivo de calendario se ha descargado. Ábrelo para añadir el evento a tu calendario.",
+    "COULD_NOT_ADD_TO_CALENDAR": "No se ha podido añadir directamente al calendario. Prueba descargando el archivo manualmente.",
     "ERROR_PAST_BOOKING": "No se pueden crear reservas en el pasado",
     "ERROR_BOOKING_NOT_ALLOWED": "No se puede hacer la reserva en esta fecha/hora",
     "ERROR_CANCELLATION_NOT_ALLOWED": "No se puede cancelar la reserva en este momento",
@@ -215,6 +231,17 @@
       "CLIENT_ERROR": "Error en los datos enviados. Verifica la información introducida.",
       "UNKNOWN_ERROR": "Error desconocido. Por favor, contacta con el soporte técnico."
     },
+    "SUCCESS": "Éxito",
+    "ERROR": "Error",
+    "INFO": "Información",
+    "WARNING": "Advertencia",
+    "VALIDATION_ERROR": "Error de validación",
+    "NETWORK_ERROR": "Error de conexión",
+    "NETWORK_ERROR_DETAIL": "No se ha podido conectar con el servidor. Por favor, inténtalo de nuevo.",
+    "UNAUTHORIZED_ERROR": "Acceso denegado",
+    "UNAUTHORIZED_ERROR_DETAIL": "No tienes permisos para realizar esta acción.",
+    "LOGIN_REQUIRED": "Inicio de sesión requerido",
+    "LOGIN_REQUIRED_DETAIL": "Debes iniciar sesión para realizar esta acción.",
     "VALIDATION": {
       "INVALID_EMAIL": "Por favor, introduce un email válido"
     },
@@ -385,6 +412,12 @@
     "BULK_DELETE_ERROR": "Error al eliminar las citas",
     "DELETE_ERROR": "Error al eliminar la cita",
     "CSV_EXPORT_SUCCESS": "CSV descargado correctamente",
+    "CREATED_SUCCESS": "Cita creada",
+    "CREATED_DETAIL": "Tu cita se ha creado correctamente",
+    "CREATED_SUCCESS_WITH_NAME": "La cita de {{name}} se ha creado correctamente",
+    "UPDATE_SUCCESS_WITH_NAME": "La cita de {{name}} se ha actualizado correctamente",
+    "DELETE_SUCCESS_WITH_NAME": "La cita de {{name}} se ha eliminado correctamente",
+    "LOAD_ERROR": "Error al cargar las citas",
     "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "¿Estás seguro de que quieres eliminar esta cita? Esta acción no se puede deshacer.",
     "BULK_DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar las citas seleccionadas? Esta acción no se puede deshacer."
   },
@@ -555,6 +588,9 @@
       "CURRENCY": "Moneda",
       "CURRENCY_HELP": "La moneda se aplicará a todos los precios de la aplicación",
       "SAVE_SETTINGS": "Guardar configuración",
+      "LOAD_SETTINGS_ERROR": "Error al cargar la configuración",
+      "SETTINGS_SAVED_SUCCESS": "Configuración guardada correctamente",
+      "SAVE_SETTINGS_ERROR": "Error al guardar la configuración",
 
       "LOADING": "Cargando configuración..."
     }
@@ -784,5 +820,39 @@
     "SELECT_PLACEHOLDER": "Selecciona una opción",
     "SELECT_FILTER_PLACEHOLDER": "Buscar...",
     "DATE_PLACEHOLDER": "Selecciona una fecha"
+  },
+  "TOAST_DEMO": {
+    "OPERATION_COMPLETED": "Tu acción se ha realizado correctamente",
+    "UNEXPECTED_ERROR": "Por favor, inténtalo de nuevo más tarde",
+    "IMPORTANT_INFO": "Este es un mensaje informativo para el usuario",
+    "WARNING_MESSAGE": "Esta acción puede tener consecuencias",
+    "SECONDARY_MESSAGE": "Este es un mensaje de tipo secundario",
+    "CONTRAST_MESSAGE": "Este mensaje destaca del fondo",
+    "CASCADE_1": "Cascada 1",
+    "CASCADE_2": "Cascada 2",
+    "CASCADE_3": "Cascada 3",
+    "CASCADE_4": "Cascada 4"
+  },
+  "LOGGER_DEMO": {
+    "LOG_INFO": "Log Info",
+    "INFO_LOG_GENERATED": "Se ha generado un log informativo",
+    "LOG_WARNING": "Log Warning",
+    "WARNING_LOG_GENERATED": "Se ha generado un log de advertencia",
+    "LOG_DEBUG": "Log Debug",
+    "DEBUG_LOG_GENERATED": "Se ha generado un log de debug (solo visible en desarrollo)",
+    "LOG_PERFORMANCE": "Log Performance",
+    "PERFORMANCE_OPERATION_COMPLETED": "Operación completada",
+    "VALIDATION_ERROR_GENERATED": "Se ha generado un error de validación",
+    "PERMISSION_ERROR_GENERATED": "Se ha generado un error de permisos",
+    "USER_ACTION": "Acción Usuario",
+    "USER_ACTION_REGISTERED": "Se ha registrado una acción de usuario",
+    "ACTION_WITH_DATA": "Acción con Datos",
+    "USER_ACTION_WITH_DATA_REGISTERED": "Se ha registrado una acción de usuario con datos",
+    "LOGS_LOADED": "Logs Cargados",
+    "LOGS_LOADED_COUNT": "Se han cargado logs",
+    "LOGS_CLEARED": "Logs Limpiados",
+    "LOGS_CLEARED_SUCCESS": "Se han limpiado todos los logs",
+    "LOGS_EXPORTED": "Logs Exportados",
+    "LOGS_EXPORTED_SUCCESS": "Se han exportado los logs a un archivo JSON"
   }
 }

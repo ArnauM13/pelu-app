@@ -106,7 +106,7 @@ describe('NextAppointmentComponent', () => {
     servicesServiceSpy.getServiceColor.and.returnValue({ color: '#3b82f6' });
     servicesServiceSpy.getServiceCssClass.and.returnValue('service-color-primary');
     servicesServiceSpy.getServiceTextCssClass.and.returnValue('service-text-primary');
-    servicesServiceSpy.getServiceName.and.returnValue('Tall de Cabell');
+    servicesServiceSpy.getServiceName.and.callFake((service: any) => service.name);
     servicesServiceSpy.getDefaultColor.and.returnValue({ color: '#6b7280' });
 
     await TestBed.configureTestingModule({
@@ -230,6 +230,7 @@ describe('NextAppointmentComponent', () => {
     const booking = mockBookings[0];
     const serviceName = component.getServiceName(booking);
     expect(serviceName).toBe('Tall de Cabell');
+    expect(servicesService.getAllServices).toHaveBeenCalled();
     expect(servicesService.getServiceName).toHaveBeenCalled();
   });
 
@@ -252,7 +253,8 @@ describe('NextAppointmentComponent', () => {
   it('should get service duration correctly', () => {
     const booking = mockBookings[0];
     const duration = component.getServiceDuration(booking);
-    expect(duration).toBe(60); // Default duration when service not found in mock
+    expect(duration).toBe(30); // service1 has duration 30 in mock
+    expect(servicesService.getAllServices).toHaveBeenCalled();
   });
 
   it('should return default duration when no serviceId', () => {
@@ -357,16 +359,14 @@ describe('NextAppointmentComponent', () => {
 
   it('should return default service name when service not found', () => {
     servicesService.getServiceName.and.returnValue('Servei general');
-    const booking = mockBookings[0];
-    booking.serviceId = 'nonexistent-service';
+    const booking = { ...mockBookings[0], serviceId: 'nonexistent-service' };
 
     const serviceName = component.getServiceName(booking);
     expect(serviceName).toBe('Servei general');
   });
 
   it('should return default duration when service not found', () => {
-    const booking = mockBookings[0];
-    booking.serviceId = 'nonexistent-service';
+    const booking = { ...mockBookings[0], serviceId: 'nonexistent-service' };
 
     const duration = component.getServiceDuration(booking);
     expect(duration).toBe(60);

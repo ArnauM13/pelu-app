@@ -181,16 +181,12 @@ export class BookingPageComponent {
   }
 
   private async loadServices() {
-    this.loaderService.show({ message: 'BOOKING.LOADING_SERVICES' });
-
     try {
       await this.firebaseServicesService.loadServices();
       const services = this.firebaseServicesService.activeServices();
       this.availableServicesSignal.set(services);
     } catch (error) {
       console.error('Error loading services:', error);
-    } finally {
-      this.loaderService.hide();
     }
   }
 

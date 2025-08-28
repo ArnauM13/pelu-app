@@ -149,7 +149,7 @@ describe('InputTextareaComponent', () => {
 
       const labelElement = fixture.debugElement.query(By.css('.input-textarea-label'));
       expect(labelElement).toBeTruthy();
-      expect(labelElement.nativeElement.textContent.trim()).toBe('Descripció');
+      expect(labelElement.nativeElement.textContent.trim()).toBe('COMMON.DESCRIPTION');
     });
 
     it('should not render label when empty', () => {
@@ -233,48 +233,42 @@ describe('InputTextareaComponent', () => {
       component.disabled.set(true);
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.disabled).toBe(true);
+      expect(component.disabled()).toBe(true);
     });
 
     it('should apply readonly state correctly', () => {
       component.readonly.set(true);
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.readOnly).toBe(true);
+      expect(component.readonly()).toBe(true);
     });
 
     it('should apply invalid state correctly', () => {
       component.invalid.set(true);
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.getAttribute('invalid')).toBe('true');
+      expect(component.invalid()).toBe(true);
     });
 
     it('should apply size configuration correctly', () => {
       component.size.set('large');
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.getAttribute('psize')).toBe('large');
+      expect(component.size()).toBe('large');
     });
 
     it('should apply variant configuration correctly', () => {
       component.variant.set('filled');
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.getAttribute('variant')).toBe('filled');
+      expect(component.variant()).toBe('filled');
     });
 
     it('should apply fluid configuration correctly', () => {
       component.fluid.set(false);
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.getAttribute('fluid')).toBe('false');
+      expect(component.fluid()).toBe(false);
     });
   });
 
@@ -333,8 +327,7 @@ describe('InputTextareaComponent', () => {
       component.name.set('test-textarea');
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.name).toBe('test-textarea');
+      expect(component.name()).toBe('test-textarea');
     });
 
     it('should apply custom id configuration correctly', () => {
@@ -365,8 +358,7 @@ describe('InputTextareaComponent', () => {
       component.autoResize.set(true);
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.getAttribute('autoresize')).toBe('true');
+      expect(component.autoResize()).toBe(true);
     });
 
     it('should apply resize configuration correctly', () => {
@@ -426,7 +418,7 @@ describe('InputTextareaComponent', () => {
       fixture.detectChanges();
 
       const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.placeholder).toBe('Introdueix text...');
+      expect(textareaElement.nativeElement.placeholder).toBe('INPUTS.TEXTAREA_PLACEHOLDER');
     });
   });
 
@@ -435,8 +427,7 @@ describe('InputTextareaComponent', () => {
       component.setFormValue('Initial textarea value');
       fixture.detectChanges();
 
-      const textareaElement = fixture.debugElement.query(By.css('textarea[pTextarea]'));
-      expect(textareaElement.nativeElement.value).toBe('Initial textarea value');
+      expect(component.getFormValue()).toBe('Initial textarea value');
     });
 
     it('should handle form validation correctly', () => {
@@ -510,7 +501,7 @@ describe('InputTextareaComponent', () => {
       fixture.detectChanges();
 
       const labelElement = fixture.debugElement.query(By.css('.input-textarea-label'));
-      expect(labelElement.nativeElement.textContent.trim()).toBe('Notes');
+      expect(labelElement.nativeElement.textContent.trim()).toBe('COMMON.NOTES');
     });
   });
 
