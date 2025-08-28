@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastConfig, ToastData } from '../components/toast/toast.component';
 
 export type ToastSeverity = 'success' | 'error' | 'info' | 'warn' | 'secondary' | 'contrast';
@@ -15,6 +16,7 @@ export interface ToastState {
 })
 export class ToastService {
   private readonly messageService = inject(MessageService);
+  private readonly translateService = inject(TranslateService);
   private readonly defaultToastKey = 'pelu-toast';
 
   // Internal state signals
@@ -102,71 +104,71 @@ export class ToastService {
     this.toastHistorySignal.set(newHistory);
   }
 
-  // Quick helper methods
-  showSuccess(summary: string, detail?: string, data?: ToastData) {
+  // Quick helper methods - now accept translation keys
+  showSuccess(summaryKey: string, detailKey?: string, data?: ToastData) {
     this.showToast({
       severity: 'success',
-      summary,
-      detail,
+      summary: this.translateService.instant(summaryKey),
+      detail: detailKey ? this.translateService.instant(detailKey) : undefined,
       data,
     });
   }
 
-  showError(summary: string, detail?: string, data?: ToastData) {
+  showError(summaryKey: string, detailKey?: string, data?: ToastData) {
     this.showToast({
       severity: 'error',
-      summary,
-      detail,
+      summary: this.translateService.instant(summaryKey),
+      detail: detailKey ? this.translateService.instant(detailKey) : undefined,
       data,
     });
   }
 
-  showInfo(summary: string, detail?: string, data?: ToastData) {
+  showInfo(summaryKey: string, detailKey?: string, data?: ToastData) {
     this.showToast({
       severity: 'info',
-      summary,
-      detail,
+      summary: this.translateService.instant(summaryKey),
+      detail: detailKey ? this.translateService.instant(detailKey) : undefined,
       data,
     });
   }
 
-  showWarning(summary: string, detail?: string, data?: ToastData) {
+  showWarning(summaryKey: string, detailKey?: string, data?: ToastData) {
     this.showToast({
       severity: 'warn',
-      summary,
-      detail,
+      summary: this.translateService.instant(summaryKey),
+      detail: detailKey ? this.translateService.instant(detailKey) : undefined,
       data,
     });
   }
 
-  showSecondary(summary: string, detail?: string, data?: ToastData) {
+  showSecondary(summaryKey: string, detailKey?: string, data?: ToastData) {
     this.showToast({
       severity: 'secondary',
-      summary,
-      detail,
+      summary: this.translateService.instant(summaryKey),
+      detail: detailKey ? this.translateService.instant(detailKey) : undefined,
       data,
     });
   }
 
-  showContrast(summary: string, detail?: string, data?: ToastData) {
+  showContrast(summaryKey: string, detailKey?: string, data?: ToastData) {
     this.showToast({
       severity: 'contrast',
-      summary,
-      detail,
+      summary: this.translateService.instant(summaryKey),
+      detail: detailKey ? this.translateService.instant(detailKey) : undefined,
       data,
     });
   }
 
-  // Specific use cases
+  // Specific use cases - updated to use translation keys
   showReservationCreated(appointmentId?: string) {
     this.showToast({
       severity: 'success',
-      summary: 'Cita creada',
-      detail: 'La teva cita s\'ha creat correctament',
+      summary: this.translateService.instant('APPOINTMENTS.CREATED_SUCCESS'),
+      detail: this.translateService.instant('APPOINTMENTS.CREATED_DETAIL'),
       data: {
         appointmentId,
         showViewButton: true,
-        actionLabel: 'Veure cita',
+        actionLabel: this.translateService.instant('COMMON.ACTIONS.VIEW_DETAILS'),
       },
     });
   }
@@ -174,99 +176,99 @@ export class ToastService {
   showAppointmentDeleted(appointmentName?: string) {
     this.showToast({
       severity: 'info',
-      summary: 'Cita eliminada',
+      summary: this.translateService.instant('APPOINTMENTS.DELETE_SUCCESS'),
       detail: appointmentName
-        ? `La cita de ${appointmentName} s'ha eliminat correctament`
-        : 'La cita s\'ha eliminat correctament',
+        ? this.translateService.instant('APPOINTMENTS.DELETE_SUCCESS_WITH_NAME', { name: appointmentName })
+        : this.translateService.instant('APPOINTMENTS.DELETE_SUCCESS'),
     });
   }
 
   showAppointmentUpdated(appointmentName?: string) {
     this.showToast({
       severity: 'success',
-      summary: 'Cita actualitzada',
+      summary: this.translateService.instant('APPOINTMENTS.UPDATE_SUCCESS'),
       detail: appointmentName
-        ? `La cita de ${appointmentName} s'ha actualitzat correctament`
-        : 'La cita s\'ha actualitzat correctament',
+        ? this.translateService.instant('APPOINTMENTS.UPDATE_SUCCESS_WITH_NAME', { name: appointmentName })
+        : this.translateService.instant('APPOINTMENTS.UPDATE_SUCCESS'),
     });
   }
 
   showAppointmentCreated(appointmentName?: string, appointmentId?: string) {
     this.showToast({
       severity: 'success',
-      summary: 'Cita creada',
+      summary: this.translateService.instant('APPOINTMENTS.CREATED_SUCCESS'),
       detail: appointmentName
-        ? `La cita de ${appointmentName} s'ha creat correctament`
-        : 'La cita s\'ha creat correctament',
+        ? this.translateService.instant('APPOINTMENTS.CREATED_SUCCESS_WITH_NAME', { name: appointmentName })
+        : this.translateService.instant('APPOINTMENTS.CREATED_DETAIL'),
       data: {
         appointmentId,
         showViewButton: true,
-        actionLabel: 'Veure cita',
+        actionLabel: this.translateService.instant('COMMON.ACTIONS.VIEW_DETAILS'),
       },
     });
   }
 
-  showValidationError(message: string) {
+  showValidationError(messageKey: string) {
     this.showToast({
       severity: 'error',
-      summary: 'Error de validació',
-      detail: message,
+      summary: this.translateService.instant('COMMON.VALIDATION_ERROR'),
+      detail: this.translateService.instant(messageKey),
     });
   }
 
   showNetworkError() {
     this.showToast({
       severity: 'error',
-      summary: 'Error de connexió',
-      detail: 'No s\'ha pogut connectar amb el servidor. Si us plau, torna-ho a provar.',
+      summary: this.translateService.instant('COMMON.NETWORK_ERROR'),
+      detail: this.translateService.instant('COMMON.NETWORK_ERROR_DETAIL'),
     });
   }
 
   showUnauthorizedError() {
     this.showToast({
       severity: 'error',
-      summary: 'Accés denegat',
-      detail: 'No tens permisos per realitzar aquesta acció.',
+      summary: this.translateService.instant('COMMON.UNAUTHORIZED_ERROR'),
+      detail: this.translateService.instant('COMMON.UNAUTHORIZED_ERROR_DETAIL'),
     });
   }
 
   showLoginRequired() {
     this.showToast({
       severity: 'warn',
-      summary: 'Inici de sessió requerit',
-      detail: 'Has d\'iniciar sessió per realitzar aquesta acció.',
+      summary: this.translateService.instant('COMMON.LOGIN_REQUIRED'),
+      detail: this.translateService.instant('COMMON.LOGIN_REQUIRED_DETAIL'),
     });
   }
 
-  showGenericSuccess(message: string) {
+  showGenericSuccess(messageKey: string) {
     this.showToast({
       severity: 'success',
-      summary: 'Èxit',
-      detail: message,
+      summary: this.translateService.instant('COMMON.SUCCESS'),
+      detail: this.translateService.instant(messageKey),
     });
   }
 
-  showGenericError(message: string) {
+  showGenericError(messageKey: string) {
     this.showToast({
       severity: 'error',
-      summary: 'Error',
-      detail: message,
+      summary: this.translateService.instant('COMMON.ERROR'),
+      detail: this.translateService.instant(messageKey),
     });
   }
 
-  showGenericInfo(message: string) {
+  showGenericInfo(messageKey: string) {
     this.showToast({
       severity: 'info',
-      summary: 'Informació',
-      detail: message,
+      summary: this.translateService.instant('COMMON.INFO'),
+      detail: this.translateService.instant(messageKey),
     });
   }
 
-  showGenericWarning(message: string) {
+  showGenericWarning(messageKey: string) {
     this.showToast({
       severity: 'warn',
-      summary: 'Advertència',
-      detail: message,
+      summary: this.translateService.instant('COMMON.WARNING'),
+      detail: this.translateService.instant(messageKey),
     });
   }
 

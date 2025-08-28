@@ -104,10 +104,11 @@ describe('ProfileDropdownComponent', () => {
     userService.isAdmin.and.returnValue(true);
 
     const items = component.dropdownItems();
-    expect(items.length).toBe(4); // 1 default + 3 admin items
+    expect(items.length).toBe(5); // 1 default + 4 admin items
     expect(items[1].label).toBe('NAVIGATION.ADMIN_DASHBOARD');
     expect(items[2].label).toBe('NAVIGATION.ADMIN_SERVICES');
     expect(items[3].label).toBe('NAVIGATION.ADMIN_SETTINGS');
+    expect(items[4].label).toBe('NAVIGATION.PLAYGROUND');
   });
 
   it('should not include admin items when showAdminItems is false', () => {

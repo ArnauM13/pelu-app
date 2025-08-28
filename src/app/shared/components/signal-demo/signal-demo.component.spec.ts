@@ -33,7 +33,7 @@ describe('SignalDemoComponent', () => {
 
   it('should have toastService injected', () => {
     expect(component['toastService']).toBeDefined();
-    expect(component['toastService']).toBeInstanceOf(ToastService);
+    expect(component['toastService']).toBe(toastService);
   });
 
   it('should have public computed signals defined', () => {
