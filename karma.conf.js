@@ -49,5 +49,10 @@ module.exports = function (config) {
     },
     singleRun: isCI,
     restartOnFileChange: !isCI,
+    // Add timeout configuration to prevent disconnections
+    browserDisconnectTimeout: 60000, // 60 seconds
+    browserDisconnectTolerance: 3,
+    browserNoActivityTimeout: 60000, // 60 seconds
+    captureTimeout: 60000, // 60 seconds
   });
 };

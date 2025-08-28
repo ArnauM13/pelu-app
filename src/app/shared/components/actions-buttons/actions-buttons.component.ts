@@ -16,7 +16,6 @@ import { ButtonComponent } from '../buttons/button.component';
     <div class="actions-container">
       @for (action of actions; track action.id || action.label) {
         <pelu-button
-          [label]="action.label"
           [icon]="action.icon"
           [severity]="getSeverity(action.type)"
           [disabled]="action.disabled || false"
@@ -35,19 +34,9 @@ import { ButtonComponent } from '../buttons/button.component';
         align-items: center;
       }
 
-      .action-button {
-        min-width: 28px;
-        min-height: 28px;
-      }
-
       @media (max-width: 768px) {
         .actions-container {
           gap: 0.4rem;
-        }
-
-        .action-button {
-          min-width: 26px;
-          min-height: 26px;
         }
       }
     `,
