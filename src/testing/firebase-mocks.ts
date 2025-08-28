@@ -30,7 +30,7 @@ export const mockUser: Partial<User> = {
 
 // Mock for Firestore with proper collection() implementation
 export const firestoreMock = {
-  collection: jasmine.createSpy('collection').and.callFake((path: string) => ({
+  collection: jasmine.createSpy('collection').and.callFake((firestore: any, path: string) => ({
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
     doc: jasmine.createSpy('doc').and.returnValue({
       valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
@@ -149,9 +149,6 @@ export const storageMock = {
   }),
 };
 
-// Mock for serverTimestamp
-export const serverTimestampMock = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
-
 // Mock for collection and collectionData functions (Firebase v9+ modular API)
 export const collectionMock = jasmine.createSpy('collection').and.callFake((db: any, path: string) => ({
   valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
@@ -245,6 +242,12 @@ export const getDocMock = jasmine.createSpy('getDoc').and.returnValue(
     exists: true,
   })
 );
+
+// Mock for setDoc
+export const setDocMock = jasmine.createSpy('setDoc').and.returnValue(Promise.resolve());
+
+// Mock for serverTimestamp
+export const serverTimestampMock = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
 
 // Mock AuthService with signals
 export const mockAuthService = {
@@ -441,6 +444,57 @@ export const mockBookingService = {
   error: computed(() => null),
 };
 
+// Mock for runInInjectionContext
+export const mockRunInInjectionContext = jasmine.createSpy('runInInjectionContext').and.callFake((envInjector: any, fn: () => any) => {
+  return fn();
+});
+
+// Mock for Firebase functions used by FirebaseServicesService
+export const mockFirebaseFunctions = {
+  collection: jasmine.createSpy('collection').and.callFake((firestore: any, path: string) => ({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
+    doc: jasmine.createSpy('doc').and.returnValue({
+      valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+      set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+      update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+      delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+    }),
+  })),
+  query: jasmine.createSpy('query').and.callFake((collectionRef: any, ...queryConstraints: any[]) => ({
+    get: jasmine.createSpy('get').and.returnValue(
+      Promise.resolve({
+        docs: [],
+        empty: true,
+        forEach: (callback: any) => {},
+      })
+    ),
+  })),
+  orderBy: jasmine.createSpy('orderBy').and.callFake((field: string, direction?: string) => ({
+    get: jasmine.createSpy('get').and.returnValue(
+      Promise.resolve({
+        docs: [],
+        empty: true,
+        forEach: (callback: any) => {},
+      })
+    ),
+  })),
+  getDocs: jasmine.createSpy('getDocs').and.returnValue(
+    Promise.resolve({
+      docs: [],
+      empty: true,
+      forEach: (callback: any) => {},
+    })
+  ),
+  doc: jasmine.createSpy('doc').and.callFake((firestore: any, path: string, ...pathSegments: string[]) => ({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+    set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+    update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+    delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+  })),
+  setDoc: jasmine.createSpy('setDoc').and.returnValue(Promise.resolve()),
+  serverTimestamp: jasmine.createSpy('serverTimestamp').and.returnValue(new Date()),
+};
+
 // Mock Firebase providers for tests
 export const provideMockFirebase = () => [
   {
@@ -500,6 +554,39 @@ export const provideMockFirebase = () => [
   {
     provide: 'BookingService',
     useValue: mockBookingService,
+  },
+  // Add Firebase functions mocks
+  {
+    provide: 'collection',
+    useValue: mockFirebaseFunctions.collection,
+  },
+  {
+    provide: 'query',
+    useValue: mockFirebaseFunctions.query,
+  },
+  {
+    provide: 'orderBy',
+    useValue: mockFirebaseFunctions.orderBy,
+  },
+  {
+    provide: 'getDocs',
+    useValue: mockFirebaseFunctions.getDocs,
+  },
+  {
+    provide: 'doc',
+    useValue: mockFirebaseFunctions.doc,
+  },
+  {
+    provide: 'setDoc',
+    useValue: mockFirebaseFunctions.setDoc,
+  },
+  {
+    provide: 'serverTimestamp',
+    useValue: mockFirebaseFunctions.serverTimestamp,
+  },
+  {
+    provide: 'runInInjectionContext',
+    useValue: mockRunInInjectionContext,
   },
 ];
 

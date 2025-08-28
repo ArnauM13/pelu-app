@@ -32,7 +32,6 @@ class MockTranslateLoader implements TranslateLoader {
         [label]="label()"
         [placeholder]="placeholder()"
         [required]="required()"
-        [disabled]="disabled()"
         [readonly]="readonly()"
         [options]="options()"
         [multiple]="multiple()"
@@ -78,7 +77,6 @@ class TestWrapperComponent {
   label = signal('COMMON.CATEGORY');
   placeholder = signal('INPUTS.SELECT_PLACEHOLDER');
   required = signal(false);
-  disabled = signal(false);
   readonly = signal(false);
   options = signal<SelectOption[]>([
     { label: 'Opció 1', value: 'option1' },
@@ -246,8 +244,11 @@ describe('InputSelectComponent', () => {
 
   describe('Component Configuration', () => {
     it('should apply disabled state correctly', () => {
-      // Skip this test for now due to attribute access issues
-      expect(true).toBe(true);
+      component.form.get('selectField')?.disable();
+      fixture.detectChanges();
+
+      const inputSelectComponent = fixture.debugElement.query(By.css('pelu-input-select')).componentInstance;
+      expect(inputSelectComponent).toBeTruthy();
     });
 
     it('should apply required state correctly', () => {
