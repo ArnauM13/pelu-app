@@ -28,9 +28,9 @@ export const mockUser: Partial<User> = {
   tenantId: null,
 };
 
-// Mock for Firestore
+// Mock for Firestore with proper collection() implementation
 export const firestoreMock = {
-  collection: jasmine.createSpy('collection').and.returnValue({
+  collection: jasmine.createSpy('collection').and.callFake((path: string) => ({
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
     doc: jasmine.createSpy('doc').and.returnValue({
       valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
@@ -81,7 +81,7 @@ export const firestoreMock = {
         empty: true,
       })
     ),
-  }),
+  })),
   doc: jasmine.createSpy('doc').and.returnValue({
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
     set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
@@ -152,8 +152,8 @@ export const storageMock = {
 // Mock for serverTimestamp
 export const serverTimestampMock = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
 
-// Mock for collection and collectionData functions
-export const collectionMock = jasmine.createSpy('collection').and.returnValue({
+// Mock for collection and collectionData functions (Firebase v9+ modular API)
+export const collectionMock = jasmine.createSpy('collection').and.callFake((db: any, path: string) => ({
   valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
   doc: jasmine.createSpy('doc').and.returnValue({
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
@@ -161,7 +161,7 @@ export const collectionMock = jasmine.createSpy('collection').and.returnValue({
     update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
     delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
   }),
-});
+}));
 
 export const collectionDataMock = jasmine.createSpy('collectionData').and.returnValue(of([]));
 
@@ -385,6 +385,62 @@ export const mockTranslationService = {
   restoreUserLanguagePreference: jasmine.createSpy('restoreUserLanguagePreference'),
 };
 
+// Mock for logger service
+export const mockLoggerService = {
+  info: jasmine.createSpy('info'),
+  warn: jasmine.createSpy('warn'),
+  error: jasmine.createSpy('error'),
+  debug: jasmine.createSpy('debug'),
+  firebaseError: jasmine.createSpy('firebaseError'),
+  firebaseInfo: jasmine.createSpy('firebaseInfo'),
+  firebaseWarn: jasmine.createSpy('firebaseWarn'),
+  firebaseDebug: jasmine.createSpy('firebaseDebug'),
+};
+
+// Mock for FirebaseServicesService
+export const mockFirebaseServicesService = {
+  loadServices: jasmine.createSpy('loadServices').and.returnValue(Promise.resolve([])),
+  loadCustomCategories: jasmine.createSpy('loadCustomCategories').and.returnValue(Promise.resolve([])),
+  getServices: jasmine.createSpy('getServices').and.returnValue([]),
+  getCustomCategories: jasmine.createSpy('getCustomCategories').and.returnValue([]),
+  addService: jasmine.createSpy('addService').and.returnValue(Promise.resolve()),
+  updateService: jasmine.createSpy('updateService').and.returnValue(Promise.resolve()),
+  deleteService: jasmine.createSpy('deleteService').and.returnValue(Promise.resolve()),
+  addCustomCategory: jasmine.createSpy('addCustomCategory').and.returnValue(Promise.resolve()),
+  updateCustomCategory: jasmine.createSpy('updateCustomCategory').and.returnValue(Promise.resolve()),
+  deleteCustomCategory: jasmine.createSpy('deleteCustomCategory').and.returnValue(Promise.resolve()),
+  // Signal properties
+  services: computed(() => []),
+  customCategories: computed(() => []),
+  isLoading: computed(() => false),
+  error: computed(() => null),
+};
+
+// Mock for RoleService
+export const mockRoleService = {
+  loadUserRole: jasmine.createSpy('loadUserRole').and.returnValue(Promise.resolve('user')),
+  getUserRole: jasmine.createSpy('getUserRole').and.returnValue('user'),
+  isAdmin: jasmine.createSpy('isAdmin').and.returnValue(false),
+  isUser: jasmine.createSpy('isUser').and.returnValue(true),
+  // Signal properties
+  userRole: computed(() => 'user'),
+  isLoading: computed(() => false),
+  error: computed(() => null),
+};
+
+// Mock for BookingService
+export const mockBookingService = {
+  createBooking: jasmine.createSpy('createBooking').and.returnValue(Promise.resolve({ id: 'mock-booking-id' })),
+  updateBooking: jasmine.createSpy('updateBooking').and.returnValue(Promise.resolve()),
+  deleteBooking: jasmine.createSpy('deleteBooking').and.returnValue(Promise.resolve()),
+  getBookings: jasmine.createSpy('getBookings').and.returnValue(Promise.resolve([])),
+  getBookingById: jasmine.createSpy('getBookingById').and.returnValue(Promise.resolve({})),
+  // Signal properties
+  bookings: computed(() => []),
+  isLoading: computed(() => false),
+  error: computed(() => null),
+};
+
 // Mock Firebase providers for tests
 export const provideMockFirebase = () => [
   {
@@ -426,6 +482,24 @@ export const provideMockFirebase = () => [
   {
     provide: ActivatedRoute,
     useValue: mockActivatedRoute,
+  },
+  // Add logger service mock
+  {
+    provide: 'LoggerService',
+    useValue: mockLoggerService,
+  },
+  // Add Firebase services mocks
+  {
+    provide: 'FirebaseServicesService',
+    useValue: mockFirebaseServicesService,
+  },
+  {
+    provide: 'RoleService',
+    useValue: mockRoleService,
+  },
+  {
+    provide: 'BookingService',
+    useValue: mockBookingService,
   },
 ];
 

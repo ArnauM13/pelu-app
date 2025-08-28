@@ -10,6 +10,10 @@ import { Router } from '@angular/router';
 
 import {
   provideMockFirebase,
+  mockFirebaseServicesService,
+  mockRoleService,
+  mockBookingService,
+  mockLoggerService,
 } from './firebase-mocks';
 
 // Mock classes per a serveis que depenen de Firebase/AngularFire
@@ -83,6 +87,11 @@ export function configureTestBed(components: unknown[] = [], additionalProviders
     { provide: UserService, useClass: MockUserService },
     { provide: CurrencyService, useClass: MockCurrencyService },
     { provide: ToastService, useValue: { showAppointmentCreated: () => {} } },
+    // Add specific Firebase service mocks
+    { provide: 'FirebaseServicesService', useValue: mockFirebaseServicesService },
+    { provide: 'RoleService', useValue: mockRoleService },
+    { provide: 'BookingService', useValue: mockBookingService },
+    { provide: 'LoggerService', useValue: mockLoggerService },
     ...additionalProviders,
   ];
 
@@ -96,14 +105,38 @@ export function configureTestBed(components: unknown[] = [], additionalProviders
  * Reset all mocks to their initial state
  */
 export function resetMocks() {
-  // Mock reset function - no actual mocks to reset in this setup
+  // Reset all jasmine spies
+  Object.values(mockFirebaseServicesService).forEach(spy => {
+    if (typeof spy === 'object' && spy && 'calls' in spy) {
+      (spy as any).calls.reset();
+    }
+  });
+  Object.values(mockRoleService).forEach(spy => {
+    if (typeof spy === 'object' && spy && 'calls' in spy) {
+      (spy as any).calls.reset();
+    }
+  });
+  Object.values(mockBookingService).forEach(spy => {
+    if (typeof spy === 'object' && spy && 'calls' in spy) {
+      (spy as any).calls.reset();
+    }
+  });
+  Object.values(mockLoggerService).forEach(spy => {
+    if (typeof spy === 'object' && spy && 'calls' in spy) {
+      (spy as any).calls.reset();
+    }
+  });
 }
 
 /**
  * Set up default mock return values
  */
 export function setupDefaultMocks() {
-  // Mock setup function - no actual mocks to set up in this configuration
+  // Set up default return values for Firebase services
+  mockFirebaseServicesService.loadServices.and.returnValue(Promise.resolve([]));
+  mockFirebaseServicesService.loadCustomCategories.and.returnValue(Promise.resolve([]));
+  mockRoleService.loadUserRole.and.returnValue(Promise.resolve('user'));
+  mockBookingService.createBooking.and.returnValue(Promise.resolve({ id: 'mock-booking-id' }));
 }
 
 /**
@@ -193,6 +226,11 @@ export function setupTestEnvironment() {
       { provide: ServicesService, useClass: MockServicesService },
       { provide: CurrencyService, useClass: MockCurrencyService },
       { provide: ToastService, useValue: { showAppointmentCreated: () => {} } },
+      // Add specific Firebase service mocks
+      { provide: 'FirebaseServicesService', useValue: mockFirebaseServicesService },
+      { provide: 'RoleService', useValue: mockRoleService },
+      { provide: 'BookingService', useValue: mockBookingService },
+      { provide: 'LoggerService', useValue: mockLoggerService },
     ],
   });
 
@@ -217,6 +255,11 @@ export function configureTestModule(additionalProviders: unknown[] = []) {
     { provide: ServicesService, useClass: MockServicesService },
     { provide: CurrencyService, useClass: MockCurrencyService },
     { provide: ToastService, useValue: { showAppointmentCreated: () => {} } },
+    // Add specific Firebase service mocks
+    { provide: 'FirebaseServicesService', useValue: mockFirebaseServicesService },
+    { provide: 'RoleService', useValue: mockRoleService },
+    { provide: 'BookingService', useValue: mockBookingService },
+    { provide: 'LoggerService', useValue: mockLoggerService },
   ];
 
   return {
