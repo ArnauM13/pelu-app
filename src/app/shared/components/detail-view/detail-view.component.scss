@@ -8,6 +8,25 @@
   position: relative;
 }
 
+// Loading time slots styles
+.loading-time-slots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--background-color-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: 8px;
+  min-height: 60px;
+
+  p {
+    margin: 0;
+    color: var(--text-color-light);
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+}
+
 // Loading and Not Found States
 /* Loading styles now handled by global loader component */
 

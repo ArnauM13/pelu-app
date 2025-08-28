@@ -12,8 +12,8 @@
   <!-- PrimeNG Textarea -->
   <div class="input-wrapper">
     <textarea
-      [id]="getElementId()"
       pTextarea
+      [id]="getElementId()"
       [placeholder]="(placeholder() || 'INPUTS.TEXTAREA_PLACEHOLDER') | translate"
       [disabled]="disabled()"
       [readonly]="readonly()"
@@ -25,11 +25,6 @@
       [tabindex]="tabindex()"
       [name]="name()"
       [style]="style()"
-      [pSize]="size()"
-      [variant]="variant()"
-      [invalid]="invalid()"
-      [fluid]="fluid()"
-      [autoResize]="autoResize()"
       [ngModel]="value()"
       (ngModelChange)="onInputChange($event)"
       (blur)="onInputBlur()"

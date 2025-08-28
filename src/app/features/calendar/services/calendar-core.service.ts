@@ -52,7 +52,6 @@ export interface DragDropState {
   providedIn: 'root',
 })
 export class CalendarCoreService {
-  private readonly stateService = inject(CalendarStateService);
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
@@ -68,7 +67,7 @@ export class CalendarCoreService {
   private readonly businessEndHourSignal = signal<number>(20);
   private readonly lunchBreakStartSignal = signal<number>(13);
   private readonly lunchBreakEndSignal = signal<number>(15);
-  private readonly bookingDurationMinutesSignal = signal<number>(60); // New: reactive booking duration
+  private readonly bookingDurationMinutesSignal = signal<number>(60);
 
   readonly gridConfiguration = computed(
     (): GridConfiguration => ({
