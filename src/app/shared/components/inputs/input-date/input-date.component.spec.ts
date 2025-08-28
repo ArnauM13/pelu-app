@@ -34,7 +34,6 @@ class MockTranslateLoader implements TranslateLoader {
         [label]="label()"
         [placeholder]="placeholder()"
         [required]="required()"
-        [disabled]="disabled()"
         [readonly]="readonly()"
         [enabled]="enabled()"
         [dateFormat]="dateFormat()"
@@ -72,7 +71,6 @@ class TestWrapperComponent {
   label = signal('COMMON.BIRTH_DATE');
   placeholder = signal('INPUTS.DATE_PLACEHOLDER');
   required = signal(false);
-  disabled = signal(false);
   readonly = signal(false);
   enabled = signal(true);
   dateFormat = signal('dd/mm/yy');
@@ -237,7 +235,7 @@ describe('InputDateComponent', () => {
 
   describe('Component Configuration', () => {
     it('should apply disabled state correctly', () => {
-      component.disabled.set(true);
+      component.form.get('dateField')?.disable();
       fixture.detectChanges();
 
       const dateElement = fixture.debugElement.query(By.css('p-datepicker'));

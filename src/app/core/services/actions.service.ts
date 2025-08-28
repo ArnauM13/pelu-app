@@ -100,7 +100,7 @@ export class ActionsService {
       actions.push({
         id: 'view',
         label: 'COMMON.CLICK_TO_VIEW',
-        icon: '👁️',
+        icon: 'pi pi-eye',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
         onClick: item => {
@@ -119,7 +119,7 @@ export class ActionsService {
       actions.push({
         id: 'edit',
         label: 'COMMON.ACTIONS.EDIT',
-        icon: '✏️',
+        icon: 'pi pi-pencil',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
         onClick: item => {
@@ -138,7 +138,7 @@ export class ActionsService {
       actions.push({
         id: 'delete',
         label: 'COMMON.ACTIONS.DELETE',
-        icon: '🗑️',
+        icon: 'pi pi-trash',
         type: 'danger',
         tooltip: 'COMMON.ACTIONS.DELETE',
         onClick: item => {
@@ -166,7 +166,7 @@ export class ActionsService {
     actions.push({
       id: 'toggle-popular',
       label: service.isPopular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
-      icon: service.isPopular ? '⭐' : '☆',
+      icon: service.isPopular ? 'pi pi-star-fill' : 'pi pi-star',
       type: 'success',
       tooltip: service.isPopular ? 'SERVICES.MANAGEMENT.UNMARK_POPULAR' : 'SERVICES.MANAGEMENT.MARK_POPULAR',
       onClick: item => {
@@ -179,7 +179,7 @@ export class ActionsService {
     actions.push({
       id: 'edit',
       label: 'SERVICES.MANAGEMENT.EDIT_SERVICE',
-      icon: '✏️',
+      icon: 'pi pi-pencil',
       type: 'secondary',
       tooltip: 'SERVICES.MANAGEMENT.EDIT_SERVICE',
       onClick: item => {
@@ -192,7 +192,7 @@ export class ActionsService {
     actions.push({
       id: 'delete',
       label: 'COMMON.ACTIONS.DELETE',
-      icon: '🗑️',
+      icon: 'pi pi-trash',
       type: 'danger',
       tooltip: 'COMMON.ACTIONS.DELETE',
       onClick: item => {
@@ -215,7 +215,7 @@ export class ActionsService {
       actions.push({
         id: 'view',
         label: 'COMMON.VIEW_PROFILE',
-        icon: '👤',
+        icon: 'pi pi-user',
         type: 'primary',
         tooltip: 'COMMON.VIEW_PROFILE',
         onClick: item => this.viewUserProfile(item as UserActionItem),
@@ -227,7 +227,7 @@ export class ActionsService {
       actions.push({
         id: 'edit',
         label: 'COMMON.ACTIONS.EDIT',
-        icon: '✏️',
+        icon: 'pi pi-pencil',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
         onClick: item => this.editUser(item as UserActionItem),
@@ -249,7 +249,7 @@ export class ActionsService {
       actions.push({
         id: 'view',
         label: 'COMMON.CLICK_TO_VIEW',
-        icon: '👁️',
+        icon: 'pi pi-eye',
         type: 'primary',
         tooltip: 'COMMON.CLICK_TO_VIEW',
         onClick: item => this.viewBooking(item as Booking),
@@ -261,7 +261,7 @@ export class ActionsService {
       actions.push({
         id: 'edit',
         label: 'COMMON.ACTIONS.EDIT',
-        icon: '✏️',
+        icon: 'pi pi-pencil',
         type: 'secondary',
         tooltip: 'COMMON.ACTIONS.EDIT',
         onClick: item => this.editBooking(item as Booking),
@@ -273,7 +273,7 @@ export class ActionsService {
       actions.push({
         id: 'delete',
         label: 'COMMON.ACTIONS.DELETE',
-        icon: '🗑️',
+        icon: 'pi pi-trash',
         type: 'danger',
         tooltip: 'COMMON.ACTIONS.DELETE',
         onClick: item => this.deleteBooking(item as Booking),

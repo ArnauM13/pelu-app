@@ -3,7 +3,7 @@
     <p-checkbox
       [inputId]="getElementId()"
       [binary]="true"
-      [disabled]="isReadonlyMode()"
+      [disabled]="isDisabled()"
       [invalid]="invalid()"
       [size]="size()!"
       [variant]="variant()"
@@ -14,7 +14,7 @@
     <p-checkbox
       [inputId]="getElementId()"
       [binary]="true"
-      [disabled]="isReadonlyMode()"
+      [disabled]="isDisabled()"
       [invalid]="invalid()"
       [variant]="variant()"
       [ngModel]="value()"

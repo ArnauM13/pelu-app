@@ -40,8 +40,8 @@ describe('BookingService', () => {
   beforeEach(async () => {
     const authSpy = jasmine.createSpyObj('AuthService', ['user', 'isAuthenticated', 'isInitialized'], {
       user: mockUser,
-      isAuthenticated: true,
-      isInitialized: true
+      isAuthenticated: () => true,
+      isInitialized: () => true
     });
 
     const roleSpy = jasmine.createSpyObj('RoleService', ['isAdmin'], {

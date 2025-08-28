@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { FirebaseService } from '../../../core/services/firebase-services.service';
-import { CurrencyPipe } from '../../pipes/currency.pipe';
 import { ActionsButtonsComponent } from '../actions-buttons';
 import { PopularBadgeComponent } from '../popular-badge/popular-badge.component';
 import { ActionContext } from '../../../core/services/actions.service';
@@ -14,7 +13,6 @@ import { ActionContext } from '../../../core/services/actions.service';
     CommonModule,
     TranslateModule,
     TooltipModule,
-    CurrencyPipe,
     ActionsButtonsComponent,
     PopularBadgeComponent,
   ],

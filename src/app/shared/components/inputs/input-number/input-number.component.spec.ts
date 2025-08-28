@@ -22,7 +22,6 @@ import { configureTestBedWithTranslate } from '../../../../../testing/translate-
         [label]="label()"
         [placeholder]="placeholder()"
         [required]="required()"
-        [disabled]="disabled()"
         [readonly]="readonly()"
         [min]="min()"
         [max]="max()"
@@ -64,7 +63,6 @@ class TestWrapperComponent {
   label = signal('COMMON.AGE');
   placeholder = signal('INPUTS.NUMBER_PLACEHOLDER');
   required = signal(false);
-  disabled = signal(false);
   readonly = signal(false);
   min = signal<number | undefined>(undefined);
   max = signal<number | undefined>(undefined);
@@ -225,7 +223,7 @@ describe('InputNumberComponent', () => {
 
   describe('Component Configuration', () => {
     it('should apply disabled state correctly', () => {
-      component.disabled.set(true);
+      component.form.get('numberField')?.disable();
       fixture.detectChanges();
 
       const numberElement = fixture.debugElement.query(By.css('p-inputnumber'));
@@ -563,7 +561,7 @@ describe('InputNumberComponent', () => {
 
     it('should have proper CSS class on input number', () => {
       const numberElement = fixture.debugElement.query(By.css('p-inputnumber'));
-      expect(numberElement.nativeElement.classList.contains('pelu-inputnumber')).toBe(true);
+      expect(numberElement.nativeElement.classList.contains('pelu-input-number')).toBe(true);
     });
   });
 });
