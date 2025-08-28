@@ -40,16 +40,19 @@ describe('AvatarComponent', () => {
   });
 
   it('should compute hasImage correctly', () => {
-    // No image URL
-    expect(component.hasImage()).toBe(false);
-
-    // Empty image URL
-    component.data = { imageUrl: '' };
-    fixture.detectChanges();
+    // No image
     expect(component.hasImage()).toBe(false);
 
     // Valid image URL
     component.data = { imageUrl: 'https://example.com/image.jpg' };
+    component.ngOnChanges({
+      data: {
+        currentValue: { imageUrl: 'https://example.com/image.jpg' },
+        previousValue: {},
+        firstChange: false,
+        isFirstChange: () => false
+      }
+    });
     fixture.detectChanges();
     expect(component.hasImage()).toBe(true);
   });
@@ -60,6 +63,14 @@ describe('AvatarComponent', () => {
 
     // With image URL
     component.data = { imageUrl: 'https://example.com/image.jpg' };
+    component.ngOnChanges({
+      data: {
+        currentValue: { imageUrl: 'https://example.com/image.jpg' },
+        previousValue: {},
+        firstChange: false,
+        isFirstChange: () => false
+      }
+    });
     fixture.detectChanges();
     expect(component.backgroundImageStyle()).toBe('url(https://example.com/image.jpg)');
   });

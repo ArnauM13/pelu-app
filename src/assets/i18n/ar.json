@@ -56,7 +56,8 @@
       "CONFIRM_BOOKING": "تأكيد الحجز",
       "CONTINUE": "متابعة",
       "LOGIN": "تسجيل الدخول",
-      "TRY_AGAIN": "حاول مرة أخرى"
+      "TRY_AGAIN": "حاول مرة أخرى",
+      "VIEW_DETAILS": "عرض التفاصيل"
     },
     "STATUS": {
       "LOADING": "جاري التحميل...",
@@ -189,6 +190,21 @@
     "ERROR_LOADING_BOOKING": "خطأ في تحميل الحجز",
     "BOOKING_NOT_FOUND": "لم يتم العثور على الحجز",
     "BOOKING_NOT_FOUND_MESSAGE": "تعذر العثور على الحجز الذي تبحث عنه",
+    "SERVICE_NOT_FOUND": "الخدمة غير موجودة",
+    "ICS_GENERATION_ERROR": "خطأ في إنشاء ملف ICS",
+    "ICS_DOWNLOAD_SUCCESS": "تم تحميل ملف ICS وفتح التقويم بنجاح",
+    "INCOMPLETE_BOOKING_INFO": "معلومات غير مكتملة لتأكيد الحجز",
+    "TIME_SLOT_NO_LONGER_AVAILABLE": "هذا الوقت لم يعد متاحاً. يرجى اختيار وقت آخر.",
+    "MAX_APPOINTMENTS_REACHED": "لا يمكنك عمل المزيد من الحجوزات. لديك بالفعل الحد الأقصى من الحجوزات النشطة.",
+    "PLEASE_SELECT_SERVICE_FIRST": "يرجى اختيار خدمة أولاً",
+    "PLEASE_SELECT_DATE_FIRST": "يرجى اختيار تاريخ أولاً",
+    "TIME_SLOT_NOT_AVAILABLE": "هذا الوقت غير متاح. يرجى اختيار وقت آخر.",
+    "BOOKING_NOT_FOUND_FOR_CALENDAR": "لم يتم العثور على الحجز لإضافته إلى التقويم",
+    "SERVICE_NOT_FOUND_FOR_CALENDAR": "لم يتم العثور على الخدمة لإضافتها إلى التقويم",
+    "EVENT_ADDED_TO_CALENDAR": "تم إضافة الحدث إلى التقويم بنجاح",
+    "FILE_DOWNLOADED": "تم تحميل الملف",
+    "CALENDAR_FILE_DOWNLOADED": "تم تحميل ملف التقويم. افتحه لإضافة الحدث إلى تقويمك.",
+    "COULD_NOT_ADD_TO_CALENDAR": "لا يمكن إضافة مباشرة إلى التقويم. جرب تحميل الملف يدوياً.",
     "ERROR_PAST_BOOKING": "لا يمكن إنشاء حجوزات في الماضي",
     "ERROR_BOOKING_NOT_ALLOWED": "لا يمكن إجراء الحجز في هذا التاريخ/الوقت",
     "ERROR_CANCELLATION_NOT_ALLOWED": "لا يمكن إلغاء الحجز في هذا الوقت",
@@ -207,6 +223,17 @@
       "CLIENT_ERROR": "خطأ في البيانات المرسلة. يرجى التحقق من المعلومات المدخلة.",
       "UNKNOWN_ERROR": "خطأ غير معروف. يرجى الاتصال بالدعم الفني."
     },
+    "SUCCESS": "نجح",
+    "ERROR": "خطأ",
+    "INFO": "معلومات",
+    "WARNING": "تحذير",
+    "VALIDATION_ERROR": "خطأ في التحقق من صحة البيانات",
+    "NETWORK_ERROR": "خطأ في الاتصال",
+    "NETWORK_ERROR_DETAIL": "تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+    "UNAUTHORIZED_ERROR": "تم رفض الوصول",
+    "UNAUTHORIZED_ERROR_DETAIL": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+    "LOGIN_REQUIRED": "تسجيل الدخول مطلوب",
+    "LOGIN_REQUIRED_DETAIL": "يجب عليك تسجيل الدخول لتنفيذ هذا الإجراء.",
     "VALIDATION": {
       "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح"
     },
@@ -377,6 +404,12 @@
     "BULK_DELETE_SUCCESS": "تم حذف المواعيد بنجاح",
     "BULK_DELETE_ERROR": "خطأ في حذف المواعيد",
     "DELETE_ERROR": "خطأ في حذف الموعد",
+    "CREATED_SUCCESS": "تم إنشاء الموعد",
+    "CREATED_DETAIL": "تم إنشاء موعدك بنجاح",
+    "CREATED_SUCCESS_WITH_NAME": "تم إنشاء موعد {{name}} بنجاح",
+    "UPDATE_SUCCESS_WITH_NAME": "تم تحديث موعد {{name}} بنجاح",
+    "DELETE_SUCCESS_WITH_NAME": "تم حذف موعد {{name}} بنجاح",
+    "LOAD_ERROR": "خطأ في تحميل المواعيد",
     "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "هل أنت متأكد من أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.",
     "BULK_DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من أنك تريد حذف المواعيد المختارة؟ لا يمكن التراجع عن هذا الإجراء."
   },
@@ -537,6 +570,9 @@
       "CURRENCY": "العملة",
       "CURRENCY_HELP": "سيتم تطبيق العملة على جميع الأسعار في التطبيق",
       "SAVE_SETTINGS": "حفظ الإعدادات",
+      "LOAD_SETTINGS_ERROR": "خطأ في تحميل الإعدادات",
+      "SETTINGS_SAVED_SUCCESS": "تم حفظ الإعدادات بنجاح",
+      "SAVE_SETTINGS_ERROR": "خطأ في حفظ الإعدادات",
 
       "LOADING": "جاري تحميل الإعدادات..."
     }
@@ -768,5 +804,39 @@
     "INFO_NOTE": "انقر على أي وقت متاح للحجز",
     "WEEKEND_INFO": "عطلات نهاية الأسبوع لها جداول خاصة. اتصل بنا لمزيد من المعلومات.",
     "BUSINESS_HOURS_INFO": "ساعات العمل: الاثنين إلى الجمعة من {{startHour}}:00 إلى {{endHour}}:00، استراحة الغداء من {{lunchStart}}:00 إلى {{lunchEnd}}:00"
+  },
+  "TOAST_DEMO": {
+    "OPERATION_COMPLETED": "تم إكمال إجراءك بنجاح",
+    "UNEXPECTED_ERROR": "يرجى المحاولة مرة أخرى لاحقاً",
+    "IMPORTANT_INFO": "هذه رسالة إعلامية للمستخدم",
+    "WARNING_MESSAGE": "هذا الإجراء قد تكون له عواقب",
+    "SECONDARY_MESSAGE": "هذه رسالة من النوع الثانوي",
+    "CONTRAST_MESSAGE": "هذه الرسالة تبرز من الخلفية",
+    "CASCADE_1": "تسلسل 1",
+    "CASCADE_2": "تسلسل 2",
+    "CASCADE_3": "تسلسل 3",
+    "CASCADE_4": "تسلسل 4"
+  },
+  "LOGGER_DEMO": {
+    "LOG_INFO": "معلومات السجل",
+    "INFO_LOG_GENERATED": "تم إنشاء سجل معلوماتي",
+    "LOG_WARNING": "تحذير السجل",
+    "WARNING_LOG_GENERATED": "تم إنشاء سجل تحذير",
+    "LOG_DEBUG": "تصحيح السجل",
+    "DEBUG_LOG_GENERATED": "تم إنشاء سجل تصحيح (مرئي فقط في التطوير)",
+    "LOG_PERFORMANCE": "أداء السجل",
+    "PERFORMANCE_OPERATION_COMPLETED": "تم إكمال العملية",
+    "VALIDATION_ERROR_GENERATED": "تم إنشاء خطأ في التحقق",
+    "PERMISSION_ERROR_GENERATED": "تم إنشاء خطأ في الأذونات",
+    "USER_ACTION": "إجراء المستخدم",
+    "USER_ACTION_REGISTERED": "تم تسجيل إجراء المستخدم",
+    "ACTION_WITH_DATA": "إجراء مع البيانات",
+    "USER_ACTION_WITH_DATA_REGISTERED": "تم تسجيل إجراء المستخدم مع البيانات",
+    "LOGS_LOADED": "السجلات المحملة",
+    "LOGS_LOADED_COUNT": "تم تحميل السجلات",
+    "LOGS_CLEARED": "السجلات المحذوفة",
+    "LOGS_CLEARED_SUCCESS": "تم حذف جميع السجلات",
+    "LOGS_EXPORTED": "السجلات المصدرة",
+    "LOGS_EXPORTED_SUCCESS": "تم تصدير السجلات إلى ملف JSON"
   }
 }
