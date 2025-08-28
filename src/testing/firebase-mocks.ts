@@ -28,9 +28,14 @@ export const mockUser: Partial<User> = {
   tenantId: null,
 };
 
-// Mock for Firestore
-export const firestoreMock = {
-  collection: jasmine.createSpy('collection').and.returnValue({
+// Mock for Firebase functions that are imported directly
+export const mockCollection = jasmine.createSpy('collection').and.callFake((firestore: any, path: string) => {
+  // Validate that firestore is provided (even if it's a mock)
+  if (!firestore) {
+    throw new Error('Expected first argument to collection() to be a CollectionReference, a DocumentReference or FirebaseFirestore.');
+  }
+
+  return {
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
     doc: jasmine.createSpy('doc').and.returnValue({
       valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
@@ -81,8 +86,16 @@ export const firestoreMock = {
         empty: true,
       })
     ),
-  }),
-  doc: jasmine.createSpy('doc').and.returnValue({
+  };
+});
+
+export const mockDoc = jasmine.createSpy('doc').and.callFake((firestore: any, path: string, docId?: string) => {
+  // Validate that firestore is provided (even if it's a mock)
+  if (!firestore) {
+    throw new Error('Expected first argument to doc() to be a CollectionReference, a DocumentReference or FirebaseFirestore.');
+  }
+
+  return {
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
     set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
     update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
@@ -93,7 +106,119 @@ export const firestoreMock = {
         exists: true,
       })
     ),
-  }),
+  };
+});
+
+export const mockAddDoc = jasmine.createSpy('addDoc').and.callFake((collectionRef: any, data: any) => {
+  // Validate that collectionRef is provided
+  if (!collectionRef) {
+    throw new Error('Expected first argument to addDoc() to be a CollectionReference.');
+  }
+
+  return Promise.resolve({ id: 'mock-id' });
+});
+
+export const mockGetDoc = jasmine.createSpy('getDoc').and.callFake((docRef: any) => {
+  // Validate that docRef is provided
+  if (!docRef) {
+    throw new Error('Expected first argument to getDoc() to be a DocumentReference.');
+  }
+
+  return Promise.resolve({
+    data: () => ({}),
+    exists: true,
+  });
+});
+
+export const mockUpdateDoc = jasmine.createSpy('updateDoc').and.callFake((docRef: any, data: any) => {
+  // Validate that docRef is provided
+  if (!docRef) {
+    throw new Error('Expected first argument to updateDoc() to be a DocumentReference.');
+  }
+
+  return Promise.resolve();
+});
+
+export const mockDeleteDoc = jasmine.createSpy('deleteDoc').and.callFake((docRef: any) => {
+  // Validate that docRef is provided
+  if (!docRef) {
+    throw new Error('Expected first argument to deleteDoc() to be a DocumentReference.');
+  }
+
+  return Promise.resolve();
+});
+
+export const mockGetDocs = jasmine.createSpy('getDocs').and.callFake((queryOrCollection: any) => {
+  // Validate that queryOrCollection is provided
+  if (!queryOrCollection) {
+    throw new Error('Expected first argument to getDocs() to be a Query or CollectionReference.');
+  }
+
+  return Promise.resolve({
+    docs: [],
+    empty: true,
+  });
+});
+
+export const mockServerTimestamp = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
+
+export const mockQuery = jasmine.createSpy('query').and.callFake((collectionRef: any, ...queryConstraints: any[]) => {
+  // Validate that collectionRef is provided
+  if (!collectionRef) {
+    throw new Error('Expected first argument to query() to be a CollectionReference.');
+  }
+
+  return {
+    get: jasmine.createSpy('get').and.returnValue(
+      Promise.resolve({
+        docs: [],
+        empty: true,
+      })
+    ),
+  };
+});
+
+export const mockOrderBy = jasmine.createSpy('orderBy').and.returnValue('orderBy-constraint');
+
+export const mockSetDoc = jasmine.createSpy('setDoc').and.callFake((docRef: any, data: any) => {
+  // Validate that docRef is provided
+  if (!docRef) {
+    throw new Error('Expected first argument to setDoc() to be a DocumentReference.');
+  }
+
+  return Promise.resolve();
+});
+
+// Mock for runInInjectionContext
+export const mockRunInInjectionContext = jasmine.createSpy('runInInjectionContext').and.callFake((envInjector: any, fn: () => any) => {
+  return fn();
+});
+
+// Mock for Firestore with proper collection() implementation
+export const firestoreMock = {
+  collection: mockCollection,
+  doc: mockDoc,
+  // Add a proper constructor to ensure it behaves like a Firestore instance
+  constructor: function() {
+    return this;
+  }
+};
+
+// Create a proper Firestore class mock for Angular DI
+export class MockFirestore {
+  collection = mockCollection;
+  doc = mockDoc;
+
+  constructor() {
+    // Return the mock object when instantiated
+    return firestoreMock;
+  }
+}
+
+// Mock Firestore token for Angular DI
+export const mockFirestoreToken = {
+  provide: 'Firestore',
+  useValue: firestoreMock,
 };
 
 // Mock for Firebase Auth
@@ -149,18 +274,22 @@ export const storageMock = {
   }),
 };
 
-// Mock for serverTimestamp
-export const serverTimestampMock = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
+// Mock for collection and collectionData functions (Firebase v9+ modular API)
+export const collectionMock = jasmine.createSpy('collection').and.callFake((db: any, path: string) => {
+  // Validate that db is provided
+  if (!db) {
+    throw new Error('Expected first argument to collection() to be a CollectionReference, a DocumentReference or FirebaseFirestore.');
+  }
 
-// Mock for collection and collectionData functions
-export const collectionMock = jasmine.createSpy('collection').and.returnValue({
-  valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
-  doc: jasmine.createSpy('doc').and.returnValue({
-    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
-    set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
-    update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
-    delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
-  }),
+  return {
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
+    doc: jasmine.createSpy('doc').and.returnValue({
+      valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+      set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+      update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+      delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+    }),
+  };
 });
 
 export const collectionDataMock = jasmine.createSpy('collectionData').and.returnValue(of([]));
@@ -168,20 +297,48 @@ export const collectionDataMock = jasmine.createSpy('collectionData').and.return
 // Mock for addDoc
 export const addDocMock = jasmine
   .createSpy('addDoc')
-  .and.returnValue(Promise.resolve({ id: 'mock-doc-id' }));
+  .and.callFake((collectionRef: any, data: any) => {
+    // Validate that collectionRef is provided
+    if (!collectionRef) {
+      throw new Error('Expected first argument to addDoc() to be a CollectionReference.');
+    }
+
+    return Promise.resolve({ id: 'mock-doc-id' });
+  });
 
 // Mock for updateDoc
-export const updateDocMock = jasmine.createSpy('updateDoc').and.returnValue(Promise.resolve());
+export const updateDocMock = jasmine.createSpy('updateDoc').and.callFake((docRef: any, data: any) => {
+  // Validate that docRef is provided
+  if (!docRef) {
+    throw new Error('Expected first argument to updateDoc() to be a DocumentReference.');
+  }
+
+  return Promise.resolve();
+});
 
 // Mock for deleteDoc
-export const deleteDocMock = jasmine.createSpy('deleteDoc').and.returnValue(Promise.resolve());
+export const deleteDocMock = jasmine.createSpy('deleteDoc').and.callFake((docRef: any) => {
+  // Validate that docRef is provided
+  if (!docRef) {
+    throw new Error('Expected first argument to deleteDoc() to be a DocumentReference.');
+  }
+
+  return Promise.resolve();
+});
 
 // Mock for doc
-export const docMock = jasmine.createSpy('doc').and.returnValue({
-  valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
-  set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
-  update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
-  delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+export const docMock = jasmine.createSpy('doc').and.callFake((firestore: any, path: string, docId?: string) => {
+  // Validate that firestore is provided
+  if (!firestore) {
+    throw new Error('Expected first argument to doc() to be a CollectionReference, a DocumentReference or FirebaseFirestore.');
+  }
+
+  return {
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+    set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+    update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+    delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+  };
 });
 
 // Mock for query
@@ -245,6 +402,12 @@ export const getDocMock = jasmine.createSpy('getDoc').and.returnValue(
     exists: true,
   })
 );
+
+// Mock for setDoc
+export const setDocMock = jasmine.createSpy('setDoc').and.returnValue(Promise.resolve());
+
+// Mock for serverTimestamp
+export const serverTimestampMock = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
 
 // Mock AuthService with signals
 export const mockAuthService = {
@@ -383,6 +546,108 @@ export const mockTranslationService = {
   getCurrentLanguageInfo: jasmine.createSpy('getCurrentLanguageInfo').and.returnValue({ code: 'en', name: 'English' }),
   getBrowserLanguage: jasmine.createSpy('getBrowserLanguage').and.returnValue('en'),
   restoreUserLanguagePreference: jasmine.createSpy('restoreUserLanguagePreference'),
+};
+
+// Mock for logger service
+export const mockLoggerService = {
+  info: jasmine.createSpy('info'),
+  warn: jasmine.createSpy('warn'),
+  error: jasmine.createSpy('error'),
+  debug: jasmine.createSpy('debug'),
+  firebaseError: jasmine.createSpy('firebaseError'),
+  firebaseInfo: jasmine.createSpy('firebaseInfo'),
+  firebaseWarn: jasmine.createSpy('firebaseWarn'),
+  firebaseDebug: jasmine.createSpy('firebaseDebug'),
+};
+
+// Mock for FirebaseServicesService
+export const mockFirebaseServicesService = {
+  loadServices: jasmine.createSpy('loadServices').and.returnValue(Promise.resolve([])),
+  loadCustomCategories: jasmine.createSpy('loadCustomCategories').and.returnValue(Promise.resolve([])),
+  getServices: jasmine.createSpy('getServices').and.returnValue([]),
+  getCustomCategories: jasmine.createSpy('getCustomCategories').and.returnValue([]),
+  addService: jasmine.createSpy('addService').and.returnValue(Promise.resolve()),
+  updateService: jasmine.createSpy('updateService').and.returnValue(Promise.resolve()),
+  deleteService: jasmine.createSpy('deleteService').and.returnValue(Promise.resolve()),
+  addCustomCategory: jasmine.createSpy('addCustomCategory').and.returnValue(Promise.resolve()),
+  updateCustomCategory: jasmine.createSpy('updateCustomCategory').and.returnValue(Promise.resolve()),
+  deleteCustomCategory: jasmine.createSpy('deleteCustomCategory').and.returnValue(Promise.resolve()),
+  // Signal properties
+  services: computed(() => []),
+  customCategories: computed(() => []),
+  isLoading: computed(() => false),
+  error: computed(() => null),
+};
+
+// Mock for RoleService
+export const mockRoleService = {
+  loadUserRole: jasmine.createSpy('loadUserRole').and.returnValue(Promise.resolve('user')),
+  getUserRole: jasmine.createSpy('getUserRole').and.returnValue('user'),
+  isAdmin: jasmine.createSpy('isAdmin').and.returnValue(false),
+  isUser: jasmine.createSpy('isUser').and.returnValue(true),
+  // Signal properties
+  userRole: computed(() => 'user'),
+  isLoading: computed(() => false),
+  error: computed(() => null),
+};
+
+// Mock for BookingService
+export const mockBookingService = {
+  createBooking: jasmine.createSpy('createBooking').and.returnValue(Promise.resolve({ id: 'mock-booking-id' })),
+  updateBooking: jasmine.createSpy('updateBooking').and.returnValue(Promise.resolve()),
+  deleteBooking: jasmine.createSpy('deleteBooking').and.returnValue(Promise.resolve()),
+  getBookings: jasmine.createSpy('getBookings').and.returnValue(Promise.resolve([])),
+  getBookingById: jasmine.createSpy('getBookingById').and.returnValue(Promise.resolve({})),
+  // Signal properties
+  bookings: computed(() => []),
+  isLoading: computed(() => false),
+  error: computed(() => null),
+};
+
+// Mock for Firebase functions used by FirebaseServicesService
+export const mockFirebaseFunctions = {
+  collection: jasmine.createSpy('collection').and.callFake((firestore: any, path: string) => ({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
+    doc: jasmine.createSpy('doc').and.returnValue({
+      valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+      set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+      update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+      delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+    }),
+  })),
+  query: jasmine.createSpy('query').and.callFake((collectionRef: any, ...queryConstraints: any[]) => ({
+    get: jasmine.createSpy('get').and.returnValue(
+      Promise.resolve({
+        docs: [],
+        empty: true,
+        forEach: (callback: any) => {},
+      })
+    ),
+  })),
+  orderBy: jasmine.createSpy('orderBy').and.callFake((field: string, direction?: string) => ({
+    get: jasmine.createSpy('get').and.returnValue(
+      Promise.resolve({
+        docs: [],
+        empty: true,
+        forEach: (callback: any) => {},
+      })
+    ),
+  })),
+  getDocs: jasmine.createSpy('getDocs').and.returnValue(
+    Promise.resolve({
+      docs: [],
+      empty: true,
+      forEach: (callback: any) => {},
+    })
+  ),
+  doc: jasmine.createSpy('doc').and.callFake((firestore: any, path: string, ...pathSegments: string[]) => ({
+    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+    set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+    update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+    delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+  })),
+  setDoc: jasmine.createSpy('setDoc').and.returnValue(Promise.resolve()),
+  serverTimestamp: jasmine.createSpy('serverTimestamp').and.returnValue(new Date()),
 };
 
 // Mock Firebase providers for tests

@@ -1,6 +1,6 @@
 <div class="input-toggleswitch-container">
   <!-- Label -->
-  @if (label()) {
+  @if (label() && label().trim()) {
     <label
       [for]="getElementId()"
       class="input-toggleswitch-label"
@@ -11,29 +11,27 @@
 
   <!-- PrimeNG ToggleSwitch -->
   <div class="toggleswitch-wrapper">
-    <p-toggleswitch
+    <p-toggleSwitch
       [inputId]="getElementId()"
+      [disabled]="isDisabled()"
+      [readonly]="readonly()"
+      [invalid]="invalid()"
       [name]="name()"
       [styleClass]="styleClass()"
       [tabindex]="tabindex()"
-      [required]="required()"
-      [disabled]="disabled()"
-      [readonly]="readonly()"
-      [invalid]="invalid()"
       [trueValue]="trueValue()"
       [falseValue]="falseValue()"
       [ngModel]="value()"
       (ngModelChange)="onToggleChange($event)"
       (onBlur)="onBlurHandler()"
-      class="pelu-toggleswitch"
+      class="pelu-input-toggleswitch"
     >
-      <!-- Handle Template -->
       @if (handleTemplate) {
-        <ng-template #handle let-checked="checked">
-          <ng-container *ngTemplateOutlet="handleTemplate; context: { checked: checked }"></ng-container>
+        <ng-template pTemplate="handle" let-checked="checked">
+          <ng-container *ngTemplateOutlet="handleTemplate; context: { checked }"></ng-container>
         </ng-template>
       }
-    </p-toggleswitch>
+    </p-toggleSwitch>
   </div>
 
   <!-- Help text -->

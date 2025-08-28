@@ -30,6 +30,26 @@ export class RoleService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
 
+  /**
+   * Check if Firestore is properly initialized
+   */
+  private isFirestoreReady(): boolean {
+    return this.firestore && typeof this.firestore === 'object';
+  }
+
+  /**
+   * Wait for Firestore to be ready with timeout
+   */
+  private async waitForFirestoreReady(timeoutMs: number = 5000): Promise<void> {
+    const startTime = Date.now();
+    while (!this.isFirestoreReady()) {
+      if (Date.now() - startTime > timeoutMs) {
+        throw new Error('Firestore initialization timeout');
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
   // Internal state
   private readonly userRoleSignal = signal<UserRole | null>(null);
   private readonly isLoadingRoleSignal = signal<boolean>(true);
@@ -67,6 +87,9 @@ export class RoleService {
       setTimeout(() => {
         this.isLoadingRoleSignal.set(true);
       }, 0);
+
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
 
       const userDocRef = doc(this.firestore, 'users', user.uid);
       const unsubscribe = onSnapshot(
@@ -121,6 +144,8 @@ export class RoleService {
   async setUserRole(userRole: UserRole): Promise<void> {
     try {
       console.log('💾 RoleService: Setting user role:', userRole);
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
       const userDocRef = doc(this.firestore, 'users', userRole.uid);
       await setDoc(userDocRef, userRole);
       console.log('✅ RoleService: User role set successfully');
@@ -132,6 +157,8 @@ export class RoleService {
 
   async updateUserRole(uid: string, updates: Partial<UserRole>): Promise<void> {
     try {
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
       const userDocRef = doc(this.firestore, 'users', uid);
       await updateDoc(userDocRef, updates);
     } catch (error) {
@@ -142,6 +169,8 @@ export class RoleService {
 
   async deleteUser(uid: string): Promise<void> {
     try {
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
       const userDocRef = doc(this.firestore, 'users', uid);
       await deleteDoc(userDocRef);
     } catch (error) {
@@ -152,6 +181,8 @@ export class RoleService {
 
   async getUserRole(uid: string): Promise<UserRole | null> {
     try {
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
       const userDocRef = doc(this.firestore, 'users', uid);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
@@ -176,6 +207,9 @@ export class RoleService {
 
   async listAllUsers(): Promise<UserRole[]> {
     try {
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
+
       const usersCol = collection(this.firestore, 'users') as CollectionReference<DocumentData>;
       const snapshot = await getDocs(usersCol);
       return snapshot.docs.map(doc => doc.data() as UserRole);

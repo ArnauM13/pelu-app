@@ -1,6 +1,6 @@
 <div class="input-number-container">
   <!-- Label -->
-  @if (label()) {
+  @if (label() && label().trim()) {
     <label
       [for]="getElementId()"
       class="input-number-label"
@@ -10,34 +10,35 @@
   }
 
   <!-- PrimeNG InputNumber -->
-  <p-inputnumber
-    [inputId]="getElementId()"
-    [placeholder]="(placeholder() || 'INPUTS.NUMBER_PLACEHOLDER') | translate"
-    [required]="required()"
-    [disabled]="disabled()"
-    [readonly]="readonly()"
-    [autofocus]="autofocus()"
-    [step]="step()"
-    [minFractionDigits]="minFractionDigits()"
-    [maxFractionDigits]="maxFractionDigits()"
-    [mode]="mode()"
-    [currency]="currency()"
-    [currencyDisplay]="currencyDisplay()"
-    [locale]="locale()"
-    [prefix]="prefix()"
-    [suffix]="suffix()"
-    [showButtons]="showButtons()"
-    [buttonLayout]="buttonLayout()"
-    [useGrouping]="useGrouping()"
-    [showClear]="showClear()"
-    [ngModel]="displayValue()"
-    (ngModelChange)="onNumberChange($event)"
-    (onInput)="onNumberChange($event.value)"
-    (onBlur)="onBlurHandler($event)"
-    class="pelu-inputnumber"
-    [attr.min]="min()"
-    [attr.max]="max()"
-  />
+  <div class="input-wrapper">
+    <p-inputNumber
+      [inputId]="getElementId()"
+      [placeholder]="(placeholder() || 'INPUTS.NUMBER_PLACEHOLDER') | translate"
+      [disabled]="isDisabled()"
+      [readonly]="readonly()"
+      [invalid]="invalid()"
+      [step]="step()"
+      [minFractionDigits]="minFractionDigits()"
+      [maxFractionDigits]="maxFractionDigits()"
+      [mode]="mode()"
+      [currency]="currency()"
+      [currencyDisplay]="currencyDisplay()"
+      [locale]="locale()"
+      [prefix]="prefix()"
+      [suffix]="suffix()"
+      [showButtons]="showButtons()"
+      [buttonLayout]="buttonLayout()"
+      [useGrouping]="useGrouping()"
+      [showClear]="showClear()"
+      [autofocus]="autofocus()"
+      [ngModel]="displayValue()"
+      (ngModelChange)="onNumberChange($event)"
+      (onBlur)="onBlurHandler($event)"
+      class="pelu-input-number"
+      [attr.min]="min()"
+      [attr.max]="max()"
+    />
+  </div>
 
   <!-- Help text -->
   @if (helpText()) {

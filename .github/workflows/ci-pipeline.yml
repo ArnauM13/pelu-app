@@ -1,18 +1,20 @@
-name: CI Pipeline
+name: CI Pipeline - Tests, Build & Coverage
 
 on:
   pull_request:
     branches:
       - dev
       - release
+      - master
   push:
     branches:
       - dev
       - release
+      - master
 
 jobs:
   frontend:
-    name: Build & Test Frontend
+    name: Test, Build & Coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -22,21 +24,46 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '22.14.0'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Angular tests
-        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+      - name: Install Google Chrome (for headless testing)
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Run Angular tests with coverage
+        run: npm run test:headless
+        timeout-minutes: 10
 
       - name: Build Angular app
         run: npm run build
 
-      - name: Upload coverage reports
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
           flags: frontend
           name: frontend-coverage
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+          parallel: true
+
+  finish-coveralls:
+    needs: frontend
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

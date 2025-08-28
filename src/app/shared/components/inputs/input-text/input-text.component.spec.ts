@@ -34,7 +34,6 @@ class MockTranslateLoader implements TranslateLoader {
         [placeholder]="placeholder()"
         [required]="required()"
         [type]="type()"
-        [disabled]="disabled()"
         [readonly]="readonly()"
         [size]="size()"
         [variant]="variant()"
@@ -62,7 +61,6 @@ class TestWrapperComponent {
   placeholder = signal('INPUTS.TEXT_PLACEHOLDER');
   required = signal(false);
   type = signal<'text' | 'email' | 'password'>('text');
-  disabled = signal(false);
   readonly = signal(false);
   size = signal<'small' | 'large'>('small');
   variant = signal<'outlined' | 'filled'>('outlined');
@@ -214,7 +212,7 @@ describe('InputTextComponent', () => {
 
   describe('Component Configuration', () => {
     it('should apply disabled state correctly', () => {
-      component.disabled.set(true);
+      component.form.get('testField')?.disable();
       fixture.detectChanges();
 
       const inputElement = fixture.debugElement.query(By.css('input[pInputText]'));
