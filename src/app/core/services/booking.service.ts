@@ -39,6 +39,26 @@ export class BookingService {
   private readonly loaderService = inject(LoaderService);
   private readonly servicesService = inject(ServicesService);
 
+  /**
+   * Check if Firestore is properly initialized
+   */
+  private isFirestoreReady(): boolean {
+    return this.firestore && typeof this.firestore === 'object';
+  }
+
+  /**
+   * Wait for Firestore to be ready with timeout
+   */
+  private async waitForFirestoreReady(timeoutMs: number = 5000): Promise<void> {
+    const startTime = Date.now();
+    while (!this.isFirestoreReady()) {
+      if (Date.now() - startTime > timeoutMs) {
+        throw new Error('Firestore initialization timeout');
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
   // Signals
   private readonly bookingsSignal = signal<Booking[]>([]);
   private readonly isLoadingSignal = signal<boolean>(false);
@@ -302,6 +322,9 @@ export class BookingService {
    * Load all bookings with full details from Firebase - OPTIMIZED
    */
   private async loadAllBookingsWithFullDetails(): Promise<void> {
+    // Wait for Firestore to be ready
+    await this.waitForFirestoreReady();
+
     const bookingsRef = collection(this.firestore, 'bookings');
     const q = query(bookingsRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
@@ -525,6 +548,9 @@ export class BookingService {
       }
       this.isLoadingSignal.set(true);
       this.errorSignal.set(null);
+
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
 
       const bookingsRef = collection(this.firestore, 'bookings');
       const snapshot = await getDocs(bookingsRef);

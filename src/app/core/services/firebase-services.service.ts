@@ -53,6 +53,26 @@ export class FirebaseServicesService {
   private readonly translateService = inject(TranslateService);
   private readonly envInjector = inject(EnvironmentInjector);
 
+  /**
+   * Check if Firestore is properly initialized
+   */
+  private isFirestoreReady(): boolean {
+    return this.firestore && typeof this.firestore === 'object';
+  }
+
+  /**
+   * Wait for Firestore to be ready with timeout
+   */
+  private async waitForFirestoreReady(timeoutMs: number = 5000): Promise<void> {
+    const startTime = Date.now();
+    while (!this.isFirestoreReady()) {
+      if (Date.now() - startTime > timeoutMs) {
+        throw new Error('Firestore initialization timeout');
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
   readonly isAdmin = this.roleService.isAdmin;
 
   // Core signals
@@ -154,6 +174,9 @@ export class FirebaseServicesService {
       this._isLoading.set(true);
       this._error.set(null);
 
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
+
       const servicesRef = collection(this.firestore, 'services');
       const q = query(servicesRef, orderBy('createdAt', 'desc'));
       const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(q));
@@ -232,6 +255,9 @@ export class FirebaseServicesService {
         isPopular: serviceData.isPopular ?? false,
       };
 
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
+
       // Save to Firestore with explicit ID and timestamps
       const docRef = doc(this.firestore, 'services', generatedId);
       await setDoc(docRef, {
@@ -307,6 +333,9 @@ export class FirebaseServicesService {
         ...updates,
         updatedAt: serverTimestamp(),
       } as Partial<FirebaseService> & { updatedAt: unknown };
+
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
 
       // Update in Firestore
       const docRef = doc(this.firestore, 'services', serviceId);
@@ -637,6 +666,9 @@ export class FirebaseServicesService {
         return;
       }
 
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
+
       const categoriesRef = collection(this.firestore, 'serviceCategories');
       const querySnapshot = await runInInjectionContext(this.envInjector, () => getDocs(categoriesRef));
 
@@ -667,6 +699,9 @@ export class FirebaseServicesService {
       if (cachedCategories.length > 0) {
         return [...this._staticCategories, ...cachedCategories];
       }
+
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
 
       // Get custom categories from Firebase only if not cached
       const categoriesRef = collection(this.firestore, 'serviceCategories');
@@ -727,6 +762,9 @@ export class FirebaseServicesService {
         createdAt: serverTimestamp(),
         createdBy: currentUser.uid,
       };
+
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
 
       // Save to Firestore
       const docRef = await addDoc(collection(this.firestore, 'serviceCategories'), category);
@@ -789,6 +827,9 @@ export class FirebaseServicesService {
       if (!currentUser?.uid) {
         throw new Error('Authentication required');
       }
+
+      // Wait for Firestore to be ready
+      await this.waitForFirestoreReady();
 
       // Update in Firestore
       const docRef = doc(this.firestore, 'serviceCategories', categoryId);
