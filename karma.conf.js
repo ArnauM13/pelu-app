@@ -17,6 +17,7 @@ module.exports = function (config) {
     client: {
       jasmine: {},
       clearContext: false, // deixa el runner visible al navegador
+      setupFiles: ['src/testing/firebase-global-mocks.ts'],
     },
     jasmineHtmlReporter: {
       suppressAll: true,

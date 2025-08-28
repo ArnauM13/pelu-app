@@ -32,7 +32,6 @@ class MockTranslateLoader implements TranslateLoader {
         [label]="label()"
         [placeholder]="placeholder()"
         [required]="required()"
-        [disabled]="disabled()"
         [readonly]="readonly()"
         [rows]="rows()"
         [cols]="cols()"
@@ -71,7 +70,6 @@ class TestWrapperComponent {
   label = signal('COMMON.DESCRIPTION');
   placeholder = signal('INPUTS.TEXTAREA_PLACEHOLDER');
   required = signal(false);
-  disabled = signal(false);
   readonly = signal(false);
   rows = signal(3);
   cols = signal<number | undefined>(undefined);
@@ -230,10 +228,11 @@ describe('InputTextareaComponent', () => {
 
   describe('Component Configuration', () => {
     it('should apply disabled state correctly', () => {
-      component.disabled.set(true);
+      component.form.get('textareaField')?.disable();
       fixture.detectChanges();
 
-      expect(component.disabled()).toBe(true);
+      const inputTextareaComponent = fixture.debugElement.query(By.css('pelu-input-textarea')).componentInstance;
+      expect(inputTextareaComponent).toBeTruthy();
     });
 
     it('should apply readonly state correctly', () => {

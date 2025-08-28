@@ -28,60 +28,9 @@ export const mockUser: Partial<User> = {
   tenantId: null,
 };
 
-// Mock for Firestore with proper collection() implementation
-export const firestoreMock = {
-  collection: jasmine.createSpy('collection').and.callFake((firestore: any, path: string) => ({
-    valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
-    doc: jasmine.createSpy('doc').and.returnValue({
-      valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
-      set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
-      update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
-      delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
-      get: jasmine.createSpy('get').and.returnValue(
-        Promise.resolve({
-          data: () => ({}),
-          exists: true,
-        })
-      ),
-    }),
-    add: jasmine.createSpy('add').and.returnValue(Promise.resolve({ id: 'mock-id' })),
-    where: jasmine.createSpy('where').and.returnValue({
-      orderBy: jasmine.createSpy('orderBy').and.returnValue({
-        limit: jasmine.createSpy('limit').and.returnValue({
-          get: jasmine.createSpy('get').and.returnValue(
-            Promise.resolve({
-              docs: [],
-              empty: true,
-            })
-          ),
-        }),
-      }),
-    }),
-    orderBy: jasmine.createSpy('orderBy').and.returnValue({
-      limit: jasmine.createSpy('limit').and.returnValue({
-        get: jasmine.createSpy('get').and.returnValue(
-          Promise.resolve({
-            docs: [],
-            empty: true,
-          })
-        ),
-      }),
-    }),
-    limit: jasmine.createSpy('limit').and.returnValue({
-      get: jasmine.createSpy('get').and.returnValue(
-        Promise.resolve({
-          docs: [],
-          empty: true,
-        })
-      ),
-    }),
-    get: jasmine.createSpy('get').and.returnValue(
-      Promise.resolve({
-        docs: [],
-        empty: true,
-      })
-    ),
-  })),
+// Mock for Firebase functions that are imported directly
+export const mockCollection = jasmine.createSpy('collection').and.callFake((firestore: any, path: string) => ({
+  valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of([])),
   doc: jasmine.createSpy('doc').and.returnValue({
     valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
     set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
@@ -94,6 +43,102 @@ export const firestoreMock = {
       })
     ),
   }),
+  add: jasmine.createSpy('add').and.returnValue(Promise.resolve({ id: 'mock-id' })),
+  where: jasmine.createSpy('where').and.returnValue({
+    orderBy: jasmine.createSpy('orderBy').and.returnValue({
+      limit: jasmine.createSpy('limit').and.returnValue({
+        get: jasmine.createSpy('get').and.returnValue(
+          Promise.resolve({
+            docs: [],
+            empty: true,
+          })
+        ),
+      }),
+    }),
+  }),
+  orderBy: jasmine.createSpy('orderBy').and.returnValue({
+    limit: jasmine.createSpy('limit').and.returnValue({
+      get: jasmine.createSpy('get').and.returnValue(
+        Promise.resolve({
+          docs: [],
+          empty: true,
+        })
+      ),
+    }),
+  }),
+  limit: jasmine.createSpy('limit').and.returnValue({
+    get: jasmine.createSpy('get').and.returnValue(
+      Promise.resolve({
+        docs: [],
+        empty: true,
+      })
+    ),
+  }),
+  get: jasmine.createSpy('get').and.returnValue(
+    Promise.resolve({
+      docs: [],
+      empty: true,
+    })
+  ),
+}));
+
+export const mockDoc = jasmine.createSpy('doc').and.returnValue({
+  valueChanges: jasmine.createSpy('valueChanges').and.returnValue(of({})),
+  set: jasmine.createSpy('set').and.returnValue(Promise.resolve()),
+  update: jasmine.createSpy('update').and.returnValue(Promise.resolve()),
+  delete: jasmine.createSpy('delete').and.returnValue(Promise.resolve()),
+  get: jasmine.createSpy('get').and.returnValue(
+    Promise.resolve({
+      data: () => ({}),
+      exists: true,
+    })
+  ),
+});
+
+export const mockAddDoc = jasmine.createSpy('addDoc').and.returnValue(Promise.resolve({ id: 'mock-id' }));
+
+export const mockGetDoc = jasmine.createSpy('getDoc').and.returnValue(
+  Promise.resolve({
+    data: () => ({}),
+    exists: true,
+  })
+);
+
+export const mockUpdateDoc = jasmine.createSpy('updateDoc').and.returnValue(Promise.resolve());
+
+export const mockDeleteDoc = jasmine.createSpy('deleteDoc').and.returnValue(Promise.resolve());
+
+export const mockGetDocs = jasmine.createSpy('getDocs').and.returnValue(
+  Promise.resolve({
+    docs: [],
+    empty: true,
+  })
+);
+
+export const mockServerTimestamp = jasmine.createSpy('serverTimestamp').and.returnValue(new Date());
+
+export const mockQuery = jasmine.createSpy('query').and.callFake((collectionRef: any, ...queryConstraints: any[]) => ({
+  get: jasmine.createSpy('get').and.returnValue(
+    Promise.resolve({
+      docs: [],
+      empty: true,
+    })
+  ),
+}));
+
+export const mockOrderBy = jasmine.createSpy('orderBy').and.returnValue('orderBy-constraint');
+
+export const mockSetDoc = jasmine.createSpy('setDoc').and.returnValue(Promise.resolve());
+
+// Mock for runInInjectionContext
+export const mockRunInInjectionContext = jasmine.createSpy('runInInjectionContext').and.callFake((envInjector: any, fn: () => any) => {
+  return fn();
+});
+
+// Mock for Firestore with proper collection() implementation
+export const firestoreMock = {
+  collection: mockCollection,
+  doc: mockDoc,
 };
 
 // Mock for Firebase Auth
@@ -443,11 +488,6 @@ export const mockBookingService = {
   isLoading: computed(() => false),
   error: computed(() => null),
 };
-
-// Mock for runInInjectionContext
-export const mockRunInInjectionContext = jasmine.createSpy('runInInjectionContext').and.callFake((envInjector: any, fn: () => any) => {
-  return fn();
-});
 
 // Mock for Firebase functions used by FirebaseServicesService
 export const mockFirebaseFunctions = {
