@@ -327,14 +327,14 @@
                         [label]="'COMMON.ACTIONS.CANCEL' | translate"
                         icon="❌"
                         severity="danger"
-                        (clicked)="section.onCancel?.()"
+                        (clicked)="onCancelEdit()"
                       >
                       </pelu-button>
                       <pelu-button
                         [label]="'COMMON.ACTIONS.SAVE' | translate"
                         icon="💾"
                         severity="primary"
-                        (clicked)="section.onSave?.({})"
+                        (clicked)="onSave()"
                       >
                       </pelu-button>
                     </div>

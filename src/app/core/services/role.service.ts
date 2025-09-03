@@ -126,19 +126,59 @@ export class RoleService {
     }
   }
 
-  private async createDefaultUserRole(user: User) {
+  /**
+   * Create default user role for new users
+   */
+  async createDefaultUserRole(user: User, browserLanguage: string = 'ca'): Promise<void> {
     console.log('🆕 RoleService: Creating default user role for:', user.uid);
     const defaultRole: UserRole = {
       uid: user.uid,
       email: user.email || '',
       displayName: user.displayName || undefined,
       photoURL: user.photoURL || undefined,
-      lang: 'ca',
+      lang: browserLanguage,
       role: 'client',
       theme: 'light',
     };
     await this.setUserRole(defaultRole);
     console.log('✅ RoleService: Default user role created:', defaultRole);
+  }
+
+  /**
+   * Ensure user document exists and is up to date
+   */
+  async ensureUserDocument(user: User): Promise<void> {
+    if (!user) return;
+
+    // If document doesn't exist, create it. If it exists, update email/lang/theme if needed.
+    const existing = await this.getUserRole(user.uid);
+    const update: Partial<UserRole> = {
+      email: user.email || '',
+      uid: user.uid,
+      displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
+    };
+
+    if (!existing) {
+      const browserLanguage = 'ca'; // Default language
+      await this.setUserRole({
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || undefined,
+        photoURL: user.photoURL || undefined,
+        lang: browserLanguage,
+        role: 'client',
+        theme: 'light',
+      });
+    } else {
+      // Update if email, displayName or photoURL changed
+      const hasChanges = existing.email !== update.email ||
+                        existing.displayName !== update.displayName ||
+                        existing.photoURL !== update.photoURL;
+      if (hasChanges) {
+        await this.updateUserRole(user.uid, update);
+      }
+    }
   }
 
   async setUserRole(userRole: UserRole): Promise<void> {
