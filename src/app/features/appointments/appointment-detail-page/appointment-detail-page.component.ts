@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, computed, signal, Input } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -9,25 +9,30 @@ import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule } from '@ngx-translate/core';
-import { DetailViewComponent, DetailViewConfig, DetailAction, InfoItemData } from '../../../shared/components/detail-view/detail-view.component';
+import { DetailViewComponent, DetailViewConfig } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { AppointmentDetailService } from '../../../core/services/appointment-detail.service';
 import { AppointmentDetailData } from '../../../core/interfaces/booking.interface';
 import { ServicesService } from '../../../core/services/services.service';
 import { Service } from '../../../core/services/services.service';
-import { Booking } from '../../../core/interfaces/booking.interface';
+import { Booking, BookingForm } from '../../../core/interfaces/booking.interface';
 import { ResponsiveService } from '../../../core/services/responsive.service';
-import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
 import { LoaderService } from '../../../shared/services/loader.service';
 import { TimeUtils } from '../../../shared/utils/time.utils';
+import { BookingService } from '../../../core/services/booking.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { RoleService } from '../../../core/services/role.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { LoggerService } from '../../../shared/services/logger.service';
+import { CalendarBusinessService } from '../../calendar/services/calendar-business.service';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
+  standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     CardModule,
     ButtonModule,
     ToastModule,
@@ -50,19 +55,43 @@ export class AppointmentDetailPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private fb = inject(FormBuilder);
   private currencyService = inject(CurrencyService);
-  private appointmentDetailService = inject(AppointmentDetailService);
   private servicesService = inject(ServicesService);
   private responsiveService = inject(ResponsiveService);
-  private appointmentManagementService = inject(AppointmentManagementService);
   private loaderService = inject(LoaderService);
   private timeUtils = inject(TimeUtils);
+  private bookingService = inject(BookingService);
+  private authService = inject(AuthService);
+  private roleService = inject(RoleService);
+  private toastService = inject(ToastService);
+  private logger = inject(LoggerService);
+  private calendarBusinessService = inject(CalendarBusinessService);
 
-  // Public computed signals from service
-  readonly booking = this.appointmentManagementService.appointment;
-  readonly isLoading = this.appointmentManagementService.isLoading;
-  readonly canEdit = this.appointmentManagementService.canEdit;
-  readonly canDelete = this.appointmentManagementService.canDelete;
+  // Local state signals
+  private readonly bookingSignal = signal<Booking | null>(null);
+  private readonly isLoadingSignal = signal<boolean>(false);
+  private readonly canEditSignal = signal<boolean>(false);
+  private readonly canDeleteSignal = signal<boolean>(false);
+  private readonly isEditingInternalSignal = signal<boolean>(false);
+  private readonly isSavingSignal = signal<boolean>(false);
+  private readonly originalBookingSignal = signal<Booking | null>(null);
+
+  // Public computed signals
+  readonly booking = computed(() => this.bookingSignal());
+  readonly isLoading = computed(() => this.isLoadingSignal());
+  readonly canEdit = computed(() => this.canEditSignal());
+  readonly canDelete = computed(() => this.canDeleteSignal());
+  readonly isSaving = computed(() => this.isSavingSignal());
+
+  // Computed editing state based on query parameter and internal state
+  readonly isEditing = computed(() => {
+    const editParam = this.route.snapshot.queryParamMap.get('edit');
+    const internalState = this.isEditingInternalSignal();
+    console.log('editParam', editParam);
+    console.log('internalState', internalState);
+    return editParam === 'true' || internalState;
+  });
 
   // Mobile detection
   readonly isMobile = computed(() => this.responsiveService.isMobile());
@@ -81,168 +110,478 @@ export class AppointmentDetailPageComponent implements OnInit {
   readonly showDeleteAlert = computed(() => this.showDeleteAlertSignal());
   readonly deleteAlertData = computed(() => this.deleteAlertDataSignal());
 
+  // Form for editing
+  editForm!: FormGroup;
+
+  // Available services and time slots
+  private readonly availableServicesSignal = signal<Service[]>([]);
+  private readonly availableTimeSlotsSignal = signal<any[]>([]);
+  readonly availableServices = computed(() => this.availableServicesSignal());
+  readonly availableTimeSlots = computed(() => this.availableTimeSlotsSignal());
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.loadAppointment();
+    this.loadAvailableServices();
+    this.initializeEditingState();
+  }
+
+  /**
+   * Initialize editing state based on query parameter
+   */
+  private initializeEditingState(): void {
+    const editMode = this.route.snapshot.queryParamMap.get('edit');
+    if (editMode === 'true' && this.canEdit()) {
+      this.isEditingInternalSignal.set(true);
+    }
+  }
+
+  /**
+   * Initialize the edit form
+   */
+  private initializeForm(): void {
+    this.editForm = this.fb.group({
+      clientName: ['', [Validators.required, Validators.minLength(2)]],
+      data: ['', [Validators.required]],
+      hora: ['', [Validators.required]],
+      serviceId: ['', [Validators.required]],
+      notes: [''],
+    });
+  }
+
+  /**
+   * Load appointment data using BookingService
+   */
+  async loadAppointment(): Promise<void> {
+    const appointmentId = this.appointmentId();
+    if (!appointmentId) return;
+
+    try {
+      this.isLoadingSignal.set(true);
+
+      // Use BookingService directly
+      const booking = await this.bookingService.getBookingById(appointmentId);
+      if (booking) {
+        this.bookingSignal.set(booking);
+        this.originalBookingSignal.set(booking); // Store original booking
+
+        // Update permissions using simple logic with correct services
+        const currentUser = this.authService.user();
+        const isOwner = currentUser?.email === booking.email;
+        const isAdmin = this.roleService.isAdmin();
+
+        this.canEditSignal.set(isAdmin || isOwner);
+        this.canDeleteSignal.set(isAdmin || isOwner);
+
+        // Load service details
+        if (booking.serviceId) {
+          const service = await this.servicesService.getServiceById(booking.serviceId);
+          this.loadedService.set(service || null);
+        }
+
+        // Populate form if in edit mode
+        if (this.isEditing()) {
+          this.populateForm(booking);
+        }
+      }
+    } catch (error) {
+      this.logger.error('Error loading appointment', {
+        component: 'AppointmentDetailPageComponent',
+        method: 'loadAppointment',
+        appointmentId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      this.isLoadingSignal.set(false);
+    }
+  }
+
+  /**
+   * Load available services
+   */
+  private async loadAvailableServices(): Promise<void> {
+    try {
+      const services = this.servicesService.getAllServices();
+      this.availableServicesSignal.set(services);
+    } catch (error) {
+      this.logger.error('Error loading services', {
+        component: 'AppointmentDetailPageComponent',
+        method: 'loadAvailableServices',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  /**
+   * Load available time slots for a specific date and service using existing services
+   */
+  private async loadAvailableTimeSlots(date: string, serviceId: string): Promise<void> {
+    try {
+      // Use existing calendar business service to get available time slots
+      const dateObj = new Date(date);
+      const timeSlots = this.calendarBusinessService.getAvailableTimeSlots(dateObj);
+
+      // Convert to the format expected by the component
+      const formattedSlots = timeSlots.map((time: string) => ({
+        time: time,
+        available: true
+      }));
+
+      this.availableTimeSlotsSignal.set(formattedSlots);
+    } catch (error) {
+      this.logger.error('Error loading time slots', {
+        component: 'AppointmentDetailPageComponent',
+        method: 'loadAvailableTimeSlots',
+        date,
+        serviceId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      // Fallback to default time slots if service fails
+      const defaultTimeSlots = [
+        { time: '09:00', available: true },
+        { time: '10:00', available: true },
+        { time: '11:00', available: true },
+        { time: '12:00', available: true },
+        { time: '16:00', available: true },
+        { time: '17:00', available: true },
+        { time: '18:00', available: true },
+      ];
+      this.availableTimeSlotsSignal.set(defaultTimeSlots);
+    }
+  }
+
+  /**
+   * Populate form with existing data
+   */
+  private populateForm(booking: Booking): void {
+    this.editForm.patchValue({
+      clientName: booking.clientName || '',
+      data: this.formatDateForInput(booking.data) || '',
+      hora: booking.hora || '',
+      serviceId: booking.serviceId || '',
+      notes: booking.notes || '',
+    });
+  }
+
+  /**
+   * Format date for HTML input type="date"
+   */
+  private formatDateForInput(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  }
+
   // Computed properties for display
   readonly appointmentInfoItems = computed(() => {
     const booking = this.booking();
     if (!booking) return [];
 
-    const items: InfoItemData[] = [
-      {
-        icon: '👤',
-        label: 'COMMON.CLIENT_NAME',
-        value: booking.clientName,
-        field: 'clientName',
-      },
-      {
-        icon: '📅',
-        label: 'COMMON.DATE',
-        value: this.timeUtils.formatDateString(booking.data),
-        field: 'data',
-      },
-      {
-        icon: '⏰',
-        label: 'COMMON.HOURS',
-        value: this.timeUtils.formatTimeString(booking.hora),
-        field: 'hora',
-      },
-      {
-        icon: '✂️',
-        label: 'COMMON.SERVICE',
-        value: 'Service', // Will be fetched from service service
-      },
-      {
-        icon: '⏱️',
-        label: 'APPOINTMENTS.DURATION',
-        value: 'Duration', // Will be fetched from service service
-      },
-      {
-        icon: '💰',
-        label: 'APPOINTMENTS.PRICE',
-        value: 'Price', // Will be fetched from service service
-      },
-    ];
+    if (this.isEditing()) {
+      // Return form fields for editing
+      return [
+        {
+          icon: '👤',
+          label: 'COMMON.CLIENT_NAME',
+          value: this.editForm.get('clientName')?.value || '',
+          field: 'clientName' as keyof BookingForm,
+          type: 'text' as const,
+          isEditable: true,
+          formControl: this.editForm.get('clientName'),
+        },
+        {
+          icon: '📅',
+          label: 'COMMON.DATE',
+          value: this.editForm.get('data')?.value || '',
+          field: 'data' as keyof BookingForm,
+          type: 'date' as const,
+          isEditable: true,
+          formControl: this.editForm.get('data'),
+        },
+        {
+          icon: '⏰',
+          label: 'COMMON.TIME',
+          value: this.editForm.get('hora')?.value || '',
+          field: 'hora' as keyof BookingForm,
+          type: 'select' as const,
+          isEditable: true,
+          formControl: this.editForm.get('hora'),
+          options: this.availableTimeSlots().map(slot => ({
+            label: slot.time,
+            value: slot.time
+          })),
+        },
+        {
+          icon: '✂️',
+          label: 'COMMON.SERVICE',
+          value: this.editForm.get('serviceId')?.value || '',
+          field: 'serviceId' as keyof BookingForm,
+          type: 'select' as const,
+          isEditable: true,
+          formControl: this.editForm.get('serviceId'),
+          options: this.availableServices().map(service => ({
+            label: service.name,
+            value: service.id
+          })),
+        },
+        {
+          icon: '📝',
+          label: 'COMMON.NOTES',
+          value: this.editForm.get('notes')?.value || '',
+          field: 'notes' as keyof BookingForm,
+          type: 'text' as const,
+          isEditable: true,
+          formControl: this.editForm.get('notes'),
+        },
+      ];
+    } else {
+      // Return display items for view mode
+      const items = [
+        {
+          icon: '👤',
+          label: 'COMMON.CLIENT_NAME',
+          value: booking.clientName,
+          field: 'clientName' as keyof BookingForm,
+        },
+        {
+          icon: '📅',
+          label: 'COMMON.DATE',
+          value: this.timeUtils.formatDateString(booking.data),
+          field: 'data' as keyof BookingForm,
+        },
+        {
+          icon: '⏰',
+          label: 'COMMON.TIME',
+          value: this.timeUtils.formatTimeString(booking.hora),
+          field: 'hora' as keyof BookingForm,
+        },
+        {
+          icon: '✂️',
+          label: 'COMMON.SERVICE',
+          value: this.service()?.name || 'N/A',
+          field: 'serviceId' as keyof BookingForm,
+        },
+        {
+          icon: '💰',
+          label: 'COMMON.PRICE',
+          value: this.currencyService.formatPrice(this.service()?.price || 0),
+          field: 'notes' as keyof BookingForm,
+        },
+      ];
 
-    if (booking.notes) {
-      items.push({
-        icon: '📝',
-        label: 'COMMON.NOTES',
-        value: booking.notes,
-        field: 'notes',
-      });
+      // Add notes if available (only in view mode)
+      if (booking.notes) {
+        items.push({
+          icon: '📝',
+          label: 'COMMON.NOTES',
+          value: booking.notes,
+          field: 'notes' as keyof BookingForm,
+        });
+      }
+
+      return items;
     }
-
-    return items;
   });
 
-  readonly isToday = computed(() => {
-    const booking = this.booking();
-    if (!booking) return false;
-    return this.timeUtils.isTodayDateString(booking.data);
-  });
-
-  readonly isPast = computed(() => {
-    const booking = this.booking();
-    if (!booking) return false;
-    return this.timeUtils.isPastDateString(booking.data);
-  });
-
-  readonly statusBadge = computed(() => {
-    const booking = this.booking();
-    if (!booking) return { text: 'COMMON.TIME.UPCOMING', class: 'upcoming' };
-    return this.timeUtils.getDateStatus(booking.data);
-  });
-
-  // Detail page configuration
+  // Detail view configuration
   readonly detailConfig = computed((): DetailViewConfig => {
-    const canEdit = this.canEdit();
-    const canDelete = this.canDelete();
-
-    const actions: DetailAction[] = [
-      {
-        label: 'COMMON.ACTIONS.BACK',
-        icon: '←',
-        type: 'secondary',
-        onClick: () => this.goBack(),
-      },
-    ];
-
-    if (canEdit) {
-      actions.push({
-        label: 'APPOINTMENTS.EDIT_APPOINTMENT_DETAILS',
-        icon: '✏️',
-        type: 'primary',
-        onClick: () => this.editAppointment(),
-      });
-    }
-
-    if (canDelete) {
-      actions.push({
-        label: 'APPOINTMENTS.ACTIONS.DELETE_CONFIRMATION',
-        icon: '🗑️',
-        type: 'danger',
-        onClick: () => this.showDeleteConfirmation(),
-      });
-    }
+    const booking = this.booking();
 
     return {
       type: 'appointment',
       loading: this.isLoading(),
-      notFound: !this.booking(),
-      appointment: this.booking() || undefined,
+      notFound: !booking && !this.isLoading(),
+      appointment: booking || undefined,
       infoSections: [
         {
-          title: 'APPOINTMENTS.APPOINTMENT_DETAILS',
+          title: this.isEditing() ? 'APPOINTMENTS.EDIT_APPOINTMENT' : 'APPOINTMENTS.DETAILS',
           items: this.appointmentInfoItems(),
-        },
+          isEditing: this.isEditing(),
+          onEdit: () => this.startEditing(),
+          onSave: () => this.saveChanges(),
+          onCancel: () => this.cancelEditing(),
+        }
       ],
-      actions: actions,
+      actions: [
+        {
+          label: 'COMMON.BACK',
+          icon: '⬅️',
+          type: 'secondary' as const,
+          onClick: () => this.goBack(),
+        },
+        ...(this.canEdit() && !this.isEditing() ? [{
+          label: 'COMMON.EDIT',
+          icon: '✏️',
+          type: 'primary' as const,
+          onClick: () => this.startEditing(),
+        }] : []),
+        ...(this.canEdit() && this.isEditing() ? [{
+          label: 'COMMON.SAVE',
+          icon: '💾',
+          type: 'primary' as const,
+          onClick: () => this.saveChanges(),
+        }] : []),
+        ...(this.canEdit() && this.isEditing() ? [{
+          label: 'COMMON.CANCEL',
+          icon: '❌',
+          type: 'secondary' as const,
+          onClick: () => this.cancelEditing(),
+        }] : []),
+        ...(this.canDelete() && !this.isEditing() ? [{
+          label: 'COMMON.DELETE',
+          icon: '🗑️',
+          type: 'danger' as const,
+          onClick: () => this.showDeleteConfirmation(),
+        }] : []),
+      ],
+      isEditing: this.isEditing(),
+      hasChanges: this.editForm?.dirty || false,
+      canSave: this.canEdit() && this.editForm?.valid,
     };
   });
 
-  ngOnInit() {
-    // Load from route parameters
-    this.loadAppointment();
+    /**
+   * Start editing mode - interact with internal state
+   */
+  startEditing(): void {
+    if (!this.canEdit()) return;
 
-    // Auto-trigger delete confirmation if requested via query param
-    const confirmDelete = this.route.snapshot.queryParamMap.get('confirmDelete');
-    if (confirmDelete === 'true') {
-      // Defer to allow booking to load if needed
-      setTimeout(() => this.showDeleteConfirmation(), 0);
-    }
-  }
-
-  private async loadAppointment(): Promise<void> {
-    const appointmentId = this.route.snapshot.paramMap.get('id');
-    if (appointmentId) {
-      this.loaderService.show({ message: 'APPOINTMENTS.LOADING_APPOINTMENT' });
-
-      try {
-        await this.appointmentManagementService.loadAppointment(appointmentId);
-        // Load service data after booking is loaded
-        await this.loadServiceData();
-      } catch (error) {
-        console.error('Error loading appointment:', error);
-      } finally {
-        this.loaderService.hide();
-      }
-    }
-  }
-
-  private async loadServiceData(): Promise<void> {
     const booking = this.booking();
-    if (booking?.serviceId) {
-      try {
-        const service = await this.servicesService.getServiceById(booking.serviceId);
-        this.loadedService.set(service);
-      } catch (error) {
-        console.error('Error loading service:', error);
-        this.loadedService.set(null);
-      }
-    } else {
-      this.loadedService.set(null);
+    if (booking) {
+      // Store original booking values before editing
+      this.originalBookingSignal.set({ ...booking });
+
+      // Populate form with current data
+      this.populateForm(booking);
+
+      // Enable edit mode
+      this.isEditingInternalSignal.set(true);
     }
   }
 
+  /**
+   * Cancel editing mode - interact with internal state
+   */
+  cancelEditing(): void {
+    console.log('cancelEditing');
+
+    // Restore original booking values
+    const originalBooking = this.originalBookingSignal();
+    if (originalBooking) {
+      this.bookingSignal.set(originalBooking);
+    }
+
+    // Reset form and disable edit mode
+    this.editForm.reset();
+    this.isEditingInternalSignal.set(false);
+  }
+
+  /**
+   * Save changes
+   */
+  async saveChanges(): Promise<void> {
+    console.log('saveChanges');
+    if (this.editForm.invalid) return;
+
+    const appointmentId = this.appointmentId();
+    if (!appointmentId) return;
+
+    try {
+      this.isSavingSignal.set(true);
+
+      const formData = this.editForm.value;
+      const updates: Partial<Booking> = {
+        clientName: formData.clientName,
+        data: this.timeUtils.formatDateString(formData.data),
+        hora: formData.hora,
+        serviceId: formData.serviceId,
+        notes: formData.notes,
+      };
+
+      // Use existing validation methods from BookingService
+      const success = await this.bookingService.updateBooking(appointmentId, updates);
+      if (success) {
+        this.toastService.showSuccess('APPOINTMENTS.UPDATE_SUCCESS');
+        // Disable edit mode and reset form
+        this.isEditingInternalSignal.set(false);
+        this.editForm.reset();
+        // Reload the appointment to get updated data
+        await this.loadAppointment();
+      } else {
+        this.toastService.showError('APPOINTMENTS.UPDATE_ERROR');
+      }
+    } catch (error) {
+      this.logger.error('Error updating appointment', {
+        component: 'AppointmentDetailPageComponent',
+        method: 'saveChanges',
+        appointmentId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      this.toastService.showError('APPOINTMENTS.UPDATE_ERROR');
+    } finally {
+      this.isSavingSignal.set(false);
+    }
+  }
+
+  /**
+   * Delete appointment using BookingService
+   */
+  async deleteAppointment(): Promise<void> {
+    const booking = this.booking();
+    if (!booking?.id) return;
+
+    try {
+      this.loaderService.show({ message: 'APPOINTMENTS.DELETING_APPOINTMENT' });
+
+      const success = await this.bookingService.deleteBooking(booking.id);
+      if (success) {
+        this.toastService.showSuccess('APPOINTMENTS.DELETE_SUCCESS');
+        this.goBack();
+      }
+    } catch (error) {
+      this.logger.error('Error deleting appointment', {
+        component: 'AppointmentDetailPageComponent',
+        method: 'deleteAppointment',
+        appointmentId: booking.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      this.toastService.showError('APPOINTMENTS.DELETE_ERROR');
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  /**
+   * Handle edit request from detail view
+   */
+  onEditRequested(): void {
+    this.startEditing();
+  }
+
+  /**
+   * Handle view detail request from popup
+   */
+  onViewDetailRequested(event: any): void {
+    // This method is called when view detail is requested from popup
+    // Since we're already on the detail page, we can ignore this or handle navigation
+    console.log('View detail requested:', event);
+  }
+
+  /**
+   * Navigate back
+   */
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/appointments']);
+    }
+  }
+
+  /**
+   * Show delete confirmation
+   */
   showDeleteConfirmation(): void {
     const booking = this.booking();
     if (!booking) return;
@@ -257,36 +596,21 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.showDeleteAlertSignal.set(true);
   }
 
+  /**
+   * Handle delete confirmation
+   */
   onDeleteConfirmed(): void {
     this.showDeleteAlertSignal.set(false);
     this.deleteAlertDataSignal.set(null);
     this.deleteAppointment();
   }
 
+  /**
+   * Handle delete cancellation
+   */
   onDeleteCancelled(): void {
     this.showDeleteAlertSignal.set(false);
     this.deleteAlertDataSignal.set(null);
-  }
-
-  async deleteAppointment(): Promise<void> {
-    this.loaderService.show({ message: 'APPOINTMENTS.DELETING_APPOINTMENT' });
-
-    try {
-      await this.appointmentManagementService.deleteAppointment();
-      this.goBack();
-    } catch (error) {
-      console.error('Error deleting appointment:', error);
-    } finally {
-      this.loaderService.hide();
-    }
-  }
-
-  goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/appointments']);
-    }
   }
 
   onToastClick(event: { message?: { data?: { appointmentId?: string } } }): void {
@@ -300,21 +624,6 @@ export class AppointmentDetailPageComponent implements OnInit {
   viewAppointmentDetail(appointmentId: string): void {
     // Use the appointmentId directly as it should be a UUID
     this.router.navigate(['/appointments', appointmentId]);
-  }
-
-  onViewDetailRequested(booking: Booking): void {
-    // Handle view detail request from popup - navigate to detail page
-    this.router.navigate(['/appointments', booking.id]);
-  }
-
-  onEditRequested(): void {
-    // Use the appointment management service to start editing in-place
-    this.appointmentManagementService.startEditing();
-  }
-
-  editAppointment(): void {
-    // This method is used by the DetailViewConfig actions
-    this.onEditRequested();
   }
 }
 
