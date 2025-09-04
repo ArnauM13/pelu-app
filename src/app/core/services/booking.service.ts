@@ -23,6 +23,7 @@ import { LoaderService } from '../../shared/services/loader.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../interfaces/booking.interface';
 import { ServicesService } from './services.service';
+import { TimeSlot } from '../../shared/utils/time.utils';
 
 
 @Injectable({

@@ -7,7 +7,7 @@ import { authGuard, publicGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { BookingPageComponent } from './features/bookings/booking-page/booking-page.component';
 import { AppointmentsPageComponent } from './features/appointments/appointments-page/appointments-page.component';
-import { AppointmentDetailViewComponent } from './features/appointments/appointment-detail-view/appointment-detail-view.component';
+import { AppointmentDetailPageComponent } from './features/appointments/appointment-detail-page/appointment-detail-page.component';
 import { AboutPageComponent } from './features/about/about-page/about-page.component';
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
 import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
@@ -49,7 +49,7 @@ export const routes: Routes = [
   },
   {
     path: 'appointments/:id',
-    component: AppointmentDetailViewComponent,
+    component: AppointmentDetailPageComponent,
     canActivate: [authGuard],
     data: { viewTransitionName: 'appointment-detail' },
   },

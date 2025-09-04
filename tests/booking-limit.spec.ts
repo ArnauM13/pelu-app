@@ -85,7 +85,7 @@ test.describe('Booking Limit Functionality', () => {
     await page.setViewportSize({ width: 375, height: 667 });
 
     // Wait for the mobile booking component to load
-    await page.waitForSelector('pelu-booking-mobile-page', { timeout: 10000 });
+    await page.waitForSelector('pelu-booking-page', { timeout: 10000 });
 
     // Verify that the user limit message is shown
     const limitMessage = page.locator('pelu-no-appointments-message');
@@ -162,7 +162,7 @@ test.describe('Booking Limit Functionality', () => {
     await page.waitForTimeout(1000); // Wait for responsive change
 
     // Verify mobile booking component is shown
-    const mobileBooking = page.locator('pelu-booking-mobile-page');
+    const mobileBooking = page.locator('pelu-booking-page');
     await expect(mobileBooking).toBeVisible();
   });
 
