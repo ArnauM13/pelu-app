@@ -70,8 +70,6 @@ import { startOfWeek, endOfWeek } from 'date-fns';
   styles: [`
     .desktop-layout {
       .date-controls-section {
-        margin-bottom: 1rem;
-
         .date-controls {
           display: flex;
           align-items: center;

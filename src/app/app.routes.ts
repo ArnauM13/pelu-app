@@ -39,6 +39,7 @@ export const routes: Routes = [
   {
     path: 'booking',
     component: BookingPageComponent,
+    canActivate: [authGuard],
     data: { viewTransitionName: 'booking' },
   },
   {

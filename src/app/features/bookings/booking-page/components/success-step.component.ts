@@ -208,7 +208,9 @@ export class SuccessStepComponent {
   }
 
   onBackToHome(): void {
+    console.log('=== SuccessStepComponent: onBackToHome called ===');
     this.backToHome.emit();
+    console.log('backToHome event emitted');
   }
 
   onAddToCalendar(): void {

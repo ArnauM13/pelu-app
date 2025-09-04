@@ -16,6 +16,17 @@ export class BookingStateService {
   private readonly bookingService = inject(BookingService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly timeUtils = inject(TimeUtils);
+
+  // ===== PERSISTENCE KEYS =====
+  private readonly STORAGE_KEYS = {
+    currentStep: 'booking_current_step',
+    selectedService: 'booking_selected_service',
+    selectedDate: 'booking_selected_date',
+    selectedTimeSlot: 'booking_selected_time_slot',
+    viewDate: 'booking_view_date',
+    viewMode: 'booking_view_mode',
+    bookingDetails: 'booking_details'
+  };
   // ===== STATE SIGNALS =====
 
   // Step management signals (Mobile only)
@@ -37,6 +48,11 @@ export class BookingStateService {
     clientName: '',
     email: '',
   });
+
+  constructor() {
+    // Load persisted state on initialization
+    this.loadPersistedState();
+  }
 
   // Desktop popup signals
   readonly showServiceSelectionPopupSignal = signal(false);
@@ -138,6 +154,7 @@ export class BookingStateService {
   // Step management
   setCurrentStep(step: BookingStep): void {
     this.currentStepSignal.set(step);
+    this.savePersistedState();
   }
 
   // Service selection
@@ -148,6 +165,7 @@ export class BookingStateService {
       this.selectedDateSignal.set(null);
       this.selectedTimeSlotSignal.set(null);
     }
+    this.savePersistedState();
   }
 
   // Date selection
@@ -157,20 +175,24 @@ export class BookingStateService {
     if (date === null) {
       this.selectedTimeSlotSignal.set(null);
     }
+    this.savePersistedState();
   }
 
   // Time slot selection
   setSelectedTimeSlot(timeSlot: TimeSlot | null): void {
     this.selectedTimeSlotSignal.set(timeSlot);
+    this.savePersistedState();
   }
 
   // View management
   setViewDate(date: Date): void {
     this.viewDateSignal.set(date);
+    this.savePersistedState();
   }
 
   setViewMode(mode: 'week' | 'month'): void {
     this.viewModeSignal.set(mode);
+    this.savePersistedState();
   }
 
   // Appointments management
@@ -185,6 +207,7 @@ export class BookingStateService {
 
   updateBookingDetails(updates: Partial<BookingDetails>): void {
     this.bookingDetailsSignal.update(current => ({ ...current, ...updates }));
+    this.savePersistedState();
   }
 
   // Created booking management
@@ -223,11 +246,139 @@ export class BookingStateService {
       clientName: '',
       email: '',
     });
+    this.clearPersistedState();
   }
 
   resetDesktopPopups(): void {
     this.showServiceSelectionPopupSignal.set(false);
     this.showBookingPopupSignal.set(false);
     this.showLoginPromptSignal.set(false);
+  }
+
+  // ===== PERSISTENCE METHODS =====
+
+  private loadPersistedState(): void {
+    try {
+      // Load current step
+      const savedStep = localStorage.getItem(this.STORAGE_KEYS.currentStep);
+      if (savedStep && ['service', 'datetime', 'confirmation', 'success'].includes(savedStep)) {
+        this.currentStepSignal.set(savedStep as BookingStep);
+      }
+
+      // Load selected service
+      const savedService = localStorage.getItem(this.STORAGE_KEYS.selectedService);
+      if (savedService) {
+        try {
+          const service = JSON.parse(savedService);
+          this.selectedServiceSignal.set(service);
+        } catch (e) {
+          console.warn('Failed to parse saved service:', e);
+        }
+      }
+
+      // Load selected date
+      const savedDate = localStorage.getItem(this.STORAGE_KEYS.selectedDate);
+      if (savedDate) {
+        const date = new Date(savedDate);
+        if (!isNaN(date.getTime())) {
+          this.selectedDateSignal.set(date);
+        }
+      }
+
+      // Load selected time slot
+      const savedTimeSlot = localStorage.getItem(this.STORAGE_KEYS.selectedTimeSlot);
+      if (savedTimeSlot) {
+        try {
+          const timeSlot = JSON.parse(savedTimeSlot);
+          this.selectedTimeSlotSignal.set(timeSlot);
+        } catch (e) {
+          console.warn('Failed to parse saved time slot:', e);
+        }
+      }
+
+      // Load view date
+      const savedViewDate = localStorage.getItem(this.STORAGE_KEYS.viewDate);
+      if (savedViewDate) {
+        const date = new Date(savedViewDate);
+        if (!isNaN(date.getTime())) {
+          this.viewDateSignal.set(date);
+        }
+      }
+
+      // Load view mode
+      const savedViewMode = localStorage.getItem(this.STORAGE_KEYS.viewMode);
+      if (savedViewMode && ['week', 'month'].includes(savedViewMode)) {
+        this.viewModeSignal.set(savedViewMode as 'week' | 'month');
+      }
+
+      // Load booking details
+      const savedBookingDetails = localStorage.getItem(this.STORAGE_KEYS.bookingDetails);
+      if (savedBookingDetails) {
+        try {
+          const details = JSON.parse(savedBookingDetails);
+          this.bookingDetailsSignal.set(details);
+        } catch (e) {
+          console.warn('Failed to parse saved booking details:', e);
+        }
+      }
+
+      console.log('Persisted state loaded successfully');
+    } catch (error) {
+      console.error('Error loading persisted state:', error);
+    }
+  }
+
+  private savePersistedState(): void {
+    try {
+      // Save current step
+      localStorage.setItem(this.STORAGE_KEYS.currentStep, this.currentStepSignal());
+
+      // Save selected service
+      const selectedService = this.selectedServiceSignal();
+      if (selectedService) {
+        localStorage.setItem(this.STORAGE_KEYS.selectedService, JSON.stringify(selectedService));
+      } else {
+        localStorage.removeItem(this.STORAGE_KEYS.selectedService);
+      }
+
+      // Save selected date
+      const selectedDate = this.selectedDateSignal();
+      if (selectedDate) {
+        localStorage.setItem(this.STORAGE_KEYS.selectedDate, selectedDate.toISOString());
+      } else {
+        localStorage.removeItem(this.STORAGE_KEYS.selectedDate);
+      }
+
+      // Save selected time slot
+      const selectedTimeSlot = this.selectedTimeSlotSignal();
+      if (selectedTimeSlot) {
+        localStorage.setItem(this.STORAGE_KEYS.selectedTimeSlot, JSON.stringify(selectedTimeSlot));
+      } else {
+        localStorage.removeItem(this.STORAGE_KEYS.selectedTimeSlot);
+      }
+
+      // Save view date
+      localStorage.setItem(this.STORAGE_KEYS.viewDate, this.viewDateSignal().toISOString());
+
+      // Save view mode
+      localStorage.setItem(this.STORAGE_KEYS.viewMode, this.viewModeSignal());
+
+      // Save booking details
+      localStorage.setItem(this.STORAGE_KEYS.bookingDetails, JSON.stringify(this.bookingDetailsSignal()));
+
+    } catch (error) {
+      console.error('Error saving persisted state:', error);
+    }
+  }
+
+  private clearPersistedState(): void {
+    try {
+      Object.values(this.STORAGE_KEYS).forEach(key => {
+        localStorage.removeItem(key);
+      });
+      console.log('Persisted state cleared');
+    } catch (error) {
+      console.error('Error clearing persisted state:', error);
+    }
   }
 }

@@ -567,7 +567,7 @@ export class BookingMobilePageComponent {
   }
 
   onBackToHome() {
-    this.router.navigate(['/bookings']);
+    this.router.navigate(['/booking']);
   }
 
   // Navigation

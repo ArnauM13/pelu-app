@@ -12,6 +12,8 @@ import {
   serverTimestamp,
   orderBy,
   FieldValue,
+  onSnapshot,
+  Unsubscribe,
 } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from './role.service';
@@ -66,6 +68,10 @@ export class BookingService {
   private readonly errorSignal = signal<string | null>(null);
   private readonly isInitializedSignal = signal<boolean>(false);
   private readonly lastCacheTimeSignal = signal<number>(0);
+  private readonly isRealtimeActiveSignal = signal<boolean>(false);
+
+  // Real-time listener
+  private realtimeUnsubscribe: Unsubscribe | null = null;
 
   // Computed properties
   readonly bookings = computed(() => this.bookingsSignal());
@@ -76,6 +82,7 @@ export class BookingService {
   readonly hasCachedData = computed(
     () => this.bookingsSignal().length > 0 && this.isInitializedSignal()
   );
+  readonly isRealtimeActive = computed(() => this.isRealtimeActiveSignal());
 
   // Cache configuration - INCREASED CACHE DURATION
   private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes (increased from 5)
@@ -86,11 +93,15 @@ export class BookingService {
       this.initializeBookings();
     }
 
+    // Start real-time listener
+    this.startRealtimeListener();
+
     // Set up a periodic check for auth state changes to clear cache on logout
     setInterval(() => {
       if (!this.authService.isAuthenticated() && this.hasCachedData()) {
-        // User logged out, clear cache
+        // User logged out, clear cache and stop real-time listener
         this.clearCache();
+        this.stopRealtimeListener();
       }
     }, 2000); // Check every 2 seconds
   }
@@ -281,7 +292,7 @@ export class BookingService {
   }
 
   /**
-   * Load all bookings from Firebase - OPTIMIZED
+   * Load all bookings from Firebase - OPTIMIZED with real-time support
    */
   async loadBookings(): Promise<void> {
     try {
@@ -291,16 +302,25 @@ export class BookingService {
       if (!currentUser?.uid) {
         this.bookingsSignal.set([]);
         this.isInitializedSignal.set(true);
+        this.stopRealtimeListener();
         return;
       }
 
       this.isLoadingSignal.set(true);
       this.errorSignal.set(null);
 
-      await this.loadAllBookingsWithFullDetails();
+      // If real-time listener is not active, start it
+      if (!this.isRealtimeActive()) {
+        this.startRealtimeListener();
+      }
 
-      if (!this.isAdmin()) {
-        this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
+      // Load initial data if we don't have any
+      if (this.bookingsSignal().length === 0) {
+        await this.loadAllBookingsWithFullDetails();
+
+        if (!this.isAdmin()) {
+          this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
+        }
       }
 
       this.isInitializedSignal.set(true);
@@ -701,6 +721,7 @@ export class BookingService {
   async refreshBookings(): Promise<void> {
     this.clearCache();
     await this.loadBookings();
+    this.restartRealtimeListener();
   }
 
   /**
@@ -757,6 +778,7 @@ export class BookingService {
     this.bookingsSignal.set([]);
     this.isInitializedSignal.set(false);
     this.lastCacheTimeSignal.set(0);
+    this.stopRealtimeListener();
   }
 
   /**
@@ -851,5 +873,134 @@ export class BookingService {
     }
     // If it's a FieldValue, we can't format it, so return empty string
     return '';
+  }
+
+  /**
+   * Start real-time listener for bookings updates
+   */
+  private startRealtimeListener(): void {
+    // Only start if user is authenticated and not already active
+    if (!this.authService.isAuthenticated() || this.isRealtimeActive()) {
+      console.log('Real-time listener not started - authenticated:', this.authService.isAuthenticated(), 'active:', this.isRealtimeActive());
+      return;
+    }
+
+    try {
+      console.log('Starting real-time listener...');
+      // Wait for Firestore to be ready
+      this.waitForFirestoreReady().then(() => {
+        const bookingsRef = collection(this.firestore, 'bookings');
+        const q = query(bookingsRef, orderBy('createdAt', 'desc'));
+
+        this.realtimeUnsubscribe = onSnapshot(
+          q,
+          (querySnapshot) => {
+            console.log('Real-time update received:', querySnapshot.size, 'documents');
+            this.handleRealtimeUpdate(querySnapshot);
+          },
+          (error) => {
+            console.error('Real-time listener error:', error);
+            this.logger.firebaseError(error, 'realtimeListener', {
+              component: 'BookingService',
+              method: 'startRealtimeListener',
+            });
+            this.isRealtimeActiveSignal.set(false);
+          }
+        );
+
+        this.isRealtimeActiveSignal.set(true);
+        console.log('Real-time listener started successfully');
+      });
+    } catch (error) {
+      console.error('Error starting real-time listener:', error);
+      this.logger.firebaseError(error, 'startRealtimeListener', {
+        component: 'BookingService',
+        method: 'startRealtimeListener',
+      });
+    }
+  }
+
+  /**
+   * Stop real-time listener
+   */
+  private stopRealtimeListener(): void {
+    if (this.realtimeUnsubscribe) {
+      this.realtimeUnsubscribe();
+      this.realtimeUnsubscribe = null;
+      this.isRealtimeActiveSignal.set(false);
+    }
+  }
+
+  /**
+   * Handle real-time updates from Firebase
+   */
+  private handleRealtimeUpdate(querySnapshot: any): void {
+    try {
+      const currentUser = this.authService.user();
+      if (!currentUser?.uid) {
+        console.log('No authenticated user for real-time update');
+        return;
+      }
+
+      console.log('Processing real-time update for user:', currentUser.email);
+      const newBookings: Booking[] = [];
+      querySnapshot.forEach((doc: any) => {
+        const bookingData = doc.data();
+        const booking: Booking = {
+          id: doc.id,
+          clientName: bookingData['clientName'] || bookingData['nom'] || '',
+          email: bookingData['email'] || '',
+          data: bookingData['data'] || '',
+          hora: bookingData['hora'] || '',
+          serviceId: bookingData['serviceId'] || '',
+          notes: bookingData['notes'] || '',
+          status: bookingData['status'] || 'draft',
+          createdAt: bookingData['createdAt'],
+        };
+        newBookings.push(booking);
+      });
+
+      console.log('Updated bookings from real-time:', newBookings.length);
+
+      // Update local state with new data
+      this.bookingsSignal.set(newBookings);
+
+      // Apply filtering for non-admin users
+      if (!this.isAdmin()) {
+        this.filterSensitiveDetailsForNonAdmin(currentUser.email || '');
+      }
+
+      // Update cache timestamp
+      this.lastCacheTimeSignal.set(Date.now());
+      this.isInitializedSignal.set(true);
+
+      // Dispatch custom event to notify components of updates
+      window.dispatchEvent(new CustomEvent('bookingUpdated'));
+      console.log('Real-time update processed and event dispatched');
+
+    } catch (error) {
+      console.error('Error in handleRealtimeUpdate:', error);
+      this.logger.firebaseError(error, 'handleRealtimeUpdate', {
+        component: 'BookingService',
+        method: 'handleRealtimeUpdate',
+      });
+    }
+  }
+
+  /**
+   * Restart real-time listener (useful after auth state changes)
+   */
+  restartRealtimeListener(): void {
+    this.stopRealtimeListener();
+    if (this.authService.isAuthenticated()) {
+      this.startRealtimeListener();
+    }
+  }
+
+  /**
+   * Check if real-time updates are working
+   */
+  isRealtimeWorking(): boolean {
+    return this.isRealtimeActive();
   }
 }
