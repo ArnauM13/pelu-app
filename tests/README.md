@@ -129,8 +129,7 @@ The tests generate screenshots in the `test-results/` directory:
 The booking limit functionality was implemented with:
 
 ### Components Modified
-1. **booking-page.component.ts** - Added `isCalendarBlocked` computed signal
-2. **booking-mobile-page.component.ts** - Added `isUserBlockedFromBooking` logic
+1. **booking-page.component.ts** - Added `isUserBlockedFromBooking` logic (Unified mobile + desktop)
 3. **calendar.component.ts** - Added `isBlocked` input and blocking logic
 4. **no-appointments-message.component.ts** - Added `showAction` input
 
