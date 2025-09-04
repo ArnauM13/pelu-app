@@ -60,6 +60,9 @@ class MockAppointmentDetailPageComponent {
     actions: []
   }));
 
+  // Mock hasFormChanges computed property
+  readonly hasFormChanges = computed(() => false);
+
   ngOnInit(): void {
     // Trigger isMobile call to satisfy the test
     this.responsiveService.isMobile();
