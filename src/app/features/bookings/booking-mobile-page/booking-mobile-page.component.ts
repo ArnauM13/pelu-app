@@ -24,6 +24,7 @@ import { NoAppointmentsMessageComponent } from '../../../shared/components/no-ap
 import { TimeUtils, TimeSlot, DaySlot } from '../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../shared/components/booking-popup/booking-popup.component';
 import { BookingValidationService } from '../../../core/services/booking-validation.service';
+import { DateTimeSelectionService } from '../booking-page/services/date-time-selection.service';
 import { ButtonComponent } from '../../../shared/components/buttons/button.component';
 import { ServiceCardComponent } from '../../../shared/components/service-card/service-card.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -66,6 +67,7 @@ export class BookingMobilePageComponent {
   private readonly systemParametersService = inject(SystemParametersService);
   private readonly timeUtils = inject(TimeUtils);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly loaderService = inject(LoaderService);
 
   // Step management signals
@@ -91,7 +93,7 @@ export class BookingMobilePageComponent {
   // Public computed signals
   readonly currentStep = computed(() => this.currentStepSignal());
   readonly selectedTimeSlot = computed(() => this.selectedTimeSlotSignal());
-  readonly selectedDate = computed(() => this.selectedDateSignal());
+  readonly selectedDate = computed(() => this.dateTimeSelectionService.selectedDate());
   readonly viewDate = computed(() => this.viewDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
@@ -383,13 +385,19 @@ export class BookingMobilePageComponent {
   onServiceSelected(service: FirebaseService) {
     this.selectedServiceSignal.set(service);
     // Clear selected date and time when service changes, as available slots may change
-    this.selectedDateSignal.set(null);
+    this.dateTimeSelectionService.resetDateSelection();
     this.selectedTimeSlotSignal.set(null);
   }
 
   onDateSelected(date: Date) {
-    this.selectedDateSignal.set(date);
+    this.dateTimeSelectionService.setSelectedDateFromDate(date);
     this.selectedTimeSlotSignal.set(null); // Reset time slot when date changes
+
+    // Update available time slots for the selected date and service
+    const service = this.selectedService();
+    if (service) {
+      this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
+    }
   }
 
   onDateClicked(date: Date) {
@@ -399,6 +407,7 @@ export class BookingMobilePageComponent {
   }
 
   onTimeSlotSelected(timeSlot: TimeSlot) {
+    this.dateTimeSelectionService.setSelectedTime(timeSlot.time);
     this.selectedTimeSlotSignal.set(timeSlot);
   }
 
@@ -592,7 +601,7 @@ export class BookingMobilePageComponent {
 
   // Helper method to clear selected date
   private clearSelectedDate() {
-    this.selectedDateSignal.set(null);
+    this.dateTimeSelectionService.resetDateSelection();
     this.selectedTimeSlotSignal.set(null);
   }
 
@@ -729,16 +738,28 @@ export class BookingMobilePageComponent {
   selectToday() {
     const today = new Date();
     if (this.canSelectDate(today)) {
-      this.selectedDateSignal.set(today);
+      this.dateTimeSelectionService.setSelectedDateFromDate(today);
       this.viewDateSignal.set(today);
+
+      // Update available time slots for the selected date and service
+      const service = this.selectedService();
+      if (service) {
+        this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
+      }
     }
   }
 
   selectTomorrow() {
     const tomorrow = this.getTomorrow();
     if (this.canSelectDate(tomorrow)) {
-      this.selectedDateSignal.set(tomorrow);
+      this.dateTimeSelectionService.setSelectedDateFromDate(tomorrow);
       this.viewDateSignal.set(tomorrow);
+
+      // Update available time slots for the selected date and service
+      const service = this.selectedService();
+      if (service) {
+        this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
+      }
     }
   }
 
@@ -764,8 +785,15 @@ export class BookingMobilePageComponent {
   selectNextAvailable() {
     const nextAvailable = this.nextAvailableDate();
     if (nextAvailable) {
-      this.selectedDateSignal.set(nextAvailable);
+      this.dateTimeSelectionService.setSelectedDateFromDate(nextAvailable);
       this.viewDateSignal.set(nextAvailable);
+
+      // Update available time slots for the selected date and service
+      const service = this.selectedService();
+      if (service) {
+        this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
+      }
+
       this.toastService.showInfo(
         'Data seleccionada',
         `S'ha seleccionat la propera data disponible: ${this.formatDay(nextAvailable)}`
@@ -918,15 +946,21 @@ export class BookingMobilePageComponent {
 
     // Try to select the first business day if it's selectable
     if (this.canSelectDate(firstBusinessDayOfWeek)) {
-      this.selectedDateSignal.set(firstBusinessDayOfWeek);
+      this.dateTimeSelectionService.setSelectedDateFromDate(firstBusinessDayOfWeek);
     } else {
       // If the first business day is not selectable, find the first available date
       const currentViewDays = this.currentViewDays();
       const firstAvailableDate = currentViewDays.find((day: Date) => this.canSelectDate(day));
 
       if (firstAvailableDate) {
-        this.selectedDateSignal.set(firstAvailableDate);
+        this.dateTimeSelectionService.setSelectedDateFromDate(firstAvailableDate);
       }
+    }
+
+    // Update available time slots for the selected date and service
+    const service = this.selectedService();
+    if (service) {
+      this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
     }
   }
 

@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InputTextComponent } from '../../../../shared/components/inputs/input-text/input-text.component';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { BookingStateService } from '../services/booking-state.service';
+import { DateTimeSelectionService } from '../services/date-time-selection.service';
 import { BookingDetails } from '../../../../shared/components/booking-popup/booking-popup.component';
 
 @Component({
@@ -221,6 +222,7 @@ import { BookingDetails } from '../../../../shared/components/booking-popup/book
 })
 export class ConfirmationStepComponent {
   private readonly bookingStateService = inject(BookingStateService);
+  private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
 
   // Output events
   clientNameChanged = output<string>();
@@ -228,8 +230,12 @@ export class ConfirmationStepComponent {
 
   // ===== COMPUTED PROPERTIES =====
 
-  readonly selectedDate = computed(() => this.bookingStateService.selectedDate());
-  readonly selectedTimeSlot = computed(() => this.bookingStateService.selectedTimeSlot());
+  readonly selectedDate = computed(() => this.dateTimeSelectionService.selectedDate());
+  readonly selectedTimeSlot = computed(() => {
+    const selectedTime = this.dateTimeSelectionService.selectedTime();
+    const availableSlots = this.dateTimeSelectionService.availableTimeSlots();
+    return availableSlots.find(slot => slot.time === selectedTime) || null;
+  });
   readonly selectedService = computed(() => this.bookingStateService.selectedService());
   readonly bookingDetails = computed(() => this.bookingStateService.bookingDetails());
 

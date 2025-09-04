@@ -1,12 +1,15 @@
-import { Component, computed, inject, output, ViewChild } from '@angular/core';
+import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
+import { ManualBookingComponent } from './manual-booking.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
+import { DateTimeSelectionService } from '../services/date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
 import { startOfWeek, endOfWeek } from 'date-fns';
+import { Booking } from '../../../../core/interfaces/booking.interface';
 
 @Component({
   selector: 'pelu-desktop-layout',
@@ -16,59 +19,122 @@ import { startOfWeek, endOfWeek } from 'date-fns';
     TranslateModule,
     ButtonComponent,
     CalendarComponent,
+    ManualBookingComponent,
   ],
   template: `
     <div class="desktop-layout">
-      <!-- Date Controls -->
-      <div class="date-controls-section">
-        <div class="date-controls">
-          <pelu-button
-            [label]="'COMMON.TIME.TODAY'"
-            [icon]="'pi pi-calendar'"
-            (clicked)="onTodayClicked()"
-          ></pelu-button>
+      <!-- Two Column Grid Layout -->
+      <div class="grid-container">
+        <!-- Left Column: Title + Manual Booking -->
+        <div class="left-column">
+          <!-- Title Section -->
+          <div class="title-section">
+            <h1 class="page-title">{{ 'BOOKING.TITLE' | translate }}</h1>
+            <p class="page-subtitle">{{ 'BOOKING.SUBTITLE' | translate }}</p>
+          </div>
 
-          <div class="week-navigation">
-            <pelu-button
-              [icon]="'pi pi-chevron-left'"
-              [rounded]="true"
-              (clicked)="goToPreviousWeek()"
-              [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
-            ></pelu-button>
-
-            <div class="week-info">
-              <span>{{ weekInfo() }}</span>
-            </div>
-
-            <pelu-button
-              [icon]="'pi pi-chevron-right'"
-              [rounded]="true"
-              (clicked)="goToNextWeek()"
-              [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
-            ></pelu-button>
+          <!-- Manual Booking Section -->
+          <div class="manual-booking-section">
+            <pelu-manual-booking
+              (bookingCreated)="onManualBookingCreated($event)"
+            ></pelu-manual-booking>
           </div>
         </div>
-      </div>
 
-      <!-- Calendar Component -->
-      <div class="calendar-section">
-        <pelu-calendar-component
-          #calendarComponent
-          [mini]="false"
-          [events]="[]"
-          [isBlocked]="isCalendarBlocked()"
-          (dateSelected)="onDesktopTimeSlotSelected($event)"
-        ></pelu-calendar-component>
-      </div>
+        <!-- Right Column: Date Controls + Calendar -->
+        <div class="right-column">
+          <!-- Date Controls -->
+          <div class="date-controls-section">
+            <div class="date-controls">
+              <pelu-button
+                [label]="'COMMON.TIME.TODAY'"
+                [icon]="'pi pi-calendar'"
+                (clicked)="onTodayClicked()"
+              ></pelu-button>
 
-      <!-- Footer -->
-      <div class="footer-section">
-        <!-- Footer content here -->
+              <div class="week-navigation">
+                <pelu-button
+                  [icon]="'pi pi-chevron-left'"
+                  [rounded]="true"
+                  (clicked)="goToPreviousWeek()"
+                  [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+                ></pelu-button>
+
+                <div class="week-info">
+                  <span>{{ weekInfo() }}</span>
+                </div>
+
+                <pelu-button
+                  [icon]="'pi pi-chevron-right'"
+                  [rounded]="true"
+                  (clicked)="goToNextWeek()"
+                  [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+                ></pelu-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendar Section -->
+          <div class="calendar-section">
+            <pelu-calendar-component
+              #calendarComponent
+              [mini]="false"
+              [events]="[]"
+              [isBlocked]="isCalendarBlocked()"
+              (dateSelected)="onDesktopTimeSlotSelected($event)"
+            ></pelu-calendar-component>
+          </div>
+        </div>
       </div>
     </div>
   `,
   styles: [`
     .desktop-layout {
+      .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 4fr;
+        gap: 2rem;
+        min-height: 100vh;
+        width: 100%;
+        padding: 1rem 0;
+      }
+
+      .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        height: 100%;
+      }
+
+      .title-section {
+        .page-title {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--primary-color);
+          margin: 0 0 0.5rem 0;
+          line-height: 1.2;
+        }
+
+        .page-subtitle {
+          font-size: 1.1rem;
+          color: var(--text-color-secondary);
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+
+      .manual-booking-section {
+        flex: 1;
+        min-width: 0;
+      }
+
       .date-controls-section {
         .date-controls {
           display: flex;
@@ -123,16 +189,39 @@ import { startOfWeek, endOfWeek } from 'date-fns';
       }
 
       .calendar-section {
-        padding: 0;
-        margin-bottom: 2rem;
-      }
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+        height: 100%;
 
-      .next-appointment-section {
-        margin-bottom: 2rem;
-      }
+        pelu-calendar-component {
+          width: 100%;
+          height: 100%;
 
-      .footer-section {
-        margin-top: 2rem;
+          ::ng-deep {
+            .calendar-container {
+              width: 100%;
+              height: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .desktop-layout {
+        .grid-container {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        .left-column {
+          order: 2;
+        }
+
+        .right-column {
+          order: 1;
+        }
       }
     }
 
@@ -161,15 +250,26 @@ import { startOfWeek, endOfWeek } from 'date-fns';
             }
           }
         }
+
+        .title-section {
+          .page-title {
+            font-size: 2rem;
+          }
+
+          .page-subtitle {
+            font-size: 1rem;
+          }
+        }
       }
     }
   `]
 })
-export class DesktopLayoutComponent {
+export class DesktopLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
 
   private readonly bookingStateService = inject(BookingStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
 
   // Output events
@@ -202,6 +302,17 @@ export class DesktopLayoutComponent {
   }
 
   onDesktopTimeSlotSelected(event: { date: string; time: string }): void {
+    // Update the centralized date/time selection service
+    this.dateTimeSelectionService.setSelectedDate(event.date);
+    this.dateTimeSelectionService.setSelectedTime(event.time);
+
+    // Update available time slots for the selected date and service
+    const service = this.bookingStateService.selectedService();
+    if (service) {
+      this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.bookingStateService.appointments());
+    }
+
+    // Emit the event to parent components
     this.timeSlotSelected.emit(event);
   }
 
@@ -237,5 +348,32 @@ export class DesktopLayoutComponent {
     this.calendarComponent?.onDateChange(firstBusinessDay);
 
     this.bookingStateService.setSelectedDate(null);
+  }
+
+  // ===== MANUAL BOOKING METHODS =====
+
+  onManualBookingCreated(booking: Booking): void {
+    console.log('Manual booking created:', booking);
+
+    // The booking state service already handles refreshing appointments
+    // and dispatching the bookingUpdated event, which will update the calendar
+  }
+
+  // ===== LIFECYCLE METHODS =====
+
+  ngOnInit(): void {
+    // Listen for booking updates to refresh the calendar
+    window.addEventListener('bookingUpdated', this.onBookingUpdated.bind(this));
+  }
+
+  ngOnDestroy(): void {
+    // Clean up event listeners
+    window.removeEventListener('bookingUpdated', this.onBookingUpdated.bind(this));
+  }
+
+  private onBookingUpdated(): void {
+    console.log('Booking updated event received, refreshing calendar...');
+    // Force calendar refresh by triggering a change detection
+    // The calendar component should automatically update when appointments change
   }
 }
