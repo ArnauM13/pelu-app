@@ -5,16 +5,20 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../../shared/components/booking-popup/booking-popup.component';
 import { BookingService } from '../../../../core/services/booking.service';
 import { BookingValidationService } from '../../../../core/services/booking-validation.service';
+import { DateTimeSelectionService } from './date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
 
 // Unified booking step type
 export type BookingStep = 'service' | 'datetime' | 'confirmation' | 'success';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class BookingStateService {
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly bookingService = inject(BookingService);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
 
   // ===== PERSISTENCE KEYS =====
@@ -69,7 +73,7 @@ export class BookingStateService {
 
   readonly currentStep = computed(() => this.currentStepSignal());
   readonly selectedTimeSlot = computed(() => this.selectedTimeSlotSignal());
-  readonly selectedDate = computed(() => this.selectedDateSignal());
+  readonly selectedDate = computed(() => this.dateTimeSelectionService.selectedDate());
   readonly viewDate = computed(() => this.viewDateSignal());
   readonly selectedService = computed(() => this.selectedServiceSignal() || undefined);
   readonly appointments = computed(() => this.appointmentsSignal());
@@ -170,16 +174,21 @@ export class BookingStateService {
 
   // Date selection
   setSelectedDate(date: Date | null): void {
-    this.selectedDateSignal.set(date);
-    // Clear time slot when date changes
-    if (date === null) {
-      this.selectedTimeSlotSignal.set(null);
+    if (date) {
+      this.dateTimeSelectionService.setSelectedDateFromDate(date);
+    } else {
+      this.dateTimeSelectionService.resetDateSelection();
     }
     this.savePersistedState();
   }
 
   // Time slot selection
   setSelectedTimeSlot(timeSlot: TimeSlot | null): void {
+    if (timeSlot) {
+      this.dateTimeSelectionService.setSelectedTime(timeSlot.time);
+    } else {
+      this.dateTimeSelectionService.resetTimeSelection();
+    }
     this.selectedTimeSlotSignal.set(timeSlot);
     this.savePersistedState();
   }
@@ -379,6 +388,32 @@ export class BookingStateService {
       console.log('Persisted state cleared');
     } catch (error) {
       console.error('Error clearing persisted state:', error);
+    }
+  }
+
+  // ===== MANUAL BOOKING METHODS =====
+
+  /**
+   * Create a booking manually (for manual booking component)
+   */
+  async createBooking(bookingData: any): Promise<Booking | null> {
+    try {
+      const booking = await this.bookingService.createBooking(bookingData, true);
+
+      if (booking) {
+        // Refresh appointments to include the new booking
+        await this.bookingService.refreshBookings();
+        const bookings = this.bookingService.bookings();
+        this.setAppointments(bookings);
+
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('bookingUpdated'));
+      }
+
+      return booking;
+    } catch (error) {
+      console.error('Error creating manual booking:', error);
+      throw error;
     }
   }
 }

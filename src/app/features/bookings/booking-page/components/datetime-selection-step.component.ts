@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
+import { DateTimeSelectionService } from '../services/date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
 import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
 
@@ -617,6 +618,7 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
 export class DateTimeSelectionStepComponent {
   private readonly bookingStateService = inject(BookingStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
 
   // Output events
@@ -626,8 +628,12 @@ export class DateTimeSelectionStepComponent {
 
   // ===== COMPUTED PROPERTIES =====
 
-  readonly selectedDate = computed(() => this.bookingStateService.selectedDate());
-  readonly selectedTimeSlot = computed(() => this.bookingStateService.selectedTimeSlot());
+  readonly selectedDate = computed(() => this.dateTimeSelectionService.selectedDate());
+  readonly selectedTimeSlot = computed(() => {
+    const selectedTime = this.dateTimeSelectionService.selectedTime();
+    const availableSlots = this.dateTimeSelectionService.availableTimeSlots();
+    return availableSlots.find(slot => slot.time === selectedTime) || null;
+  });
   readonly viewDate = computed(() => this.bookingStateService.viewDate());
   readonly viewMode = computed(() => this.bookingStateService.viewMode());
   readonly daySlots = computed(() => this.bookingStateService.daySlots());
@@ -639,14 +645,21 @@ export class DateTimeSelectionStepComponent {
 
   onDateClicked(date: Date): void {
     if (this.canSelectDate(date)) {
-      this.bookingStateService.setSelectedDate(date);
+      this.dateTimeSelectionService.setSelectedDateFromDate(date);
+
+      // Update available time slots for the selected date and service
+      const service = this.bookingStateService.selectedService();
+      if (service) {
+        this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.bookingStateService.appointments());
+      }
+
       this.dateSelected.emit(date);
     }
   }
 
   onTimeSlotClicked(timeSlot: TimeSlot): void {
     if (timeSlot.available) {
-      this.bookingStateService.setSelectedTimeSlot(timeSlot);
+      this.dateTimeSelectionService.setSelectedTime(timeSlot.time);
       this.timeSlotSelected.emit(timeSlot);
     }
   }
@@ -676,7 +689,7 @@ export class DateTimeSelectionStepComponent {
       const newDate = this.timeUtils.getPreviousMonth(currentDate);
       this.bookingStateService.setViewDate(newDate);
     }
-    this.bookingStateService.setSelectedDate(null);
+    this.dateTimeSelectionService.resetDateSelection();
   }
 
   nextPeriod(): void {
@@ -688,7 +701,7 @@ export class DateTimeSelectionStepComponent {
       const newDate = this.timeUtils.getNextMonth(currentDate);
       this.bookingStateService.setViewDate(newDate);
     }
-    this.bookingStateService.setSelectedDate(null);
+    this.dateTimeSelectionService.resetDateSelection();
   }
 
   // ===== QUICK SELECTION METHODS =====
@@ -700,7 +713,7 @@ export class DateTimeSelectionStepComponent {
   selectToday(): void {
     const today = new Date();
     if (this.canSelectDate(today)) {
-      this.bookingStateService.setSelectedDate(today);
+      this.dateTimeSelectionService.setSelectedDateFromDate(today);
       this.bookingStateService.setViewDate(today);
     }
   }

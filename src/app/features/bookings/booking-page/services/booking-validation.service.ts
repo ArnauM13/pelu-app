@@ -5,7 +5,9 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { BookingService } from '../../../../core/services/booking.service';
 import { SystemParametersService } from '../../../../core/services/system-parameters.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class BookingValidationService {
   private readonly bookingStateService = inject(BookingStateService);
   private readonly coreBookingValidationService = inject(CoreBookingValidationService);
@@ -205,5 +207,10 @@ export class BookingValidationService {
 
   isBusinessDay(date: Date): boolean {
     return this.coreBookingValidationService.canBookOnDate(date);
+  }
+
+  // Manual booking validation methods
+  canBookServiceAtTime(date: Date, time: string, duration: number, appointments: any[]): boolean {
+    return this.coreBookingValidationService.canBookServiceAtTime(date, time, duration, appointments);
   }
 }

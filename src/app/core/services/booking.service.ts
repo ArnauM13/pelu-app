@@ -1003,4 +1003,81 @@ export class BookingService {
   isRealtimeWorking(): boolean {
     return this.isRealtimeActive();
   }
+
+  // ===== TIME SLOT MANAGEMENT =====
+
+  /**
+   * Generate available time slots for a specific service and date
+   */
+  generateAvailableTimeSlots(serviceId: string, date: Date): TimeSlot[] {
+    const service = this.servicesService.getServiceById(serviceId);
+    if (!service) {
+      return [];
+    }
+
+    const timeSlots: TimeSlot[] = [];
+    const appointments = this.bookings();
+    const dateString = this.formatDateISO(date);
+
+    // Business hours (9:00 to 18:00)
+    const startHour = 9;
+    const endHour = 18;
+    const slotDuration = 30; // 30 minutes per slot
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += slotDuration) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
+        // Check if this time slot is available
+        const isAvailable = this.isTimeSlotAvailable(timeString, service, dateString, appointments);
+
+        timeSlots.push({
+          time: timeString,
+          available: isAvailable,
+          isSelected: false
+        });
+      }
+    }
+
+    return timeSlots;
+  }
+
+  /**
+   * Check if a specific time slot is available for a service
+   */
+  isTimeSlotAvailable(time: string, service: any, dateString: string, appointments: Booking[]): boolean {
+    const [startHour, startMinute] = time.split(':').map(Number);
+    const startTime = new Date();
+    startTime.setHours(startHour, startMinute, 0, 0);
+
+    const endTime = new Date(startTime);
+    endTime.setMinutes(endTime.getMinutes() + service.duration);
+
+    // Check for conflicts with existing appointments
+    return !appointments.some(appointment => {
+      if (appointment.data !== dateString || appointment.status !== 'confirmed') {
+        return false;
+      }
+
+      const [appStartHour, appStartMinute] = appointment.hora.split(':').map(Number);
+      const appStartTime = new Date();
+      appStartTime.setHours(appStartHour, appStartMinute, 0, 0);
+
+      const appEndTime = new Date(appStartTime);
+      appEndTime.setMinutes(appEndTime.getMinutes() + service.duration);
+
+      // Check for overlap
+      return (startTime < appEndTime && endTime > appStartTime);
+    });
+  }
+
+  /**
+   * Format date to ISO string (YYYY-MM-DD)
+   */
+  private formatDateISO(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 }

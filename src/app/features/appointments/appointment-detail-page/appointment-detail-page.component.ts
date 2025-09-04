@@ -326,7 +326,7 @@ export class AppointmentDetailPageComponent implements OnInit {
         },
         {
           icon: '⏰',
-          label: 'COMMON.TIME',
+          label: 'COMMON.TIME.HOUR',
           value: this.editForm.get('hora')?.value || '',
           field: 'hora' as keyof BookingForm,
           type: 'select' as const,
