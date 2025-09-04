@@ -164,7 +164,7 @@ export class FirebaseServicesService {
     /**
    * Load services from Firebase with localStorage-first approach and 5-minute TTL
    */
-   async loadServices(): Promise<void> {
+   async loadServices(showLoader: boolean = true): Promise<void> {
      try {
        // First, try to load from localStorage cache
        if (this.shouldUseCache()) {
@@ -172,7 +172,9 @@ export class FirebaseServicesService {
          return;
        }
 
-      this._isLoading.set(true);
+      if (showLoader) {
+        this._isLoading.set(true);
+      }
       this._error.set(null);
 
       // Wait for Firestore to be ready
@@ -220,7 +222,9 @@ export class FirebaseServicesService {
       this._error.set(errorMessage);
       // Don't show toast for loading errors - they're not user-initiated actions
     } finally {
-      this._isLoading.set(false);
+      if (showLoader) {
+        this._isLoading.set(false);
+      }
     }
   }
 

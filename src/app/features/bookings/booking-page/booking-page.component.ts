@@ -12,7 +12,7 @@ import {
   ServiceSelectionDetails,
 } from '../../../shared/components/service-selection-popup/service-selection-popup.component';
 import { PopupDialogComponent, PopupDialogConfig } from '../../../shared/components/popup-dialog/popup-dialog.component';
-import { FirebaseService } from '../../../core/services/firebase-services.service';
+import { FirebaseService, FirebaseServicesService } from '../../../core/services/firebase-services.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
@@ -74,6 +74,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   private readonly loaderService = inject(LoaderService);
   private readonly serviceColorsService = inject(ServiceColorsService);
   private readonly userService = inject(UserService);
+  private readonly firebaseServicesService = inject(FirebaseServicesService);
 
   // ===== COMPONENT SERVICES =====
   private readonly bookingStateService = inject(BookingStateService);
@@ -613,13 +614,19 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   private async loadServices() {
     try {
       // Services are loaded through the booking state service
+      // Only show loader on mobile, not on desktop
+      const showLoader = this.isMobile();
+      await this.firebaseServicesService.loadServices(showLoader);
     } catch (error) {
       console.error('Error loading services:', error);
     }
   }
 
   private async loadAppointments() {
-    this.loaderService.show({ message: 'BOOKING.LOADING_APPOINTMENTS' });
+    // Only show loader on mobile, not on desktop
+    if (this.isMobile()) {
+      this.loaderService.show({ message: 'BOOKING.LOADING_APPOINTMENTS' });
+    }
 
     try {
       console.log('Loading appointments...');
@@ -630,7 +637,9 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error loading appointments:', error);
     } finally {
-      this.loaderService.hide();
+      if (this.isMobile()) {
+        this.loaderService.hide();
+      }
     }
   }
 
