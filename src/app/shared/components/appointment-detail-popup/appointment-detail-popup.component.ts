@@ -57,7 +57,6 @@ export class AppointmentDetailPopupComponent {
   // Output signals
   readonly closed = output<void>();
   readonly deleted = output<Booking>();
-  readonly editRequested = output<Booking>();
   readonly viewDetailRequested = output<Booking>(); // New output for view detail
 
   // Internal state
@@ -142,14 +141,7 @@ export class AppointmentDetailPopupComponent {
 
     const actions: FooterAction[] = [];
 
-    // Add edit button if user can edit
-    if (this.canEditBooking(booking)) {
-      actions.push({
-        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
-        severity: 'primary',
-        action: () => this.onEdit(),
-      });
-    }
+    // Edit button removed as requested
 
     // Add delete button if user can delete
     if (this.canDeleteBooking(booking)) {
@@ -202,12 +194,6 @@ export class AppointmentDetailPopupComponent {
     this.closed.emit();
   }
 
-  onEdit(): void {
-    const booking = this.currentBooking();
-    if (booking) {
-      this.editRequested.emit(booking);
-    }
-  }
 
   onDelete(): void {
     this.showDeleteConfirmSignal.set(true);
@@ -307,10 +293,6 @@ export class AppointmentDetailPopupComponent {
     return this.#timeUtils.formatTimeString(time);
   }
 
-  private canEditBooking(booking: Booking): boolean {
-    // Add your logic to determine if user can edit this booking
-    return true; // Placeholder
-  }
 
   private canDeleteBooking(booking: Booking): boolean {
     // Add your logic to determine if user can delete this booking

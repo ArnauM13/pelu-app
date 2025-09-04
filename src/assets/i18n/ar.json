@@ -194,6 +194,7 @@
     "ICS_GENERATION_ERROR": "خطأ في إنشاء ملف ICS",
     "ICS_DOWNLOAD_SUCCESS": "تم تحميل ملف ICS وفتح التقويم بنجاح",
     "INCOMPLETE_BOOKING_INFO": "معلومات غير مكتملة لتأكيد الحجز",
+    "INCOMPLETE_CLIENT_INFO": "معلومات العميل غير مكتملة",
     "TIME_SLOT_NO_LONGER_AVAILABLE": "هذا الوقت لم يعد متاحاً. يرجى اختيار وقت آخر.",
     "MAX_APPOINTMENTS_REACHED": "لا يمكنك عمل المزيد من الحجوزات. لديك بالفعل الحد الأقصى من الحجوزات النشطة.",
     "PLEASE_SELECT_SERVICE_FIRST": "يرجى اختيار خدمة أولاً",

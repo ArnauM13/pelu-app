@@ -881,6 +881,10 @@ export class CalendarComponent {
     }
   }
 
+  onEditRequestedWrapper(event: any) {
+    this.onAppointmentEditRequested(event as Booking);
+  }
+
   onAppointmentEditRequested(_booking: Booking) {
     // Now handled inline within the popup; no navigation
   }
