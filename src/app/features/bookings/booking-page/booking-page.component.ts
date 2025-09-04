@@ -226,12 +226,38 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   readonly createdBooking = computed(() => this.bookingStateService.createdBooking());
 
   constructor() {
-    // Check authentication first
+    console.log('=== BookingPageComponent constructor ===');
+    console.log('isAuthenticated():', this.isAuthenticated());
+    console.log('Current route:', this.router.url);
+
+    // Wait for auth to be initialized before checking authentication
+    this.waitForAuthAndInitialize();
+  }
+
+  private async waitForAuthAndInitialize() {
+    console.log('Waiting for auth to be initialized...');
+
+    // Wait for auth service to be initialized
+    while (!this.authService.isInitialized()) {
+      console.log('Auth not initialized yet, waiting...');
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    console.log('Auth initialized, checking authentication...');
+    console.log('isAuthenticated():', this.isAuthenticated());
+
+    // Check authentication after auth is initialized
     if (!this.isAuthenticated()) {
+      console.log('Not authenticated after initialization, redirecting to login...');
       this.router.navigate(['/login']);
       return;
     }
 
+    console.log('User is authenticated, initializing component...');
+    this.initializeComponent();
+  }
+
+  private initializeComponent() {
     this.loadServices();
     this.loadAppointments();
 
@@ -247,30 +273,16 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
     // Set default date when entering datetime step (mobile)
     this.setDefaultDate();
+
+    // Ensure booking service is properly initialized
+    this.initializeBookingService();
   }
 
   ngOnInit(): void {
-    // Check authentication first
-    if (!this.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    this.loadServices();
-    this.loadAppointments();
-
-    // Listen for service updates to refresh services
-    window.addEventListener('serviceUpdated', () => {
-      this.loadServices();
-    });
-
-    // Listen for booking updates to refresh appointments
-    window.addEventListener('bookingUpdated', () => {
-      this.loadAppointments();
-    });
-
-    // Set default date when entering datetime step (mobile)
-    this.setDefaultDate();
+    console.log('=== BookingPageComponent ngOnInit ===');
+    console.log('isAuthenticated():', this.isAuthenticated());
+    console.log('Current route:', this.router.url);
+    // Component initialization is now handled in constructor
   }
 
   ngOnDestroy(): void {
@@ -407,26 +419,45 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
 
     try {
+      const formattedDate = this.formatDateISO(selectedDate);
+
       const bookingData = {
         clientName: details.clientName,
         email: details.email,
-        data: this.formatDateISO(selectedDate),
+        data: formattedDate,
         hora: selectedTimeSlot.time,
         serviceId: selectedService.id || '',
         notes: '',
         status: 'confirmed' as const,
       };
 
-      const booking = await this.bookingService.createBooking(bookingData, false);
+      console.log('=== BOOKING CREATION DEBUG ===');
+      console.log('Selected date object:', selectedDate);
+      console.log('Selected date string:', selectedDate.toDateString());
+      console.log('Selected date ISO:', selectedDate.toISOString());
+      console.log('Formatted date (local):', formattedDate);
+      console.log('Time slot:', selectedTimeSlot.time);
+      console.log('Full booking data:', bookingData);
+      const booking = await this.bookingService.createBooking(bookingData, true);
 
       if (booking) {
+        console.log('Booking created successfully:', booking);
         this.bookingStateService.setCreatedBooking(booking);
-        await this.loadAppointments();
+
+        // Force refresh appointments to ensure real-time updates work
+        await this.bookingService.refreshBookings();
+
+        // Dispatch event to notify other components
         window.dispatchEvent(new CustomEvent('bookingUpdated'));
+
         this.goToStep('success');
+      } else {
+        console.error('Booking creation returned null');
+        this.loaderService.show({ message: 'COMMON.ERROR' });
       }
     } catch (error) {
       console.error('Error creating booking:', error);
+      this.loaderService.show({ message: 'COMMON.ERROR' });
     } finally {
       this.loaderService.hide();
     }
@@ -566,6 +597,19 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   // ===== SHARED UTILITY METHODS =====
 
+  private initializeBookingService() {
+    // Ensure booking service is properly initialized and real-time listener is active
+    if (this.isAuthenticated()) {
+      console.log('Initializing booking service...');
+      this.bookingService.loadBookings().then(() => {
+        console.log('Booking service initialized successfully');
+        console.log('Real-time listener active:', this.bookingService.isRealtimeWorking());
+      }).catch(error => {
+        console.error('Error initializing booking service:', error);
+      });
+    }
+  }
+
   private async loadServices() {
     try {
       // Services are loaded through the booking state service
@@ -578,8 +622,10 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.loaderService.show({ message: 'BOOKING.LOADING_APPOINTMENTS' });
 
     try {
+      console.log('Loading appointments...');
       await this.bookingService.loadBookings();
       const bookings = this.bookingService.bookings();
+      console.log('Loaded appointments:', bookings.length);
       this.bookingStateService.setAppointments(bookings);
     } catch (error) {
       console.error('Error loading appointments:', error);
@@ -944,7 +990,19 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   }
 
   onBackToHome() {
-    this.router.navigate(['/bookings']);
+    console.log('=== onBackToHome called ===');
+    console.log('Current route before navigation:', this.router.url);
+
+    // Reset booking state and go to initial step
+    this.bookingStateService.resetBookingState();
+
+    console.log('Navigating to /booking...');
+    this.router.navigate(['/booking']).then(success => {
+      console.log('Navigation result:', success);
+      console.log('Current route after navigation:', this.router.url);
+    }).catch(error => {
+      console.error('Navigation error:', error);
+    });
   }
 
   // Service color methods
@@ -1024,7 +1082,11 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   }
 
   private formatDateISO(date: Date): string {
-    return date.toISOString().split('T')[0];
+    // Use local date formatting to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private getStartOfWeek(date: Date): Date {

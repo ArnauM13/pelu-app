@@ -89,11 +89,8 @@ export class BookingValidationService {
 
   // Fixed reactive computed for booking confirmation
   readonly canConfirmBooking = computed(() => {
-    if (!this.isAuthenticated()) {
-      return false;
-    }
 
-    if (!this.canUserBookMoreAppointments()) {
+    if (!this.isAuthenticated() || !this.canUserBookMoreAppointments()) {
       return false;
     }
 
@@ -108,12 +105,14 @@ export class BookingValidationService {
       return false;
     }
 
-    return this.coreBookingValidationService.canBookServiceAtTime(
+    const canBook = this.coreBookingValidationService.canBookServiceAtTime(
       selectedDate,
       selectedTimeSlot.time,
       selectedService.duration,
       this.bookingStateService.appointments()
     );
+
+    return canBook;
   });
 
   // Check if calendar should be blocked due to appointment limit
