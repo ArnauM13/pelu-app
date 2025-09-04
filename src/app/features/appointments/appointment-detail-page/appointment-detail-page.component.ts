@@ -76,6 +76,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   private readonly isEditingInternalSignal = signal<boolean>(false);
   private readonly isSavingSignal = signal<boolean>(false);
   private readonly originalBookingSignal = signal<Booking | null>(null);
+  private readonly originalFormValuesSignal = signal<any>(null);
 
   // Public computed signals
   readonly booking = computed(() => this.bookingSignal());
@@ -91,6 +92,25 @@ export class AppointmentDetailPageComponent implements OnInit {
     console.log('editParam', editParam);
     console.log('internalState', internalState);
     return editParam === 'true' || internalState;
+  });
+
+  // Computed property to detect if form has changes
+  readonly hasFormChanges = computed(() => {
+    if (!this.isEditing() || !this.editForm) return false;
+
+    const originalValues = this.originalFormValuesSignal();
+    if (!originalValues) return false;
+
+    const currentValues = this.editForm.value;
+
+    // Compare each field
+    return (
+      currentValues.clientName !== originalValues.clientName ||
+      currentValues.data !== originalValues.data ||
+      currentValues.hora !== originalValues.hora ||
+      currentValues.serviceId !== originalValues.serviceId ||
+      currentValues.notes !== originalValues.notes
+    );
   });
 
   // Mobile detection
@@ -124,6 +144,11 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.loadAppointment();
     this.loadAvailableServices();
     this.initializeEditingState();
+
+    // Listen to form value changes to update change detection
+    this.editForm.valueChanges.subscribe(() => {
+      // This will trigger the hasFormChanges computed property to recalculate
+    });
   }
 
   /**
@@ -436,7 +461,7 @@ export class AppointmentDetailPageComponent implements OnInit {
         }] : []),
       ],
       isEditing: this.isEditing(),
-      hasChanges: this.editForm?.dirty || false,
+      hasChanges: this.hasFormChanges(),
       canSave: this.canEdit() && this.editForm?.valid,
     };
   });
@@ -454,6 +479,15 @@ export class AppointmentDetailPageComponent implements OnInit {
 
       // Populate form with current data
       this.populateForm(booking);
+
+      // Store original form values for change detection
+      this.originalFormValuesSignal.set({
+        clientName: this.editForm.get('clientName')?.value || '',
+        data: this.editForm.get('data')?.value || '',
+        hora: this.editForm.get('hora')?.value || '',
+        serviceId: this.editForm.get('serviceId')?.value || '',
+        notes: this.editForm.get('notes')?.value || '',
+      });
 
       // Enable edit mode
       this.isEditingInternalSignal.set(true);
@@ -475,6 +509,9 @@ export class AppointmentDetailPageComponent implements OnInit {
     // Reset form and disable edit mode
     this.editForm.reset();
     this.isEditingInternalSignal.set(false);
+
+    // Clear original form values
+    this.originalFormValuesSignal.set(null);
   }
 
   /**
@@ -506,6 +543,8 @@ export class AppointmentDetailPageComponent implements OnInit {
         // Disable edit mode and reset form
         this.isEditingInternalSignal.set(false);
         this.editForm.reset();
+        // Clear original form values
+        this.originalFormValuesSignal.set(null);
         // Reload the appointment to get updated data
         await this.loadAppointment();
       } else {

@@ -83,7 +83,7 @@ test.describe('Final Booking Limit Validation', () => {
 
       // Test 3: Check mobile booking component
       console.log('Testing mobile booking component...');
-      const mobileBooking = page.locator('pelu-booking-mobile-page');
+      const mobileBooking = page.locator('pelu-booking-page');
 
       if (await mobileBooking.count() > 0) {
         await expect(mobileBooking).toBeVisible();
@@ -148,7 +148,7 @@ test.describe('Final Booking Limit Validation', () => {
 
     if (mobileUrl.includes('/bookings')) {
       // Check mobile components
-      const mobileBooking = page.locator('pelu-booking-mobile-page');
+      const mobileBooking = page.locator('pelu-booking-page');
       if (await mobileBooking.count() > 0) {
         console.log('✅ Mobile booking component is visible');
       }

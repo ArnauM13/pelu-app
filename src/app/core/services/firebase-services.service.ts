@@ -21,7 +21,7 @@ import { LoggerService } from '../../shared/services/logger.service';
 
 
 export interface FirebaseService {
-  id?: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -81,8 +81,8 @@ export class FirebaseServicesService {
   private readonly _error = signal<string | null>(null);
   private readonly _lastSync = signal<number>(0);
 
-  // Cache configuration - INCREASED CACHE DURATION
-  private readonly CACHE_DURATION = 15 * 60 * 1000; // 15 minutes (increased from 5)
+  // Cache configuration - 5 MINUTES TTL
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   private readonly CACHE_KEY = 'pelu-services-cache';
   private readonly CACHE_TIMESTAMP_KEY = 'pelu-services-cache-timestamp';
 
@@ -161,15 +161,16 @@ export class FirebaseServicesService {
     });
   }
 
-  /**
-   * Load services from Firebase with cache management - OPTIMIZED
+    /**
+   * Load services from Firebase with localStorage-first approach and 5-minute TTL
    */
-  async loadServices(): Promise<void> {
-    try {
-      // Check if we need to refresh from Firebase
-      if (this.shouldUseCache()) {
-        return;
-      }
+   async loadServices(): Promise<void> {
+     try {
+       // First, try to load from localStorage cache
+       if (this.shouldUseCache()) {
+         console.log('Using cached services from localStorage');
+         return;
+       }
 
       this._isLoading.set(true);
       this._error.set(null);
@@ -203,11 +204,11 @@ export class FirebaseServicesService {
       this._lastSync.set(Date.now());
       this.saveServicesToCache(services);
 
-      // No background normalizations; only the new schema is supported
-
+      console.log(`Services loaded from Firebase: ${services.length} services`);
       this.logger.info('Services loaded from Firebase', {
         component: 'FirebaseServicesService',
         method: 'loadServices',
+        count: services.length
       });
     } catch (error) {
       this.logger.firebaseError(error, 'loadServices', {
@@ -505,10 +506,22 @@ export class FirebaseServicesService {
   }
 
   /**
-   * Refresh services from Firebase (force refresh)
+   * Refresh services from Firebase (force refresh, bypasses cache)
    */
   async refreshServices(): Promise<void> {
+    console.log('Force refreshing services from Firebase (bypassing cache)');
     this.clearCache();
+    this._lastSync.set(0); // Reset last sync to force Firebase fetch
+    await this.loadServices();
+  }
+
+  /**
+   * Force load services from Firebase (bypasses cache check)
+   * Useful when you need fresh data regardless of cache state
+   */
+  async forceLoadServices(): Promise<void> {
+    console.log('Force loading services from Firebase (bypassing cache check)');
+    this._lastSync.set(0); // Reset last sync to force Firebase fetch
     await this.loadServices();
   }
 
@@ -574,31 +587,52 @@ export class FirebaseServicesService {
   // Development helper (removed): createSampleServices()
 
   /**
-   * Check if we should use cache instead of fetching from Firebase - OPTIMIZED
+   * Check if we should use cache instead of fetching from Firebase
+   * Returns true if cache is valid and within 5-minute TTL
    */
   private shouldUseCache(): boolean {
     const lastSync = this.lastSync();
     const now = Date.now();
-    return lastSync > 0 && now - lastSync < this.CACHE_DURATION;
+    const isCacheValid = lastSync > 0 && now - lastSync < this.CACHE_DURATION;
+
+    if (isCacheValid) {
+      const ttlRemaining = Math.round((this.CACHE_DURATION - (now - lastSync)) / 1000);
+      console.log(`Cache is valid, TTL remaining: ${ttlRemaining}s`);
+    } else {
+      console.log('Cache is invalid or expired, will fetch from Firebase');
+    }
+
+    return isCacheValid;
   }
 
   /**
-   * Save services to local cache
+   * Save services to localStorage cache with timestamp
    */
   private saveServicesToCache(services: FirebaseService[]): void {
     try {
+      const timestamp = Date.now();
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(services));
-      localStorage.setItem(this.CACHE_TIMESTAMP_KEY, Date.now().toString());
-    } catch {
+      localStorage.setItem(this.CACHE_TIMESTAMP_KEY, timestamp.toString());
+
+      console.log(`Services saved to localStorage cache (${services.length} services, expires in ${this.CACHE_DURATION / 1000}s)`);
+      this.logger.info('Services saved to cache', {
+        component: 'FirebaseServicesService',
+        method: 'saveServicesToCache',
+        count: services.length,
+        expiresAt: new Date(timestamp + this.CACHE_DURATION).toISOString()
+      });
+    } catch (error) {
+      console.warn('Failed to save services to cache:', error);
       this.logger.warn('Failed to save services to cache', {
         component: 'FirebaseServicesService',
         method: 'saveServicesToCache',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }
 
   /**
-   * Load services from local cache
+   * Load services from localStorage cache with TTL validation
    */
   private loadServicesFromCache(): void {
     try {
@@ -621,35 +655,55 @@ export class FirebaseServicesService {
         const timestamp = parseInt(cacheTimestamp, 10);
         const now = Date.now();
 
-        // Check if cache is still valid
+        // Check if cache is still valid (5 minutes TTL)
         if (now - timestamp < this.CACHE_DURATION) {
           this._services.set(services);
           this._lastSync.set(timestamp);
+          console.log(`Services loaded from localStorage cache (${services.length} services, TTL: ${Math.round((this.CACHE_DURATION - (now - timestamp)) / 1000)}s remaining)`);
           this.logger.info('Services loaded from cache', {
             component: 'FirebaseServicesService',
             method: 'loadServicesFromCache',
+            count: services.length,
+            ttlRemaining: Math.round((this.CACHE_DURATION - (now - timestamp)) / 1000)
           });
+        } else {
+          console.log('Cache expired, will fetch fresh data from Firebase');
+          // Clear expired cache
+          this.clearCache();
         }
+      } else {
+        console.log('No cached services found, will fetch from Firebase');
       }
-    } catch {
+    } catch (error) {
+      console.warn('Failed to load services from cache:', error);
       this.logger.warn('Failed to load services from cache', {
         component: 'FirebaseServicesService',
         method: 'loadServicesFromCache',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
+      // Clear corrupted cache
+      this.clearCache();
     }
   }
 
   /**
-   * Clear local cache
+   * Clear localStorage cache
    */
   private clearCache(): void {
     try {
       localStorage.removeItem(this.CACHE_KEY);
       localStorage.removeItem(this.CACHE_TIMESTAMP_KEY);
-    } catch {
+      console.log('LocalStorage cache cleared');
+      this.logger.info('Cache cleared', {
+        component: 'FirebaseServicesService',
+        method: 'clearCache',
+      });
+    } catch (error) {
+      console.warn('Failed to clear cache:', error);
       this.logger.warn('Failed to clear cache', {
         component: 'FirebaseServicesService',
         method: 'clearCache',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }
