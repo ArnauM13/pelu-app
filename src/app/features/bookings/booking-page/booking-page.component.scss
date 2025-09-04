@@ -38,6 +38,13 @@
   margin-bottom: 1rem;
 }
 
+/* Desktop specific styling for next appointment */
+@media (min-width: 769px) {
+  .content-section {
+    margin-top: 2rem;
+  }
+}
+
 /* Shared Title Section */
 .shared-title-section {
   margin-bottom: 1rem;
