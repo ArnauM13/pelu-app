@@ -13,12 +13,12 @@ import { NotFoundStateComponent } from '../not-found-state/not-found-state.compo
 
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
-import { InputDateComponent } from '../inputs/input-date/input-date.component';
-import { InputSelectComponent, SelectOption } from '../inputs/input-select/input-select.component';
+import { SelectOption } from '../inputs/input-select/input-select.component';
 import { ActionsButtonsComponent } from '../actions-buttons/actions-buttons.component';
 import { ButtonComponent } from '../buttons/button.component';
 import { ServiceCardComponent } from '../service-card/service-card.component';
 import { CardComponent } from '../card/card.component';
+import { ManualBookingComponent } from '../../../features/bookings/booking-page/components/manual-booking.component';
 
 import { BookingService } from '../../../core/services/booking.service';
 import { ServicesService } from '../../../core/services/services.service';
@@ -87,12 +87,11 @@ export interface DetailViewConfig {
     RouterModule,
     InputTextComponent,
     InputTextareaComponent,
-    InputDateComponent,
-    InputSelectComponent,
     ActionsButtonsComponent,
     ButtonComponent,
     ServiceCardComponent,
     CardComponent,
+    ManualBookingComponent,
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss'],
@@ -468,23 +467,34 @@ export class DetailViewComponent {
   }
 
   onSave(): void {
+    // Validate required fields before saving
+    const appointment = this.appointment();
+    if (!appointment) {
+      console.warn('No appointment data available for saving');
+      return;
+    }
+
+    // Check required fields
+    if (!appointment.clientName || !appointment.email || !appointment.data || !appointment.hora || !appointment.serviceId) {
+      console.warn('Cannot save: missing required fields');
+      this.#toastService.showError('COMMON.ERROR', 'APPOINTMENTS.MISSING_REQUIRED_FIELDS');
+      return;
+    }
+
     // Check if we have onSave function in config and call it
     const currentSection = this.infoSections().find(section => section.onSave);
     if (currentSection?.onSave) {
       currentSection.onSave();
     } else {
       // Fallback to emitting event
-      const appointment = this.appointment();
-      if (appointment) {
-        this.save.emit({
-          clientName: appointment.clientName || '',
-          email: appointment.email || '',
-          data: appointment.data || '',
-          hora: appointment.hora || '',
-          notes: appointment.notes || '',
-          serviceId: appointment.serviceId || ''
-        });
-      }
+      this.save.emit({
+        clientName: appointment.clientName || '',
+        email: appointment.email || '',
+        data: appointment.data || '',
+        hora: appointment.hora || '',
+        notes: appointment.notes || '',
+        serviceId: appointment.serviceId || ''
+      });
     }
   }
 
@@ -596,5 +606,63 @@ export class DetailViewComponent {
       console.error('Error generating ICS file:', error);
       this.#toastService.showError('COMMON.ERROR', 'COMMON.ICS_GENERATION_ERROR');
     }
+  }
+
+  onBookingUpdated(booking: Booking): void {
+    // Handle booking update/creation
+    console.log('Booking updated:', booking);
+    // The booking service will handle the real-time updates
+  }
+
+  getActionButtons() {
+    return [
+      {
+        label: 'COMMON.ACTIONS.EDIT',
+        icon: 'pi pi-pencil',
+        severity: 'secondary' as const,
+        onClick: () => this.onEdit()
+      },
+      {
+        label: 'COMMON.ACTIONS.DELETE',
+        icon: 'pi pi-trash',
+        severity: 'danger' as const,
+        onClick: () => this.onDelete()
+      }
+    ];
+  }
+
+  canSaveAppointment(): boolean {
+    const appointment = this.appointment();
+    if (!appointment) return false;
+
+    // Same validation as manual-booking component
+    return !!(
+      appointment.serviceId &&      // Service selected
+      appointment.data &&           // Date selected
+      appointment.hora &&           // Time selected
+      appointment.clientName &&     // Client name
+      appointment.email             // Client email
+    );
+  }
+
+  getFooterActionButtons() {
+    if (this.isEditing()) {
+      return [
+        {
+          label: 'COMMON.ACTIONS.CANCEL',
+          icon: 'pi pi-times',
+          severity: 'secondary' as const,
+          onClick: () => this.onCancelEdit()
+        },
+        {
+          label: 'COMMON.ACTIONS.SAVE',
+          icon: 'pi pi-check',
+          severity: 'primary' as const,
+          onClick: () => this.onSave(),
+          disabled: !this.canSaveAppointment()
+        }
+      ];
+    }
+    return [];
   }
 }

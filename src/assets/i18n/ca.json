@@ -205,6 +205,7 @@
     "ICS_GENERATION_ERROR": "Error al generar l'arxiu ICS",
     "ICS_DOWNLOAD_SUCCESS": "Arxiu ICS descarregat i calendari obert correctament",
     "INCOMPLETE_BOOKING_INFO": "Informació incompleta per confirmar la reserva",
+    "INCOMPLETE_CLIENT_INFO": "Informació del client incompleta",
     "TIME_SLOT_NO_LONGER_AVAILABLE": "Aquest horari ja no està disponible. Si us plau, selecciona un altre horari.",
     "MAX_APPOINTMENTS_REACHED": "No pots fer més reserves. Ja tens el màxim de reserves actives.",
     "PLEASE_SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",

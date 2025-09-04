@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, output, signal, OnInit, input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
@@ -32,8 +32,25 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     <div class="manual-booking">
       <pelu-card variant="default">
         <div class="manual-booking-header">
-          <h3>📝 {{ 'BOOKING.MANUAL_BOOKING_TITLE' | translate }}</h3>
-          <p class="manual-booking-subtitle">{{ 'BOOKING.MANUAL_BOOKING_SUBTITLE' | translate }}</p>
+          <div class="header-content">
+            <h3>📝 {{ displayTitle() | translate }}</h3>
+            <p class="manual-booking-subtitle">{{ displaySubtitle() | translate }}</p>
+          </div>
+
+          @if (showActions() && actionButtons().length > 0) {
+            <div class="header-actions">
+              @for (action of actionButtons(); track action.label) {
+                <pelu-button
+                  [icon]="action.icon || ''"
+                  [severity]="action.severity || 'secondary'"
+                  (clicked)="action.onClick()"
+                  [raised]="false"
+                  [size]="'small'"
+                >
+                </pelu-button>
+              }
+            </div>
+          }
         </div>
 
         <div class="manual-booking-form">
@@ -44,8 +61,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             [placeholder]="'BOOKING.SELECT_SERVICE'"
             [required]="true"
             [options]="serviceOptions()"
+            [value]="selectedServiceId()"
             [searchable]="true"
             [clearable]="false"
+            [disabled]="inputsDisabled()"
             (valueChange)="onServiceChange($event)"
           >
           </pelu-input-select>
@@ -54,8 +73,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           <pelu-input-date
             [label]="'BOOKING.DATE'"
             [required]="true"
+            [value]="selectedDateString()"
             [minDate]="minDate"
             [preventPastMonths]="true"
+            [disabled]="inputsDisabled()"
             (valueChange)="onDateChange($event)"
           >
           </pelu-input-date>
@@ -66,9 +87,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             [placeholder]="'BOOKING.SELECT_TIME'"
             [required]="true"
             [options]="timeSlotOptions()"
+            [value]="selectedTime()"
             [searchable]="true"
             [clearable]="false"
-            [disabled]="!selectedService() || !selectedDate()"
+            [disabled]="inputsDisabled() || (!selectedService() || !selectedDate())"
             (valueChange)="onTimeChange($event)"
           >
           </pelu-input-select>
@@ -79,6 +101,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             [placeholder]="'BOOKING.CLIENT_NAME_PLACEHOLDER'"
             [required]="true"
             [value]="clientName()"
+            [disabled]="inputsDisabled()"
             (valueChange)="onClientNameChange($event)"
           >
           </pelu-input-text>
@@ -90,6 +113,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             [required]="true"
             [type]="'email'"
             [value]="clientEmail()"
+            [disabled]="inputsDisabled()"
             (valueChange)="onEmailChange($event)"
           >
           </pelu-input-text>
@@ -100,22 +124,41 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             [placeholder]="'BOOKING.NOTES_PLACEHOLDER'"
             [rows]="3"
             [value]="notes()"
+            [disabled]="inputsDisabled()"
             (valueChange)="onNotesChange($event)"
           >
           </pelu-input-textarea>
 
-          <!-- Submit Button -->
-          <div class="form-actions">
-            <pelu-button
-              [label]="'BOOKING.CREATE_MANUAL_BOOKING'"
-              (clicked)="onSubmit()"
-              [disabled]="!canCreateBooking()"
-              severity="primary"
-              [raised]="true"
-              [fluid]="true"
-            >
-            </pelu-button>
-          </div>
+          <!-- Footer Actions -->
+          @if (showFooterActions() && footerActionButtons().length > 0) {
+            <div class="form-actions">
+              @for (action of footerActionButtons(); track action.label) {
+                <pelu-button
+                  [label]="action.label"
+                  [icon]="action.icon || ''"
+                  [severity]="action.severity || 'primary'"
+                  (clicked)="action.onClick()"
+                  [disabled]="action.disabled || (action.severity === 'primary' && !canCreateBooking())"
+                  [raised]="true"
+                  [fluid]="true"
+                >
+                </pelu-button>
+              }
+            </div>
+          } @else if (showDefaultSubmitButton()) {
+            <!-- Default Submit Button -->
+            <div class="form-actions">
+              <pelu-button
+                [label]="isEditMode() ? 'COMMON.ACTIONS.SAVE' : 'BOOKING.CREATE_MANUAL_BOOKING'"
+                (clicked)="onSubmit()"
+                [disabled]="!canCreateBooking()"
+                severity="primary"
+                [raised]="true"
+                [fluid]="true"
+              >
+              </pelu-button>
+            </div>
+          }
 
           <!-- Validation Messages -->
           @if (validationMessage()) {
@@ -129,25 +172,42 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
   `,
   styles: [`
     .manual-booking {
-      width: 100%;
+      width: 375px;
       margin-bottom: 2rem;
 
       .manual-booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
         margin-bottom: 1.5rem;
-        text-align: center;
+        gap: 1rem;
+        min-height: 60px; // Ensure consistent height
 
-        h3 {
-          color: #0d47a1;
-          margin: 0 0 0.5rem 0;
-          font-size: 1.3rem;
-          font-weight: 600;
+        .header-content {
+          flex: 1;
+          text-align: center;
+
+          h3 {
+            color: #0d47a1;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+          }
+
+          .manual-booking-subtitle {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+          }
         }
 
-        .manual-booking-subtitle {
-          color: #666;
-          margin: 0;
-          font-size: 0.9rem;
-          line-height: 1.4;
+        .header-actions {
+          display: flex;
+          gap: 0.5rem;
+          flex-shrink: 0;
+          width: 120px; // Fixed width to maintain consistent layout
+          justify-content: flex-end;
         }
       }
 
@@ -158,6 +218,14 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
         .form-actions {
           margin-top: 1rem;
+          display: flex;
+          gap: 1rem;
+          justify-content: stretch;
+          min-height: 48px; // Ensure consistent height for footer
+
+          pelu-button {
+            flex: 1;
+          }
         }
 
         .validation-message {
@@ -185,8 +253,20 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         margin-bottom: 1rem;
 
         .manual-booking-header {
-          h3 {
-            font-size: 1.2rem;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 1rem;
+
+          .header-content {
+            h3 {
+              font-size: 1.2rem;
+            }
+          }
+
+          .header-actions {
+            width: 100%;
+            justify-content: center;
           }
         }
       }
@@ -201,11 +281,49 @@ export class ManualBookingComponent implements OnInit {
   private readonly loaderService = inject(LoaderService);
   private readonly toastService = inject(ToastService);
 
-  ngOnInit(): void {
-    // Load services and appointments
-    this.loadData();
-    // Initialize form with user data if available
-    this.resetForm();
+  // Inputs for hydration
+  readonly appointmentData = input<Booking | null>(null);
+  readonly isEditMode = input<boolean>(false);
+  readonly isReadOnlyMode = input<boolean>(false);
+
+  // Inputs for customization
+  readonly title = input<string>('');
+  readonly subtitle = input<string>('');
+  readonly showActions = input<boolean>(false);
+  readonly actionButtons = input<Array<{label: string, icon?: string, severity?: 'primary' | 'secondary' | 'danger', onClick: () => void}>>([]);
+
+  // Footer buttons configuration
+  readonly showFooterActions = input<boolean>(false);
+  readonly footerActionButtons = input<Array<{label: string, icon?: string, severity?: 'primary' | 'secondary' | 'danger', onClick: () => void, disabled?: boolean}>>([]);
+  readonly showDefaultSubmitButton = input<boolean>(true);
+
+  constructor() {
+    // Effect to re-hydrate when appointment data changes
+    effect(() => {
+      const appointment = this.appointmentData();
+      const services = this.availableServices();
+
+      // Only re-hydrate if we have both appointment data and services loaded
+      if (appointment && services.length > 0) {
+        console.log('Effect triggered: re-hydrating with appointment data');
+        this.hydrateWithAppointmentData();
+      }
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    // Load services and appointments first
+    await this.loadData();
+
+    // Initialize form with appointment data if available, otherwise with user data
+    // Use setTimeout to ensure data is loaded before hydration
+    setTimeout(() => {
+      if (this.appointmentData()) {
+        this.hydrateWithAppointmentData();
+      } else {
+        this.resetForm();
+      }
+    }, 100);
   }
 
   private async loadData(): Promise<void> {
@@ -232,6 +350,48 @@ export class ManualBookingComponent implements OnInit {
 
     // Auto-hydrate user data after reset
     this.hydrateUserData();
+  }
+
+  private hydrateWithAppointmentData(): void {
+    const appointment = this.appointmentData();
+    if (!appointment) {
+      console.log('No appointment data available for hydration');
+      return;
+    }
+
+    console.log('Hydrating with appointment data:', appointment);
+    console.log('Available services:', this.availableServices());
+
+    // Set all form fields with appointment data
+    this.clientNameSignal.set(appointment.clientName || '');
+    this.clientEmailSignal.set(appointment.email || '');
+    this.notesSignal.set(appointment.notes || '');
+
+    // Set date - convert to ISO string for pelu-input-date
+    if (appointment.data) {
+      const date = new Date(appointment.data);
+      this.selectedDateSignal.set(date);
+      console.log('Set date:', date, 'ISO string:', date.toISOString().split('T')[0]);
+    }
+
+    // Set time
+    if (appointment.hora) {
+      this.selectedTimeSignal.set(appointment.hora);
+      console.log('Set time:', appointment.hora);
+      console.log('Available time slots:', this.timeSlotOptions());
+      console.log('Selected time after setting:', this.selectedTime());
+    }
+
+    // Set service - wait for services to be loaded
+    if (appointment.serviceId) {
+      const services = this.availableServices();
+      console.log('Available services:', services);
+      console.log('Looking for serviceId:', appointment.serviceId);
+      const service = services.find(s => s.id === appointment.serviceId);
+      this.selectedServiceSignal.set(service || null);
+      console.log('Set service:', service);
+      console.log('Selected service ID after setting:', this.selectedServiceId());
+    }
   }
 
   private hydrateUserData(): void {
@@ -271,10 +431,27 @@ export class ManualBookingComponent implements OnInit {
   readonly selectedService = computed(() => this.selectedServiceSignal());
   readonly selectedServiceId = computed(() => this.selectedService()?.id || '');
   readonly selectedDate = computed(() => this.selectedDateSignal());
+  readonly selectedDateString = computed(() => {
+    const date = this.selectedDate();
+    return date ? date.toISOString().split('T')[0] : '';
+  });
   readonly selectedTime = computed(() => this.selectedTimeSignal());
   readonly clientName = computed(() => this.clientNameSignal());
   readonly clientEmail = computed(() => this.clientEmailSignal());
   readonly notes = computed(() => this.notesSignal());
+
+  // Dynamic title and subtitle
+  readonly displayTitle = computed(() => {
+    const customTitle = this.title();
+    if (customTitle) return customTitle;
+    return this.isEditMode() ? 'APPOINTMENTS.EDIT_APPOINTMENT' : 'BOOKING.MANUAL_BOOKING_TITLE';
+  });
+
+  readonly displaySubtitle = computed(() => {
+    const customSubtitle = this.subtitle();
+    if (customSubtitle) return customSubtitle;
+    return this.isEditMode() ? 'APPOINTMENTS.EDIT_APPOINTMENT_DESCRIPTION' : 'BOOKING.MANUAL_BOOKING_SUBTITLE';
+  });
 
   // Minimum date (today)
   readonly minDate = new Date();
@@ -306,6 +483,11 @@ export class ManualBookingComponent implements OnInit {
         label: slot.time,
         value: slot.time
       }));
+  });
+
+  // Computed to determine if inputs should be disabled
+  readonly inputsDisabled = computed(() => {
+    return this.isReadOnlyMode() && !this.isEditMode();
   });
 
   // ===== EVENT HANDLERS =====
@@ -374,7 +556,7 @@ export class ManualBookingComponent implements OnInit {
     // Manual booking has its own validation - don't use shared service validation
     // Only show validation if there are actual issues with the manual booking form
     if (!this.clientName() || !this.clientEmail()) {
-      return 'BOOKING.INCOMPLETE_CLIENT_INFO';
+      return 'COMMON.INCOMPLETE_CLIENT_INFO';
     }
 
     return '';
@@ -385,7 +567,12 @@ export class ManualBookingComponent implements OnInit {
       return;
     }
 
-    this.loaderService.show({ message: 'BOOKING.CREATING_BOOKING' });
+    const isEdit = this.isEditMode();
+    const appointment = this.appointmentData();
+
+    this.loaderService.show({
+      message: isEdit ? 'APPOINTMENTS.UPDATING_APPOINTMENT' : 'BOOKING.CREATING_BOOKING'
+    });
 
     try {
       const service = this.selectedService();
@@ -408,30 +595,45 @@ export class ManualBookingComponent implements OnInit {
         status: 'confirmed' as const,
       };
 
-      console.log('Creating manual booking:', bookingData);
+      console.log(isEdit ? 'Updating appointment:' : 'Creating manual booking:', bookingData);
 
-      // Create booking directly through the core booking service
-      const booking = await this.bookingService.createBooking(bookingData, false);
+      let booking: Booking | null = null;
+
+      if (isEdit && appointment) {
+        // Update existing appointment
+        const updatedBooking = await this.bookingService.updateBooking(appointment.id!, bookingData);
+        booking = updatedBooking ? appointment : null; // Return the original appointment if update successful
+      } else {
+        // Create new booking
+        booking = await this.bookingService.createBooking(bookingData, false);
+      }
 
       if (booking) {
-        // Refresh appointments to include the new booking
+        // Refresh appointments to include the changes
         await this.bookingService.refreshBookings();
 
         // Dispatch event to notify other components (like calendar)
         window.dispatchEvent(new CustomEvent('bookingUpdated'));
 
-        this.toastService.showReservationCreated(booking.id);
+        if (isEdit) {
+          this.toastService.showSuccess('APPOINTMENTS.UPDATE_SUCCESS');
+        } else {
+          this.toastService.showReservationCreated(booking.id);
+        }
+
         this.bookingCreated.emit(booking);
 
         // Reset form and re-hydrate user data after successful booking
-        this.resetForm();
+        if (!isEdit) {
+          this.resetForm();
+        }
       } else {
-        throw new Error('Booking creation failed');
+        throw new Error(isEdit ? 'Appointment update failed' : 'Booking creation failed');
       }
 
     } catch (error) {
-      console.error('Error creating manual booking:', error);
-      this.toastService.showError('BOOKING.MANUAL_BOOKING_ERROR');
+      console.error(isEdit ? 'Error updating appointment:' : 'Error creating manual booking:', error);
+      this.toastService.showError(isEdit ? 'APPOINTMENTS.UPDATE_ERROR' : 'BOOKING.MANUAL_BOOKING_ERROR');
     } finally {
       this.loaderService.hide();
     }

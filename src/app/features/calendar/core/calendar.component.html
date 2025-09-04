@@ -39,7 +39,7 @@
       [service]="service()"
       (closed)="onAppointmentDetailPopupClosed()"
       (deleted)="onAppointmentDeleted($event)"
-      (editRequested)="onAppointmentEditRequested($event)"
+      (editRequested)="onEditRequestedWrapper($event)"
       (viewDetailRequested)="onViewDetailRequested($event)"
     >
     </pelu-appointment-detail-popup>

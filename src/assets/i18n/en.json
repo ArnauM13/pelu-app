@@ -202,6 +202,7 @@
     "ICS_GENERATION_ERROR": "Error generating ICS file",
     "ICS_DOWNLOAD_SUCCESS": "ICS file downloaded and calendar opened successfully",
     "INCOMPLETE_BOOKING_INFO": "Incomplete information to confirm the booking",
+    "INCOMPLETE_CLIENT_INFO": "Incomplete client information",
     "TIME_SLOT_NO_LONGER_AVAILABLE": "This time slot is no longer available. Please select another time.",
     "MAX_APPOINTMENTS_REACHED": "You cannot make more bookings. You already have the maximum number of active bookings.",
     "PLEASE_SELECT_SERVICE_FIRST": "Please select a service first",
