@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class PopupModalComponent {
   @Input() isOpen = false;
+  @Input() modalClass = ''; // Additional CSS class for the modal
   @Output() backdropClick = new EventEmitter<void>();
   // Compatibility output expected by specs
   @Output() closeModal = new EventEmitter<void>();

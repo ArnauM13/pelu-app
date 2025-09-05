@@ -1,73 +1,28 @@
 <!-- Unified Booking Page - Responsive Design -->
 <div class="container" [style.view-transition-name]="'booking-container'">
 
-  <!-- ===== SHARED TITLE (Mobile + Desktop) ===== -->
-  <div class="shared-title-section">
-    <pelu-title
-      [title]="'BOOKING.TITLE'"
-      [subtitle]="'BOOKING.SUBTITLE'"
-    ></pelu-title>
-  </div>
-
-  <!-- ===== NEXT APPOINTMENT SECTION (Below Title) ===== -->
-  @if ((userAppointments() || []).length > 0) {
+  <!-- ===== NEXT APPOINTMENT SECTION (Above Title - Only on Service Step, Not for Admin) ===== -->
+  @if (currentStep() === 'service' && (userAppointments() || []).length > 0 && !isAdmin()) {
     <div class="content-section">
       <pelu-next-appointment [bookings]="userAppointments() || []"></pelu-next-appointment>
     </div>
   }
 
+  <!-- ===== SHARED TITLE (First Step Only - Desktop: Not for Admin, Mobile: For Everyone) ===== -->
+  @if (currentStep() === 'service' && (!isDesktop() || !isAdmin())) {
+    <div class="shared-title-section">
+      <pelu-title
+        [title]="'BOOKING.TITLE'"
+        [subtitle]="'BOOKING.SUBTITLE'"
+      ></pelu-title>
+    </div>
+  }
+
   <!-- ===== DESKTOP LAYOUT ===== -->
   @if (isDesktop()) {
-    <div class="desktop-layout">
-
-      <!-- Date Controls -->
-      <div class="date-controls-section">
-        <div class="date-controls">
-          <pelu-button
-            [label]="'COMMON.TIME.TODAY'"
-            [icon]="'pi pi-calendar'"
-            (clicked)="onTodayClicked()"
-          ></pelu-button>
-
-          <div class="week-navigation">
-            <pelu-button
-              [icon]="'pi pi-chevron-left'"
-              [rounded]="true"
-              (clicked)="goToPreviousWeek()"
-              [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
-            ></pelu-button>
-
-            <div class="week-info">
-              <span>{{ weekInfo() }}</span>
-            </div>
-
-            <pelu-button
-              [icon]="'pi pi-chevron-right'"
-              [rounded]="true"
-              (clicked)="goToNextWeek()"
-              [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
-            ></pelu-button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Calendar Component -->
-      <div class="calendar-section">
-        <pelu-calendar-component
-          #calendarComponent
-          [mini]="false"
-          [events]="[]"
-          [isBlocked]="isCalendarBlocked()"
-          (dateSelected)="onDesktopTimeSlotSelected($event)"
-        ></pelu-calendar-component>
-      </div>
-
-
-      <!-- Footer -->
-      <div class="footer-section">
-        <!-- Footer content here -->
-      </div>
-    </div>
+    <pelu-desktop-layout
+      (timeSlotSelected)="onDesktopTimeSlotSelected($event)"
+    ></pelu-desktop-layout>
   }
 
   <!-- ===== MOBILE LAYOUT ===== -->
@@ -89,7 +44,6 @@
           />
         </div>
       }
-
 
       <!-- Warning when no appointments are available in current view -->
       @if (currentStep() === 'datetime' && hasNoAvailableAppointments()) {
@@ -138,457 +92,44 @@
 
         <!-- Step 1: Service Selection -->
         @if (currentStep() === 'service') {
-          <div class="service-step">
-            <!-- Recently Booked Services Section -->
-            @if (recentlyBookedServices().length > 0) {
-              <div class="services-section">
-                <h4 class="section-title">🕒 {{ 'COMMON.SELECTION.RECENTLY_BOOKED' | translate }}</h4>
-                <div class="services-grid">
-                  @for (service of recentlyBookedServices(); track service.id) {
-                    <pelu-service-card
-                      [service]="service"
-                      [selected]="selectedService()?.id === service.id"
-                      [simpleMode]="true"
-                      [clickable]="true"
-                      (cardClick)="onServiceSelected($event)"
-                    />
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- Popular Services Section -->
-            @if (popularServices().length > 0) {
-              <div class="services-section">
-                <h4 class="section-title">⭐ {{ 'COMMON.SELECTION.POPULAR_SERVICES' | translate }}</h4>
-                <div class="services-grid">
-                  @for (service of popularServices(); track service.id) {
-                    <pelu-service-card
-                      [service]="service"
-                      [selected]="selectedService()?.id === service.id"
-                      [simpleMode]="true"
-                      [clickable]="true"
-                      (cardClick)="onServiceSelected($event)"
-                    />
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- Other Services Section -->
-            @if (otherServices().length > 0) {
-              <div class="services-section">
-                <h4 class="section-title">{{ 'COMMON.SELECTION.OTHER_SERVICES' | translate }}</h4>
-                <div class="services-grid">
-                  @for (service of otherServices(); track service.id) {
-                    <pelu-service-card
-                      [service]="service"
-                      [selected]="selectedService()?.id === service.id"
-                      [simpleMode]="true"
-                      [clickable]="true"
-                      (cardClick)="onServiceSelected($event)"
-                    />
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- No Services Available -->
-            @if (availableServices().length === 0) {
-              <div class="no-services">
-                <p>{{ 'COMMON.SELECTION.NO_SERVICES_AVAILABLE' | translate }}</p>
-              </div>
-            }
-          </div>
+          <pelu-service-selection-step
+            (serviceSelected)="onServiceSelected($event)"
+          ></pelu-service-selection-step>
         }
 
         <!-- Step 2: Date and Time Selection -->
         @if (currentStep() === 'datetime') {
-          <div class="datetime-step">
-            <!-- Calendar Card -->
-            <div class="calendar-card">
-              <div class="calendar-header">
-                <h3>{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
-                <div class="calendar-buttons">
-                  <pelu-button
-                    [label]="'BOOKING.QUICK_SELECTION.TODAY'"
-                    [icon]="'pi pi-calendar'"
-                    [disabled]="!canSelectDate(getToday())"
-                    (clicked)="canSelectDate(getToday()) ? selectToday() : null"
-                    severity="primary"
-                    size="small"
-                  >
-                  </pelu-button>
-                  <pelu-button
-                    [label]="viewMode() === 'week' ? 'COMMON.VIEWS.CALENDAR.VIEW_MONTH' : 'COMMON.VIEWS.CALENDAR.VIEW_WEEK'"
-                    [icon]="viewMode() === 'week' ? 'pi pi-calendar' : 'pi pi-calendar-times'"
-                    (clicked)="toggleViewMode()"
-                    [ariaLabel]="viewMode() === 'week' ? 'COMMON.VIEWS.CALENDAR.VIEW_MONTH' : 'COMMON.VIEWS.CALENDAR.VIEW_WEEK'"
-                    severity="secondary"
-                    size="small"
-                    [raised]="true"
-                  >
-                  </pelu-button>
-                </div>
-              </div>
-
-              <!-- Period Navigation -->
-              <div class="period-navigation">
-                <pelu-button
-                  [icon]="'pi pi-chevron-left'"
-                  [disabled]="!canGoToPreviousPeriod()"
-                  (clicked)="canGoToPreviousPeriod() ? previousPeriod() : null"
-                  severity="secondary"
-                  [rounded]="true"
-                  [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
-                >
-                </pelu-button>
-
-                <div class="current-period">
-                  @if (viewMode() === 'week') {
-                    <span class="period-label">{{ 'COMMON.WEEK_OF' | translate }}</span>
-                    <span class="period-date">
-                      {{ weekDays().length > 0 ? formatDay(weekDays()[0]) : '' }}
-                      -
-                      {{ weekDays().length > 6 ? formatDay(weekDays()[6]) : '' }}
-                    </span>
-                  }
-                  @if (viewMode() === 'month') {
-                    <span class="period-label">{{ 'COMMON.MONTH_OF' | translate }}</span>
-                    <span class="period-date">
-                      {{ formatMonth(viewDate()) }}
-                    </span>
-                  }
-                </div>
-
-                <pelu-button
-                  [icon]="'pi pi-chevron-right'"
-                  (clicked)="nextPeriod()"
-                  severity="secondary"
-                  [rounded]="true"
-                  [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
-                >
-                </pelu-button>
-              </div>
-
-              <!-- Day Selection -->
-              <div class="days-grid" [class.month-view]="viewMode() === 'month'">
-                @for (day of currentViewDays(); track day) {
-                  <div
-                    class="day-item"
-                    [class.past-date]="isPastDate(day)"
-                    [class.non-working-day]="!isBusinessDay(day)"
-                    [class.today]="isToday(day)"
-                    [class.selected]="isSelected(day)"
-                    [class.warning-day]="canSelectDate(day) && isBusinessDay(day) && isFullyBookedWorkingDayForService(day)"
-                    (click)="onDateClicked(day)"
-                  >
-                    <div class="day-name">{{ formatDayShort(day) }}</div>
-                    <div class="day-number">{{ day.getDate() }}</div>
-                    @if (isToday(day)) {
-                      <div class="today-indicator">{{ 'COMMON.TIME.TODAY' | translate }}</div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Time Slots for Selected Day -->
-            @if (selectedDate()) {
-              <div class="time-slots-section">
-                @for (daySlot of daySlots(); track daySlot.date) {
-                  @if (isSelected(daySlot.date)) {
-                    <!-- Morning Time Slots -->
-                    @if (hasMorningSlots(daySlot)) {
-                      <div class="time-section">
-                        <h4 class="time-section-title">🌅 {{ 'COMMON.TIME.MORNING' | translate }}</h4>
-                        <div class="time-slots-grid">
-                          @for (timeSlot of getMorningSlots(daySlot); track timeSlot.time) {
-                            <div
-                              class="time-slot"
-                              [class.available]="timeSlot.available"
-                              [class.occupied]="!timeSlot.available"
-                              [class.selected]="selectedTimeSlot()?.time === timeSlot.time"
-                              [style.background]="
-                                !timeSlot.available && timeSlot.serviceName
-                                  ? 'linear-gradient(135deg, ' +
-                                    getServiceBackgroundColor(timeSlot.serviceName) +
-                                    ' 0%, ' +
-                                    getServiceColor(timeSlot.serviceName) +
-                                    ' 100%)'
-                                  : ''
-                              "
-                              [style.border-color]="
-                                !timeSlot.available && timeSlot.serviceName
-                                  ? getServiceColor(timeSlot.serviceName)
-                                  : ''
-                              "
-                              [style.box-shadow]="
-                                !timeSlot.available && timeSlot.serviceName
-                                  ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40'
-                                  : ''
-                              "
-                              (click)="onTimeSlotClicked(timeSlot)"
-                            >
-                              <div class="slot-content">
-                                <div class="time">{{ formatTime(timeSlot.time) }}</div>
-                                @if (!timeSlot.available && isAdmin()) {
-                                  <div class="occupied-details">
-                                    <div class="client-info">
-                                      <span class="service-icon">{{ timeSlot.serviceIcon }}</span>
-                                      <span class="client-name">{{ timeSlot.clientName }}</span>
-                                    </div>
-                                    <div class="service-name">{{ timeSlot.serviceName }}</div>
-                                    @if (timeSlot.notes) {
-                                      <div class="notes">{{ timeSlot.notes }}</div>
-                                    }
-                                  </div>
-                                }
-                                @if (!timeSlot.available && !isAdmin()) {
-                                  <div class="occupied-simple">
-                                    <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
-                                  </div>
-                                }
-                                @if (timeSlot.available) {
-                                  <div class="available-label">
-                                    {{ 'COMMON.STATUS.AVAILABLE' | translate }}
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    }
-
-                    <!-- Afternoon Time Slots -->
-                    @if (hasAfternoonSlots(daySlot)) {
-                      <div class="time-section">
-                        <h4 class="time-section-title">🌆 {{ 'COMMON.TIME.AFTERNOON' | translate }}</h4>
-                        <div class="time-slots-grid">
-                          @for (timeSlot of getAfternoonSlots(daySlot); track timeSlot.time) {
-                            <div
-                              class="time-slot"
-                              [class.available]="timeSlot.available"
-                              [class.occupied]="!timeSlot.available"
-                              [class.selected]="selectedTimeSlot()?.time === timeSlot.time"
-                              [style.background]="
-                                !timeSlot.available && timeSlot.serviceName
-                                  ? 'linear-gradient(135deg, ' +
-                                    getServiceBackgroundColor(timeSlot.serviceName) +
-                                    ' 0%, ' +
-                                    getServiceColor(timeSlot.serviceName) +
-                                    ' 100%)'
-                                  : ''
-                              "
-                              [style.border-color]="
-                                !timeSlot.available && timeSlot.serviceName
-                                  ? getServiceColor(timeSlot.serviceName)
-                                  : ''
-                              "
-                              [style.box-shadow]="
-                                !timeSlot.available && timeSlot.serviceName
-                                  ? '0 4px 15px ' + getServiceColor(timeSlot.serviceName) + '40'
-                                  : ''
-                              "
-                              (click)="onTimeSlotClicked(timeSlot)"
-                            >
-                              <div class="slot-content">
-                                <div class="time">{{ formatTime(timeSlot.time) }}</div>
-                                @if (!timeSlot.available && isAdmin()) {
-                                  <div class="occupied-details">
-                                    <div class="client-info">
-                                      <span class="service-icon">{{ timeSlot.serviceIcon }}</span>
-                                      <span class="client-name">{{ timeSlot.clientName }}</span>
-                                    </div>
-                                    <div class="service-name">{{ timeSlot.serviceName }}</div>
-                                    @if (timeSlot.notes) {
-                                      <div class="notes">{{ timeSlot.notes }}</div>
-                                    }
-                                  </div>
-                                }
-                                @if (!timeSlot.available && !isAdmin()) {
-                                  <div class="occupied-simple">
-                                    <span class="occupied-label">{{ 'COMMON.STATUS.OCCUPIED' | translate }}</span>
-                                  </div>
-                                }
-                                @if (timeSlot.available) {
-                                  <div class="available-label">
-                                    {{ 'COMMON.STATUS.AVAILABLE' | translate }}
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    }
-                  }
-                }
-              </div>
-            }
-          </div>
+          <pelu-datetime-selection-step
+            (dateSelected)="onDateSelected($event)"
+            (timeSlotSelected)="onTimeSlotSelectedMobile($event)"
+            (viewModeChanged)="toggleViewMode()"
+          ></pelu-datetime-selection-step>
         }
 
         <!-- Step 3: Confirmation -->
         @if (currentStep() === 'confirmation') {
-          <div class="confirmation-step">
-            <!-- Booking Summary -->
-            <div class="booking-summary">
-              <!-- Date and Time Summary -->
-              <div class="selection-summary">
-                <div class="summary-item">
-                  <span class="summary-label">📅 {{ 'COMMON.DATE' | translate }}:</span>
-                  <span class="summary-value">{{ selectedDate() ? formatDay(selectedDate()!) : '' }}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label">⏰ {{ 'COMMON.HOURS' | translate }}:</span>
-                  <span class="summary-value">{{ selectedTimeSlot()?.time || '' }}</span>
-                </div>
-              </div>
-
-              <!-- Service Display -->
-              @if (selectedService()) {
-                <pelu-card variant="default">
-                  <div class="summary-section">
-                    <h3>{{ 'COMMON.SELECTION.SELECTED_SERVICE' | translate }}</h3>
-                    <div class="service-card selected">
-                      <div class="service-header">
-                        <div class="service-icon">{{ selectedService()!.icon }}</div>
-                        <div class="service-info">
-                          <div class="service-name">{{ selectedService()!.name }}</div>
-                          <div class="service-description">
-                            {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                          </div>
-                        </div>
-                        <div class="service-price">{{ selectedService()!.price | currency }}</div>
-                      </div>
-                      <div class="service-details">
-                        <div class="service-meta">
-                          <span class="service-duration">
-                            ⏱️ {{ selectedService()!.duration }} {{ 'COMMON.UNITS.MINUTES' | translate }}
-                          </span>
-                          @if (selectedService()!.isPopular) {
-                            <div class="popular-badge">
-                              <span class="badge-icon">🔥</span>
-                              <span class="badge-text">{{ 'SERVICES.POPULAR' | translate }}</span>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </pelu-card>
-              }
-
-              <!-- Client Information Section -->
-              <pelu-card variant="default">
-                <div class="summary-section">
-                  <h3>{{ 'COMMON.CLIENT_INFORMATION' | translate }}</h3>
-                  <div class="client-info-form">
-                    <pelu-input-text
-                      [label]="'COMMON.NAME'"
-                      [placeholder]="'COMMON.NAME_PLACEHOLDER'"
-                      [required]="true"
-                      [value]="bookingDetails().clientName || ''"
-                      (valueChange)="onClientNameChanged($event)"
-                    >
-                    </pelu-input-text>
-
-                    <pelu-input-text
-                      [label]="'COMMON.EMAIL'"
-                      [placeholder]="'COMMON.EMAIL_PLACEHOLDER'"
-                      type="email"
-                      [required]="true"
-                      [value]="bookingDetails().email || ''"
-                      (valueChange)="onEmailChanged($event)"
-                    >
-                    </pelu-input-text>
-                  </div>
-                </div>
-              </pelu-card>
-            </div>
-          </div>
+          <pelu-confirmation-step
+            (clientNameChanged)="onClientNameChanged($event)"
+            (emailChanged)="onEmailChanged($event)"
+          ></pelu-confirmation-step>
         }
 
         <!-- Step 4: Success -->
         @if (currentStep() === 'success') {
-          <div class="success-step">
-            <div class="success-content">
-              <div class="success-icon">✅</div>
-              <h2>{{ 'BOOKING.SUCCESS_TITLE' | translate }}</h2>
-              <p>{{ 'BOOKING.SUCCESS_MESSAGE' | translate }}</p>
-              <p class="email-notice">{{ 'BOOKING.EMAIL_NOTICE' | translate }}</p>
-
-              <div class="success-actions">
-                <pelu-button
-                  [label]="'BOOKING.VIEW_DETAIL'"
-                  (clicked)="onViewBookingDetail()"
-                  severity="primary"
-                  [raised]="true"
-                  [fluid]="true"
-                >
-                </pelu-button>
-                <pelu-button
-                  [label]="'BOOKING.BACK_TO_HOME'"
-                  (clicked)="onBackToHome()"
-                  severity="secondary"
-                  variant="outlined"
-                  [fluid]="true"
-                >
-                </pelu-button>
-              </div>
-            </div>
-
-            <!-- Download ICS Section -->
-            <pelu-card variant="default">
-              <div class="ics-content">
-                <h3>📅 {{ 'BOOKING.ADD_TO_CALENDAR' | translate }}</h3>
-                <p class="ics-description">{{ 'BOOKING.ADD_TO_CALENDAR_DESCRIPTION' | translate }}</p>
-                <pelu-button
-                  [label]="'BOOKING.ADD_TO_CALENDAR'"
-                  [icon]="'pi pi-calendar-plus'"
-                  iconPos="left"
-                  (clicked)="addToCalendar()"
-                  severity="secondary"
-                  variant="outlined"
-                  [fluid]="true"
-                >
-                </pelu-button>
-              </div>
-            </pelu-card>
-          </div>
+          <pelu-success-step
+            (viewBookingDetail)="onViewBookingDetail()"
+            (backToHome)="onBackToHome()"
+            (addToCalendar)="addToCalendar()"
+          ></pelu-success-step>
         }
       </div>
 
       <!-- Bottom Navigation (Mobile) -->
       @if (currentStep() !== 'success') {
-        <div class="bottom-navigation">
-          <pelu-button
-            [label]="'COMMON.ACTIONS.BACK'"
-            [icon]="'pi pi-chevron-left'"
-            iconPos="left"
-            [disabled]="!canGoBack()"
-            (clicked)="canGoBack() ? goBack() : null"
-            severity="secondary"
-            variant="outlined"
-            [fluid]="true"
-          >
-          </pelu-button>
-
-          <pelu-button
-            [label]="currentStep() === 'confirmation' ? 'Confirmar' : ('COMMON.ACTIONS.CONTINUE' | translate)"
-            [icon]="'pi pi-chevron-right'"
-            iconPos="right"
-            [disabled]="!canProceedToNextStep()"
-            (clicked)="canProceedToNextStep() ? nextStep() : null"
-            [severity]="currentStep() === 'confirmation' && !canProceedToNextStep() ? 'secondary' : 'primary'"
-            [raised]="true"
-            [fluid]="true"
-            [class.disabled-button]="currentStep() === 'confirmation' && !canProceedToNextStep()"
-          >
-          </pelu-button>
-        </div>
+        <pelu-mobile-navigation
+          (goBack)="goBack()"
+          (nextStep)="nextStep()"
+        ></pelu-mobile-navigation>
       }
     </div>
   }
