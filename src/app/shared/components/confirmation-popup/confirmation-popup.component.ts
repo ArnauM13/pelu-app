@@ -10,6 +10,7 @@ export interface ConfirmationData {
   confirmText?: string;
   cancelText?: string;
   severity?: 'warning' | 'danger' | 'info';
+  userName?: string;
 }
 
 @Component({
@@ -25,7 +26,7 @@ export interface ConfirmationData {
           @if (data()?.severity === 'danger') { ⚠️ } @else if (data()?.severity === 'warning') { ⚠️ } @else { ℹ️ }
         </span>
         <p class="confirm-text"
-           [innerHTML]="(data()?.message || 'COMMON.CONFIRMATION.MESSAGE') | translate">
+           [innerHTML]="(data()?.message || 'COMMON.CONFIRMATION.MESSAGE') | translate: { name: data()?.userName }">
         </p>
       </div>
 

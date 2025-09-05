@@ -131,9 +131,11 @@ export class AppointmentDetailPageComponent implements OnInit {
   // UI state signals
   private showDeleteAlertSignal = signal<boolean>(false);
   private deleteAlertDataSignal = signal<ConfirmationData | null>(null);
+  private hideDetailViewSignal = signal<boolean>(false);
 
   readonly showDeleteAlert = computed(() => this.showDeleteAlertSignal());
   readonly deleteAlertData = computed(() => this.deleteAlertDataSignal());
+  readonly hideDetailView = computed(() => this.hideDetailViewSignal());
 
   // Form for editing
   editForm!: FormGroup;
@@ -595,6 +597,8 @@ export class AppointmentDetailPageComponent implements OnInit {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
       this.toastService.showError('APPOINTMENTS.DELETE_ERROR');
+      // Resetar estat en cas d'error
+      this.hideDetailViewSignal.set(false);
     } finally {
       this.loaderService.hide();
     }
@@ -635,12 +639,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     if (!booking) return;
 
     const alertData: ConfirmationData = {
-      title: 'APPOINTMENTS.DELETE_CONFIRMATION_TITLE',
-      message: 'APPOINTMENTS.DELETE_CONFIRMATION_MESSAGE',
+      title: 'COMMON.CONFIRMATION.DELETE_TITLE',
+      message: 'COMMON.CONFIRMATION.DELETE_MESSAGE',
       severity: 'danger',
+      userName: booking.clientName || booking.email || 'N/A'
     };
 
     this.deleteAlertDataSignal.set(alertData);
+    this.hideDetailViewSignal.set(true); // Amagar detail view primer
     this.showDeleteAlertSignal.set(true);
   }
 
@@ -650,6 +656,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   onDeleteConfirmed(): void {
     this.showDeleteAlertSignal.set(false);
     this.deleteAlertDataSignal.set(null);
+    // No resetar hideDetailView aquí perquè deleteAppointment navega cap enrere
     this.deleteAppointment();
   }
 
@@ -659,6 +666,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   onDeleteCancelled(): void {
     this.showDeleteAlertSignal.set(false);
     this.deleteAlertDataSignal.set(null);
+    this.hideDetailViewSignal.set(false); // Mostrar detail view de nou
   }
 
   onToastClick(event: { message?: { data?: { appointmentId?: string } } }): void {
