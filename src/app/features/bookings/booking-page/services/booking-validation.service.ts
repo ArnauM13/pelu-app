@@ -65,7 +65,7 @@ export class BookingValidationService {
     if (!selectedService.id) {
       return false;
     }
-    
+
     return this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTimeSlot.time,
@@ -115,7 +115,7 @@ export class BookingValidationService {
     if (!selectedService.id) {
       return false;
     }
-    
+
     const canBook = this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTimeSlot.time,
@@ -156,7 +156,7 @@ export class BookingValidationService {
     if (!selectedService.id) {
       return true;
     }
-    
+
     const daySlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       day,
       selectedService.id,
@@ -184,7 +184,7 @@ export class BookingValidationService {
     if (!service.id) {
       return false;
     }
-    
+
     const daySlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       day,
       service.id,
@@ -225,7 +225,7 @@ export class BookingValidationService {
     return this.coreBookingValidationService.canBookOnDate(date);
   }
 
-  // Manual booking validation methods  
+  // Manual booking validation methods
   canBookServiceAtTime(date: Date, time: string, serviceId: string): boolean {
     return this.dateTimeAvailabilityService.isTimeSlotAvailable(date, time, serviceId);
   }
