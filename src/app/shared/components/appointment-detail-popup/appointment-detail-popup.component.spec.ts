@@ -47,7 +47,7 @@ describe('AppointmentDetailPopupComponent', () => {
   it('should have required output signals', () => {
     expect(component.closed).toBeDefined();
     expect(component.deleted).toBeDefined();
-    expect(component.editRequested).toBeDefined();
+    expect(component.deleteRequested).toBeDefined();
     expect(component.viewDetailRequested).toBeDefined();
   });
 
@@ -61,7 +61,6 @@ describe('AppointmentDetailPopupComponent', () => {
 
   it('should have required methods', () => {
     expect(typeof component.onClose).toBe('function');
-    expect(typeof component.onEdit).toBe('function');
     expect(typeof component.onDelete).toBe('function');
     expect(typeof component.onViewDetail).toBe('function');
   });
@@ -70,6 +69,26 @@ describe('AppointmentDetailPopupComponent', () => {
     spyOn(component.closed, 'emit');
     component.onClose();
     expect(component.closed.emit).toHaveBeenCalled();
+  });
+
+  it('should emit deleteRequested event when onDelete is called with valid booking', () => {
+    // Set up a booking
+    fixture.componentRef.setInput('booking', _mockAppointment);
+    fixture.detectChanges();
+
+    spyOn(component.deleteRequested, 'emit');
+    component.onDelete();
+    expect(component.deleteRequested.emit).toHaveBeenCalledWith(_mockAppointment);
+  });
+
+  it('should not emit deleteRequested event when onDelete is called without booking', () => {
+    // No booking set
+    fixture.componentRef.setInput('booking', null);
+    fixture.detectChanges();
+
+    spyOn(component.deleteRequested, 'emit');
+    component.onDelete();
+    expect(component.deleteRequested.emit).not.toHaveBeenCalled();
   });
 
 

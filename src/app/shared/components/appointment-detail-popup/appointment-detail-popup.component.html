@@ -122,12 +122,3 @@
   }
 </pelu-popup-dialog>
 
-@if (showDeleteConfirm()) {
-  <pelu-confirmation-popup
-    [isOpen]="true"
-    [data]="deleteConfirmData()"
-    (confirmed)="onDeleteConfirmed()"
-    (cancelled)="onDeleteCancelled()"
-  >
-  </pelu-confirmation-popup>
-}

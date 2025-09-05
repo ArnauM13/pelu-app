@@ -64,6 +64,13 @@ export class PopupDialogComponent {
     }
   });
 
+  // Debug computed for isOpen
+  readonly debugVisible = computed(() => {
+    const isOpen = this.isOpen();
+    console.log('🔍 PopupDialog - visible:', isOpen, 'config:', this.config());
+    return isOpen;
+  });
+
   // Methods
   onClose(): void {
     this.closed.emit();

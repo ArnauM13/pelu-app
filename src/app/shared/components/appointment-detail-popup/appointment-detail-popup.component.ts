@@ -1,10 +1,9 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PopupDialogComponent, PopupDialogConfig } from '../popup-dialog/popup-dialog.component';
-import { ConfirmationPopupComponent, type ConfirmationData } from '../confirmation-popup/confirmation-popup.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../services/toast.service';
@@ -28,7 +27,6 @@ import { FooterAction } from '../popup-dialog/popup-dialog.component';
     ButtonModule,
     TranslateModule,
     PopupDialogComponent,
-    ConfirmationPopupComponent,
     // Add input components
     InputTextComponent,
     InputDateComponent,
@@ -57,7 +55,7 @@ export class AppointmentDetailPopupComponent {
   // Output signals
   readonly closed = output<void>();
   readonly deleted = output<Booking>();
-  readonly editRequested = output<Booking>();
+  readonly deleteRequested = output<Booking>(); // New output for delete request
   readonly viewDetailRequested = output<Booking>(); // New output for view detail
 
   // Internal state
@@ -74,17 +72,20 @@ export class AppointmentDetailPopupComponent {
   editDate = signal<string | Date>('');
   editTime = signal<string>('');
   editNotes = signal<string>('');
-  private readonly showDeleteConfirmSignal = signal<boolean>(false);
-  readonly showDeleteConfirm = computed(() => this.showDeleteConfirmSignal());
-  readonly deleteConfirmData = computed<ConfirmationData>(() => ({
-    title: this.#translateService.instant('COMMON.CONFIRMATION.TITLE'),
-    message: this.#translateService.instant('COMMON.CONFIRMATION.MESSAGE'),
-    severity: 'danger'
-  }));
 
   // Computed properties
-  readonly isOpen = computed(() => this.open() && !this.isClosing());
-  readonly currentBooking = computed(() => this.booking() || this.loadedBooking());
+  readonly isOpen = computed(() => {
+    const open = this.open();
+    const isClosing = this.isClosing();
+    const result = open && !isClosing;
+    console.log('🔍 AppointmentDetailPopup - isOpen computed:', { open, isClosing, result });
+    return result;
+  });
+  readonly currentBooking = computed(() => {
+    const booking = this.booking() || this.loadedBooking();
+    console.log('🔍 AppointmentDetailPopup - currentBooking:', booking);
+    return booking;
+  });
 
   // Computed service name
   readonly serviceName = computed(() => {
@@ -129,6 +130,17 @@ export class AppointmentDetailPopupComponent {
     return 'N/A';
   });
 
+  constructor() {
+    // Reset isClosing when popup is opened
+    effect(() => {
+      const open = this.open();
+      if (open && this.isClosing()) {
+        console.log('🔄 AppointmentDetailPopup - Resetting isClosing flag');
+        this.isClosing.set(false);
+      }
+    });
+  }
+
   // Computed popup configuration
   readonly popupConfig = computed<PopupDialogConfig>(() => {
     const booking = this.currentBooking();
@@ -142,14 +154,7 @@ export class AppointmentDetailPopupComponent {
 
     const actions: FooterAction[] = [];
 
-    // Add edit button if user can edit
-    if (this.canEditBooking(booking)) {
-      actions.push({
-        label: this.#translateService.instant('COMMON.ACTIONS.EDIT'),
-        severity: 'primary',
-        action: () => this.onEdit(),
-      });
-    }
+    // Edit button removed as requested
 
     // Add delete button if user can delete
     if (this.canDeleteBooking(booking)) {
@@ -202,29 +207,15 @@ export class AppointmentDetailPopupComponent {
     this.closed.emit();
   }
 
-  onEdit(): void {
-    const booking = this.currentBooking();
-    if (booking) {
-      this.editRequested.emit(booking);
-    }
-  }
 
   onDelete(): void {
-    this.showDeleteConfirmSignal.set(true);
-  }
-
-  onDeleteConfirmed(): void {
     const booking = this.currentBooking();
     if (booking) {
-      this.deleted.emit(booking);
+      console.log('🔄 AppointmentDetailPopup - Emitting delete request:', booking);
+      this.deleteRequested.emit(booking);
     }
-    this.showDeleteConfirmSignal.set(false);
-    this.onClose();
   }
 
-  onDeleteCancelled(): void {
-    this.showDeleteConfirmSignal.set(false);
-  }
 
   onViewDetail(): void {
     const booking = this.currentBooking();
@@ -307,10 +298,6 @@ export class AppointmentDetailPopupComponent {
     return this.#timeUtils.formatTimeString(time);
   }
 
-  private canEditBooking(booking: Booking): boolean {
-    // Add your logic to determine if user can edit this booking
-    return true; // Placeholder
-  }
 
   private canDeleteBooking(booking: Booking): boolean {
     // Add your logic to determine if user can delete this booking

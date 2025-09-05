@@ -138,6 +138,15 @@ export class CalendarStateService {
    * Open appointment detail popup
    */
   openAppointmentDetail(appointment: Booking): void {
+    console.log('🔄 CalendarState - Opening appointment detail popup:', appointment);
+
+    // Avoid duplicate calls for the same appointment
+    const currentAppointment = this.selectedAppointment();
+    if (currentAppointment?.id === appointment.id && this.showDetailPopup()) {
+      console.log('🔄 CalendarState - Appointment already open, ignoring duplicate call');
+      return;
+    }
+
     this.setSelectedAppointment(appointment);
     this.setShowDetailPopup(true);
   }
@@ -146,8 +155,18 @@ export class CalendarStateService {
    * Close appointment detail popup
    */
   closeAppointmentDetail(): void {
+    console.log('🔄 CalendarState - Closing appointment detail popup');
     this.setShowDetailPopup(false);
     this.setSelectedAppointment(null);
+  }
+
+  /**
+   * Force reset all popup state - for debugging
+   */
+  forceResetPopupState(): void {
+    console.log('🔄 CalendarState - Force reset popup state');
+    this.showDetailPopupSignal.set(false);
+    this.selectedAppointmentSignal.set(null);
   }
 
   /**

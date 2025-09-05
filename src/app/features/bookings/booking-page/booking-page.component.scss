@@ -27,15 +27,22 @@
 /* Container styles - Same as other main pages */
 .container {
   position: relative;
-  width: 90%;
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
+  max-width: 95%;
 }
 
 /* Content section styles */
 .content-section {
   width: 100%;
   margin-bottom: 1rem;
+}
+
+/* Desktop specific styling for next appointment */
+@media (min-width: 769px) {
+  .content-section {
+    margin-top: 2rem;
+  }
 }
 
 /* Shared Title Section */

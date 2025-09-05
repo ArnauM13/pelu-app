@@ -117,142 +117,21 @@
         @if (type() === 'appointment' && appointment()) {
           <!-- Appointment Detail Layout -->
           <div class="appointment-detail-layout">
-                         <!-- Appointment Details Section (30% width) -->
-             <div class="appointment-details-section">
-               <div class="appointment-details-card">
-                 <div class="section-header">
-                   <h2>{{ 'APPOINTMENTS.APPOINTMENT_DETAILS' | translate }}</h2>
-                   @if (hasAvailableActions() && !isEditing() && actionContext()) {
-                     <pelu-actions-buttons [context]="actionContext()!"> </pelu-actions-buttons>
-                   }
-                 </div>
-
-              @if (isEditing()) {
-                <!-- Edit Form -->
-                <div class="edit-form">
-                  <div class="form-grid">
-                    <!-- Client Name - EDITABLE -->
-                    <div class="form-group">
-                      <pelu-input-text
-                        [label]="'COMMON.CLIENT_NAME'"
-                        [placeholder]="'COMMON.ENTER_CLIENT_NAME'"
-                        [required]="true"
-                        [value]="appointment()?.clientName || ''"
-                        (valueChange)="onUpdateForm('clientName', $event)"
-                      >
-                      </pelu-input-text>
-                    </div>
-
-                    <!-- Date - EDITABLE with validation -->
-                    <div class="form-group">
-                      <pelu-input-date
-                        [label]="'COMMON.DATE'"
-                        [required]="true"
-                        [value]="appointment()?.data || ''"
-                        [minDate]="minDate()"
-                        [maxDate]="maxDate()"
-                        [preventPastMonths]="true"
-                        (valueChange)="onUpdateForm('data', $event)"
-                      >
-                      </pelu-input-date>
-                    </div>
-
-                    <!-- Time - EDITABLE with validation -->
-                    <div class="form-group">
-                      @if (isLoadingTimeSlots()) {
-                        <div class="loading-time-slots">
-                          <p>Carregant hores disponibles...</p>
-                        </div>
-                      } @else {
-                        <pelu-input-select
-                          [label]="'COMMON.HOURS'"
-                          [placeholder]="'Selecciona una hora disponible'"
-                          [required]="true"
-                          [options]="availableTimeSlotOptions()"
-                          [value]="appointment()?.hora || ''"
-                          [searchable]="true"
-                          [clearable]="false"
-                          (valueChange)="onUpdateForm('hora', $event || '')"
-                        >
-                        </pelu-input-select>
-                      }
-                    </div>
-
-                    <!-- Notes - EDITABLE -->
-                    <div class="form-group">
-                      <pelu-input-textarea
-                        [label]="'COMMON.NOTES'"
-                        [placeholder]="'COMMON.NOTES'"
-                        [value]="appointment()?.notes || ''"
-                        [rows]="3"
-                        (valueChange)="onUpdateForm('notes', $event)"
-                      >
-                      </pelu-input-textarea>
-                    </div>
-                  </div>
-
-                  <!-- Action Buttons -->
-                  <div class="form-actions">
-                    <pelu-button
-                      [label]="'COMMON.ACTIONS.CANCEL'"
-                      severity="danger"
-                      (clicked)="onCancelEdit()"
-                    />
-                    <pelu-button
-                      [label]="'COMMON.ACTIONS.SAVE'"
-                      severity="primary"
-                      [disabled]="!hasChanges()"
-                      (clicked)="onSave()"
-                    />
-                  </div>
-                </div>
-              } @else {
-                <!-- View Mode -->
-                <div class="appointment-info-grid">
-                  <div class="form-group">
-                    <pelu-input-text
-                      [label]="'COMMON.CLIENT'"
-                      [value]="appointment()?.clientName || 'N/A'"
-                      [readonly]="true"
-                      [disabled]="true"
-                    >
-                    </pelu-input-text>
-                  </div>
-
-                  <div class="form-group">
-                    <pelu-input-text
-                      [label]="'COMMON.DATE'"
-                      [value]="appointment()?.data ? formatDate(appointment()!.data) : 'N/A'"
-                      [readonly]="true"
-                      [disabled]="true"
-                    >
-                    </pelu-input-text>
-                  </div>
-
-                  <div class="form-group">
-                    <pelu-input-text
-                      [label]="'COMMON.HOURS'"
-                      [value]="appointment()?.hora || 'N/A'"
-                      [readonly]="true"
-                      [disabled]="true"
-                    >
-                    </pelu-input-text>
-                  </div>
-
-                  <div class="form-group">
-                    <pelu-input-textarea
-                      [label]="'COMMON.NOTES'"
-                      [value]="appointment()?.notes || 'N/A'"
-                      [readonly]="true"
-                      [disabled]="true"
-                      [rows]="3"
-                    >
-                    </pelu-input-textarea>
-                  </div>
-                </div>
-              }
-            </div>
-            </div>
+                         <!-- Manual Booking Component -->
+              <pelu-booking-form
+                [appointmentData]="appointment() || null"
+                [isEditMode]="isEditing()"
+                [isReadOnlyMode]="!isEditing()"
+                [title]="'APPOINTMENTS.APPOINTMENT_DETAILS'"
+                [subtitle]="'APPOINTMENTS.EDIT_APPOINTMENT_DESCRIPTION'"
+                [showActions]="!isEditing()"
+                [actionButtons]="getActionButtons()"
+                [showFooterActions]="isEditing()"
+                [footerActionButtons]="getFooterActionButtons()"
+                [showDefaultSubmitButton]="false"
+                (bookingCreated)="onBookingUpdated($event)"
+              >
+              </pelu-booking-form>
 
             <!-- Service and ICS Section -->
             <div class="service-and-ics-section">
