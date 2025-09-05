@@ -10,3 +10,57 @@
 <!-- Global components -->
 <pelu-toast></pelu-toast>
 <pelu-loader></pelu-loader>
+
+<!-- Global Popups - Always rendered at top level -->
+
+<!-- Appointment Detail Popup -->
+<pelu-appointment-detail-popup
+  [open]="appointmentDetailOpen()"
+  [booking]="appointmentDetailBooking()"
+  [service]="appointmentDetailService()"
+  (closed)="onAppointmentDetailClosed()"
+  (deleted)="onAppointmentDeleted($event)"
+  (deleteRequested)="onDeleteRequested($event)"
+  (viewDetailRequested)="onViewDetailRequested($event)"
+>
+</pelu-appointment-detail-popup>
+
+<!-- Delete Confirmation Popup -->
+<pelu-confirmation-popup
+  [isOpen]="deleteConfirmOpen()"
+  [data]="deleteConfirmData()"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+>
+</pelu-confirmation-popup>
+
+<!-- Service Selection Popup (Booking Page) -->
+@if (serviceSelectionDetails()) {
+  <pelu-service-selection-popup
+    [open]="serviceSelectionOpen()"
+    [selectionDetails]="serviceSelectionDetails()!"
+    (serviceSelected)="onServiceSelected($event)"
+    (cancelled)="onServiceSelectionCancelled()"
+  >
+  </pelu-service-selection-popup>
+}
+
+<!-- Booking Confirmation Popup (Booking Page) -->
+@if (bookingDetails()) {
+  <pelu-booking-popup
+    [open]="bookingPopupOpen()"
+    [bookingDetails]="bookingDetails()!"
+    (confirmed)="onBookingConfirmed($event)"
+    (cancelled)="onBookingCancelled()"
+    (clientNameChanged)="onClientNameChanged($event)"
+    (emailChanged)="onEmailChanged($event)"
+  >
+  </pelu-booking-popup>
+}
+
+<!-- Generic Popup Dialog -->
+<pelu-popup-dialog
+  [config]="popupDialogConfig()"
+  (closed)="onPopupDialogClosed()"
+>
+</pelu-popup-dialog>
