@@ -32,17 +32,6 @@
 
     </div>
 
-    <!-- Appointment Detail Popup -->
-    <pelu-appointment-detail-popup
-      [open]="showDetailPopup()"
-      [booking]="selectedAppointment()"
-      [service]="service()"
-      (closed)="onAppointmentDetailPopupClosed()"
-      (deleted)="onAppointmentDeleted($event)"
-      (editRequested)="onEditRequestedWrapper($event)"
-      (viewDetailRequested)="onViewDetailRequested($event)"
-    >
-    </pelu-appointment-detail-popup>
 
     <!-- Global Drag Preview for Cross-Day Dragging -->
     @if (dragPreviewData()) {
