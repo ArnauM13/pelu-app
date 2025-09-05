@@ -80,11 +80,17 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   private readonly bookingStateService = inject(BookingStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
 
+  // ===== PRIVATE PROPERTIES =====
+  private wasAutoCollapsed = false;
+
   // ===== COMPUTED PROPERTIES =====
 
   // Responsive detection
   readonly isMobile = computed(() => this.responsiveService.isMobile());
   readonly isDesktop = computed(() => !this.responsiveService.isMobile());
+
+  // Desktop layout state
+  readonly sidebarCollapsed = computed(() => this.bookingStateService.sidebarCollapsed());
 
   // Authentication and user state
   readonly isAuthenticated = computed(() => this.bookingValidationService.isAuthenticated());
@@ -284,6 +290,9 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     console.log('isAuthenticated():', this.isAuthenticated());
     console.log('Current route:', this.router.url);
     // Component initialization is now handled in constructor
+
+    // Set up responsive sidebar behavior
+    this.setupResponsiveSidebar();
   }
 
   ngOnDestroy(): void {
@@ -294,6 +303,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     window.removeEventListener('bookingUpdated', () => {
       this.loadAppointments();
     });
+    window.removeEventListener('resize', this.handleResize);
   }
 
   // ===== SHARED METHODS =====
@@ -594,6 +604,43 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   // Desktop booking details getter (called from template)
   desktopBookingDetails() {
     return this.bookingDetails();
+  }
+
+  // Desktop sidebar toggle (called from template)
+  toggleSidebar() {
+    this.bookingStateService.toggleSidebar();
+  }
+
+  // ===== RESPONSIVE SIDEBAR METHODS =====
+
+  private handleResize = () => {
+    const isSmallScreen = window.innerWidth < 1275;
+    const currentCollapsed = this.sidebarCollapsed();
+
+    console.log('Window width:', window.innerWidth, 'Is small screen:', isSmallScreen, 'Current collapsed:', currentCollapsed);
+
+    // Auto-collapse only when going from large to small screen
+    if (isSmallScreen && !currentCollapsed && !this.wasAutoCollapsed) {
+      console.log('Auto-collapsing sidebar due to screen size');
+      this.bookingStateService.setSidebarCollapsed(true);
+      this.wasAutoCollapsed = true;
+    }
+
+    // Don't auto-expand when going from small to large screen
+    // User should manually control the sidebar state
+  };
+
+  private setupResponsiveSidebar() {
+    // Check initial screen size and auto-collapse if needed
+    const isSmallScreen = window.innerWidth < 1275;
+    if (isSmallScreen && !this.sidebarCollapsed()) {
+      console.log('Initial setup: auto-collapsing sidebar for small screen');
+      this.bookingStateService.setSidebarCollapsed(true);
+      this.wasAutoCollapsed = true;
+    }
+
+    // Add resize listener
+    window.addEventListener('resize', this.handleResize);
   }
 
   // ===== SHARED UTILITY METHODS =====
@@ -1000,8 +1047,15 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     console.log('=== onBackToHome called ===');
     console.log('Current route before navigation:', this.router.url);
 
-    // Reset booking state and go to initial step
-    this.bookingStateService.resetBookingState();
+    // Only reset if we're coming from success step (after booking creation)
+    if (this.currentStep() === 'success') {
+      console.log('Resetting booking state after successful booking');
+      this.bookingStateService.resetBookingState();
+    } else {
+      // Just go back to service step without resetting
+      console.log('Going back to service step without resetting state');
+      this.bookingStateService.setCurrentStep('service');
+    }
 
     console.log('Navigating to /booking...');
     this.router.navigate(['/booking']).then(success => {
