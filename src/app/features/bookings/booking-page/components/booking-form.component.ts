@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal, OnInit, input, effect } from '@angular/core';
+import { Component, computed, inject, output, signal, OnInit, input, effect, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
@@ -17,10 +17,12 @@ import { SystemParametersService } from '../../../../core/services/system-parame
 import { BookingValidationService } from '../../../../core/services/booking-validation.service';
 import { UserService } from '../../../../core/services/user.service';
 import { DateTimeAvailabilityService } from '../../../../core/services/date-time-availability.service';
+import { TimeUtils } from '../../../../shared/utils/time.utils';
 
 @Component({
   selector: 'pelu-booking-form',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   imports: [
     CommonModule,
     TranslateModule,
@@ -174,9 +176,35 @@ import { DateTimeAvailabilityService } from '../../../../core/services/date-time
     </div>
   `,
   styles: [`
+    // Force remove all card styling
+    .booking-form pelu-card,
+    .booking-form pelu-card .card,
+    .booking-form .card,
+    pelu-card,
+    pelu-card .card,
+    .card {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+    }
+
     .booking-form {
       width: 375px;
       margin-bottom: 2rem;
+
+      // Specific adjustments for overlay mode (< 1275px)
+      @media (max-width: 1275px) {
+        width: 100%;
+        padding: 0 1rem;
+
+
+        .booking-form-content {
+          width: 100%;
+        }
+      }
 
       .booking-form-header {
         display: flex;
@@ -188,7 +216,7 @@ import { DateTimeAvailabilityService } from '../../../../core/services/date-time
 
         .header-content {
           flex: 1;
-          text-align: center;
+          text-align: left;
 
           h3 {
             color: #0d47a1;
@@ -218,6 +246,15 @@ import { DateTimeAvailabilityService } from '../../../../core/services/date-time
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        width: 100%;
+
+        // Ensure all input components take full width
+        pelu-input-select,
+        pelu-input-date,
+        pelu-input-text,
+        pelu-input-textarea {
+          width: 100%;
+        }
 
         .form-actions {
           margin-top: 1rem;
@@ -286,6 +323,7 @@ export class BookingFormComponent implements OnInit {
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly userService = inject(UserService);
   private readonly dateTimeAvailabilityService = inject(DateTimeAvailabilityService);
+  private readonly timeUtils = inject(TimeUtils);
 
   // Inputs for hydration
   readonly appointmentData = input<Booking | null>(null);
@@ -304,12 +342,30 @@ export class BookingFormComponent implements OnInit {
   readonly showDefaultSubmitButton = input<boolean>(true);
 
   constructor() {
+    // Effect para hidratar datos cuando los servicios estén disponibles
     effect(() => {
       const appointment = this.appointmentData();
       const services = this.availableServices();
 
       if (appointment && services.length > 0) {
         this.initializeWithAppointmentData(appointment);
+      } else if (!appointment && services.length > 0) {
+        // Si no hay appointment, inicializar con datos del usuario
+        this.initializeWithUserData();
+      }
+    });
+
+    // Effect para hidratar tiempo cuando las opciones de tiempo estén disponibles
+    effect(() => {
+      const appointment = this.appointmentData();
+      const timeOptions = this.timeSlotOptions();
+      const currentSelectedTime = this.selectedTimeSignal();
+
+      if (appointment && appointment.hora && timeOptions.length > 0 && !currentSelectedTime) {
+        // Solo establecer si aún no está establecido y hay opciones disponibles
+        if (timeOptions.some(option => option.value === appointment.hora)) {
+          this.selectedTimeSignal.set(appointment.hora);
+        }
       }
     });
   }
@@ -317,18 +373,9 @@ export class BookingFormComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     // Ensure services cache is loaded
     await this.bookingStateService.loadServicesCache();
-    this.initializeFormSignals();
+    // Los effects manejarán la hidratación automáticamente cuando los datos estén disponibles
   }
 
-  private initializeFormSignals(): void {
-    const appointment = this.appointmentData();
-
-    if (appointment) {
-      this.initializeWithAppointmentData(appointment);
-    } else {
-      this.initializeWithUserData();
-    }
-  }
 
   private initializeWithAppointmentData(appointment: Booking): void {
     this.clientNameSignal.set(appointment.clientName || '');
@@ -401,7 +448,7 @@ export class BookingFormComponent implements OnInit {
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedDateString = computed(() => {
     const date = this.selectedDate();
-    return date ? date.toISOString().split('T')[0] : '';
+    return date ? this.timeUtils.formatDateISO(date) : '';
   });
   readonly selectedTime = computed(() => this.selectedTimeSignal());
   readonly clientName = computed(() => this.clientNameSignal());
@@ -612,7 +659,7 @@ export class BookingFormComponent implements OnInit {
         throw new Error('Service or date not found');
       }
 
-      const formattedDate = selectedDate.toISOString().split('T')[0];
+      const formattedDate = this.timeUtils.formatDateISO(selectedDate);
 
       const bookingData = {
         clientName: this.clientName(),
