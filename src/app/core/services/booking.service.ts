@@ -470,6 +470,22 @@ export class BookingService {
       }
 
       // If not in cache, fetch from Firebase
+      return this.getBookingByIdDirect(bookingId);
+    } catch (error) {
+      this.logger.firebaseError(error, 'getBookingById', {
+        component: 'BookingService',
+        method: 'getBookingById',
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Get booking by ID directly from Firebase (bypasses cache)
+   * Optimized for detail page - only fetches the specific booking
+   */
+  async getBookingByIdDirect(bookingId: string): Promise<Booking | null> {
+    try {
       const docRef = doc(this.firestore, 'bookings', bookingId);
       const docSnap = await getDoc(docRef);
 
@@ -493,9 +509,10 @@ export class BookingService {
 
       return null;
     } catch (error) {
-      this.logger.firebaseError(error, 'getBookingById', {
+      this.logger.firebaseError(error, 'getBookingByIdDirect', {
         component: 'BookingService',
-        method: 'getBookingById',
+        method: 'getBookingByIdDirect',
+        bookingId,
       });
       return null;
     }

@@ -200,6 +200,7 @@
     "PLEASE_SELECT_SERVICE_FIRST": "يرجى اختيار خدمة أولاً",
     "PLEASE_SELECT_DATE_FIRST": "يرجى اختيار تاريخ أولاً",
     "TIME_SLOT_NOT_AVAILABLE": "هذا الوقت غير متاح. يرجى اختيار وقت آخر.",
+    "INVALID_EMAIL_FORMAT": "تنسيق البريد الإلكتروني غير صحيح.",
     "BOOKING_NOT_FOUND_FOR_CALENDAR": "لم يتم العثور على الحجز لإضافته إلى التقويم",
     "SERVICE_NOT_FOUND_FOR_CALENDAR": "لم يتم العثور على الخدمة لإضافتها إلى التقويم",
     "EVENT_ADDED_TO_CALENDAR": "تم إضافة الحدث إلى التقويم بنجاح",

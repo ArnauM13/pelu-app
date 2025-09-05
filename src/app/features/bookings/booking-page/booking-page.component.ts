@@ -613,10 +613,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   private async loadServices() {
     try {
-      // Services are loaded through the booking state service
-      // Only show loader on mobile, not on desktop
-      const showLoader = this.isMobile();
-      await this.firebaseServicesService.loadServices(showLoader);
+      // Use cached services from booking state service
+      await this.bookingStateService.loadServicesCache();
     } catch (error) {
       console.error('Error loading services:', error);
     }

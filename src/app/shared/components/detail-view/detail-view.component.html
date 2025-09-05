@@ -118,7 +118,7 @@
           <!-- Appointment Detail Layout -->
           <div class="appointment-detail-layout">
                          <!-- Manual Booking Component -->
-              <pelu-manual-booking
+              <pelu-booking-form
                 [appointmentData]="appointment() || null"
                 [isEditMode]="isEditing()"
                 [isReadOnlyMode]="!isEditing()"
@@ -131,7 +131,7 @@
                 [showDefaultSubmitButton]="false"
                 (bookingCreated)="onBookingUpdated($event)"
               >
-              </pelu-manual-booking>
+              </pelu-booking-form>
 
             <!-- Service and ICS Section -->
             <div class="service-and-ics-section">

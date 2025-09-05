@@ -4,6 +4,7 @@ import { FirebaseServicesService, FirebaseService } from '../../../../core/servi
 import { TimeSlot, TimeUtils } from '../../../../shared/utils/time.utils';
 import { SelectOption } from '../../../../shared/components/inputs/input-select/input-select.component';
 import { Booking } from '../../../../core/interfaces/booking.interface';
+import { DateTimeAvailabilityService } from '../../../../core/services/date-time-availability.service';
 
 export interface DateSelectionState {
   selectedDate: Date | null;
@@ -32,6 +33,7 @@ export class DateTimeSelectionService {
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly firebaseServicesService = inject(FirebaseServicesService);
   private readonly timeUtils = inject(TimeUtils);
+  private readonly dateTimeAvailabilityService = inject(DateTimeAvailabilityService);
 
   // ===== SIGNALS =====
 
@@ -207,36 +209,45 @@ export class DateTimeSelectionService {
   isTimeSlotAvailable(time: string, service: FirebaseService, appointments: Booking[]): boolean {
     const date = this.selectedDate();
 
-    if (!service || !date) {
+    if (!service || !date || !service.id) {
       return false;
     }
 
-    return this.bookingValidationService.canBookServiceAtTime(
+    return this.dateTimeAvailabilityService.isTimeSlotAvailable(
       date,
       time,
-      service.duration,
-      appointments
+      service.id
     );
   }
 
   /**
    * Get available time slots for a specific date and service
+   * Now using centralized DateTimeAvailabilityService
    */
   getAvailableTimeSlotsForDate(date: Date, service: FirebaseService, appointments: Booking[]): TimeSlot[] {
-    return this.bookingValidationService.generateTimeSlotsForService(
+    if (!service.id) {
+      return [];
+    }
+
+    return this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       date,
-      service.duration,
-      appointments
+      service.id,
+      { includeUnavailable: true }
     );
   }
 
   /**
    * Update available time slots for the selected date and service
+   * Now using centralized DateTimeAvailabilityService
    */
   updateAvailableTimeSlots(service: FirebaseService, appointments: Booking[]): void {
     const date = this.selectedDate();
-    if (date && service) {
-      const timeSlots = this.getAvailableTimeSlotsForDate(date, service, appointments);
+    if (date && service && service.id) {
+      const timeSlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
+        date,
+        service.id,
+        { includeUnavailable: true }
+      );
       this.availableTimeSlotsSignal.set(timeSlots);
     } else {
       this.availableTimeSlotsSignal.set([]);

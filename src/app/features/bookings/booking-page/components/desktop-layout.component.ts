@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
-import { ManualBookingComponent } from './manual-booking.component';
+import { BookingFormComponent } from './booking-form.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
@@ -19,7 +19,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     TranslateModule,
     ButtonComponent,
     CalendarComponent,
-    ManualBookingComponent,
+    BookingFormComponent,
   ],
   template: `
     <div class="desktop-layout">
@@ -35,9 +35,9 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
           <!-- Manual Booking Section -->
           <div class="manual-booking-section">
-            <pelu-manual-booking
+            <pelu-booking-form
               (bookingCreated)="onManualBookingCreated($event)"
-            ></pelu-manual-booking>
+            ></pelu-booking-form>
           </div>
         </div>
 

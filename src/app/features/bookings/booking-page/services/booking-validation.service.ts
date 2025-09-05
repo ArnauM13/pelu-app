@@ -1,6 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { BookingStateService } from './booking-state.service';
 import { BookingValidationService as CoreBookingValidationService } from '../../../../core/services/booking-validation.service';
+import { DateTimeAvailabilityService } from '../../../../core/services/date-time-availability.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { BookingService } from '../../../../core/services/booking.service';
 import { SystemParametersService } from '../../../../core/services/system-parameters.service';
@@ -14,6 +15,7 @@ export class BookingValidationService {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly systemParametersService = inject(SystemParametersService);
+  private readonly dateTimeAvailabilityService = inject(DateTimeAvailabilityService);
 
   // ===== COMPUTED PROPERTIES =====
 
@@ -60,11 +62,14 @@ export class BookingValidationService {
       return false;
     }
 
-    return this.coreBookingValidationService.canBookServiceAtTime(
+    if (!selectedService.id) {
+      return false;
+    }
+    
+    return this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTimeSlot.time,
-      selectedService.duration,
-      this.bookingStateService.appointments()
+      selectedService.id
     );
   });
 
@@ -107,11 +112,14 @@ export class BookingValidationService {
       return false;
     }
 
-    const canBook = this.coreBookingValidationService.canBookServiceAtTime(
+    if (!selectedService.id) {
+      return false;
+    }
+    
+    const canBook = this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTimeSlot.time,
-      selectedService.duration,
-      this.bookingStateService.appointments()
+      selectedService.id
     );
 
     return canBook;
@@ -145,10 +153,14 @@ export class BookingValidationService {
       return false;
     }
 
-    const daySlots = this.coreBookingValidationService.generateTimeSlotsForService(
+    if (!selectedService.id) {
+      return true;
+    }
+    
+    const daySlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       day,
-      selectedService.duration,
-      this.bookingStateService.appointments()
+      selectedService.id,
+      { includeUnavailable: true }
     );
     return daySlots.every(slot => !slot.available);
   }
@@ -169,10 +181,14 @@ export class BookingValidationService {
 
   // Check if there's enough space for the selected service on a given day
   private hasEnoughSpaceForService(day: Date, service: any): boolean {
-    const daySlots = this.coreBookingValidationService.generateTimeSlotsForService(
+    if (!service.id) {
+      return false;
+    }
+    
+    const daySlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       day,
-      service.duration,
-      this.bookingStateService.appointments()
+      service.id,
+      { includeUnavailable: true }
     );
 
     return daySlots.some(slot => slot.available);
@@ -209,8 +225,8 @@ export class BookingValidationService {
     return this.coreBookingValidationService.canBookOnDate(date);
   }
 
-  // Manual booking validation methods
-  canBookServiceAtTime(date: Date, time: string, duration: number, appointments: any[]): boolean {
-    return this.coreBookingValidationService.canBookServiceAtTime(date, time, duration, appointments);
+  // Manual booking validation methods  
+  canBookServiceAtTime(date: Date, time: string, serviceId: string): boolean {
+    return this.dateTimeAvailabilityService.isTimeSlotAvailable(date, time, serviceId);
   }
 }
