@@ -20,6 +20,7 @@ describe('PopupModalComponent', () => {
 
   it('should have input properties defined', () => {
     expect(component.isOpen).toBeDefined();
+    expect(component.modalClass).toBeDefined();
   });
 
   it('should have output properties defined', () => {
@@ -28,6 +29,7 @@ describe('PopupModalComponent', () => {
 
   it('should initialize with default values', () => {
     expect(component.isOpen).toBe(false);
+    expect(component.modalClass).toBe('');
   });
 
   it('should have event handler methods defined', () => {
