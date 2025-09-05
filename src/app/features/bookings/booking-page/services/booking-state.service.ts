@@ -31,7 +31,8 @@ export class BookingStateService {
     selectedTimeSlot: 'booking_selected_time_slot',
     viewDate: 'booking_view_date',
     viewMode: 'booking_view_mode',
-    bookingDetails: 'booking_details'
+    bookingDetails: 'booking_details',
+    sidebarCollapsed: 'booking_sidebar_collapsed'
   };
   // ===== STATE SIGNALS =====
 
@@ -50,6 +51,9 @@ export class BookingStateService {
   // Services cache
   private readonly servicesCache = signal<FirebaseService[]>([]);
   private readonly servicesCacheLoaded = signal<boolean>(false);
+
+  // Desktop layout state signals
+  private readonly sidebarCollapsedSignal = signal<boolean>(false);
 
   // Booking details signal
   private readonly bookingDetailsSignal = signal<BookingDetails>({
@@ -91,6 +95,9 @@ export class BookingStateService {
   readonly viewMode = computed(() => this.viewModeSignal());
   readonly bookingDetails = computed(() => this.bookingDetailsSignal());
   readonly createdBooking = computed(() => this.createdBookingSignal());
+
+  // Desktop layout computed properties
+  readonly sidebarCollapsed = computed(() => this.sidebarCollapsedSignal());
 
   // Desktop popup computed properties
   readonly showServiceSelectionPopup = computed(() => this.showServiceSelectionPopupSignal());
@@ -342,6 +349,12 @@ export class BookingStateService {
         this.viewModeSignal.set(savedViewMode as 'week' | 'month');
       }
 
+      // Load sidebar collapsed state
+      const savedSidebarCollapsed = localStorage.getItem(this.STORAGE_KEYS.sidebarCollapsed);
+      if (savedSidebarCollapsed) {
+        this.sidebarCollapsedSignal.set(savedSidebarCollapsed === 'true');
+      }
+
       // Load booking details
       const savedBookingDetails = localStorage.getItem(this.STORAGE_KEYS.bookingDetails);
       if (savedBookingDetails) {
@@ -393,6 +406,9 @@ export class BookingStateService {
 
       // Save view mode
       localStorage.setItem(this.STORAGE_KEYS.viewMode, this.viewModeSignal());
+
+      // Save sidebar collapsed state
+      localStorage.setItem(this.STORAGE_KEYS.sidebarCollapsed, this.sidebarCollapsedSignal().toString());
 
       // Save booking details
       localStorage.setItem(this.STORAGE_KEYS.bookingDetails, JSON.stringify(this.bookingDetailsSignal()));
@@ -473,5 +489,23 @@ export class BookingStateService {
       console.error('Error creating manual booking:', error);
       throw error;
     }
+  }
+
+  // ===== SIDEBAR METHODS =====
+
+  /**
+   * Toggle sidebar collapsed state
+   */
+  toggleSidebar(): void {
+    this.sidebarCollapsedSignal.set(!this.sidebarCollapsedSignal());
+    this.savePersistedState();
+  }
+
+  /**
+   * Set sidebar collapsed state
+   */
+  setSidebarCollapsed(collapsed: boolean): void {
+    this.sidebarCollapsedSignal.set(collapsed);
+    this.savePersistedState();
   }
 }
