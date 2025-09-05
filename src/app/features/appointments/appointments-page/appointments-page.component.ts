@@ -105,8 +105,11 @@ export class AppointmentsPageComponent {
   // Confirmation popup state
   private readonly confirmationPopupSignal = signal({
     isOpen: false,
-    data: null as (ConfirmationData & { booking?: Booking; selectedIds?: string[] }) | null,
+    data: null as (ConfirmationData & { selectedIds?: string[] }) | null,
   });
+
+  // Store booking separately for delete confirmation
+  private readonly bookingToDeleteSignal = signal<Booking | null>(null);
 
   // Computed properties
   readonly filterState = computed(() => this.filterStateSignal());
@@ -587,34 +590,47 @@ export class AppointmentsPageComponent {
   async deleteBookingFromList(booking: Booking): Promise<void> {
     if (!booking.id) return;
 
+    // Store booking for later deletion
+    this.bookingToDeleteSignal.set(booking);
+
     // Show confirmation popup
     this.confirmationPopupSignal.set({
       isOpen: true,
       data: {
-        title: 'COMMON.DELETE_CONFIRMATION',
-        message: 'APPOINTMENTS.DELETE_CONFIRMATION_MESSAGE_SIMPLE',
-        confirmText: 'COMMON.ACTIONS.DELETE',
-        cancelText: 'COMMON.ACTIONS.CANCEL',
+        title: 'COMMON.CONFIRMATION.DELETE_TITLE',
+        message: 'COMMON.CONFIRMATION.DELETE_MESSAGE',
+        confirmText: 'COMMON.CONFIRMATION.YES',
+        cancelText: 'COMMON.CONFIRMATION.NO',
         severity: 'danger',
-        booking: booking
+        userName: booking.clientName || booking.email || 'N/A'
       }
     });
   }
 
   onDeleteConfirmed(): void {
     const popupData = this.confirmationPopup().data;
+    const bookingToDelete = this.bookingToDeleteSignal();
+
     if (popupData?.selectedIds) {
       // Bulk delete
       this.performBulkDelete(popupData.selectedIds);
-    } else if (popupData?.booking?.id) {
+    } else if (bookingToDelete) {
       // Single delete
-      this.performDelete(popupData.booking);
+      this.performDelete(bookingToDelete);
     }
     this.closeConfirmationPopup();
   }
 
   onDeleteCancelled(): void {
     this.closeConfirmationPopup();
+  }
+
+  private closeConfirmationPopup(): void {
+    this.confirmationPopupSignal.set({
+      isOpen: false,
+      data: null,
+    });
+    this.bookingToDeleteSignal.set(null);
   }
 
   private async performDelete(booking: Booking): Promise<void> {
@@ -628,13 +644,6 @@ export class AppointmentsPageComponent {
     } finally {
       this.loaderService.hide();
     }
-  }
-
-  private closeConfirmationPopup(): void {
-    this.confirmationPopupSignal.set({
-      isOpen: false,
-      data: null
-    });
   }
 
   editBookingFromList(booking: Booking): void {
@@ -762,12 +771,13 @@ export class AppointmentsPageComponent {
     this.confirmationPopupSignal.set({
       isOpen: true,
       data: {
-        title: 'COMMON.BULK_DELETE_CONFIRMATION',
-        message: 'APPOINTMENTS.BULK_DELETE_CONFIRMATION_MESSAGE',
-        confirmText: 'COMMON.ACTIONS.DELETE',
-        cancelText: 'COMMON.ACTIONS.CANCEL',
+        title: 'COMMON.CONFIRMATION.DELETE_TITLE',
+        message: 'COMMON.CONFIRMATION.DELETE_MESSAGE',
+        confirmText: 'COMMON.CONFIRMATION.YES',
+        cancelText: 'COMMON.CONFIRMATION.NO',
         severity: 'danger',
-        selectedIds: selectedIds
+        selectedIds: selectedIds,
+        userName: `${selectedIds.length} appointments`
       }
     });
   }
