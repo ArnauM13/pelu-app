@@ -1,13 +1,15 @@
-<pelu-detail-view
-  [config]="detailConfig()"
-  [appointmentId]="appointmentId()"
-  (back)="goBack()"
-  (delete)="deleteAppointment()"
-  (edit)="onEditRequested()"
-  (save)="saveChanges()"
-  (cancelEdit)="cancelEditing()"
->
-</pelu-detail-view>
+@if (!hideDetailView()) {
+  <pelu-detail-view
+    [config]="detailConfig()"
+    [appointmentId]="appointmentId()"
+    (back)="goBack()"
+    (delete)="showDeleteConfirmation()"
+    (edit)="onEditRequested()"
+    (save)="saveChanges()"
+    (cancelEdit)="cancelEditing()"
+  >
+  </pelu-detail-view>
+}
 
 <!-- Appointment Detail Popup (hidden from detail page) -->
 <pelu-appointment-detail-popup
