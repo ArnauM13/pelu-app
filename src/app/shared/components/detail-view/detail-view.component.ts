@@ -18,7 +18,7 @@ import { ActionsButtonsComponent } from '../actions-buttons/actions-buttons.comp
 import { ButtonComponent } from '../buttons/button.component';
 import { ServiceCardComponent } from '../service-card/service-card.component';
 import { CardComponent } from '../card/card.component';
-import { ManualBookingComponent } from '../../../features/bookings/booking-page/components/manual-booking.component';
+import { BookingFormComponent } from '../../../features/bookings/booking-page/components/booking-form.component';
 
 import { BookingService } from '../../../core/services/booking.service';
 import { ServicesService } from '../../../core/services/services.service';
@@ -91,7 +91,7 @@ export interface DetailViewConfig {
     ButtonComponent,
     ServiceCardComponent,
     CardComponent,
-    ManualBookingComponent,
+    BookingFormComponent,
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss'],
@@ -438,8 +438,8 @@ export class DetailViewComponent {
     effect(() => {
       const appointmentId = this.appointmentId();
       if (appointmentId) {
-        // Load appointment using BookingService
-        this.#bookingService.getBookingById(appointmentId);
+        // Load appointment using optimized direct method
+        this.#bookingService.getBookingByIdDirect(appointmentId);
       }
     });
 

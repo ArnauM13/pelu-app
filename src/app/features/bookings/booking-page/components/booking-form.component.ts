@@ -7,16 +7,19 @@ import { InputTextComponent } from '../../../../shared/components/inputs/input-t
 import { InputTextareaComponent } from '../../../../shared/components/inputs/input-textarea/input-textarea.component';
 import { InputDateComponent } from '../../../../shared/components/inputs/input-date/input-date.component';
 import { InputSelectComponent, SelectOption } from '../../../../shared/components/inputs/input-select/input-select.component';
-import { FirebaseService, FirebaseServicesService } from '../../../../core/services/firebase-services.service';
 import { BookingService } from '../../../../core/services/booking.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { LoaderService } from '../../../../shared/services/loader.service';
 import { ToastService } from '../../../../shared/services/toast.service';
-import { TimeUtils } from '../../../../shared/utils/time.utils';
 import { Booking } from '../../../../core/interfaces/booking.interface';
+import { BookingStateService } from '../services/booking-state.service';
+import { SystemParametersService } from '../../../../core/services/system-parameters.service';
+import { BookingValidationService } from '../../../../core/services/booking-validation.service';
+import { UserService } from '../../../../core/services/user.service';
+import { DateTimeAvailabilityService } from '../../../../core/services/date-time-availability.service';
 
 @Component({
-  selector: 'pelu-manual-booking',
+  selector: 'pelu-booking-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,12 +32,12 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     InputSelectComponent,
   ],
   template: `
-    <div class="manual-booking">
+    <div class="booking-form">
       <pelu-card variant="default">
-        <div class="manual-booking-header">
+        <div class="booking-form-header">
           <div class="header-content">
             <h3>📝 {{ displayTitle() | translate }}</h3>
-            <p class="manual-booking-subtitle">{{ displaySubtitle() | translate }}</p>
+            <p class="booking-form-subtitle">{{ displaySubtitle() | translate }}</p>
           </div>
 
           @if (showActions() && actionButtons().length > 0) {
@@ -53,7 +56,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           }
         </div>
 
-        <div class="manual-booking-form">
+        <div class="booking-form-content">
 
           <!-- Service Selection -->
           <pelu-input-select
@@ -162,7 +165,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
           <!-- Validation Messages -->
           @if (validationMessage()) {
-            <div class="validation-message" [class.error]="!isValidSelection()">
+            <div class="validation-message" [class.error]="!canCreateBooking()">
               {{ validationMessage() | translate }}
             </div>
           }
@@ -171,11 +174,11 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     </div>
   `,
   styles: [`
-    .manual-booking {
+    .booking-form {
       width: 375px;
       margin-bottom: 2rem;
 
-      .manual-booking-header {
+      .booking-form-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
@@ -194,7 +197,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             font-weight: 600;
           }
 
-          .manual-booking-subtitle {
+          .booking-form-subtitle {
             color: #666;
             margin: 0;
             font-size: 0.9rem;
@@ -211,7 +214,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         }
       }
 
-      .manual-booking-form {
+      .booking-form-content {
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -273,13 +276,16 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     }
   `]
 })
-export class ManualBookingComponent implements OnInit {
-  private readonly firebaseServicesService = inject(FirebaseServicesService);
+export class BookingFormComponent implements OnInit {
   private readonly bookingService = inject(BookingService);
   private readonly authService = inject(AuthService);
-  private readonly timeUtils = inject(TimeUtils);
   private readonly loaderService = inject(LoaderService);
   private readonly toastService = inject(ToastService);
+  private readonly bookingStateService = inject(BookingStateService);
+  private readonly systemParametersService = inject(SystemParametersService);
+  private readonly bookingValidationService = inject(BookingValidationService);
+  private readonly userService = inject(UserService);
+  private readonly dateTimeAvailabilityService = inject(DateTimeAvailabilityService);
 
   // Inputs for hydration
   readonly appointmentData = input<Booking | null>(null);
@@ -298,120 +304,79 @@ export class ManualBookingComponent implements OnInit {
   readonly showDefaultSubmitButton = input<boolean>(true);
 
   constructor() {
-    // Effect to re-hydrate when appointment data changes
     effect(() => {
       const appointment = this.appointmentData();
       const services = this.availableServices();
 
-      // Only re-hydrate if we have both appointment data and services loaded
       if (appointment && services.length > 0) {
-        console.log('Effect triggered: re-hydrating with appointment data');
-        this.hydrateWithAppointmentData();
+        this.initializeWithAppointmentData(appointment);
       }
     });
   }
 
   async ngOnInit(): Promise<void> {
-    // Load services and appointments first
-    await this.loadData();
-
-    // Initialize form with appointment data if available, otherwise with user data
-    // Use setTimeout to ensure data is loaded before hydration
-    setTimeout(() => {
-      if (this.appointmentData()) {
-        this.hydrateWithAppointmentData();
-      } else {
-        this.resetForm();
-      }
-    }, 100);
+    // Ensure services cache is loaded
+    await this.bookingStateService.loadServicesCache();
+    this.initializeFormSignals();
   }
 
-  private async loadData(): Promise<void> {
-    try {
-      // Load services
-      const services = this.firebaseServicesService.services();
-      this.availableServicesSignal.set(services);
-
-      // Bookings are already loaded by BookingService and available via this.bookingService.bookings()
-      // No need to store them separately since BookingService handles all booking logic
-    } catch (error) {
-      console.error('Error loading data for manual booking:', error);
-    }
-  }
-
-  private resetForm(): void {
-    // Reset all form fields
-    this.selectedServiceSignal.set(null);
-    this.selectedDateSignal.set(null);
-    this.selectedTimeSignal.set('');
-    this.clientNameSignal.set('');
-    this.clientEmailSignal.set('');
-    this.notesSignal.set('');
-
-    // Auto-hydrate user data after reset
-    this.hydrateUserData();
-  }
-
-  private hydrateWithAppointmentData(): void {
+  private initializeFormSignals(): void {
     const appointment = this.appointmentData();
-    if (!appointment) {
-      console.log('No appointment data available for hydration');
-      return;
+
+    if (appointment) {
+      this.initializeWithAppointmentData(appointment);
+    } else {
+      this.initializeWithUserData();
     }
+  }
 
-    console.log('Hydrating with appointment data:', appointment);
-    console.log('Available services:', this.availableServices());
-
-    // Set all form fields with appointment data
+  private initializeWithAppointmentData(appointment: Booking): void {
     this.clientNameSignal.set(appointment.clientName || '');
     this.clientEmailSignal.set(appointment.email || '');
     this.notesSignal.set(appointment.notes || '');
 
-    // Set date - convert to ISO string for pelu-input-date
     if (appointment.data) {
       const date = new Date(appointment.data);
       this.selectedDateSignal.set(date);
-      console.log('Set date:', date, 'ISO string:', date.toISOString().split('T')[0]);
     }
 
-    // Set time
     if (appointment.hora) {
       this.selectedTimeSignal.set(appointment.hora);
-      console.log('Set time:', appointment.hora);
-      console.log('Available time slots:', this.timeSlotOptions());
-      console.log('Selected time after setting:', this.selectedTime());
     }
 
-    // Set service - wait for services to be loaded
     if (appointment.serviceId) {
-      const services = this.availableServices();
-      console.log('Available services:', services);
-      console.log('Looking for serviceId:', appointment.serviceId);
-      const service = services.find(s => s.id === appointment.serviceId);
-      this.selectedServiceSignal.set(service || null);
-      console.log('Set service:', service);
-      console.log('Selected service ID after setting:', this.selectedServiceId());
+      this.selectedServiceIdSignal.set(appointment.serviceId);
     }
   }
 
-  private hydrateUserData(): void {
-    // Use a timeout to ensure auth service is fully initialized
-    setTimeout(() => {
-      const userDisplayName = this.authService.userDisplayName();
-      const userEmail = this.authService.user()?.email;
+  private initializeWithUserData(): void {
+    this.resetFormSignals();
 
-      console.log('Hydrating user data:', { userDisplayName, userEmail });
+    const userDisplayName = this.authService.userDisplayName();
+    const userEmail = this.authService.user()?.email;
 
-      if (userDisplayName && !this.clientNameSignal()) {
-        this.clientNameSignal.set(userDisplayName);
-        console.log('Set client name:', userDisplayName);
-      }
+    if (userDisplayName) {
+      this.clientNameSignal.set(userDisplayName);
+    }
 
-      if (userEmail && !this.clientEmailSignal()) {
-        this.clientEmailSignal.set(userEmail);
-        console.log('Set client email:', userEmail);
-      }
-    }, 100);
+    if (userEmail) {
+      this.clientEmailSignal.set(userEmail);
+    }
+  }
+
+  private resetFormSignals(): void {
+    this.clientNameSignal.set('');
+    this.clientEmailSignal.set('');
+    this.notesSignal.set('');
+    this.selectedServiceIdSignal.set('');
+    this.selectedDateSignal.set(null);
+    this.selectedTimeSignal.set('');
+  }
+
+  private resetForm(): void {
+    // Reset all form fields and hydrate with user data
+    this.resetFormSignals();
+    this.initializeWithUserData();
   }
 
   // Output events
@@ -421,15 +386,18 @@ export class ManualBookingComponent implements OnInit {
   private readonly clientNameSignal = signal<string>('');
   private readonly clientEmailSignal = signal<string>('');
   private readonly notesSignal = signal<string>('');
+  private readonly selectedServiceIdSignal = signal<string>('');
   private readonly selectedDateSignal = signal<Date | null>(null);
   private readonly selectedTimeSignal = signal<string>('');
-  private readonly selectedServiceSignal = signal<FirebaseService | null>(null);
-  private readonly availableServicesSignal = signal<FirebaseService[]>([]);
 
-  // Computed properties
-  readonly availableServices = computed(() => this.availableServicesSignal());
-  readonly selectedService = computed(() => this.selectedServiceSignal());
-  readonly selectedServiceId = computed(() => this.selectedService()?.id || '');
+  // Computed properties using services
+  readonly availableServices = computed(() => this.bookingStateService.availableServices() || []);
+  readonly selectedServiceId = computed(() => this.selectedServiceIdSignal() || '');
+  readonly selectedService = computed(() => {
+    const serviceId = this.selectedServiceId();
+    const services = this.availableServices();
+    return services.find(s => s.id === serviceId) || null;
+  });
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedDateString = computed(() => {
     const date = this.selectedDate();
@@ -459,8 +427,13 @@ export class ManualBookingComponent implements OnInit {
   // ===== FORM OPTIONS =====
 
   readonly serviceOptions = computed((): SelectOption[] => {
-    return this.availableServices().map(service => ({
-      label: `${service.name} - ${service.price}€ (${service.duration}min)`,
+    const services = this.availableServices();
+    if (!services || services.length === 0) {
+      return [];
+    }
+
+    return services.filter(service => service && service.id).map(service => ({
+      label: `${service.name || 'Unknown'} - ${service.price || 0}€ (${service.duration || 0}min)`,
       value: service.id || ''
     }));
   });
@@ -469,20 +442,21 @@ export class ManualBookingComponent implements OnInit {
     const service = this.selectedService();
     const date = this.selectedDate();
 
-    if (!service || !date) {
+    if (!service || !date || !service.id) {
       return [];
     }
 
-    // Use BookingService to generate available time slots
-    const timeSlots = this.bookingService.generateAvailableTimeSlots(service.id!, date);
+    // Use the NEW centralized service for date/time management
+    const timeSlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
+      date,
+      service.id
+    );
 
-    // Convert to SelectOption format and filter only available slots
-    return timeSlots
-      .filter(slot => slot.available)
-      .map(slot => ({
-        label: slot.time,
-        value: slot.time
-      }));
+    // Convert to SelectOption format (already filtered to available only)
+    return timeSlots.map(slot => ({
+      label: slot.time,
+      value: slot.time
+    }));
   });
 
   // Computed to determine if inputs should be disabled
@@ -493,19 +467,21 @@ export class ManualBookingComponent implements OnInit {
   // ===== EVENT HANDLERS =====
 
   onServiceChange(serviceId: any): void {
-    const service = this.availableServices().find(s => s.id === serviceId);
-    this.selectedServiceSignal.set(service || null);
-
-    // Reset time when service changes
+    this.selectedServiceIdSignal.set(serviceId || '');
+    // Reset time when service changes (time slots will update automatically)
     this.selectedTimeSignal.set('');
   }
 
   onDateChange(dateString: any): void {
-    const date = dateString ? new Date(dateString) : null;
-    this.selectedDateSignal.set(date);
-
-    // Reset time when date changes
-    this.selectedTimeSignal.set('');
+    if (dateString) {
+      const date = new Date(dateString);
+      this.selectedDateSignal.set(date);
+      // Reset time when date changes (time slots will update automatically)
+      this.selectedTimeSignal.set('');
+    } else {
+      this.selectedDateSignal.set(null);
+      this.selectedTimeSignal.set('');
+    }
   }
 
   onTimeChange(time: any): void {
@@ -526,37 +502,91 @@ export class ManualBookingComponent implements OnInit {
 
   // ===== HELPER METHODS =====
 
-  // Validation computed properties
-  readonly canCreateBooking = computed(() => {
-    return !!(
-      this.selectedService() &&
-      this.selectedDate() &&
-      this.selectedTime() &&
-      this.clientName() &&
-      this.clientEmail()
-    );
+  // Authentication and user state (same as mobile)
+  readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
+
+  // Check if user has reached appointment limit
+  readonly hasReachedAppointmentLimit = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
   });
 
-  readonly isValidSelection = computed(() => {
-    // Manual booking validation - independent from shared service
-    return !!(
-      this.selectedService() &&
-      this.selectedDate() &&
-      this.selectedTime() &&
-      this.clientName() &&
-      this.clientEmail()
+  // Check if user should be blocked from booking
+  readonly isUserBlockedFromBooking = computed(() => {
+    return this.isAuthenticated() && !this.canUserBookMoreAppointments();
+  });
+
+  // Main validation computed (same logic as mobile canConfirmBooking)
+  readonly canCreateBooking = computed(() => {
+    // First check authentication (if not authenticated, still allow but will prompt for login)
+    // Check if user has reached appointment limit
+    if (this.isAuthenticated() && !this.canUserBookMoreAppointments()) {
+      return false;
+    }
+
+    // Get all required data
+    const hasClientName = this.clientName() && this.clientName().trim().length > 0;
+    const hasEmail = this.clientEmail() && this.clientEmail().trim().length > 0;
+    const selectedService = this.selectedService();
+    const selectedDate = this.selectedDate();
+    const selectedTime = this.selectedTime();
+
+    // Check if all required data is present
+    if (!hasClientName || !hasEmail || !selectedService || !selectedDate || !selectedTime) {
+      return false;
+    }
+
+    // Validate email format
+    if (!this.isValidEmail(this.clientEmail())) {
+      return false;
+    }
+
+    // Validate that the selected time slot is actually available using centralized service
+    if (!selectedService.id) {
+      return false;
+    }
+
+    return this.dateTimeAvailabilityService.isTimeSlotAvailable(
+      selectedDate,
+      selectedTime,
+      selectedService.id
     );
   });
 
   readonly validationMessage = computed(() => {
+    // Check user appointment limit first
+    if (this.hasReachedAppointmentLimit()) {
+      return 'BOOKING.USER_LIMIT_REACHED_MESSAGE';
+    }
+
     if (!this.selectedService()) {
       return '';
     }
 
-    // Manual booking has its own validation - don't use shared service validation
-    // Only show validation if there are actual issues with the manual booking form
+    // Check required fields
     if (!this.clientName() || !this.clientEmail()) {
-      return 'COMMON.INCOMPLETE_CLIENT_INFO';
+      return 'BOOKING.INCOMPLETE_CLIENT_INFO';
+    }
+
+    // Check email format
+    if (this.clientEmail() && !this.isValidEmail(this.clientEmail())) {
+      return 'BOOKING.INVALID_EMAIL_FORMAT';
+    }
+
+    // Check if time slot is available using centralized service
+    const selectedService = this.selectedService();
+    const selectedDate = this.selectedDate();
+    const selectedTime = this.selectedTime();
+
+    if (selectedService && selectedDate && selectedTime && selectedService.id) {
+      const isAvailable = this.dateTimeAvailabilityService.isTimeSlotAvailable(
+        selectedDate,
+        selectedTime,
+        selectedService.id
+      );
+
+      if (!isAvailable) {
+        return 'BOOKING.TIME_SLOT_NOT_AVAILABLE';
+      }
     }
 
     return '';
@@ -582,8 +612,7 @@ export class ManualBookingComponent implements OnInit {
         throw new Error('Service or date not found');
       }
 
-      // Use the same date formatting as other components
-      const formattedDate = this.timeUtils.formatDateISO(selectedDate);
+      const formattedDate = selectedDate.toISOString().split('T')[0];
 
       const bookingData = {
         clientName: this.clientName(),
@@ -595,24 +624,22 @@ export class ManualBookingComponent implements OnInit {
         status: 'confirmed' as const,
       };
 
-      console.log(isEdit ? 'Updating appointment:' : 'Creating manual booking:', bookingData);
-
       let booking: Booking | null = null;
 
       if (isEdit && appointment) {
-        // Update existing appointment
         const updatedBooking = await this.bookingService.updateBooking(appointment.id!, bookingData);
-        booking = updatedBooking ? appointment : null; // Return the original appointment if update successful
+        booking = updatedBooking ? appointment : null;
       } else {
-        // Create new booking
         booking = await this.bookingService.createBooking(bookingData, false);
       }
 
       if (booking) {
-        // Refresh appointments to include the changes
         await this.bookingService.refreshBookings();
 
-        // Dispatch event to notify other components (like calendar)
+        // Refresh services cache only if needed (when services might have changed)
+        // Usually not needed for bookings, but useful for service management
+        // await this.bookingStateService.refreshServicesCache();
+
         window.dispatchEvent(new CustomEvent('bookingUpdated'));
 
         if (isEdit) {
@@ -623,7 +650,6 @@ export class ManualBookingComponent implements OnInit {
 
         this.bookingCreated.emit(booking);
 
-        // Reset form and re-hydrate user data after successful booking
         if (!isEdit) {
           this.resetForm();
         }
@@ -632,11 +658,34 @@ export class ManualBookingComponent implements OnInit {
       }
 
     } catch (error) {
-      console.error(isEdit ? 'Error updating appointment:' : 'Error creating manual booking:', error);
       this.toastService.showError(isEdit ? 'APPOINTMENTS.UPDATE_ERROR' : 'BOOKING.MANUAL_BOOKING_ERROR');
     } finally {
       this.loaderService.hide();
     }
+  }
+
+  // ===== AUXILIARY METHODS (same as mobile) =====
+
+  // User appointment limit methods
+  canUserBookMoreAppointments(): boolean {
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.canUserBookMoreAppointments(currentBookings);
+  }
+
+  getUserAppointmentCount(): number {
+    const currentBookings = this.bookingService.bookings();
+    return this.bookingValidationService.getUserAppointmentCount(currentBookings);
+  }
+
+  getMaxAppointmentsPerUser(): number {
+    return this.systemParametersService.getMaxAppointmentsPerUser();
+  }
+
+  // Email validation
+  isValidEmail(email: string): boolean {
+    if (!email) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
   }
 
 }

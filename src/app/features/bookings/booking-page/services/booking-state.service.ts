@@ -5,6 +5,7 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
 import { BookingDetails } from '../../../../shared/components/booking-popup/booking-popup.component';
 import { BookingService } from '../../../../core/services/booking.service';
 import { BookingValidationService } from '../../../../core/services/booking-validation.service';
+import { DateTimeAvailabilityService } from '../../../../core/services/date-time-availability.service';
 import { DateTimeSelectionService } from './date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
 
@@ -20,6 +21,7 @@ export class BookingStateService {
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
+  private readonly dateTimeAvailabilityService = inject(DateTimeAvailabilityService);
 
   // ===== PERSISTENCE KEYS =====
   private readonly STORAGE_KEYS = {
@@ -45,6 +47,10 @@ export class BookingStateService {
   private readonly appointmentsSignal = signal<Booking[]>([]);
   private readonly viewModeSignal = signal<'week' | 'month'>('week');
 
+  // Services cache
+  private readonly servicesCache = signal<FirebaseService[]>([]);
+  private readonly servicesCacheLoaded = signal<boolean>(false);
+
   // Booking details signal
   private readonly bookingDetailsSignal = signal<BookingDetails>({
     date: '',
@@ -56,6 +62,11 @@ export class BookingStateService {
   constructor() {
     // Load persisted state on initialization
     this.loadPersistedState();
+
+    // Listen for service updates from admin panel
+    window.addEventListener('serviceUpdated', () => {
+      this.refreshServicesCache();
+    });
   }
 
   // Desktop popup signals
@@ -87,8 +98,13 @@ export class BookingStateService {
   readonly serviceSelectionDetails = computed(() => this.serviceSelectionDetailsSignal());
   readonly showLoginPrompt = computed(() => this.showLoginPromptSignal());
 
-  // Available services from centralized service
-  readonly availableServices = computed(() => this.firebaseServicesService.activeServices());
+  // Available services from cache or centralized service
+  readonly availableServices = computed(() => {
+    if (this.servicesCacheLoaded()) {
+      return this.servicesCache() || [];
+    }
+    return this.firebaseServicesService.activeServices() || [];
+  });
 
   // Recently booked services (3 most recent unique services)
   readonly recentlyBookedServices = computed(() => {
@@ -143,14 +159,20 @@ export class BookingStateService {
       }));
     }
 
-    return this.currentViewDays().map((day: Date) => ({
-      date: day,
-      timeSlots: this.bookingValidationService.generateTimeSlotsForService(
-        day,
-        selectedService.duration,
-        this.appointments()
-      ),
-    }));
+    return this.currentViewDays().map((day: Date) => {
+      const timeSlots = selectedService.id
+        ? this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
+            day,
+            selectedService.id,
+            { includeUnavailable: true }
+          )
+        : [];
+
+      return {
+        date: day,
+        timeSlots,
+      };
+    });
   });
 
   // ===== STATE MANAGEMENT METHODS =====
@@ -389,6 +411,42 @@ export class BookingStateService {
     } catch (error) {
       console.error('Error clearing persisted state:', error);
     }
+  }
+
+  // ===== SERVICES CACHE METHODS =====
+
+  /**
+   * Load services into cache
+   */
+  async loadServicesCache(): Promise<void> {
+    if (this.servicesCacheLoaded()) {
+      return; // Already loaded
+    }
+
+    try {
+      await this.firebaseServicesService.loadServices();
+      const services = this.firebaseServicesService.activeServices();
+      this.servicesCache.set(services);
+      this.servicesCacheLoaded.set(true);
+    } catch (error) {
+      console.error('Error loading services cache:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Force refresh services cache
+   */
+  async refreshServicesCache(): Promise<void> {
+    this.servicesCacheLoaded.set(false);
+    await this.loadServicesCache();
+  }
+
+  /**
+   * Check if services cache is loaded
+   */
+  isServicesCacheLoaded(): boolean {
+    return this.servicesCacheLoaded();
   }
 
   // ===== MANUAL BOOKING METHODS =====

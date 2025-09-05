@@ -211,6 +211,7 @@
     "PLEASE_SELECT_SERVICE_FIRST": "Si us plau, selecciona un servei primer",
     "PLEASE_SELECT_DATE_FIRST": "Si us plau, selecciona una data primer",
     "TIME_SLOT_NOT_AVAILABLE": "Aquest horari no està disponible. Si us plau, selecciona un altre horari.",
+    "INVALID_EMAIL_FORMAT": "El format de l'email no és vàlid.",
     "BOOKING_NOT_FOUND_FOR_CALENDAR": "No s'ha trobat la reserva per afegir al calendari",
     "SERVICE_NOT_FOUND_FOR_CALENDAR": "No s'ha trobat el servei per afegir al calendari",
     "EVENT_ADDED_TO_CALENDAR": "Esdeveniment afegit al calendari correctament",

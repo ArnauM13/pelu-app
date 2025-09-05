@@ -26,6 +26,7 @@ import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { LoggerService } from '../../../shared/services/logger.service';
 import { CalendarBusinessService } from '../../calendar/services/calendar-business.service';
+import { BookingStateService } from '../../bookings/booking-page/services/booking-state.service';
 
 @Component({
   selector: 'pelu-appointment-detail-page',
@@ -43,6 +44,9 @@ import { CalendarBusinessService } from '../../calendar/services/calendar-busine
     DetailViewComponent,
     AppointmentDetailPopupComponent,
     ConfirmationPopupComponent,
+  ],
+  providers: [
+    BookingStateService,
   ],
   templateUrl: './appointment-detail-page.component.html',
   styleUrls: ['./appointment-detail-page.component.scss'],
@@ -67,6 +71,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   private toastService = inject(ToastService);
   private logger = inject(LoggerService);
   private calendarBusinessService = inject(CalendarBusinessService);
+  private bookingStateService = inject(BookingStateService);
 
   // Local state signals
   private readonly bookingSignal = signal<Booking | null>(null);
@@ -175,7 +180,7 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   /**
-   * Load appointment data using BookingService
+   * Load appointment data - OPTIMIZED for single booking
    */
   async loadAppointment(): Promise<void> {
     const appointmentId = this.appointmentId();
@@ -184,8 +189,8 @@ export class AppointmentDetailPageComponent implements OnInit {
     try {
       this.isLoadingSignal.set(true);
 
-      // Use BookingService directly
-      const booking = await this.bookingService.getBookingById(appointmentId);
+      // Use direct method to fetch only this booking (bypasses cache)
+      const booking = await this.bookingService.getBookingByIdDirect(appointmentId);
       if (booking) {
         this.bookingSignal.set(booking);
         this.originalBookingSignal.set(booking); // Store original booking
@@ -222,11 +227,15 @@ export class AppointmentDetailPageComponent implements OnInit {
   }
 
   /**
-   * Load available services
+   * Load available services - OPTIMIZED to use centralized cache
    */
   private async loadAvailableServices(): Promise<void> {
     try {
-      const services = this.servicesService.getAllServices();
+      // Use BookingStateService cache (same as booking-form)
+      await this.bookingStateService.loadServicesCache();
+
+      // Then get all services from cache
+      const services = this.bookingStateService.availableServices();
       this.availableServicesSignal.set(services);
     } catch (error) {
       this.logger.error('Error loading services', {

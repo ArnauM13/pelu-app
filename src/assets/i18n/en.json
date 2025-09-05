@@ -208,6 +208,7 @@
     "PLEASE_SELECT_SERVICE_FIRST": "Please select a service first",
     "PLEASE_SELECT_DATE_FIRST": "Please select a date first",
     "TIME_SLOT_NOT_AVAILABLE": "This time slot is not available. Please select another time.",
+    "INVALID_EMAIL_FORMAT": "The email format is invalid.",
     "BOOKING_NOT_FOUND_FOR_CALENDAR": "Booking not found to add to calendar",
     "SERVICE_NOT_FOUND_FOR_CALENDAR": "Service not found to add to calendar",
     "EVENT_ADDED_TO_CALENDAR": "Event added to calendar successfully",
