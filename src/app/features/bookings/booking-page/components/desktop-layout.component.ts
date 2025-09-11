@@ -114,10 +114,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
       .mobile-backdrop {
         position: fixed;
-        top: 70px; // Below header
+        top: 0;
         left: 0;
         width: 100vw;
-        height: calc(100vh - 70px); // Account for header height
+        height: 100vh;
         background: rgba(0, 0, 0, 0.5);
         z-index: 140; // Below sidebar but above normal content
         opacity: 0;
@@ -348,16 +348,17 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
         .left-column {
           position: fixed;
-          top: 70px; // Below header height
+          top: 0;
           left: 0;
           width: 375px;
-          height: calc(100vh - 70px); // Account for header height
+          height: 100vh;
           background: white;
           z-index: 150; // Below header (200) but above normal content
           box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           overflow-y: auto;
           padding: 1rem;
+          padding-top: calc(70px + 1rem);
 
           &.collapsed {
             transform: translateX(-100%);

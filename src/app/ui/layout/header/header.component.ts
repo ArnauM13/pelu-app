@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,13 +23,14 @@ import { UserService } from '../../../core/services/user.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   // Inject services
   #userService = inject(UserService);
   #router = inject(Router);
 
   // Internal state
   private readonly isLoggingOutSignal = signal(false);
+  private readonly isScrolledSignal = signal(false);
 
   // Getter per accedir des del template
   get userServicePublic() {
@@ -38,6 +39,7 @@ export class HeaderComponent {
 
   // Computed properties
   readonly isLoggingOut = computed(() => this.isLoggingOutSignal());
+  readonly isScrolled = computed(() => this.isScrolledSignal());
   readonly isLoading = computed(() => this.#userService.isLoading());
   readonly isAdmin = computed(() => this.#userService.isAdmin());
 
@@ -76,6 +78,36 @@ export class HeaderComponent {
     // Handle custom dropdown item clicks if needed
     if (item.onClick) {
       item.onClick();
+    }
+  }
+
+  // ===== LIFECYCLE METHODS =====
+
+  ngOnInit(): void {
+    // Initialize scroll detection
+    this.checkScrollPosition();
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup is handled by HostListener
+  }
+
+  // ===== SCROLL DETECTION =====
+
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    this.checkScrollPosition();
+  }
+
+  private checkScrollPosition(): void {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const isScrolled = scrollTop > 50; // Activate floating after 50px scroll
+
+    console.log('Scroll position:', scrollTop, 'Is scrolled:', isScrolled); // Debug log
+
+    if (this.isScrolledSignal() !== isScrolled) {
+      this.isScrolledSignal.set(isScrolled);
+      console.log('Header state changed to:', isScrolled ? 'floating' : 'normal'); // Debug log
     }
   }
 }
