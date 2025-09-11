@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject, effect } from '@angular/core';
+import { Component, input, output, computed, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -108,6 +108,7 @@ export class DetailViewComponent {
   readonly cancelEdit = output<void>();
   readonly delete = output<void>();
   readonly updateForm = output<{ field: string; value: string | number }>();
+  readonly bookingCreated = output<Booking>();
 
   // Inject services
   #router = inject(Router);
@@ -117,6 +118,7 @@ export class DetailViewComponent {
   #actionsService = inject(ActionsService);
   #bookingValidationService = inject(BookingValidationService);
   #firebaseServicesService = inject(FirebaseServicesService);
+
 
   // Computed properties from config
   readonly appointment = computed(() => this.config()?.appointment);
@@ -326,12 +328,15 @@ export class DetailViewComponent {
 
   // Appointment title and subtitle (similar to profile)
   readonly appointmentTitle = computed(() => {
+    // Always use appointment data - don't update title until saved
     const appointment = this.appointment();
     return appointment?.clientName || 'COMMON.NOT_AVAILABLE';
   });
 
   readonly appointmentSubtitle = computed(() => {
+    // Always use appointment data - don't update subtitle until saved
     const appointment = this.appointment();
+
     if (!appointment?.data || !appointment?.hora) {
       return 'COMMON.NOT_AVAILABLE';
     }
@@ -518,7 +523,13 @@ export class DetailViewComponent {
     let processedValue: string | number;
 
     if (value instanceof Date) {
-      processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      // Check if the date is valid before converting to ISO string
+      if (isNaN(value.getTime())) {
+        console.warn('Invalid date detected in onUpdateForm:', value);
+        processedValue = '';
+      } else {
+        processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      }
     } else if (value === null) {
       processedValue = '';
     } else {
@@ -611,8 +622,13 @@ export class DetailViewComponent {
   onBookingUpdated(booking: Booking): void {
     // Handle booking update/creation
     console.log('Booking updated:', booking);
+
+    // Re-emit the event to parent component
+    this.bookingCreated.emit(booking);
+
     // The booking service will handle the real-time updates
   }
+
 
   getActionButtons() {
     return [

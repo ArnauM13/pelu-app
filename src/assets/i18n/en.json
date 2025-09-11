@@ -498,6 +498,10 @@
       "THANKS_MESSAGE": "Thank you for trusting {{businessName}}.",
       "SIGNATURE": "Best regards,",
       "TEAM_SIGNATURE": "The {{businessName}} team"
+    },
+    "SIDEBAR": {
+      "SHOW_MANUAL_BOOKING": "Show manual booking form",
+      "HIDE_MANUAL_BOOKING": "Hide manual booking form"
     }
   },
   "PROFILE": {

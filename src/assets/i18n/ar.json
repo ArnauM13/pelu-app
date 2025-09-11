@@ -480,6 +480,10 @@
       "THANKS_MESSAGE": "شكراً لثقتك في {{businessName}}.",
       "SIGNATURE": "مع أطيب التحيات،",
       "TEAM_SIGNATURE": "فريق {{businessName}}"
+    },
+    "SIDEBAR": {
+      "SHOW_MANUAL_BOOKING": "عرض النموذج المخصص للحجز",
+      "HIDE_MANUAL_BOOKING": "إخفاء النموذج المخصص للحجز"
     }
   },
   "PROFILE": {

@@ -8,7 +8,14 @@
 /* Main content styles - Fixed to account for header height */
 .main-content {
   width: 100%;
-  height: 100%;
+  flex: 1;
+  padding-top: 70px; /* Account for fixed header height */
+  transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When header is floating, adjust padding */
+:host-context(.header.floating) .main-content {
+  padding-top: calc(56px + 1.5rem); /* Floating header height + floating margin */
 }
 
 /* Responsive adjustments */

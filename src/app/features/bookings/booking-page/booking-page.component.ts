@@ -2,7 +2,6 @@ import { Component, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FooterConfig } from '../../../shared/components/footer/footer.component';
 import {
   BookingPopupComponent,
   BookingDetails,
@@ -18,13 +17,11 @@ import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
 import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
-import { PeluTitleComponent } from '../../../shared/components/pelu-title/pelu-title.component';
 import { LoaderService } from '../../../shared/services/loader.service';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { IcsUtils } from '../../../shared/utils/ics.utils';
 import { ServiceColorsService } from '../../../core/services/service-colors.service';
 import { UserService } from '../../../core/services/user.service';
-import { Booking } from '../../../core/interfaces/booking.interface';
 
 // Import new components
 import { ServiceSelectionStepComponent } from './components/service-selection-step.component';
@@ -47,7 +44,6 @@ import { BookingValidationService } from './services/booking-validation.service'
     ServiceSelectionPopupComponent,
     PopupDialogComponent,
     NoAppointmentsMessageComponent,
-    PeluTitleComponent,
     NextAppointmentComponent,
     ServiceSelectionStepComponent,
     DateTimeSelectionStepComponent,
@@ -619,24 +615,38 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
     console.log('Window width:', window.innerWidth, 'Is small screen:', isSmallScreen, 'Current collapsed:', currentCollapsed);
 
-    // Auto-collapse only when going from large to small screen
+    // Auto-collapse when going from large to small screen
     if (isSmallScreen && !currentCollapsed && !this.wasAutoCollapsed) {
       console.log('Auto-collapsing sidebar due to screen size');
       this.bookingStateService.setSidebarCollapsed(true);
       this.wasAutoCollapsed = true;
     }
 
-    // Don't auto-expand when going from small to large screen
-    // User should manually control the sidebar state
+    // Auto-expand when going from small to large screen (default state for large screens)
+    if (!isSmallScreen && currentCollapsed && this.wasAutoCollapsed) {
+      console.log('Auto-expanding sidebar due to screen size');
+      this.bookingStateService.setSidebarCollapsed(false);
+      this.wasAutoCollapsed = false;
+    }
   };
 
   private setupResponsiveSidebar() {
-    // Check initial screen size and auto-collapse if needed
+    // Check initial screen size and set default state
     const isSmallScreen = window.innerWidth < 1275;
-    if (isSmallScreen && !this.sidebarCollapsed()) {
-      console.log('Initial setup: auto-collapsing sidebar for small screen');
-      this.bookingStateService.setSidebarCollapsed(true);
-      this.wasAutoCollapsed = true;
+    if (isSmallScreen) {
+      // Auto-collapse for small screens
+      if (!this.sidebarCollapsed()) {
+        console.log('Initial setup: auto-collapsing sidebar for small screen');
+        this.bookingStateService.setSidebarCollapsed(true);
+        this.wasAutoCollapsed = true;
+      }
+    } else {
+      // Auto-expand for large screens (default state)
+      if (this.sidebarCollapsed()) {
+        console.log('Initial setup: auto-expanding sidebar for large screen');
+        this.bookingStateService.setSidebarCollapsed(false);
+        this.wasAutoCollapsed = false;
+      }
     }
 
     // Add resize listener

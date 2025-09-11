@@ -126,10 +126,11 @@
                 [subtitle]="'APPOINTMENTS.EDIT_APPOINTMENT_DESCRIPTION'"
                 [showActions]="!isEditing()"
                 [actionButtons]="getActionButtons()"
-                [showFooterActions]="isEditing()"
-                [footerActionButtons]="getFooterActionButtons()"
-                [showDefaultSubmitButton]="false"
+                [showFooterActions]="false"
+                [footerActionButtons]="[]"
+                [showDefaultSubmitButton]="isEditing()"
                 (bookingCreated)="onBookingUpdated($event)"
+                (editCancelled)="onCancelEdit()"
               >
               </pelu-booking-form>
 
