@@ -8,15 +8,6 @@
     </div>
   }
 
-  <!-- ===== SHARED TITLE (First Step Only - Desktop: Not for Admin, Mobile: For Everyone) ===== -->
-  @if (currentStep() === 'service' && (!isDesktop() || !isAdmin())) {
-    <div class="shared-title-section">
-      <pelu-title
-        [title]="'BOOKING.TITLE'"
-        [subtitle]="'BOOKING.SUBTITLE'"
-      ></pelu-title>
-    </div>
-  }
 
   <!-- ===== DESKTOP LAYOUT ===== -->
   @if (isDesktop()) {

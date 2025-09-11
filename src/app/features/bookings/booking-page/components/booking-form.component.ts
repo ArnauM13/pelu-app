@@ -193,13 +193,10 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
 
     .booking-form {
       width: 375px;
-      margin-bottom: 2rem;
 
       // Specific adjustments for overlay mode (< 1275px)
       @media (max-width: 1275px) {
         width: 100%;
-        padding: 0 1rem;
-
 
         .booking-form-content {
           width: 100%;

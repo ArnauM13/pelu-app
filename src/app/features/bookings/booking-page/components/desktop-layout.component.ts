@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, ElementRef, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
@@ -26,14 +26,14 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
       <!-- Backdrop for mobile overlay -->
       <div
         class="mobile-backdrop"
-        [class.visible]="!sidebarCollapsed()"
+        [class.visible]="shouldShowSidebar()"
         (click)="closeSidebarOnMobile()"
       ></div>
 
       <!-- Two Column Grid Layout -->
       <div class="grid-container" [class.sidebar-collapsed]="sidebarCollapsed()">
         <!-- Left Column: Title + Manual Booking -->
-        <div class="left-column" [class.collapsed]="sidebarCollapsed()">
+        <div class="left-column" [class.collapsed]="!shouldShowSidebar()">
           <div class="sidebar-content">
             <!-- Title Section - Hide in overlay mode (< 1275px) -->
             <div class="title-section" [class.hidden-in-overlay]="true">
@@ -44,6 +44,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             <!-- Manual Booking Section -->
             <div class="manual-booking-section">
               <pelu-booking-form
+                #bookingForm
                 (bookingCreated)="onManualBookingCreated($event)"
               ></pelu-booking-form>
             </div>
@@ -53,12 +54,12 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         <!-- Right Column: Date Controls + Calendar -->
         <div class="right-column">
           <!-- Sidebar Toggle Button -->
-          <div class="sidebar-toggle">
+          <div class="sidebar-toggle" [title]="sidebarCollapsed() ? ('BOOKING.SIDEBAR.SHOW_MANUAL_BOOKING' | translate) : ('BOOKING.SIDEBAR.HIDE_MANUAL_BOOKING' | translate)">
             <pelu-button
               [icon]="sidebarCollapsed() ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
               [rounded]="true"
               (clicked)="toggleSidebar()"
-              [ariaLabel]="sidebarCollapsed() ? 'Expandir sidebar' : 'Plegar sidebar'"
+              [ariaLabel]="sidebarCollapsed() ? ('BOOKING.SIDEBAR.SHOW_MANUAL_BOOKING' | translate) : ('BOOKING.SIDEBAR.HIDE_MANUAL_BOOKING' | translate)"
               class="toggle-button"
             ></pelu-button>
           </div>
@@ -172,7 +173,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
               .p-button-icon {
                 transition: transform 0.3s ease;
-                font-size: 1.2rem;
+                font-size: 1.2rem !important;
               }
 
               &:hover {
@@ -232,6 +233,9 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         }
 
         .sidebar-content {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
           width: 100%;
           min-width: 300px;
           transition: all 0.3s ease;
@@ -383,13 +387,66 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           .sidebar-toggle {
             position: fixed;
             top: 50%;
-            left: 1rem;
+            left: 0;
             transform: translateY(-50%);
             z-index: 1002;
             background: var(--primary-color);
-            border-radius: 8px;
-            padding: 0.5rem;
+            border-radius: 0 8px 8px 0;
+            padding: 0.5rem 0.25rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 14px;
+            height: 50px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+              width: 50px;
+              height: 50px;
+              padding: 0.5rem;
+
+              .toggle-button {
+                ::ng-deep .p-button {
+                  .p-button-icon {
+                    font-size: 1rem !important;
+                  }
+                }
+              }
+            }
+
+            .toggle-button {
+              ::ng-deep .p-button {
+                width: 18px;
+                height: 18px;
+                min-width: 18px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+
+                .p-button-icon {
+                  transition: transform 0.3s ease, font-size 0.3s ease;
+                  font-size: 0.5rem !important;
+                }
+
+                &:hover {
+                  background: rgba(255, 255, 255, 0.1) !important;
+                  transform: scale(1.1);
+
+                  .p-button-icon {
+                    transform: translateX(1px);
+                  }
+                }
+
+                &:active {
+                  transform: scale(0.95);
+                }
+              }
+            }
           }
         }
       }
@@ -474,13 +531,17 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     }
   `]
 })
-export class DesktopLayoutComponent implements OnInit, OnDestroy {
+export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
+  @ViewChild('bookingForm') bookingForm!: BookingFormComponent;
 
   private readonly bookingStateService = inject(BookingStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
+
+  // Signal to track if booking form inputs are mounted
+  private readonly inputsMountedSignal = signal<boolean>(false);
 
   // Output events
   timeSlotSelected = output<{ date: string; time: string }>();
@@ -489,6 +550,15 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy {
 
   readonly isCalendarBlocked = computed(() => this.bookingValidationService.isCalendarBlocked());
   readonly sidebarCollapsed = computed(() => this.bookingStateService.sidebarCollapsed());
+
+  // Computed property to check if sidebar should be shown (considering input mounting)
+  readonly shouldShowSidebar = computed(() => {
+    const collapsed = this.sidebarCollapsed();
+    const inputsMounted = this.inputsMountedSignal();
+
+    // Only show sidebar if it's not collapsed AND inputs are mounted
+    return !collapsed && inputsMounted;
+  });
 
   // Computed week info that updates when calendar view changes
   readonly weekInfo = computed(() => {
@@ -564,6 +634,22 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy {
   // ===== SIDEBAR METHODS =====
 
   toggleSidebar(): void {
+    // If trying to expand sidebar, ensure inputs are mounted first
+    if (this.sidebarCollapsed()) {
+      this.checkInputsMounted();
+
+      // If inputs are not mounted, wait a bit and try again
+      if (!this.inputsMountedSignal()) {
+        setTimeout(() => {
+          this.checkInputsMounted();
+          if (this.inputsMountedSignal()) {
+            this.bookingStateService.toggleSidebar();
+          }
+        }, 100);
+        return;
+      }
+    }
+
     this.bookingStateService.toggleSidebar();
   }
 
@@ -572,6 +658,50 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy {
     if (window.innerWidth < 1275) {
       this.bookingStateService.setSidebarCollapsed(true);
     }
+  }
+
+  private checkInputsMounted(): void {
+    if (!this.bookingForm) {
+      this.inputsMountedSignal.set(false);
+      return;
+    }
+
+    // Check if the booking form component is properly initialized
+    // and has all its required inputs available
+    const formElement = this.bookingForm as any;
+
+    // Check if the form has the required computed properties available
+    const hasRequiredProperties = !!(
+      formElement.availableServices &&
+      formElement.serviceOptions &&
+      formElement.timeSlotOptions
+    );
+
+    // Check if services are loaded
+    const servicesLoaded = formElement.availableServices && formElement.availableServices().length > 0;
+
+    // Set mounted state based on all checks
+    this.inputsMountedSignal.set(hasRequiredProperties && servicesLoaded);
+  }
+
+  private setupInputMountingCheck(): void {
+    // Check every 200ms for the first 5 seconds to ensure inputs are mounted
+    let checkCount = 0;
+    const maxChecks = 25; // 5 seconds at 200ms intervals
+
+    const checkInterval = setInterval(() => {
+      this.checkInputsMounted();
+      checkCount++;
+
+      if (checkCount >= maxChecks || this.inputsMountedSignal()) {
+        clearInterval(checkInterval);
+      }
+    }, 200);
+
+    // Also listen for service updates to recheck mounting
+    window.addEventListener('serviceUpdated', () => {
+      setTimeout(() => this.checkInputsMounted(), 100);
+    });
   }
 
   // ===== MANUAL BOOKING METHODS =====
@@ -588,11 +718,20 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Listen for booking updates to refresh the calendar
     window.addEventListener('bookingUpdated', this.onBookingUpdated.bind(this));
+
+    // Set up periodic check for input mounting
+    this.setupInputMountingCheck();
+  }
+
+  ngAfterViewInit(): void {
+    // Check if inputs are mounted after view initialization
+    this.checkInputsMounted();
   }
 
   ngOnDestroy(): void {
     // Clean up event listeners
     window.removeEventListener('bookingUpdated', this.onBookingUpdated.bind(this));
+    window.removeEventListener('serviceUpdated', () => this.checkInputsMounted());
   }
 
   private onBookingUpdated(): void {

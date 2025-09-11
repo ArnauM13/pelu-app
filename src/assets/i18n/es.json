@@ -497,6 +497,10 @@
       "THANKS_MESSAGE": "Gracias por confiar en {{businessName}}.",
       "SIGNATURE": "Saludos,",
       "TEAM_SIGNATURE": "El equipo de {{businessName}}"
+    },
+    "SIDEBAR": {
+      "SHOW_MANUAL_BOOKING": "Mostrar formulario de reserva manual",
+      "HIDE_MANUAL_BOOKING": "Ocultar formulario de reserva manual"
     }
   },
   "PROFILE": {
