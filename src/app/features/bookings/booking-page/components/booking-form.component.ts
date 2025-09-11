@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal, OnInit, input, effect, ViewEncapsulation } from '@angular/core';
+import { Component, computed, inject, output, signal, OnInit, OnDestroy, input, effect, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
@@ -82,6 +82,7 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
             [minDate]="minDate"
             [preventPastMonths]="true"
             [disabled]="inputsDisabled()"
+            [disabledDates]="disabledDates()"
             (valueChange)="onDateChange($event)"
           >
           </pelu-input-date>
@@ -89,13 +90,13 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
           <!-- Time Selection -->
           <pelu-input-select
             [label]="'BOOKING.TIME'"
-            [placeholder]="'BOOKING.SELECT_TIME'"
+            [placeholder]="getTimePlaceholder()"
             [required]="true"
             [options]="timeSlotOptions()"
             [value]="selectedTime()"
             [searchable]="true"
             [clearable]="false"
-            [disabled]="inputsDisabled() || (!selectedService() || !selectedDate())"
+            [disabled]="inputsDisabled() || !isTimeSelectorEnabled()"
             (valueChange)="onTimeChange($event)"
           >
           </pelu-input-select>
@@ -310,7 +311,7 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
     }
   `]
 })
-export class BookingFormComponent implements OnInit {
+export class BookingFormComponent implements OnInit, OnDestroy {
   private readonly bookingService = inject(BookingService);
   private readonly authService = inject(AuthService);
   private readonly loaderService = inject(LoaderService);
@@ -321,6 +322,9 @@ export class BookingFormComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly dateTimeAvailabilityService = inject(DateTimeAvailabilityService);
   private readonly timeUtils = inject(TimeUtils);
+
+  // Event listener for booking updates
+  private bookingUpdateListener?: () => void;
 
   // Inputs for hydration
   readonly appointmentData = input<Booking | null>(null);
@@ -371,8 +375,36 @@ export class BookingFormComponent implements OnInit {
     // Ensure services cache is loaded
     await this.bookingStateService.loadServicesCache();
     // Los effects manejarán la hidratación automáticamente cuando los datos estén disponibles
+
+    // Set up listener for booking updates from other sources
+    this.setupBookingUpdateListener();
   }
 
+  ngOnDestroy(): void {
+    // Clean up event listener
+    if (this.bookingUpdateListener) {
+      window.removeEventListener('bookingUpdated', this.bookingUpdateListener);
+    }
+  }
+
+  private setupBookingUpdateListener(): void {
+    this.bookingUpdateListener = () => {
+      // When a booking is created/updated from any source, invalidate the availability cache
+      // This will force the time slots to be recalculated with the latest booking data
+      this.dateTimeAvailabilityService.invalidateCache();
+
+      // If we have a selected date and service, also invalidate cache for that specific date
+      const selectedDate = this.selectedDate();
+      const selectedService = this.selectedService();
+
+      if (selectedDate && selectedService?.id) {
+        this.dateTimeAvailabilityService.invalidateCache(selectedDate);
+      }
+    };
+
+    // Add the event listener
+    window.addEventListener('bookingUpdated', this.bookingUpdateListener);
+  }
 
   private initializeWithAppointmentData(appointment: Booking): void {
     this.clientNameSignal.set(appointment.clientName || '');
@@ -503,10 +535,54 @@ export class BookingFormComponent implements OnInit {
     }));
   });
 
+  // Computed property to get disabled dates (days with no available hours)
+  readonly disabledDates = computed(() => {
+    const service = this.selectedService();
+    if (!service || !service.id) {
+      return [];
+    }
+
+    const disabledDates: Date[] = [];
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 90); // Check next 90 days
+
+    // Check each day for availability
+    for (let date = new Date(today); date <= maxDate; date.setDate(date.getDate() + 1)) {
+      const timeSlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
+        new Date(date),
+        service.id
+      );
+
+      // If no available time slots, mark as disabled
+      if (timeSlots.length === 0) {
+        disabledDates.push(new Date(date));
+      }
+    }
+
+    return disabledDates;
+  });
+
   // Computed to determine if inputs should be disabled
   readonly inputsDisabled = computed(() => {
     return this.isReadOnlyMode() && !this.isEditMode();
   });
+
+  // Computed to determine if time selector should be enabled
+  readonly isTimeSelectorEnabled = computed(() => {
+    return !!(this.selectedService() && this.selectedDate());
+  });
+
+  // Method to get appropriate placeholder for time selector
+  getTimePlaceholder(): string {
+    if (!this.selectedService()) {
+      return 'BOOKING.SELECT_SERVICE_FIRST';
+    }
+    if (!this.selectedDate()) {
+      return 'BOOKING.SELECT_DATE_FIRST';
+    }
+    return 'BOOKING.SELECT_TIME';
+  }
 
   // ===== EVENT HANDLERS =====
 
@@ -518,7 +594,18 @@ export class BookingFormComponent implements OnInit {
 
   onDateChange(dateString: any): void {
     if (dateString) {
-      const date = new Date(dateString);
+      // Handle both Date objects and string dates
+      let date: Date;
+      if (dateString instanceof Date) {
+        // If it's already a Date object, use it directly
+        date = dateString;
+      } else {
+        // If it's a string, parse it carefully to avoid timezone issues
+        // Parse as local date to avoid timezone offset problems
+        const dateStr = typeof dateString === 'string' ? dateString : dateString.toString();
+        const [year, month, day] = dateStr.split('-').map(Number);
+        date = new Date(year, month - 1, day); // month is 0-indexed
+      }
       this.selectedDateSignal.set(date);
       // Reset time when date changes (time slots will update automatically)
       this.selectedTimeSignal.set('');

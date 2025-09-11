@@ -148,6 +148,12 @@
     left: 0 !important;
     right: 0 !important;
 
+    // Force light theme for all calendar elements
+    * {
+      background-color: white !important;
+      color: var(--text-color-secondary) !important;
+    }
+
     // Estils específics per al calendari inline
     &.p-datepicker-inline {
       position: static !important;
@@ -169,6 +175,12 @@
       margin: -1rem -1rem 1rem -1rem !important;
       border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0 !important;
       color: var(--text-color-secondary) !important;
+
+      // Force light theme for header elements
+      * {
+        background-color: white !important;
+        color: var(--text-color-secondary) !important;
+      }
 
       .p-datepicker-select-month,
       .p-datepicker-select-year {
@@ -209,6 +221,13 @@
       width: 100% !important;
       border-collapse: collapse !important;
       color: var(--text-color-secondary) !important; // Gris #6b7280
+      background-color: white !important;
+
+      // Force light theme for all table elements
+      * {
+        background-color: white !important;
+        color: var(--text-color-secondary) !important;
+      }
     }
 
     // Day names (Mon, Tue, etc.) - mateix color que els números
@@ -233,6 +252,13 @@
     td {
       padding: 0.25rem !important;
       text-align: center !important;
+      background-color: white !important;
+
+      // Force light theme for all cell elements
+      * {
+        background-color: white !important;
+        color: var(--text-color-secondary) !important;
+      }
     }
 
          // Day numbers
@@ -615,6 +641,37 @@
   font-weight: 600 !important;
   box-shadow: 0 2px 8px rgba(58, 90, 138, 0.3) !important;
   transform: scale(1.05) !important;
+}
+
+// Global override to force light theme for all datepickers
+:global(.p-datepicker-panel) {
+  background-color: white !important;
+  color: var(--text-color-secondary) !important;
+
+  * {
+    background-color: white !important;
+    color: var(--text-color-secondary) !important;
+  }
+
+  .p-datepicker-header {
+    background-color: white !important;
+    color: var(--text-color-secondary) !important;
+  }
+
+  table {
+    background-color: white !important;
+    color: var(--text-color-secondary) !important;
+  }
+
+  td {
+    background-color: white !important;
+    color: var(--text-color-secondary) !important;
+  }
+
+  th {
+    background-color: white !important;
+    color: var(--text-color-secondary) !important;
+  }
 }
 
 

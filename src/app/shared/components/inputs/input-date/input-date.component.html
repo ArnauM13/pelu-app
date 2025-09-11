@@ -30,6 +30,7 @@
       [showOnFocus]="showOnFocus() && enabled()"
       [minDate]="computedMinDate()"
       [maxDate]="maxDate()"
+      [disabledDates]="disabledDates()"
       [ngModel]="displayValue()"
       (ngModelChange)="onDateChange($event)"
       class="pelu-datepicker"

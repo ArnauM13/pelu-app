@@ -103,11 +103,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const isScrolled = scrollTop > 50; // Activate floating after 50px scroll
 
-    console.log('Scroll position:', scrollTop, 'Is scrolled:', isScrolled); // Debug log
-
     if (this.isScrolledSignal() !== isScrolled) {
       this.isScrolledSignal.set(isScrolled);
-      console.log('Header state changed to:', isScrolled ? 'floating' : 'normal'); // Debug log
     }
   }
 }
