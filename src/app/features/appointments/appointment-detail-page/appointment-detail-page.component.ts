@@ -9,6 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule } from '@ngx-translate/core';
+import { parseISO, isValid } from 'date-fns';
 import { DetailViewComponent, DetailViewConfig } from '../../../shared/components/detail-view/detail-view.component';
 import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
 import { ConfirmationPopupComponent, type ConfirmationData } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
@@ -193,6 +194,13 @@ export class AppointmentDetailPageComponent implements OnInit {
 
       // Use direct method to fetch only this booking (bypasses cache)
       const booking = await this.bookingService.getBookingByIdDirect(appointmentId);
+      console.log('📥 loadAppointment - fetched booking from database:', {
+        id: booking?.id,
+        hora: booking?.hora,
+        clientName: booking?.clientName,
+        data: booking?.data
+      });
+
       if (booking) {
         this.bookingSignal.set(booking);
         this.originalBookingSignal.set(booking); // Store original booking
@@ -305,7 +313,33 @@ export class AppointmentDetailPageComponent implements OnInit {
    */
   private formatDateForInput(dateString: string): string {
     if (!dateString) return '';
-    const date = new Date(dateString);
+
+    // Try different parsing strategies
+    let date: Date | null = null;
+
+    // Strategy 1: Try parseISO first (for ISO format)
+    const parsedDate = parseISO(dateString);
+    if (isValid(parsedDate)) {
+      date = parsedDate;
+    } else {
+      // Strategy 2: Try new Date() for other formats
+      date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        // Strategy 3: Try parsing as YYYY-MM-DD format manually
+        const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (isoMatch) {
+          const [, year, month, day] = isoMatch;
+          date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        }
+      }
+    }
+
+    // Check if we have a valid date
+    if (!date || isNaN(date.getTime())) {
+      console.warn('Invalid date detected in formatDateForInput:', dateString);
+      return '';
+    }
+
     return date.toISOString().split('T')[0];
   }
 
@@ -673,8 +707,25 @@ export class AppointmentDetailPageComponent implements OnInit {
    * Handle booking update from detail view
    */
   onBookingUpdated(booking: Booking): void {
+    console.log('🔄 onBookingUpdated called with booking:', {
+      id: booking.id,
+      hora: booking.hora,
+      clientName: booking.clientName,
+      data: booking.data
+    });
+
     // Refresh the appointment data from the database to get the latest information
     this.loadAppointment();
+
+    // Exit edit mode after successful save
+    this.isEditingInternalSignal.set(false);
+
+    // Remove edit parameter from URL if present
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { edit: null },
+      queryParamsHandling: 'merge'
+    });
   }
 
   onToastClick(event: { message?: { data?: { appointmentId?: string } } }): void {

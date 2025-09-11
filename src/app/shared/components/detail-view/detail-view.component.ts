@@ -523,7 +523,13 @@ export class DetailViewComponent {
     let processedValue: string | number;
 
     if (value instanceof Date) {
-      processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      // Check if the date is valid before converting to ISO string
+      if (isNaN(value.getTime())) {
+        console.warn('Invalid date detected in onUpdateForm:', value);
+        processedValue = '';
+      } else {
+        processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      }
     } else if (value === null) {
       processedValue = '';
     } else {

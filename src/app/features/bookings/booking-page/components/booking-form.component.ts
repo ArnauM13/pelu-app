@@ -366,31 +366,65 @@ export class BookingFormComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Effect para hidratar datos cuando los servicios estén disponibles
+    // Solo inicializar una vez cuando los datos estén disponibles
+    let hasInitialized = false;
+
     effect(() => {
       const appointment = this.appointmentData();
       const services = this.availableServices();
 
-      if (appointment && services.length > 0) {
-        this.initializeWithAppointmentData(appointment);
-      } else if (!appointment && services.length > 0) {
-        // Si no hay appointment, inicializar con datos del usuario
-        this.initializeWithUserData();
-      }
-    });
-
-    // Effect para hidratar tiempo cuando las opciones de tiempo estén disponibles
-    effect(() => {
-      const appointment = this.appointmentData();
-      const timeOptions = this.timeSlotOptions();
-      const currentSelectedTime = this.selectedTimeSignal();
-
-      if (appointment && appointment.hora && timeOptions.length > 0 && !currentSelectedTime) {
-        // Solo establecer si aún no está establecido y hay opciones disponibles
-        if (timeOptions.some(option => option.value === appointment.hora)) {
-          this.selectedTimeSignal.set(appointment.hora);
+      if (!hasInitialized && services.length > 0) {
+        if (appointment) {
+          this.initializeWithAppointmentData(appointment);
+        } else {
+          // Si no hay appointment, inicializar con datos del usuario
+          this.initializeWithUserData();
         }
+        hasInitialized = true;
       }
     });
+
+  // Effect para hidratar tiempo cuando las opciones de tiempo estén disponibles
+  // Solo ejecutar una vez cuando los datos estén disponibles
+  let hasTimeInitialized = false;
+
+  effect(() => {
+    const appointment = this.appointmentData();
+    const timeOptions = this.timeSlotOptions();
+    const currentSelectedTime = this.selectedTimeSignal();
+
+    // Debug logs removed for production
+
+    if (!hasTimeInitialized && appointment && appointment.hora && timeOptions.length > 0) {
+      // Buscar la opción que coincida con la hora del appointment
+      // Usar comparación flexible para manejar diferentes formatos
+      const matchingOption = timeOptions.find(option => {
+        const optionValue = String(option.value).trim();
+        const appointmentHora = String(appointment.hora).trim();
+
+        // Debug logs removed for production
+
+        // Comparación exacta
+        return optionValue === appointmentHora;
+      });
+
+      const isTimeAvailable = !!matchingOption;
+      // Debug logs removed for production
+
+      // En modo edición, siempre mantener el tiempo de la reserva si está disponible
+      if (this.isEditMode() && isTimeAvailable && matchingOption) {
+        // Setting time in edit mode
+        this.selectedTimeSignal.set(matchingOption.value);
+      }
+      // En modo visualización (detalle) o creación, establecer si está disponible y no está ya establecido
+      else if (!this.isEditMode() && !currentSelectedTime && isTimeAvailable && matchingOption) {
+        // Setting time in detail view or create mode
+        this.selectedTimeSignal.set(matchingOption.value);
+      }
+
+      hasTimeInitialized = true;
+    }
+  });
   }
 
   async ngOnInit(): Promise<void> {
@@ -434,8 +468,11 @@ export class BookingFormComponent implements OnInit, OnDestroy {
     this.notesSignal.set(appointment.notes || '');
 
     if (appointment.data) {
-      const date = new Date(appointment.data);
-      this.selectedDateSignal.set(date);
+      // Parse the date safely to avoid invalid date errors
+      const date = this.parseDateFlexible(appointment.data);
+      if (date) {
+        this.selectedDateSignal.set(date);
+      }
     }
 
     if (appointment.hora) {
@@ -445,6 +482,35 @@ export class BookingFormComponent implements OnInit, OnDestroy {
     if (appointment.serviceId) {
       this.selectedServiceIdSignal.set(appointment.serviceId);
     }
+  }
+
+  /**
+   * Parse date from various formats (ISO, localized, etc.)
+   */
+  private parseDateFlexible(dateString: string): Date | null {
+    if (!dateString) return null;
+
+    // Try different parsing strategies
+    let date: Date | null = null;
+
+    // Strategy 1: Try parseISO first (for ISO format)
+    date = this.timeUtils.parseDate(dateString);
+    if (date) return date;
+
+    // Strategy 2: Try new Date() for other formats
+    date = new Date(dateString);
+    if (!isNaN(date.getTime())) return date;
+
+    // Strategy 3: Try parsing as YYYY-MM-DD format manually
+    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) {
+      const [, year, month, day] = isoMatch;
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (!isNaN(date.getTime())) return date;
+    }
+
+    console.warn('Could not parse date:', dateString);
+    return null;
   }
 
   private initializeWithUserData(): void {
@@ -500,7 +566,15 @@ export class BookingFormComponent implements OnInit, OnDestroy {
   readonly selectedDate = computed(() => this.selectedDateSignal());
   readonly selectedDateString = computed(() => {
     const date = this.selectedDate();
-    return date ? this.timeUtils.formatDateISO(date) : '';
+    if (!date) return '';
+
+    // Check if the date is valid before formatting
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date detected in selectedDateString:', date);
+      return '';
+    }
+
+    return this.timeUtils.formatDateISO(date);
   });
   readonly selectedTime = computed(() => this.selectedTimeSignal());
   readonly clientName = computed(() => this.clientNameSignal());
@@ -540,22 +614,41 @@ export class BookingFormComponent implements OnInit, OnDestroy {
   readonly timeSlotOptions = computed(() => {
     const service = this.selectedService();
     const date = this.selectedDate();
+    const appointment = this.appointmentData();
 
     if (!service || !date || !service.id) {
       return [];
     }
 
     // Use the NEW centralized service for date/time management
+    // When editing, we need to include the current appointment's time slot
     const timeSlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       date,
-      service.id
+      service.id,
+      {
+        includeUnavailable: this.isEditMode() && appointment ? true : false
+      }
     );
 
-    // Convert to SelectOption format (already filtered to available only)
-    return timeSlots.map(slot => ({
+    // Convert to SelectOption format
+    let options = timeSlots.map(slot => ({
       label: slot.time,
       value: slot.time
     }));
+
+    // When there's an appointment, ensure its time is always available in options
+    if (appointment && appointment.hora) {
+      const currentTimeExists = options.some(option => option.value === appointment.hora);
+      if (!currentTimeExists) {
+        // Adding current appointment time to options
+        options.unshift({
+          label: appointment.hora,
+          value: appointment.hora
+        });
+      }
+    }
+
+    return options;
   });
 
   // Computed property to get disabled dates (days with no available hours)
@@ -611,8 +704,10 @@ export class BookingFormComponent implements OnInit, OnDestroy {
 
   onServiceChange(serviceId: any): void {
     this.selectedServiceIdSignal.set(serviceId || '');
-    // Reset time when service changes (time slots will update automatically)
-    this.selectedTimeSignal.set('');
+    // Only reset time when service changes if not in edit mode
+    if (!this.isEditMode()) {
+      this.selectedTimeSignal.set('');
+    }
   }
 
   onDateChange(dateString: any): void {
@@ -630,16 +725,23 @@ export class BookingFormComponent implements OnInit, OnDestroy {
         date = new Date(year, month - 1, day); // month is 0-indexed
       }
       this.selectedDateSignal.set(date);
-      // Reset time when date changes (time slots will update automatically)
-      this.selectedTimeSignal.set('');
+      // Only reset time when date changes if not in edit mode
+      if (!this.isEditMode()) {
+        this.selectedTimeSignal.set('');
+      }
     } else {
       this.selectedDateSignal.set(null);
-      this.selectedTimeSignal.set('');
+      // Only reset time when date is cleared if not in edit mode
+      if (!this.isEditMode()) {
+        this.selectedTimeSignal.set('');
+      }
     }
   }
 
   onTimeChange(time: any): void {
+    console.log('⏰ onTimeChange called with:', time);
     this.selectedTimeSignal.set(String(time || ''));
+    console.log('⏰ selectedTimeSignal set to:', this.selectedTimeSignal());
   }
 
   onClientNameChange(name: string): void {
@@ -699,6 +801,15 @@ export class BookingFormComponent implements OnInit, OnDestroy {
       return false;
     }
 
+    // In edit mode, don't validate availability for the current appointment's time
+    if (this.isEditMode()) {
+      const appointment = this.appointmentData();
+      if (appointment && appointment.hora === selectedTime) {
+        // Allow saving the current appointment's time without availability check
+        return true;
+      }
+    }
+
     return this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTime,
@@ -739,9 +850,14 @@ export class BookingFormComponent implements OnInit, OnDestroy {
     const isEdit = this.isEditMode();
     const appointment = this.appointmentData();
 
+    // 1. Mostrar loader
     this.loaderService.show({
       message: isEdit ? 'APPOINTMENTS.UPDATING_APPOINTMENT' : 'BOOKING.CREATING_BOOKING'
     });
+
+    let putSuccess = false;
+    let getSuccess = false;
+    let updatedBooking: Booking | null = null;
 
     try {
       const service = this.selectedService();
@@ -763,43 +879,74 @@ export class BookingFormComponent implements OnInit, OnDestroy {
         status: 'confirmed' as const,
       };
 
-      let booking: Booking | null = null;
+      console.log('💾 onSubmit - bookingData to save:', bookingData);
+      console.log('🔍 onSubmit - selectedTimeSignal value:', this.selectedTimeSignal());
+      console.log('🔍 onSubmit - selectedTime computed value:', this.selectedTime());
 
+      // 2. Fer el PUT per actualitzar les dades de la reserva
       if (isEdit && appointment) {
-        const updatedBooking = await this.bookingService.updateBooking(appointment.id!, bookingData);
-        booking = updatedBooking ? appointment : null;
+        putSuccess = await this.bookingService.updateBooking(appointment.id!, bookingData);
+        console.log('📤 onSubmit - PUT result:', putSuccess);
+
+        if (!putSuccess) {
+          // 3. Si hi ha error al PUT: parar loader i mostrar toast d'error
+          this.loaderService.hide();
+          this.toastService.showError('APPOINTMENTS.UPDATE_ERROR');
+          return;
+        }
       } else {
-        booking = await this.bookingService.createBooking(bookingData, false);
+        // Per a creació de nova reserva
+        updatedBooking = await this.bookingService.createBooking(bookingData, false);
+        putSuccess = !!updatedBooking;
+        console.log('📤 onSubmit - CREATE result:', putSuccess);
+
+        if (!putSuccess) {
+          // 3. Si hi ha error al CREATE: parar loader i mostrar toast d'error
+          this.loaderService.hide();
+          this.toastService.showError('BOOKING.MANUAL_BOOKING_ERROR');
+          return;
+        }
       }
 
-      if (booking) {
-        await this.bookingService.refreshBookings();
-
-        // Refresh services cache only if needed (when services might have changed)
-        // Usually not needed for bookings, but useful for service management
-        // await this.bookingStateService.refreshServicesCache();
-
-        window.dispatchEvent(new CustomEvent('bookingUpdated'));
-
-        if (isEdit) {
-          this.toastService.showSuccess('APPOINTMENTS.UPDATE_SUCCESS');
-        } else {
-          this.toastService.showReservationCreated(booking.id);
+      // 4. Si no hi ha error al PUT: continuar mostrant loader
+      // 5. Fer el GET per recuperar les dades actualitzades
+      if (isEdit && appointment) {
+        try {
+          updatedBooking = await this.bookingService.getBookingByIdDirect(appointment.id!);
+          getSuccess = !!updatedBooking;
+          console.log('📥 onSubmit - GET result:', getSuccess, updatedBooking);
+        } catch (getError) {
+          console.error('❌ Error al fer GET després del PUT:', getError);
+          getSuccess = false;
         }
-
-        this.bookingCreated.emit(booking);
-
-        if (!isEdit) {
-          this.resetForm();
-        }
-      } else {
-        throw new Error(isEdit ? 'Appointment update failed' : 'Booking creation failed');
       }
 
     } catch (error) {
-      this.toastService.showError(isEdit ? 'APPOINTMENTS.UPDATE_ERROR' : 'BOOKING.MANUAL_BOOKING_ERROR');
-    } finally {
+      console.error('❌ Error general al onSubmit:', error);
+      // 3. Si hi ha error general: parar loader i mostrar toast d'error
       this.loaderService.hide();
+      this.toastService.showError(isEdit ? 'APPOINTMENTS.UPDATE_ERROR' : 'BOOKING.MANUAL_BOOKING_ERROR');
+      return;
+    } finally {
+      // 6. Treure el loader (sempre)
+      this.loaderService.hide();
+    }
+
+    // 7. Si no hi ha error: actualitzar dades i mostrar toast d'èxit
+    if (putSuccess && (isEdit ? getSuccess : true)) {
+      if (isEdit && updatedBooking) {
+        // Emitir l'event per actualitzar la UI amb les dades fresques
+        this.bookingCreated.emit(updatedBooking);
+        this.toastService.showSuccess('APPOINTMENTS.UPDATE_SUCCESS');
+      } else if (!isEdit && updatedBooking) {
+        // Per a nova reserva
+        this.bookingCreated.emit(updatedBooking);
+        this.toastService.showReservationCreated(updatedBooking.id);
+        this.resetForm();
+      }
+    } else {
+      // 8. Si hi ha error al GET: mostrar toast d'error
+      this.toastService.showError(isEdit ? 'APPOINTMENTS.UPDATE_ERROR' : 'BOOKING.MANUAL_BOOKING_ERROR');
     }
   }
 
