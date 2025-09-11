@@ -154,15 +154,37 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
           } @else if (showDefaultSubmitButton()) {
             <!-- Default Submit Button -->
             <div class="form-actions">
-              <pelu-button
-                [label]="isEditMode() ? 'COMMON.ACTIONS.SAVE' : 'BOOKING.CREATE_MANUAL_BOOKING'"
-                (clicked)="onSubmit()"
-                [disabled]="!canCreateBooking()"
-                severity="primary"
-                [raised]="true"
-                [fluid]="true"
-              >
-              </pelu-button>
+              @if (isEditMode()) {
+                <!-- Edit Mode: Cancel and Save buttons -->
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.CANCEL'"
+                  (clicked)="onCancelEdit()"
+                  severity="secondary"
+                  [raised]="true"
+                  [fluid]="true"
+                >
+                </pelu-button>
+                <pelu-button
+                  [label]="'COMMON.ACTIONS.SAVE'"
+                  (clicked)="onSubmit()"
+                  [disabled]="!canCreateBooking()"
+                  severity="primary"
+                  [raised]="true"
+                  [fluid]="true"
+                >
+                </pelu-button>
+              } @else {
+                <!-- Create Mode: Single submit button -->
+                <pelu-button
+                  [label]="'BOOKING.CREATE_MANUAL_BOOKING'"
+                  (clicked)="onSubmit()"
+                  [disabled]="!canCreateBooking()"
+                  severity="primary"
+                  [raised]="true"
+                  [fluid]="true"
+                >
+                </pelu-button>
+              }
             </div>
           }
 
@@ -457,6 +479,7 @@ export class BookingFormComponent implements OnInit, OnDestroy {
 
   // Output events
   bookingCreated = output<Booking>();
+  editCancelled = output<void>();
 
   // Signals for form state (completely independent)
   private readonly clientNameSignal = signal<string>('');
@@ -703,22 +726,7 @@ export class BookingFormComponent implements OnInit, OnDestroy {
       return 'BOOKING.INVALID_EMAIL_FORMAT';
     }
 
-    // Check if time slot is available using centralized service
-    const selectedService = this.selectedService();
-    const selectedDate = this.selectedDate();
-    const selectedTime = this.selectedTime();
-
-    if (selectedService && selectedDate && selectedTime && selectedService.id) {
-      const isAvailable = this.dateTimeAvailabilityService.isTimeSlotAvailable(
-        selectedDate,
-        selectedTime,
-        selectedService.id
-      );
-
-      if (!isAvailable) {
-        return 'BOOKING.TIME_SLOT_NOT_AVAILABLE';
-      }
-    }
+    // Time slot availability check removed - allow any time selection in edit mode
 
     return '';
   });
@@ -794,6 +802,18 @@ export class BookingFormComponent implements OnInit, OnDestroy {
       this.loaderService.hide();
     }
   }
+
+  onCancelEdit(): void {
+    // Reset form to original appointment data
+    const appointment = this.appointmentData();
+    if (appointment) {
+      this.initializeWithAppointmentData(appointment);
+    }
+
+    // Emit cancel event to parent component
+    this.editCancelled.emit();
+  }
+
 
   // ===== AUXILIARY METHODS (same as mobile) =====
 

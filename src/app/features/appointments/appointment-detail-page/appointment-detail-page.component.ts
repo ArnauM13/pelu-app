@@ -669,6 +669,14 @@ export class AppointmentDetailPageComponent implements OnInit {
     this.hideDetailViewSignal.set(false); // Mostrar detail view de nou
   }
 
+  /**
+   * Handle booking update from detail view
+   */
+  onBookingUpdated(booking: Booking): void {
+    // Refresh the appointment data from the database to get the latest information
+    this.loadAppointment();
+  }
+
   onToastClick(event: { message?: { data?: { appointmentId?: string } } }): void {
     const appointmentId = event.message?.data?.appointmentId;
     if (appointmentId) {

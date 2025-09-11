@@ -514,7 +514,6 @@
     "EMAIL_REQUIRED": "L'email és obligatori",
     "MANUAL_BOOKING_SUCCESS": "Reserva creada correctament",
     "MANUAL_BOOKING_ERROR": "Error al crear la reserva",
-    "TIME_SLOT_NOT_AVAILABLE": "Aquesta hora no està disponible",
     "QUICK_SELECTION": {
       "TODAY": "Avui",
       "TOMORROW": "Demà",
