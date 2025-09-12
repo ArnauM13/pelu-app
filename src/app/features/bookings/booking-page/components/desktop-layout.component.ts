@@ -5,6 +5,7 @@ import { ButtonComponent } from '../../../../shared/components/buttons/button.co
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
 import { BookingFormComponent } from './booking-form.component';
 import { DateControlsComponent } from './date-controls/date-controls.component';
+import { MonthlyCalendarComponent } from './monthly-calendar.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
@@ -22,6 +23,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     CalendarComponent,
     BookingFormComponent,
     DateControlsComponent,
+    MonthlyCalendarComponent,
   ],
   template: `
     <div class="desktop-layout">
@@ -34,13 +36,21 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
       <!-- Two Column Grid Layout -->
       <div class="grid-container" [class.sidebar-collapsed]="sidebarCollapsed()">
-        <!-- Left Column: Title + Manual Booking -->
+        <!-- Left Column: Title + Monthly Calendar + Manual Booking -->
         <div class="left-column" [class.collapsed]="!shouldShowSidebar()">
           <div class="sidebar-content">
             <!-- Title Section - Hide in overlay mode (< 1275px) -->
             <div class="title-section" [class.hidden-in-overlay]="true">
               <h1 class="page-title">{{ 'BOOKING.TITLE' | translate }}</h1>
               <p class="page-subtitle">{{ 'BOOKING.SUBTITLE' | translate }}</p>
+            </div>
+
+            <!-- Monthly Calendar Section -->
+            <div class="monthly-calendar-section">
+              <pelu-monthly-calendar
+                [selectedDate]="selectedDate()"
+                (dateSelected)="onMonthlyCalendarDateSelected($event)"
+              ></pelu-monthly-calendar>
             </div>
 
             <!-- Manual Booking Section -->
@@ -241,6 +251,10 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           margin: 0;
           line-height: 1.4;
         }
+      }
+
+      .monthly-calendar-section {
+        margin-bottom: 1.5rem;
       }
 
       .manual-booking-section {
@@ -463,6 +477,7 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
   readonly isCalendarBlocked = computed(() => this.bookingValidationService.isCalendarBlocked());
   readonly sidebarCollapsed = computed(() => this.bookingStateService.sidebarCollapsed());
+  readonly selectedDate = computed(() => this.bookingStateService.selectedDate());
 
   // Computed property to check if sidebar should be shown (considering input mounting)
   readonly shouldShowSidebar = computed(() => {
@@ -519,6 +534,17 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     this.timeSlotSelected.emit(event);
   }
 
+  onMonthlyCalendarDateSelected(date: Date): void {
+    // Update the booking state service with the selected date
+    this.bookingStateService.setSelectedDate(date);
+
+    // Update the calendar component to show the selected date
+    if (this.calendarComponent) {
+      // Navigate the calendar to show the selected date using the public method
+      this.calendarComponent.navigateToDate(this.formatDateISO(date));
+    }
+  }
+
   // ===== NAVIGATION METHODS =====
 
   goToPreviousWeek(): void {
@@ -535,7 +561,7 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     this.weekInfoUpdateTrigger.update(v => v + 1);
   }
 
-  onViewChanged(view: 'daily' | 'weekly'): void {
+  onViewChanged(view: 'daily' | 'weekly' | 'month' | 'week'): void {
     // Delegate to calendar component's view change method
     this.calendarComponent?.onViewChanged(view);
     // Force week info update
@@ -649,5 +675,13 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     console.log('Booking updated event received, refreshing calendar...');
     // Force calendar refresh by triggering a change detection
     // The calendar component should automatically update when appointments change
+  }
+
+  private formatDateISO(date: Date): string {
+    // Use local date formatting to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

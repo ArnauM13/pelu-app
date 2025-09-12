@@ -616,6 +616,7 @@
     "VIEW": {
       "DAILY": "Day",
       "WEEKLY": "Week",
+      "MONTHLY": "Month",
       "SELECT_VIEW": "Select view"
     },
     "BUSINESS_HOURS": "Business hours",

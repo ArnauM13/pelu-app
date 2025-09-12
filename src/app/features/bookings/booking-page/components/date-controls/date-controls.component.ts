@@ -5,7 +5,7 @@ import { ButtonComponent } from '../../../../../shared/components/buttons/button
 import { InputSelectComponent, SelectOption } from '../../../../../shared/components/inputs/input-select/input-select.component';
 import { CalendarComponent } from '../../../../calendar/core/calendar.component';
 
-export type CalendarViewType = 'daily' | 'weekly';
+export type CalendarViewType = 'daily' | 'weekly' | 'month' | 'week';
 
 @Component({
   selector: 'pelu-date-controls',
@@ -17,48 +17,94 @@ export type CalendarViewType = 'daily' | 'weekly';
     InputSelectComponent,
   ],
   template: `
-    <div class="date-controls">
-      <!-- Element 1: Left side - Today button, navigation arrows, week indicator -->
-      <div class="left-controls">
-        <pelu-button
-          [label]="'COMMON.TIME.TODAY' | translate"
-          [icon]="'pi pi-calendar'"
-          (clicked)="onTodayClicked()"
-        ></pelu-button>
-
-        <div class="week-navigation">
+    <div class="date-controls" [class.mobile]="isMobile()">
+      @if (isMobile()) {
+        <!-- Mobile Layout: Two rows -->
+        <!-- Row 1: Today button + View toggle button -->
+        <div class="mobile-row-1">
           <pelu-button
-            [icon]="'pi pi-chevron-left'"
-            [rounded]="true"
-            (clicked)="onPreviousClicked()"
-            [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+            [label]="'COMMON.TIME.TODAY' | translate"
+            [icon]="'pi pi-calendar'"
+            (clicked)="onTodayClicked()"
+            size="small"
           ></pelu-button>
 
           <pelu-button
-            [icon]="'pi pi-chevron-right'"
-            [rounded]="true"
-            (clicked)="onNextClicked()"
-            [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+            [label]="mobileToggleButton().label"
+            [icon]="mobileToggleButton().icon"
+            (clicked)="onMobileViewToggle()"
+            size="small"
+            severity="secondary"
+            [raised]="true"
           ></pelu-button>
         </div>
 
-        <div class="week-info">
-          <span>{{ weekInfo() }}</span>
-        </div>
-      </div>
+        <!-- Row 2: Navigation arrows + Week indicator -->
+        <div class="mobile-row-2">
+          <div class="week-navigation">
+            <pelu-button
+              [icon]="'pi pi-chevron-left'"
+              [rounded]="true"
+              (clicked)="onPreviousClicked()"
+              [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+              size="small"
+            ></pelu-button>
 
-      <!-- Element 2: Right side - View type selector -->
-      <div class="right-controls">
-        <pelu-input-select
-          [options]="viewOptions()"
-          [value]="currentView()"
-          [placeholder]="'CALENDAR.VIEW.SELECT_VIEW' | translate"
-          [clearable]="false"
-          [searchable]="false"
-          [filter]="false"
-          (valueChange)="onViewChanged($event)"
-        ></pelu-input-select>
-      </div>
+            <pelu-button
+              [icon]="'pi pi-chevron-right'"
+              [rounded]="true"
+              (clicked)="onNextClicked()"
+              [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+              size="small"
+            ></pelu-button>
+          </div>
+
+          <div class="week-info">
+            <span>{{ weekInfo() }}</span>
+          </div>
+        </div>
+      } @else {
+        <!-- Desktop Layout: Single row -->
+        <div class="left-controls">
+          <pelu-button
+            [label]="'COMMON.TIME.TODAY' | translate"
+            [icon]="'pi pi-calendar'"
+            (clicked)="onTodayClicked()"
+          ></pelu-button>
+
+          <div class="week-navigation">
+            <pelu-button
+              [icon]="'pi pi-chevron-left'"
+              [rounded]="true"
+              (clicked)="onPreviousClicked()"
+              [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+            ></pelu-button>
+
+            <pelu-button
+              [icon]="'pi pi-chevron-right'"
+              [rounded]="true"
+              (clicked)="onNextClicked()"
+              [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+            ></pelu-button>
+          </div>
+
+          <div class="week-info">
+            <span>{{ weekInfo() }}</span>
+          </div>
+        </div>
+
+        <div class="right-controls">
+          <pelu-input-select
+            [options]="getViewOptions()"
+            [value]="currentView()"
+            [placeholder]="'CALENDAR.VIEW.SELECT_VIEW' | translate"
+            [clearable]="false"
+            [searchable]="false"
+            [filter]="false"
+            (valueChange)="onViewChanged($event)"
+          ></pelu-input-select>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -68,6 +114,28 @@ export type CalendarViewType = 'daily' | 'weekly';
       justify-content: space-between;
       gap: 1rem;
       padding: 1rem 0;
+    }
+
+    .date-controls.mobile {
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+    }
+
+    .mobile-row-1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 1rem;
+    }
+
+    .mobile-row-2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 1rem;
     }
 
     .left-controls {
@@ -115,12 +183,14 @@ export class DateControlsComponent {
   // Input signals
   readonly currentView = input<CalendarViewType>('weekly');
   readonly weekInfo = input<string>('');
+  readonly isMobile = input<boolean>(false);
 
   // Output signals
   readonly todayClicked = output<void>();
   readonly previousClicked = output<void>();
   readonly nextClicked = output<void>();
   readonly viewChanged = output<CalendarViewType>();
+  readonly viewModeToggle = output<void>();
 
   // View options signal that updates when language changes
   readonly viewOptions = signal<SelectOption[]>([
@@ -135,6 +205,23 @@ export class DateControlsComponent {
       icon: 'pi pi-calendar-plus'
     }
   ]);
+
+  // Mobile toggle button logic - simplified
+  readonly mobileToggleButton = computed(() => {
+    // Get the current view directly from the input
+    const currentView = this.currentView();
+
+    // Simple logic: if it's week/weekly, show "Mes", otherwise show "Setmana"
+    const isWeekView = currentView === 'week' || currentView === 'weekly';
+
+    return {
+      label: isWeekView
+        ? this.translateService.instant('CALENDAR.VIEW.MONTHLY')
+        : this.translateService.instant('CALENDAR.VIEW.WEEKLY'),
+      icon: isWeekView ? 'pi pi-calendar' : 'pi pi-calendar-plus',
+      nextView: isWeekView ? 'month' : 'week'
+    };
+  });
 
   constructor() {
     // Update view options when language changes
@@ -164,6 +251,7 @@ export class DateControlsComponent {
         icon: 'pi pi-calendar-plus'
       }
     ]);
+    // mobileViewOptions is now computed, no need to update it here
   }
 
   onTodayClicked(): void {
@@ -179,8 +267,28 @@ export class DateControlsComponent {
   }
 
   onViewChanged(view: string | number | undefined): void {
-    if (view && (view === 'daily' || view === 'weekly')) {
-      this.viewChanged.emit(view);
+    if (view && (view === 'daily' || view === 'weekly' || view === 'month' || view === 'week')) {
+      this.viewChanged.emit(view as CalendarViewType);
     }
+  }
+
+  getViewOptions(): SelectOption[] {
+    return this.viewOptions();
+  }
+
+  onViewModeToggle(): void {
+    this.viewModeToggle.emit();
+  }
+
+  onMobileViewToggle(): void {
+    const currentView = this.currentView();
+    const nextView = this.mobileToggleButton().nextView;
+
+    console.log('=== MOBILE TOGGLE DEBUG ===');
+    console.log('Current view:', currentView);
+    console.log('Next view:', nextView);
+    console.log('Button config:', this.mobileToggleButton());
+
+    this.viewChanged.emit(nextView as CalendarViewType);
   }
 }

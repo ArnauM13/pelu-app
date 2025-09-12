@@ -598,6 +598,7 @@
     "VIEW": {
       "DAILY": "يوم",
       "WEEKLY": "أسبوع",
+      "MONTHLY": "شهر",
       "SELECT_VIEW": "اختر العرض"
     },
     "BUSINESS_HOURS": "ساعات العمل",

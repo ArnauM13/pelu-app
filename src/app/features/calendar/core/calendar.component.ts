@@ -772,6 +772,10 @@ export class CalendarComponent {
     }
   }
 
+  navigateToDate(dateString: string): void {
+    this.stateService.navigateToDate(dateString);
+  }
+
   // View switching methods
   switchToDailyView() {
     this.currentView.set('daily');
@@ -785,12 +789,13 @@ export class CalendarComponent {
     this.currentView.set('weekly');
   }
 
-  onViewChanged(view: 'daily' | 'weekly') {
+  onViewChanged(view: 'daily' | 'weekly' | 'month' | 'week') {
     if (view === 'daily') {
       this.switchToDailyView();
-    } else {
+    } else if (view === 'weekly' || view === 'week') {
       this.switchToWeeklyView();
     }
+    // Note: 'month' view is handled by the mobile calendar component, not the main calendar
   }
 
   // Daily view navigation methods
