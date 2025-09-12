@@ -52,7 +52,7 @@ test.describe('Appointment Edit Functionality', () => {
     await editButton.click();
 
     // Verify edit form is shown
-    await expect(page.locator('h2')).toContainText('Editar detalles de la cita');
+    await expect(page.locator('h3')).toContainText('Detalles de la cita');
 
     // Verify form fields are present and populated
     const clientNameInput = page.locator('input[placeholder*="Nombre del cliente"]');
@@ -105,5 +105,111 @@ test.describe('Appointment Edit Functionality', () => {
     const editButtons = futureAppointments.locator('.btn.secondary');
     await expect(editButtons.first()).toBeVisible();
     await expect(editButtons.first()).toHaveText('✏️');
+  });
+
+  test('should follow correct save flow: update time → save → loader → PUT → GET → success', async ({ page }) => {
+    // Navigate to an appointment detail page
+    await page.goto('http://localhost:4200/appointments/0280301a-e592-4105-a2af-9a2738609127');
+    await page.waitForSelector('h1');
+
+    // Click edit button
+    const editButton = page.locator('button:has-text("✏️")').first();
+    await editButton.click();
+
+    // Wait for edit form to load
+    await page.waitForSelector('input[placeholder*="Hora"]');
+
+    // Change the time
+    const timeInput = page.locator('input[placeholder*="Hora"]');
+    await timeInput.click();
+    
+    // Select a different time (assuming dropdown opens)
+    const timeOption = page.locator('text=10:00').first();
+    if (await timeOption.isVisible()) {
+      await timeOption.click();
+    }
+
+    // Click save button
+    const saveButton = page.locator('button:has-text("Guardar")');
+    await saveButton.click();
+
+    // Verify loader appears
+    await expect(page.locator('.loader, [data-testid="loader"]')).toBeVisible();
+
+    // Wait for success message
+    await expect(page.locator('text=Cita actualizada correctamente')).toBeVisible();
+
+    // Verify we're back in view mode (not edit mode)
+    await expect(page.locator('button:has-text("✏️")')).toBeVisible();
+    await expect(page.locator('button:has-text("Guardar")')).not.toBeVisible();
+  });
+
+  test('should maintain time selection during edit process', async ({ page }) => {
+    // Navigate to an appointment detail page
+    await page.goto('http://localhost:4200/appointments/0280301a-e592-4105-a2af-9a2738609127');
+    await page.waitForSelector('h1');
+
+    // Click edit button
+    const editButton = page.locator('button:has-text("✏️")').first();
+    await editButton.click();
+
+    // Wait for edit form to load
+    await page.waitForSelector('input[placeholder*="Hora"]');
+
+    // Get initial time value
+    const timeInput = page.locator('input[placeholder*="Hora"]');
+    const initialTime = await timeInput.inputValue();
+
+    // Change the time
+    await timeInput.click();
+    const timeOption = page.locator('text=10:00').first();
+    if (await timeOption.isVisible()) {
+      await timeOption.click();
+    }
+
+    // Verify time has changed
+    const newTime = await timeInput.inputValue();
+    expect(newTime).not.toBe(initialTime);
+
+    // Change service (should not reset time)
+    const serviceInput = page.locator('input[placeholder*="Servicio"]').first();
+    if (await serviceInput.isVisible()) {
+      await serviceInput.click();
+      // Just click away to simulate service change
+      await page.click('body');
+    }
+
+    // Verify time is still maintained
+    const maintainedTime = await timeInput.inputValue();
+    expect(maintainedTime).toBe(newTime);
+  });
+
+  test('should exit edit mode after successful save', async ({ page }) => {
+    // Navigate to an appointment detail page
+    await page.goto('http://localhost:4200/appointments/0280301a-e592-4105-a2af-9a2738609127');
+    await page.waitForSelector('h1');
+
+    // Click edit button
+    const editButton = page.locator('button:has-text("✏️")').first();
+    await editButton.click();
+
+    // Verify we're in edit mode
+    await expect(page.locator('button:has-text("Guardar")')).toBeVisible();
+    await expect(page.locator('button:has-text("Cancelar")')).toBeVisible();
+
+    // Make a small change and save
+    const clientNameInput = page.locator('input[placeholder*="Nombre del cliente"]');
+    await clientNameInput.fill('Updated Name');
+
+    const saveButton = page.locator('button:has-text("Guardar")');
+    await saveButton.click();
+
+    // Wait for save to complete
+    await expect(page.locator('text=Cita actualizada correctamente')).toBeVisible();
+
+    // Verify we're back in view mode
+    await expect(page.locator('button:has-text("✏️")')).toBeVisible();
+    await expect(page.locator('button:has-text("Guardar")')).not.toBeVisible();
+    await expect(page.locator('button:has-text("Cancelar")')).not.toBeVisible();
   });
 });

@@ -195,9 +195,6 @@ describe('CalendarComponent', () => {
     expect(typeof component.onTimeSlotClick).toBe('function');
     expect(typeof component.onAppointmentEditRequested).toBe('function');
     expect(typeof component.onAppointmentDeleted).toBe('function');
-    expect(typeof component.showDeleteConfirmation).toBe('function');
-    expect(typeof component.onDeleteConfirmed).toBe('function');
-    expect(typeof component.onDeleteCancelled).toBe('function');
     expect(typeof component.isBookingsLoaded).toBe('function');
   });
 
@@ -255,7 +252,7 @@ describe('CalendarComponent', () => {
     expect(duration).toBeDefined();
   });
 
-  describe('Delete Confirmation Functionality', () => {
+  describe('Delete Functionality', () => {
     const mockBooking = {
       id: 'test-booking-id',
       clientName: 'Test Client',
@@ -267,41 +264,12 @@ describe('CalendarComponent', () => {
       createdAt: new Date(),
     };
 
-    it('should have delete confirmation computed properties', () => {
-      expect(component.showDeleteConfirm).toBeDefined();
-      expect(component.deleteConfirmData).toBeDefined();
+    it('should have onAppointmentDeleted method', () => {
+      expect(typeof component.onAppointmentDeleted).toBe('function');
     });
 
-    it('should show delete confirmation when showDeleteConfirmation is called', () => {
-      component.showDeleteConfirmation(mockBooking);
-      
-      expect(component.showDeleteConfirm()).toBe(true);
-      expect(component.deleteConfirmData()).toBeDefined();
-      expect(component.deleteConfirmData()?.severity).toBe('danger');
-    });
-
-    it('should reset delete confirmation when onDeleteCancelled is called', () => {
-      // First show confirmation
-      component.showDeleteConfirmation(mockBooking);
-      expect(component.showDeleteConfirm()).toBe(true);
-
-      // Then cancel
-      component.onDeleteCancelled();
-      expect(component.showDeleteConfirm()).toBe(false);
-      expect(component.deleteConfirmData()).toBeNull();
-    });
-
-    it('should call onAppointmentDeleted when onDeleteConfirmed is called', () => {
-      spyOn(component, 'onAppointmentDeleted');
-      
-      // Set up confirmation
-      component.showDeleteConfirmation(mockBooking);
-      
-      // Confirm deletion
-      component.onDeleteConfirmed();
-      
-      expect(component.onAppointmentDeleted).toHaveBeenCalledWith(mockBooking);
-      expect(component.showDeleteConfirm()).toBe(false);
+    it('should have deleteAppointment output', () => {
+      expect(component.deleteAppointment).toBeDefined();
     });
   });
 });

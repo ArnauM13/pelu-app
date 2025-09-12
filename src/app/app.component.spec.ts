@@ -53,6 +53,14 @@ describe('AppComponent', () => {
       'addLangs',
       'getLangs',
     ]);
+
+    // Add missing properties for the translate pipe
+    translateServiceSpy.onTranslationChange = { subscribe: () => ({ unsubscribe: () => {} }) };
+    translateServiceSpy.onDefaultLangChange = { subscribe: () => ({ unsubscribe: () => {} }) };
+    translateServiceSpy.onLangChange = { subscribe: () => ({ unsubscribe: () => {} }) };
+    translateServiceSpy.currentLang = 'ca';
+    translateServiceSpy.defaultLang = 'ca';
+    translateServiceSpy.getBrowserCultureLang = jasmine.createSpy('getBrowserCultureLang').and.returnValue('ca');
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', [
       'log',
       'error',

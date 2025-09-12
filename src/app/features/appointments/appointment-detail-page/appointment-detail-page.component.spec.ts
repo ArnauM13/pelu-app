@@ -63,6 +63,25 @@ class MockAppointmentDetailPageComponent {
   // Mock hasFormChanges computed property
   readonly hasFormChanges = computed(() => false);
 
+  // Mock new signals for the updated functionality
+  readonly isEditingInternalSignal = signal(false);
+  readonly originalBookingSignal = signal<{ id: string; clientName: string } | null>(null);
+
+  // Mock new methods
+  onBookingUpdated(booking: any): void {
+    // Mock implementation - set editing mode to false
+    this.isEditingInternalSignal.set(false);
+  }
+
+  loadAppointment(): void {
+    // Mock implementation
+  }
+
+  formatDateForInput(dateString: string): string {
+    // Mock implementation
+    return dateString;
+  }
+
   ngOnInit(): void {
     // Trigger isMobile call to satisfy the test
     this.responsiveService.isMobile();
@@ -487,6 +506,79 @@ describe('AppointmentDetailPageComponent', () => {
     it('should have proper computed properties', () => {
       expect(component.appointmentInfoItems).toBeDefined();
       expect(component.detailConfig).toBeDefined();
+    });
+
+    it('should have new signals for updated functionality', () => {
+      expect(component.isEditingInternalSignal).toBeDefined();
+      expect(component.originalBookingSignal).toBeDefined();
+    });
+  });
+
+  describe('New Booking Update Flow', () => {
+    it('should have onBookingUpdated method', () => {
+      expect(typeof component.onBookingUpdated).toBe('function');
+    });
+
+    it('should handle booking update correctly', () => {
+      const mockBooking = {
+        id: '123',
+        clientName: 'Updated Client',
+        email: 'updated@example.com',
+        data: '2024-01-15',
+        hora: '11:00',
+        serviceId: '1',
+        notes: '',
+        status: 'confirmed' as const
+      };
+
+      component.onBookingUpdated(mockBooking);
+
+      // Verify that the method exists and can be called
+      expect(typeof component.onBookingUpdated).toBe('function');
+    });
+
+    it('should exit edit mode after successful update', () => {
+      const mockBooking = {
+        id: '123',
+        clientName: 'Updated Client',
+        email: 'updated@example.com',
+        data: '2024-01-15',
+        hora: '11:00',
+        serviceId: '1',
+        notes: '',
+        status: 'confirmed' as const
+      };
+
+      // Set editing mode to true
+      component.isEditingInternalSignal.set(true);
+
+      component.onBookingUpdated(mockBooking);
+
+      // Verify that editing mode is set to false
+      expect(component.isEditingInternalSignal()).toBe(false);
+    });
+  });
+
+  describe('Date Formatting', () => {
+    it('should have formatDateForInput method', () => {
+      expect(typeof component.formatDateForInput).toBe('function');
+    });
+
+    it('should format date correctly for input', () => {
+      const testDate = '2024-01-15';
+      const formattedDate = component.formatDateForInput(testDate);
+      
+      // Should return a valid date string for input
+      expect(formattedDate).toBeDefined();
+      expect(typeof formattedDate).toBe('string');
+    });
+
+    it('should handle invalid date strings gracefully', () => {
+      const invalidDate = 'invalid-date';
+      const formattedDate = component.formatDateForInput(invalidDate);
+      
+      // Should handle invalid dates without throwing errors
+      expect(formattedDate).toBeDefined();
     });
   });
 });

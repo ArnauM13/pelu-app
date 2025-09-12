@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { FirebaseServicesService } from '../app/core/services/firebase-services.service';
 import { BookingService } from '../app/core/services/booking.service';
 import { LoggerService } from '../app/shared/services/logger.service';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
   provideMockFirebase,
@@ -114,6 +115,20 @@ export function configureTestBed(components: unknown[] = [], additionalProviders
     { provide: RoleService, useValue: mockRoleService },
     { provide: BookingService, useValue: mockBookingService },
     { provide: LoggerService, useValue: mockLoggerService },
+    { provide: TranslateService, useValue: {
+      instant: jasmine.createSpy('instant').and.returnValue('translated text'),
+      get: jasmine.createSpy('get').and.returnValue({ subscribe: () => ({ unsubscribe: () => {} }) }),
+      use: jasmine.createSpy('use'),
+      setDefaultLang: jasmine.createSpy('setDefaultLang'),
+      addLangs: jasmine.createSpy('addLangs'),
+      getLangs: jasmine.createSpy('getLangs').and.returnValue(['ca', 'es', 'en']),
+      onTranslationChange: { subscribe: () => ({ unsubscribe: () => {} }) },
+      onDefaultLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
+      onLangChange: { subscribe: () => ({ unsubscribe: () => {} }) },
+      currentLang: 'ca',
+      defaultLang: 'ca',
+      getBrowserCultureLang: jasmine.createSpy('getBrowserCultureLang').and.returnValue('ca'),
+    }},
     ...additionalProviders,
   ];
 
