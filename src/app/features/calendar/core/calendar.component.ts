@@ -13,7 +13,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ca } from 'date-fns/locale';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AppointmentDetailPopupComponent } from '../../../shared/components/appointment-detail-popup/appointment-detail-popup.component';
+import { GlobalPopupService } from '../../../core/services/global-popup.service';
 import { AppointmentSlotData } from '../slots/appointment-slot.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
@@ -63,7 +63,6 @@ export interface AppointmentEvent {
     CalendarModule,
     FormsModule,
     TranslateModule,
-    AppointmentDetailPopupComponent,
     CalendarLoaderComponent,
     CalendarTimeColumnComponent,
     CalendarDayColumnComponent,
@@ -95,10 +94,12 @@ export class CalendarComponent {
   private readonly servicesService = inject(ServicesService);
   private readonly toastService = inject(ToastService);
   private readonly injector = inject(Injector);
+  private readonly globalPopupService = inject(GlobalPopupService);
 
   // Service data for popup - now using cached services
   private loadedService = signal<Service | null>(null);
   readonly service = computed(() => this.loadedService());
+
 
   // Input signals
   readonly mini = input<boolean>(false);
@@ -471,6 +472,7 @@ export class CalendarComponent {
     const originalAppointment = this.findOriginalAppointment(appointmentEvent);
 
     if (originalAppointment) {
+      console.log('✅ Calendar - Opening appointment popup:', originalAppointment);
       // Use the original appointment data which has the correct format
       // Assegurem-nos que té l'email correcte
       if (currentUser?.email && !originalAppointment.email) {
@@ -480,7 +482,7 @@ export class CalendarComponent {
       // Load service data before opening popup - OPTIMIZED to use cached services
       this.loadServiceDataFromCache(originalAppointment.serviceId);
 
-      this.stateService.openAppointmentDetail(originalAppointment);
+      this.globalPopupService.openAppointmentDetail(originalAppointment, this.service() || undefined);
     } else {
       // Fallback: convert AppointmentEvent to the expected format
       // Generate a unique ID if not available
@@ -501,7 +503,7 @@ export class CalendarComponent {
       // Load service data before opening popup - OPTIMIZED to use cached services
       this.loadServiceDataFromCache(convertedAppointment.serviceId);
 
-      this.stateService.openAppointmentDetail(convertedAppointment);
+      this.globalPopupService.openAppointmentDetail(convertedAppointment, this.service() || undefined);
     }
   }
 
@@ -843,7 +845,13 @@ export class CalendarComponent {
         this.stateService.removeAppointment(booking.id);
 
         // Close the popup immediately
+        console.log('🔄 Calendar - Closing appointment detail after deletion');
         this.stateService.closeAppointmentDetail();
+
+        // Force reset popup state to ensure clean state
+        setTimeout(() => {
+          this.stateService.forceResetPopupState();
+        }, 100);
 
         // Silently refresh appointments without showing loader
         this.appointmentService.silentRefreshBookings();
@@ -881,6 +889,10 @@ export class CalendarComponent {
     }
   }
 
+  onEditRequestedWrapper(event: any) {
+    this.onAppointmentEditRequested(event as Booking);
+  }
+
   onAppointmentEditRequested(_booking: Booking) {
     // Now handled inline within the popup; no navigation
   }
@@ -890,6 +902,7 @@ export class CalendarComponent {
     this.router.navigate(['/appointments', booking.id || '']);
     // Do not close the popup on view navigation
   }
+
 
   reloadAppointments() {
     // Silently refresh appointments without showing loader

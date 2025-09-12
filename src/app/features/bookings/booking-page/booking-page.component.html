@@ -1,21 +1,28 @@
-<!-- Show mobile component on mobile devices -->
-@if (isMobile()) {
-  <pelu-booking-mobile-page></pelu-booking-mobile-page>
-} @else {
-  <!-- Desktop version -->
-  <div class="container">
-    <div class="booking-page">
-      <!-- Hero Section with Title -->
-      <pelu-title
-        title="BOOKING.TITLE"
-        subtitle="BOOKING.SUBTITLE"
-      ></pelu-title>
+<!-- Unified Booking Page - Responsive Design -->
+<div class="container" [style.view-transition-name]="'booking-container'">
+
+  <!-- ===== NEXT APPOINTMENT SECTION (Above Title - Only on Service Step, Not for Admin) ===== -->
+  @if (currentStep() === 'service' && (userAppointments() || []).length > 0 && !isAdmin()) {
+    <div class="content-section">
+      <pelu-next-appointment [bookings]="userAppointments() || []"></pelu-next-appointment>
+    </div>
+  }
 
 
+  <!-- ===== DESKTOP LAYOUT ===== -->
+  @if (isDesktop()) {
+    <pelu-desktop-layout
+      (timeSlotSelected)="onDesktopTimeSlotSelected($event)"
+    ></pelu-desktop-layout>
+  }
+
+  <!-- ===== MOBILE LAYOUT ===== -->
+  @if (isMobile()) {
+    <div class="mobile-layout">
 
       <!-- User appointment limit validation message -->
       @if (hasReachedAppointmentLimit()) {
-        <div class="validation-message">
+        <div class="content-section" style="margin-bottom: 1rem;">
           <pelu-no-appointments-message
             type="warning"
             icon="⚠️"
@@ -29,93 +36,118 @@
         </div>
       }
 
-      <!-- Date Selection Controls -->
-      <div class="date-controls">
-        <pelu-button
-          label="Avui"
-          icon="pi pi-calendar"
-          size="small"
-          severity="primary"
-          class="today-btn"
-          (clicked)="onTodayClicked()"
-        />
-        <pelu-input-date
-          [(ngModel)]="selectedDate"
-          [showButtonBar]="true"
-          [minDate]="todayDate()"
-          (valueChange)="onDateChange($event)"
-          placeholder="BOOKING.SELECT_DATE_PLACEHOLDER"
-        />
-        <div class="week-indicator">
-          <pelu-button
-            icon="pi pi-chevron-left"
-            size="small"
-            severity="secondary"
-            variant="outlined"
-            class="nav-btn"
-            (clicked)="calendarComponent?.previousWeek()"
-          />
-          <span class="week-range">{{ weekInfo() }}</span>
-          <pelu-button
-            icon="pi pi-chevron-right"
-            size="small"
-            severity="secondary"
-            variant="outlined"
-            class="nav-btn"
-            (clicked)="calendarComponent?.nextWeek()"
+      <!-- Warning when no appointments are available in current view -->
+      @if (currentStep() === 'datetime' && hasNoAvailableAppointments()) {
+        <div class="content-section" style="margin-bottom: 1rem;">
+          <pelu-no-appointments-message
+            type="warning"
+            icon="⚠️"
+            iconColor="#f59e0b"
+            [title]="'BOOKING.NO_APPOINTMENTS_TITLE'"
+            [message]="'BOOKING.NO_APPOINTMENTS_MESSAGE'"
           />
         </div>
+      }
+
+      <!-- Warning when selected day has no available appointments -->
+      @if (currentStep() === 'datetime' && selectedDate() && hasNoAvailableAppointmentsForSelectedDay()) {
+        <div class="content-section" style="margin-bottom: 1rem;">
+          <pelu-no-appointments-message
+            type="warning"
+            icon="⚠️"
+            iconColor="#f59e0b"
+            [title]="'COMMON.SELECTION.NO_APPOINTMENTS_FOR_DAY'"
+            [message]="'COMMON.SELECTION.NO_APPOINTMENTS_FOR_DAY_MESSAGE'"
+          />
+        </div>
+      }
+
+      <!-- Warning when no time slots are available for the selected service -->
+      @if (currentStep() === 'datetime' && selectedService() && hasNoAvailableTimeSlotsForService()) {
+        <div class="content-section" style="margin-bottom: 1rem;">
+          <pelu-no-appointments-message
+            type="warning"
+            icon="⚠️"
+            iconColor="#f59e0b"
+            [title]="'BOOKING.NO_TIME_SLOTS_FOR_SERVICE_TITLE'"
+            [message]="'BOOKING.NO_TIME_SLOTS_FOR_SERVICE_MESSAGE'"
+            actionText="BOOKING.SELECT_DIFFERENT_SERVICE"
+            [actionCallback]="goToServiceStep"
+            [showAction]="true"
+          />
+        </div>
+      }
+
+      <!-- Step Content -->
+      <div class="step-content">
+
+        <!-- Step 1: Service Selection -->
+        @if (currentStep() === 'service') {
+          <pelu-service-selection-step
+            (serviceSelected)="onServiceSelected($event)"
+          ></pelu-service-selection-step>
+        }
+
+        <!-- Step 2: Date and Time Selection -->
+        @if (currentStep() === 'datetime') {
+          <pelu-datetime-selection-step
+            (dateSelected)="onDateSelected($event)"
+            (timeSlotSelected)="onTimeSlotSelectedMobile($event)"
+            (viewModeChanged)="toggleViewMode()"
+          ></pelu-datetime-selection-step>
+        }
+
+        <!-- Step 3: Confirmation -->
+        @if (currentStep() === 'confirmation') {
+          <pelu-confirmation-step
+            (clientNameChanged)="onClientNameChanged($event)"
+            (emailChanged)="onEmailChanged($event)"
+          ></pelu-confirmation-step>
+        }
+
+        <!-- Step 4: Success -->
+        @if (currentStep() === 'success') {
+          <pelu-success-step
+            (viewBookingDetail)="onViewBookingDetail()"
+            (backToHome)="onBackToHome()"
+            (addToCalendar)="addToCalendar()"
+          ></pelu-success-step>
+        }
       </div>
 
-      <!-- Calendar Section -->
-      <div class="calendar-section">
-        <pelu-calendar-component
-          #calendarComponent
-          [mini]="false"
-          [events]="[]"
-          [isBlocked]="isCalendarBlocked()"
-          (dateSelected)="onTimeSlotSelected($event)"
-        >
-        </pelu-calendar-component>
-      </div>
+      <!-- Bottom Navigation (Mobile) -->
+      @if (currentStep() !== 'success') {
+        <pelu-mobile-navigation
+          (goBack)="goBack()"
+          (nextStep)="nextStep()"
+        ></pelu-mobile-navigation>
+      }
     </div>
-  </div>
-}
+  }
 
-<!-- Service Selection Popup -->
-<pelu-service-selection-popup
-  [open]="showServiceSelectionPopup()"
-  [selectionDetails]="serviceSelectionDetails()"
-  (serviceSelected)="onServiceSelected($event)"
-  (cancelled)="onServiceSelectionCancelled()"
->
-</pelu-service-selection-popup>
+  <!-- ===== DESKTOP POPUPS ===== -->
 
-<!-- Booking Confirmation Popup -->
-<pelu-booking-popup
-  [open]="showBookingPopup()"
-  [bookingDetails]="bookingDetails()"
-  [availableServices]="availableServices()"
-  (confirmed)="onBookingConfirmed($event)"
-  (cancelled)="onBookingCancelled()"
-  (clientNameChanged)="onClientNameChanged($event)"
-  (emailChanged)="onEmailChanged($event)"
->
-</pelu-booking-popup>
+  <!-- Service Selection Popup -->
+  <pelu-service-selection-popup
+    [open]="showServiceSelectionPopup()"
+    [selectionDetails]="serviceSelectionDetails()"
+    (serviceSelected)="onDesktopServiceSelected($event)"
+    (cancelled)="onServiceSelectionCancelled()"
+  ></pelu-service-selection-popup>
 
-<!-- Login Prompt for Anonymous Users -->
-<pelu-popup-dialog
-  [isOpen]="showLoginPrompt()"
-  [config]="loginPromptDialogConfig()"
-  (closed)="onLoginPromptClose()"
->
-  <div class="prompt-body">
-    <div class="success-icon">✅</div>
-    <p class="success-message">
-      {{ 'BOOKING.SUCCESS_MESSAGE' | translate }}
-    </p>
-    <p class="email-notice">
-      {{ 'BOOKING.EMAIL_NOTICE' | translate }}
-    </p>
-  </div>
-</pelu-popup-dialog>
+  <!-- Booking Confirmation Popup -->
+  <pelu-booking-popup
+    [open]="showBookingPopup()"
+    [bookingDetails]="desktopBookingDetails()"
+    (confirmed)="onDesktopBookingConfirmed($event)"
+    (cancelled)="onBookingCancelled()"
+    (clientNameChanged)="onDesktopClientNameChanged($event)"
+    (emailChanged)="onDesktopEmailChanged($event)"
+  ></pelu-booking-popup>
+
+  <!-- Login Prompt Dialog -->
+  <pelu-popup-dialog
+    [config]="loginPromptDialogConfig()"
+    (closed)="onLoginPromptClose()"
+  ></pelu-popup-dialog>
+</div>

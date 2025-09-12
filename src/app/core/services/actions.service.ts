@@ -5,6 +5,8 @@ import { ToastService } from '../../shared/services/toast.service';
 import { BookingService } from './booking.service';
 import { Booking } from '../interfaces/booking.interface';
 import { BookingValidationService } from './booking-validation.service';
+import { RoleService } from './role.service';
+import { LoggerService } from '../../shared/services/logger.service';
 
 // Define proper interfaces for action context items
 export interface ServiceActionItem {
@@ -63,6 +65,8 @@ export class ActionsService {
   #toastService = inject(ToastService);
   #bookingService = inject(BookingService);
   #bookingValidationService = inject(BookingValidationService);
+  #roleService = inject(RoleService);
+  #logger = inject(LoggerService);
 
   /**
    * Get available actions for a specific context
@@ -317,6 +321,46 @@ export class ActionsService {
    */
   private canDeleteBooking(booking: Booking): boolean {
     return this.canDeleteAppointment(booking);
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return !!this.#roleService.userRole();
+  }
+
+  /**
+   * Get current user role
+   */
+  getCurrentUserRole(): string {
+    const userRole = this.#roleService.userRole();
+    return userRole?.role || 'client';
+  }
+
+  /**
+   * Log user action
+   */
+  logUserAction(action: string, details?: Record<string, any>): void {
+    this.#logger.info('User action', {
+      component: 'ActionsService',
+      method: 'logUserAction',
+      action,
+      details: details ? JSON.stringify(details) : undefined,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Log error
+   */
+  logError(error: unknown, context?: Record<string, any>): void {
+    this.#logger.error('Action error', {
+      component: 'ActionsService',
+      method: 'logError',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      context: context ? JSON.stringify(context) : undefined,
+    });
   }
 
   // Action handlers for appointments

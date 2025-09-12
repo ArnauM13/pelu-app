@@ -57,6 +57,7 @@ export class InputDateComponent implements ControlValueAccessor {
   readonly minDate = input<Date | null>(null);
   readonly maxDate = input<Date | null>(null);
   readonly preventPastMonths = input<boolean>(false);
+  readonly disabledDates = input<Date[]>([]);
 
   // Internal disabled state for ControlValueAccessor
   private readonly internalDisabledSignal = signal<boolean>(false);
@@ -71,6 +72,21 @@ export class InputDateComponent implements ControlValueAccessor {
     const minDate = this.minDate();
     return minDate;
   });
+
+  // Function to check if a date is disabled
+  readonly isDateDisabled = (date: Date): boolean => {
+    const disabledDates = this.disabledDates();
+    return disabledDates.some(disabledDate =>
+      this.isSameDate(date, disabledDate)
+    );
+  };
+
+  // Helper function to compare dates (ignoring time)
+  private isSameDate(date1: Date, date2: Date): boolean {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  }
 
   // Unique ID generated once
   private readonly uniqueId = 'date-' + Math.random().toString(36).substr(2, 9);
@@ -142,9 +158,9 @@ export class InputDateComponent implements ControlValueAccessor {
       return;
     }
 
-    // Validate against minDate if provided
-    if (date instanceof Date && this.minDate()) {
-      const minDate = this.minDate();
+    // Validate against computedMinDate instead of minDate to ensure consistency
+    if (date instanceof Date && this.computedMinDate()) {
+      const minDate = this.computedMinDate();
       if (minDate) {
         // Compare only the date part (without time) to avoid time-related issues
         const selectedDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());

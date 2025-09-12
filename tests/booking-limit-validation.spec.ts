@@ -138,7 +138,7 @@ test.describe('Booking Limit Validation', () => {
 
     if (currentUrl.includes('/bookings')) {
       // Check for mobile booking component
-      const mobileBooking = page.locator('pelu-booking-mobile-page');
+      const mobileBooking = page.locator('pelu-booking-page');
       if (await mobileBooking.count() > 0) {
         await expect(mobileBooking).toBeVisible();
 
@@ -254,7 +254,7 @@ test.describe('Booking Limit Validation', () => {
     await page.screenshot({ path: 'test-results/mobile-booking-view.png' });
 
     // Verify mobile booking component
-    const mobileBooking = page.locator('pelu-booking-mobile-page');
+    const mobileBooking = page.locator('pelu-booking-page');
     if (await mobileBooking.count() > 0) {
       await expect(mobileBooking).toBeVisible();
     }

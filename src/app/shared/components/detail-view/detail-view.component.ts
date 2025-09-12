@@ -1,4 +1,4 @@
-import { Component, input, output, computed, inject, effect } from '@angular/core';
+import { Component, input, output, computed, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,14 +13,14 @@ import { NotFoundStateComponent } from '../not-found-state/not-found-state.compo
 
 import { InputTextComponent } from '../inputs/input-text/input-text.component';
 import { InputTextareaComponent } from '../inputs/input-textarea/input-textarea.component';
-import { InputDateComponent } from '../inputs/input-date/input-date.component';
-import { InputSelectComponent, SelectOption } from '../inputs/input-select/input-select.component';
+import { SelectOption } from '../inputs/input-select/input-select.component';
 import { ActionsButtonsComponent } from '../actions-buttons/actions-buttons.component';
 import { ButtonComponent } from '../buttons/button.component';
 import { ServiceCardComponent } from '../service-card/service-card.component';
 import { CardComponent } from '../card/card.component';
+import { BookingFormComponent } from '../../../features/bookings/booking-page/components/booking-form.component';
 
-import { AppointmentManagementService } from '../../../core/services/appointment-management.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { ServicesService } from '../../../core/services/services.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionsService, ActionContext } from '../../../core/services/actions.service';
@@ -45,7 +45,7 @@ export interface InfoSection {
   items: InfoItemData[];
   isEditing?: boolean;
   onEdit?: () => void;
-  onSave?: (data: Record<string, unknown>) => void;
+  onSave?: () => void;
   onCancel?: () => void;
 }
 
@@ -87,12 +87,11 @@ export interface DetailViewConfig {
     RouterModule,
     InputTextComponent,
     InputTextareaComponent,
-    InputDateComponent,
-    InputSelectComponent,
     ActionsButtonsComponent,
     ButtonComponent,
     ServiceCardComponent,
     CardComponent,
+    BookingFormComponent,
   ],
   templateUrl: './detail-view.component.html',
   styleUrls: ['./detail-view.component.scss'],
@@ -109,28 +108,36 @@ export class DetailViewComponent {
   readonly cancelEdit = output<void>();
   readonly delete = output<void>();
   readonly updateForm = output<{ field: string; value: string | number }>();
+  readonly bookingCreated = output<Booking>();
 
   // Inject services
   #router = inject(Router);
-  #appointmentManagementService = inject(AppointmentManagementService);
+  #bookingService = inject(BookingService);
   #servicesService = inject(ServicesService);
   #toastService = inject(ToastService);
   #actionsService = inject(ActionsService);
   #bookingValidationService = inject(BookingValidationService);
   #firebaseServicesService = inject(FirebaseServicesService);
 
-  // Computed properties from service
-  readonly appointment = this.#appointmentManagementService.appointment;
-  readonly service = this.#appointmentManagementService.service;
-  readonly isLoading = this.#appointmentManagementService.isLoading;
-  readonly isEditing = this.#appointmentManagementService.isEditing;
-  readonly hasChanges = this.#appointmentManagementService.hasChanges;
-  readonly canEdit = this.#appointmentManagementService.canEdit;
-  readonly canDelete = this.#appointmentManagementService.canDelete;
-  readonly availableTimeSlots = this.#appointmentManagementService.availableTimeSlots;
-  readonly availableServices = this.#appointmentManagementService.availableServices;
-  readonly availableDays = this.#appointmentManagementService.availableDays;
-  readonly isLoadingTimeSlots = this.#appointmentManagementService.isLoadingTimeSlots;
+
+  // Computed properties from config
+  readonly appointment = computed(() => this.config()?.appointment);
+  readonly service = computed(() => {
+    const appointment = this.appointment();
+    if (!appointment?.serviceId) return null;
+    return this.#servicesService.getAllServices().find(s => s.id === appointment.serviceId) || null;
+  });
+  readonly isLoading = computed(() => this.config()?.loading || false);
+  readonly isEditing = computed(() => this.config()?.isEditing || false);
+  readonly hasChanges = computed(() => this.config()?.hasChanges || false);
+  readonly canEdit = computed(() => this.config()?.canSave || false);
+  readonly canDelete = computed(() => this.config()?.canSave || false);
+
+  // Simplified computed properties - these will be populated by the parent component
+  readonly availableTimeSlots = computed(() => []); // Will be populated by parent
+  readonly availableServices = computed(() => this.#servicesService.getAllServices());
+  readonly availableDays = computed(() => []); // Will be populated by parent
+  readonly isLoadingTimeSlots = computed(() => false); // Will be populated by parent
 
   // Computed properties for template
   readonly type = computed(() => this.config()?.type || 'appointment');
@@ -211,9 +218,9 @@ export class DetailViewComponent {
 
     // Add current appointment time if it's not in the available slots
     const currentTime = currentAppointment?.hora;
-    const hasCurrentTime = timeSlots.some(slot => slot.time === currentTime);
+    const hasCurrentTime = timeSlots.some((slot: any) => slot.time === currentTime);
 
-    let options = timeSlots.map(slot => ({
+    let options = timeSlots.map((slot: any) => ({
       label: slot.time,
       value: slot.time,
       disabled: !slot.available,
@@ -243,7 +250,7 @@ export class DetailViewComponent {
     const availableDays = this.availableDays();
     const currentAppointment = this.appointment();
 
-    return availableDays.map(day => {
+    return availableDays.map((day: any) => {
       const dateString = this.formatDateForInput(day);
       const isCurrentDate = currentAppointment?.data === dateString;
 
@@ -267,8 +274,6 @@ export class DetailViewComponent {
     maxDate.setDate(maxDate.getDate() + 365); // 1 year ahead
     return maxDate;
   });
-
-
 
   // Profile specific computed properties
   readonly avatarData = computed(() => {
@@ -300,7 +305,7 @@ export class DetailViewComponent {
     const name = nameParts[0] || '';
     const surname = nameParts.slice(1).join(' ') || '';
 
-    // Try to get photo URL from the appointment data (if loaded by AppointmentManagementService)
+    // Try to get photo URL from the appointment data (if loaded by parent component)
     const appointmentWithService = appointment as Booking & { clientPhotoURL?: string };
     const photoURL = appointmentWithService?.clientPhotoURL || '';
 
@@ -323,12 +328,15 @@ export class DetailViewComponent {
 
   // Appointment title and subtitle (similar to profile)
   readonly appointmentTitle = computed(() => {
+    // Always use appointment data - don't update title until saved
     const appointment = this.appointment();
     return appointment?.clientName || 'COMMON.NOT_AVAILABLE';
   });
 
   readonly appointmentSubtitle = computed(() => {
+    // Always use appointment data - don't update subtitle until saved
     const appointment = this.appointment();
+
     if (!appointment?.data || !appointment?.hora) {
       return 'COMMON.NOT_AVAILABLE';
     }
@@ -435,7 +443,8 @@ export class DetailViewComponent {
     effect(() => {
       const appointmentId = this.appointmentId();
       if (appointmentId) {
-        this.#appointmentManagementService.loadAppointment(appointmentId);
+        // Load appointment using optimized direct method
+        this.#bookingService.getBookingByIdDirect(appointmentId);
       }
     });
 
@@ -443,14 +452,11 @@ export class DetailViewComponent {
     effect(() => {
       if (this.isEditing()) {
         // Load available days and time slots when editing starts
-        this.#appointmentManagementService.loadAvailableDays();
-        // Load time slots for the current appointment date
+        // These will be handled by the parent component now
         const appointment = this.appointment();
         if (appointment?.data) {
-          // Add a small delay to ensure the loading state is properly set
-          setTimeout(() => {
-            this.#appointmentManagementService.loadAvailableTimeSlotsForDate(appointment.data);
-          }, 100);
+          // Parent component should handle loading available time slots
+          // This is now a no-op as the parent manages the state
         }
       }
     });
@@ -466,8 +472,26 @@ export class DetailViewComponent {
   }
 
   onSave(): void {
+    // Validate required fields before saving
     const appointment = this.appointment();
-    if (appointment) {
+    if (!appointment) {
+      console.warn('No appointment data available for saving');
+      return;
+    }
+
+    // Check required fields
+    if (!appointment.clientName || !appointment.email || !appointment.data || !appointment.hora || !appointment.serviceId) {
+      console.warn('Cannot save: missing required fields');
+      this.#toastService.showError('COMMON.ERROR', 'APPOINTMENTS.MISSING_REQUIRED_FIELDS');
+      return;
+    }
+
+    // Check if we have onSave function in config and call it
+    const currentSection = this.infoSections().find(section => section.onSave);
+    if (currentSection?.onSave) {
+      currentSection.onSave();
+    } else {
+      // Fallback to emitting event
       this.save.emit({
         clientName: appointment.clientName || '',
         email: appointment.email || '',
@@ -480,7 +504,14 @@ export class DetailViewComponent {
   }
 
   onCancelEdit(): void {
-    this.cancelEdit.emit();
+    // Check if we have onCancel function in config and call it
+    const currentSection = this.infoSections().find(section => section.onCancel);
+    if (currentSection?.onCancel) {
+      currentSection.onCancel();
+    } else {
+      // Fallback to emitting event
+      this.cancelEdit.emit();
+    }
   }
 
   onDelete(): void {
@@ -492,7 +523,13 @@ export class DetailViewComponent {
     let processedValue: string | number;
 
     if (value instanceof Date) {
-      processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      // Check if the date is valid before converting to ISO string
+      if (isNaN(value.getTime())) {
+        console.warn('Invalid date detected in onUpdateForm:', value);
+        processedValue = '';
+      } else {
+        processedValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      }
     } else if (value === null) {
       processedValue = '';
     } else {
@@ -529,7 +566,8 @@ export class DetailViewComponent {
   }
 
   viewAppointmentDetail(appointmentId: string): void {
-    this.#appointmentManagementService.navigateToAppointment(appointmentId);
+    // Navigate to appointment detail using router
+    this.#router.navigate(['/appointments', appointmentId]);
   }
 
   /**
@@ -579,5 +617,68 @@ export class DetailViewComponent {
       console.error('Error generating ICS file:', error);
       this.#toastService.showError('COMMON.ERROR', 'COMMON.ICS_GENERATION_ERROR');
     }
+  }
+
+  onBookingUpdated(booking: Booking): void {
+    // Handle booking update/creation
+    console.log('Booking updated:', booking);
+
+    // Re-emit the event to parent component
+    this.bookingCreated.emit(booking);
+
+    // The booking service will handle the real-time updates
+  }
+
+
+  getActionButtons() {
+    return [
+      {
+        label: 'COMMON.ACTIONS.EDIT',
+        icon: 'pi pi-pencil',
+        severity: 'secondary' as const,
+        onClick: () => this.onEdit()
+      },
+      {
+        label: 'COMMON.ACTIONS.DELETE',
+        icon: 'pi pi-trash',
+        severity: 'danger' as const,
+        onClick: () => this.onDelete()
+      }
+    ];
+  }
+
+  canSaveAppointment(): boolean {
+    const appointment = this.appointment();
+    if (!appointment) return false;
+
+    // Same validation as manual-booking component
+    return !!(
+      appointment.serviceId &&      // Service selected
+      appointment.data &&           // Date selected
+      appointment.hora &&           // Time selected
+      appointment.clientName &&     // Client name
+      appointment.email             // Client email
+    );
+  }
+
+  getFooterActionButtons() {
+    if (this.isEditing()) {
+      return [
+        {
+          label: 'COMMON.ACTIONS.CANCEL',
+          icon: 'pi pi-times',
+          severity: 'secondary' as const,
+          onClick: () => this.onCancelEdit()
+        },
+        {
+          label: 'COMMON.ACTIONS.SAVE',
+          icon: 'pi pi-check',
+          severity: 'primary' as const,
+          onClick: () => this.onSave(),
+          disabled: !this.canSaveAppointment()
+        }
+      ];
+    }
+    return [];
   }
 }
