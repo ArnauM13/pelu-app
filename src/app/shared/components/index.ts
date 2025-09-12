@@ -1,6 +1,5 @@
 // Role-based components
 export { RoleBasedContentComponent } from './role-based-content/role-based-content.component';
-export { AdminSetupComponent } from './admin-setup/admin-setup.component';
 
 // Profile dropdown component
 export { ProfileDropdownComponent } from './profile-dropdown';

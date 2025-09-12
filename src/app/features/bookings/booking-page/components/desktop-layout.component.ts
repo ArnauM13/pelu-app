@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
 import { BookingFormComponent } from './booking-form.component';
+import { DateControlsComponent } from './date-controls/date-controls.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
@@ -20,6 +21,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     ButtonComponent,
     CalendarComponent,
     BookingFormComponent,
+    DateControlsComponent,
   ],
   template: `
     <div class="desktop-layout">
@@ -65,33 +67,14 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           </div>
           <!-- Date Controls -->
           <div class="date-controls-section">
-            <div class="date-controls">
-              <pelu-button
-                [label]="'COMMON.TIME.TODAY'"
-                [icon]="'pi pi-calendar'"
-                (clicked)="onTodayClicked()"
-              ></pelu-button>
-
-              <div class="week-navigation">
-                <pelu-button
-                  [icon]="'pi pi-chevron-left'"
-                  [rounded]="true"
-                  (clicked)="goToPreviousWeek()"
-                  [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
-                ></pelu-button>
-
-                <div class="week-info">
-                  <span>{{ weekInfo() }}</span>
-                </div>
-
-                <pelu-button
-                  [icon]="'pi pi-chevron-right'"
-                  [rounded]="true"
-                  (clicked)="goToNextWeek()"
-                  [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
-                ></pelu-button>
-              </div>
-            </div>
+            <pelu-date-controls
+              [currentView]="calendarComponent?.currentView() || 'weekly'"
+              [weekInfo]="weekInfo()"
+              (todayClicked)="onTodayClicked()"
+              (previousClicked)="goToPreviousWeek()"
+              (nextClicked)="goToNextWeek()"
+              (viewChanged)="onViewChanged($event)"
+            ></pelu-date-controls>
           </div>
 
           <!-- Calendar Section -->
@@ -266,56 +249,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
       }
 
       .date-controls-section {
-        .date-controls {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-          padding: 1rem 0;
-        }
-
-        .week-navigation {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-left: auto;
-
-          .week-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.5rem;
-            background: transparent;
-
-            span {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              padding: 0.35rem 1rem;
-              height: 2.75rem;
-              background: var(--primary-color);
-              color: #fff;
-              border-radius: 6px;
-              font-weight: 600;
-              font-size: 0.9rem;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-          }
-
-          pelu-button {
-            // Navigation buttons styling
-            ::ng-deep .p-button {
-              width: 40px;
-              height: 40px;
-              min-width: 40px;
-              padding: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 50%;
-            }
-          }
-        }
+        // Styles are now handled by the date-controls component
       }
 
       .calendar-section {
@@ -472,29 +406,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
     @media (max-width: 768px) {
       .desktop-layout {
-        .date-controls {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 0.75rem;
-        }
-
-        .week-navigation {
-          margin-left: 0;
-          justify-content: center;
-          gap: 0.75rem;
-
-          .week-info {
-            margin: 0;
-          }
-
-          pelu-button {
-            ::ng-deep .p-button {
-              width: 36px;
-              height: 36px;
-              min-width: 36px;
-            }
-          }
-        }
+        // Date controls styles are now handled by the date-controls component
 
         .title-section {
           .page-title {
@@ -561,8 +473,20 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     return !collapsed && inputsMounted;
   });
 
+  // Signal to force reactivity for week info
+  private readonly weekInfoUpdateTrigger = signal(0);
+
   // Computed week info that updates when calendar view changes
   readonly weekInfo = computed(() => {
+    // Trigger reactivity
+    this.weekInfoUpdateTrigger();
+
+    // Use calendar component's current view info if available
+    if (this.calendarComponent?.currentViewInfo) {
+      return this.calendarComponent.currentViewInfo().label;
+    }
+
+    // Fallback to original implementation
     const referenceDate = this.bookingStateService.viewDate();
     const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
     const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
@@ -576,11 +500,8 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   // ===== EVENT HANDLERS =====
 
   onTodayClicked(): void {
-    const today = new Date();
-    const firstBusinessDayOfWeek = this.timeUtils.getFirstBusinessDayOfWeek(today, [1, 2, 3, 4, 5, 6]);
-
-    this.bookingStateService.setSelectedDate(firstBusinessDayOfWeek);
-    this.calendarComponent?.onDateChange(firstBusinessDayOfWeek);
+    this.calendarComponent?.today();
+    this.weekInfoUpdateTrigger.update(v => v + 1);
   }
 
   onDesktopTimeSlotSelected(event: { date: string; time: string }): void {
@@ -601,35 +522,24 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   // ===== NAVIGATION METHODS =====
 
   goToPreviousWeek(): void {
-    const currentDate = this.bookingStateService.viewDate();
-    const newWeekDate = this.timeUtils.getPreviousWeek(currentDate);
-
-    // Get the first business day of the new week
-    const firstBusinessDay = this.timeUtils.getFirstBusinessDayOfWeek(newWeekDate, [1, 2, 3, 4, 5, 6]);
-
-    // Update the view date to the first business day of the week
-    this.bookingStateService.setViewDate(firstBusinessDay);
-
-    // Update the calendar component to show the new week
-    this.calendarComponent?.onDateChange(firstBusinessDay);
-
-    this.bookingStateService.setSelectedDate(null);
+    // Delegate to calendar component's navigation method
+    this.calendarComponent?.previousDay();
+    // Force week info update
+    this.weekInfoUpdateTrigger.update(v => v + 1);
   }
 
   goToNextWeek(): void {
-    const currentDate = this.bookingStateService.viewDate();
-    const newWeekDate = this.timeUtils.getNextWeek(currentDate);
+    // Delegate to calendar component's navigation method
+    this.calendarComponent?.nextDay();
+    // Force week info update
+    this.weekInfoUpdateTrigger.update(v => v + 1);
+  }
 
-    // Get the first business day of the new week
-    const firstBusinessDay = this.timeUtils.getFirstBusinessDayOfWeek(newWeekDate, [1, 2, 3, 4, 5, 6]);
-
-    // Update the view date to the first business day of the week
-    this.bookingStateService.setViewDate(firstBusinessDay);
-
-    // Update the calendar component to show the new week
-    this.calendarComponent?.onDateChange(firstBusinessDay);
-
-    this.bookingStateService.setSelectedDate(null);
+  onViewChanged(view: 'daily' | 'weekly'): void {
+    // Delegate to calendar component's view change method
+    this.calendarComponent?.onViewChanged(view);
+    // Force week info update
+    this.weekInfoUpdateTrigger.update(v => v + 1);
   }
 
   // ===== SIDEBAR METHODS =====

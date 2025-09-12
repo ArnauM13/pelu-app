@@ -613,6 +613,11 @@
     "PREVIOUS_WEEK": "Previous week",
     "NEXT_WEEK": "Next week",
     "GO_TO_TODAY": "Go to today",
+    "VIEW": {
+      "DAILY": "Day",
+      "WEEKLY": "Week",
+      "SELECT_VIEW": "Select view"
+    },
     "BUSINESS_HOURS": "Business hours",
     "TIME_SLOT_AVAILABLE": "Time slot available",
     "TIME_SLOT_BUSY": "Time slot busy",

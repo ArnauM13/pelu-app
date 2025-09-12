@@ -613,6 +613,11 @@
     "PREVIOUS_WEEK": "Semana anterior",
     "NEXT_WEEK": "Próxima semana",
     "GO_TO_TODAY": "Ir a hoy",
+    "VIEW": {
+      "DAILY": "Día",
+      "WEEKLY": "Semana",
+      "SELECT_VIEW": "Seleccionar vista"
+    },
     "BUSINESS_HOURS": "Horario comercial",
     "TIME_SLOT_AVAILABLE": "Horario disponible",
     "TIME_SLOT_BUSY": "Horario ocupado",

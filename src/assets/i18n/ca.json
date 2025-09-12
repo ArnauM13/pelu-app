@@ -664,6 +664,11 @@
     "PREVIOUS_WEEK": "Setmana anterior",
     "NEXT_WEEK": "Pròxima setmana",
     "GO_TO_TODAY": "Anar a avui",
+    "VIEW": {
+      "DAILY": "Dia",
+      "WEEKLY": "Setmana",
+      "SELECT_VIEW": "Seleccionar vista"
+    },
     "BUSINESS_HOURS": "Horari comercial",
     "TIME_SLOT_AVAILABLE": "Horari disponible",
     "TIME_SLOT_BUSY": "Horari ocupat",

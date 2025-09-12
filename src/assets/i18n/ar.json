@@ -595,6 +595,11 @@
     "PREVIOUS_WEEK": "الأسبوع السابق",
     "NEXT_WEEK": "الأسبوع القادم",
     "GO_TO_TODAY": "اذهب إلى اليوم",
+    "VIEW": {
+      "DAILY": "يوم",
+      "WEEKLY": "أسبوع",
+      "SELECT_VIEW": "اختر العرض"
+    },
     "BUSINESS_HOURS": "ساعات العمل",
     "TIME_SLOT_AVAILABLE": "الوقت متاح",
     "TIME_SLOT_BUSY": "الوقت مشغول",
