@@ -1,8 +1,9 @@
 import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, ElementRef, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
 import { CardComponent } from '../../../../shared/components/card/card.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../../../../shared/components/popup-dialog/popup-dialog.component';
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
 import { BookingFormComponent } from './booking-form.component';
 import { DateControlsComponent } from './date-controls/date-controls.component';
@@ -22,6 +23,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     TranslateModule,
     ButtonComponent,
     CardComponent,
+    PopupDialogComponent,
     CalendarComponent,
     BookingFormComponent,
     DateControlsComponent,
@@ -38,18 +40,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
       <!-- Two Column Grid Layout -->
       <div class="grid-container" [class.sidebar-collapsed]="sidebarCollapsed()">
-        <!-- Left Column: Title + Monthly Calendar + Manual Booking -->
+        <!-- Left Column: Monthly Calendar + Manual Booking -->
         <div class="left-column" [class.collapsed]="!shouldShowSidebar()">
           <div class="sidebar-content">
-            <!-- Title Section - Hide in overlay mode (< 1275px) -->
-            <div class="title-section" [class.hidden-in-overlay]="true">
-              <h1 class="page-title">{{ 'BOOKING.TITLE' | translate }}</h1>
-              <p class="page-subtitle">{{ 'BOOKING.SUBTITLE' | translate }}</p>
-            </div>
 
-            <!-- Date Controls Section -->
-            <div class="left-date-controls-section">
-              <pelu-card class="month-navigation-card">
+            <!-- Combined Monthly Calendar Section -->
+            <div class="monthly-calendar-section">
+              <pelu-card class="monthly-calendar-card">
                 <div class="month-navigation">
                   <div class="month-display">
                     <span class="month-name">{{ currentMonthName() }}</span>
@@ -61,8 +58,9 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                       [rounded]="true"
                       (clicked)="onPreviousMonth()"
                       [ariaLabel]="'Previous month'"
-                      size="small"
+                      size="mini"
                       severity="secondary"
+                      variant="text"
                     ></pelu-button>
 
                     <pelu-button
@@ -70,17 +68,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                       [rounded]="true"
                       (clicked)="onNextMonth()"
                       [ariaLabel]="'Next month'"
-                      size="small"
+                      size="mini"
                       severity="secondary"
+                      variant="text"
                     ></pelu-button>
                   </div>
                 </div>
-              </pelu-card>
-            </div>
 
-            <!-- Monthly Calendar Section -->
-            <div class="monthly-calendar-section">
-              <pelu-card class="monthly-calendar-card">
                 <pelu-monthly-calendar
                   [selectedDate]="selectedDate()"
                   (dateSelected)="onMonthlyCalendarDateSelected($event)"
@@ -105,10 +99,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                       class="close-booking-button"
                     ></pelu-button>
                   </div>
-                  <pelu-booking-form
-                    #bookingForm
-                    (bookingCreated)="onManualBookingCreated($event)"
-                  ></pelu-booking-form>
+                  <pelu-card>
+                    <h4 class="booking-form-title">{{ 'BOOKING.MANUAL.TITLE' | translate }}</h4>
+                    <pelu-booking-form
+                      #bookingForm
+                      (bookingCreated)="onManualBookingCreated($event)"
+                    ></pelu-booking-form>
+                  </pelu-card>
                 </div>
               }
             </div>
@@ -151,6 +148,19 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           </div>
         </div>
       </div>
+
+      <!-- Booking Form Popup -->
+      <pelu-popup-dialog
+        [isOpen]="bookingPopupOpen()"
+        [config]="bookingPopupConfig()"
+        (closed)="closeBookingPopup()"
+      >
+        <pelu-booking-form
+          #bookingFormPopup
+          [twoColumns]="true"
+          (bookingCreated)="onPopupBookingCreated($event)"
+        ></pelu-booking-form>
+      </pelu-popup-dialog>
 
       <!-- Floating Create Booking Button -->
       <div class="floating-create-booking">
@@ -195,14 +205,16 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         position: relative;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 2rem;
         width: 100%;
-        height: 100%;
+        min-width: 0;
+        height: 100vh;
         transition: all 0.3s ease;
+        overflow: hidden;
 
         .sidebar-toggle {
           position: fixed;
-          top: 50%;
+          top: 95%;
           left: 0;
           transform: translateY(-50%);
           z-index: 1000;
@@ -251,12 +263,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
       .grid-container {
         display: grid;
-        grid-template-columns: 375px auto;
-        gap: 2rem;
-        min-height: 100vh;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
         width: 100%;
-        padding: 1rem 0;
+        min-height: 100vh;
+        padding: 0;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
 
         &.sidebar-collapsed {
           grid-template-columns: 0px auto;
@@ -291,36 +304,22 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         .sidebar-content {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1rem;
           width: 100%;
-          min-width: 300px;
+          min-width: 280px;
           transition: all 0.3s ease;
         }
       }
 
 
-      .title-section {
-        .page-title {
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: var(--primary-color);
-          margin: 0 0 0.5rem 0;
-          line-height: 1.2;
-        }
 
-        .page-subtitle {
-          font-size: 1.1rem;
-          color: var(--text-color-secondary);
-          margin: 0;
-          line-height: 1.4;
-        }
-      }
-
-      .left-date-controls-section {
-
-        .month-navigation-card {
+      .monthly-calendar-section {
+        .monthly-calendar-card {
           ::ng-deep .pelu-card {
-            padding: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
           }
         }
 
@@ -328,13 +327,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 1rem;
+          border-bottom: 1px solid var(--surface-border);
 
           .month-display {
             flex: 1;
 
             .month-name {
-              font-size: 1.1rem;
+              font-size: 0.9rem;
               font-weight: 600;
               color: var(--text-color);
               text-transform: capitalize;
@@ -344,28 +343,23 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           .navigation-buttons {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.25rem;
 
+            // Force 22x22px for mini buttons in month navigation
             pelu-button {
               ::ng-deep .p-button {
-                width: 36px;
-                height: 36px;
-                min-width: 36px;
-                padding: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                width: 22px !important;
+                height: 22px !important;
+                min-width: 22px !important;
+                min-height: 22px !important;
+                padding: 0 !important;
+                font-size: 0.7rem !important;
+
+                .p-button-icon {
+                  font-size: 0.7rem !important;
+                }
               }
             }
-          }
-        }
-      }
-
-      .monthly-calendar-section {
-
-        .monthly-calendar-card {
-          ::ng-deep .pelu-card {
-            padding: 0;
           }
         }
       }
@@ -374,7 +368,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         flex: 1;
         min-width: 0;
         transition: all 0.3s ease;
-
 
         .expanded-booking-section {
           display: flex;
@@ -390,21 +383,18 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
             .booking-form-title {
               margin: 0;
-              font-size: 1.1rem;
+              font-size: 0.9rem;
               font-weight: 600;
               color: var(--primary-color);
             }
+          }
 
-            .close-booking-button {
-              ::ng-deep .p-button {
-                width: 28px;
-                height: 28px;
-                min-width: 28px;
-                padding: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
+          pelu-card {
+            .booking-form-title {
+              margin: 0 0 1rem 0;
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--primary-color);
             }
           }
 
@@ -415,24 +405,26 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         }
       }
 
-      .date-controls-section {
-        // Styles are now handled by the date-controls component
-      }
-
       .calendar-section {
         flex: 1;
         min-width: 0;
         width: 100%;
         height: 100%;
+        display: flex;
+        flex-direction: column;
 
         pelu-calendar-component {
+          flex: 1;
           width: 100%;
           height: 100%;
+          min-height: 0;
 
           ::ng-deep {
             .calendar-container {
               width: 100%;
               height: 100%;
+              display: flex;
+              flex-direction: column;
             }
           }
         }
@@ -451,7 +443,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           position: fixed;
           top: 0;
           left: 0;
-          width: 375px;
+          width: 300px;
           height: 100vh;
           background: white;
           z-index: 150; // Below header (200) but above normal content
@@ -517,38 +509,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                 }
               }
             }
-
-            .toggle-button {
-              ::ng-deep .p-button {
-                width: 18px;
-                height: 18px;
-                min-width: 18px;
-                padding: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 4px;
-                transition: all 0.3s ease;
-
-                .p-button-icon {
-                  transition: transform 0.3s ease, font-size 0.3s ease;
-                  font-size: 0.5rem !important;
-                }
-
-                &:hover {
-                  background: rgba(255, 255, 255, 0.1) !important;
-                  transform: scale(1.1);
-
-                  .p-button-icon {
-                    transform: translateX(1px);
-                  }
-                }
-
-                &:active {
-                  transform: scale(0.95);
-                }
-              }
-            }
           }
         }
       }
@@ -567,22 +527,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
         .right-column {
           order: 1;
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      .desktop-layout {
-        // Date controls styles are now handled by the date-controls component
-
-        .title-section {
-          .page-title {
-            font-size: 2rem;
-          }
-
-          .page-subtitle {
-            font-size: 1rem;
-          }
         }
       }
     }
@@ -610,6 +554,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
       }
     }
 
+
     .floating-create-booking {
       position: fixed;
       bottom: 2rem;
@@ -623,22 +568,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         width: 56px;
         height: 56px;
         transition: all 0.3s ease;
-
-        ::ng-deep .p-button {
-          border-radius: 50%;
-          width: 56px;
-          height: 56px;
-          min-width: 56px;
-          padding: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-
-          &:hover {
-            transform: scale(1.1);
-          }
-        }
       }
     }
   `]
@@ -646,11 +575,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
   @ViewChild('bookingForm') bookingForm!: BookingFormComponent;
+  @ViewChild('bookingFormPopup') bookingFormPopup!: BookingFormComponent;
 
   private readonly bookingStateService = inject(BookingStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
+  private readonly translateService = inject(TranslateService);
 
   // Signal to track if booking form inputs are mounted
   private readonly inputsMountedSignal = signal<boolean>(false);
@@ -658,6 +589,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
   // Signal to track if manual booking form is collapsed
   readonly manualBookingCollapsed = signal<boolean>(true);
+
+  // Signal to track if booking popup is open
+  readonly bookingPopupOpen = signal<boolean>(false);
 
   // Output events
   timeSlotSelected = output<{ date: string; time: string }>();
@@ -707,6 +641,26 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     const year = referenceDate.getFullYear();
     return `${month} ${year}`;
   });
+
+  // Booking popup configuration
+  readonly bookingPopupConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('BOOKING.MANUAL.TITLE'),
+    size: 'large',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        severity: 'danger',
+        action: () => this.closeBookingPopup()
+      },
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CREATE'),
+        severity: 'primary',
+        action: () => this.onCreateBooking()
+      }
+    ]
+  }));
 
   // ===== EVENT HANDLERS =====
 
@@ -782,13 +736,35 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   onFloatingCreateBookingClicked(): void {
-    // Open sidebar if it's collapsed
-    if (this.sidebarCollapsed()) {
-      this.bookingStateService.setSidebarCollapsed(false);
-    }
+    // Open booking popup
+    this.bookingPopupOpen.set(true);
+  }
 
-    // Expand manual booking form
-    this.manualBookingCollapsed.set(false);
+  closeBookingPopup(): void {
+    this.bookingPopupOpen.set(false);
+  }
+
+  onCreateBooking(): void {
+    // Trigger the booking form submission
+    const bookingForm = this.bookingFormPopup;
+    if (bookingForm) {
+      // If the form has a submit method, call it
+      const formAsAny = bookingForm as any;
+      if (typeof formAsAny.onSubmit === 'function') {
+        formAsAny.onSubmit();
+      }
+    }
+  }
+
+  onPopupBookingCreated(booking: any): void {
+    // Handle booking creation from popup
+    console.log('Popup booking created:', booking);
+
+    // Close the popup
+    this.closeBookingPopup();
+
+    // The booking state service already handles refreshing appointments
+    // and dispatching the bookingUpdated event, which will update the calendar
   }
 
   // ===== SIDEBAR METHODS =====

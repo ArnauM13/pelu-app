@@ -197,19 +197,19 @@
   /* Elements interactius bàsics */
   --z-interactive: 10;
 
-  /* Dropdowns i menús */
-  --z-dropdown: 100;
-
   /* Header i navegació */
   --z-header: 200;
 
   /* Popups i modals */
   --z-popup: 1000;
 
+  /* Dropdowns i menús (han d'estar per sobre dels popups) */
+  --z-dropdown: 1100;
+
   /* Overlays i pantalles de càrrega */
   --z-overlay: 2000;
 
-  /* Notificacions i toasts */
+  /* Notificacions i toasts (han d'estar per sobre de tot) */
   --z-notification: 3000;
 
   /* Elements crítics (Firebase UI, etc.) */

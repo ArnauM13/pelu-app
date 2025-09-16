@@ -20,16 +20,7 @@ import { BookingStateService } from '../services/booking-state.service';
         (dateSelected)="onDateClicked($event)"
       ></pelu-calendar-grid>
     </div>
-  `,
-  styles: [`
-    .monthly-calendar {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 12px;
-      padding: 1rem;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(13, 71, 161, 0.08);
-    }
-  `]
+  `
 })
 export class MonthlyCalendarComponent {
   private readonly bookingStateService = inject(BookingStateService);

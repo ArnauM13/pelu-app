@@ -2,10 +2,80 @@
 // Els estils globals a styles-primeng.scss s'apliquen automàticament
 // Aquest fitxer es manté per a possibles personalitzacions específiques
 
+// Mini size buttons
+:host(.p-button-mini) {
+  .p-button {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    padding: 0 !important;
+    font-size: 0.7rem !important;
+
+    .p-button-icon {
+      font-size: 0.7rem !important;
+    }
+  }
+}
+
+// Micro size buttons - entire element 22x22, button content 10x10
+:host(.p-button-micro) {
+  .p-button.p-button {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    padding: 6px !important; // (22-10)/2 = 6px padding to center 10x10 content
+    font-size: 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    .p-button-icon.p-button-icon {
+      font-size: 0.5rem !important;
+      width: 10px !important;
+      height: 10px !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+    }
+  }
+}
+
 // Responsive design
 @media (max-width: 768px) {
-  :host {
-    // Assegurar que els botons siguin touch-friendly en mòbils
+  // Exception for mini buttons - keep them small even on mobile (must come FIRST for specificity)
+  :host(.p-button-mini) {
+    .p-button {
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      min-height: 22px !important;
+      padding: 0 !important;
+      font-size: 0.7rem !important;
+    }
+  }
+
+  // Exception for micro buttons - keep them small even on mobile (must come FIRST for specificity)
+  :host(.p-button-micro) {
+    .p-button.p-button {
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      min-height: 22px !important;
+      padding: 6px !important;
+      font-size: 0.5rem !important;
+
+      .p-button-icon.p-button-icon {
+        font-size: 0.5rem !important;
+        width: 10px !important;
+        height: 10px !important;
+        margin: 0 !important;
+      }
+    }
+  }
+
+  // General mobile touch-friendly rules (apply to buttons that are NOT mini or micro)
+  :host:not(.p-button-mini):not(.p-button-micro) {
     .p-button {
       min-height: 48px !important;
       font-size: 1rem !important;

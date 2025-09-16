@@ -13,7 +13,7 @@ export interface TimeSlot {
   imports: [CommonModule],
   template: `
     <div class="time-column">
-      <div class="time-header">Hora</div>
+      <div class="time-header"></div>
       @for (timeSlot of timeSlots(); track timeSlot.time; let k = $index) {
         <div
           class="time-slot-label"

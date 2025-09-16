@@ -42,7 +42,7 @@
   // Override color for outlined buttons - higher specificity
   &.p-button-outlined {
     color: var(--primary-color, #3b82f6) !important;
-    
+
     // Ensure text color is properly set for all outlined variants
     .p-button-label {
       color: inherit !important;
@@ -189,7 +189,7 @@
   &.p-button-outlined {
     background: transparent !important;
     border-width: 2px !important;
-    
+
     // Ensure text and icons inherit the correct color
     .p-button-label,
     .p-button-icon {
@@ -775,7 +775,7 @@
     border: 1px solid var(--border-color) !important;
     border-radius: var(--border-radius-lg) !important;
     box-shadow: var(--box-shadow-elevated) !important;
-    z-index: 99999 !important; // Extremely high z-index to appear above everything including popups
+    z-index: var(--z-dropdown) !important; // Dropdown z-index
     margin-top: 0.25rem !important;
     position: relative !important;
 
@@ -812,10 +812,15 @@
   }
 }
 
+// ===== TOAST STYLES =====
+.p-toast {
+  z-index: var(--z-notification) !important; // Toast z-index to appear above everything
+}
+
 // ===== DIALOG STYLES =====
 .p-dialog,
 .p-confirmdialog {
-  z-index: 9999 !important; // Very high z-index to ensure it appears above everything
+  z-index: var(--z-popup) !important; // Popup z-index to appear above header
 
   // Dialog container
   .p-dialog-header {
@@ -870,7 +875,7 @@
   border-radius: var(--border-radius-lg) !important;
   box-shadow: var(--box-shadow-elevated) !important;
   padding: 0.5rem !important;
-  z-index: 99999 !important; // Extremely high z-index to appear above everything including popups
+  z-index: var(--z-dropdown) !important; // Dropdown z-index for menus
 
   .p-menuitem {
     .p-menuitem-link {
@@ -979,4 +984,30 @@
 
 .p-dialog {
   animation: slideIn 0.3s ease-out !important;
+}
+
+// ===== CUSTOM BUTTON SIZES =====
+// Micro size buttons - global override with maximum specificity
+.p-button.p-button-micro,
+pelu-button.p-button-micro .p-button,
+pelu-button .p-button.p-button-micro {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  padding: 6px !important;
+  font-size: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+
+  .p-button-icon,
+  .p-button-icon.p-button-icon {
+    font-size: 0.5rem !important;
+    width: 10px !important;
+    height: 10px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
 }

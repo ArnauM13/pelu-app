@@ -26,309 +26,139 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
   imports: [
     CommonModule,
     TranslateModule,
-    ButtonComponent,
-    CardComponent,
     InputTextComponent,
     InputTextareaComponent,
     InputDateComponent,
     InputSelectComponent,
   ],
   template: `
-    <div class="booking-form">
-      <pelu-card variant="default">
-        <div class="booking-form-header">
-          <div class="header-content">
-            <h3>📝 {{ displayTitle() | translate }}</h3>
-            <p class="booking-form-subtitle">{{ displaySubtitle() | translate }}</p>
-          </div>
+    <div class="booking-form-inputs" [class.two-columns]="twoColumns()">
+      <!-- Service Selection -->
+      <pelu-input-select
+        [label]="'BOOKING.SERVICE'"
+        [placeholder]="'BOOKING.SELECT_SERVICE'"
+        [required]="true"
+        [options]="serviceOptions()"
+        [value]="selectedServiceId()"
+        [searchable]="true"
+        [clearable]="false"
+        [disabled]="inputsDisabled()"
+        (valueChange)="onServiceChange($event)"
+      >
+      </pelu-input-select>
 
-          @if (showActions() && actionButtons().length > 0) {
-            <div class="header-actions">
-              @for (action of actionButtons(); track action.label) {
-                <pelu-button
-                  [icon]="action.icon || ''"
-                  [severity]="action.severity || 'secondary'"
-                  (clicked)="action.onClick()"
-                  [raised]="false"
-                  [size]="'small'"
-                >
-                </pelu-button>
-              }
-            </div>
-          }
-        </div>
+      <!-- Date Selection -->
+      <pelu-input-date
+        [label]="'BOOKING.DATE'"
+        [required]="true"
+        [value]="selectedDateString()"
+        [minDate]="minDate"
+        [preventPastMonths]="true"
+        [disabled]="inputsDisabled()"
+        [disabledDates]="disabledDates()"
+        (valueChange)="onDateChange($event)"
+      >
+      </pelu-input-date>
 
-        <div class="booking-form-content">
+      <!-- Time Selection -->
+      <pelu-input-select
+        [label]="'BOOKING.TIME'"
+        [placeholder]="getTimePlaceholder()"
+        [required]="true"
+        [options]="timeSlotOptions()"
+        [value]="selectedTime()"
+        [searchable]="true"
+        [clearable]="false"
+        [disabled]="inputsDisabled() || !isTimeSelectorEnabled()"
+        (valueChange)="onTimeChange($event)"
+      >
+      </pelu-input-select>
 
-          <!-- Service Selection -->
-          <pelu-input-select
-            [label]="'BOOKING.SERVICE'"
-            [placeholder]="'BOOKING.SELECT_SERVICE'"
-            [required]="true"
-            [options]="serviceOptions()"
-            [value]="selectedServiceId()"
-            [searchable]="true"
-            [clearable]="false"
-            [disabled]="inputsDisabled()"
-            (valueChange)="onServiceChange($event)"
-          >
-          </pelu-input-select>
+      <!-- Client Name -->
+      <pelu-input-text
+        [label]="'BOOKING.CLIENT_NAME'"
+        [placeholder]="'BOOKING.CLIENT_NAME_PLACEHOLDER'"
+        [required]="true"
+        [value]="clientName()"
+        [disabled]="inputsDisabled()"
+        (valueChange)="onClientNameChange($event)"
+      >
+      </pelu-input-text>
 
-          <!-- Date Selection -->
-          <pelu-input-date
-            [label]="'BOOKING.DATE'"
-            [required]="true"
-            [value]="selectedDateString()"
-            [minDate]="minDate"
-            [preventPastMonths]="true"
-            [disabled]="inputsDisabled()"
-            [disabledDates]="disabledDates()"
-            (valueChange)="onDateChange($event)"
-          >
-          </pelu-input-date>
+      <!-- Client Email -->
+      <pelu-input-text
+        [label]="'COMMON.EMAIL'"
+        [placeholder]="'BOOKING.EMAIL_PLACEHOLDER'"
+        [required]="true"
+        [type]="'email'"
+        [value]="clientEmail()"
+        [disabled]="inputsDisabled()"
+        (valueChange)="onEmailChange($event)"
+      >
+      </pelu-input-text>
 
-          <!-- Time Selection -->
-          <pelu-input-select
-            [label]="'BOOKING.TIME'"
-            [placeholder]="getTimePlaceholder()"
-            [required]="true"
-            [options]="timeSlotOptions()"
-            [value]="selectedTime()"
-            [searchable]="true"
-            [clearable]="false"
-            [disabled]="inputsDisabled() || !isTimeSelectorEnabled()"
-            (valueChange)="onTimeChange($event)"
-          >
-          </pelu-input-select>
-
-          <!-- Client Name -->
-          <pelu-input-text
-            [label]="'BOOKING.CLIENT_NAME'"
-            [placeholder]="'BOOKING.CLIENT_NAME_PLACEHOLDER'"
-            [required]="true"
-            [value]="clientName()"
-            [disabled]="inputsDisabled()"
-            (valueChange)="onClientNameChange($event)"
-          >
-          </pelu-input-text>
-
-          <!-- Client Email -->
-          <pelu-input-text
-            [label]="'COMMON.EMAIL'"
-            [placeholder]="'BOOKING.EMAIL_PLACEHOLDER'"
-            [required]="true"
-            [type]="'email'"
-            [value]="clientEmail()"
-            [disabled]="inputsDisabled()"
-            (valueChange)="onEmailChange($event)"
-          >
-          </pelu-input-text>
-
-          <!-- Notes (Optional) -->
-          <pelu-input-textarea
-            [label]="'BOOKING.NOTES'"
-            [placeholder]="'BOOKING.NOTES_PLACEHOLDER'"
-            [rows]="3"
-            [value]="notes()"
-            [disabled]="inputsDisabled()"
-            (valueChange)="onNotesChange($event)"
-          >
-          </pelu-input-textarea>
-
-          <!-- Footer Actions -->
-          @if (showFooterActions() && footerActionButtons().length > 0) {
-            <div class="form-actions">
-              @for (action of footerActionButtons(); track action.label) {
-                <pelu-button
-                  [label]="action.label"
-                  [icon]="action.icon || ''"
-                  [severity]="action.severity || 'primary'"
-                  (clicked)="action.onClick()"
-                  [disabled]="action.disabled || (action.severity === 'primary' && !canCreateBooking())"
-                  [raised]="true"
-                  [fluid]="true"
-                >
-                </pelu-button>
-              }
-            </div>
-          } @else if (showDefaultSubmitButton()) {
-            <!-- Default Submit Button -->
-            <div class="form-actions">
-              @if (isEditMode()) {
-                <!-- Edit Mode: Cancel and Save buttons -->
-                <pelu-button
-                  [label]="'COMMON.ACTIONS.CANCEL'"
-                  (clicked)="onCancelEdit()"
-                  severity="secondary"
-                  [raised]="true"
-                  [fluid]="true"
-                >
-                </pelu-button>
-                <pelu-button
-                  [label]="'COMMON.ACTIONS.SAVE'"
-                  (clicked)="onSubmit()"
-                  [disabled]="!canCreateBooking()"
-                  severity="primary"
-                  [raised]="true"
-                  [fluid]="true"
-                >
-                </pelu-button>
-              } @else {
-                <!-- Create Mode: Single submit button -->
-                <pelu-button
-                  [label]="'BOOKING.CREATE_MANUAL_BOOKING'"
-                  (clicked)="onSubmit()"
-                  [disabled]="!canCreateBooking()"
-                  severity="primary"
-                  [raised]="true"
-                  [fluid]="true"
-                >
-                </pelu-button>
-              }
-            </div>
-          }
-
-          <!-- Validation Messages -->
-          @if (validationMessage()) {
-            <div class="validation-message" [class.error]="!canCreateBooking()">
-              {{ validationMessage() | translate }}
-            </div>
-          }
-        </div>
-      </pelu-card>
+      <!-- Notes (Optional) -->
+      <pelu-input-textarea
+        [label]="'BOOKING.NOTES'"
+        [placeholder]="'BOOKING.NOTES_PLACEHOLDER'"
+        [rows]="3"
+        [value]="notes()"
+        [disabled]="inputsDisabled()"
+        (valueChange)="onNotesChange($event)"
+      >
+      </pelu-input-textarea>
     </div>
   `,
   styles: [`
-    // Force remove all card styling
-    .booking-form pelu-card,
-    .booking-form pelu-card .card,
-    .booking-form .card,
-    pelu-card,
-    pelu-card .card,
-    .card {
-      border: none !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      background: transparent !important;
-      border-radius: 0 !important;
-    }
+    .booking-form-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
 
-    .booking-form {
-      width: 375px;
-
-      // Specific adjustments for overlay mode (< 1275px)
-      @media (max-width: 1275px) {
-        width: 100%;
-
-        .booking-form-content {
-          width: 100%;
-        }
-      }
-
-      .booking-form-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1.5rem;
+      &.two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
         gap: 1rem;
-        min-height: 60px; // Ensure consistent height
 
-        .header-content {
-          flex: 1;
-          text-align: left;
-
-          h3 {
-            color: #0d47a1;
-            margin: 0 0 0.5rem 0;
-            font-size: 1.3rem;
-            font-weight: 600;
-          }
-
-          .booking-form-subtitle {
-            color: #666;
-            margin: 0;
-            font-size: 0.9rem;
-            line-height: 1.4;
-          }
+        // Row 1: Service (col 1) + Client Name (col 2)
+        pelu-input-select:nth-child(1) { /* Service */
+          grid-column: 1;
+          grid-row: 1;
+        }
+        pelu-input-text:nth-child(4) { /* Client Name */
+          grid-column: 2;
+          grid-row: 1;
         }
 
-        .header-actions {
-          display: flex;
-          gap: 0.5rem;
-          flex-shrink: 0;
-          width: 120px; // Fixed width to maintain consistent layout
-          justify-content: flex-end;
+        // Row 2: Date (col 1) + Client Email (col 2)
+        pelu-input-date:nth-child(2) { /* Date */
+          grid-column: 1;
+          grid-row: 2;
+        }
+        pelu-input-text:nth-child(5) { /* Client Email */
+          grid-column: 2;
+          grid-row: 2;
+        }
+
+        // Row 3: Time (col 1) + Notes (col 2)
+        pelu-input-select:nth-child(3) { /* Time */
+          grid-column: 1;
+          grid-row: 3;
+        }
+        pelu-input-textarea:nth-child(6) { /* Notes */
+          grid-column: 2;
+          grid-row: 3;
         }
       }
 
-      .booking-form-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+      // Ensure all input components take full width
+      pelu-input-select,
+      pelu-input-date,
+      pelu-input-text,
+      pelu-input-textarea {
         width: 100%;
-
-        // Ensure all input components take full width
-        pelu-input-select,
-        pelu-input-date,
-        pelu-input-text,
-        pelu-input-textarea {
-          width: 100%;
-        }
-
-        .form-actions {
-          margin-top: 1rem;
-          display: flex;
-          gap: 1rem;
-          justify-content: stretch;
-          min-height: 48px; // Ensure consistent height for footer
-
-          pelu-button {
-            flex: 1;
-          }
-        }
-
-        .validation-message {
-          padding: 0.75rem;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: 500;
-          text-align: center;
-          background: #f0f9ff;
-          color: #0369a1;
-          border: 1px solid #bae6fd;
-
-          &.error {
-            background: #fef2f2;
-            color: #dc2626;
-            border-color: #fecaca;
-          }
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      .manual-booking {
-        max-width: 100%;
-        margin-bottom: 1rem;
-
-        .manual-booking-header {
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          gap: 1rem;
-
-          .header-content {
-            h3 {
-              font-size: 1.2rem;
-            }
-          }
-
-          .header-actions {
-            width: 100%;
-            justify-content: center;
-          }
-        }
       }
     }
   `]
@@ -352,6 +182,7 @@ export class BookingFormComponent implements OnInit, OnDestroy {
   readonly appointmentData = input<Booking | null>(null);
   readonly isEditMode = input<boolean>(false);
   readonly isReadOnlyMode = input<boolean>(false);
+  readonly twoColumns = input<boolean>(false);
 
   // Inputs for customization
   readonly title = input<string>('');

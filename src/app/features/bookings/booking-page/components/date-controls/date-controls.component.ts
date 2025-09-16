@@ -114,8 +114,8 @@ export type CalendarViewType = 'daily' | 'weekly' | 'month' | 'week';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem 0;
+      gap: 1.5rem;
+      padding-top: 1rem;
     }
 
     .date-controls.mobile {

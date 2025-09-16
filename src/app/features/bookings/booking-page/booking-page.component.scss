@@ -24,12 +24,14 @@
   }
 }
 
-/* Container styles - Same as other main pages */
+/* Container styles - Full width layout */
 .container {
   position: relative;
-  width: 100%;
-  margin: 0 auto;
-  max-width: 95%;
+  max-width: 100%;
+  padding: 1rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 /* Content section styles */

@@ -234,7 +234,7 @@
 .horizontal-week-view {
   display: flex;
   width: 100%;
-  min-width: 800px;
+  min-width: 0;
   border: 1px solid #e9ecef;
   border-radius: 8px;
   overflow: hidden;
@@ -361,7 +361,7 @@
   }
 
   .horizontal-week-view {
-    min-width: 600px;
+    min-width: 0;
   }
 
   .time-column {
