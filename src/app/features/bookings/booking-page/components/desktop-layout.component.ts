@@ -2,6 +2,7 @@ import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, Elem
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
+import { CardComponent } from '../../../../shared/components/card/card.component';
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
 import { BookingFormComponent } from './booking-form.component';
 import { DateControlsComponent } from './date-controls/date-controls.component';
@@ -20,6 +21,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     CommonModule,
     TranslateModule,
     ButtonComponent,
+    CardComponent,
     CalendarComponent,
     BookingFormComponent,
     DateControlsComponent,
@@ -45,20 +47,70 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
               <p class="page-subtitle">{{ 'BOOKING.SUBTITLE' | translate }}</p>
             </div>
 
+            <!-- Date Controls Section -->
+            <div class="left-date-controls-section">
+              <pelu-card class="month-navigation-card">
+                <div class="month-navigation">
+                  <div class="month-display">
+                    <span class="month-name">{{ currentMonthName() }}</span>
+                  </div>
+
+                  <div class="navigation-buttons">
+                    <pelu-button
+                      [icon]="'pi pi-chevron-left'"
+                      [rounded]="true"
+                      (clicked)="onPreviousMonth()"
+                      [ariaLabel]="'Previous month'"
+                      size="small"
+                      severity="secondary"
+                    ></pelu-button>
+
+                    <pelu-button
+                      [icon]="'pi pi-chevron-right'"
+                      [rounded]="true"
+                      (clicked)="onNextMonth()"
+                      [ariaLabel]="'Next month'"
+                      size="small"
+                      severity="secondary"
+                    ></pelu-button>
+                  </div>
+                </div>
+              </pelu-card>
+            </div>
+
             <!-- Monthly Calendar Section -->
             <div class="monthly-calendar-section">
-              <pelu-monthly-calendar
-                [selectedDate]="selectedDate()"
-                (dateSelected)="onMonthlyCalendarDateSelected($event)"
-              ></pelu-monthly-calendar>
+              <pelu-card class="monthly-calendar-card">
+                <pelu-monthly-calendar
+                  [selectedDate]="selectedDate()"
+                  (dateSelected)="onMonthlyCalendarDateSelected($event)"
+                ></pelu-monthly-calendar>
+              </pelu-card>
             </div>
 
             <!-- Manual Booking Section -->
-            <div class="manual-booking-section">
-              <pelu-booking-form
-                #bookingForm
-                (bookingCreated)="onManualBookingCreated($event)"
-              ></pelu-booking-form>
+            <div class="manual-booking-section" [class.collapsed]="manualBookingCollapsed()">
+              @if (!manualBookingCollapsed()) {
+                <!-- Expanded state: Show booking form with collapse button -->
+                <div class="expanded-booking-section">
+                  <div class="booking-form-header">
+                    <h4 class="booking-form-title">{{ 'BOOKING.MANUAL.TITLE' | translate }}</h4>
+                    <pelu-button
+                      [icon]="'pi pi-times'"
+                      [rounded]="true"
+                      (clicked)="toggleManualBooking()"
+                      [ariaLabel]="'Close booking form'"
+                      size="small"
+                      severity="secondary"
+                      class="close-booking-button"
+                    ></pelu-button>
+                  </div>
+                  <pelu-booking-form
+                    #bookingForm
+                    (bookingCreated)="onManualBookingCreated($event)"
+                  ></pelu-booking-form>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -98,6 +150,17 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             ></pelu-calendar-component>
           </div>
         </div>
+      </div>
+
+      <!-- Floating Create Booking Button -->
+      <div class="floating-create-booking">
+        <pelu-button
+          [icon]="'pi pi-plus'"
+          (clicked)="onFloatingCreateBookingClicked()"
+          severity="primary"
+          size="small"
+          class="floating-booking-button"
+        ></pelu-button>
       </div>
     </div>
   `,
@@ -253,13 +316,103 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         }
       }
 
+      .left-date-controls-section {
+
+        .month-navigation-card {
+          ::ng-deep .pelu-card {
+            padding: 0;
+          }
+        }
+
+        .month-navigation {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.75rem 1rem;
+
+          .month-display {
+            flex: 1;
+
+            .month-name {
+              font-size: 1.1rem;
+              font-weight: 600;
+              color: var(--text-color);
+              text-transform: capitalize;
+            }
+          }
+
+          .navigation-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            pelu-button {
+              ::ng-deep .p-button {
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+            }
+          }
+        }
+      }
+
       .monthly-calendar-section {
-        margin-bottom: 1.5rem;
+
+        .monthly-calendar-card {
+          ::ng-deep .pelu-card {
+            padding: 0;
+          }
+        }
       }
 
       .manual-booking-section {
         flex: 1;
         min-width: 0;
+        transition: all 0.3s ease;
+
+
+        .expanded-booking-section {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+
+          .booking-form-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--surface-border);
+
+            .booking-form-title {
+              margin: 0;
+              font-size: 1.1rem;
+              font-weight: 600;
+              color: var(--primary-color);
+            }
+
+            .close-booking-button {
+              ::ng-deep .p-button {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+            }
+          }
+
+          pelu-booking-form {
+            flex: 1;
+            min-width: 0;
+          }
+        }
       }
 
       .date-controls-section {
@@ -456,6 +609,38 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         opacity: 1;
       }
     }
+
+    .floating-create-booking {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      pointer-events: none;
+
+      .floating-booking-button {
+        pointer-events: auto;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        transition: all 0.3s ease;
+
+        ::ng-deep .p-button {
+          border-radius: 50%;
+          width: 56px;
+          height: 56px;
+          min-width: 56px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+      }
+    }
   `]
 })
 export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -470,6 +655,10 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   // Signal to track if booking form inputs are mounted
   private readonly inputsMountedSignal = signal<boolean>(false);
 
+
+  // Signal to track if manual booking form is collapsed
+  readonly manualBookingCollapsed = signal<boolean>(true);
+
   // Output events
   timeSlotSelected = output<{ date: string; time: string }>();
 
@@ -479,13 +668,12 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   readonly sidebarCollapsed = computed(() => this.bookingStateService.sidebarCollapsed());
   readonly selectedDate = computed(() => this.bookingStateService.selectedDate());
 
-  // Computed property to check if sidebar should be shown (considering input mounting)
+  // Computed property to check if sidebar should be shown
   readonly shouldShowSidebar = computed(() => {
     const collapsed = this.sidebarCollapsed();
-    const inputsMounted = this.inputsMountedSignal();
 
-    // Only show sidebar if it's not collapsed AND inputs are mounted
-    return !collapsed && inputsMounted;
+    // Show sidebar if it's not collapsed
+    return !collapsed;
   });
 
   // Signal to force reactivity for week info
@@ -510,6 +698,12 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
       date.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' });
 
     return `${formatDate(start)} - ${formatDate(end)}`;
+  });
+
+  // Computed property to get current month name
+  readonly currentMonthName = computed(() => {
+    const referenceDate = this.bookingStateService.viewDate();
+    return referenceDate.toLocaleDateString('ca-ES', { month: 'long', year: 'numeric' });
   });
 
   // ===== EVENT HANDLERS =====
@@ -568,25 +762,36 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     this.weekInfoUpdateTrigger.update(v => v + 1);
   }
 
+
+  onPreviousMonth(): void {
+    const currentDate = this.bookingStateService.viewDate();
+    const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+    this.bookingStateService.setViewDate(previousMonth);
+  }
+
+  onNextMonth(): void {
+    const currentDate = this.bookingStateService.viewDate();
+    const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    this.bookingStateService.setViewDate(nextMonth);
+  }
+
+  toggleManualBooking(): void {
+    this.manualBookingCollapsed.update(collapsed => !collapsed);
+  }
+
+  onFloatingCreateBookingClicked(): void {
+    // Open sidebar if it's collapsed
+    if (this.sidebarCollapsed()) {
+      this.bookingStateService.setSidebarCollapsed(false);
+    }
+
+    // Expand manual booking form
+    this.manualBookingCollapsed.set(false);
+  }
+
   // ===== SIDEBAR METHODS =====
 
   toggleSidebar(): void {
-    // If trying to expand sidebar, ensure inputs are mounted first
-    if (this.sidebarCollapsed()) {
-      this.checkInputsMounted();
-
-      // If inputs are not mounted, wait a bit and try again
-      if (!this.inputsMountedSignal()) {
-        setTimeout(() => {
-          this.checkInputsMounted();
-          if (this.inputsMountedSignal()) {
-            this.bookingStateService.toggleSidebar();
-          }
-        }, 100);
-        return;
-      }
-    }
-
     this.bookingStateService.toggleSidebar();
   }
 

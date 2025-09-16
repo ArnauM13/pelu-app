@@ -427,6 +427,10 @@
   "BOOKING": {
     "TITLE": "Book",
     "SUBTITLE": "Select the service and date that best suits you",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "Create new booking",
+      "TITLE": "Manual Booking"
+    },
     "CREATING_BOOKING": "Creating booking...",
     "SELECT_SERVICE": "New booking",
     "SELECT_DATE": "Select date",

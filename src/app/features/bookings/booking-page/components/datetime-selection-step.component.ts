@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { DateControlsComponent } from './date-controls/date-controls.component';
 import { CalendarGridComponent } from './calendar-grid.component';
+import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
@@ -18,21 +19,46 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
     TranslateModule,
     DateControlsComponent,
     CalendarGridComponent,
+    ButtonComponent,
   ],
   template: `
     <div class="datetime-step">
-      <!-- Calendar Card -->
-      <div class="calendar-card">
-        <!-- Date Controls -->
-        <pelu-date-controls
-          [currentView]="getCurrentViewForDateControls()"
-          [weekInfo]="getWeekInfo()"
-          [isMobile]="true"
-          (todayClicked)="onTodayClicked()"
-          (previousClicked)="onPreviousPeriod()"
-          (nextClicked)="onNextPeriod()"
-          (viewChanged)="onViewChanged($event)"
-        ></pelu-date-controls>
+       <!-- Calendar Card -->
+       <div class="calendar-card">
+         <!-- Header: Title + Action Buttons -->
+         <div class="calendar-header">
+           <h3 class="calendar-title">{{ 'COMMON.SELECTION.SELECT_DAY' | translate }}</h3>
+
+           <div class="header-buttons">
+             <pelu-button
+               [label]="'COMMON.TIME.TODAY' | translate"
+               [icon]="'pi pi-calendar'"
+               (clicked)="onTodayClicked()"
+               size="small"
+             ></pelu-button>
+
+             <pelu-button
+               [label]="getMobileToggleButtonLabel()"
+               [icon]="getMobileToggleButtonIcon()"
+               (clicked)="onMobileViewToggle()"
+               size="small"
+               severity="secondary"
+               [raised]="true"
+             ></pelu-button>
+           </div>
+         </div>
+
+         <!-- Date Controls -->
+         <pelu-date-controls
+           [currentView]="getCurrentViewForDateControls()"
+           [weekInfo]="getWeekInfo()"
+           [isMobile]="true"
+           [canGoPrevious]="canGoToPreviousPeriod()"
+           [hideHeaderButtons]="true"
+           (previousClicked)="onPreviousPeriod()"
+           (nextClicked)="onNextPeriod()"
+           (viewChanged)="onViewChanged($event)"
+         ></pelu-date-controls>
 
         <!-- Calendar Grid -->
         <pelu-calendar-grid
@@ -188,11 +214,32 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
         backdrop-filter: blur(10px);
         box-shadow: 0 4px 12px rgba(13, 71, 161, 0.08);
         margin-bottom: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+         display: flex;
+         flex-direction: column;
+         gap: 1rem;
 
-        .calendar-header {
+         .calendar-header {
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+           margin-bottom: 0.5rem;
+
+           .calendar-title {
+             color: #0d47a1;
+             margin: 0;
+             font-size: 1.1rem;
+             font-weight: 600;
+             text-align: left;
+           }
+
+           .header-buttons {
+             display: flex;
+             align-items: center;
+             gap: 0.5rem;
+           }
+         }
+
+         .calendar-header-old {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -638,6 +685,24 @@ export class DateTimeSelectionStepComponent {
     return 'week'; // default
   }
 
+  getMobileToggleButtonLabel(): string {
+    const currentView = this.viewMode();
+    const isWeekView = currentView === 'week';
+    return isWeekView ? 'Mes' : 'Setmana';
+  }
+
+  getMobileToggleButtonIcon(): string {
+    const currentView = this.viewMode();
+    const isWeekView = currentView === 'week';
+    return isWeekView ? 'pi pi-calendar' : 'pi pi-calendar-plus';
+  }
+
+  onMobileViewToggle(): void {
+    const currentView = this.viewMode();
+    const nextView = currentView === 'week' ? 'month' : 'week';
+    this.bookingStateService.setViewMode(nextView);
+  }
+
   onViewChanged(view: 'daily' | 'weekly' | 'month' | 'week'): void {
     console.log('=== VIEW CHANGED DEBUG ===');
     console.log('Received view:', view);
@@ -673,7 +738,20 @@ export class DateTimeSelectionStepComponent {
   // ===== NAVIGATION METHODS =====
 
   canGoToPreviousPeriod(): boolean {
-    return true; // Allow free navigation through all weeks - no restrictions
+    const currentDate = this.viewDate();
+    const today = new Date();
+
+    if (this.viewMode() === 'week') {
+      // For week view, check if the previous week would contain today or later
+      const previousWeek = this.timeUtils.getPreviousWeek(currentDate);
+      const endOfPreviousWeek = this.timeUtils.getEndOfWeek(previousWeek);
+      return endOfPreviousWeek >= today;
+    } else {
+      // For month view, check if the previous month would contain today or later
+      const previousMonth = this.timeUtils.getPreviousMonth(currentDate);
+      const endOfPreviousMonth = this.timeUtils.getEndOfMonth(previousMonth);
+      return endOfPreviousMonth >= today;
+    }
   }
 
   previousPeriod(): void {

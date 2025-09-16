@@ -450,6 +450,10 @@
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servei i la data que més t'ajusti",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "Crear nova reserva",
+      "TITLE": "Reserva Manual"
+    },
     "CREATING_BOOKING": "Creant reserva...",
     "SELECT_DATE": "Seleccionar data",
     "SELECT_DATE_PLACEHOLDER": "Selecciona una data",

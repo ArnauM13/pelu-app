@@ -426,6 +426,10 @@
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servicio y la fecha que mejor te convenga",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "Crear nueva reserva",
+      "TITLE": "Reserva Manual"
+    },
     "CREATING_BOOKING": "Creando reserva...",
     "SELECT_SERVICE": "Nueva reserva",
     "SELECT_DATE": "Seleccionar fecha",

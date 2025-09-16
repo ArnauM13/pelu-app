@@ -20,48 +20,49 @@ export type CalendarViewType = 'daily' | 'weekly' | 'month' | 'week';
     <div class="date-controls" [class.mobile]="isMobile()">
       @if (isMobile()) {
         <!-- Mobile Layout: Two rows -->
-        <!-- Row 1: Today button + View toggle button -->
-        <div class="mobile-row-1">
-          <pelu-button
-            [label]="'COMMON.TIME.TODAY' | translate"
-            [icon]="'pi pi-calendar'"
-            (clicked)="onTodayClicked()"
-            size="small"
-          ></pelu-button>
-
-          <pelu-button
-            [label]="mobileToggleButton().label"
-            [icon]="mobileToggleButton().icon"
-            (clicked)="onMobileViewToggle()"
-            size="small"
-            severity="secondary"
-            [raised]="true"
-          ></pelu-button>
-        </div>
-
-        <!-- Row 2: Navigation arrows + Week indicator -->
-        <div class="mobile-row-2">
-          <div class="week-navigation">
+        <!-- Row 1: Today button + View toggle button (hidden when hideHeaderButtons is true) -->
+        @if (!hideHeaderButtons()) {
+          <div class="mobile-row-1">
             <pelu-button
-              [icon]="'pi pi-chevron-left'"
-              [rounded]="true"
-              (clicked)="onPreviousClicked()"
-              [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+              [label]="'COMMON.TIME.TODAY' | translate"
+              [icon]="'pi pi-calendar'"
+              (clicked)="onTodayClicked()"
               size="small"
             ></pelu-button>
 
             <pelu-button
-              [icon]="'pi pi-chevron-right'"
-              [rounded]="true"
-              (clicked)="onNextClicked()"
-              [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+              [label]="mobileToggleButton().label"
+              [icon]="mobileToggleButton().icon"
+              (clicked)="onMobileViewToggle()"
               size="small"
+              severity="secondary"
+              [raised]="true"
             ></pelu-button>
           </div>
+        }
+
+        <!-- Row 2: Navigation arrows + Week indicator (centered) -->
+        <div class="mobile-row-2">
+          <pelu-button
+            [icon]="'pi pi-chevron-left'"
+            [rounded]="true"
+            (clicked)="onPreviousClicked()"
+            [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+            [disabled]="!canGoPrevious()"
+            size="small"
+          ></pelu-button>
 
           <div class="week-info">
             <span>{{ weekInfo() }}</span>
           </div>
+
+          <pelu-button
+            [icon]="'pi pi-chevron-right'"
+            [rounded]="true"
+            (clicked)="onNextClicked()"
+            [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
+            size="small"
+          ></pelu-button>
         </div>
       } @else {
         <!-- Desktop Layout: Single row -->
@@ -78,6 +79,7 @@ export type CalendarViewType = 'daily' | 'weekly' | 'month' | 'week';
               [rounded]="true"
               (clicked)="onPreviousClicked()"
               [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
+              [disabled]="!canGoPrevious()"
             ></pelu-button>
 
             <pelu-button
@@ -133,7 +135,7 @@ export type CalendarViewType = 'daily' | 'weekly' | 'month' | 'week';
     .mobile-row-2 {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       width: 100%;
       gap: 1rem;
     }
@@ -184,6 +186,8 @@ export class DateControlsComponent {
   readonly currentView = input<CalendarViewType>('weekly');
   readonly weekInfo = input<string>('');
   readonly isMobile = input<boolean>(false);
+  readonly canGoPrevious = input<boolean>(true);
+  readonly hideHeaderButtons = input<boolean>(false);
 
   // Output signals
   readonly todayClicked = output<void>();
@@ -259,7 +263,9 @@ export class DateControlsComponent {
   }
 
   onPreviousClicked(): void {
-    this.previousClicked.emit();
+    if (this.canGoPrevious()) {
+      this.previousClicked.emit();
+    }
   }
 
   onNextClicked(): void {

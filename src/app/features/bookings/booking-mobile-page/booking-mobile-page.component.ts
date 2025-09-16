@@ -145,7 +145,7 @@ export class BookingMobilePageComponent {
     if (!selectedService.id) {
       return false;
     }
-    
+
     return this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTimeSlot.time,
@@ -204,7 +204,7 @@ export class BookingMobilePageComponent {
     if (!selectedService.id) {
       return false;
     }
-    
+
     return this.dateTimeAvailabilityService.isTimeSlotAvailable(
       selectedDate,
       selectedTimeSlot.time,
@@ -275,7 +275,7 @@ export class BookingMobilePageComponent {
     }
 
     return this.currentViewDays().map((day: Date) => {
-      const timeSlots = selectedService.id 
+      const timeSlots = selectedService.id
         ? this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
             day,
             selectedService.id,
@@ -734,7 +734,13 @@ export class BookingMobilePageComponent {
       const isInCurrentMonth =
         date.getMonth() === currentMonth && date.getFullYear() === currentYear;
 
-      return isInCurrentMonth;
+      // Always allow today's date to be selectable, regardless of current view month
+      const today = new Date();
+      const isToday = date.getDate() === today.getDate() &&
+                     date.getMonth() === today.getMonth() &&
+                     date.getFullYear() === today.getFullYear();
+
+      return isInCurrentMonth || isToday;
     }
   }
 
@@ -749,15 +755,29 @@ export class BookingMobilePageComponent {
 
   selectToday() {
     const today = new Date();
+
+    // Check if today is selectable
     if (this.canSelectDate(today)) {
+      // Today is selectable, use it
       this.dateTimeSelectionService.setSelectedDateFromDate(today);
       this.viewDateSignal.set(today);
-
-      // Update available time slots for the selected date and service
-      const service = this.selectedService();
-      if (service) {
-        this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
+    } else {
+      // Today is not selectable, find the next available date
+      const nextAvailable = this.nextAvailableDate();
+      if (nextAvailable) {
+        this.dateTimeSelectionService.setSelectedDateFromDate(nextAvailable);
+        this.viewDateSignal.set(nextAvailable);
+      } else {
+        // Fallback: still try to select today even if not ideal
+        this.dateTimeSelectionService.setSelectedDateFromDate(today);
+        this.viewDateSignal.set(today);
       }
+    }
+
+    // Update available time slots for the selected date and service
+    const service = this.selectedService();
+    if (service) {
+      this.dateTimeSelectionService.updateAvailableTimeSlots(service, this.appointments());
     }
   }
 
@@ -986,7 +1006,7 @@ export class BookingMobilePageComponent {
     if (!selectedService.id) {
       return true;
     }
-    
+
     const daySlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       day,
       selectedService.id,
@@ -1015,7 +1035,7 @@ export class BookingMobilePageComponent {
     if (!service.id) {
       return false;
     }
-    
+
     const daySlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
       day,
       service.id,

@@ -418,6 +418,10 @@
   "BOOKING": {
     "TITLE": "احجز",
     "SUBTITLE": "اختر الخدمة والتاريخ الذي يناسبك",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "إنشاء حجز جديد",
+      "TITLE": "حجز يدوي"
+    },
     "CREATING_BOOKING": "جاري إنشاء الحجز...",
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
