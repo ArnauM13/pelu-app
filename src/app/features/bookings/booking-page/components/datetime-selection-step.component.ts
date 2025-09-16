@@ -216,13 +216,12 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
         margin-bottom: 2rem;
          display: flex;
          flex-direction: column;
-         gap: 1rem;
+         gap: 1.5rem;
 
          .calendar-header {
            display: flex;
            align-items: center;
            justify-content: space-between;
-           margin-bottom: 0.5rem;
 
            .calendar-title {
              color: #0d47a1;
@@ -238,35 +237,6 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
              gap: 0.5rem;
            }
          }
-
-         .calendar-header-old {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-
-          .calendar-buttons {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-            align-items: center;
-
-            pelu-button {
-              // Ensure consistent sizing for calendar buttons
-              ::ng-deep .p-button {
-                min-width: auto;
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-              }
-            }
-          }
-
-          h3 {
-            color: #0d47a1;
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 600;
-          }
-        }
 
         .period-navigation {
           display: flex;

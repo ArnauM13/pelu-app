@@ -121,7 +121,7 @@ export type CalendarViewType = 'daily' | 'weekly' | 'month' | 'week';
     .date-controls.mobile {
       flex-direction: column;
       gap: 0.75rem;
-      padding: 0.75rem 0;
+      padding: 0;
     }
 
     .mobile-row-1 {

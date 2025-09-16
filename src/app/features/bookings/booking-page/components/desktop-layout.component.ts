@@ -703,7 +703,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   // Computed property to get current month name
   readonly currentMonthName = computed(() => {
     const referenceDate = this.bookingStateService.viewDate();
-    return referenceDate.toLocaleDateString('ca-ES', { month: 'long', year: 'numeric' });
+    const month = referenceDate.toLocaleDateString('ca-ES', { month: 'long' });
+    const year = referenceDate.getFullYear();
+    return `${month} ${year}`;
   });
 
   // ===== EVENT HANDLERS =====
@@ -792,13 +794,21 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   // ===== SIDEBAR METHODS =====
 
   toggleSidebar(): void {
+    const wasCollapsed = this.sidebarCollapsed();
     this.bookingStateService.toggleSidebar();
+
+    // If sidebar is being collapsed, also close the booking form
+    if (!wasCollapsed) {
+      this.manualBookingCollapsed.set(true);
+    }
   }
 
   closeSidebarOnMobile(): void {
     // Only close if we're in mobile view (< 1275px)
     if (window.innerWidth < 1275) {
       this.bookingStateService.setSidebarCollapsed(true);
+      // Also close the booking form when sidebar is closed on mobile
+      this.manualBookingCollapsed.set(true);
     }
   }
 

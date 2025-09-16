@@ -27,9 +27,6 @@ export type CalendarViewMode = 'week' | 'month';
         >
           <div class="day-name">{{ formatDayShort(day) }}</div>
           <div class="day-number">{{ day.getDate() }}</div>
-          @if (isToday(day)) {
-            <div class="today-indicator">{{ 'COMMON.TIME.TODAY' | translate }}</div>
-          }
         </div>
       }
     </div>
@@ -38,19 +35,19 @@ export type CalendarViewMode = 'week' | 'month';
     .days-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 0.5rem;
+      gap: 0.38rem;
       transition: all 0.3s ease-in-out;
 
       @media (max-width: 480px) {
-        gap: 0.25rem;
+        gap: 0.19rem;
       }
 
       &.month-view {
         grid-template-columns: repeat(7, 1fr);
-        gap: 0.25rem;
+        gap: 0.19rem;
 
         @media (max-width: 480px) {
-          gap: 0.15rem;
+          gap: 0.11rem;
         }
       }
     }
@@ -59,12 +56,12 @@ export type CalendarViewMode = 'week' | 'month';
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0.75rem 0.5rem;
-      border-radius: 8px;
+      padding: 0.56rem 0.38rem;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.3s ease;
       background: white;
-      border: 2px solid transparent;
+      border: 1.5px solid transparent;
 
       &:hover {
         transform: translateY(-2px);
@@ -73,7 +70,13 @@ export type CalendarViewMode = 'week' | 'month';
 
       &.today {
         border-color: #10b981;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: #f0fdf4;
+        color: #10b981;
+      }
+
+      &.today.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
       }
 
@@ -162,22 +165,17 @@ export type CalendarViewMode = 'week' | 'month';
       }
 
       .day-name {
-        font-size: 0.8rem;
+        font-size: 0.6rem;
         font-weight: 600;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.19rem;
         text-transform: uppercase;
       }
 
       .day-number {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
         font-weight: 700;
       }
 
-      .today-indicator {
-        font-size: 0.7rem;
-        margin-top: 0.25rem;
-        opacity: 0.8;
-      }
     }
   `]
 })
