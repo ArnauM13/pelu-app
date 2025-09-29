@@ -2,6 +2,7 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CalendarGridComponent } from './calendar-grid.component';
 import { BookingStateService } from '../services/booking-state.service';
+import { CalendarStateService } from '../../../calendar/services/calendar-state.service';
 
 @Component({
   selector: 'pelu-monthly-calendar',
@@ -24,16 +25,23 @@ import { BookingStateService } from '../services/booking-state.service';
 })
 export class MonthlyCalendarComponent {
   private readonly bookingStateService = inject(BookingStateService);
+  private readonly calendarStateService = inject(CalendarStateService);
 
   // Input signals
   readonly selectedDate = input<Date | null>(null);
+  readonly viewDate = input<Date | null>(null);
 
   // Output events
   readonly dateSelected = output<Date>();
 
   // ===== COMPUTED PROPERTIES =====
 
-  readonly monthDays = computed(() => this.bookingStateService.monthDays());
+  // Simple reactive computation: use the main calendar's viewDate directly
+  readonly monthDays = computed(() => {
+    // React directly to the main calendar's viewDate
+    const mainCalendarViewDate = this.calendarStateService.viewDate();
+    return this.bookingStateService.getMonthDaysForDate(mainCalendarViewDate);
+  });
 
   // ===== EVENT HANDLERS =====
 

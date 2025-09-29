@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, ElementRef, AfterViewInit, signal } from '@angular/core';
+import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, ElementRef, AfterViewInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
@@ -12,8 +12,9 @@ import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
-import { startOfWeek, endOfWeek } from 'date-fns';
+import { startOfWeek, endOfWeek, isSameDay, addDays, startOfDay } from 'date-fns';
 import { Booking } from '../../../../core/interfaces/booking.interface';
+import { CalendarStateService } from '../../../calendar/services/calendar-state.service';
 
 @Component({
   selector: 'pelu-desktop-layout',
@@ -76,7 +77,8 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                 </div>
 
                 <pelu-monthly-calendar
-                  [selectedDate]="selectedDate()"
+                  [selectedDate]="firstEnabledDay()"
+                  [viewDate]="monthlyCalendarViewDate()"
                   (dateSelected)="onMonthlyCalendarDateSelected($event)"
                 ></pelu-monthly-calendar>
               </pelu-card>
@@ -404,31 +406,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           }
         }
       }
-
-      .calendar-section {
-        flex: 1;
-        min-width: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-
-        pelu-calendar-component {
-          flex: 1;
-          width: 100%;
-          height: 100%;
-          min-height: 0;
-
-          ::ng-deep {
-            .calendar-container {
-              width: 100%;
-              height: 100%;
-              display: flex;
-              flex-direction: column;
-            }
-          }
-        }
-      }
     }
 
     @media (max-width: 1275px) {
@@ -582,6 +559,7 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
   private readonly translateService = inject(TranslateService);
+  private readonly calendarStateService = inject(CalendarStateService);
 
   // Signal to track if booking form inputs are mounted
   private readonly inputsMountedSignal = signal<boolean>(false);
@@ -592,6 +570,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
   // Signal to track if booking popup is open
   readonly bookingPopupOpen = signal<boolean>(false);
+
+  // Signal for monthly calendar display month (can be different from main calendar)
+  readonly monthlyCalendarViewDate = signal<Date>(new Date());
 
   // Output events
   timeSlotSelected = output<{ date: string; time: string }>();
@@ -634,12 +615,38 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     return `${formatDate(start)} - ${formatDate(end)}`;
   });
 
-  // Computed property to get current month name
+  // Computed property to get current month name for monthly calendar
   readonly currentMonthName = computed(() => {
-    const referenceDate = this.bookingStateService.viewDate();
+    // React directly to the main calendar's viewDate
+    const referenceDate = this.calendarStateService.viewDate();
     const month = referenceDate.toLocaleDateString('ca-ES', { month: 'long' });
     const year = referenceDate.getFullYear();
     return `${month} ${year}`;
+  });
+
+  // Computed property to get the first enabled day from the main calendar
+  readonly firstEnabledDay = computed(() => {
+    // Force reactivity by accessing the viewDate signal
+    const currentViewDate = this.calendarStateService.viewDate();
+
+    // Get the current view info from the calendar component if available
+    if (this.calendarComponent?.currentViewInfo) {
+      try {
+        const viewInfo = this.calendarComponent.currentViewInfo();
+
+        if (viewInfo.type === 'weekly' && viewInfo.startDate) {
+          return viewInfo.startDate;
+        } else if (viewInfo.type === 'daily' && viewInfo.date) {
+          return viewInfo.date;
+        }
+      } catch (error) {
+        // If there's any error accessing currentViewInfo, fall back to viewDate
+        console.warn('Error accessing calendar currentViewInfo:', error);
+      }
+    }
+
+    // Fallback to current viewDate
+    return currentViewDate;
   });
 
   // Booking popup configuration
@@ -720,15 +727,21 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
 
   onPreviousMonth(): void {
-    const currentDate = this.bookingStateService.viewDate();
+    // Get current date from main calendar state
+    const currentDate = this.calendarStateService.viewDate();
     const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-    this.bookingStateService.setViewDate(previousMonth);
+
+    // Navigate the main calendar to the previous month
+    this.calendarStateService.navigateToDate(previousMonth.toISOString().split('T')[0]);
   }
 
   onNextMonth(): void {
-    const currentDate = this.bookingStateService.viewDate();
+    // Get current date from main calendar state
+    const currentDate = this.calendarStateService.viewDate();
     const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-    this.bookingStateService.setViewDate(nextMonth);
+
+    // Navigate the main calendar to the next month
+    this.calendarStateService.navigateToDate(nextMonth.toISOString().split('T')[0]);
   }
 
   toggleManualBooking(): void {
@@ -841,6 +854,17 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     // and dispatching the bookingUpdated event, which will update the calendar
   }
 
+  constructor() {
+    // Effect to sync monthly calendar with main calendar
+    effect(() => {
+      // Watch for changes in the main calendar's view date
+      const viewDate = this.bookingStateService.viewDate();
+      if (viewDate) {
+        this.syncMonthlyCalendarWithMainCalendar();
+      }
+    });
+  }
+
   // ===== LIFECYCLE METHODS =====
 
   ngOnInit(): void {
@@ -866,6 +890,45 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     console.log('Booking updated event received, refreshing calendar...');
     // Force calendar refresh by triggering a change detection
     // The calendar component should automatically update when appointments change
+  }
+
+  private syncMonthlyCalendarWithMainCalendar(): void {
+    // Get the current view date from the main calendar
+    const mainCalendarViewDate = this.bookingStateService.viewDate();
+
+    if (!mainCalendarViewDate) return;
+
+    // Calculate the start of the week for the current view date
+    const weekStart = startOfWeek(mainCalendarViewDate, { weekStartsOn: 1 }); // Monday as first day
+
+    // Find the first available day in the current week
+    const firstAvailableDay = this.findFirstAvailableDayInWeek(weekStart);
+
+    if (firstAvailableDay) {
+      // Update the selected date to the first available day
+      this.bookingStateService.setSelectedDate(firstAvailableDay);
+
+      // Update the monthly calendar view date to show the month of the first available day
+      this.monthlyCalendarViewDate.set(firstAvailableDay);
+    } else {
+      // If no available day found, at least update the monthly calendar to show the current week's month
+      this.monthlyCalendarViewDate.set(weekStart);
+    }
+  }
+
+  private findFirstAvailableDayInWeek(weekStart: Date): Date | null {
+    // Check each day of the week (Monday to Sunday)
+    for (let i = 0; i < 7; i++) {
+      const currentDay = addDays(weekStart, i);
+
+      // Check if this day is available for booking
+      if (this.bookingValidationService.canSelectDate(currentDay)) {
+        return currentDay;
+      }
+    }
+
+    // If no day in the week is available, return null
+    return null;
   }
 
   private formatDateISO(date: Date): string {

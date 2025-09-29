@@ -151,6 +151,11 @@ export class BookingStateService {
     return this.timeUtils.getMonthDays(currentDate);
   });
 
+  // Method to get month days for a specific date (for monthly calendar component)
+  getMonthDaysForDate(date: Date): Date[] {
+    return this.timeUtils.getMonthDays(date);
+  }
+
   // Current view days
   readonly currentViewDays = computed(() => {
     return this.viewMode() === 'week' ? this.weekDays() : this.monthDays();
