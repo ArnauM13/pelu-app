@@ -18,7 +18,7 @@ import { CalendarStateService } from '../../../calendar/services/calendar-state.
         [days]="monthDays()"
         [viewMode]="'month'"
         [selectedDate]="selectedDate()"
-        [currentMonth]="currentMonthDate()"
+        [currentMonth]="monthlyViewDate()"
         [currentView]="currentView()"
         (dateSelected)="onDateClicked($event)"
       ></pelu-calendar-grid>
@@ -41,7 +41,7 @@ export class MonthlyCalendarComponent {
   // ===== INTERNAL STATE =====
 
   // Internal state for monthly calendar navigation (independent from main calendar)
-  private readonly monthlyViewDate = signal<Date>(new Date());
+  readonly monthlyViewDate = signal<Date>(new Date());
 
   // ===== COMPUTED PROPERTIES =====
 

@@ -12,9 +12,11 @@ import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
-import { startOfWeek, endOfWeek, isSameDay, addDays, startOfDay } from 'date-fns';
+import { startOfWeek, endOfWeek, isSameDay, addDays, startOfDay, format } from 'date-fns';
+import { ca } from 'date-fns/locale';
 import { Booking } from '../../../../core/interfaces/booking.interface';
 import { CalendarStateService } from '../../../calendar/services/calendar-state.service';
+import { SystemParametersService } from '../../../../core/services/system-parameters.service';
 
 @Component({
   selector: 'pelu-desktop-layout',
@@ -83,9 +85,21 @@ import { CalendarStateService } from '../../../calendar/services/calendar-state.
                   [referenceDate]="calendarStateService.viewDate()"
                   [currentView]="calendarComponent?.currentView() || 'weekly'"
                   (dateSelected)="onMonthlyCalendarDateSelected($event)"
-                ></pelu-monthly-calendar>
-              </pelu-card>
-            </div>
+                  ></pelu-monthly-calendar>
+                </pelu-card>
+
+                <!-- Booking Range Disclaimer -->
+                <pelu-card class="booking-range-disclaimer">
+                  <div class="disclaimer-content">
+                    <div class="disclaimer-text">
+                      <div class="disclaimer-title">
+                        <i class="pi pi-info-circle"></i>
+                        {{ 'BOOKING.DISCLAIMER.MESSAGE' | translate }} <span class="date-highlight">{{ bookingRangeText() }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </pelu-card>
+              </div>
 
             <!-- Manual Booking Section -->
             <div class="manual-booking-section" [class.collapsed]="manualBookingCollapsed()">
@@ -319,12 +333,98 @@ import { CalendarStateService } from '../../../calendar/services/calendar-state.
 
 
       .monthly-calendar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
         .monthly-calendar-card {
           ::ng-deep .pelu-card {
             padding: 1rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+          }
+        }
+
+        .booking-range-disclaimer {
+          ::ng-deep .pelu-card {
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+            transition: all 0.3s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
+            }
+          }
+
+          .disclaimer-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            .disclaimer-text {
+              flex: 1;
+              font-size: 0.85rem;
+              line-height: 1.5;
+
+              .disclaimer-title {
+                font-weight: 700;
+                color: #92400e;
+                font-size: 0.9rem;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+
+                &::first-letter {
+                  text-transform: uppercase;
+                }
+
+                .date-highlight {
+                  background: rgba(217, 119, 6, 0.2);
+                  padding: 0.25rem 0.5rem;
+                  border-radius: 4px;
+                  font-weight: 800;
+                  color: #92400e;
+                  border: 1px solid rgba(217, 119, 6, 0.3);
+                }
+
+                i {
+                  color: #d97706;
+                  font-size: 0.9rem;
+                  background: rgba(217, 119, 6, 0.1);
+                  padding: 0.25rem;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 1.5rem;
+                  height: 1.5rem;
+                }
+              }
+
+              .disclaimer-description {
+                color: #a16207;
+                margin-bottom: 0.75rem;
+                font-weight: 500;
+              }
+
+              .disclaimer-range {
+                color: #92400e;
+                font-size: 0.8rem;
+                font-weight: 600;
+                background: rgba(217, 119, 6, 0.1);
+                padding: 0.5rem 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #d97706;
+                display: inline-block;
+              }
+            }
           }
         }
 
@@ -563,6 +663,7 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
   private readonly translateService = inject(TranslateService);
+  private readonly systemParametersService = inject(SystemParametersService);
   readonly calendarStateService = inject(CalendarStateService);
 
   // Signal to track if booking form inputs are mounted
@@ -995,5 +1096,17 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  /**
+   * Get the booking range text for the disclaimer
+   */
+  bookingRangeText(): string {
+    const settings = this.systemParametersService.parameters();
+    const now = new Date();
+    const daysInAdvance = settings.bookingAdvanceDays;
+    const maxBookingDate = new Date(now.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
+
+    return format(maxBookingDate, 'dd/MM/yyyy', { locale: ca });
   }
 }

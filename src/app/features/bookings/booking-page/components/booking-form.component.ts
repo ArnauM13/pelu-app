@@ -53,6 +53,7 @@ import { TimeUtils } from '../../../../shared/utils/time.utils';
         [required]="true"
         [value]="selectedDateString()"
         [minDate]="minDate"
+        [maxDate]="maxDate()"
         [preventPastMonths]="true"
         [disabled]="inputsDisabled()"
         [disabledDates]="disabledDates()"
@@ -428,6 +429,14 @@ export class BookingFormComponent implements OnInit, OnDestroy {
   // Minimum date (today)
   readonly minDate = new Date();
 
+  // Maximum date based on booking advance range
+  readonly maxDate = computed((): Date => {
+    const settings = this.systemParametersService.parameters();
+    const today = new Date();
+    const daysInAdvance = settings.bookingAdvanceDays;
+    return new Date(today.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
+  });
+
   // ===== FORM OPTIONS =====
 
   readonly serviceOptions = computed((): SelectOption[] => {
@@ -491,10 +500,13 @@ export class BookingFormComponent implements OnInit, OnDestroy {
 
     const disabledDates: Date[] = [];
     const today = new Date();
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 90); // Check next 90 days
 
-    // Check each day for availability
+    // Use the same booking advance range as the rest of the application
+    const settings = this.systemParametersService.parameters();
+    const daysInAdvance = settings.bookingAdvanceDays;
+    const maxDate = new Date(today.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
+
+    // Check each day for availability within the booking range
     for (let date = new Date(today); date <= maxDate; date.setDate(date.getDate() + 1)) {
       const timeSlots = this.dateTimeAvailabilityService.getAvailableTimeSlotsForDate(
         new Date(date),

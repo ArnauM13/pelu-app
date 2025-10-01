@@ -24,6 +24,7 @@ export type CalendarViewMode = 'week' | 'month';
           [class.selected]="isSelected(day)"
           [class.current-week]="isCurrentWeek(day)"
           [class.warning-day]="canSelectDate(day) && isBusinessDay(day) && isFullyBookedWorkingDayForService(day)"
+          [class.out-of-range]="canSelectDate(day) && !canMakeBookingOnDate(day)"
           [class.adjacent-month]="isAdjacentMonth(day)"
           (click)="onDateClicked(day)"
         >
@@ -222,6 +223,48 @@ export type CalendarViewMode = 'week' | 'month';
         }
       }
 
+      &.out-of-range {
+        opacity: 0.3;
+        background: #f3f4f6;
+        cursor: pointer;
+        position: relative;
+
+        .day-name,
+        .day-number {
+          color: var(--input-placeholder-color);
+        }
+
+        &:hover {
+          opacity: 0.5;
+          background: #e5e7eb;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        // Out of range days can still be selected and show today
+        &.today {
+          border-color: #10b981 !important;
+          background: #f0fdf4 !important;
+          opacity: 0.8 !important;
+
+          .day-name,
+          .day-number {
+            color: #10b981 !important;
+          }
+        }
+
+        &.selected {
+          border-color: #667eea;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          opacity: 0.9;
+
+          .day-name,
+          .day-number {
+            color: white;
+          }
+        }
+      }
+
       &.adjacent-month {
         opacity: 0.5;
         background: #f8f9fa;
@@ -382,6 +425,10 @@ export class CalendarGridComponent {
 
   canSelectDate(date: Date): boolean {
     return this.bookingValidationService.canSelectDate(date);
+  }
+
+  canMakeBookingOnDate(date: Date): boolean {
+    return this.bookingValidationService.canMakeBookingOnDate(date);
   }
 
   isFullyBookedWorkingDayForService(day: Date): boolean {

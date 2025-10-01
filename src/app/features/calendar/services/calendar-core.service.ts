@@ -353,6 +353,18 @@ export class CalendarCoreService {
     return this.systemParametersService.isLunchBreak(time);
   }
 
+  /**
+   * Check if a date is within the booking advance range
+   */
+  isDateWithinBookingRange(date: Date): boolean {
+    const settings = this.systemParametersService.parameters();
+    const now = new Date();
+    const daysInAdvance = settings.bookingAdvanceDays;
+    const maxBookingDate = new Date(now.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
+
+    return date <= maxBookingDate;
+  }
+
 
 
   isTimeSlotAvailable(
@@ -368,6 +380,11 @@ export class CalendarCoreService {
     const slotEnd = addMinutes(slotStart, requestedDuration);
 
     if (!this.isTimeSlotBookable(time)) {
+      return false;
+    }
+
+    // Check if the date is within the booking advance range
+    if (!this.isDateWithinBookingRange(date)) {
       return false;
     }
 

@@ -257,7 +257,7 @@ describe('DesktopLayoutComponent', () => {
       spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
 
       const result = component.getMonthlyCalendarSelectedDate();
-      
+
       // Should return the start of the week (Monday)
       expect(result.getDay()).toBe(1); // Monday
       expect(result.getDate()).toBe(15);
@@ -272,7 +272,7 @@ describe('DesktopLayoutComponent', () => {
       spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
 
       const result = component.getMonthlyCalendarSelectedDate();
-      
+
       expect(result).toEqual(testDate);
     });
 
@@ -281,12 +281,12 @@ describe('DesktopLayoutComponent', () => {
       const mockCalendarComponent = jasmine.createSpyObj('CalendarComponent', ['currentView']);
       mockCalendarComponent.currentView.and.returnValue('weekly');
       component['calendarComponent'] = mockCalendarComponent;
-      
+
       const testDate = new Date('2024-01-15');
       spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
 
       const result = component.getMonthlyCalendarSelectedDate();
-      
+
       // Should return the start of the week (Monday)
       expect(result.getDay()).toBe(1); // Monday
     });

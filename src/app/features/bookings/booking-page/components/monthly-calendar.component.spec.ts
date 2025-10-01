@@ -90,7 +90,7 @@ describe('MonthlyCalendarComponent', () => {
 
     it('should use current month date for computation', () => {
       component.monthDays();
-      
+
       expect(bookingStateService.getCompleteMonthCalendar).toHaveBeenCalled();
     });
   });
@@ -98,12 +98,12 @@ describe('MonthlyCalendarComponent', () => {
   describe('Date Selection Logic', () => {
     it('should select week start for weekly view', () => {
       const testDate = new Date('2024-01-16'); // Tuesday
-      
+
       spyOn(component.dateSelected, 'emit');
-      
+
       // Test with weekly view (default)
       component.onDateClicked(testDate);
-      
+
       // Should emit the start of the week (Monday)
       expect(component.dateSelected.emit).toHaveBeenCalled();
       const emittedDate = (component.dateSelected.emit as jasmine.Spy).calls.mostRecent().args[0];
@@ -112,24 +112,24 @@ describe('MonthlyCalendarComponent', () => {
 
     it('should select exact day for daily view', () => {
       const testDate = new Date('2024-01-16');
-      
+
       // Mock the currentView input to return 'daily'
       spyOn(component, 'currentView').and.returnValue('daily');
-      
+
       spyOn(component.dateSelected, 'emit');
-      
+
       component.onDateClicked(testDate);
-      
+
       expect(component.dateSelected.emit).toHaveBeenCalledWith(testDate);
     });
 
     it('should default to weekly view', () => {
       const testDate = new Date('2024-01-16'); // Tuesday
-      
+
       spyOn(component.dateSelected, 'emit');
-      
+
       component.onDateClicked(testDate);
-      
+
       // Should emit the start of the week (Monday)
       expect(component.dateSelected.emit).toHaveBeenCalled();
       const emittedDate = (component.dateSelected.emit as jasmine.Spy).calls.mostRecent().args[0];
@@ -141,7 +141,7 @@ describe('MonthlyCalendarComponent', () => {
     it('should calculate week start correctly for Monday', () => {
       const monday = new Date('2024-01-15'); // Monday
       const weekStart = component['getWeekStart'](monday);
-      
+
       expect(weekStart.getDay()).toBe(1); // Monday
       expect(weekStart.getDate()).toBe(15);
     });
@@ -149,7 +149,7 @@ describe('MonthlyCalendarComponent', () => {
     it('should calculate week start correctly for Tuesday', () => {
       const tuesday = new Date('2024-01-16'); // Tuesday
       const weekStart = component['getWeekStart'](tuesday);
-      
+
       expect(weekStart.getDay()).toBe(1); // Monday
       expect(weekStart.getDate()).toBe(15); // Previous Monday
     });
@@ -157,7 +157,7 @@ describe('MonthlyCalendarComponent', () => {
     it('should calculate week start correctly for Sunday', () => {
       const sunday = new Date('2024-01-21'); // Sunday
       const weekStart = component['getWeekStart'](sunday);
-      
+
       expect(weekStart.getDay()).toBe(1); // Monday
       expect(weekStart.getDate()).toBe(15); // Previous Monday
     });
@@ -165,9 +165,9 @@ describe('MonthlyCalendarComponent', () => {
     it('should set time to start of day', () => {
       const testDate = new Date('2024-01-16');
       testDate.setHours(14, 30, 45, 123); // Set specific time
-      
+
       const weekStart = component['getWeekStart'](testDate);
-      
+
       expect(weekStart.getHours()).toBe(0);
       expect(weekStart.getMinutes()).toBe(0);
       expect(weekStart.getSeconds()).toBe(0);
@@ -187,19 +187,19 @@ describe('MonthlyCalendarComponent', () => {
   describe('Template Integration', () => {
     it('should render calendar grid', () => {
       fixture.detectChanges();
-      
+
       const calendarGrid = fixture.debugElement.nativeElement.querySelector('pelu-calendar-grid');
       expect(calendarGrid).toBeTruthy();
     });
 
     it('should handle date selection events', () => {
       const testDate = new Date('2024-01-15');
-      
+
       spyOn(component.dateSelected, 'emit');
-      
+
       // Simulate date selection from calendar grid
       component.onDateClicked(testDate);
-      
+
       expect(component.dateSelected.emit).toHaveBeenCalled();
     });
   });
@@ -208,9 +208,9 @@ describe('MonthlyCalendarComponent', () => {
     it('should navigate to previous month', () => {
       const initialDate = new Date('2024-02-15');
       component['monthlyViewDate'].set(initialDate);
-      
+
       component.navigateToPreviousMonth();
-      
+
       const currentDate = component['monthlyViewDate']();
       expect(currentDate.getMonth()).toBe(1); // February (0-indexed) -> January (0-indexed)
       expect(currentDate.getFullYear()).toBe(2024);
@@ -219,9 +219,9 @@ describe('MonthlyCalendarComponent', () => {
     it('should navigate to next month', () => {
       const initialDate = new Date('2024-01-15');
       component['monthlyViewDate'].set(initialDate);
-      
+
       component.navigateToNextMonth();
-      
+
       const currentDate = component['monthlyViewDate']();
       expect(currentDate.getMonth()).toBe(1); // January (0-indexed) -> February (0-indexed)
       expect(currentDate.getFullYear()).toBe(2024);
@@ -230,9 +230,9 @@ describe('MonthlyCalendarComponent', () => {
     it('should handle year boundary when navigating to previous month', () => {
       const initialDate = new Date('2024-01-15');
       component['monthlyViewDate'].set(initialDate);
-      
+
       component.navigateToPreviousMonth();
-      
+
       const currentDate = component['monthlyViewDate']();
       expect(currentDate.getMonth()).toBe(11); // December (0-indexed)
       expect(currentDate.getFullYear()).toBe(2023);
@@ -241,9 +241,9 @@ describe('MonthlyCalendarComponent', () => {
     it('should handle year boundary when navigating to next month', () => {
       const initialDate = new Date('2024-12-15');
       component['monthlyViewDate'].set(initialDate);
-      
+
       component.navigateToNextMonth();
-      
+
       const currentDate = component['monthlyViewDate']();
       expect(currentDate.getMonth()).toBe(0); // January (0-indexed)
       expect(currentDate.getFullYear()).toBe(2025);
@@ -253,7 +253,7 @@ describe('MonthlyCalendarComponent', () => {
       const referenceDate = new Date('2024-03-15');
       // Mock the referenceDate input
       spyOn(component, 'referenceDate').and.returnValue(referenceDate);
-      
+
       // The effect should sync the monthlyViewDate with the referenceDate
       const currentDate = component['monthlyViewDate']();
       expect(currentDate).toEqual(referenceDate);
@@ -263,14 +263,14 @@ describe('MonthlyCalendarComponent', () => {
   describe('Reactivity', () => {
     it('should compute month days from booking state service', () => {
       const monthDays = component.monthDays();
-      
+
       expect(monthDays).toBeTruthy();
       expect(bookingStateService.getCompleteMonthCalendar).toHaveBeenCalled();
     });
 
     it('should have current month date', () => {
       const currentMonthDate = component.currentMonthDate();
-      
+
       expect(currentMonthDate).toBeTruthy();
       expect(currentMonthDate instanceof Date).toBe(true);
     });

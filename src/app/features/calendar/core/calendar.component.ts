@@ -297,6 +297,7 @@ export class CalendarComponent {
   // Computed day columns data - reactive to booking duration
   readonly dayColumnsData = computed((): DayColumnData[] => {
     return this.weekDays().map(day => {
+      const isOutOfRange = !this.calendarCoreService.isDateWithinBookingRange(day);
       const timeSlots = this.timeSlots().map(time => ({
         date: day,
         time,
@@ -337,8 +338,8 @@ export class CalendarComponent {
         date: day,
         dayName: this.getDayName(day),
         dayDate: this.format(day, 'dd/MM'),
-        isPast: this.isPastDate(day),
-        isDisabled: this.isPastDate(day),
+        isPast: this.isPastDate(day) || isOutOfRange,
+        isDisabled: this.isPastDate(day) || isOutOfRange,
         timeSlots,
         appointments: this.getAppointmentsForDay(day),
         dropIndicator,
