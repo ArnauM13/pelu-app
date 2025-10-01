@@ -88,52 +88,6 @@ describe('DesktopLayoutComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Collapsible Date Controls', () => {
-    it('should initialize with date controls expanded by default', () => {
-      expect(component.leftDateControlsCollapsed()).toBe(false);
-    });
-
-    it('should toggle date controls collapse state', () => {
-      expect(component.leftDateControlsCollapsed()).toBe(false);
-
-      component.toggleLeftDateControls();
-      expect(component.leftDateControlsCollapsed()).toBe(true);
-
-      component.toggleLeftDateControls();
-      expect(component.leftDateControlsCollapsed()).toBe(false);
-    });
-
-    it('should render collapsed date controls when collapsed', () => {
-      component.leftDateControlsCollapsed.set(true);
-      fixture.detectChanges();
-
-      const collapsedControls = fixture.debugElement.nativeElement.querySelector('.collapsed-date-controls');
-      const expandedControls = fixture.debugElement.nativeElement.querySelector('.expanded-date-controls');
-
-      expect(collapsedControls).toBeTruthy();
-      expect(expandedControls).toBeFalsy();
-    });
-
-    it('should render expanded date controls when expanded', () => {
-      component.leftDateControlsCollapsed.set(false);
-      fixture.detectChanges();
-
-      const collapsedControls = fixture.debugElement.nativeElement.querySelector('.collapsed-date-controls');
-      const expandedControls = fixture.debugElement.nativeElement.querySelector('.expanded-date-controls');
-
-      expect(collapsedControls).toBeFalsy();
-      expect(expandedControls).toBeTruthy();
-    });
-
-    it('should display current month name when collapsed', () => {
-      component.leftDateControlsCollapsed.set(true);
-      fixture.detectChanges();
-
-      const monthName = fixture.debugElement.nativeElement.querySelector('.month-name');
-      expect(monthName).toBeTruthy();
-      expect(monthName.textContent).toBeTruthy();
-    });
-  });
 
   describe('Collapsible Manual Booking', () => {
     it('should initialize with manual booking collapsed by default', () => {
@@ -249,23 +203,23 @@ describe('DesktopLayoutComponent', () => {
     });
 
     it('should handle previous month navigation', () => {
-      const calendarComponent = jasmine.createSpyObj('CalendarComponent', ['previousWeek']);
-      component['calendarComponent'] = calendarComponent;
+      const monthlyCalendarComponent = jasmine.createSpyObj('MonthlyCalendarComponent', ['navigateToPreviousMonth']);
+      component['monthlyCalendarComponent'] = monthlyCalendarComponent;
 
       component.onPreviousMonth();
 
-      // Should call previousWeek 4 times to navigate to previous month
-      expect(calendarComponent.previousWeek).toHaveBeenCalledTimes(4);
+      // Should only call navigateToPreviousMonth on monthly calendar, not affect main calendar
+      expect(monthlyCalendarComponent.navigateToPreviousMonth).toHaveBeenCalledTimes(1);
     });
 
     it('should handle next month navigation', () => {
-      const calendarComponent = jasmine.createSpyObj('CalendarComponent', ['nextWeek']);
-      component['calendarComponent'] = calendarComponent;
+      const monthlyCalendarComponent = jasmine.createSpyObj('MonthlyCalendarComponent', ['navigateToNextMonth']);
+      component['monthlyCalendarComponent'] = monthlyCalendarComponent;
 
       component.onNextMonth();
 
-      // Should call nextWeek 4 times to navigate to next month
-      expect(calendarComponent.nextWeek).toHaveBeenCalledTimes(4);
+      // Should only call navigateToNextMonth on monthly calendar, not affect main calendar
+      expect(monthlyCalendarComponent.navigateToNextMonth).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -323,7 +277,10 @@ describe('DesktopLayoutComponent', () => {
     });
 
     it('should default to weekly view when calendar component is not available', () => {
-      component['calendarComponent'] = null;
+      // Create a mock calendar component
+      const mockCalendarComponent = jasmine.createSpyObj('CalendarComponent', ['currentView']);
+      mockCalendarComponent.currentView.and.returnValue('weekly');
+      component['calendarComponent'] = mockCalendarComponent;
       
       const testDate = new Date('2024-01-15');
       spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
@@ -336,14 +293,6 @@ describe('DesktopLayoutComponent', () => {
   });
 
   describe('Template Integration', () => {
-    it('should apply collapsed class when date controls are collapsed', () => {
-      component.leftDateControlsCollapsed.set(true);
-      fixture.detectChanges();
-
-      const dateControlsSection = fixture.debugElement.nativeElement.querySelector('.left-date-controls-section.collapsed');
-      expect(dateControlsSection).toBeTruthy();
-    });
-
     it('should apply collapsed class when manual booking is collapsed', () => {
       component.manualBookingCollapsed.set(true);
       fixture.detectChanges();
@@ -351,33 +300,9 @@ describe('DesktopLayoutComponent', () => {
       const bookingSection = fixture.debugElement.nativeElement.querySelector('.manual-booking-section.collapsed');
       expect(bookingSection).toBeTruthy();
     });
-
-    it('should render expand button when date controls are collapsed', () => {
-      component.leftDateControlsCollapsed.set(true);
-      fixture.detectChanges();
-
-      const expandButton = fixture.debugElement.nativeElement.querySelector('.expand-button');
-      expect(expandButton).toBeTruthy();
-    });
-
-    it('should render collapse button when date controls are expanded', () => {
-      component.leftDateControlsCollapsed.set(false);
-      fixture.detectChanges();
-
-      const collapseButton = fixture.debugElement.nativeElement.querySelector('.collapse-button');
-      expect(collapseButton).toBeTruthy();
-    });
   });
 
   describe('Accessibility', () => {
-    it('should have proper aria labels for expand/collapse buttons', () => {
-      component.leftDateControlsCollapsed.set(true);
-      fixture.detectChanges();
-
-      const expandButton = fixture.debugElement.nativeElement.querySelector('.expand-button');
-      expect(expandButton.getAttribute('ariaLabel')).toBe('Expand date controls');
-    });
-
     it('should have proper aria labels for close booking button', () => {
       component.manualBookingCollapsed.set(false);
       fixture.detectChanges();

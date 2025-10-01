@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, effect } from '@angular/core';
+import { Component, computed, inject, input, output, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CalendarGridComponent } from './calendar-grid.component';
 import { BookingStateService } from '../services/booking-state.service';
@@ -38,20 +38,56 @@ export class MonthlyCalendarComponent {
   // Output events
   readonly dateSelected = output<Date>();
 
+  // ===== INTERNAL STATE =====
+
+  // Internal state for monthly calendar navigation (independent from main calendar)
+  private readonly monthlyViewDate = signal<Date>(new Date());
+
   // ===== COMPUTED PROPERTIES =====
 
   // Get the current month date for adjacent day detection and month display
   readonly currentMonthDate = computed(() => {
-    // Always use the main calendar's viewDate for reactivity
-    return this.calendarStateService.viewDate();
+    // Use the internal monthly view date for navigation
+    return this.monthlyViewDate();
   });
 
   // Simple reactive computation: use the reference date to determine which month to show
   readonly monthDays = computed(() => {
-    // Use the current month date (which is based on referenceDate/firstEnabledDay)
+    // Use the current month date (which is based on monthlyViewDate)
     const monthDate = this.currentMonthDate();
     return this.bookingStateService.getCompleteMonthCalendar(monthDate);
   });
+
+  // ===== LIFECYCLE =====
+
+  constructor() {
+    // Sync with main calendar when referenceDate changes
+    effect(() => {
+      const referenceDate = this.referenceDate();
+      if (referenceDate) {
+        this.monthlyViewDate.set(referenceDate);
+      } else {
+        // Initialize with current date if no reference date
+        this.monthlyViewDate.set(new Date());
+      }
+    });
+  }
+
+  // ===== NAVIGATION METHODS =====
+
+  navigateToPreviousMonth(): void {
+    const currentDate = this.monthlyViewDate();
+    const previousMonth = new Date(currentDate);
+    previousMonth.setMonth(previousMonth.getMonth() - 1);
+    this.monthlyViewDate.set(previousMonth);
+  }
+
+  navigateToNextMonth(): void {
+    const currentDate = this.monthlyViewDate();
+    const nextMonth = new Date(currentDate);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    this.monthlyViewDate.set(nextMonth);
+  }
 
   // ===== EVENT HANDLERS =====
 
@@ -77,14 +113,4 @@ export class MonthlyCalendarComponent {
     return weekStart;
   }
 
-  constructor() {
-    // Force reactivity by watching the calendar state service
-    effect(() => {
-      // This effect will run whenever calendarStateService.viewDate() changes
-      const viewDate = this.calendarStateService.viewDate();
-      // Force change detection by accessing the computed properties
-      this.currentMonthDate();
-      this.monthDays();
-    });
-  }
 }

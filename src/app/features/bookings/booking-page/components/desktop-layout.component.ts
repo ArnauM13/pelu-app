@@ -77,8 +77,9 @@ import { CalendarStateService } from '../../../calendar/services/calendar-state.
                 </div>
 
                 <pelu-monthly-calendar
+                  #monthlyCalendarComponent
                   [selectedDate]="getMonthlyCalendarSelectedDate()"
-                  [viewDate]="calendarStateService.viewDate()"
+                  [viewDate]="monthlyCalendarComponent?.currentMonthDate() || calendarStateService.viewDate()"
                   [referenceDate]="calendarStateService.viewDate()"
                   [currentView]="calendarComponent?.currentView() || 'weekly'"
                   (dateSelected)="onMonthlyCalendarDateSelected($event)"
@@ -552,7 +553,8 @@ import { CalendarStateService } from '../../../calendar/services/calendar-state.
   `]
 })
 export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
+  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent
+  @ViewChild('monthlyCalendarComponent') monthlyCalendarComponent!: MonthlyCalendarComponent;
   @ViewChild('bookingForm') bookingForm!: BookingFormComponent;
   @ViewChild('bookingFormPopup') bookingFormPopup!: BookingFormComponent;
 
@@ -617,10 +619,16 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     return `${formatDate(start)} - ${formatDate(end)}`;
   });
 
+  // Signal to force reactivity for monthly calendar month name
+  private readonly monthlyCalendarUpdateTrigger = signal(0);
+
   // Computed property to get current month name for monthly calendar
   readonly currentMonthName = computed(() => {
-    // Use the main calendar's viewDate to determine which month to display
-    const viewDate = this.calendarStateService.viewDate();
+    // Force reactivity by accessing the trigger
+    this.monthlyCalendarUpdateTrigger();
+
+    // Use the monthly calendar's internal view date to determine which month to display
+    const viewDate = this.monthlyCalendarComponent?.currentMonthDate() || this.calendarStateService.viewDate();
     const month = viewDate.toLocaleDateString('ca-ES', { month: 'long' });
     const year = viewDate.getFullYear();
     return `${month} ${year}`;
@@ -700,6 +708,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   onTodayClicked(): void {
     this.calendarComponent?.today();
     this.weekInfoUpdateTrigger.update(v => v + 1);
+
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   onDesktopTimeSlotSelected(event: { date: string; time: string }): void {
@@ -738,6 +749,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
       // Navigate the calendar to show the selected date using the public method
       this.calendarComponent.navigateToDate(this.formatDateISO(date));
     }
+
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   // ===== NAVIGATION METHODS =====
@@ -747,6 +761,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     this.calendarComponent?.previousDay();
     // Force week info update
     this.weekInfoUpdateTrigger.update(v => v + 1);
+
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   goToNextWeek(): void {
@@ -754,6 +771,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     this.calendarComponent?.nextDay();
     // Force week info update
     this.weekInfoUpdateTrigger.update(v => v + 1);
+
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   onViewChanged(view: 'daily' | 'weekly' | 'month' | 'week'): void {
@@ -765,19 +785,21 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
 
   onPreviousMonth(): void {
-    // Navigate the main calendar to the previous month
-    // We need to go back 4-5 weeks to reach the previous month
-    for (let i = 0; i < 4; i++) {
-      this.calendarComponent?.previousWeek();
-    }
+    // Only navigate the monthly calendar, not the main calendar
+    // This is a visual-only navigation that doesn't affect the active week
+    this.monthlyCalendarComponent?.navigateToPreviousMonth();
+
+    // Force update of month name display
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   onNextMonth(): void {
-    // Navigate the main calendar to the next month
-    // We need to go forward 4-5 weeks to reach the next month
-    for (let i = 0; i < 4; i++) {
-      this.calendarComponent?.nextWeek();
-    }
+    // Only navigate the monthly calendar, not the main calendar
+    // This is a visual-only navigation that doesn't affect the active week
+    this.monthlyCalendarComponent?.navigateToNextMonth();
+
+    // Force update of month name display
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   toggleManualBooking(): void {
