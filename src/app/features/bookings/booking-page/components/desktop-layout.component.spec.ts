@@ -10,6 +10,7 @@ import { DateTimeSelectionService } from '../services/date-time-selection.servic
 import { TimeUtils } from '../../../../shared/utils/time.utils';
 import { CalendarComponent } from '../../../calendar/core/calendar.component';
 import { BookingFormComponent } from './booking-form.component';
+import { CalendarStateService } from '../../../calendar/services/calendar-state.service';
 
 describe('DesktopLayoutComponent', () => {
   let component: DesktopLayoutComponent;
@@ -19,6 +20,7 @@ describe('DesktopLayoutComponent', () => {
   let dateTimeSelectionService: jasmine.SpyObj<DateTimeSelectionService>;
   let timeUtils: jasmine.SpyObj<TimeUtils>;
   let translateService: jasmine.SpyObj<TranslateService>;
+  let calendarStateService: jasmine.SpyObj<CalendarStateService>;
 
   beforeEach(async () => {
     const bookingStateSpy = jasmine.createSpyObj('BookingStateService', [
@@ -52,6 +54,12 @@ describe('DesktopLayoutComponent', () => {
     });
     translateSpy.instant.and.returnValue('Test Label');
 
+    const calendarStateSpy = jasmine.createSpyObj('CalendarStateService', [
+      'navigateToDate', 'viewDate'
+    ], {
+      viewDate: signal(new Date('2024-01-15'))
+    });
+
     await TestBed.configureTestingModule({
       imports: [DesktopLayoutComponent],
       providers: [
@@ -59,7 +67,8 @@ describe('DesktopLayoutComponent', () => {
         { provide: BookingValidationService, useValue: bookingValidationSpy },
         { provide: DateTimeSelectionService, useValue: dateTimeSelectionSpy },
         { provide: TimeUtils, useValue: timeUtilsSpy },
-        { provide: TranslateService, useValue: translateSpy }
+        { provide: TranslateService, useValue: translateSpy },
+        { provide: CalendarStateService, useValue: calendarStateSpy }
       ]
     }).compileComponents();
 
@@ -70,6 +79,7 @@ describe('DesktopLayoutComponent', () => {
     dateTimeSelectionService = TestBed.inject(DateTimeSelectionService) as jasmine.SpyObj<DateTimeSelectionService>;
     timeUtils = TestBed.inject(TimeUtils) as jasmine.SpyObj<TimeUtils>;
     translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    calendarStateService = TestBed.inject(CalendarStateService) as jasmine.SpyObj<CalendarStateService>;
 
     fixture.detectChanges();
   });
@@ -237,6 +247,26 @@ describe('DesktopLayoutComponent', () => {
       expect(bookingStateService.setSelectedDate).toHaveBeenCalledWith(testDate);
       expect(calendarComponent.navigateToDate).toHaveBeenCalledWith('2024-01-15');
     });
+
+    it('should handle previous month navigation', () => {
+      const calendarComponent = jasmine.createSpyObj('CalendarComponent', ['previousWeek']);
+      component['calendarComponent'] = calendarComponent;
+
+      component.onPreviousMonth();
+
+      // Should call previousWeek 4 times to navigate to previous month
+      expect(calendarComponent.previousWeek).toHaveBeenCalledTimes(4);
+    });
+
+    it('should handle next month navigation', () => {
+      const calendarComponent = jasmine.createSpyObj('CalendarComponent', ['nextWeek']);
+      component['calendarComponent'] = calendarComponent;
+
+      component.onNextMonth();
+
+      // Should call nextWeek 4 times to navigate to next month
+      expect(calendarComponent.nextWeek).toHaveBeenCalledTimes(4);
+    });
   });
 
   describe('Computed Properties', () => {
@@ -260,6 +290,48 @@ describe('DesktopLayoutComponent', () => {
     it('should compute selected date', () => {
       const selectedDate = component.selectedDate();
       expect(selectedDate).toBeTruthy();
+    });
+  });
+
+  describe('Monthly Calendar Selected Date', () => {
+    it('should return week start for weekly view', () => {
+      const calendarComponent = jasmine.createSpyObj('CalendarComponent', ['currentView']);
+      calendarComponent.currentView.and.returnValue('weekly');
+      component['calendarComponent'] = calendarComponent;
+
+      const testDate = new Date('2024-01-15'); // Monday
+      spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
+
+      const result = component.getMonthlyCalendarSelectedDate();
+      
+      // Should return the start of the week (Monday)
+      expect(result.getDay()).toBe(1); // Monday
+      expect(result.getDate()).toBe(15);
+    });
+
+    it('should return exact day for daily view', () => {
+      const calendarComponent = jasmine.createSpyObj('CalendarComponent', ['currentView']);
+      calendarComponent.currentView.and.returnValue('daily');
+      component['calendarComponent'] = calendarComponent;
+
+      const testDate = new Date('2024-01-15');
+      spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
+
+      const result = component.getMonthlyCalendarSelectedDate();
+      
+      expect(result).toEqual(testDate);
+    });
+
+    it('should default to weekly view when calendar component is not available', () => {
+      component['calendarComponent'] = null;
+      
+      const testDate = new Date('2024-01-15');
+      spyOn(component, 'firstEnabledDay').and.returnValue(testDate);
+
+      const result = component.getMonthlyCalendarSelectedDate();
+      
+      // Should return the start of the week (Monday)
+      expect(result.getDay()).toBe(1); // Monday
     });
   });
 

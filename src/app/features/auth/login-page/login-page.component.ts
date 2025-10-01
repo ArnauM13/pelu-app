@@ -88,7 +88,7 @@ export class LoginPageComponent implements OnDestroy {
   async onGoogleAuth() {
     this.isLoadingSignal.set(true);
     this.errorMessage.set('');
-    this.#loader.show({ message: 'AUTH.SIGNING_IN_WITH_GOOGLE' });
+    this.#loader.show({ message: 'AUTH.SIGN_IN_WITH_GOOGLE' });
 
     try {
       await this.#authService.loginWithGoogle();

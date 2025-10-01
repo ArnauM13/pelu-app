@@ -156,6 +156,11 @@ export class BookingStateService {
     return this.timeUtils.getMonthDays(date);
   }
 
+  // Method to get complete month calendar with full weeks (including adjacent month days)
+  getCompleteMonthCalendar(date: Date): Date[] {
+    return this.timeUtils.getCompleteMonthCalendar(date);
+  }
+
   // Current view days
   readonly currentViewDays = computed(() => {
     return this.viewMode() === 'week' ? this.weekDays() : this.monthDays();

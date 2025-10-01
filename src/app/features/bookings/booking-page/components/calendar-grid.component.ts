@@ -15,14 +15,16 @@ export type CalendarViewMode = 'week' | 'month';
   ],
   template: `
     <div class="days-grid" [class.month-view]="viewMode() === 'month'">
-      @for (day of days(); track day) {
+      @for (day of days(); track day.toISOString().split('T')[0]) {
         <div
           class="day-item"
           [class.past-date]="isPastDate(day)"
           [class.non-working-day]="!isBusinessDay(day)"
           [class.today]="isToday(day)"
           [class.selected]="isSelected(day)"
+          [class.current-week]="isCurrentWeek(day)"
           [class.warning-day]="canSelectDate(day) && isBusinessDay(day) && isFullyBookedWorkingDayForService(day)"
+          [class.adjacent-month]="isAdjacentMonth(day)"
           (click)="onDateClicked(day)"
         >
           <div class="day-name">{{ formatDayShort(day) }}</div>
@@ -69,15 +71,25 @@ export type CalendarViewMode = 'week' | 'month';
       }
 
       &.today {
-        border-color: #10b981;
-        background: #f0fdf4;
-        color: #10b981;
+        border-color: #10b981 !important;
+        background: #f0fdf4 !important;
+        color: #10b981 !important;
+
+        .day-name,
+        .day-number {
+          color: #10b981 !important;
+        }
       }
 
       &.today.selected {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        border-color: #667eea !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+
+        .day-name,
+        .day-number {
+          color: white !important;
+        }
       }
 
       &.selected {
@@ -86,6 +98,25 @@ export type CalendarViewMode = 'week' | 'month';
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      &.current-week {
+        border-color: #3b82f6 !important;
+        background: #eff6ff !important;
+        color: #1e40af !important;
+
+        .day-name,
+        .day-number {
+          color: #1e40af !important;
+          font-weight: 600 !important;
+        }
+
+        &:hover {
+          background: #dbeafe !important;
+          border-color: #2563eb !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
       }
 
       &.past-date {
@@ -110,6 +141,19 @@ export type CalendarViewMode = 'week' | 'month';
         .day-number {
           color: var(--input-placeholder-color);
         }
+
+        // Today should always be green, even if it's a past date
+        &.today {
+          border-color: #10b981 !important;
+          background: #f0fdf4 !important;
+          color: #10b981 !important;
+          opacity: 0.8 !important;
+
+          .day-name,
+          .day-number {
+            color: #10b981 !important;
+          }
+        }
       }
 
       &.non-working-day {
@@ -127,6 +171,20 @@ export type CalendarViewMode = 'week' | 'month';
         &:hover {
           background: #e5e7eb;
           border-color: #9ca3af;
+        }
+
+        // Today should always be green, even if it's a non-working day
+        &.today {
+          border-color: #10b981 !important;
+          background: #f0fdf4 !important;
+          color: #10b981 !important;
+          opacity: 0.8 !important;
+          text-decoration: none !important;
+
+          .day-name,
+          .day-number {
+            color: #10b981 !important;
+          }
         }
       }
 
@@ -164,6 +222,64 @@ export type CalendarViewMode = 'week' | 'month';
         }
       }
 
+      &.adjacent-month {
+        opacity: 0.5;
+        background: #f8f9fa;
+        color: #9ca3af;
+        border-color: #e5e7eb;
+        cursor: pointer;
+        position: relative;
+
+        .day-name,
+        .day-number {
+          color: #9ca3af;
+        }
+
+        &:hover {
+          opacity: 0.8;
+          background: #e9ecef;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border-color: #adb5bd;
+        }
+
+        // Adjacent month days can still be selected and show today
+        &.today {
+          border-color: #10b981 !important;
+          background: #f0fdf4 !important;
+          opacity: 0.8 !important;
+
+          .day-name,
+          .day-number {
+            color: #10b981 !important;
+          }
+        }
+
+        &.selected {
+          border-color: #667eea;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          opacity: 0.9;
+
+          .day-name,
+          .day-number {
+            color: white;
+          }
+        }
+
+        // Add a subtle indicator that these are adjacent month days
+        &::before {
+          content: '';
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          width: 4px;
+          height: 4px;
+          background: #9ca3af;
+          border-radius: 50%;
+          opacity: 0.6;
+        }
+      }
+
       .day-name {
         font-size: 0.6rem;
         font-weight: 600;
@@ -187,6 +303,8 @@ export class CalendarGridComponent {
   readonly days = input<Date[]>([]);
   readonly viewMode = input<CalendarViewMode>('week');
   readonly selectedDate = input<Date | null>(null);
+  readonly currentMonth = input<Date | null>(null); // Add current month for adjacent day detection
+  readonly currentView = input<'daily' | 'weekly'>('weekly'); // Current view mode from main calendar
 
   // Output events
   readonly dateSelected = output<Date>();
@@ -212,7 +330,46 @@ export class CalendarGridComponent {
   isSelected(date: Date): boolean {
     const selectedDate = this.selectedDate();
     if (!selectedDate) return false;
-    return this.isSameDay(date, selectedDate);
+
+    const viewMode = this.currentView();
+
+    if (viewMode === 'weekly') {
+      // In weekly view, check if the date is in the same week as the selected date
+      return this.isInSameWeek(date, selectedDate);
+    } else {
+      // In daily view, check if it's the exact same day
+      return this.isSameDay(date, selectedDate);
+    }
+  }
+
+  // Check if a date is in the current week being displayed
+  isCurrentWeek(date: Date): boolean {
+    const viewMode = this.currentView();
+
+    if (viewMode === 'weekly') {
+      const selectedDate = this.selectedDate();
+      if (!selectedDate) return false;
+
+      // Check if the date is in the same week as the selected date
+      return this.isInSameWeek(date, selectedDate);
+    }
+
+    return false;
+  }
+
+  private isInSameWeek(date1: Date, date2: Date): boolean {
+    const weekStart1 = this.getWeekStart(date1);
+    const weekStart2 = this.getWeekStart(date2);
+    return this.isSameDay(weekStart1, weekStart2);
+  }
+
+  private getWeekStart(date: Date): Date {
+    const dayOfWeek = date.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Monday = 1, Sunday = 0
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() + mondayOffset);
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
   }
 
   isBusinessDay(date: Date): boolean {
@@ -233,6 +390,20 @@ export class CalendarGridComponent {
 
   isAdmin(): boolean {
     return this.userService.isAdmin();
+  }
+
+  // Check if a day belongs to the current month being displayed
+  isCurrentMonth(date: Date): boolean {
+    const currentMonth = this.currentMonth();
+    if (!currentMonth) return true; // If no current month specified, treat all as current
+
+    return date.getMonth() === currentMonth.getMonth() &&
+           date.getFullYear() === currentMonth.getFullYear();
+  }
+
+  // Check if a day is from an adjacent month (previous or next)
+  isAdjacentMonth(date: Date): boolean {
+    return !this.isCurrentMonth(date);
   }
 
   // ===== FORMATTING METHODS =====

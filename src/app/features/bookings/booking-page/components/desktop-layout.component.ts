@@ -77,8 +77,10 @@ import { CalendarStateService } from '../../../calendar/services/calendar-state.
                 </div>
 
                 <pelu-monthly-calendar
-                  [selectedDate]="firstEnabledDay()"
-                  [viewDate]="monthlyCalendarViewDate()"
+                  [selectedDate]="getMonthlyCalendarSelectedDate()"
+                  [viewDate]="calendarStateService.viewDate()"
+                  [referenceDate]="calendarStateService.viewDate()"
+                  [currentView]="calendarComponent?.currentView() || 'weekly'"
                   (dateSelected)="onMonthlyCalendarDateSelected($event)"
                 ></pelu-monthly-calendar>
               </pelu-card>
@@ -559,7 +561,7 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
   private readonly translateService = inject(TranslateService);
-  private readonly calendarStateService = inject(CalendarStateService);
+  readonly calendarStateService = inject(CalendarStateService);
 
   // Signal to track if booking form inputs are mounted
   private readonly inputsMountedSignal = signal<boolean>(false);
@@ -617,10 +619,10 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
   // Computed property to get current month name for monthly calendar
   readonly currentMonthName = computed(() => {
-    // React directly to the main calendar's viewDate
-    const referenceDate = this.calendarStateService.viewDate();
-    const month = referenceDate.toLocaleDateString('ca-ES', { month: 'long' });
-    const year = referenceDate.getFullYear();
+    // Use the main calendar's viewDate to determine which month to display
+    const viewDate = this.calendarStateService.viewDate();
+    const month = viewDate.toLocaleDateString('ca-ES', { month: 'long' });
+    const year = viewDate.getFullYear();
     return `${month} ${year}`;
   });
 
@@ -648,6 +650,30 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     // Fallback to current viewDate
     return currentViewDate;
   });
+
+  // Method to get the correct selected date for the monthly calendar based on current view
+  getMonthlyCalendarSelectedDate(): Date {
+    const currentView = this.calendarComponent?.currentView() || 'weekly';
+    const firstEnabledDay = this.firstEnabledDay();
+
+    if (currentView === 'weekly') {
+      // In weekly view, return the start of the week containing the first enabled day
+      const weekStart = this.getWeekStart(firstEnabledDay);
+      return weekStart;
+    } else {
+      // In daily view, return the exact day
+      return firstEnabledDay;
+    }
+  }
+
+  private getWeekStart(date: Date): Date {
+    const dayOfWeek = date.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Monday = 1, Sunday = 0
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() + mondayOffset);
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
+  }
 
   // Booking popup configuration
   readonly bookingPopupConfig = computed<PopupDialogConfig>(() => ({
@@ -692,6 +718,18 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   onMonthlyCalendarDateSelected(date: Date): void {
+    const currentView = this.calendarComponent?.currentView() || 'weekly';
+
+    // Check if the selected date is from an adjacent month
+    const currentViewDate = this.calendarStateService.viewDate();
+    const isAdjacentMonth = date.getMonth() !== currentViewDate.getMonth() ||
+                           date.getFullYear() !== currentViewDate.getFullYear();
+
+    if (isAdjacentMonth) {
+      // Navigate the main calendar to the month of the selected date
+      this.calendarStateService.navigateToDate(this.formatDateISO(date));
+    }
+
     // Update the booking state service with the selected date
     this.bookingStateService.setSelectedDate(date);
 
@@ -727,21 +765,19 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
 
   onPreviousMonth(): void {
-    // Get current date from main calendar state
-    const currentDate = this.calendarStateService.viewDate();
-    const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-
     // Navigate the main calendar to the previous month
-    this.calendarStateService.navigateToDate(previousMonth.toISOString().split('T')[0]);
+    // We need to go back 4-5 weeks to reach the previous month
+    for (let i = 0; i < 4; i++) {
+      this.calendarComponent?.previousWeek();
+    }
   }
 
   onNextMonth(): void {
-    // Get current date from main calendar state
-    const currentDate = this.calendarStateService.viewDate();
-    const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-
     // Navigate the main calendar to the next month
-    this.calendarStateService.navigateToDate(nextMonth.toISOString().split('T')[0]);
+    // We need to go forward 4-5 weeks to reach the next month
+    for (let i = 0; i < 4; i++) {
+      this.calendarComponent?.nextWeek();
+    }
   }
 
   toggleManualBooking(): void {
