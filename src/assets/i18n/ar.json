@@ -418,6 +418,10 @@
   "BOOKING": {
     "TITLE": "احجز",
     "SUBTITLE": "اختر الخدمة والتاريخ الذي يناسبك",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "إنشاء حجز جديد",
+      "TITLE": "حجز يدوي"
+    },
     "CREATING_BOOKING": "جاري إنشاء الحجز...",
     "SELECT_SERVICE": "حجز جديد",
     "SELECT_DATE": "اختر التاريخ",
@@ -434,6 +438,12 @@
     "NO_AVAILABLE_DAYS": "لا توجد أيام متاحة",
     "NO_AVAILABLE_DAYS_MESSAGE": "جميع أيام الأسبوع مشغولة بالكامل. جرب أسبوعاً آخر.",
     "LEGEND": "مفتاح",
+    "DISCLAIMER": {
+      "TITLE": "الحجوزات المتاحة",
+      "DESCRIPTION": "يمكنك الحجز حتى:",
+      "RANGE": "حتى",
+      "MESSAGE": "احجز حتى:"
+    },
     "SUCCESS_TITLE": "تم تأكيد الحجز!",
     "SUCCESS_MESSAGE": "تم إنشاء حجزك بنجاح. ستتلقى بريداً إلكترونياً بالتفاصيل ورابط للتحرير.",
     "EMAIL_NOTICE": "تحقق من صندوق الوارد لرؤية تفاصيل الحجز.",
@@ -595,6 +605,12 @@
     "PREVIOUS_WEEK": "الأسبوع السابق",
     "NEXT_WEEK": "الأسبوع القادم",
     "GO_TO_TODAY": "اذهب إلى اليوم",
+    "VIEW": {
+      "DAILY": "يوم",
+      "WEEKLY": "أسبوع",
+      "MONTHLY": "شهر",
+      "SELECT_VIEW": "اختر العرض"
+    },
     "BUSINESS_HOURS": "ساعات العمل",
     "TIME_SLOT_AVAILABLE": "الوقت متاح",
     "TIME_SLOT_BUSY": "الوقت مشغول",

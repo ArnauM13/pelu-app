@@ -53,6 +53,7 @@
       "ADD_BOOKING": "Afegir reserva",
       "CONFIRM_BOOKING": "Confirmar reserva",
       "CONTINUE": "Continuar",
+      "CREATE": "Crear",
       "LOGIN": "Iniciar sessió",
       "TRY_AGAIN": "Tornar a provar",
       "VIEW_DETAILS": "Veure detalls"
@@ -450,6 +451,10 @@
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servei i la data que més t'ajusti",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "Crear nova reserva",
+      "TITLE": "Reserva Manual"
+    },
     "CREATING_BOOKING": "Creant reserva...",
     "SELECT_DATE": "Seleccionar data",
     "SELECT_DATE_PLACEHOLDER": "Selecciona una data",
@@ -464,6 +469,12 @@
     "NO_AVAILABLE_DAYS": "No hi ha dies disponibles",
     "NO_AVAILABLE_DAYS_MESSAGE": "Tots els dies de la setmana tenen totes les hores ocupades. Prova amb una altra setmana.",
     "LEGEND": "Llegenda",
+    "DISCLAIMER": {
+      "TITLE": "Reserves disponibles",
+      "DESCRIPTION": "Pots reservar fins al:",
+      "RANGE": "Fins al",
+      "MESSAGE": "Reserva fins al:"
+    },
     "SUCCESS_TITLE": "Reserva confirmada!",
     "SUCCESS_MESSAGE": "La teva reserva s'ha creat correctament. Rebràs un email amb els detalls i un enllaç per editar-la.",
     "EMAIL_NOTICE": "Revisa la teva safata d'entrada per veure els detalls de la reserva.",
@@ -664,6 +675,12 @@
     "PREVIOUS_WEEK": "Setmana anterior",
     "NEXT_WEEK": "Pròxima setmana",
     "GO_TO_TODAY": "Anar a avui",
+    "VIEW": {
+      "DAILY": "Dia",
+      "WEEKLY": "Setmana",
+      "MONTHLY": "Mes",
+      "SELECT_VIEW": "Seleccionar vista"
+    },
     "BUSINESS_HOURS": "Horari comercial",
     "TIME_SLOT_AVAILABLE": "Horari disponible",
     "TIME_SLOT_BUSY": "Horari ocupat",

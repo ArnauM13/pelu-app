@@ -1,15 +1,22 @@
-import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, ElementRef, AfterViewInit, signal } from '@angular/core';
+import { Component, computed, inject, output, ViewChild, OnInit, OnDestroy, ElementRef, AfterViewInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../../shared/components/buttons/button.component';
+import { CardComponent } from '../../../../shared/components/card/card.component';
+import { PopupDialogComponent, PopupDialogConfig } from '../../../../shared/components/popup-dialog/popup-dialog.component';
 import { CalendarComponent } from '../../../../features/calendar/core/calendar.component';
 import { BookingFormComponent } from './booking-form.component';
+import { DateControlsComponent } from './date-controls/date-controls.component';
+import { MonthlyCalendarComponent } from './monthly-calendar.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
 import { TimeUtils } from '../../../../shared/utils/time.utils';
-import { startOfWeek, endOfWeek } from 'date-fns';
+import { startOfWeek, endOfWeek, isSameDay, addDays, startOfDay, format } from 'date-fns';
+import { ca } from 'date-fns/locale';
 import { Booking } from '../../../../core/interfaces/booking.interface';
+import { CalendarStateService } from '../../../calendar/services/calendar-state.service';
+import { SystemParametersService } from '../../../../core/services/system-parameters.service';
 
 @Component({
   selector: 'pelu-desktop-layout',
@@ -18,8 +25,12 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
     CommonModule,
     TranslateModule,
     ButtonComponent,
+    CardComponent,
+    PopupDialogComponent,
     CalendarComponent,
     BookingFormComponent,
+    DateControlsComponent,
+    MonthlyCalendarComponent,
   ],
   template: `
     <div class="desktop-layout">
@@ -32,21 +43,90 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
       <!-- Two Column Grid Layout -->
       <div class="grid-container" [class.sidebar-collapsed]="sidebarCollapsed()">
-        <!-- Left Column: Title + Manual Booking -->
+        <!-- Left Column: Monthly Calendar + Manual Booking -->
         <div class="left-column" [class.collapsed]="!shouldShowSidebar()">
           <div class="sidebar-content">
-            <!-- Title Section - Hide in overlay mode (< 1275px) -->
-            <div class="title-section" [class.hidden-in-overlay]="true">
-              <h1 class="page-title">{{ 'BOOKING.TITLE' | translate }}</h1>
-              <p class="page-subtitle">{{ 'BOOKING.SUBTITLE' | translate }}</p>
-            </div>
+
+            <!-- Combined Monthly Calendar Section -->
+            <div class="monthly-calendar-section">
+              <pelu-card class="monthly-calendar-card">
+                <div class="month-navigation">
+                  <div class="month-display">
+                    <span class="month-name">{{ currentMonthName() }}</span>
+                  </div>
+
+                  <div class="navigation-buttons">
+                    <pelu-button
+                      [icon]="'pi pi-chevron-left'"
+                      [rounded]="true"
+                      (clicked)="onPreviousMonth()"
+                      [ariaLabel]="'Previous month'"
+                      size="mini"
+                      severity="secondary"
+                      variant="text"
+                    ></pelu-button>
+
+                    <pelu-button
+                      [icon]="'pi pi-chevron-right'"
+                      [rounded]="true"
+                      (clicked)="onNextMonth()"
+                      [ariaLabel]="'Next month'"
+                      size="mini"
+                      severity="secondary"
+                      variant="text"
+                    ></pelu-button>
+                  </div>
+                </div>
+
+                <pelu-monthly-calendar
+                  #monthlyCalendarComponent
+                  [selectedDate]="getMonthlyCalendarSelectedDate()"
+                  [viewDate]="monthlyCalendarComponent?.currentMonthDate() || calendarStateService.viewDate()"
+                  [referenceDate]="calendarStateService.viewDate()"
+                  [currentView]="calendarComponent?.currentView() || 'weekly'"
+                  (dateSelected)="onMonthlyCalendarDateSelected($event)"
+                  ></pelu-monthly-calendar>
+                </pelu-card>
+
+                <!-- Booking Range Disclaimer -->
+                <pelu-card class="booking-range-disclaimer">
+                  <div class="disclaimer-content">
+                    <div class="disclaimer-text">
+                      <div class="disclaimer-title">
+                        <i class="pi pi-info-circle"></i>
+                        {{ 'BOOKING.DISCLAIMER.MESSAGE' | translate }} <span class="date-highlight">{{ bookingRangeText() }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </pelu-card>
+              </div>
 
             <!-- Manual Booking Section -->
-            <div class="manual-booking-section">
-              <pelu-booking-form
-                #bookingForm
-                (bookingCreated)="onManualBookingCreated($event)"
-              ></pelu-booking-form>
+            <div class="manual-booking-section" [class.collapsed]="manualBookingCollapsed()">
+              @if (!manualBookingCollapsed()) {
+                <!-- Expanded state: Show booking form with collapse button -->
+                <div class="expanded-booking-section">
+                  <div class="booking-form-header">
+                    <h4 class="booking-form-title">{{ 'BOOKING.MANUAL.TITLE' | translate }}</h4>
+                    <pelu-button
+                      [icon]="'pi pi-times'"
+                      [rounded]="true"
+                      (clicked)="toggleManualBooking()"
+                      [ariaLabel]="'Close booking form'"
+                      size="small"
+                      severity="secondary"
+                      class="close-booking-button"
+                    ></pelu-button>
+                  </div>
+                  <pelu-card>
+                    <h4 class="booking-form-title">{{ 'BOOKING.MANUAL.TITLE' | translate }}</h4>
+                    <pelu-booking-form
+                      #bookingForm
+                      (bookingCreated)="onManualBookingCreated($event)"
+                    ></pelu-booking-form>
+                  </pelu-card>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -65,33 +145,14 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           </div>
           <!-- Date Controls -->
           <div class="date-controls-section">
-            <div class="date-controls">
-              <pelu-button
-                [label]="'COMMON.TIME.TODAY'"
-                [icon]="'pi pi-calendar'"
-                (clicked)="onTodayClicked()"
-              ></pelu-button>
-
-              <div class="week-navigation">
-                <pelu-button
-                  [icon]="'pi pi-chevron-left'"
-                  [rounded]="true"
-                  (clicked)="goToPreviousWeek()"
-                  [ariaLabel]="'COMMON.ACTIONS.PREVIOUS' | translate"
-                ></pelu-button>
-
-                <div class="week-info">
-                  <span>{{ weekInfo() }}</span>
-                </div>
-
-                <pelu-button
-                  [icon]="'pi pi-chevron-right'"
-                  [rounded]="true"
-                  (clicked)="goToNextWeek()"
-                  [ariaLabel]="'COMMON.ACTIONS.NEXT' | translate"
-                ></pelu-button>
-              </div>
-            </div>
+            <pelu-date-controls
+              [currentView]="calendarComponent?.currentView() || 'weekly'"
+              [weekInfo]="weekInfo()"
+              (todayClicked)="onTodayClicked()"
+              (previousClicked)="goToPreviousWeek()"
+              (nextClicked)="goToNextWeek()"
+              (viewChanged)="onViewChanged($event)"
+            ></pelu-date-controls>
           </div>
 
           <!-- Calendar Section -->
@@ -105,6 +166,30 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
             ></pelu-calendar-component>
           </div>
         </div>
+      </div>
+
+      <!-- Booking Form Popup -->
+      <pelu-popup-dialog
+        [isOpen]="bookingPopupOpen()"
+        [config]="bookingPopupConfig()"
+        (closed)="closeBookingPopup()"
+      >
+        <pelu-booking-form
+          #bookingFormPopup
+          [twoColumns]="true"
+          (bookingCreated)="onPopupBookingCreated($event)"
+        ></pelu-booking-form>
+      </pelu-popup-dialog>
+
+      <!-- Floating Create Booking Button -->
+      <div class="floating-create-booking">
+        <pelu-button
+          [icon]="'pi pi-plus'"
+          (clicked)="onFloatingCreateBookingClicked()"
+          severity="primary"
+          size="small"
+          class="floating-booking-button"
+        ></pelu-button>
       </div>
     </div>
   `,
@@ -139,14 +224,16 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         position: relative;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 2rem;
         width: 100%;
-        height: 100%;
+        min-width: 0;
+        height: 100vh;
         transition: all 0.3s ease;
+        overflow: hidden;
 
         .sidebar-toggle {
           position: fixed;
-          top: 50%;
+          top: 95%;
           left: 0;
           transform: translateY(-50%);
           z-index: 1000;
@@ -195,12 +282,13 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
       .grid-container {
         display: grid;
-        grid-template-columns: 375px auto;
-        gap: 2rem;
-        min-height: 100vh;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
         width: 100%;
-        padding: 1rem 0;
+        min-height: 100vh;
+        padding: 0;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
 
         &.sidebar-collapsed {
           grid-template-columns: 0px auto;
@@ -235,104 +323,189 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         .sidebar-content {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1rem;
           width: 100%;
-          min-width: 300px;
+          min-width: 280px;
           transition: all 0.3s ease;
         }
       }
 
 
-      .title-section {
-        .page-title {
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: var(--primary-color);
-          margin: 0 0 0.5rem 0;
-          line-height: 1.2;
+
+      .monthly-calendar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .monthly-calendar-card {
+          ::ng-deep .pelu-card {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+          }
         }
 
-        .page-subtitle {
-          font-size: 1.1rem;
-          color: var(--text-color-secondary);
-          margin: 0;
-          line-height: 1.4;
+        .booking-range-disclaimer {
+          ::ng-deep .pelu-card {
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+            transition: all 0.3s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
+            }
+          }
+
+          .disclaimer-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            .disclaimer-text {
+              flex: 1;
+              font-size: 0.85rem;
+              line-height: 1.5;
+
+              .disclaimer-title {
+                font-weight: 700;
+                color: #92400e;
+                font-size: 0.9rem;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+
+                &::first-letter {
+                  text-transform: uppercase;
+                }
+
+                .date-highlight {
+                  background: rgba(217, 119, 6, 0.2);
+                  padding: 0.25rem 0.5rem;
+                  border-radius: 4px;
+                  font-weight: 800;
+                  color: #92400e;
+                  border: 1px solid rgba(217, 119, 6, 0.3);
+                }
+
+                i {
+                  color: #d97706;
+                  font-size: 0.9rem;
+                  background: rgba(217, 119, 6, 0.1);
+                  padding: 0.25rem;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 1.5rem;
+                  height: 1.5rem;
+                }
+              }
+
+              .disclaimer-description {
+                color: #a16207;
+                margin-bottom: 0.75rem;
+                font-weight: 500;
+              }
+
+              .disclaimer-range {
+                color: #92400e;
+                font-size: 0.8rem;
+                font-weight: 600;
+                background: rgba(217, 119, 6, 0.1);
+                padding: 0.5rem 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #d97706;
+                display: inline-block;
+              }
+            }
+          }
+        }
+
+        .month-navigation {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid var(--surface-border);
+
+          .month-display {
+            flex: 1;
+
+            .month-name {
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: var(--text-color);
+              text-transform: capitalize;
+            }
+          }
+
+          .navigation-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+
+            // Force 22x22px for mini buttons in month navigation
+            pelu-button {
+              ::ng-deep .p-button {
+                width: 22px !important;
+                height: 22px !important;
+                min-width: 22px !important;
+                min-height: 22px !important;
+                padding: 0 !important;
+                font-size: 0.7rem !important;
+
+                .p-button-icon {
+                  font-size: 0.7rem !important;
+                }
+              }
+            }
+          }
         }
       }
 
       .manual-booking-section {
         flex: 1;
         min-width: 0;
-      }
+        transition: all 0.3s ease;
 
-      .date-controls-section {
-        .date-controls {
+        .expanded-booking-section {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
+          flex-direction: column;
           gap: 1rem;
-          padding: 1rem 0;
-        }
 
-        .week-navigation {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-left: auto;
-
-          .week-info {
+          .booking-form-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.5rem;
-            background: transparent;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--surface-border);
 
-            span {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              padding: 0.35rem 1rem;
-              height: 2.75rem;
-              background: var(--primary-color);
-              color: #fff;
-              border-radius: 6px;
-              font-weight: 600;
+            .booking-form-title {
+              margin: 0;
               font-size: 0.9rem;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              font-weight: 600;
+              color: var(--primary-color);
             }
           }
 
-          pelu-button {
-            // Navigation buttons styling
-            ::ng-deep .p-button {
-              width: 40px;
-              height: 40px;
-              min-width: 40px;
-              padding: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 50%;
+          pelu-card {
+            .booking-form-title {
+              margin: 0 0 1rem 0;
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--primary-color);
             }
           }
-        }
-      }
 
-      .calendar-section {
-        flex: 1;
-        min-width: 0;
-        width: 100%;
-        height: 100%;
-
-        pelu-calendar-component {
-          width: 100%;
-          height: 100%;
-
-          ::ng-deep {
-            .calendar-container {
-              width: 100%;
-              height: 100%;
-            }
+          pelu-booking-form {
+            flex: 1;
+            min-width: 0;
           }
         }
       }
@@ -350,7 +523,7 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
           position: fixed;
           top: 0;
           left: 0;
-          width: 375px;
+          width: 300px;
           height: 100vh;
           background: white;
           z-index: 150; // Below header (200) but above normal content
@@ -416,38 +589,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
                 }
               }
             }
-
-            .toggle-button {
-              ::ng-deep .p-button {
-                width: 18px;
-                height: 18px;
-                min-width: 18px;
-                padding: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 4px;
-                transition: all 0.3s ease;
-
-                .p-button-icon {
-                  transition: transform 0.3s ease, font-size 0.3s ease;
-                  font-size: 0.5rem !important;
-                }
-
-                &:hover {
-                  background: rgba(255, 255, 255, 0.1) !important;
-                  transform: scale(1.1);
-
-                  .p-button-icon {
-                    transform: translateX(1px);
-                  }
-                }
-
-                &:active {
-                  transform: scale(0.95);
-                }
-              }
-            }
           }
         }
       }
@@ -466,44 +607,6 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
 
         .right-column {
           order: 1;
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      .desktop-layout {
-        .date-controls {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 0.75rem;
-        }
-
-        .week-navigation {
-          margin-left: 0;
-          justify-content: center;
-          gap: 0.75rem;
-
-          .week-info {
-            margin: 0;
-          }
-
-          pelu-button {
-            ::ng-deep .p-button {
-              width: 36px;
-              height: 36px;
-              min-width: 36px;
-            }
-          }
-        }
-
-        .title-section {
-          .page-title {
-            font-size: 2rem;
-          }
-
-          .page-subtitle {
-            font-size: 1rem;
-          }
         }
       }
     }
@@ -530,19 +633,51 @@ import { Booking } from '../../../../core/interfaces/booking.interface';
         opacity: 1;
       }
     }
+
+
+    .floating-create-booking {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      pointer-events: none;
+
+      .floating-booking-button {
+        pointer-events: auto;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        transition: all 0.3s ease;
+      }
+    }
   `]
 })
 export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent;
+  @ViewChild('calendarComponent') calendarComponent!: CalendarComponent
+  @ViewChild('monthlyCalendarComponent') monthlyCalendarComponent!: MonthlyCalendarComponent;
   @ViewChild('bookingForm') bookingForm!: BookingFormComponent;
+  @ViewChild('bookingFormPopup') bookingFormPopup!: BookingFormComponent;
 
   private readonly bookingStateService = inject(BookingStateService);
   private readonly bookingValidationService = inject(BookingValidationService);
   private readonly dateTimeSelectionService = inject(DateTimeSelectionService);
   private readonly timeUtils = inject(TimeUtils);
+  private readonly translateService = inject(TranslateService);
+  private readonly systemParametersService = inject(SystemParametersService);
+  readonly calendarStateService = inject(CalendarStateService);
 
   // Signal to track if booking form inputs are mounted
   private readonly inputsMountedSignal = signal<boolean>(false);
+
+
+  // Signal to track if manual booking form is collapsed
+  readonly manualBookingCollapsed = signal<boolean>(true);
+
+  // Signal to track if booking popup is open
+  readonly bookingPopupOpen = signal<boolean>(false);
+
+  // Signal for monthly calendar display month (can be different from main calendar)
+  readonly monthlyCalendarViewDate = signal<Date>(new Date());
 
   // Output events
   timeSlotSelected = output<{ date: string; time: string }>();
@@ -551,18 +686,30 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
 
   readonly isCalendarBlocked = computed(() => this.bookingValidationService.isCalendarBlocked());
   readonly sidebarCollapsed = computed(() => this.bookingStateService.sidebarCollapsed());
+  readonly selectedDate = computed(() => this.bookingStateService.selectedDate());
 
-  // Computed property to check if sidebar should be shown (considering input mounting)
+  // Computed property to check if sidebar should be shown
   readonly shouldShowSidebar = computed(() => {
     const collapsed = this.sidebarCollapsed();
-    const inputsMounted = this.inputsMountedSignal();
 
-    // Only show sidebar if it's not collapsed AND inputs are mounted
-    return !collapsed && inputsMounted;
+    // Show sidebar if it's not collapsed
+    return !collapsed;
   });
+
+  // Signal to force reactivity for week info
+  private readonly weekInfoUpdateTrigger = signal(0);
 
   // Computed week info that updates when calendar view changes
   readonly weekInfo = computed(() => {
+    // Trigger reactivity
+    this.weekInfoUpdateTrigger();
+
+    // Use calendar component's current view info if available
+    if (this.calendarComponent?.currentViewInfo) {
+      return this.calendarComponent.currentViewInfo().label;
+    }
+
+    // Fallback to original implementation
     const referenceDate = this.bookingStateService.viewDate();
     const start = startOfWeek(referenceDate, { weekStartsOn: 1 });
     const end = endOfWeek(referenceDate, { weekStartsOn: 1 });
@@ -573,14 +720,98 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     return `${formatDate(start)} - ${formatDate(end)}`;
   });
 
+  // Signal to force reactivity for monthly calendar month name
+  private readonly monthlyCalendarUpdateTrigger = signal(0);
+
+  // Computed property to get current month name for monthly calendar
+  readonly currentMonthName = computed(() => {
+    // Force reactivity by accessing the trigger
+    this.monthlyCalendarUpdateTrigger();
+
+    // Use the monthly calendar's internal view date to determine which month to display
+    const viewDate = this.monthlyCalendarComponent?.currentMonthDate() || this.calendarStateService.viewDate();
+    const month = viewDate.toLocaleDateString('ca-ES', { month: 'long' });
+    const year = viewDate.getFullYear();
+    return `${month} ${year}`;
+  });
+
+  // Computed property to get the first enabled day from the main calendar
+  readonly firstEnabledDay = computed(() => {
+    // Force reactivity by accessing the viewDate signal
+    const currentViewDate = this.calendarStateService.viewDate();
+
+    // Get the current view info from the calendar component if available
+    if (this.calendarComponent?.currentViewInfo) {
+      try {
+        const viewInfo = this.calendarComponent.currentViewInfo();
+
+        if (viewInfo.type === 'weekly' && viewInfo.startDate) {
+          return viewInfo.startDate;
+        } else if (viewInfo.type === 'daily' && viewInfo.date) {
+          return viewInfo.date;
+        }
+      } catch (error) {
+        // If there's any error accessing currentViewInfo, fall back to viewDate
+        console.warn('Error accessing calendar currentViewInfo:', error);
+      }
+    }
+
+    // Fallback to current viewDate
+    return currentViewDate;
+  });
+
+  // Method to get the correct selected date for the monthly calendar based on current view
+  getMonthlyCalendarSelectedDate(): Date {
+    const currentView = this.calendarComponent?.currentView() || 'weekly';
+    const firstEnabledDay = this.firstEnabledDay();
+
+    if (currentView === 'weekly') {
+      // In weekly view, return the start of the week containing the first enabled day
+      const weekStart = this.getWeekStart(firstEnabledDay);
+      return weekStart;
+    } else {
+      // In daily view, return the exact day
+      return firstEnabledDay;
+    }
+  }
+
+  private getWeekStart(date: Date): Date {
+    const dayOfWeek = date.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Monday = 1, Sunday = 0
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() + mondayOffset);
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
+  }
+
+  // Booking popup configuration
+  readonly bookingPopupConfig = computed<PopupDialogConfig>(() => ({
+    title: this.translateService.instant('BOOKING.MANUAL.TITLE'),
+    size: 'large',
+    closeOnBackdropClick: true,
+    showFooter: true,
+    footerActions: [
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CANCEL'),
+        severity: 'danger',
+        action: () => this.closeBookingPopup()
+      },
+      {
+        label: this.translateService.instant('COMMON.ACTIONS.CREATE'),
+        severity: 'primary',
+        action: () => this.onCreateBooking()
+      }
+    ]
+  }));
+
   // ===== EVENT HANDLERS =====
 
   onTodayClicked(): void {
-    const today = new Date();
-    const firstBusinessDayOfWeek = this.timeUtils.getFirstBusinessDayOfWeek(today, [1, 2, 3, 4, 5, 6]);
+    this.calendarComponent?.today();
+    this.weekInfoUpdateTrigger.update(v => v + 1);
 
-    this.bookingStateService.setSelectedDate(firstBusinessDayOfWeek);
-    this.calendarComponent?.onDateChange(firstBusinessDayOfWeek);
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   onDesktopTimeSlotSelected(event: { date: string; time: string }): void {
@@ -598,66 +829,134 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     this.timeSlotSelected.emit(event);
   }
 
+  onMonthlyCalendarDateSelected(date: Date): void {
+    const currentView = this.calendarComponent?.currentView() || 'weekly';
+
+    // Check if the selected date is from an adjacent month
+    const currentViewDate = this.calendarStateService.viewDate();
+    const isAdjacentMonth = date.getMonth() !== currentViewDate.getMonth() ||
+                           date.getFullYear() !== currentViewDate.getFullYear();
+
+    if (isAdjacentMonth) {
+      // Navigate the main calendar to the month of the selected date
+      this.calendarStateService.navigateToDate(this.formatDateISO(date));
+    }
+
+    // Update the booking state service with the selected date
+    this.bookingStateService.setSelectedDate(date);
+
+    // Update the calendar component to show the selected date
+    if (this.calendarComponent) {
+      // Navigate the calendar to show the selected date using the public method
+      this.calendarComponent.navigateToDate(this.formatDateISO(date));
+    }
+
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
+  }
+
   // ===== NAVIGATION METHODS =====
 
   goToPreviousWeek(): void {
-    const currentDate = this.bookingStateService.viewDate();
-    const newWeekDate = this.timeUtils.getPreviousWeek(currentDate);
+    // Delegate to calendar component's navigation method
+    this.calendarComponent?.previousDay();
+    // Force week info update
+    this.weekInfoUpdateTrigger.update(v => v + 1);
 
-    // Get the first business day of the new week
-    const firstBusinessDay = this.timeUtils.getFirstBusinessDayOfWeek(newWeekDate, [1, 2, 3, 4, 5, 6]);
-
-    // Update the view date to the first business day of the week
-    this.bookingStateService.setViewDate(firstBusinessDay);
-
-    // Update the calendar component to show the new week
-    this.calendarComponent?.onDateChange(firstBusinessDay);
-
-    this.bookingStateService.setSelectedDate(null);
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
   }
 
   goToNextWeek(): void {
-    const currentDate = this.bookingStateService.viewDate();
-    const newWeekDate = this.timeUtils.getNextWeek(currentDate);
+    // Delegate to calendar component's navigation method
+    this.calendarComponent?.nextDay();
+    // Force week info update
+    this.weekInfoUpdateTrigger.update(v => v + 1);
 
-    // Get the first business day of the new week
-    const firstBusinessDay = this.timeUtils.getFirstBusinessDayOfWeek(newWeekDate, [1, 2, 3, 4, 5, 6]);
+    // Force update of monthly calendar month name
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
+  }
 
-    // Update the view date to the first business day of the week
-    this.bookingStateService.setViewDate(firstBusinessDay);
+  onViewChanged(view: 'daily' | 'weekly' | 'month' | 'week'): void {
+    // Delegate to calendar component's view change method
+    this.calendarComponent?.onViewChanged(view);
+    // Force week info update
+    this.weekInfoUpdateTrigger.update(v => v + 1);
+  }
 
-    // Update the calendar component to show the new week
-    this.calendarComponent?.onDateChange(firstBusinessDay);
 
-    this.bookingStateService.setSelectedDate(null);
+  onPreviousMonth(): void {
+    // Only navigate the monthly calendar, not the main calendar
+    // This is a visual-only navigation that doesn't affect the active week
+    this.monthlyCalendarComponent?.navigateToPreviousMonth();
+
+    // Force update of month name display
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
+  }
+
+  onNextMonth(): void {
+    // Only navigate the monthly calendar, not the main calendar
+    // This is a visual-only navigation that doesn't affect the active week
+    this.monthlyCalendarComponent?.navigateToNextMonth();
+
+    // Force update of month name display
+    this.monthlyCalendarUpdateTrigger.update(v => v + 1);
+  }
+
+  toggleManualBooking(): void {
+    this.manualBookingCollapsed.update(collapsed => !collapsed);
+  }
+
+  onFloatingCreateBookingClicked(): void {
+    // Open booking popup
+    this.bookingPopupOpen.set(true);
+  }
+
+  closeBookingPopup(): void {
+    this.bookingPopupOpen.set(false);
+  }
+
+  onCreateBooking(): void {
+    // Trigger the booking form submission
+    const bookingForm = this.bookingFormPopup;
+    if (bookingForm) {
+      // If the form has a submit method, call it
+      const formAsAny = bookingForm as any;
+      if (typeof formAsAny.onSubmit === 'function') {
+        formAsAny.onSubmit();
+      }
+    }
+  }
+
+  onPopupBookingCreated(booking: any): void {
+    // Handle booking creation from popup
+    console.log('Popup booking created:', booking);
+
+    // Close the popup
+    this.closeBookingPopup();
+
+    // The booking state service already handles refreshing appointments
+    // and dispatching the bookingUpdated event, which will update the calendar
   }
 
   // ===== SIDEBAR METHODS =====
 
   toggleSidebar(): void {
-    // If trying to expand sidebar, ensure inputs are mounted first
-    if (this.sidebarCollapsed()) {
-      this.checkInputsMounted();
-
-      // If inputs are not mounted, wait a bit and try again
-      if (!this.inputsMountedSignal()) {
-        setTimeout(() => {
-          this.checkInputsMounted();
-          if (this.inputsMountedSignal()) {
-            this.bookingStateService.toggleSidebar();
-          }
-        }, 100);
-        return;
-      }
-    }
-
+    const wasCollapsed = this.sidebarCollapsed();
     this.bookingStateService.toggleSidebar();
+
+    // If sidebar is being collapsed, also close the booking form
+    if (!wasCollapsed) {
+      this.manualBookingCollapsed.set(true);
+    }
   }
 
   closeSidebarOnMobile(): void {
     // Only close if we're in mobile view (< 1275px)
     if (window.innerWidth < 1275) {
       this.bookingStateService.setSidebarCollapsed(true);
+      // Also close the booking form when sidebar is closed on mobile
+      this.manualBookingCollapsed.set(true);
     }
   }
 
@@ -714,6 +1013,17 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     // and dispatching the bookingUpdated event, which will update the calendar
   }
 
+  constructor() {
+    // Effect to sync monthly calendar with main calendar
+    effect(() => {
+      // Watch for changes in the main calendar's view date
+      const viewDate = this.bookingStateService.viewDate();
+      if (viewDate) {
+        this.syncMonthlyCalendarWithMainCalendar();
+      }
+    });
+  }
+
   // ===== LIFECYCLE METHODS =====
 
   ngOnInit(): void {
@@ -739,5 +1049,64 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     console.log('Booking updated event received, refreshing calendar...');
     // Force calendar refresh by triggering a change detection
     // The calendar component should automatically update when appointments change
+  }
+
+  private syncMonthlyCalendarWithMainCalendar(): void {
+    // Get the current view date from the main calendar
+    const mainCalendarViewDate = this.bookingStateService.viewDate();
+
+    if (!mainCalendarViewDate) return;
+
+    // Calculate the start of the week for the current view date
+    const weekStart = startOfWeek(mainCalendarViewDate, { weekStartsOn: 1 }); // Monday as first day
+
+    // Find the first available day in the current week
+    const firstAvailableDay = this.findFirstAvailableDayInWeek(weekStart);
+
+    if (firstAvailableDay) {
+      // Update the selected date to the first available day
+      this.bookingStateService.setSelectedDate(firstAvailableDay);
+
+      // Update the monthly calendar view date to show the month of the first available day
+      this.monthlyCalendarViewDate.set(firstAvailableDay);
+    } else {
+      // If no available day found, at least update the monthly calendar to show the current week's month
+      this.monthlyCalendarViewDate.set(weekStart);
+    }
+  }
+
+  private findFirstAvailableDayInWeek(weekStart: Date): Date | null {
+    // Check each day of the week (Monday to Sunday)
+    for (let i = 0; i < 7; i++) {
+      const currentDay = addDays(weekStart, i);
+
+      // Check if this day is available for booking
+      if (this.bookingValidationService.canSelectDate(currentDay)) {
+        return currentDay;
+      }
+    }
+
+    // If no day in the week is available, return null
+    return null;
+  }
+
+  private formatDateISO(date: Date): string {
+    // Use local date formatting to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  /**
+   * Get the booking range text for the disclaimer
+   */
+  bookingRangeText(): string {
+    const settings = this.systemParametersService.parameters();
+    const now = new Date();
+    const daysInAdvance = settings.bookingAdvanceDays;
+    const maxBookingDate = new Date(now.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
+
+    return format(maxBookingDate, 'dd/MM/yyyy', { locale: ca });
   }
 }

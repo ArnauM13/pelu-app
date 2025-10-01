@@ -480,6 +480,24 @@ export class TimeUtils {
   }
 
   /**
+   * Get complete month calendar with full weeks (including adjacent month days)
+   * This shows a standard calendar view with 6 weeks, including days from previous/next months
+   */
+  getCompleteMonthCalendar(date: Date): Date[] {
+    const monthStart = startOfMonth(date);
+    const monthEnd = endOfMonth(date);
+
+    // Get the start of the week that contains the first day of the month
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday = 1
+
+    // Get the end of the week that contains the last day of the month
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+    // Return all days in this range (complete weeks)
+    return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  }
+
+  /**
    * Get start of week for a given date
    */
   getStartOfWeek(date: Date): Date {

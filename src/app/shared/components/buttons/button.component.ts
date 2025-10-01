@@ -1,4 +1,4 @@
-import { Component, input, output, ViewEncapsulation } from '@angular/core';
+import { Component, input, output, ViewEncapsulation, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +18,7 @@ export class ButtonComponent {
   readonly iconPos = input<'left' | 'right' | 'top' | 'bottom'>('left');
   readonly severity = input<'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'help' | 'danger' | 'contrast'>('primary');
   readonly variant = input<'outlined' | 'text' | undefined>(undefined);
-  readonly size = input<'small' | 'large' | undefined>(undefined);
+  readonly size = input<'small' | 'large' | 'mini' | 'micro' | undefined>(undefined);
   readonly disabled = input<boolean>(false);
   readonly loading = input<boolean>(false);
   readonly raised = input<boolean>(false);
@@ -34,6 +34,27 @@ export class ButtonComponent {
 
   // Outputs
   readonly clicked = output<Event>();
+
+  // Computed property for CSS classes
+  readonly buttonClasses = computed(() => {
+    const classes = [this.class()];
+    if (this.size() === 'mini') {
+      classes.push('p-button-mini');
+    }
+    if (this.size() === 'micro') {
+      classes.push('p-button-micro');
+    }
+    return classes.filter(Boolean).join(' ');
+  });
+
+  // Computed property for PrimeNG size (exclude mini and micro)
+  readonly primeNgSize = computed(() => {
+    const currentSize = this.size();
+    if (currentSize === 'mini' || currentSize === 'micro') {
+      return undefined; // Don't pass custom sizes to PrimeNG
+    }
+    return currentSize;
+  });
 
   // Get unique ID
   getElementId(): string {

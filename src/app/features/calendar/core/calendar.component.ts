@@ -143,6 +143,9 @@ export class CalendarComponent {
   // Constants
   readonly view: CalendarView = CalendarView.Week;
 
+  // View mode management
+  readonly currentView = signal<'daily' | 'weekly'>('weekly');
+
   // Reactive business configuration - will update automatically when parameters change
   readonly businessHours = computed(() => this.businessService.getBusinessConfig().businessHours);
   readonly lunchBreak = computed(() => this.businessService.getBusinessConfig().lunchBreak);
@@ -234,6 +237,14 @@ export class CalendarComponent {
   // Computed properties
   readonly weekDays = computed(() => {
     const startDate = this.viewDate();
+
+    // For daily view, return the currently selected day
+    if (this.currentView() === 'daily') {
+      const selectedDay = this.selectedDay() || new Date();
+      return [selectedDay];
+    }
+
+    // For weekly view, return the full week
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + 6);
     const allBusinessDays = this.businessService.getBusinessDaysForWeek(startDate, endDate);
@@ -286,6 +297,7 @@ export class CalendarComponent {
   // Computed day columns data - reactive to booking duration
   readonly dayColumnsData = computed((): DayColumnData[] => {
     return this.weekDays().map(day => {
+      const isOutOfRange = !this.calendarCoreService.isDateWithinBookingRange(day);
       const timeSlots = this.timeSlots().map(time => ({
         date: day,
         time,
@@ -326,8 +338,8 @@ export class CalendarComponent {
         date: day,
         dayName: this.getDayName(day),
         dayDate: this.format(day, 'dd/MM'),
-        isPast: this.isPastDate(day),
-        isDisabled: this.isPastDate(day),
+        isPast: this.isPastDate(day) || isOutOfRange,
+        isDisabled: this.isPastDate(day) || isOutOfRange,
         timeSlots,
         appointments: this.getAppointmentsForDay(day),
         dropIndicator,
@@ -753,7 +765,147 @@ export class CalendarComponent {
 
   today() {
     this.stateService.today();
+
+    // For daily view, also set the selected day to today
+    if (this.currentView() === 'daily') {
+      const today = new Date();
+      this.stateService.setSelectedDay(today);
+    }
   }
+
+  navigateToDate(dateString: string): void {
+    this.stateService.navigateToDate(dateString);
+  }
+
+  // View switching methods
+  switchToDailyView() {
+    this.currentView.set('daily');
+    // Set the selected day to today when switching to daily view
+    const today = new Date();
+    this.stateService.setSelectedDay(today);
+    this.stateService.navigateToDate(dateFnsFormat(today, 'yyyy-MM-dd'));
+  }
+
+  switchToWeeklyView() {
+    this.currentView.set('weekly');
+  }
+
+  onViewChanged(view: 'daily' | 'weekly' | 'month' | 'week') {
+    if (view === 'daily') {
+      this.switchToDailyView();
+    } else if (view === 'weekly' || view === 'week') {
+      this.switchToWeeklyView();
+    }
+    // Note: 'month' view is handled by the mobile calendar component, not the main calendar
+  }
+
+  // Daily view navigation methods
+  previousDay() {
+    if (this.currentView() === 'daily') {
+      // Get the currently selected day or today if none selected
+      const currentDay = this.selectedDay() || new Date();
+      const previousDay = new Date(currentDay);
+      previousDay.setDate(previousDay.getDate() - 1);
+      this.stateService.setSelectedDay(previousDay);
+      this.stateService.navigateToDate(dateFnsFormat(previousDay, 'yyyy-MM-dd'));
+    } else {
+      this.previousWeek();
+    }
+  }
+
+  nextDay() {
+    if (this.currentView() === 'daily') {
+      // Get the currently selected day or today if none selected
+      const currentDay = this.selectedDay() || new Date();
+      const nextDay = new Date(currentDay);
+      nextDay.setDate(nextDay.getDate() + 1);
+      this.stateService.setSelectedDay(nextDay);
+      this.stateService.navigateToDate(dateFnsFormat(nextDay, 'yyyy-MM-dd'));
+    } else {
+      this.nextWeek();
+    }
+  }
+
+  // Check if we can navigate to previous day/week
+  canNavigateToPrevious(): boolean {
+    if (this.currentView() === 'daily') {
+      // For daily view, always allow navigation to past days
+      return true;
+    }
+    return this.canNavigateToPreviousWeek();
+  }
+
+  // Get current view info for display
+  readonly currentViewInfo = computed(() => {
+    // Only calculate when bookings are loaded to ensure all data is available
+    if (!this.isBookingsLoaded()) {
+      // Return a default value while loading
+      const startDate = this.viewDate();
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 6);
+      return {
+        type: 'weekly' as const,
+        label: `${this.format(startDate, 'dd/MM')} - ${this.format(endDate, 'dd/MM')}`,
+        startDate,
+        endDate
+      };
+    }
+
+    if (this.currentView() === 'daily') {
+      // Show the currently selected day in daily view
+      const selectedDay = this.selectedDay() || new Date();
+      return {
+        type: 'daily' as const,
+        label: this.format(selectedDay, 'EEEE dd/MM'),
+        date: selectedDay
+      };
+    } else {
+      // For weekly view, show only first and last enabled days
+      // Force reactivity by accessing all necessary signals
+      const weekDays = this.weekDays();
+      const timeSlots = this.timeSlots();
+      const allEvents = this.allEvents();
+      const isBlocked = this.isBlocked();
+
+      // If time slots are not yet available, show full week as fallback
+      if (!timeSlots || timeSlots.length === 0) {
+        const startDate = this.viewDate();
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+        return {
+          type: 'weekly' as const,
+          label: `${this.format(startDate, 'dd/MM')} - ${this.format(endDate, 'dd/MM')}`,
+          startDate,
+          endDate
+        };
+      }
+
+      const enabledDays = this.getEnabledDaysInWeek();
+
+      if (enabledDays.length === 0) {
+        // Fallback to full week if no enabled days
+        const startDate = this.viewDate();
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+        return {
+          type: 'weekly' as const,
+          label: `${this.format(startDate, 'dd/MM')} - ${this.format(endDate, 'dd/MM')}`,
+          startDate,
+          endDate
+        };
+      }
+
+      const firstEnabledDay = enabledDays[0];
+      const lastEnabledDay = enabledDays[enabledDays.length - 1];
+
+      return {
+        type: 'weekly' as const,
+        label: `${this.format(firstEnabledDay, 'd \'de\' MMM')} - ${this.format(lastEnabledDay, 'd \'de\' MMM')}`,
+        startDate: firstEnabledDay,
+        endDate: lastEnabledDay
+      };
+    }
+  });
 
   formatPopupDate(dateString: string): string {
     const date = new Date(dateString);
@@ -763,6 +915,31 @@ export class CalendarComponent {
 
   format(date: Date, formatString: string): string {
     return dateFnsFormat(date, formatString, { locale: ca });
+  }
+
+  // Get enabled days in the current week (days with at least one available time slot)
+  private getEnabledDaysInWeek(): Date[] {
+    const weekDays = this.weekDays();
+    const timeSlots = this.timeSlots();
+    const enabledDays: Date[] = [];
+
+    // Early return if time slots are not yet available
+    if (!timeSlots || timeSlots.length === 0) {
+      return enabledDays;
+    }
+
+    for (const day of weekDays) {
+      // Check if this day has at least one available time slot
+      const hasAvailableSlot = timeSlots.some(time =>
+        this.isTimeSlotAvailable(day, time)
+      );
+
+      if (hasAvailableSlot) {
+        enabledDays.push(day);
+      }
+    }
+
+    return enabledDays;
   }
 
   private formatLocalDateTime(date: Date): string {

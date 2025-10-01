@@ -1,1 +1,2 @@
-export { FooterComponent, FooterConfig, FooterAlert } from './footer.component';
+export { FooterComponent } from './footer.component';
+export type { FooterConfig, FooterAlert } from './footer.component';

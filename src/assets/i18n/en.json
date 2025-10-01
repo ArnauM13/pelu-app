@@ -427,6 +427,10 @@
   "BOOKING": {
     "TITLE": "Book",
     "SUBTITLE": "Select the service and date that best suits you",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "Create new booking",
+      "TITLE": "Manual Booking"
+    },
     "CREATING_BOOKING": "Creating booking...",
     "SELECT_SERVICE": "New booking",
     "SELECT_DATE": "Select date",
@@ -443,6 +447,12 @@
     "NO_AVAILABLE_DAYS": "No available days",
     "NO_AVAILABLE_DAYS_MESSAGE": "All days of the week have all hours occupied. Try with another week.",
     "LEGEND": "Legend",
+    "DISCLAIMER": {
+      "TITLE": "Available bookings",
+      "DESCRIPTION": "You can book until:",
+      "RANGE": "Until",
+      "MESSAGE": "Book until:"
+    },
     "SUCCESS_TITLE": "Booking confirmed!",
     "SUCCESS_MESSAGE": "Your booking has been created successfully. You will receive an email with the details and a link to edit it.",
     "EMAIL_NOTICE": "Check your inbox to see the booking details.",
@@ -613,6 +623,12 @@
     "PREVIOUS_WEEK": "Previous week",
     "NEXT_WEEK": "Next week",
     "GO_TO_TODAY": "Go to today",
+    "VIEW": {
+      "DAILY": "Day",
+      "WEEKLY": "Week",
+      "MONTHLY": "Month",
+      "SELECT_VIEW": "Select view"
+    },
     "BUSINESS_HOURS": "Business hours",
     "TIME_SLOT_AVAILABLE": "Time slot available",
     "TIME_SLOT_BUSY": "Time slot busy",

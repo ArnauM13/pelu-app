@@ -44,7 +44,7 @@ export interface ToastConfig {
     <p-toast
       [key]="config()?.key || 'pelu-toast'"
       [position]="config()?.position || 'top-right'"
-      [baseZIndex]="config()?.baseZIndex || 10000"
+      [baseZIndex]="config()?.baseZIndex || 3000"
       [showTransitionOptions]="config()?.showTransitionOptions || '250ms ease-out'"
       [hideTransitionOptions]="config()?.hideTransitionOptions || '150ms ease-in'"
       [showTransformOptions]="config()?.showTransformOptions || 'translateX(100%)'"

@@ -426,6 +426,10 @@
   "BOOKING": {
     "TITLE": "Reservar",
     "SUBTITLE": "Selecciona el servicio y la fecha que mejor te convenga",
+    "MANUAL": {
+      "CREATE_NEW_BOOKING": "Crear nueva reserva",
+      "TITLE": "Reserva Manual"
+    },
     "CREATING_BOOKING": "Creando reserva...",
     "SELECT_SERVICE": "Nueva reserva",
     "SELECT_DATE": "Seleccionar fecha",
@@ -442,6 +446,12 @@
     "NO_AVAILABLE_DAYS": "No hay días disponibles",
     "NO_AVAILABLE_DAYS_MESSAGE": "Todos los días de la semana tienen todas las horas ocupadas. Prueba con otra semana.",
     "LEGEND": "Leyenda",
+    "DISCLAIMER": {
+      "TITLE": "Reservas disponibles",
+      "DESCRIPTION": "Puedes reservar hasta el:",
+      "RANGE": "Hasta el",
+      "MESSAGE": "Reserva hasta el:"
+    },
     "SUCCESS_TITLE": "¡Reserva confirmada!",
     "SUCCESS_MESSAGE": "Tu reserva se ha creado correctamente. Recibirás un email con los detalles y un enlace para editarla.",
     "EMAIL_NOTICE": "Revisa tu bandeja de entrada para ver los detalles de la reserva.",
@@ -613,6 +623,12 @@
     "PREVIOUS_WEEK": "Semana anterior",
     "NEXT_WEEK": "Próxima semana",
     "GO_TO_TODAY": "Ir a hoy",
+    "VIEW": {
+      "DAILY": "Día",
+      "WEEKLY": "Semana",
+      "MONTHLY": "Mes",
+      "SELECT_VIEW": "Seleccionar vista"
+    },
     "BUSINESS_HOURS": "Horario comercial",
     "TIME_SLOT_AVAILABLE": "Horario disponible",
     "TIME_SLOT_BUSY": "Horario ocupado",

@@ -24,12 +24,14 @@
   }
 }
 
-/* Container styles - Same as other main pages */
+/* Container styles - Full width layout */
 .container {
   position: relative;
-  width: 100%;
-  margin: 0 auto;
-  max-width: 95%;
+  max-width: 100%;
+  padding: 1rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 /* Content section styles */
@@ -49,77 +51,6 @@
 .shared-title-section {
   margin-bottom: 1rem;
   margin-top: 2rem;
-}
-
-/* ===== DESKTOP LAYOUT ===== */
-.desktop-layout {
-  .date-controls-section {
-    margin-bottom: 1rem;
-
-    .date-controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem 0;
-    }
-
-    .week-navigation {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-left: auto;
-
-      .week-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.25rem 0.5rem;
-        background: transparent;
-
-        span {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 0.35rem 1rem;
-          height: 2.75rem;
-          background: var(--primary-color);
-          color: #fff;
-          border-radius: 6px;
-          font-weight: 600;
-          font-size: 0.9rem;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-      }
-
-      pelu-button {
-        // Navigation buttons styling
-        ::ng-deep .p-button {
-          width: 40px;
-          height: 40px;
-          min-width: 40px;
-          padding: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-        }
-      }
-    }
-  }
-
-  .calendar-section {
-    padding: 0;
-    margin-bottom: 2rem;
-  }
-
-  .next-appointment-section {
-    margin-bottom: 2rem;
-  }
-
-  .footer-section {
-    margin-top: 2rem;
-  }
 }
 
 /* ===== MOBILE LAYOUT ===== */
@@ -849,12 +780,6 @@
   }
 }
 
-/* ===== DESKTOP POPUPS ===== */
-// Popup styles are handled by the popup components themselves
-
-/* ===== SHARED COMPONENTS ===== */
-// No appointments message styles are handled by the component itself
-
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 768px) {
   :host {
@@ -864,32 +789,6 @@
   .shared-title-section {
     margin-bottom: 1rem;
     margin-top: 0;
-  }
-
-  .desktop-layout {
-    .date-controls {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
-    }
-
-    .week-navigation {
-      margin-left: 0;
-      justify-content: center;
-      gap: 0.75rem;
-
-      .week-info {
-        margin: 0;
-      }
-
-      pelu-button {
-        ::ng-deep .p-button {
-          width: 36px;
-          height: 36px;
-          min-width: 36px;
-        }
-      }
-    }
   }
 
   .mobile-layout {

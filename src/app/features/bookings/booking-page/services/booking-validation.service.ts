@@ -195,24 +195,25 @@ export class BookingValidationService {
   }
 
   canSelectDate(date: Date): boolean {
-    if (!this.coreBookingValidationService.canBookOnDate(date) ||
-        !this.coreBookingValidationService.canBookInAdvance(date) ||
-        this.isPastDate(date)) {
+    // Only block past dates - allow navigation to any future date
+    // Booking validation will be handled separately when actually making a reservation
+    if (this.isPastDate(date)) {
       return false;
     }
 
-    if (this.bookingStateService.viewMode() === 'week') {
-      return true;
-    } else {
-      const currentDate = this.bookingStateService.viewDate();
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
+    // Allow selection of any future date for navigation purposes
+    // Booking restrictions will be applied at reservation time, not navigation time
+    return true;
+  }
 
-      const isInCurrentMonth =
-        date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-
-      return isInCurrentMonth;
-    }
+  /**
+   * Validates if a booking can actually be made on a specific date
+   * This includes all business rules: working days, advance booking limits, etc.
+   */
+  canMakeBookingOnDate(date: Date): boolean {
+    return this.coreBookingValidationService.canBookOnDate(date) &&
+           this.coreBookingValidationService.canBookInAdvance(date) &&
+           !this.isPastDate(date);
   }
 
   isPastDate(date: Date): boolean {
