@@ -8,6 +8,7 @@ import { CalendarComponent } from '../../../../features/calendar/core/calendar.c
 import { BookingFormComponent } from './booking-form.component';
 import { DateControlsComponent } from './date-controls/date-controls.component';
 import { MonthlyCalendarComponent } from './monthly-calendar.component';
+import { ClientSearchFilterComponent } from '../../../../shared/components/client-search-filter/client-search-filter.component';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingValidationService } from '../services/booking-validation.service';
 import { DateTimeSelectionService } from '../services/date-time-selection.service';
@@ -31,6 +32,7 @@ import { SystemParametersService } from '../../../../core/services/system-parame
     BookingFormComponent,
     DateControlsComponent,
     MonthlyCalendarComponent,
+    ClientSearchFilterComponent,
   ],
   template: `
     <div class="desktop-layout">
@@ -101,6 +103,12 @@ import { SystemParametersService } from '../../../../core/services/system-parame
                 </pelu-card>
               </div>
 
+            <!-- Client Search Filter -->
+            <pelu-client-search-filter
+              (clientSelected)="onClientSelected($event)"
+              (clientFiltered)="onClientFiltered($event)"
+            ></pelu-client-search-filter>
+
             <!-- Manual Booking Section -->
             <div class="manual-booking-section" [class.collapsed]="manualBookingCollapsed()">
               @if (!manualBookingCollapsed()) {
@@ -162,6 +170,7 @@ import { SystemParametersService } from '../../../../core/services/system-parame
               [mini]="false"
               [events]="[]"
               [isBlocked]="isCalendarBlocked()"
+              [clientFilter]="clientFilterSignal()"
               (dateSelected)="onDesktopTimeSlotSelected($event)"
             ></pelu-calendar-component>
           </div>
@@ -680,6 +689,9 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   // Signal for monthly calendar display month (can be different from main calendar)
   readonly monthlyCalendarViewDate = signal<Date>(new Date());
 
+  // Signal for client filter
+  readonly clientFilterSignal = signal<string | null>(null);
+
   // Output events
   timeSlotSelected = output<{ date: string; time: string }>();
 
@@ -688,6 +700,21 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
   readonly isCalendarBlocked = computed(() => this.bookingValidationService.isCalendarBlocked());
   readonly sidebarCollapsed = computed(() => this.bookingStateService.sidebarCollapsed());
   readonly selectedDate = computed(() => this.bookingStateService.selectedDate());
+
+  // Filtered appointments based on client selection
+  readonly filteredAppointments = computed(() => {
+    const appointments = this.bookingStateService.appointments();
+    const clientFilter = this.clientFilterSignal();
+
+    if (!clientFilter) {
+      return appointments; // Show all appointments if no filter
+    }
+
+    // Filter appointments by client email
+    return appointments.filter(appointment =>
+      appointment.email && appointment.email.toLowerCase() === clientFilter.toLowerCase()
+    );
+  });
 
   // Computed property to check if sidebar should be shown
   readonly shouldShowSidebar = computed(() => {
@@ -1197,5 +1224,14 @@ export class DesktopLayoutComponent implements OnInit, OnDestroy, AfterViewInit 
     const maxBookingDate = new Date(now.getTime() + daysInAdvance * 24 * 60 * 60 * 1000);
 
     return format(maxBookingDate, 'dd/MM/yyyy', { locale: ca });
+  }
+
+  onClientSelected(client: any): void {
+    console.log('Client selected:', client);
+  }
+
+  onClientFiltered(clientEmail: string | null): void {
+    console.log('Client filtered by email:', clientEmail);
+    this.clientFilterSignal.set(clientEmail);
   }
 }

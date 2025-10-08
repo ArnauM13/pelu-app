@@ -105,6 +105,7 @@ export class CalendarComponent {
   readonly mini = input<boolean>(false);
   readonly events = input<AppointmentEvent[]>([]);
   readonly isBlocked = input<boolean>(false);
+  readonly clientFilter = input<string | null>(null);
 
   // Output signals
   readonly dateSelected = output<{ date: string; time: string }>();
@@ -176,7 +177,16 @@ export class CalendarComponent {
     }
 
     // Use appointments from signal
-    const appointments = this.appointments() || [];
+    let appointments = this.appointments() || [];
+    const clientFilter = this.clientFilter();
+
+    // Apply client filter if provided
+    if (clientFilter) {
+      appointments = appointments.filter(booking =>
+        booking.email && booking.email.toLowerCase() === clientFilter.toLowerCase()
+      );
+    }
+
     const currentUser = this.authService.user();
     const allServices = this.servicesService.getAllServices();
 
