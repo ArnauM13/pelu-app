@@ -17,7 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
       <div class="message-content">
         <p class="message-text">{{ message() | translate }}</p>
-        
+
         @if (actionText() && actionCallback() && showAction()) {
           <div class="message-actions">
             <button class="btn btn-primary" (click)="actionCallback()!()">
@@ -101,6 +101,7 @@ import { TranslateModule } from '@ngx-translate/core';
       .message-actions {
         display: flex;
         justify-content: flex-end;
+        margin-top: 1rem;
       }
 
       .btn {

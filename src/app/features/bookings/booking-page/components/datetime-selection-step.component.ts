@@ -65,6 +65,8 @@ import { TimeSlot, DaySlot } from '../../../../shared/utils/time.utils';
           [days]="currentViewDays()"
           [viewMode]="viewMode()"
           [selectedDate]="selectedDate()"
+          [currentMonth]="viewDate()"
+          [currentView]="getCurrentViewForDateControls()"
           (dateSelected)="onDateClicked($event)"
         ></pelu-calendar-grid>
       </div>
@@ -645,14 +647,14 @@ export class DateTimeSelectionStepComponent {
     return '';
   }
 
-  getCurrentViewForDateControls(): 'daily' | 'weekly' | 'month' | 'week' {
+  getCurrentViewForDateControls(): 'daily' | 'weekly' {
     const view = this.viewMode();
     if (view === 'week') {
-      return 'week';
+      return 'weekly';
     } else if (view === 'month') {
-      return 'month';
+      return 'daily'; // For month view in mobile, use daily behavior like desktop
     }
-    return 'week'; // default
+    return 'weekly'; // default
   }
 
   getMobileToggleButtonLabel(): string {

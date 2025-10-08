@@ -24,7 +24,6 @@
   }
 }
 
-/* Container styles - Full width layout */
 .container {
   position: relative;
   max-width: 100%;
@@ -34,7 +33,6 @@
   margin: 0;
 }
 
-/* Content section styles */
 .content-section {
   width: 100%;
   margin-bottom: 1rem;
@@ -784,6 +782,11 @@
 @media (max-width: 768px) {
   :host {
     margin: 0.5rem;
+  }
+
+  .container {
+    padding-right: 1rem;
+    padding-top: 0;
   }
 
   .shared-title-section {
