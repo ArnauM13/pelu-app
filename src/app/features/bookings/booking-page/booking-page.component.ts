@@ -16,7 +16,6 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ResponsiveService } from '../../../core/services/responsive.service';
-import { NoAppointmentsMessageComponent } from '../../../shared/components/no-appointments-message/no-appointments-message.component';
 import { LoaderService } from '../../../shared/services/loader.service';
 import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { IcsUtils } from '../../../shared/utils/ics.utils';
@@ -24,11 +23,6 @@ import { ServiceColorsService } from '../../../core/services/service-colors.serv
 import { UserService } from '../../../core/services/user.service';
 
 // Import new components
-import { ServiceSelectionStepComponent } from './components/service-selection-step.component';
-import { DateTimeSelectionStepComponent } from './components/datetime-selection-step.component';
-import { ConfirmationStepComponent } from './components/confirmation-step.component';
-import { SuccessStepComponent } from './components/success-step.component';
-import { MobileNavigationComponent } from './components/mobile-navigation.component';
 import { DesktopLayoutComponent } from './components/desktop-layout.component';
 
 // Import services
@@ -43,13 +37,7 @@ import { BookingValidationService } from './services/booking-validation.service'
     BookingPopupComponent,
     ServiceSelectionPopupComponent,
     PopupDialogComponent,
-    NoAppointmentsMessageComponent,
     NextAppointmentComponent,
-    ServiceSelectionStepComponent,
-    DateTimeSelectionStepComponent,
-    ConfirmationStepComponent,
-    SuccessStepComponent,
-    MobileNavigationComponent,
     DesktopLayoutComponent,
   ],
   providers: [

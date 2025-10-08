@@ -30,32 +30,6 @@
     </div>
   }
 
-  <!-- Warning when no appointments are available in current view -->
-  @if (currentStep() === 'datetime' && hasNoAvailableAppointments()) {
-    <div class="content-section" style="margin-bottom: 1rem;">
-      <pelu-no-appointments-message
-        type="warning"
-        icon="⚠️"
-        iconColor="#f59e0b"
-        [title]="'BOOKING.NO_APPOINTMENTS_TITLE'"
-        [message]="'BOOKING.NO_APPOINTMENTS_MESSAGE'"
-      />
-    </div>
-  }
-
-  <!-- Warning when selected day has no available appointments -->
-  @if (currentStep() === 'datetime' && selectedDate() && hasNoAvailableAppointmentsForSelectedDay()) {
-    <div class="content-section" style="margin-bottom: 1rem;">
-      <pelu-no-appointments-message
-        type="warning"
-        icon="⚠️"
-        iconColor="#f59e0b"
-        [title]="'COMMON.SELECTION.NO_APPOINTMENTS_FOR_DAY'"
-        [message]="'COMMON.SELECTION.NO_APPOINTMENTS_FOR_DAY_MESSAGE'"
-      />
-    </div>
-  }
-
   <!-- Warning when no time slots are available for the selected service -->
   @if (currentStep() === 'datetime' && selectedService() && hasNoAvailableTimeSlotsForService()) {
     <div class="content-section" style="margin-bottom: 1rem;">
