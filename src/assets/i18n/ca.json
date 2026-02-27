@@ -936,5 +936,13 @@
     "LOGS_CLEARED_SUCCESS": "S'han netejat tots els logs",
     "LOGS_EXPORTED": "Logs Exportats",
     "LOGS_EXPORTED_SUCCESS": "S'han exportat els logs a un fitxer JSON"
+  },
+  "CALENDAR": {
+    "CLIENT_FILTER": {
+      "TITLE": "Filtra per client",
+      "SEARCH_PLACEHOLDER": "Cerca per nom de client...",
+      "SELECTED": "Client seleccionat",
+      "CLEAR_FILTER": "Netejar filtre"
+    }
   }
 }

@@ -25,7 +25,7 @@ export function HttpLoaderFactory() {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
-    providePrimeNG({ theme: { preset: Aura }}),
+    providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: false } } }),
     provideAnimationsAsync(),
     MessageService,
     ConfirmationService,
