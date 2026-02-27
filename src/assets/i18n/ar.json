@@ -311,7 +311,15 @@
     "REGISTER_ERROR": "خطأ في التسجيل",
     "GOOGLE_LOGIN_ERROR": "خطأ في تسجيل الدخول بـ Google",
     "GOOGLE_REGISTER_ERROR": "خطأ في التسجيل بـ Google",
-    "SESSION_REQUIRED": "الجلسة مطلوبة"
+    "SESSION_REQUIRED": "الجلسة مطلوبة",
+    "RESET_PASSWORD": "استعادة كلمة المرور",
+    "RESET_PASSWORD_DESCRIPTION": "أدخل بريدك الإلكتروني وسنرسل لك تعليمات لاستعادة كلمة المرور.",
+    "SEND_RESET_EMAIL": "إرسال بريد الاستعادة",
+    "BACK_TO_LOGIN": "العودة إلى تسجيل الدخول",
+    "RESET_EMAIL_SENT": "تم إرسال البريد!",
+    "RESET_EMAIL_SENT_DESCRIPTION": "لقد أرسلنا تعليمات استعادة كلمة المرور إلى بريدك الإلكتروني. تحقق من صندوق الوارد (ومجلد البريد العشوائي).",
+    "RESET_PASSWORD_ERROR": "تعذر إرسال بريد الاستعادة. تحقق من صحة عنوان البريد الإلكتروني.",
+    "SENDING_RESET_EMAIL": "جارٍ إرسال بريد الاستعادة..."
   },
   "NAVIGATION": {
     "HOME": "الرئيسية",

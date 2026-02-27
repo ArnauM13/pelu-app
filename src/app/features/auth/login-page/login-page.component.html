@@ -3,6 +3,7 @@
     [config]="loginConfig()"
     (submitForm)="onLoginSubmit($event)"
     (googleAuth)="onGoogleAuth()"
+    (forgotPasswordRequest)="onForgotPasswordRequest($event)"
   />
 
   @if (hasError()) {

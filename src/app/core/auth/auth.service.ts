@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   User,
   GoogleAuthProvider,
 } from '@angular/fire/auth';
@@ -183,6 +184,10 @@ export class AuthService {
       const currentLanguage = this.translationService.getLanguage();
       this.translationService.saveUserLanguagePreference(currentUser.uid, currentLanguage);
     }
+  }
+
+  async sendPasswordReset(email: string): Promise<void> {
+    await sendPasswordResetEmail(this.auth, email);
   }
 
   clearError(): void {

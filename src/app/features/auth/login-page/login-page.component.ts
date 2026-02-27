@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
@@ -10,6 +10,7 @@ import {
 import { AuthService } from '../../../core/auth/auth.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LoaderService } from '../../../shared/services/loader.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'pelu-login-page',
@@ -24,6 +25,9 @@ export class LoginPageComponent implements OnDestroy {
   #authService = inject(AuthService);
   #translation = inject(TranslationService);
   #loader = inject(LoaderService);
+  #toast = inject(ToastService);
+
+  @ViewChild(AuthPopupComponent) authPopup?: AuthPopupComponent;
 
   // Internal state
   private readonly isLoadingSignal = signal(true);
@@ -99,6 +103,20 @@ export class LoginPageComponent implements OnDestroy {
       );
     } finally {
       this.isLoadingSignal.set(false);
+      this.#loader.hide();
+    }
+  }
+
+  async onForgotPasswordRequest(email: string) {
+    this.errorMessage.set('');
+    this.#loader.show({ message: 'AUTH.SENDING_RESET_EMAIL' });
+
+    try {
+      await this.#authService.sendPasswordReset(email);
+      this.authPopup?.markResetEmailSent();
+    } catch (err) {
+      this.#toast.showError('COMMON.ERROR', 'AUTH.RESET_PASSWORD_ERROR');
+    } finally {
       this.#loader.hide();
     }
   }

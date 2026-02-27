@@ -319,7 +319,15 @@
     "REGISTER_ERROR": "Register error",
     "GOOGLE_LOGIN_ERROR": "Google login error",
     "GOOGLE_REGISTER_ERROR": "Google register error",
-    "SESSION_REQUIRED": "Session required"
+    "SESSION_REQUIRED": "Session required",
+    "RESET_PASSWORD": "Reset password",
+    "RESET_PASSWORD_DESCRIPTION": "Enter your email and we'll send you instructions to reset your password.",
+    "SEND_RESET_EMAIL": "Send reset email",
+    "BACK_TO_LOGIN": "Back to login",
+    "RESET_EMAIL_SENT": "Email sent!",
+    "RESET_EMAIL_SENT_DESCRIPTION": "We've sent password reset instructions to your email. Check your inbox (and spam folder).",
+    "RESET_PASSWORD_ERROR": "Could not send the reset email. Please check that the email address is correct.",
+    "SENDING_RESET_EMAIL": "Sending reset email..."
   },
   "NAVIGATION": {
     "HOME": "Home",

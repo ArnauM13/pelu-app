@@ -319,7 +319,15 @@
     "REGISTER_ERROR": "Error al registrar",
     "GOOGLE_LOGIN_ERROR": "Error al iniciar sesión con Google",
     "GOOGLE_REGISTER_ERROR": "Error al registrar con Google",
-    "SESSION_REQUIRED": "Sesión requerida"
+    "SESSION_REQUIRED": "Sesión requerida",
+    "RESET_PASSWORD": "Recuperar contraseña",
+    "RESET_PASSWORD_DESCRIPTION": "Introduce tu email y te enviaremos las instrucciones para recuperar la contraseña.",
+    "SEND_RESET_EMAIL": "Enviar correo de recuperación",
+    "BACK_TO_LOGIN": "Volver al login",
+    "RESET_EMAIL_SENT": "¡Correo enviado!",
+    "RESET_EMAIL_SENT_DESCRIPTION": "Hemos enviado las instrucciones de recuperación a tu email. Revisa la bandeja de entrada (y la carpeta de spam).",
+    "RESET_PASSWORD_ERROR": "No se ha podido enviar el correo de recuperación. Comprueba que el email sea correcto.",
+    "SENDING_RESET_EMAIL": "Enviando correo de recuperación..."
   },
   "NAVIGATION": {
     "HOME": "Inicio",

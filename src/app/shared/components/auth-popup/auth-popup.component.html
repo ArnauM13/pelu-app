@@ -1,74 +1,137 @@
 <div class="auth-container">
   <div class="auth-card">
-    <h2 class="auth-title">{{ config().title }}</h2>
-    <p class="auth-subtitle">{{ config().subtitle }}</p>
 
-    @if (form()) {
-      <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
-        <div class="form-field">
-          <pelu-input-text
-            label='COMMON.EMAIL'
-            placeholder='AUTH.EMAIL_PLACEHOLDER'
-            type='email'
-            formControlName="email"
-          >
-          </pelu-input-text>
+    @if (isForgotPasswordMode()) {
+      <!-- Forgot password view -->
+      @if (resetEmailSent()) {
+        <div class="reset-success">
+          <span class="reset-success-icon">✉️</span>
+          <h2 class="auth-title">{{ 'AUTH.RESET_EMAIL_SENT' | translate }}</h2>
+          <p class="auth-subtitle">{{ 'AUTH.RESET_EMAIL_SENT_DESCRIPTION' | translate }}</p>
+          <pelu-button
+            type="button"
+            [label]="'AUTH.BACK_TO_LOGIN' | translate"
+            severity="secondary"
+            [fluid]="true"
+            (clicked)="toggleForgotPassword()"
+          ></pelu-button>
         </div>
+      } @else {
+        <h2 class="auth-title">{{ 'AUTH.RESET_PASSWORD' | translate }}</h2>
+        <p class="auth-subtitle">{{ 'AUTH.RESET_PASSWORD_DESCRIPTION' | translate }}</p>
 
-        <div class="form-field">
-          <pelu-input-password
-            label="AUTH.PASSWORD"
-            placeholder="AUTH.PASSWORD_PLACEHOLDER"
-            [toggleMask]="true"
-            formControlName="password"
-            (valueChange)="onPasswordChange($event)"
-          >
-          </pelu-input-password>
+        @if (form()) {
+          <form [formGroup]="form()!" class="auth-form">
+            <div class="form-field">
+              <pelu-input-text
+                label='COMMON.EMAIL'
+                placeholder='AUTH.EMAIL_PLACEHOLDER'
+                type='email'
+                formControlName="email"
+              ></pelu-input-text>
+            </div>
+
+            <pelu-button
+              type="button"
+              [label]="'AUTH.SEND_RESET_EMAIL' | translate"
+              [disabled]="form()!.get('email')!.invalid"
+              severity="primary"
+              [fluid]="true"
+              (clicked)="onForgotPasswordSubmit()"
+            ></pelu-button>
+          </form>
+        }
+
+        <div class="auth-link">
+          <p>
+            <a class="link" (click)="toggleForgotPassword()" style="cursor:pointer">
+              {{ 'AUTH.BACK_TO_LOGIN' | translate }}
+            </a>
+          </p>
         </div>
+      }
 
-        @if (hasRepeatPassword()) {
+    } @else {
+      <!-- Normal login / register view -->
+      <h2 class="auth-title">{{ config().title }}</h2>
+      <p class="auth-subtitle">{{ config().subtitle }}</p>
+
+      @if (form()) {
+        <form [formGroup]="form()!" (ngSubmit)="onSubmit()" class="auth-form">
+          <div class="form-field">
+            <pelu-input-text
+              label='COMMON.EMAIL'
+              placeholder='AUTH.EMAIL_PLACEHOLDER'
+              type='email'
+              formControlName="email"
+            >
+            </pelu-input-text>
+          </div>
+
           <div class="form-field">
             <pelu-input-password
-              label="AUTH.REPEAT_PASSWORD"
+              label="AUTH.PASSWORD"
               placeholder="AUTH.PASSWORD_PLACEHOLDER"
               [toggleMask]="true"
-              formControlName="repeatPassword"
-              (valueChange)="onRepeatPasswordChange($event)"
+              formControlName="password"
+              (valueChange)="onPasswordChange($event)"
             >
             </pelu-input-password>
           </div>
-        }
 
-        <pelu-button
-          type="submit"
-          [label]="config().submitButtonText"
-          [disabled]="form()!.invalid"
-          severity="primary"
-          [fluid]="true"
-        >
-        </pelu-button>
-      </form>
+          @if (!isRegisterMode()) {
+            <div class="forgot-password-link">
+              <a class="link" (click)="toggleForgotPassword()" style="cursor:pointer">
+                {{ 'AUTH.FORGOT_PASSWORD' | translate }}
+              </a>
+            </div>
+          }
+
+          @if (hasRepeatPassword()) {
+            <div class="form-field">
+              <pelu-input-password
+                label="AUTH.REPEAT_PASSWORD"
+                placeholder="AUTH.PASSWORD_PLACEHOLDER"
+                [toggleMask]="true"
+                formControlName="repeatPassword"
+                (valueChange)="onRepeatPasswordChange($event)"
+              >
+              </pelu-input-password>
+            </div>
+          }
+
+          <pelu-button
+            type="submit"
+            [label]="config().submitButtonText"
+            [disabled]="form()!.invalid"
+            severity="primary"
+            [fluid]="true"
+          >
+          </pelu-button>
+        </form>
+      }
+
+      <div class="divider">
+        <span>{{ 'COMMON.OR' | translate }}</span>
+      </div>
+
+      <pelu-button
+        type="button"
+        [label]="config().googleButtonText"
+        icon="pi pi-google"
+        severity="secondary"
+        [fluid]="true"
+        (clicked)="onGoogleAuth()"
+      >
+      </pelu-button>
+
+      <div class="auth-link">
+        <p>
+          {{ config().linkText }}
+          <a [routerLink]="config().linkRoute" class="link">{{ config().linkLabel }}</a>
+        </p>
+      </div>
     }
 
-    <div class="divider">
-      <span>{{ 'COMMON.OR' | translate }}</span>
-    </div>
-
-    <pelu-button
-      type="button"
-      [label]="config().googleButtonText"
-      icon="pi pi-google"
-      severity="secondary"
-      [fluid]="true"
-      (clicked)="onGoogleAuth()"
-    >
-    </pelu-button>
-
-    <div class="auth-link">
-      <p>
-        {{ config().linkText }}
-        <a [routerLink]="config().linkRoute" class="link">{{ config().linkLabel }}</a>
-      </p>
-    </div>
   </div>
 </div>

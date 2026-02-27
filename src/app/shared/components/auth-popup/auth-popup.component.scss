@@ -164,6 +164,38 @@
   }
 }
 
+/* Forgot password link */
+.forgot-password-link {
+  text-align: right;
+  margin-top: -0.75rem;
+
+  .link {
+    font-size: 0.85rem;
+    color: #6b7280;
+
+    &:hover {
+      color: #3b82f6;
+    }
+  }
+}
+
+/* Reset email sent success block */
+.reset-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+
+  .reset-success-icon {
+    font-size: 3rem;
+  }
+
+  .auth-subtitle {
+    margin-bottom: 1rem;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .auth-container {
