@@ -5,50 +5,107 @@
 
 ---
 
-## Estat actual: ~70% completat
+## Estat actual: ~75% completat
 
 ### Implementat i funcional ✅
 - Autenticació Firebase (email/password + Google OAuth)
+- Reset de contrasenya (flow inline al login)
+- Emails de confirmació de reserva via EmailJS (actiu)
 - Gestió de reserves CRUD completa amb temps real
-- Calendari interactiu (setmanal + diari) amb drag & drop
+- Calendari interactiu (setmanal + diari) amb drag & drop + filtre de client
 - Gestió de serveis CRUD
 - Pàgina d'ajustos d'administrador completa
 - Sistema de rols: `admin` / `client`
 - Internacionalització: ca, es, en, ar (amb suport RTL)
-- Components UI compartits (inputs, buttons, toasts, loader...)
-- Guards de rutes (auth, admin, public)
-- Filtre de client al calendari (branca actual)
+- PrimeNG sempre en mode clar (`darkModeSelector: false`)
+- Ruta `/playground` protegida amb `adminGuard`
 
 ---
 
-## Problemes crítics a resoldre
+## Problemes pendents
 
-### 🔴 1. Reset de contrasenya — FALTA
-Un client que oblida la contrasenya no pot recuperar-la.
-Firebase Auth ja ho suporta amb un sol mètode. Molt petita d'implementar.
+### 🟠 A. Edició de perfil d'usuari
+La pàgina `/perfil` és **només lectura**. L'usuari no pot canviar el seu nom ni telèfon.
 
-### 🔴 2. Emails de confirmació DESACTIVATS
-Tot el sistema d'EmailJS ja existeix a `hybrid-email.service.ts` però
-les crides estan comentades a `booking.service.ts:174-183`.
-El client no rep confirmació quan fa una reserva.
+### 🟠 B. Stats del dashboard a zero
+`AppStateService` retorna hardcoded `0` per a: total serveis, serveis actius, nombre d'usuaris.
 
-### 🟠 3. Edició de perfil d'usuari
-La pàgina `/perfil` és **només lectura**. L'usuari no pot canviar el seu nom
-ni telèfon des de l'app.
-
-### 🟠 4. Stats del dashboard a zero
-`AppStateService` retorna hardcoded `0` per a: total serveis, serveis actius,
-nombre d'usuaris. El dashboard de l'admin és inútil en producció.
-
-### 🟠 5. Llistat de clients per admin — FALTA
-L'admin no pot veure qui es registrat, ni editar/veure perfils de clients.
+### 🟠 C. Llistat de clients per admin — FALTA
+L'admin no pot veure qui s'ha registrat, ni editar/veure perfils de clients.
 `user.service.ts` ja té `listAllUsers()` però no hi ha cap pàgina que el mostri.
 
-### ✅ Ruta `/playground` protegida (Fase 0)
-Ara requereix `adminGuard`. Els clients no hi poden accedir.
-
-### 🟡 7. Chart.js instal·lat però no s'usa
+### 🟡 D. Chart.js instal·lat però no s'usa
 Afegeix ~200KB al bundle. Cal usar-lo o eliminar-lo.
+
+### 🟡 E. Textos hardcodejats en català
+Alguns labels de la pàgina de settings estan en català hardcoded, no traduïts.
+
+---
+
+## Nova funcionalitat: UX simplificada
+
+### Problema
+Les pàgines actuals estan **massa carregades** visualment: massa targetes, massa informació
+de cop, massa espai ocupat. L'objectiu és una experiència molt neta per usuaris de tot
+tipus, incloent gent gran o poc habituada a la tecnologia.
+
+### Principis de disseny
+- **Jerarquia clara**: màxim 1 acció principal per pantalla, la resta secundàries
+- **Espai en blanc generós**: menys elements, més respir visual
+- **Tipografia gran**: mides llegibles sense esforç
+- **Accions òbvies**: botons grans, labels clars, zero ambigüitat
+- **Mòbil primer**: disseny pensant primer en pantalla petita
+
+### Pàgines prioritàries a simplificar
+| Pàgina | Problema actual | Solució |
+|--------|-----------------|---------|
+| Landing | Massa seccions i text | Una sola CTA gran ("Reservar ara") + propera cita |
+| Booking | Formulari complex | Wizard pas a pas (servei → data → hora → confirmar) |
+| Appointments | Llista densa amb molts filtres | Vista neta amb filtres ocults per defecte |
+| Perfil | Massa dades tècniques visibles | Només nom, email, i propera cita |
+
+---
+
+## Nova funcionalitat: Propera cita accessible des de qualsevol lloc
+
+### Problema
+La propera cita del client ara apareix com un component gran que ocupa molt espai a la
+pàgina d'appointments. El client ha de navegar fins allà per veure-la.
+
+### Solució: "Next appointment chip" global
+Un element **discret i permanent** visible des de totes les pàgines que mostra
+la propera cita del client sense interrumpre el flux de la pàgina.
+
+**Comportament:**
+- Apareix com un **chip/badge** a la barra de navegació o flotant a baix-dreta
+- Mostra: data + hora + servei (3 dades, res més)
+- Al fer clic, obre un **popup/drawer** lleuger amb els detalls complets
+- Només visible si el client té una propera cita activa
+- Els admins no el veuen (ells ja ho gestionen al calendari)
+
+**Disseny del chip:**
+```
+[📅 Divendres 7 mar · 10:00 · Tall de cabell]  ×
+```
+
+**Disseny del popup (al fer clic):**
+```
+┌─────────────────────────────┐
+│  La teva propera cita       │
+│  ─────────────────────────  │
+│  📅 Divendres, 7 de març    │
+│  🕙 10:00h                  │
+│  ✂️  Tall de cabell          │
+│                             │
+│  [Veure detalls]  [Cancel·lar] │
+└─────────────────────────────┘
+```
+
+**Implementació:**
+- Nou component `NextAppointmentChip` (standalone)
+- S'injecta al layout principal (`app.component` o `ui-wrapper`)
+- Usa `BookingService.bookings()` filtrant per propera cita de l'usuari
+- El component `NextAppointmentComponent` actual pot simplificar-se o reutilitzar-se
 
 ---
 
@@ -63,7 +120,7 @@ No cal gestió d'horaris individuals per treballador.
 
 **Nou rol** (afegir a `RoleService`):
 ```
-admin → gestió total
+admin  → gestió total
 worker → veu el seu propi calendari, pot marcar cites com completades
 client → veu les seves pròpies cites
 ```
@@ -77,11 +134,11 @@ workerName?: string;   // Nom del treballador (desnormalitzat per velocitat)
 **Nova col·lecció Firestore** `workers`:
 ```
 workers/{uid}
-  - id: string
-  - name: string
-  - email: string
-  - color: string      // Color identificador al calendari
-  - isActive: boolean
+  name: string
+  email: string
+  color: string      // hex color per al calendari
+  isActive: boolean
+  createdAt: timestamp
 ```
 
 ### Funcionalitats del mode multi-treballador
@@ -113,12 +170,14 @@ workers/{uid}
 ```
 master (producció)
   └── dev (integració)
-        ├── calendar_improves  ← BRANCA ACTUAL → merge a dev aviat
-        ├── fix/critical-ux          (password reset + emails)
-        ├── feat/admin-clients       (llistat + edició de clients)
-        ├── feat/profile-editing     (usuari edita el seu propi perfil)
-        ├── feat/workers             (multi-treballador)
-        └── fix/dashboard-cleanup   (stats reals + eliminar playground + Chart.js)
+        ├── ✅ calendar_improves   (mergeada)
+        ├── ✅ fix/critical-ux     (mergeada)
+        ├── feat/admin-clients     (llistat + edició de clients)
+        ├── feat/profile-editing   (usuari edita el seu propi perfil)
+        ├── feat/next-appt-chip    (chip propera cita global)
+        ├── feat/ux-simplify       (simplificació visual de pàgines)
+        ├── feat/workers           (multi-treballador)
+        └── fix/dashboard-cleanup  (stats reals + eliminar Chart.js)
 ```
 
 **Regla**: cada branca és **independent**, es crea des de `dev` i es fusiona a `dev`.
@@ -128,29 +187,40 @@ Quan `dev` és estable es fa merge a `master` per desplegar.
 
 ## Ordre d'execució recomanat
 
-### Fase 0 — En curs (branca `calendar_improves`)
+### ✅ Fase 0 — Completada (`calendar_improves`)
 - [x] Millores del calendari i filtres de client per nom
-- [x] Fix PrimeNG: afegir `darkModeSelector: false` a `app.config.ts` (sempre mode clar)
-- [x] Neteja CSS: eliminar ~20 `background-color: white !important` de `styles-primeng.scss` que eren workarounds del mode fosc
-- [x] Protegir `/playground` amb `adminGuard` (només admins)
-- [ ] Merge a `dev`
+- [x] Fix PrimeNG: sempre mode clar (`darkModeSelector: false`)
+- [x] Neteja CSS: eliminats workarounds de mode fosc
+- [x] Protegir `/playground` amb `adminGuard`
 
-### Fase 1 — Quick wins crítics (branca `fix/critical-ux`)
-- [ ] Implementar reset de contrasenya (Firebase `sendPasswordResetEmail`)
-- [ ] Reactivar emails de confirmació (`booking.service.ts`)
-- [ ] Eliminar ruta `/playground` o protegir-la amb `adminGuard`
+### ✅ Fase 1 — Completada (`fix/critical-ux`)
+- [x] Reset de contrasenya (flow inline al login, Firebase Auth)
+- [x] Emails de confirmació reactivats (EmailJS)
 
-### Fase 2 — Gestió de clients per admin (branca `feat/admin-clients`)
+### Fase 2 — Gestió de clients per admin (`feat/admin-clients`)
 - [ ] Nova pàgina `/admin/clients` amb llistat de tots els usuaris
 - [ ] Veure perfil complet d'un client (reserves, dades)
 - [ ] Editar nom i telèfon d'un client des de l'admin
-- [ ] Botó de promotre/demote ja existent, integrar a la UI
+- [ ] Integrar botons de promote/demote a la UI
 
-### Fase 3 — Edició de perfil propi (branca `feat/profile-editing`)
+### Fase 3 — Edició de perfil propi (`feat/profile-editing`)
 - [ ] La pàgina `/perfil` permet editar nom i telèfon
-- [ ] Persistència a Firestore (col·lecció `users/{uid}`)
+- [ ] Persistència a Firestore (`users/{uid}`)
 
-### Fase 4 — Multi-treballador (branca `feat/workers`)
+### Fase 4 — Propera cita accessible globalment (`feat/next-appt-chip`)
+- [ ] Nou component `NextAppointmentChip` (chip discret a la navbar o flotant)
+- [ ] Popup lleuger amb data, hora i servei al fer clic
+- [ ] Visible des de totes les pàgines per a clients amb cites futures
+- [ ] Simplificar o eliminar el `NextAppointmentComponent` actual gran
+
+### Fase 5 — Simplificació UX (`feat/ux-simplify`)
+- [ ] Landing: una sola CTA gran, menys text
+- [ ] Booking: wizard pas a pas (servei → data → hora → confirmar)
+- [ ] Appointments: filtres ocults per defecte, llista més neta
+- [ ] Perfil: mostrar només la informació essencial
+- [ ] Revisió general de padding, mides de text i densitat visual
+
+### Fase 6 — Multi-treballador (`feat/workers`)
 - [ ] Afegir rol `worker` a `RoleService` i guards
 - [ ] Afegir `workerId` i `workerName` a `Booking` interface
 - [ ] Crear `workers.service.ts` amb CRUD a Firestore
@@ -160,9 +230,9 @@ Quan `dev` és estable es fa merge a `master` per desplegar.
 - [ ] Guard per a treballadors: veu només les seves cites
 - [ ] Adaptar `BookingService` per filtrar per `workerId` si rol és `worker`
 
-### Fase 5 — Neteja i stats (branca `fix/dashboard-cleanup`)
+### Fase 7 — Neteja i stats (`fix/dashboard-cleanup`)
 - [ ] Connectar stats reals al dashboard (serveis actius, total clients)
-- [ ] Eliminar Chart.js de `package.json` si no s'usa
+- [ ] Eliminar Chart.js de `package.json`
 - [ ] Corregir textos hardcodejats en català a la pàgina de settings
 
 ---
