@@ -2,25 +2,14 @@
 // Keep only PrimeNG-specific styles and component refinements.
 // Force light mode via PrimeNG tokens instead of overriding every component.
 
-/* Force light color-scheme globally so PrimeNG uses light tokens */
+/* Overlay/focus helpers reused in components below */
 :root {
-  color-scheme: light;
-  /* Overlay/focus helpers reused in components below */
   --primary-color-alpha-10: rgba(58, 90, 138, 0.1);
   --primary-color-alpha-20: rgba(58, 90, 138, 0.2);
   --primary-color-alpha-30: rgba(58, 90, 138, 0.3);
   --primary-color-alpha-50: rgba(58, 90, 138, 0.5);
   --primary-color-alpha-70: rgba(58, 90, 138, 0.7);
   --primary-color-alpha-90: rgba(58, 90, 138, 0.9);
-
-  /* Minimal PrimeNG token overrides to ensure light look without heavy duplication */
-  --p-surface-ground: #f8f9fa;
-  --p-surface-section: #ffffff;
-  --p-surface-card: #ffffff;
-  --p-surface-overlay: #ffffff;
-  --p-surface-border: #e5e7eb;
-  --p-text-color: #111827;
-  --p-text-color-secondary: #6b7280;
 }
 
 
@@ -565,8 +554,6 @@
 .p-password,
 .p-password-input,
 .p-select {
-  // Base styles - WHITE BACKGROUND
-  background-color: #ffffff !important;
   border: 1px solid var(--border-color, #e5e7eb) !important;
   border-radius: var(--border-radius, 8px) !important;
   color: var(--text-color-secondary, #6b7280) !important;
@@ -578,13 +565,11 @@
 
   // Hover state
   &:hover {
-    background-color: white !important;
     border-color: var(--border-color-hover, #d1d5db) !important;
   }
 
   // Focus state
   &:focus {
-    background-color: white !important;
     border-color: var(--primary-color, #3b82f6) !important;
     box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
     outline: none !important;
@@ -600,14 +585,12 @@
 
   // Invalid state
   &.ng-invalid.ng-touched {
-    background-color: white !important;
     border-color: var(--error-color) !important;
     box-shadow: 0 0 0 3px var(--error-color-alpha-10) !important;
   }
 
   // Valid state
   &.ng-valid.ng-touched {
-    background-color: white !important;
     border-color: var(--success-color) !important;
   }
 
@@ -636,8 +619,6 @@
 }
 
 .p-select-overlay {
-  background: white !important;
-
   .p-select-list-container .p-select-option {
     color: var(--text-color-light, #6b7280) !important;
     font-weight: 500 !important;
@@ -652,8 +633,6 @@
 }
 
 .p-multiselect-overlay {
-  background: white !important;
-
   .p-multiselect-list-container .p-multiselect-option {
     color: var(--text-color-light, #6b7280) !important;
     font-weight: 500 !important;
@@ -705,7 +684,6 @@
 
 .p-checkbox {
   .p-checkbox-box {
-    background-color: #ffffff !important;
     border-color: var(--border-color, #e5e7eb) !important;
   }
 }
@@ -717,20 +695,16 @@
 // ===== DROPDOWN & MULTISELECT STYLES =====
 .p-dropdown,
 .p-multiselect {
-  // Container styles
-  background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius) !important;
   min-height: 44px !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
   &:hover {
-    background-color: white !important;
     border-color: var(--border-color-hover) !important;
   }
 
   &:focus-within {
-    background-color: white !important;
     border-color: var(--primary-color) !important;
     box-shadow: 0 0 0 3px var(--primary-color-alpha-10) !important;
   }
@@ -771,7 +745,6 @@
   // Panel/Dropdown menu
   .p-dropdown-panel,
   .p-multiselect-panel {
-    background-color: white !important;
     border: 1px solid var(--border-color) !important;
     border-radius: var(--border-radius-lg) !important;
     box-shadow: var(--box-shadow-elevated) !important;
@@ -782,7 +755,6 @@
     // Items in dropdown
     .p-dropdown-item,
     .p-multiselect-item {
-      background-color: white !important;
       color: var(--text-color-secondary) !important; // Gris #6b7280
       padding: 0.75rem 1rem !important;
       transition: all 0.2s ease !important;
@@ -804,7 +776,6 @@
     // Empty message
     .p-dropdown-empty-message,
     .p-multiselect-empty-message {
-      background-color: white !important;
       color: var(--text-color-muted) !important;
       padding: 0.75rem 1rem !important;
       text-align: center !important;
@@ -824,7 +795,6 @@
 
   // Dialog container
   .p-dialog-header {
-    background-color: white !important;
     border-bottom: 1px solid var(--border-color) !important;
     padding: 1.5rem !important;
 
@@ -856,13 +826,11 @@
 
   .p-dialog-content {
     display: block !important;
-    background-color: white !important;
     color: var(--text-color) !important;
     padding: 1.5rem !important;
   }
 
   .p-dialog-footer {
-    background-color: white !important;
     border-top: 1px solid var(--border-color) !important;
     padding: 1.5rem !important;
   }
@@ -870,7 +838,6 @@
 
 // ===== MENU STYLES =====
 .p-menu {
-  background-color: white !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg) !important;
   box-shadow: var(--box-shadow-elevated) !important;

@@ -69,7 +69,7 @@ export const routes: Routes = [
   {
     path: 'playground',
     component: PlaygroundPageComponent,
-    canActivate: [authGuard],
+    canActivate: [adminGuard],
     data: { viewTransitionName: 'playground' },
   },
 
