@@ -169,18 +169,16 @@ export class BookingService {
       // Update local state
       this.bookingsSignal.update(bookings => [newBooking, ...bookings]);
 
-      // Email sending disabled - system is configured but not active
-      // To enable email sending, update PUBLIC_KEY in emailjs-config.ts
-      // try {
-      //   await this.emailService.sendBookingConfirmationEmail(newBooking);
-      // } catch (emailError) {
-      //   // Log email error but don't fail the booking creation
-      //   this.logger.error(emailError, {
-      //     component: 'BookingService',
-      //     method: 'createBooking',
-      //     data: JSON.stringify({ bookingId: uniqueId, clientEmail: bookingData.email })
-      //   });
-      // }
+      try {
+        await this.emailService.sendBookingConfirmationEmail(newBooking);
+      } catch (emailError) {
+        // Log email error but don't fail the booking creation
+        this.logger.error(emailError, {
+          component: 'BookingService',
+          method: 'createBooking',
+          data: JSON.stringify({ bookingId: uniqueId, clientEmail: bookingData.email })
+        });
+      }
 
       if (showToast) {
         this.toastService.showAppointmentCreated(bookingData.clientName || 'Client', uniqueId);

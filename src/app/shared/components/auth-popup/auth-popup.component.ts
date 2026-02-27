@@ -61,16 +61,21 @@ export class AuthPopupComponent implements OnDestroy {
   readonly submitForm = output<{ email: string; password: string; repeatPassword?: string }>();
   readonly googleAuth = output<void>();
   readonly passwordMismatch = output<boolean>();
+  readonly forgotPasswordRequest = output<string>();
 
   // Internal state signals
   private readonly formSignal = signal<FormGroup | null>(null);
   private readonly passwordValueSignal = signal<string>('');
   private readonly repeatPasswordValueSignal = signal<string>('');
+  private readonly forgotPasswordModeSignal = signal<boolean>(false);
+  readonly resetEmailSentSignal = signal<boolean>(false);
 
   // Computed properties
   readonly form = computed(() => this.formSignal());
   readonly isRegisterMode = computed(() => this.config()?.mode === 'register');
   readonly hasRepeatPassword = computed(() => this.isRegisterMode());
+  readonly isForgotPasswordMode = computed(() => this.forgotPasswordModeSignal());
+  readonly resetEmailSent = computed(() => this.resetEmailSentSignal());
 
   readonly isFirstPasswordValid = computed(() => {
     const password = this.passwordValueSignal();
@@ -243,5 +248,21 @@ export class AuthPopupComponent implements OnDestroy {
 
   onGoogleAuth() {
     this.googleAuth.emit();
+  }
+
+  toggleForgotPassword() {
+    this.forgotPasswordModeSignal.set(!this.forgotPasswordModeSignal());
+    this.resetEmailSentSignal.set(false);
+  }
+
+  onForgotPasswordSubmit() {
+    const email = this.form()?.get('email')?.value;
+    if (email) {
+      this.forgotPasswordRequest.emit(email);
+    }
+  }
+
+  markResetEmailSent() {
+    this.resetEmailSentSignal.set(true);
   }
 }
