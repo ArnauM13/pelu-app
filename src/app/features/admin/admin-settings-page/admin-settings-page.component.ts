@@ -93,12 +93,6 @@ export class AdminSettingsPageComponent implements OnInit {
     ];
   }
 
-  backupFrequencyOptions = [
-    { label: 'Diari', value: 'daily' },
-    { label: 'Setmanal', value: 'weekly' },
-    { label: 'Mensual', value: 'monthly' },
-  ];
-
   languageOptions = [
     { label: 'Català', value: 'ca' },
     { label: 'Español', value: 'es' },
