@@ -709,6 +709,10 @@
     }
 
   },
+  "CHIP": {
+    "TITLE": "La teva propera cita",
+    "VIEW_DETAILS": "Veure detalls"
+  },
   "CALENDAR": {
     "TODAY": "Avui",
     "THIS_WEEK": "Aquesta setmana",
