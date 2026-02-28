@@ -544,6 +544,10 @@
     "COLOR_PREFERENCES": "Preferencias de color",
     "ALLERGIES": "Alergias",
     "SPECIAL_REQUESTS": "Peticiones especiales",
+    "NAME_PLACEHOLDER": "Tu nombre completo",
+    "PHONE_PLACEHOLDER": "+34 600 000 000",
+    "SAVE_SUCCESS": "Perfil guardado correctamente",
+    "SAVE_ERROR": "Error al guardar el perfil",
     "ACTIVE": "Activo"
   },
   "USER": {

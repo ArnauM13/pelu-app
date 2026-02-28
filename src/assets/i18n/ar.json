@@ -527,6 +527,10 @@
     "COLOR_PREFERENCES": "تفضيلات اللون",
     "ALLERGIES": "الحساسية",
     "SPECIAL_REQUESTS": "الطلبات الخاصة",
+    "NAME_PLACEHOLDER": "اسمك الكامل",
+    "PHONE_PLACEHOLDER": "+34 600 000 000",
+    "SAVE_SUCCESS": "تم حفظ الملف الشخصي بنجاح",
+    "SAVE_ERROR": "خطأ في حفظ الملف الشخصي",
     "ACTIVE": "نشط"
   },
   "USER": {

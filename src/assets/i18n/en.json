@@ -545,6 +545,10 @@
     "COLOR_PREFERENCES": "Color preferences",
     "ALLERGIES": "Allergies",
     "SPECIAL_REQUESTS": "Special requests",
+    "NAME_PLACEHOLDER": "Your full name",
+    "PHONE_PLACEHOLDER": "+34 600 000 000",
+    "SAVE_SUCCESS": "Profile saved successfully",
+    "SAVE_ERROR": "Error saving profile",
     "ACTIVE": "Active"
   },
   "USER": {
