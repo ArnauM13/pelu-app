@@ -12,6 +12,7 @@ import { AboutPageComponent } from './features/about/about-page/about-page.compo
 import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-page/admin-dashboard-page.component';
 import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
+import { AdminClientsPageComponent } from './features/admin/admin-clients-page/admin-clients-page.component';
 import { PlaygroundPageComponent } from './features/playground/playground-page/playground-page.component';
 
 export const routes: Routes = [
@@ -94,6 +95,12 @@ export const routes: Routes = [
         component: AdminSettingsPageComponent,
         canActivate: [adminGuard],
         data: { viewTransitionName: 'admin-settings' },
+      },
+      {
+        path: 'clients',
+        component: AdminClientsPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-clients' },
       },
     ],
   },

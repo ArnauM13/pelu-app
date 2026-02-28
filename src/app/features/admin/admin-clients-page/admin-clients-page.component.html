@@ -1,0 +1,202 @@
+<div class="clients-page">
+
+  <!-- LIST VIEW -->
+  @if (!selectedClient()) {
+    <div class="list-view">
+      <pelu-title
+        title="ADMIN.CLIENTS.TITLE"
+        subtitle="ADMIN.CLIENTS.SUBTITLE"
+      ></pelu-title>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <pelu-input-text
+          [label]="''"
+          [placeholder]="'ADMIN.CLIENTS.SEARCH_PLACEHOLDER' | translate"
+          [value]="searchQuery()"
+          (valueChange)="searchQuery.set($event)"
+          icon="pi pi-search"
+          iconPosition="left"
+        ></pelu-input-text>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <span class="stat">
+          {{ filteredClients().length }}
+          {{ 'ADMIN.CLIENTS.TOTAL' | translate }}
+        </span>
+        <span class="stat admins">
+          {{ filteredClients().length - (filteredClients() | slice: 0 : 9999 | json).split('"role":"admin"').length + 1 }}
+        </span>
+      </div>
+
+      <!-- Client list -->
+      @if (filteredClients().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">👥</span>
+          <p>{{ 'ADMIN.CLIENTS.NO_CLIENTS' | translate }}</p>
+        </div>
+      } @else {
+        <div class="clients-list">
+          @for (client of filteredClients(); track client.uid) {
+            <div class="client-row" (click)="selectClient(client)">
+              <div class="client-avatar">
+                {{ getInitials(client) }}
+              </div>
+              <div class="client-info">
+                <span class="client-name">{{ client.displayName || client.email }}</span>
+                @if (client.displayName) {
+                  <span class="client-email">{{ client.email }}</span>
+                }
+              </div>
+              <div class="client-meta">
+                <span class="booking-count">
+                  {{ client.bookingCount }} {{ 'ADMIN.CLIENTS.BOOKINGS_SUFFIX' | translate }}
+                </span>
+                <span class="role-badge" [class.admin]="client.role === 'admin'">
+                  {{ client.role === 'admin' ? ('ADMIN.ADMIN_ROLE' | translate) : ('ADMIN.CLIENTS.CLIENT_ROLE' | translate) }}
+                </span>
+              </div>
+              <span class="chevron">›</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- DETAIL VIEW -->
+  @if (selectedClient(); as client) {
+    <div class="detail-view">
+      <!-- Back button -->
+      <button class="back-btn" (click)="backToList()">
+        ‹ {{ 'ADMIN.CLIENTS.BACK' | translate }}
+      </button>
+
+      <!-- Client header -->
+      <div class="client-header">
+        <div class="client-avatar large">{{ getInitials(client) }}</div>
+        <div class="client-header-info">
+          <h2>{{ client.displayName || client.email }}</h2>
+          <span class="role-badge" [class.admin]="client.role === 'admin'">
+            {{ client.role === 'admin' ? ('ADMIN.ADMIN_ROLE' | translate) : ('ADMIN.CLIENTS.CLIENT_ROLE' | translate) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Data section -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>{{ 'ADMIN.CLIENTS.PERSONAL_DATA' | translate }}</h3>
+          @if (!isEditing()) {
+            <pelu-button
+              [label]="'ADMIN.CLIENTS.EDIT' | translate"
+              severity="secondary"
+              size="small"
+              icon="pi pi-pencil"
+              (clicked)="startEdit()"
+            ></pelu-button>
+          }
+        </div>
+
+        @if (!isEditing()) {
+          <!-- Read mode -->
+          <div class="data-fields">
+            <div class="data-field">
+              <span class="field-label">{{ 'ADMIN.EMAIL' | translate }}</span>
+              <span class="field-value">{{ client.email }}</span>
+            </div>
+            <div class="data-field">
+              <span class="field-label">{{ 'ADMIN.NAME' | translate }}</span>
+              <span class="field-value">{{ client.displayName || '—' }}</span>
+            </div>
+            <div class="data-field">
+              <span class="field-label">{{ 'ADMIN.CLIENTS.PHONE' | translate }}</span>
+              <span class="field-value">{{ client.phone || '—' }}</span>
+            </div>
+          </div>
+        } @else {
+          <!-- Edit mode -->
+          <div class="edit-form">
+            <pelu-input-text
+              [label]="'ADMIN.NAME' | translate"
+              [placeholder]="'ADMIN.NAME' | translate"
+              [value]="editName()"
+              (valueChange)="editName.set($event)"
+            ></pelu-input-text>
+            <pelu-input-text
+              [label]="'ADMIN.CLIENTS.PHONE' | translate"
+              [placeholder]="'ADMIN.CLIENTS.PHONE_PLACEHOLDER' | translate"
+              [value]="editPhone()"
+              (valueChange)="editPhone.set($event)"
+              icon="pi pi-phone"
+              iconPosition="left"
+            ></pelu-input-text>
+            <div class="edit-actions">
+              <pelu-button
+                [label]="'COMMON.ACTIONS.SAVE' | translate"
+                severity="primary"
+                [loading]="isSaving()"
+                (clicked)="saveEdit()"
+              ></pelu-button>
+              <pelu-button
+                [label]="'COMMON.ACTIONS.CANCEL' | translate"
+                severity="secondary"
+                (clicked)="cancelEdit()"
+              ></pelu-button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Bookings section -->
+      <div class="section-card">
+        <h3>
+          {{ 'ADMIN.CLIENTS.RECENT_BOOKINGS' | translate }}
+          <span class="count-badge">{{ client.bookingCount }}</span>
+        </h3>
+
+        @if (selectedClientBookings().length === 0) {
+          <p class="no-data">{{ 'ADMIN.CLIENTS.NO_BOOKINGS' | translate }}</p>
+        } @else {
+          <div class="bookings-list">
+            @for (booking of selectedClientBookings(); track booking.id) {
+              <div class="booking-row" [class]="'status-' + booking.status">
+                <span class="booking-date">{{ formatDate(booking.data) }} · {{ booking.hora }}</span>
+                <span class="booking-status">{{ booking.status }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Actions section -->
+      <div class="section-card actions-section">
+        <pelu-button
+          [label]="client.role === 'client' ? ('ADMIN.CLIENTS.PROMOTE_TO_ADMIN' | translate) : ('ADMIN.CLIENTS.DEMOTE_TO_CLIENT' | translate)"
+          [severity]="client.role === 'client' ? 'warn' : 'secondary'"
+          icon="pi pi-shield"
+          [fluid]="true"
+          (clicked)="confirmToggleRole(client)"
+        ></pelu-button>
+
+        <pelu-button
+          [label]="'ADMIN.CLIENTS.DELETE' | translate"
+          severity="danger"
+          icon="pi pi-trash"
+          [fluid]="true"
+          (clicked)="confirmDeleteClient(client)"
+        ></pelu-button>
+      </div>
+    </div>
+  }
+
+</div>
+
+<pelu-confirmation-popup
+  [isOpen]="isConfirmOpen"
+  [data]="confirmData"
+  (confirmed)="onConfirm()"
+  (cancelled)="onCancel()"
+></pelu-confirmation-popup>
