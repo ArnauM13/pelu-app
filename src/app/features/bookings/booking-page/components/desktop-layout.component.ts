@@ -90,17 +90,6 @@ import { SystemParametersService } from '../../../../core/services/system-parame
                    ></pelu-monthly-calendar>
                 </pelu-card>
 
-                <!-- Booking Range Disclaimer -->
-                <pelu-card class="booking-range-disclaimer">
-                  <div class="disclaimer-content">
-                    <div class="disclaimer-text">
-                      <div class="disclaimer-title">
-                        <i class="pi pi-info-circle"></i>
-                        {{ 'BOOKING.DISCLAIMER.MESSAGE' | translate }} <span class="date-highlight">{{ bookingRangeText() }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </pelu-card>
               </div>
 
             <!-- Client Search Filter -->
@@ -161,6 +150,10 @@ import { SystemParametersService } from '../../../../core/services/system-parame
               (nextClicked)="goToNextWeek()"
               (viewChanged)="onViewChanged($event)"
             ></pelu-date-controls>
+            <p class="booking-range-note">
+              <i class="pi pi-info-circle"></i>
+              {{ 'BOOKING.DISCLAIMER.MESSAGE' | translate }} <strong>{{ bookingRangeText() }}</strong>
+            </p>
           </div>
 
           <!-- Calendar Section -->
@@ -242,7 +235,7 @@ import { SystemParametersService } from '../../../../core/services/system-parame
 
         .sidebar-toggle {
           position: fixed;
-          top: 95%;
+          top: 50%;
           left: 0;
           transform: translateY(-50%);
           z-index: 1000;
@@ -352,88 +345,6 @@ import { SystemParametersService } from '../../../../core/services/system-parame
             display: flex;
             flex-direction: column;
             gap: 1rem;
-          }
-        }
-
-        .booking-range-disclaimer {
-          ::ng-deep .pelu-card {
-            padding: 1rem;
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
-            transition: all 0.3s ease;
-
-            &:hover {
-              transform: translateY(-2px);
-              box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
-            }
-          }
-
-          .disclaimer-content {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-
-            .disclaimer-text {
-              flex: 1;
-              font-size: 0.85rem;
-              line-height: 1.5;
-
-              .disclaimer-title {
-                font-weight: 700;
-                color: #92400e;
-                font-size: 0.9rem;
-                letter-spacing: 0.5px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-
-                &::first-letter {
-                  text-transform: uppercase;
-                }
-
-                .date-highlight {
-                  background: rgba(217, 119, 6, 0.2);
-                  padding: 0.25rem 0.5rem;
-                  border-radius: 4px;
-                  font-weight: 800;
-                  color: #92400e;
-                  border: 1px solid rgba(217, 119, 6, 0.3);
-                }
-
-                i {
-                  color: #d97706;
-                  font-size: 0.9rem;
-                  background: rgba(217, 119, 6, 0.1);
-                  padding: 0.25rem;
-                  border-radius: 50%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  width: 1.5rem;
-                  height: 1.5rem;
-                }
-              }
-
-              .disclaimer-description {
-                color: #a16207;
-                margin-bottom: 0.75rem;
-                font-weight: 500;
-              }
-
-              .disclaimer-range {
-                color: #92400e;
-                font-size: 0.8rem;
-                font-weight: 600;
-                background: rgba(217, 119, 6, 0.1);
-                padding: 0.5rem 0.75rem;
-                border-radius: 6px;
-                border-left: 3px solid #d97706;
-                display: inline-block;
-              }
-            }
           }
         }
 
@@ -617,6 +528,25 @@ import { SystemParametersService } from '../../../../core/services/system-parame
         .right-column {
           order: 1;
         }
+      }
+    }
+
+    .booking-range-note {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.78rem;
+      color: var(--text-color-light);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+
+      i {
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        flex-shrink: 0;
+      }
+
+      strong {
+        color: var(--text-color);
       }
     }
 

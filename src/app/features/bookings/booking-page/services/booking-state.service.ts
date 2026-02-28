@@ -52,8 +52,8 @@ export class BookingStateService {
   private readonly servicesCache = signal<FirebaseService[]>([]);
   private readonly servicesCacheLoaded = signal<boolean>(false);
 
-  // Desktop layout state signals
-  private readonly sidebarCollapsedSignal = signal<boolean>(false);
+  // Desktop layout state signals — collapsed by default so calendar takes full width
+  private readonly sidebarCollapsedSignal = signal<boolean>(true);
 
   // Booking details signal
   private readonly bookingDetailsSignal = signal<BookingDetails>({
