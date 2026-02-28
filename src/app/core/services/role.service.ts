@@ -20,6 +20,7 @@ export interface UserRole {
   email: string;
   displayName?: string;
   photoURL?: string;
+  phone?: string;
   lang: string;
   role: 'client' | 'admin';
   theme: string;
