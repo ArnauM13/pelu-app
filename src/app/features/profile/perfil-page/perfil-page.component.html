@@ -1,5 +1,94 @@
-<pelu-detail-view
-  [config]="detailConfig()"
-  (back)="goBack()"
->
-</pelu-detail-view>
+<div class="perfil-page">
+
+  @if (userRole(); as user) {
+
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="profile-avatar">{{ initials() }}</div>
+      <div class="profile-header-info">
+        <h2>{{ user.displayName || user.email }}</h2>
+        <span class="role-badge" [class.admin]="user.role === 'admin'">
+          {{ user.role === 'admin' ? ('ADMIN.ADMIN_ROLE' | translate) : ('ADMIN.CLIENTS.CLIENT_ROLE' | translate) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Personal data card -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>{{ 'PROFILE.PERSONAL_INFO' | translate }}</h3>
+        @if (!isEditing()) {
+          <pelu-button
+            [label]="'COMMON.ACTIONS.EDIT' | translate"
+            severity="secondary"
+            size="small"
+            icon="pi pi-pencil"
+            (clicked)="startEdit()"
+          ></pelu-button>
+        }
+      </div>
+
+      @if (!isEditing()) {
+        <!-- Read mode -->
+        <div class="data-fields">
+          <div class="data-field">
+            <span class="field-label">{{ 'PROFILE.NAME' | translate }}</span>
+            <span class="field-value">{{ user.displayName || '—' }}</span>
+          </div>
+          <div class="data-field">
+            <span class="field-label">{{ 'PROFILE.EMAIL' | translate }}</span>
+            <span class="field-value">{{ user.email }}</span>
+          </div>
+          <div class="data-field">
+            <span class="field-label">{{ 'PROFILE.PHONE' | translate }}</span>
+            <span class="field-value">{{ user.phone || '—' }}</span>
+          </div>
+        </div>
+      } @else {
+        <!-- Edit mode -->
+        <div class="edit-form">
+          <pelu-input-text
+            [label]="'PROFILE.NAME' | translate"
+            [placeholder]="'PROFILE.NAME_PLACEHOLDER' | translate"
+            [value]="editName()"
+            (valueChange)="editName.set($event)"
+          ></pelu-input-text>
+          <pelu-input-text
+            [label]="'PROFILE.PHONE' | translate"
+            [placeholder]="'PROFILE.PHONE_PLACEHOLDER' | translate"
+            [value]="editPhone()"
+            (valueChange)="editPhone.set($event)"
+            icon="pi pi-phone"
+            iconPosition="left"
+          ></pelu-input-text>
+          <div class="edit-actions">
+            <pelu-button
+              [label]="'COMMON.ACTIONS.SAVE' | translate"
+              severity="primary"
+              [loading]="isSaving()"
+              (clicked)="saveEdit()"
+            ></pelu-button>
+            <pelu-button
+              [label]="'COMMON.ACTIONS.CANCEL' | translate"
+              severity="secondary"
+              (clicked)="cancelEdit()"
+            ></pelu-button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Actions card -->
+    <div class="section-card actions-section">
+      <pelu-button
+        [label]="'COMMON.ACTIONS.LOGOUT' | translate"
+        severity="danger"
+        icon="pi pi-sign-out"
+        [fluid]="true"
+        (clicked)="logout()"
+      ></pelu-button>
+    </div>
+
+  }
+
+</div>

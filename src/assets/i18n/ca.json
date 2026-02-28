@@ -596,7 +596,11 @@
     "HAIR_TYPE": "Tipus de cabell",
     "COLOR_PREFERENCES": "Preferències de color",
     "ALLERGIES": "Al·lèrgies",
-    "SPECIAL_REQUESTS": "Peticions especials"
+    "SPECIAL_REQUESTS": "Peticions especials",
+    "NAME_PLACEHOLDER": "El teu nom complet",
+    "PHONE_PLACEHOLDER": "+34 600 000 000",
+    "SAVE_SUCCESS": "Perfil desat correctament",
+    "SAVE_ERROR": "Error al desar el perfil"
   },
   "USER": {
     "TITLE": "Perfil d'Usuari",
