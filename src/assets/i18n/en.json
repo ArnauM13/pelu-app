@@ -657,6 +657,28 @@
       "DELETE_CONFIRM_MSG": "Do you want to delete <b>{{ name }}</b>? This action cannot be undone."
     }
   },
+  "WORKERS": {
+    "MANAGEMENT_TITLE": "Worker management",
+    "MANAGEMENT_DESCRIPTION": "Manage workers and their assignments",
+    "TITLE": "Workers",
+    "SUBTITLE": "Manage your team of professionals",
+    "ADD_WORKER": "Add worker",
+    "NO_WORKERS": "No workers registered",
+    "NO_CLIENTS": "No available clients found",
+    "PICK_CLIENT": "Select a client to promote",
+    "PROMOTE": "Promote",
+    "EDIT_DETAILS": "Worker details",
+    "COLOR": "Calendar color",
+    "BACK": "Back to list",
+    "LOADING": "Loading workers...",
+    "SAVE_SUCCESS": "Worker saved successfully",
+    "SAVE_ERROR": "Error saving worker",
+    "PROMOTED_SUCCESS": "User promoted to worker",
+    "DEMOTED_SUCCESS": "Worker demoted to client",
+    "DEMOTE_TO_CLIENT": "Remove as worker",
+    "DEMOTE_CONFIRM_TITLE": "Remove worker",
+    "DEMOTE_CONFIRM_MSG": "Do you want to remove <b>{{ name }}</b> as a worker? They will become a client again."
+  },
   "CHIP": {
     "TITLE": "Your next appointment",
     "VIEW_DETAILS": "View details"

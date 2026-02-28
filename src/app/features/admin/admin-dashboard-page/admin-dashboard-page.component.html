@@ -49,6 +49,16 @@
           ></pelu-button>
         </div>
         <div class="feature-card">
+          <h3>{{ 'WORKERS.MANAGEMENT_TITLE' | translate }}</h3>
+          <p>{{ 'WORKERS.MANAGEMENT_DESCRIPTION' | translate }}</p>
+          <pelu-button
+            [label]="'WORKERS.MANAGEMENT_TITLE' | translate"
+            severity="secondary"
+            icon="pi pi-users"
+            routerLink="/admin/workers"
+          ></pelu-button>
+        </div>
+        <div class="feature-card">
           <h3>{{ 'ADMIN.CLIENTS.MANAGEMENT_TITLE' | translate }}</h3>
           <p>{{ 'ADMIN.CLIENTS.MANAGEMENT_DESCRIPTION' | translate }}</p>
           <pelu-button

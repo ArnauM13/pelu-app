@@ -709,6 +709,28 @@
     }
 
   },
+  "WORKERS": {
+    "MANAGEMENT_TITLE": "Gestió de treballadors",
+    "MANAGEMENT_DESCRIPTION": "Gestiona els treballadors i les seves assignacions",
+    "TITLE": "Treballadors",
+    "SUBTITLE": "Gestiona l'equip de professionals",
+    "ADD_WORKER": "Afegir treballador",
+    "NO_WORKERS": "No hi ha treballadors registrats",
+    "NO_CLIENTS": "No s'han trobat clients disponibles",
+    "PICK_CLIENT": "Selecciona un client per promoure",
+    "PROMOTE": "Promoure",
+    "EDIT_DETAILS": "Detalls del treballador",
+    "COLOR": "Color al calendari",
+    "BACK": "Tornar al llistat",
+    "LOADING": "Carregant treballadors...",
+    "SAVE_SUCCESS": "Treballador desat correctament",
+    "SAVE_ERROR": "Error al desar el treballador",
+    "PROMOTED_SUCCESS": "Usuari promogut a treballador",
+    "DEMOTED_SUCCESS": "Treballador degradat a client",
+    "DEMOTE_TO_CLIENT": "Retirar com a treballador",
+    "DEMOTE_CONFIRM_TITLE": "Retirar treballador",
+    "DEMOTE_CONFIRM_MSG": "Vols retirar <b>{{ name }}</b> com a treballador? Tornarà a ser client."
+  },
   "CHIP": {
     "TITLE": "La teva propera cita",
     "VIEW_DETAILS": "Veure detalls"

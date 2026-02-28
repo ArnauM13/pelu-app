@@ -12,7 +12,7 @@ import { UserService } from '../../../core/services/user.service';
 export class RoleBasedContentComponent {
   private userService = inject(UserService);
 
-  @Input() roles: ('client' | 'admin')[] = [];
+  @Input() roles: ('client' | 'admin' | 'worker')[] = [];
   @Input() permissions: string[] = [];
   @Input() requireAllPermissions = false;
 

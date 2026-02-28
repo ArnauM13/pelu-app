@@ -27,6 +27,8 @@ export interface Booking {
   serviceId: string;
   status: 'draft' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: Date | string | FieldValue;
+  workerId?: string;   // UID of the assigned worker
+  workerName?: string; // Denormalized worker name for speed
 }
 
 export interface AppointmentDetailData {

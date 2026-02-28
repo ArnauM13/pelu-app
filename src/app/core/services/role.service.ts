@@ -22,8 +22,9 @@ export interface UserRole {
   photoURL?: string;
   phone?: string;
   lang: string;
-  role: 'client' | 'admin';
+  role: 'client' | 'admin' | 'worker';
   theme: string;
+  workerColor?: string; // Calendar color for workers (hex)
 }
 
 @Injectable({ providedIn: 'root' })
@@ -61,6 +62,7 @@ export class RoleService {
   readonly isLoadingRole = computed(() => this.isLoadingRoleSignal());
   readonly isClient = computed(() => this.userRoleSignal()?.role === 'client');
   readonly isAdmin = computed(() => this.userRoleSignal()?.role === 'admin');
+  readonly isWorker = computed(() => this.userRoleSignal()?.role === 'worker');
 
   constructor() {
     this.initializeRoleListener();

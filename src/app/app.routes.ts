@@ -13,6 +13,7 @@ import { AdminDashboardPageComponent } from './features/admin/admin-dashboard-pa
 import { AdminServicesPageComponent } from './features/admin/admin-services-page/admin-services-page.component';
 import { AdminSettingsPageComponent } from './features/admin/admin-settings-page/admin-settings-page.component';
 import { AdminClientsPageComponent } from './features/admin/admin-clients-page/admin-clients-page.component';
+import { AdminWorkersPageComponent } from './features/admin/admin-workers-page/admin-workers-page.component';
 import { PlaygroundPageComponent } from './features/playground/playground-page/playground-page.component';
 
 export const routes: Routes = [
@@ -101,6 +102,12 @@ export const routes: Routes = [
         component: AdminClientsPageComponent,
         canActivate: [adminGuard],
         data: { viewTransitionName: 'admin-clients' },
+      },
+      {
+        path: 'workers',
+        component: AdminWorkersPageComponent,
+        canActivate: [adminGuard],
+        data: { viewTransitionName: 'admin-workers' },
       },
     ],
   },
