@@ -639,6 +639,28 @@
     }
 
   },
+  "WORKERS": {
+    "MANAGEMENT_TITLE": "إدارة العمال",
+    "MANAGEMENT_DESCRIPTION": "إدارة العمال وتكليفاتهم",
+    "TITLE": "العمال",
+    "SUBTITLE": "إدارة فريق المهنيين",
+    "ADD_WORKER": "إضافة عامل",
+    "NO_WORKERS": "لا يوجد عمال مسجلون",
+    "NO_CLIENTS": "لم يتم العثور على عملاء متاحين",
+    "PICK_CLIENT": "اختر عميلاً للترقية",
+    "PROMOTE": "ترقية",
+    "EDIT_DETAILS": "تفاصيل العامل",
+    "COLOR": "لون التقويم",
+    "BACK": "العودة إلى القائمة",
+    "LOADING": "جاري تحميل العمال...",
+    "SAVE_SUCCESS": "تم حفظ العامل بنجاح",
+    "SAVE_ERROR": "خطأ في حفظ العامل",
+    "PROMOTED_SUCCESS": "تمت ترقية المستخدم إلى عامل",
+    "DEMOTED_SUCCESS": "تم تخفيض العامل إلى عميل",
+    "DEMOTE_TO_CLIENT": "إزالة كعامل",
+    "DEMOTE_CONFIRM_TITLE": "إزالة العامل",
+    "DEMOTE_CONFIRM_MSG": "هل تريد إزالة <b>{{ name }}</b> كعامل؟ سيعود إلى كونه عميلاً."
+  },
   "CHIP": {
     "TITLE": "موعدك القادم",
     "VIEW_DETAILS": "عرض التفاصيل"

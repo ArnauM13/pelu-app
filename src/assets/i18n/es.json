@@ -657,6 +657,28 @@
     }
 
   },
+  "WORKERS": {
+    "MANAGEMENT_TITLE": "Gestión de trabajadores",
+    "MANAGEMENT_DESCRIPTION": "Gestiona los trabajadores y sus asignaciones",
+    "TITLE": "Trabajadores",
+    "SUBTITLE": "Gestiona el equipo de profesionales",
+    "ADD_WORKER": "Añadir trabajador",
+    "NO_WORKERS": "No hay trabajadores registrados",
+    "NO_CLIENTS": "No se han encontrado clientes disponibles",
+    "PICK_CLIENT": "Selecciona un cliente para promover",
+    "PROMOTE": "Promover",
+    "EDIT_DETAILS": "Detalles del trabajador",
+    "COLOR": "Color en el calendario",
+    "BACK": "Volver al listado",
+    "LOADING": "Cargando trabajadores...",
+    "SAVE_SUCCESS": "Trabajador guardado correctamente",
+    "SAVE_ERROR": "Error al guardar el trabajador",
+    "PROMOTED_SUCCESS": "Usuario promovido a trabajador",
+    "DEMOTED_SUCCESS": "Trabajador degradado a cliente",
+    "DEMOTE_TO_CLIENT": "Retirar como trabajador",
+    "DEMOTE_CONFIRM_TITLE": "Retirar trabajador",
+    "DEMOTE_CONFIRM_MSG": "¿Quieres retirar a <b>{{ name }}</b> como trabajador? Volverá a ser cliente."
+  },
   "CHIP": {
     "TITLE": "Tu próxima cita",
     "VIEW_DETAILS": "Ver detalles"

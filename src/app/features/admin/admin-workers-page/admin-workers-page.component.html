@@ -1,0 +1,164 @@
+<div class="workers-page">
+
+  <!-- ── LIST VIEW ── -->
+  @if (view() === 'list') {
+    <pelu-title
+      title="WORKERS.TITLE"
+      subtitle="WORKERS.SUBTITLE"
+    ></pelu-title>
+
+    <div class="top-bar">
+      <pelu-button
+        [label]="'WORKERS.ADD_WORKER' | translate"
+        severity="primary"
+        icon="pi pi-plus"
+        (clicked)="showAddView()"
+      ></pelu-button>
+    </div>
+
+    @if (workers().length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">👷</span>
+        <p>{{ 'WORKERS.NO_WORKERS' | translate }}</p>
+      </div>
+    } @else {
+      <div class="workers-list">
+        @for (w of workers(); track w.uid) {
+          <div class="worker-row" (click)="selectWorker(w)">
+            <div class="worker-avatar" [style.background]="w.workerColor || '#6366f1'">
+              {{ getInitials(w) }}
+            </div>
+            <div class="worker-info">
+              <span class="worker-name">{{ w.displayName || w.email }}</span>
+              @if (w.displayName) {
+                <span class="worker-email">{{ w.email }}</span>
+              }
+            </div>
+            <div class="color-dot" [style.background]="w.workerColor || '#6366f1'"></div>
+            <span class="chevron">›</span>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ── ADD WORKER VIEW ── -->
+  @if (view() === 'add') {
+    <button class="back-btn" (click)="backToList()">
+      ‹ {{ 'WORKERS.BACK' | translate }}
+    </button>
+
+    <h2 class="section-title">{{ 'WORKERS.PICK_CLIENT' | translate }}</h2>
+
+    <div class="search-bar">
+      <pelu-input-text
+        [label]="''"
+        [placeholder]="'ADMIN.CLIENTS.SEARCH_PLACEHOLDER' | translate"
+        [value]="searchQuery()"
+        (valueChange)="searchQuery.set($event)"
+        icon="pi pi-search"
+        iconPosition="left"
+      ></pelu-input-text>
+    </div>
+
+    @if (filteredClients().length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">👤</span>
+        <p>{{ 'WORKERS.NO_CLIENTS' | translate }}</p>
+      </div>
+    } @else {
+      <div class="workers-list">
+        @for (c of filteredClients(); track c.uid) {
+          <div class="worker-row" (click)="promoteToWorker(c)">
+            <div class="worker-avatar">{{ getInitials(c) }}</div>
+            <div class="worker-info">
+              <span class="worker-name">{{ c.displayName || c.email }}</span>
+              @if (c.displayName) {
+                <span class="worker-email">{{ c.email }}</span>
+              }
+            </div>
+            <span class="promote-hint">{{ 'WORKERS.PROMOTE' | translate }}</span>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ── EDIT WORKER VIEW ── -->
+  @if (view() === 'edit'; as w) {
+    <button class="back-btn" (click)="backToList()">
+      ‹ {{ 'WORKERS.BACK' | translate }}
+    </button>
+
+    @if (selectedWorker(); as worker) {
+      <!-- Header -->
+      <div class="worker-header">
+        <div class="worker-avatar large" [style.background]="editColor()">
+          {{ getInitials(worker) }}
+        </div>
+        <h2>{{ worker.displayName || worker.email }}</h2>
+      </div>
+
+      <!-- Edit card -->
+      <div class="section-card">
+        <h3>{{ 'WORKERS.EDIT_DETAILS' | translate }}</h3>
+        <div class="edit-form">
+          <pelu-input-text
+            [label]="'ADMIN.NAME' | translate"
+            [placeholder]="'PROFILE.NAME_PLACEHOLDER' | translate"
+            [value]="editName()"
+            (valueChange)="editName.set($event)"
+          ></pelu-input-text>
+
+          <!-- Color picker -->
+          <div class="color-picker-section">
+            <label class="color-label">{{ 'WORKERS.COLOR' | translate }}</label>
+            <div class="color-swatches">
+              @for (color of colors; track color) {
+                <button
+                  class="swatch"
+                  [style.background]="color"
+                  [class.selected]="editColor() === color"
+                  (click)="editColor.set(color)"
+                ></button>
+              }
+            </div>
+          </div>
+
+          <div class="edit-actions">
+            <pelu-button
+              [label]="'COMMON.ACTIONS.SAVE' | translate"
+              severity="primary"
+              [loading]="isSaving()"
+              (clicked)="saveWorker()"
+            ></pelu-button>
+            <pelu-button
+              [label]="'COMMON.ACTIONS.CANCEL' | translate"
+              severity="secondary"
+              (clicked)="backToList()"
+            ></pelu-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="section-card">
+        <pelu-button
+          [label]="'WORKERS.DEMOTE_TO_CLIENT' | translate"
+          severity="danger"
+          icon="pi pi-user-minus"
+          [fluid]="true"
+          (clicked)="confirmDemote(worker)"
+        ></pelu-button>
+      </div>
+    }
+  }
+
+</div>
+
+<pelu-confirmation-popup
+  [isOpen]="isConfirmOpen"
+  [data]="confirmData"
+  (confirmed)="onConfirm()"
+  (cancelled)="onCancel()"
+></pelu-confirmation-popup>

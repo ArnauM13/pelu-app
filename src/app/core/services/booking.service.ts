@@ -74,11 +74,19 @@ export class BookingService {
   private realtimeUnsubscribe: Unsubscribe | null = null;
 
   // Computed properties
-  readonly bookings = computed(() => this.bookingsSignal());
+  readonly bookings = computed(() => {
+    const all = this.bookingsSignal();
+    if (this.roleService.isWorker()) {
+      const uid = this.authService.user()?.uid;
+      return uid ? all.filter(b => b.workerId === uid) : [];
+    }
+    return all;
+  });
   readonly isLoading = computed(() => this.isLoadingSignal());
   readonly error = computed(() => this.errorSignal());
   readonly isInitialized = computed(() => this.isInitializedSignal());
   readonly isAdmin = computed(() => this.roleService.isAdmin());
+  readonly isWorker = computed(() => this.roleService.isWorker());
   readonly hasCachedData = computed(
     () => this.bookingsSignal().length > 0 && this.isInitializedSignal()
   );
