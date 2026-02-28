@@ -24,6 +24,36 @@
             (quickFilterChange)="setQuickFilter($event)"
           />
         </div>
+      } @else {
+        <!-- Simple filter bar for client users -->
+        <div class="content-section">
+          <div class="user-filter-bar">
+            <div class="filter-pills">
+              <button
+                class="filter-pill"
+                [class.active]="!userHasActiveFilters()"
+                (click)="setQuickFilter('all')"
+              >{{ 'APPOINTMENTS.FILTER_ALL' | translate }}</button>
+              <button
+                class="filter-pill"
+                [class.active]="filterState().quickFilters.has('upcoming')"
+                (click)="setQuickFilter('upcoming')"
+              >⏰ {{ 'APPOINTMENTS.FILTER_UPCOMING' | translate }}</button>
+              <button
+                class="filter-pill"
+                [class.active]="filterState().quickFilters.has('past')"
+                (click)="setQuickFilter('past')"
+              >📜 {{ 'APPOINTMENTS.FILTER_PAST' | translate }}</button>
+            </div>
+            <button class="sort-btn" (click)="toggleUserSort()">
+              @if (userSortOrder() === 'asc') {
+                ↑ {{ 'APPOINTMENTS.SORT_OLDEST_FIRST' | translate }}
+              } @else {
+                ↓ {{ 'APPOINTMENTS.SORT_NEWEST_FIRST' | translate }}
+              }
+            </button>
+          </div>
+        </div>
       }
 
 

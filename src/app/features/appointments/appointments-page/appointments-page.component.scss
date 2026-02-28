@@ -1189,6 +1189,85 @@
   background: linear-gradient(135deg, #b91c1c 0%, var(--error-color) 100%);
 }
 
+// User filter bar (non-admin)
+.user-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  flex-wrap: wrap;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 0.375rem 0.875rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--surface-color);
+  color: var(--text-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-color-lighter);
+    color: var(--primary-color);
+  }
+
+  &.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+}
+
+.sort-btn {
+  padding: 0.375rem 0.875rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--surface-color);
+  color: var(--text-color-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+}
+
+@media (max-width: 480px) {
+  .user-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-pills {
+    justify-content: center;
+  }
+
+  .sort-btn {
+    text-align: center;
+  }
+}
+
 // Selection Controls Styles
 .selection-controls {
   display: flex;
