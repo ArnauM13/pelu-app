@@ -657,6 +657,10 @@
       "DELETE_CONFIRM_MSG": "Do you want to delete <b>{{ name }}</b>? This action cannot be undone."
     }
   },
+  "CHIP": {
+    "TITLE": "Your next appointment",
+    "VIEW_DETAILS": "View details"
+  },
   "CALENDAR": {
     "TODAY": "Today",
     "THIS_WEEK": "This week",

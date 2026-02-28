@@ -1,0 +1,125 @@
+/* ===== CHIP ===== */
+.next-appt-chip {
+  position: fixed;
+  bottom: 5rem; /* above the bottom nav if present */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--primary-color);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+  user-select: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  }
+
+  &:active {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.chip-icon {
+  font-size: 1rem;
+}
+
+.chip-text {
+  font-size: 0.85rem;
+}
+
+.chip-service {
+  font-size: 0.8rem;
+  opacity: 0.85;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== POPUP ===== */
+.chip-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 898;
+}
+
+.chip-popup {
+  position: fixed;
+  bottom: 8.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 899;
+
+  background: white;
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem 1.5rem;
+  min-width: 240px;
+  max-width: 320px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+
+  animation: popup-in 0.15s ease-out;
+}
+
+@keyframes popup-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.popup-title {
+  margin: 0 0 0.875rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color-light);
+  padding-bottom: 0.625rem;
+}
+
+.popup-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.popup-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.popup-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.popup-action-btn {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--primary-color);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--primary-color-dark);
+  }
+}

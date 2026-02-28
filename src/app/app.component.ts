@@ -17,6 +17,7 @@ import { PopupDialogComponent } from './shared/components/popup-dialog/popup-dia
 import { BookingService } from './core/services/booking.service';
 import { Router } from '@angular/router';
 import { Booking } from './core/interfaces/booking.interface';
+import { NextAppointmentChipComponent } from './shared/components/next-appointment-chip/next-appointment-chip.component';
 
 @Component({
   selector: 'pelu-app-root',
@@ -32,6 +33,7 @@ import { Booking } from './core/interfaces/booking.interface';
     ServiceSelectionPopupComponent,
     BookingPopupComponent,
     PopupDialogComponent,
+    NextAppointmentChipComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

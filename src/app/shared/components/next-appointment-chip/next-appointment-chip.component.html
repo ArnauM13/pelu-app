@@ -1,0 +1,43 @@
+@if (isVisible()) {
+
+  <!-- Backdrop (closes popup on outside click) -->
+  @if (isPopupOpen()) {
+    <div class="chip-backdrop" (click)="closePopup()"></div>
+  }
+
+  <!-- Popup (above the chip) -->
+  @if (isPopupOpen(); as booking) {
+    <div class="chip-popup">
+      <p class="popup-title">{{ 'CHIP.TITLE' | translate }}</p>
+      <div class="popup-rows">
+        <div class="popup-row">
+          <span class="popup-icon">📅</span>
+          <span>{{ formatFullDate(nextBooking()!.data) }}</span>
+        </div>
+        <div class="popup-row">
+          <span class="popup-icon">🕙</span>
+          <span>{{ nextBooking()!.hora }}h</span>
+        </div>
+        @if (serviceName()) {
+          <div class="popup-row">
+            <span class="popup-icon">✂️</span>
+            <span>{{ serviceName() }}</span>
+          </div>
+        }
+      </div>
+      <button class="popup-action-btn" (click)="viewDetails()">
+        {{ 'CHIP.VIEW_DETAILS' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Chip -->
+  <div class="next-appt-chip" (click)="togglePopup()">
+    <span class="chip-icon">📅</span>
+    <span class="chip-text">{{ chipLabel() }}</span>
+    @if (serviceName()) {
+      <span class="chip-service">· {{ serviceName() }}</span>
+    }
+  </div>
+
+}
