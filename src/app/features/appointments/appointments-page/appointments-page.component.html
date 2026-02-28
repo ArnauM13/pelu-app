@@ -7,14 +7,6 @@
         ></pelu-title>
 
     <div class="appointments-content">
-      <!-- Next Appointment -->
-      <div class="content-section">
-        <pelu-next-appointment
-          [bookings]="isAdmin() ? appointments() : userAppointments()"
-        >
-        </pelu-next-appointment>
-      </div>
-
       <!-- Filters (admins only) -->
       @if (isAdmin()) {
         <div class="content-section">

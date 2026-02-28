@@ -7,7 +7,6 @@ import { BookingService } from '../../../core/services/booking.service';
 import { SystemParametersService } from '../../../core/services/system-parameters.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AppointmentsListComponent } from '../../appointments/components/appointments-list/appointments-list.component';
-import { NextAppointmentComponent } from '../../../shared/components/next-appointment/next-appointment.component';
 import { FiltersCollapsibleComponent } from '../../../shared/components/filters-collapsible/filters-collapsible.component';
 import { ConfirmationPopupComponent } from '../../../shared/components/confirmation-popup/confirmation-popup.component';
 import { CardModule } from 'primeng/card';
@@ -58,7 +57,6 @@ interface AppointmentStats {
     DatePickerModule,
     TranslateModule,
     AppointmentsListComponent,
-    NextAppointmentComponent,
     FiltersCollapsibleComponent,
     ConfirmationPopupComponent,
     PeluTitleComponent,
