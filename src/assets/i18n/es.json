@@ -429,7 +429,12 @@
     "DELETE_SUCCESS_WITH_NAME": "La cita de {{name}} se ha eliminado correctamente",
     "LOAD_ERROR": "Error al cargar las citas",
     "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "¿Estás seguro de que quieres eliminar esta cita? Esta acción no se puede deshacer.",
-    "BULK_DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar las citas seleccionadas? Esta acción no se puede deshacer."
+    "BULK_DELETE_CONFIRMATION_MESSAGE": "¿Estás seguro de que quieres eliminar las citas seleccionadas? Esta acción no se puede deshacer.",
+    "FILTER_ALL": "Todas",
+    "FILTER_UPCOMING": "Próximas",
+    "FILTER_PAST": "Pasadas",
+    "SORT_OLDEST_FIRST": "Más antiguas primero",
+    "SORT_NEWEST_FIRST": "Más recientes primero"
   },
   "BOOKING": {
     "TITLE": "Reservar",

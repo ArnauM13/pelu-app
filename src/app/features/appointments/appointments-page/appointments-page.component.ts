@@ -188,11 +188,55 @@ export class AppointmentsPageComponent {
     this.appointments().filter(b => this.appointmentService.isOwnBooking(b))
   );
 
+  // Sort order for non-admin users
+  readonly userSortOrder = signal<'asc' | 'desc'>('asc');
+
+  // Filtered + sorted user appointments (quick filter + status + sort)
+  readonly filteredUserAppointments = computed(() => {
+    let appts = this.userAppointments();
+    const quickFilters = this.filterState().quickFilters;
+    const now = new Date();
+
+    if (quickFilters.size > 0) {
+      const todayStr = now.toISOString().split('T')[0];
+      if (quickFilters.has('upcoming')) {
+        appts = appts.filter(a => {
+          const dt = new Date((a.data || '') + 'T' + (a.hora || '00:00'));
+          return dt > now;
+        });
+      } else if (quickFilters.has('past')) {
+        appts = appts.filter(a => {
+          const dt = new Date((a.data || '') + 'T' + (a.hora || '00:00'));
+          return dt < now;
+        });
+      } else if (quickFilters.has('today')) {
+        appts = appts.filter(a => a.data === todayStr);
+      }
+    }
+
+    const status = this.filterState().status;
+    if (status) {
+      appts = appts.filter(a => a.status === status);
+    }
+
+    const sorted = this.sortAppointmentsByDateTime([...appts]);
+    return this.userSortOrder() === 'desc' ? sorted.reverse() : sorted;
+  });
+
+  readonly userHasActiveFilters = computed(() => {
+    const state = this.filterState();
+    return state.quickFilters.size > 0 || state.status !== null;
+  });
+
+  readonly toggleUserSort = () => {
+    this.userSortOrder.update(o => (o === 'asc' ? 'desc' : 'asc'));
+  };
+
   // List view data depending on role
   readonly listAppointments = computed(() => {
     return this.isAdmin()
       ? this.filteredAppointments()
-      : this.sortAppointmentsByDateTime(this.userAppointments());
+      : this.filteredUserAppointments();
   });
 
   // Calendar events

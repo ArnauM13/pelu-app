@@ -430,7 +430,12 @@
     "DELETE_SUCCESS_WITH_NAME": "Appointment for {{name}} has been deleted successfully",
     "LOAD_ERROR": "Error loading appointments",
     "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "Are you sure you want to delete this appointment? This action cannot be undone.",
-    "BULK_DELETE_CONFIRMATION_MESSAGE": "Are you sure you want to delete the selected appointments? This action cannot be undone."
+    "BULK_DELETE_CONFIRMATION_MESSAGE": "Are you sure you want to delete the selected appointments? This action cannot be undone.",
+    "FILTER_ALL": "All",
+    "FILTER_UPCOMING": "Upcoming",
+    "FILTER_PAST": "Past",
+    "SORT_OLDEST_FIRST": "Oldest first",
+    "SORT_NEWEST_FIRST": "Newest first"
   },
   "BOOKING": {
     "TITLE": "Book",

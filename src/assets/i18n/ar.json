@@ -421,7 +421,12 @@
     "DELETE_SUCCESS_WITH_NAME": "تم حذف موعد {{name}} بنجاح",
     "LOAD_ERROR": "خطأ في تحميل المواعيد",
     "DELETE_CONFIRMATION_MESSAGE_SIMPLE": "هل أنت متأكد من أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.",
-    "BULK_DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من أنك تريد حذف المواعيد المختارة؟ لا يمكن التراجع عن هذا الإجراء."
+    "BULK_DELETE_CONFIRMATION_MESSAGE": "هل أنت متأكد من أنك تريد حذف المواعيد المختارة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "FILTER_ALL": "الكل",
+    "FILTER_UPCOMING": "القادمة",
+    "FILTER_PAST": "الماضية",
+    "SORT_OLDEST_FIRST": "الأقدم أولاً",
+    "SORT_NEWEST_FIRST": "الأحدث أولاً"
   },
   "BOOKING": {
     "TITLE": "احجز",
